@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="GB2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+ 	<bean id="bizLogicBean" class="com.ql.util.express.test.demo.biz.BizLogicBean"/> 	
+ 	<bean id="qlExpressUtil" class="com.ql.util.express.test.demo.QlExpressUtil"/> 	
+ </beans>
