@@ -36,7 +36,7 @@ public class TestMethodParams {
         ExpressRunner runner = new ExpressRunner();
         IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();
         runner.addFunctionOfServiceMethod("getTemplate", this, "getTemplate", new Class[]{Object[].class}, null);
-
+        runner.addFunctionOfClassMethod("getTemplateStatic", TestMethodParams.class.getName(), "getTemplateStatic", new Class[]{Object.class,String[].class}, null);
         //(1)默认的不定参数可以使用数组来代替
         Object r = runner.execute("getTemplate([11,'22',33L,true])", expressContext, null,false, false);
         System.out.println(r);
@@ -44,9 +44,19 @@ public class TestMethodParams {
         DynamicParamsUtil.supportDynamicParams = true;
         r = runner.execute("getTemplate(11,'22',33L,true)", expressContext, null,false, false);
         System.out.println(r);
+        r = runner.execute("getTemplateStatic('22','33','44')", expressContext, null,false, false);
+        System.out.println(r);
     }
     //等价于getTemplate(Object[] params)
     public Object getTemplate(Object... params) throws Exception{
+        String result = "";
+        for(Object obj:params){
+            result = result+obj+",";
+        }
+        return result;
+    }
+    
+    public static Object getTemplateStatic(Object a,String... params) throws Exception{
         String result = "";
         for(Object obj:params){
             result = result+obj+",";

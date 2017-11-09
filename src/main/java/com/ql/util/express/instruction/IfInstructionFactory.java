@@ -37,10 +37,10 @@ public class IfInstructionFactory extends  InstructionFactory {
    		boolean r1 = aCompile.createInstructionSetPrivate(result,forStack,children[0],false);//condition	
 		finishPoint[0] = result.getCurrentPoint();
 		boolean r2 = aCompile.createInstructionSetPrivate(result,forStack,children[1],false);//true		
-		result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(false,result.getCurrentPoint() - finishPoint[0] + 2,true));
+		result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(false,result.getCurrentPoint() - finishPoint[0] + 2,true).setLine(node.getLine()));
 		finishPoint[1] = result.getCurrentPoint();
 		boolean r3 = aCompile.createInstructionSetPrivate(result,forStack,children[2],false);//false
-		result.insertInstruction(finishPoint[1]+1,new InstructionGoTo(result.getCurrentPoint() - finishPoint[1] + 1));  		
+		result.insertInstruction(finishPoint[1]+1,new InstructionGoTo(result.getCurrentPoint() - finishPoint[1] + 1).setLine(node.getLine()));  		
         return r1 || r2 || r3;
 	}
 }

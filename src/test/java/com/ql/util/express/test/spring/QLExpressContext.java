@@ -1,10 +1,10 @@
-package com.ql.util.express.test.demo;
+package com.ql.util.express.test.spring;
+
+import com.ql.util.express.IExpressContext;
+import org.springframework.context.ApplicationContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.context.ApplicationContext;
-
-import com.ql.util.express.IExpressContext;
 
 @SuppressWarnings("serial")
 public class QLExpressContext extends HashMap<String, Object> implements
@@ -17,7 +17,7 @@ public class QLExpressContext extends HashMap<String, Object> implements
 	}
 
 	public QLExpressContext(Map<String, Object> aProperties,
-			ApplicationContext aContext) {
+                            ApplicationContext aContext) {
 		super(aProperties);
 		this.context = aContext;
 	}
@@ -41,9 +41,6 @@ public class QLExpressContext extends HashMap<String, Object> implements
 	}
 
 	public Object put(String name, Object object) {
-		if (name.equalsIgnoreCase("myDbData")) {
-			throw new RuntimeException("没有实现");
-		}
 		return super.put(name, object);
 	}
 

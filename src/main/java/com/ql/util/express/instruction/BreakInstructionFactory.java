@@ -14,7 +14,7 @@ public class BreakInstructionFactory extends  InstructionFactory {
 		InstructionGoTo breakInstruction = new InstructionGoTo(result.getCurrentPoint()+1);		
 		breakInstruction.name = "break";
 		forStack.peek().breakList.add(breakInstruction);
-		result.addInstruction(breakInstruction);
+		result.addInstruction(breakInstruction.setLine(node.getLine()));
 		return false;
 	}
 }

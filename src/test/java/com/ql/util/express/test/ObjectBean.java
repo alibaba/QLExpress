@@ -9,6 +9,9 @@ public class ObjectBean{
 	public int getAmount() {
 		return amount;
 	}
+    public int getAmount(int a) {
+        return amount;
+    }
 	public void setAmount(int amount) {
 		this.amount = amount;
 	}

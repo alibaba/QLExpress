@@ -3,7 +3,7 @@ package com.ql.util.express.parse;
 
 public class KeyWordDefine4Java {
 	public String[] splitWord={
-			 "~","&","|","<<", ">>",//位操作 
+			 "^","~","&","|","<<", ">>",// 位操作
 			 "+", "-","*", "/", "%","++", "--",//四则运算：
 			 ".",",",":",";","(", ")", "{", "}", "[", "]","?",//分隔符号
 			 "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean运算符号
@@ -20,11 +20,12 @@ public class KeyWordDefine4Java {
 	public String[] nodeTypeDefines = new String[] {
 				"ID:TYPE=WORDDEF",
 				"EOF:TYPE=WORDDEF",
-				"FUNCTION_NAME:TYPE=WORDDEF",				
+				"FUNCTION_NAME:TYPE=WORDDEF",
 				"FUNCTION_DEFINE:TYPE=WORDDEF",
 				"LEFT_BRACKET:TYPE=WORDDEF,DEFINE=(",
 				"RIGHT_BRACKET:TYPE=WORDDEF,DEFINE=)",
 
+                "XOR:TYPE=WORDDEF,DEFINE=^",
 				"MAYBE:TYPE=WORDDEF,DEFINE=|",
 				"OR:TYPE=WORDDEF,DEFINE=||",
 				"LEFT_COMMENT:TYPE=WORDDEF,DEFINE=/**",
@@ -48,15 +49,15 @@ public class KeyWordDefine4Java {
 				"CHILD_EXPRESS:TYPE=EXPRESS,DEFINE=LEFT_BRACKET->CHILD_EXPRESS^$(RIGHT_BRACKET~|(EXPRESS$(,~$EXPRESS)*$RIGHT_BRACKET~))",
 				"[]:TYPE=EXPRESS,DEFINE=[~$EXPRESS*$]~#[]",
 				
-				"OP_LEVEL1:TYPE=OPERATOR,DEFINE=~|!",                         
-				"OP_LEVEL2:TYPE=OPERATOR,DEFINE=++|--",                       
-				"OP_LEVEL3:TYPE=OPERATOR,DEFINE=&|MAYBE|<<|>>",                 
-				"OP_LEVEL4:TYPE=OPERATOR,DEFINE=*|/|mod|%",                   
-				"OP_LEVEL5:TYPE=OPERATOR,DEFINE=+|-",                         
-				"OP_LEVEL6:TYPE=OPERATOR,DEFINE=in|like",                     
+				"OP_LEVEL1:TYPE=OPERATOR,DEFINE=~|!",
+				"OP_LEVEL2:TYPE=OPERATOR,DEFINE=++|--",
+				"OP_LEVEL3:TYPE=OPERATOR,DEFINE=&|MAYBE|XOR|<<|>>",
+				"OP_LEVEL4:TYPE=OPERATOR,DEFINE=*|/|mod|%",
+				"OP_LEVEL5:TYPE=OPERATOR,DEFINE=+|-",
+				"OP_LEVEL6:TYPE=OPERATOR,DEFINE=in|like",
 				"OP_LEVEL7:TYPE=OPERATOR,DEFINE=>|>=|<|<=|==|!=",
 				"OP_LEVEL8:TYPE=OPERATOR,DEFINE=&&",
-				"OP_LEVEL9:TYPE=OPERATOR,DEFINE=OR|nor",	
+				"OP_LEVEL9:TYPE=OPERATOR,DEFINE=OR|nor",
 				
 				"OP_LIST:TYPE=GROUP,DEFINE=OP_LEVEL1|OP_LEVEL2|OP_LEVEL3|OP_LEVEL4|OP_LEVEL5|OP_LEVEL6|OP_LEVEL7|OP_LEVEL8|OP_LEVEL9|=|LEFT_BRACKET|RIGHT_BRACKET|[|]|{|}",
 				
@@ -127,14 +128,14 @@ public class KeyWordDefine4Java {
 				"STATEMENT:TYPE=STATEMENT,DEFINE=COMMENT|STAT_IFELSE|STAT_IF|STAT_IFELSE_JAVA|STAT_IF_JAVA|STAT_FOR|STAT_MACRO|STAT_FUNCTION|STAT_CLASS|STAT_SEMICOLON",
 				
 				"STAT_BLOCK:TYPE=BLOCK,DEFINE={->STAT_BLOCK^$STAT_LIST$}~",
-				"STAT_LIST:TYPE=BLOCK,DEFINE=(STAT_BLOCK|STATEMENT)*",				
+				"STAT_LIST:TYPE=BLOCK,DEFINE=(STAT_BLOCK|STATEMENT)*",
 				"PROGRAM:TYPE=BLOCK,DEFINE=STAT_LIST#STAT_BLOCK",
 		};
 	public String[][] instructionFacotryMapping = {
-			{"~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL","com.ql.util.express.instruction.OperatorInstructionFactory"},	
+			{"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL","com.ql.util.express.instruction.OperatorInstructionFactory"},
 			{"in","com.ql.util.express.instruction.InInstructionFactory"},
 			{"exportDef","com.ql.util.express.instruction.OperatorInstructionFactory"},
-			{"ID","com.ql.util.express.instruction.LoadAttrInstructionFactory"},	
+			{"ID","com.ql.util.express.instruction.LoadAttrInstructionFactory"},
 			{"CONST,CONST_CLASS","com.ql.util.express.instruction.ConstDataInstructionFactory"},
 			{"[],STAT_SEMICOLON,STAT_BLOCK,FUNCTION_DEFINE,CHILD_EXPRESS","com.ql.util.express.instruction.BlockInstructionFactory"},
 			{"def","com.ql.util.express.instruction.DefineInstructionFactory"},

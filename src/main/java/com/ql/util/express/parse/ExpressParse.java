@@ -234,7 +234,7 @@ public class ExpressParse {
 					point = point + 1;
 				}
 		  }	  
-		  result.add(new ExpressNode(tempType,tempWord,orgiValue,objectValue,treeNodeType,tmpWordObject.line,tmpWordObject.col));
+		  result.add(new ExpressNode(tempType,tempWord,orgiValue,objectValue,treeNodeType,tmpWordObject.line,tmpWordObject.col,tmpWordObject.index));
 		  treeNodeType = null;
 		  objectValue = null;
 		  orgiValue = null;
@@ -303,6 +303,11 @@ public class ExpressParse {
 		}
 	}
 	public ExpressNode parse(ExpressPackage rootExpressPackage,String express,boolean isTrace,Map<String,String> selfDefineClass) throws Exception{
+		Word[] words = splitWords(rootExpressPackage,express,isTrace,selfDefineClass);
+		return parse(rootExpressPackage,words,express,isTrace,selfDefineClass);
+	}
+
+	public Word[]  splitWords(ExpressPackage rootExpressPackage,String express,boolean isTrace,Map<String,String> selfDefineClass) throws Exception{
 		Word[] words = WordSplit.parse(this.nodeTypeManager.splitWord,express);
 		if(isTrace == true && log.isDebugEnabled()){
 			log.debug("执行的表达式:" + express);	
@@ -318,6 +323,13 @@ public class ExpressParse {
 			selfDefineClass = new HashMap<String,String>();
 		}
 		fetchSelfDefineClass(words,selfDefineClass);
+		for(int i=0;i<words.length;i++){
+		    words[i].index=i;
+        }
+		return words;
+	}
+	public ExpressNode parse(ExpressPackage rootExpressPackage,Word[] words ,String express,boolean isTrace,Map<String,String> selfDefineClass) throws Exception{
+
 		
     	List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage,words,selfDefineClass,true);
     	if(isTrace == true && log.isDebugEnabled()){

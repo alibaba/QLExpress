@@ -29,7 +29,7 @@ public class FieldCallInstructionFactory  extends InstructionFactory {
 		
 		
 		OperatorBase op = new OperatorField(fieldName);
-		result.addInstruction(new InstructionOperator(op,1));
+		result.addInstruction(new InstructionOperator(op,1).setLine(node.getLine()));
 		return returnVal;
 	}
 

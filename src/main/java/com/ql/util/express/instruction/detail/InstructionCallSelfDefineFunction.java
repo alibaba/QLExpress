@@ -59,7 +59,7 @@ public class InstructionCallSelfDefineFunction extends Instruction{
 
 			Object function = environment.getContext().getSymbol(functionName);
 			if (function == null || function instanceof InstructionSet == false) {
-				throw new Exception("在Runner的操作符定义和自定义函数中都没有找到\""
+				throw new Exception(getExceptionPrefix()+"在Runner的操作符定义和自定义函数中都没有找到\""
 						+ this.functionName + "\"的定义");
 			}
 			InstructionSet functionSet = (InstructionSet)function;

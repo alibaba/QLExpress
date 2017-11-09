@@ -19,7 +19,7 @@ public class NewVClassInstructionFactory  extends InstructionFactory{
 			boolean tmpHas = aCompile.createInstructionSetPrivate(result,forStack, children[i], false);
 			returnVal = returnVal || tmpHas;
 		}
-		result.addInstruction(new InstructionNewVirClass(virClassName, children.length -1));
+		result.addInstruction(new InstructionNewVirClass(virClassName, children.length -1).setLine(node.getLine()));
 		return returnVal;
 	}
 }

@@ -2,6 +2,7 @@ package com.ql.util.express.test;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
+import com.ql.util.express.IExpressContext;
 import org.junit.Test;
 
 /**
@@ -20,6 +21,9 @@ public class TestSet {
         r = runner.execute(express, context, null, false, false);
         System.out.println(r);
         express = "abc = [1,2,3]; return abc[1]+abc[2];";
+        r = runner.execute(express, context, null, false, false);
+        System.out.println(r);
+        express = "abc = NewMap(1:(-1),2:2); return abc.get(1) + abc.get(2);";
         r = runner.execute(express, context, null, false, false);
         System.out.println(r);
     }

@@ -22,7 +22,7 @@ public class InstructionOperator extends Instruction{
 		return this.operator;
 	}
 	public void execute(RunEnvironment environment,List<String> errorList) throws Exception{
-		ArraySwap parameters = environment.popArray(environment.getContext(),this.opDataNumber);		
+		ArraySwap parameters = environment.popArray(environment.getContext(),this.opDataNumber);
 		if(environment.isTrace() && this.log.isDebugEnabled()){
 			String str = this.operator.toString() + "(";
 			OperateData p = null;
@@ -40,13 +40,16 @@ public class InstructionOperator extends Instruction{
 			str = str + ")";
 			this.log.debug(str);
 		}
-		
-		OperateData result = this.operator.execute(environment.getContext(),parameters, errorList);
-		environment.push(result);
-		environment.programPointAddOne();
+		try {
+            OperateData result = this.operator.execute(environment.getContext(), parameters, errorList);
+            environment.push(result);
+            environment.programPointAddOne();
+        }catch (Exception e){
+            throw new Exception(getExceptionPrefix(),e);
+        }
 	}
 	public String toString(){
 		String result = "OP : " + this.operator.toString() +  " OPNUMBER[" + this.opDataNumber +"]";
 		return result;
 	}
-}	
+}

@@ -27,16 +27,16 @@ class OperatorInstructionFactory  extends InstructionFactory{
 		}
 		
 		if(node.isTypeEqualsOrChild("return")){
-			result.addInstruction(new InstructionReturn(children.length > 0));	
+			result.addInstruction(new InstructionReturn(children.length > 0).setLine(node.getLine()));	
 		}else{	
 			OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
-			result.addInstruction(new InstructionOperator(op,children.length));
+			result.addInstruction(new InstructionOperator(op,children.length).setLine(node.getLine()).setLine(node.getLine()));
 			if(node.isTypeEqualsOrChild("&&") && aCompile.isShortCircuit()){
-				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(false,result.getCurrentPoint() - finishPoint[0] + 1,false));
+				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(false,result.getCurrentPoint() - finishPoint[0] + 1,false).setLine(node.getLine()));
 			}else if(node.isTypeEqualsOrChild("||") && aCompile.isShortCircuit()){
-				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(true,result.getCurrentPoint() - finishPoint[0] + 1,false));
+				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithCondition(true,result.getCurrentPoint() - finishPoint[0] + 1,false).setLine(node.getLine()));
 			}else if(node.isTypeEqualsOrChild("nor") ){
-				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithNotNull(result.getCurrentPoint() - finishPoint[0] + 1,false));
+				result.insertInstruction(finishPoint[0]+1,new InstructionGoToWithNotNull(result.getCurrentPoint() - finishPoint[0] + 1,false).setLine(node.getLine()));
 			}else if(node.isTypeEqualsOrChild("def") || node.isTypeEqualsOrChild("alias")){
 				returnVal = true;
 			}else if(node.isTypeEqualsOrChild("exportDef")){

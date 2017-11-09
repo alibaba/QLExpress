@@ -15,9 +15,9 @@ public class LoadAttrInstructionFactory extends InstructionFactory {
 			throws Exception{
 		FunctionInstructionSet functionSet =  result.getMacroDefine(node.getValue());
 		if(functionSet != null){//是宏定义
-			result.insertInstruction(result.getCurrentPoint()+1, new InstructionCallMacro(node.getValue()));
+			result.insertInstruction(result.getCurrentPoint()+1, new InstructionCallMacro(node.getValue()).setLine(node.getLine()).setLine(node.getLine()));
 		}else{
-		  result.addInstruction(new InstructionLoadAttr(node.getValue()));
+		  result.addInstruction(new InstructionLoadAttr(node.getValue()).setLine(node.getLine()));
 		  if(node.getChildren().length >0){
 			  throw new Exception("表达式设置错误");
 		  }

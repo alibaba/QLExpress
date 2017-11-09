@@ -14,7 +14,7 @@ public class ContinueInstructionFactory extends  InstructionFactory {
 		InstructionGoTo continueInstruction = new InstructionGoTo(result.getCurrentPoint()+1);		
 		continueInstruction.name = "continue";
 		forStack.peek().continueList.add(continueInstruction);		
-		result.addInstruction(continueInstruction);
+		result.addInstruction(continueInstruction.setLine(node.getLine()));
 		return false;
 	}
 }
