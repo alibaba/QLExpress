@@ -247,3 +247,19 @@ var : 语文
     }
 
 ```
+
+ 8、集合的遍历
+其实类似java的语法，只是ql不支持for(obj:list){}的语法，只能通过下标访问。
+```java
+  //遍历map
+  map = new HashMap();
+  map.put("a", "a_value");
+  map.put("b", "b_value");
+  keySet = map.keySet();
+  objArr = keySet.toArray();
+  for (i=0;i<objArr.length;i++) {
+  key = objArr[i];
+   System.out.println(map.get(key));
+  }
+  
+```
