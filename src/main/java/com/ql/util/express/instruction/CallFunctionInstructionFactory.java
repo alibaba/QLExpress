@@ -28,10 +28,10 @@ public class CallFunctionInstructionFactory extends InstructionFactory{
 				functionName);
 		int opNum = children.length -1;
 		if (op != null) {
-			result.addInstruction(new InstructionOperator(op,opNum ));
+			result.addInstruction(new InstructionOperator(op,opNum ).setLine(node.getLine()));
 		} else {
 			result.addInstruction(new InstructionCallSelfDefineFunction(
-					functionName,opNum));
+					functionName,opNum).setLine(children[0].getLine()));
 		}
 		return returnVal;
 	}

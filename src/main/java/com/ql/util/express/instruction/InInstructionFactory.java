@@ -29,7 +29,7 @@ public class InInstructionFactory  extends InstructionFactory{
 			returnVal = returnVal || tmpHas;
 		}
 		OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
-		result.addInstruction(new InstructionOperator(op, children.length));
+		result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
 		return returnVal;
 	}
 }

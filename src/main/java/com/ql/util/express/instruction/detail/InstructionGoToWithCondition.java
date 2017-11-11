@@ -37,7 +37,7 @@ public class InstructionGoToWithCondition extends Instruction{
 		}else if(o instanceof Boolean){
 			r = ((Boolean)o).booleanValue();
 		}else{
-			throw new Exception("指令错误:" + o + " 不是Boolean");
+			throw new Exception(getExceptionPrefix()+"指令错误:" + o + " 不是Boolean");
 		}
 		if (r == this.condition) {
 			if (environment.isTrace() && log.isDebugEnabled()) {

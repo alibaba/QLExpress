@@ -15,7 +15,7 @@ public class BlockInstructionFactory extends InstructionFactory {
 			throws Exception {	
 		if (node.isTypeEqualsOrChild("STAT_SEMICOLON")
 				&&result.getCurrentPoint() >=0 &&  result.getInstruction(result.getCurrentPoint()) instanceof InstructionClearDataStack == false) {
-			result.addInstruction(new InstructionClearDataStack());
+			result.addInstruction(new InstructionClearDataStack().setLine(node.getLine()));
 		}
 		
 		int tmpPoint = result.getCurrentPoint()+1;
@@ -27,8 +27,8 @@ public class BlockInstructionFactory extends InstructionFactory {
 		}
 		if (hasDef == true&& isRoot == false
 				&& node.getTreeType().isEqualsOrChild("STAT_BLOCK")){
-			result.insertInstruction(tmpPoint,new InstructionOpenNewArea());
-			result.insertInstruction(result.getCurrentPoint() + 1,new InstructionCloseNewArea());
+			result.insertInstruction(tmpPoint,new InstructionOpenNewArea().setLine(node.getLine()));
+			result.insertInstruction(result.getCurrentPoint() + 1,new InstructionCloseNewArea().setLine(node.getLine()));
 			returnVal = false;
 		}else{
 			returnVal = hasDef;

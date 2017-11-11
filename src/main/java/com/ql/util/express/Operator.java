@@ -3,6 +3,8 @@ package com.ql.util.express;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.op.OperatorBase;
 
+import java.util.Date;
+
 /**
  * 操作符的基类
  * @author xuannan
@@ -12,7 +14,7 @@ public abstract class Operator extends  OperatorBase{
 	
 	public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception{
 		Object[] parameters = new Object[list.length];
-		for(int i = 0;i <list.length;i++){			
+		for(int i = 0;i <list.length;i++){
 			parameters[i] = list.get(i).getObject(context);
 		}
 		Object result = this.executeInner(parameters);
@@ -53,7 +55,10 @@ public abstract class Operator extends  OperatorBase{
             compareResult =0;
          else
             compareResult =-1;
-      }
+      }else if ((op1 instanceof Date) && (op2 instanceof Date))
+     {
+         compareResult = ((Date) op1).compareTo((Date) op2);
+     }
      else
         throw new Exception(op1 + "和" + op2 +"不能执行compare 操作");
      return compareResult;

@@ -27,7 +27,7 @@ public class CastInstructionFactory  extends InstructionFactory{
 			boolean tmpHas =    aCompile.createInstructionSetPrivate(result,forStack,children[i],false);
 			returnVal = returnVal || tmpHas;
 		}	
-		result.addInstruction(new InstructionOperator(op,children.length));
+		result.addInstruction(new InstructionOperator(op,children.length).setLine(node.getLine()));
 		return returnVal;
 	}
 }

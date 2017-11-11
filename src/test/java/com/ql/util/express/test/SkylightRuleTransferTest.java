@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class SkylightRuleTransferTest {
 
     static Pattern pattern = Pattern.compile("[\\s]+");
-    static Pattern pattern2 = Pattern.compile("(rule|RULE)[\\s]+[\\S]+[\\s]+(name|NAME)[\\s]+[\\S]+[\\s]+");
+    static Pattern pattern2 = Pattern.compile("(rule|RULE)[\\s]+([\\S]+)[\\s]+(name|NAME)[\\s]+([\\S]+)[\\s]+");
 
     public class Rule
     {
@@ -26,11 +26,11 @@ public class SkylightRuleTransferTest {
         }
 
         private void praseContent() throws Exception {
-            String[] strs = pattern.split(content);
-            if(strs.length>5 && (strs[0].equals("rule") || strs[0].equals("RULE")) &&  (strs[2].equals("name")||strs[2].equals("NAME"))){
-                this.code = strs[1];
-                this.name = strs[3];
-                Matcher matcher =pattern2.matcher(content);
+
+            Matcher matcher =pattern2.matcher(content);
+            if(matcher.find()) {
+                this.code = matcher.group(2);
+                this.name = matcher.group(4);
                 this.ql = matcher.replaceFirst("");
             }else{
                 System.out.println("规则定义不合法");

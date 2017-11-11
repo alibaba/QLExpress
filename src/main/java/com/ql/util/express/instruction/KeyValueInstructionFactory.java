@@ -28,7 +28,7 @@ class KeyValueInstructionFactory  extends InstructionFactory{
 				returnVal = returnVal || tmpHas;
 			}
 			OperatorBase op = aCompile.getOperatorFactory().newInstance("alias");
-			result.addInstruction(new InstructionOperator(op, children.length));
+			result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
 			returnVal = true;
 		}else{	
 			for(int i =0;i < children.length;i++){
@@ -38,7 +38,7 @@ class KeyValueInstructionFactory  extends InstructionFactory{
 			}
 
 			OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
-			result.addInstruction(new InstructionOperator(op,children.length));
+			result.addInstruction(new InstructionOperator(op,children.length).setLine(node.getLine()));
 		}
 		return returnVal;
 	}

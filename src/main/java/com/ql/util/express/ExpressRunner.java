@@ -4,8 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.ql.util.express.instruction.op.*;
 import com.ql.util.express.parse.*;
+import com.ql.util.express.rule.Condition;
+import com.ql.util.express.rule.Rule;
+import com.ql.util.express.rule.RuleManager;
+import com.ql.util.express.rule.RuleResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,14 +20,6 @@ import com.ql.util.express.instruction.ForRelBreakContinue;
 import com.ql.util.express.instruction.IOperateDataCache;
 import com.ql.util.express.instruction.InstructionFactory;
 import com.ql.util.express.instruction.OperateDataCacheImpl;
-import com.ql.util.express.instruction.op.OperatorBase;
-import com.ql.util.express.instruction.op.OperatorFactory;
-import com.ql.util.express.instruction.op.OperatorMinMax;
-import com.ql.util.express.instruction.op.OperatorPrint;
-import com.ql.util.express.instruction.op.OperatorPrintln;
-import com.ql.util.express.instruction.op.OperatorRound;
-import com.ql.util.express.instruction.op.OperatorSelfDefineClassFunction;
-import com.ql.util.express.instruction.op.OperatorSelfDefineServiceFunction;
 
 /**
  * 语法分析和计算的入口类
@@ -35,22 +34,27 @@ public class ExpressRunner {
 	 * 是否输出所有的跟踪信息，同时还需要log级别是DEBUG级别
 	 */
 	private boolean isTrace = false;
-	
+
 	/**
 	 * 是否使用逻辑短路特性增强质量的效率
 	 */
 	private boolean isShortCircuit = true;
-	
+
 	/**
 	 * 是否需要高精度计算
 	 */
 	private boolean isPrecise = false;
-	
+
 	/**
 	 * 一段文本对应的指令集的缓存
 	 */
     private Map<String,InstructionSet> expressInstructionSetCache = new HashMap<String, InstructionSet>();
-    
+
+	/**
+	 * 一段文本对应的规则的缓存
+	 */
+	private Map<String,Rule> ruleCache = new HashMap<String, Rule>();
+
     private ExpressLoader loader;
     private IExpressResourceLoader expressResourceLoader;
     /**
@@ -64,8 +68,8 @@ public class ExpressRunner {
 	/**
 	 * 语法分析器
 	 */
-	private ExpressParse parse ;	
-	
+	private ExpressParse parse ;
+
 	/**
 	 * 缺省的Class查找的包管理器
 	 */
@@ -82,7 +86,7 @@ public class ExpressRunner {
 	}
 
 	private AppendingClassFieldManager appendingClassFieldManager;
-	
+
 	private ThreadLocal<IOperateDataCache> m_OperateDataObjectCache = new ThreadLocal<IOperateDataCache>(){
 		protected IOperateDataCache initialValue() {
 	        return new OperateDataCacheImpl(30);
@@ -91,12 +95,12 @@ public class ExpressRunner {
 	public IOperateDataCache getOperateDataCache(){
 		return this.m_OperateDataObjectCache.get();
 	}
-	
+
 	public ExpressRunner(){
 		this(false,false);
 	}
 	/**
-	 * 
+	 *
 	 * @param aIsPrecise 是否需要高精度计算支持
 	 * @param aIstrace 是否跟踪执行指令的过程
 	 */
@@ -107,7 +111,7 @@ public class ExpressRunner {
 		this(aIsPrecise,aIstrace,new DefaultExpressResourceLoader(),aManager);
 	}
 	/**
-	 * 
+	 *
 	 * @param aIsPrecise 是否需要高精度计算支持
 	 * @param aIstrace 是否跟踪执行指令的过程
 	 * @param aExpressResourceLoader 表达式的资源装载器
@@ -127,10 +131,20 @@ public class ExpressRunner {
 		rootExpressPackage.addPackage("java.lang");
 		rootExpressPackage.addPackage("java.util");
 		this.addSystemFunctions();
-	}	
-	public void addSystemFunctions(){	
-		  this.addFunction("max", new OperatorMinMax("max"));	
-		  this.addFunction("min", new OperatorMinMax("min"));	
+        this.addSystemOperators();
+	}
+    
+    private void addSystemOperators() {
+	    try {
+            this.addOperator("instanceof", new OperatorInstanceOf("instanceof"));
+        }catch (Exception e){
+	        throw new RuntimeException(e);
+        }
+    }
+    
+    public void addSystemFunctions(){
+		  this.addFunction("max", new OperatorMinMax("max"));
+		  this.addFunction("min", new OperatorMinMax("min"));
 		  this.addFunction("round", new OperatorRound("round"));
 		  this.addFunction("print", new OperatorPrint("print"));
 		  this.addFunction("println", new OperatorPrintln("println"));
@@ -157,23 +171,23 @@ public class ExpressRunner {
 	 * 添加宏定义 例如： macro 玄难 { abc(userinfo.userId);}
 	 * @param macroName：玄难
 	 * @param express ：abc(userinfo.userId);
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void addMacro(String macroName,String express) throws Exception{		
+	public void addMacro(String macroName,String express) throws Exception{
 		String macroExpress = "macro " + macroName  +" {" + express + "}";
 		this.loader.parseInstructionSet(GLOBAL_DEFINE_NAME,macroExpress);
 	}
-	
+
 	/**
 	 * 装载表达式，但不执行，例如一些宏定义，或者自定义函数
 	 * @param groupName
 	 * @param express
 	 * @throws Exception
 	 */
-	public void loadMutilExpress(String groupName,String express) throws Exception{		
+	public void loadMutilExpress(String groupName,String express) throws Exception{
 		if(groupName == null || groupName.trim().length() ==0){
 			groupName = GLOBAL_DEFINE_NAME;
-		}	
+		}
 		this.loader.parseInstructionSet(groupName,express);
 	}
     /**
@@ -267,7 +281,7 @@ public class ExpressRunner {
 			String errorInfo) throws Exception {
 		this.addFunction(name, new OperatorSelfDefineClassFunction(name,
 				aClassName, aFunctionName, aParameterClassTypes,null,null, errorInfo));
-		
+
 	}
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
@@ -275,7 +289,7 @@ public class ExpressRunner {
      * @param aClassName 类名称
      * @param aFunctionName 类中的方法名称
      * @param aParameterClassTypes 方法的参数类型名称
-     * @param aParameterDesc 方法的参数说明     
+     * @param aParameterDesc 方法的参数说明
      * @param aParameterAnnotation 方法的参数注解
      * @param errorInfo 如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
@@ -301,7 +315,7 @@ public class ExpressRunner {
 			String aFunctionName, String[] aParameterTypes, String errorInfo)
 			throws Exception {
 		this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-				aClassName, aFunctionName, aParameterTypes, null,null,errorInfo));		
+				aClassName, aFunctionName, aParameterTypes, null,null,errorInfo));
 	}
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
@@ -309,7 +323,7 @@ public class ExpressRunner {
      * @param aClassName 类名称
      * @param aFunctionName 类中的方法名称
      * @param aParameterTypes 方法的参数类型名称
-     * @param aParameterDesc 方法的参数说明     
+     * @param aParameterDesc 方法的参数说明
      * @param aParameterAnnotation 方法的参数注解
      * @param errorInfo 如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
@@ -320,8 +334,8 @@ public class ExpressRunner {
 			String errorInfo)
 			throws Exception {
 		this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-				aClassName, aFunctionName, aParameterTypes, aParameterDesc,aParameterAnnotation,errorInfo));		
-	
+				aClassName, aFunctionName, aParameterTypes, aParameterDesc,aParameterAnnotation,errorInfo));
+
 	}
     /**
      * 用于将一个用户自己定义的对象(例如Spring对象)方法转换为一个表达式计算的函数
@@ -337,7 +351,7 @@ public class ExpressRunner {
 			String errorInfo) throws Exception {
 		this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
 				aServiceObject, aFunctionName, aParameterClassTypes,null,null, errorInfo));
-		
+
 	}
     /**
      * 用于将一个用户自己定义的对象(例如Spring对象)方法转换为一个表达式计算的函数
@@ -345,11 +359,11 @@ public class ExpressRunner {
      * @param aServiceObject
      * @param aFunctionName
      * @param aParameterClassTypes
-     * @param aParameterDesc 方法的参数说明     
+     * @param aParameterDesc 方法的参数说明
      * @param aParameterAnnotation 方法的参数注解
      * @param errorInfo
      * @throws Exception
-     */	
+     */
 	public void addFunctionOfServiceMethod(String name, Object aServiceObject,
 			String aFunctionName, Class<?>[] aParameterClassTypes,
 			String[] aParameterDesc,String[] aParameterAnnotation,
@@ -369,7 +383,7 @@ public class ExpressRunner {
      */
 	public void addFunctionOfServiceMethod(String name, Object aServiceObject,
 			String aFunctionName, String[] aParameterTypes, String errorInfo)
-			throws Exception {		
+			throws Exception {
 		this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
 				aServiceObject, aFunctionName, aParameterTypes,null,null, errorInfo));
 
@@ -387,7 +401,7 @@ public class ExpressRunner {
 	 * 添加操作符号，此操作符号的优先级与 "*"相同，语法形式也是  data name data
 	 * @param name
 	 * @param op
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void addOperator(String name,Operator op) throws Exception {
 		 this.addOperator(name, "*", op);
@@ -397,7 +411,7 @@ public class ExpressRunner {
 	 * @param name 操作符号名称
 	 * @param aRefOpername 参照的操作符号，例如 "+","--"等
 	 * @param op
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void addOperator(String name,String aRefOpername,Operator op) throws Exception {
 		this.manager.addOperatorWithLevelOfReference(name, aRefOpername);
@@ -425,7 +439,7 @@ public class ExpressRunner {
 		}
 		NodeType realNodeType = this.manager.findNodeType(realKeyWordName);
 		if(realNodeType == null){
-			throw new Exception("关键字：" + realKeyWordName +"不存在");			
+			throw new Exception("关键字：" + realKeyWordName +"不存在");
 		}
 		boolean isExist = this.operatorManager.isExistOperator(realNodeType.getName());
 		if(isExist == false &&  errorInfo != null){
@@ -435,7 +449,7 @@ public class ExpressRunner {
 			//不需要新增操作符号，只需要建立一个关键子即可
 			this.manager.addOperatorWithRealNodeType(keyWordName, realNodeType.getName());
 		}else{
-			this.manager.addOperatorWithLevelOfReference(keyWordName, realNodeType.getName());		
+			this.manager.addOperatorWithLevelOfReference(keyWordName, realNodeType.getName());
 			this.operatorManager.addOperatorWithAlias(keyWordName, realNodeType.getName(), errorInfo);
 		}
 	}
@@ -446,7 +460,7 @@ public class ExpressRunner {
     public OperatorBase replaceOperator(String name,OperatorBase op){
     	return this.operatorManager.replaceOperator(name, op);
     }
-    
+
 	public ExpressPackage getRootExpressPackage(){
 		return this.rootExpressPackage;
 	}
@@ -492,7 +506,7 @@ public class ExpressRunner {
 		return  InstructionSetRunner.executeOuter(this,instructionSets[0],this.loader,context, errorList,
 				isTrace,isCatchException,aLog,false);
 	}
-    
+
 	/**
 	 * 执行指令集
 	 * @param instructionSets
@@ -557,6 +571,73 @@ public class ExpressRunner {
 			 	isTrace,false,aLog,false);
 	}
 
+	public RuleResult executeRule(String expressString, IExpressContext<String,Object> context, boolean isCache, boolean isTrace)
+			throws Exception {
+		Rule rule = null;
+		if (isCache == true) {
+			rule = ruleCache.get(expressString);
+			if (rule == null) {
+				synchronized (ruleCache) {
+					rule = ruleCache.get(expressString);
+					if (rule == null) {
+						rule = this.parseRule(expressString);
+						ruleCache.put(expressString,
+								rule);
+					}
+				}
+			}
+		} else {
+			rule = this.parseRule(expressString);
+		}
+		return RuleManager.executeRule(this,rule,context,isCache,isTrace);
+	}
+
+	static Pattern patternRule = Pattern.compile("rule[\\s]+'([^']+)'[\\s]+name[\\s]+'([^']+)'[\\s]+");
+
+	public Rule parseRule(String text)
+			throws Exception {
+		String ruleName = null;
+		String ruleCode = null;
+        Matcher matcher = patternRule.matcher(text);
+        if(matcher.find()) {
+            ruleCode = matcher.group(1);
+            ruleName = matcher.group(2);
+            text = text.substring(matcher.end());
+        }
+
+		Map<String,String> selfDefineClass = new HashMap<String,String> ();
+		for(ExportItem  item : this.loader.getExportInfo()){
+			if(item.getType().equals(InstructionSet.TYPE_CLASS)){
+				selfDefineClass.put(item.getName(), item.getName());
+			}
+		}
+
+//      分成两句话执行，用来保存中间的words结果
+//		ExpressNode root = this.parse.parse(this.rootExpressPackage,text, isTrace,selfDefineClass);
+
+		Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
+		ExpressNode root =  this.parse.parse(rootExpressPackage,words,text,isTrace,selfDefineClass);
+		Rule rule = RuleManager.createRule(root,words);
+		rule.setCode(ruleCode);
+		rule.setName(ruleName);
+		return rule;
+	}
+    
+    public Condition parseContition(String text)
+            throws Exception {
+        
+        Map<String,String> selfDefineClass = new HashMap<String,String> ();
+        for(ExportItem  item : this.loader.getExportInfo()){
+            if(item.getType().equals(InstructionSet.TYPE_CLASS)){
+                selfDefineClass.put(item.getName(), item.getName());
+            }
+        }
+        
+        Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
+        ExpressNode root =  this.parse.parse(rootExpressPackage,words,text,isTrace,selfDefineClass);
+        return RuleManager.createCondition(root,words);
+    }
+
 	/**
 	 * 解析一段文本，生成指令集合
 	 * @param text
@@ -571,7 +652,7 @@ public class ExpressRunner {
 				selfDefineClass.put(item.getName(), item.getName());
 			}
 		}
-		
+
 		ExpressNode root = this.parse.parse(this.rootExpressPackage,text, isTrace,selfDefineClass);
 		InstructionSet result = createInstructionSet(root, "main");
 		if (this.isTrace && log.isDebugEnabled()) {
@@ -586,7 +667,7 @@ public class ExpressRunner {
 	public ExportItem[] getExportInfo(){
 		return this.loader.getExportInfo();
 	}
-	
+
 	/**
 	 * 优先从本地指令集缓存获取指令集，没有的话生成并且缓存在本地
 	 * @param expressString
@@ -637,7 +718,7 @@ public class ExpressRunner {
 	 * 获取一个表达式需要的外部变量名称列表
 	 * @param express
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public String[] getOutVarNames(String express) throws Exception{
 		return this.parseInstructionSet(express).getOutAttrNames();

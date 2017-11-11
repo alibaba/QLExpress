@@ -15,7 +15,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
   String functionName;
   String[] parameterTypes;
   Class<?>[] parameterClasses ;
-  transient Method method;
+  Method method;
   boolean isReturnVoid;
   boolean maybeDynamicParams;
   
@@ -24,7 +24,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
 			Class<?>[] aParameterClassTypes,String[] aParameterDesc,String[] aParameterAnnotation, String aErrorInfo) throws Exception {
 		if (errorInfo != null && errorInfo.trim().length() == 0) {
 			errorInfo = null;
-		}
+		} 
 		this.name = aOperName;
 		this.errorInfo = aErrorInfo;
 		this.serviceObject = aServiceObject;
@@ -47,7 +47,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     
 	if (errorInfo != null && errorInfo.trim().length() == 0) {
 			errorInfo = null;
-	}
+	}  
 	this.name = aOperName;
     this.errorInfo = aErrorInfo;
     this.serviceObject = aServiceObject;
@@ -73,24 +73,14 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
 	}
   public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
       Object[] parameres =  DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,this.maybeDynamicParams);
-      Object obj = this.getMethod().invoke(this.serviceObject,ExpressUtil.transferArray(parameres,parameterClasses));
+      Object obj = this.method.invoke(this.serviceObject,ExpressUtil.transferArray(parameres,parameterClasses));
       if(obj != null){
          return OperateDataCacheManager.fetchOperateData(obj,obj.getClass());
       }
       if(this.isReturnVoid == true){
     	  return OperateDataCacheManager.fetchOperateDataAttr("null", void.class);
       }else{
-    	  return OperateDataCacheManager.fetchOperateDataAttr("null", null);
+    	  return OperateDataCacheManager.fetchOperateDataAttr("null", null);  
       }
   }
-    
-    private Method getMethod() throws NoSuchMethodException {
-        
-        if(this.method!=null){
-            return this.method;
-        }
-        Class<?> operClass = serviceObject.getClass();
-        this.method = operClass.getMethod(functionName, parameterClasses);
-        return this.method;
-    }
 }

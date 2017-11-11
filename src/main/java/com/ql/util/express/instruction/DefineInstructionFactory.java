@@ -48,7 +48,7 @@ class DefineInstructionFactory  extends InstructionFactory{
 			finishPoint[i] = result.getCurrentPoint();
 		}
 		OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
-		result.addInstruction(new InstructionOperator(op, children.length));
+		result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
 		returnVal = true;
 		return returnVal;
 	}

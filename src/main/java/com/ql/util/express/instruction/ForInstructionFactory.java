@@ -23,7 +23,7 @@ public class ForInstructionFactory extends  InstructionFactory {
     		throw new Exception("循环语句的设置不合适:" + node.getChildren()[0]);	
     	}
     	//生成作用域开始指令
-	    result.addInstruction(new InstructionOpenNewArea());			
+	    result.addInstruction(new InstructionOpenNewArea().setLine(node.getLine()));			
 	    forStack.push(new ForRelBreakContinue());
 	    
     	//生成条件语句部分指令
@@ -49,7 +49,7 @@ public class ForInstructionFactory extends  InstructionFactory {
     		aCompile.createInstructionSetPrivate(result,forStack,conditionNode.getChildren()[nodePoint],false);
     		//跳转的位置需要根据后续的指令情况决定    		
     		conditionInstruction = new InstructionGoToWithCondition(false,-1,true);
-    		result.insertInstruction(result.getCurrentPoint()+1,conditionInstruction);   
+    		result.insertInstruction(result.getCurrentPoint()+1,conditionInstruction.setLine(node.getLine()));   
     		nodePoint = nodePoint+ 1;
     	}
     	int conditionPoint = result.getCurrentPoint();
@@ -65,7 +65,7 @@ public class ForInstructionFactory extends  InstructionFactory {
     	}
     	//增加一个无条件跳转
     	InstructionGoTo reStartGoto = new InstructionGoTo(loopStartPoint - (result.getCurrentPoint() + 1));
-    	result.addInstruction(reStartGoto); 
+    	result.addInstruction(reStartGoto.setLine(node.getLine())); 
     	
     	//修改条件判断的跳转位置
     	if(conditionInstruction != null){
@@ -82,7 +82,7 @@ public class ForInstructionFactory extends  InstructionFactory {
     	}    	
     	
     	//生成作用域结束指令
-	    result.addInstruction(new InstructionCloseNewArea());
+	    result.addInstruction(new InstructionCloseNewArea().setLine(node.getLine()));
 
         return false;
 	}

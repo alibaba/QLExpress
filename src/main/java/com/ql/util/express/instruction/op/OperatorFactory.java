@@ -54,6 +54,13 @@ public class OperatorFactory {
 		  addOperator("function",new OperatorFunction("function"));
 		  addOperator("in", new OperatorIn("in"));	
 		  addOperator("like", new OperatorLike("like"));
+		  //bit operator
+          addOperator("&",new OperatorBit("&"));
+          addOperator("|",new OperatorBit("|"));
+          addOperator("^",new OperatorBit("^"));
+          addOperator("~",new OperatorBit("~"));
+          addOperator("<<",new OperatorBit("<<"));
+          addOperator(">>",new OperatorBit(">>"));
 		}
 	public void addOperator(String name, OperatorBase op) {
 		OperatorBase oldOp = this.operator.get(name);
