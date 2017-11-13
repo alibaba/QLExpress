@@ -1,36 +1,17 @@
 package com.ql.util.express.console;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.tree.TreePath;
-
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.console.FileTree.PathNode;
+
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.Map;
 
 public class ConsoleFrame
     extends JFrame {
@@ -42,7 +23,7 @@ public class ConsoleFrame
   JMenuItem jMenuFileExit = new JMenuItem();
   JToolBar jToolBar = new JToolBar();
   JButton jButton1 = new JButton();
-  ImageIcon image1 = new ImageIcon(com.ql.util.express.console.ConsoleFrame.class.
+  ImageIcon image1 = new ImageIcon(ConsoleFrame.class.
                                    getResource("run.png"));
   JLabel statusBar = new JLabel();
   JTabbedPane jTabbedPaneContent = new JTabbedPane();
@@ -81,7 +62,7 @@ public class ConsoleFrame
   /**
    * Component initialization.
    *
-   * @throws java.lang.Exception
+   * @throws Exception
    */
   private void jbInit() throws Exception {
     contentPane = (JPanel) getContentPane();
@@ -115,16 +96,16 @@ public class ConsoleFrame
     jButton1.setToolTipText("执行");
     jToolBar.add(jButton1);
     contentPane.add(statusBar, BorderLayout.SOUTH);
-    jPanelResult.add(jScrollPaneResult, java.awt.BorderLayout.CENTER);
-    jPanelResult.add(jLabelResult, java.awt.BorderLayout.NORTH);
+    jPanelResult.add(jScrollPaneResult, BorderLayout.CENTER);
+    jPanelResult.add(jLabelResult, BorderLayout.NORTH);
     jSplitPaneRun.add(jSplitPaneS_C, JSplitPane.TOP);
     jScrollPaneResult.getViewport().add(jTextAreaResult);
 
-    jPanelScript.add(jLabelScript, java.awt.BorderLayout.NORTH);
-    jPanelScript.add(jScrollPaneScript, java.awt.BorderLayout.CENTER);
+    jPanelScript.add(jLabelScript, BorderLayout.NORTH);
+    jPanelScript.add(jScrollPaneScript, BorderLayout.CENTER);
     jScrollPaneScript.getViewport().add(jTextAreaScript);
-    jPanelContext.add(jLabelContext, java.awt.BorderLayout.NORTH);
-    jPanelContext.add(jScrollPaneContext, java.awt.BorderLayout.CENTER);
+    jPanelContext.add(jLabelContext, BorderLayout.NORTH);
+    jPanelContext.add(jScrollPaneContext, BorderLayout.CENTER);
     jSplitPaneS_C.add(jPanelScript, JSplitPane.LEFT);
     jScrollPaneContext.getViewport().add(jTextAreaContext);
     jSplitPaneS_C.setDividerSize(2);
@@ -133,9 +114,9 @@ public class ConsoleFrame
     jSplitPaneS_C.setDividerLocation(500);
     jSplitPaneRun.add(jPanelResult, JSplitPane.RIGHT);
     jTabbedPaneContent.add(jPaneRunner, "\u6267\u884c\u4ee3\u7801");
-    jPaneRunner.add(jSplitPaneRun, java.awt.BorderLayout.CENTER);
-    contentPane.add(jTabbedPaneContent, java.awt.BorderLayout.CENTER);
-    contentPane.add(jToolBar, java.awt.BorderLayout.NORTH);
+    jPaneRunner.add(jSplitPaneRun, BorderLayout.CENTER);
+    contentPane.add(jTabbedPaneContent, BorderLayout.CENTER);
+    contentPane.add(jToolBar, BorderLayout.NORTH);
     jSplitPaneRun.setDividerLocation(200);
   }
 

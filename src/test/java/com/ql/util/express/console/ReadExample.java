@@ -1,16 +1,15 @@
 package com.ql.util.express.console;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class ReadExample {
    public static void main(String[] args) throws Exception {

@@ -1,9 +1,7 @@
 package com.ql.util.express.console;
 
-import java.awt.Toolkit;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 
 public class Console {
   boolean packFrame = false;
