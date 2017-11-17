@@ -108,6 +108,8 @@ public class ExpressParse {
 						    && (   result.get(result.size() - 2).isTypeEqualsOrChild("OP_LIST")
 						        || result.get(result.size() - 2).isTypeEqualsOrChild(",")
                                 || result.get(result.size() - 2).isTypeEqualsOrChild("return")
+                                || result.get(result.size() - 2).isTypeEqualsOrChild("?")
+                                || result.get(result.size() - 2).isTypeEqualsOrChild(":")
 						        ) 
 						    && result.get(result.size() - 2).isTypeEqualsOrChild(")")==false
 						    && result.get(result.size() - 2).isTypeEqualsOrChild("]")==false 

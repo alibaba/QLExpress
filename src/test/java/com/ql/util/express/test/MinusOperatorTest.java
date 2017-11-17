@@ -11,10 +11,20 @@ import org.junit.Test;
 public class MinusOperatorTest {
     
     @Test
-    public void testChange_1() throws Exception {
+    public void operatorReturn() throws Exception {
         ExpressRunner runner = new ExpressRunner(false,true);
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
         String test1 = "return -50";
         System.out.println(runner.execute(test1, context, null, true, false));
     }
+    
+    
+    @Test
+    public void operatorThreeLogic() throws Exception {
+        ExpressRunner runner = new ExpressRunner(false,true);
+        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        String test1 = "2>-1?-1:-2;";
+        System.out.println(runner.execute(test1, context, null, true, false));
+    }
+    
 }
