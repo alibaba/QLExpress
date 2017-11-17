@@ -86,8 +86,17 @@ class RunnerDataCache{
 		return this.cache;
 	}
 	public void pop(ExpressRunner aRunner){
-		this.cache = this.stack.pop().getOperateDataCache();
-		
+	    
+//	    原有的逻辑
+//		this.cache = this.stack.pop().getOperateDataCache();
+	    
+        //bugfix处理ExpressRunner嵌套情况下，cache还原的问题
+        this.stack.pop();
+        if(!this.stack.isEmpty()){
+            this.cache = this.stack.peek().getOperateDataCache();
+        }else{
+            this.cache = null;
+        }
 	}
 
 }
