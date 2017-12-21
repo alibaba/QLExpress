@@ -3,11 +3,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.taobao.util</groupId>
-	<artifactId>taobao-express</artifactId>
+	<groupId>com.alibaba</groupId>
+	<artifactId>QLExpress</artifactId>
 	<packaging>jar</packaging>
 	<version>3.1.7</version>
-	<name>taobao-express</name>
+	<name>QLExpress</name>
+    <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving developers’ productivity in different business scenes.</description>
+    <url>https://github.com/alibaba/QLExpress</url>
+    <inceptionYear>2012</inceptionYear>
+    
+    <organization>
+        <name>Alibaba Group</name>
+        <url>https://github.com/alibaba</url>
+    </organization>
+    
+    <developers>
+        <developer>
+            <id>tianqiao</id>
+            <name>tianqiao</name>
+            <email>tianqiao@alibaba-inc.com</email>
+        </developer>
+        <developer>
+            <id>baoxingjie</id>
+            <name>baoxingjie</name>
+            <email>baoxingjie@126.com</email>
+        </developer>
+        <developer>
+            <id>qianghui</id>
+            <name>qianghui</name>
+            <email>qhlhl2010@gmail.com</email>
+        </developer>
+    </developers>
 	
 	<dependencies>
 		<dependency>
