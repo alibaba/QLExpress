@@ -12,6 +12,24 @@
     <url>https://github.com/alibaba/QLExpress</url>
     <inceptionYear>2012</inceptionYear>
     
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git@github.com:alibaba/QLExpress.git</connection>
+        <developerConnection>scm:git:git@github.com:alibaba/QLExpress.git</developerConnection>
+        <url>git@github.com:alibaba/QLExpress.git</url>
+    </scm>
+    <issueManagement>
+        <url>https://github.com/alibaba/QLExpress/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+    
     <organization>
         <name>Alibaba Group</name>
         <url>https://github.com/alibaba</url>
@@ -34,6 +52,10 @@
             <email>qhlhl2010@gmail.com</email>
         </developer>
     </developers>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 	
 	<dependencies>
 		<dependency>
@@ -75,17 +97,17 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<distributionManagement>
-		<repository>
-			<id>releases</id>
-			<url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
 
 	<build>
@@ -113,6 +135,31 @@
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <!-- GPG -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
