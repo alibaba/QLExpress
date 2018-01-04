@@ -1,30 +1,33 @@
-## qlExpress相关文档
+# QLExpress基本语法
 
-### 最简单的调用案例 
+## 背景介绍
+
+由阿里的电商业务规则、表达式（布尔组合）、特殊数学公式计算（高精度）、语法分析、脚本二次定制等强需求而设计的一门动态脚本引擎解析工具。
+在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2009年开源。
+
+## 依赖和调用说明
 
 ```xml
 <dependency>
-  <groupId>com.taobao.util</groupId>
-  <artifactId>taobao-express</artifactId>
-  <version>3.0.17</version>
+  <groupId>com.alibaba</groupId>
+  <artifactId>QLExpress</artifactId>
+  <version>3.2.0</version>
 </dependency>
 ```
 
 ```java
-
-        ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-        context.put("a",1);
-        context.put("b",2);
-        context.put("c",3);
-        String express = "a+b*c";
-        Object r = runner.execute(express, context, null, true, false);
-        System.out.println(r);
+ExpressRunner runner = new ExpressRunner();
+DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+context.put("a",1);
+context.put("b",2);
+context.put("c",3);
+String express = "a+b*c";
+Object r = runner.execute(express, context, null, true, false);
+System.out.println(r);
 ```
 
-### 更多的语法介绍 
-1、java的绝大多数语法
-
+## 1、操作符和java对象操作
+### 普通java语法
 ```
 //支持 +,-,*,/,<,>,<=,>=,==,!=,<>【等同于!=】,%,mod【取模等同于%】,++,--,
 //in【类似sql】,like【sql语法】,&&,||,!,等操作符
@@ -44,7 +47,7 @@ max = a>b?a:b;
 
 ``` 
 
-//关于对象，类，属性，方法的调用
+### java的对象操作
 
 ```
 import com.ql.util.express.test.OrderQuery;
@@ -57,8 +60,10 @@ query.buyer = "张三";//调用属性,默认会转化为setBuyer("张三")
 result = bizOrderDAO.query(query);//调用bean对象的方法
 System.out.println(result.getId());//静态方法
  
+```
 
-//自定义方法与调用
+## 2、脚本中定义function
+```
 function add(int a,int b){
   return a+b;
 };
@@ -70,12 +75,12 @@ function sub(int a,int b){
 a=10;
 return add(a,4) + sub(a,9);
  
- ```
-
-2、自定义操作符号：addOperatorWithAlias+addOperator+addFunction
-
 ```
 
+## 3、扩展操作符：Operator
+### 替换if then else 等关键字
+
+```java
 runner.addOperatorWithAlias("如果", "if",null);
 runner.addOperatorWithAlias("则", "then",null);
 runner.addOperatorWithAlias("否则", "else",null);
@@ -83,8 +88,10 @@ runner.addOperatorWithAlias("否则", "else",null);
 exp = "如果  (如果 1==2 则 false 否则 true) 则 {2+2;} 否则 {20 + 20;}";
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
 runner.execute(exp,nil,null,false,false,null);
- 
+```
 
+### 如何自定义Operator
+```java
 //定义一个继承自com.ql.util.express.Operator的操作符
 public class JoinOperator extends Operator{
 	public Object executeInner(Object[] list) throws Exception {
@@ -102,38 +109,38 @@ public class JoinOperator extends Operator{
 	}
 }
 
+```
+### 如何使用Operator
+
+```
+//(1)addOperator
 ExpressRunner runner = new ExpressRunner();
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
 runner.addOperator("join",new JoinOperator());
 Object r = runner.execute("1 join 2 join 3", context, null, false, false);
 System.out.println(r);
 //返回结果  [1, 2, 3]
- 
 
-class GroupOperator extends Operator {
-	public GroupOperator(String aName) {
-		this.name= aName;
-	}
-	public Object executeInner(Object[] list)throws Exception {
-		Object result = Integer.valueOf(0);
-		for (int i = 0; i < list.length; i++) {
-			result = OperatorOfNumber.add(result, list[i],false);//根据list[i]类型（string,number等）做加法
-		}
-		return result;
-	}
-}
-
-runner.addFunction("group", new GroupOperator("group"));
+//(2)replaceOperator
 ExpressRunner runner = new ExpressRunner();
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-runner.addOperator("join",new JoinOperator());
-Object r = runner.execute("group(1,2,3)", context, null, false, false);
+runner.replaceOperator("+",new JoinOperator());
+Object r = runner.execute("1 + 2 + 3", context, null, false, false);
 System.out.println(r);
-//返回结果  6
+//返回结果  [1, 2, 3]
+
+//(3)addFunction
+ExpressRunner runner = new ExpressRunner();
+DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+runner.addFunction("join",new JoinOperator());
+Object r = runner.execute("join(1,2,3)", context, null, false, false);
+System.out.println(r);
+//返回结果  [1, 2, 3]
 
 ```
+## 4、绑定java类或者对象的method
 
- 3、类的静态方法，对象的方法绑定：addFunctionOfClassMethod+addFunctionOfServiceMethod
+addFunctionOfClassMethod+addFunctionOfServiceMethod
 
 ```
 
@@ -168,7 +175,7 @@ runner.execute(exp, context, null, false, false);
 ```
 
 
- 4、macro 宏定义
+ ## 5、macro 宏定义
 
 ```
 runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
@@ -183,7 +190,8 @@ System.out.println(r);
 
 ```
 
- 5、编译脚本，查询外部需要定义的变量，注意以下脚本int和没有int的区别
+ ## 6、编译脚本，查询外部需要定义的变量和函数。
+ **注意以下脚本int和没有int的区别**
 
 ```
 String express = "int 平均分 = (语文+数学+英语+综合考试.科目2)/4.0;return 平均分";
@@ -201,7 +209,7 @@ var : 英语
 var : 语文
 ``` 
 
-6、关于不定参数的使用
+## 7、关于不定参数的使用
 
 ```
     @Test
@@ -228,7 +236,7 @@ var : 语文
     }
  ```
 
-7、关于集合的快捷写法
+## 8、关于集合的快捷写法
 
 ```
     @Test
@@ -246,4 +254,20 @@ var : 语文
         System.out.println(r);
     }
 
+``` 
+
+## 9、集合的遍历
+其实类似java的语法，只是ql不支持for(obj:list){}的语法，只能通过下标访问。
+```java
+  //遍历map
+  map = new HashMap();
+  map.put("a", "a_value");
+  map.put("b", "b_value");
+  keySet = map.keySet();
+  objArr = keySet.toArray();
+  for (i=0;i<objArr.length;i++) {
+  key = objArr[i];
+   System.out.println(map.get(key));
+  }
+  
 ```

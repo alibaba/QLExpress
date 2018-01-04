@@ -62,7 +62,7 @@ public class WorkflowTest {
 		expressContext.put("申请人", "小强");
 		expressContext.put("金额", new Integer(4000));
 		//执行表达式
-		runner.execute(exp, expressContext, null,false, false);
+//		runner.execute(exp, expressContext, null,false, false);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class WorkflowTest {
 		expressContext.put("申请人", "小强");
 		expressContext.put("金额", new Integer(5000));
 		
-		runner.executeByExpressName("example/approve1", expressContext, null, false,false,null);
+//		runner.executeByExpressName("example/approve1", expressContext, null, false,false,null);
 	}
 	
 	/**
@@ -120,7 +120,7 @@ public class WorkflowTest {
 		expressContext.put("申请人", "小强");
 		expressContext.put("金额", new Integer(6000));
 		
-		runner.executeByExpressName("example/approve", expressContext, null, false,false,null);
+//		runner.executeByExpressName("example/approve", expressContext, null, false,false,null);
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public class WorkflowTest {
 		expressContext.put("申请人", "小强");
 		expressContext.put("金额", new Integer(7000));
 		
-		runner.executeByExpressName("example/approve1", expressContext, null, false,false,null);
+//		runner.executeByExpressName("example/approve1", expressContext, null, false,false,null);
 	}
 	
 }
