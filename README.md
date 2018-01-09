@@ -303,6 +303,8 @@ QLExpressRunner如下图所示，从语法树分析、上下文、执行过程�
 _star>10000 and shoptype in('tmall','juhuasuan') and price between (100,900)_
 假设第一个条件 _star>10000_ 不满足就停止运算。但业务系统却还是希望把后面的逻辑都能够运算一遍，并且输出中间过程，保证更快更好的做出决策。
 
+参照单元测试:[ShortCircuitLogicTest.java](https://github.com/alibaba/QLExpress/blob/master/src/test/java/com/ql/util/express/test/logic/ShortCircuitLogicTest.java)
+
 ### isTrace
 
 ```java	
