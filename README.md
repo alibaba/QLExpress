@@ -458,3 +458,92 @@ InstructionSet instructionSet = expressRunner.parseInstructionSet(expressString)
 	//清除缓存
 	void clearExpressCache();
 ```
+
+### （6）增强上下文参数Context相关的api
+
+#### 6.1 与spring框架的无缝集成
+上下文参数 IExpressContext context 非常有用，它允许put任何变量，然后在脚本中识别出来。
+
+在实际中我们很希望能够无缝的集成到spring框架中，可以仿照下面的例子使用一个子类。
+
+```java
+public class QLExpressContext extends HashMap<String, Object> implements
+		IExpressContext<String, Object> {
+
+	private ApplicationContext context;
+
+	//构造函数，传入context和 ApplicationContext
+	public QLExpressContext(Map<String, Object> map,
+                            ApplicationContext aContext) {
+		super(map);
+		this.context = aContext;
+	}
+
+	/**
+	 * 抽象方法：根据名称从属性列表中提取属性值
+	 */
+	public Object get(Object name) {
+		Object result = null;
+		result = super.get(name);
+		try {
+			if (result == null && this.context != null
+					&& this.context.containsBean((String) name)) {
+				// 如果在Spring容器中包含bean，则返回String的Bean
+				result = this.context.getBean((String) name);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
+	}
+
+	public Object put(String name, Object object) {
+		return super.put(name, object);
+	}
+
+}
+
+```
+
+完整的demo参照 [SpringDemoTest.java](https://github.com/alibaba/QLExpress/blob/master/src/test/java/com/ql/util/express/test/spring/SpringDemoTest.java)
+
+
+#### 6.2 自定义函数操作符获取原始的context控制上下文
+
+自定义的Operator需要直接继承OperatorBase，获取到parent即可，可以用于在运行一组脚本的时候，直接编辑上下文信息，业务逻辑处理上也非常有用。
+
+```java
+
+public class ContextMessagePutTest {
+    
+    
+    class OperatorContextPut extends OperatorBase {
+        
+        public OperatorContextPut(String aName) {
+            this.name = aName;
+        }
+    
+        @Override
+        public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+            String key = list.get(0).toString();
+            Object value = list.get(1);
+            parent.put(key,value);
+            return null;
+        }
+    }
+    
+    @Test
+    public void test() throws Exception{
+        ExpressRunner runner = new ExpressRunner();
+        OperatorBase op = new OperatorContextPut("contextPut");
+        runner.addFunction("contextPut",op);
+        String exp = "contextPut('success','false');contextPut('error','错误信息');contextPut('warning','提醒信息')";
+        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        context.put("success","true");
+        Object result = runner.execute(exp,context,null,false,true);
+        System.out.println(result);
+        System.out.println(context);
+    }
+}
+
+```
