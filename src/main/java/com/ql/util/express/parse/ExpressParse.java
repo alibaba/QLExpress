@@ -19,11 +19,26 @@ public class ExpressParse {
 	private static final Log log = LogFactory.getLog(ExpressParse.class);
 	NodeTypeManager nodeTypeManager;
 	IExpressResourceLoader expressResourceLoader;
+    
+    /**
+     * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
+     * 在计算比如 '1'+'2'=='12'
+     */
+	private boolean ignoreConstChar = false;
 	/**
 	 * 是否需要高精度计算
 	 */
 	private boolean isPrecise = false;
-	public ExpressParse(NodeTypeManager aNodeTypeManager,IExpressResourceLoader aLoader,boolean aIsPrecise){
+    
+    public boolean isIgnoreConstChar() {
+        return ignoreConstChar;
+    }
+    
+    public void setIgnoreConstChar(boolean ignoreConstChar) {
+        this.ignoreConstChar = ignoreConstChar;
+    }
+    
+    public ExpressParse(NodeTypeManager aNodeTypeManager, IExpressResourceLoader aLoader, boolean aIsPrecise){
 		this.nodeTypeManager = aNodeTypeManager;
 		this.expressResourceLoader = aLoader;
 		this.isPrecise = aIsPrecise;
@@ -174,7 +189,7 @@ public class ExpressParse {
 			  tempWord = tempWord.substring(1,tempWord.length() -1);
 			  
 			  treeNodeType = nodeTypeManager.findNodeType("CONST");
-			  if(tempWord.length() == 1){ //转换为字符串
+			  if(tempWord.length() == 1 && !ignoreConstChar){ //转换为字符串
 				  tempType =nodeTypeManager.findNodeType("CONST_CHAR");
 				  objectValue = tempWord.charAt(0);
 			  }else{

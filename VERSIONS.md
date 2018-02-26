@@ -103,5 +103,17 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 ## 18、3.1.7版本[2017-11-17]
 (1)bugfix 在自定义操作符的情况下，调用 runner.getOutVarNames Api 可能引发的空指针问题
 
-## 18、3.1.8版本[2018-1-30]
+## 19、发布到github，修改pom文件标识
+
+```xml
+<dependency>
+	<groupId>com.alibaba</groupId>
+	<artifactId>QLExpress</artifactId>
+	<packaging>jar</packaging>
+	<version>3.2.0</version>
+</dependency>
+```
+
+## 3.2.1版本[2018-2-23]
 (1)增加扩展功能:ExpressRunner#setIgnoreConstChar(Boolean),设置可以忽略单字符操作，即 'a'自动变成"a"。
+(2)增加接口来支持绑定自定义classloader的class的method:ExpressRunner#addFunctionOfClassMethod(String name, Class<?> aClass,...)。

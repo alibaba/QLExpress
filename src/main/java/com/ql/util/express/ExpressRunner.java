@@ -283,6 +283,24 @@ public class ExpressRunner {
 				aClassName, aFunctionName, aParameterClassTypes,null,null, errorInfo));
 
 	}
+    
+    /**
+     * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
+     * @param name 函数名称
+     * @param aClass 类
+     * @param aFunctionName 类中的方法名称
+     * @param aParameterClassTypes 方法的参数类型名称
+     * @param errorInfo 如果函数执行的结果是false，需要输出的错误信息
+     * @throws Exception
+     */
+    public void addFunctionOfClassMethod(String name, Class<?> aClass,
+                                         String aFunctionName, Class<?>[] aParameterClassTypes,
+                                         String errorInfo) throws Exception {
+        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
+                aClass, aFunctionName, aParameterClassTypes,null,null, errorInfo));
+        
+    }
+    
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      * @param name 函数名称
@@ -735,4 +753,19 @@ public class ExpressRunner {
 	public void setShortCircuit(boolean isShortCircuit) {
 		this.isShortCircuit = isShortCircuit;
 	}
+    
+    /**
+     * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
+     * 默认为不忽略，正常识别为String
+     */
+    public boolean isIgnoreConstChar() {
+        return this.parse.isIgnoreConstChar();
+    }
+    public void setIgnoreConstChar(boolean ignoreConstChar) {
+        this.parse.setIgnoreConstChar(ignoreConstChar);
+    }
+    public void checkySyntax(String text) throws Exception {
+        Map<String,String> selfDefineClass = new HashMap<String,String> ();
+        this.parse.parse(this.rootExpressPackage,text, true,selfDefineClass);
+    }
 }
