@@ -550,3 +550,6 @@ public class ContextMessagePutTest {
 
 附录：
 [版本更新列表](VERSIONS.md)
+
+## links
+Gitter channel - Online chat room with QLExpress developers. [Gitter channel ](https://gitter.im/QLExpress/Lobby)
