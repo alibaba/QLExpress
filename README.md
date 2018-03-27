@@ -551,5 +551,8 @@ public class ContextMessagePutTest {
 附录：
 [版本更新列表](VERSIONS.md)
 
-## links
-Gitter channel - Online chat room with QLExpress developers. [Gitter channel ](https://gitter.im/QLExpress/Lobby)
+## links for us
+-  Gitter channel - Online chat room with QLExpress developers. [Gitter channel ](https://gitter.im/QLExpress/Lobby)
+-  email:tianqiao@alibaba-inc.com,baoxingjie@126.com
+-  wechart:371754252
+
