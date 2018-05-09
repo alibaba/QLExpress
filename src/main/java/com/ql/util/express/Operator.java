@@ -49,6 +49,9 @@ public abstract class Operator extends  OperatorBase{
    	  //数字比较
    	  compareResult =  OperatorOfNumber.compareNumber((Number)op1, (Number)op2);
      }
+     else if (op1 instanceof Character && op2 instanceof Character) {
+         compareResult = ((Character) op1).compareTo((Character) op2);
+     }
      else if ((op1 instanceof Boolean) && (op2 instanceof Boolean))
      {
          if (((Boolean)op1).booleanValue() ==((Boolean)op2).booleanValue())

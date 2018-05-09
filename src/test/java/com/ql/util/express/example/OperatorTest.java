@@ -86,4 +86,11 @@ public class OperatorTest {
 		System.out.println(r);
 		Assert.assertTrue("操作符执行错误",r==49);
 	}
+	@Test
+	public void testCharcharComapre() throws Exception {
+		ExpressRunner runner = new ExpressRunner();
+		String express = "'a'=='a' && '9.2'>='9.2' && '2018-05-09 17:47:31'>='2018-05-09 17:47:30'";
+		Boolean r = (Boolean) runner.execute(express, null, null, true, false);
+		assert r == true;
+	}
 }
