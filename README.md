@@ -171,7 +171,7 @@ runner.addFunctionOfServiceMethod("打印", System.out, "println",new String[] {
 runner.addFunctionOfServiceMethod("contains", new BeanExample(), "anyContains",
             new Class[] { String.class, String.class }, null);
 
-String exp = “取绝对值(-100);转换为大写(\"hello world\");打印(\"你好吗？\")；contains("helloworld",\"aeiou\")”;
+String exp = “取绝对值(-100);转换为大写(\"hello world\");打印(\"你好吗？\");contains("helloworld",\"aeiou\")”;
 runner.execute(exp, context, null, false, false);
 
 ```
