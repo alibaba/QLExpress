@@ -45,6 +45,16 @@ public abstract class Operator extends  OperatorBase{
         compareResult = ((String)op1).compareTo(op2.toString());
      }else if(op2 instanceof String){
     	compareResult = op1.toString().compareTo((String)op2);
+     }else if(op1 instanceof Character || op2 instanceof Character){
+         if(op1 instanceof Character && op2 instanceof Character ){
+             compareResult = ((Character) op1) .compareTo ((Character) op2);
+         }else if(op1 instanceof Number){
+             compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)((Character) op2).charValue());
+         }else if(op2 instanceof Number){
+             compareResult = OperatorOfNumber.compareNumber((int)((Character) op1).charValue(),(Number)op2);
+         }else {
+             throw new Exception(op1 + "和" + op2 + "不能执行compare 操作");
+         }
      }else if(op1 instanceof Number && op2 instanceof Number){
    	  //数字比较
    	  compareResult =  OperatorOfNumber.compareNumber((Number)op1, (Number)op2);
