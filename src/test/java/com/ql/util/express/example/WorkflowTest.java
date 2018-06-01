@@ -13,6 +13,14 @@ import com.ql.util.express.example.operator.ApproveOperator;
  *
  */
 public class WorkflowTest {
+    
+    public void print(String s) {
+        System.out.print(s);
+    }
+    
+    public void println(String s) {
+        System.out.println(s);
+    }
 
 	/**
 	 * 执行一段文本
@@ -49,7 +57,7 @@ public class WorkflowTest {
 		runner.addOperatorWithAlias("否则", "else",null);
 		runner.addOperatorWithAlias("大于", ">",null);
 		//
-		runner.addFunctionOfServiceMethod("打印", System.out, "println",new String[] { "String" }, null);
+		runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println",new String[] { "String" }, null);
 		//定义方法
 		runner.addFunction("审批通过", new ApproveOperator(1));
 		runner.addFunction("报销入账", new ApproveOperator(2));
@@ -77,7 +85,7 @@ public class WorkflowTest {
 	  runner.addOperatorWithAlias("否则", "else",null);
   	runner.addOperatorWithAlias("大于", ">",null);
 		//
-		runner.addFunctionOfServiceMethod("打印", System.out, "println",new String[] { "String" }, null);
+		runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println",new String[] { "String" }, null);
 		//定义方法
 		runner.addFunction("审批通过", new ApproveOperator(1));
 		runner.addFunction("报销入账", new ApproveOperator(2));
@@ -109,7 +117,7 @@ public class WorkflowTest {
 	  runner.addOperatorWithAlias("否则", "else",null);
   	runner.addOperatorWithAlias("大于", ">",null);
 		//
-		runner.addFunctionOfServiceMethod("打印", System.out, "println",new String[] { "String" }, null);		
+		runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println",new String[] { "String" }, null);		
 		//加载文件
 		runner.loadExpress("example/approve");
 		//设置上下文变量
@@ -135,7 +143,7 @@ public class WorkflowTest {
 	  runner.addOperatorWithAlias("否则", "else",null);
   	runner.addOperatorWithAlias("大于", ">",null);
 		//
-		runner.addFunctionOfServiceMethod("打印", System.out, "println",new String[] { "String" }, null);
+		runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println",new String[] { "String" }, null);
 		
 		//加载文件
 		runner.loadExpress("example/approve1");
