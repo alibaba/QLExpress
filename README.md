@@ -87,9 +87,9 @@ runner.addOperatorWithAlias("如果", "if",null);
 runner.addOperatorWithAlias("则", "then",null);
 runner.addOperatorWithAlias("否则", "else",null);
 
-exp = "如果  (如果 1==2 则 false 否则 true) 则 {2+2;} 否则 {20 + 20;}";
+exp = "如果  (语文+数学+英语>270) 则 {return 1;} 否则 {return 0;}";
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-runner.execute(exp,nil,null,false,false,null);
+runner.execute(exp,context,null,false,false,null);
 ```
 
 ### 如何自定义Operator
