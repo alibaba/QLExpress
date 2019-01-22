@@ -53,7 +53,7 @@ public class QLPatternNode{
 	protected INodeType nodeType;
 	
 	/**
-	 * 匹配到的节点需要转换成的类型，例如 ID->CONST_STRING
+	 * 匹配到的节点需要转换成的类型，例如 ID -》CONST_STRING
 	 */
 	protected INodeType targetNodeType;
 	

@@ -315,7 +315,6 @@ public class ExpressParse {
     /**
      * 提取自定义的Class
      * @param words
-     * @return
      */
 	public static void fetchSelfDefineClass(Word[] words,Map<String,String> selfDefineClass){
 		for(int i=0;i<words.length -1;i++){

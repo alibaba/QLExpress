@@ -3,7 +3,7 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.Operator;
 
 /**
- * 处理 And,Or,&&,||操作
+ * 处理 And,Or操作
  */
 
 public class OperatorAnd extends Operator {

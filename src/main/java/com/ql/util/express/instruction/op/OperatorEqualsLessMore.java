@@ -3,7 +3,7 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.Operator;
 
  /**
- * 处理 =,==,>,>=,<,<=,!=,<>
+ * 处理比较操作符号
  */
 public class OperatorEqualsLessMore extends Operator {
 	public OperatorEqualsLessMore(String aName) {
