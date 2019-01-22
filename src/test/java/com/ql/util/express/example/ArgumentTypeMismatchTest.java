@@ -25,14 +25,10 @@ public class ArgumentTypeMismatchTest {
         runner.addFunctionOfServiceMethod("abc", singleton,"functionABC",new Class[]{Long.class,Integer.class,String.class},null);
         String exp = "abc(a,b,c)";
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        context.put("a","1");
-        context.put("b","2");
+        context.put("a",1L);
+        context.put("b",2);
         context.put("c","3");
-        try {
-            runner.execute(exp, context, null, false, false);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        runner.execute(exp, context, null, false, false);
     }
     
     @Test
@@ -53,12 +49,7 @@ public class ArgumentTypeMismatchTest {
         context.put("a","1");
         context.put("b","2");
         context.put("c","3");
-        try {
-            runner.execute(exp, context, null, false, false);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        System.out.print("test ok!");
+        runner.execute(exp, context, null, false, false);
     }
     
     @Test
@@ -90,12 +81,8 @@ public class ArgumentTypeMismatchTest {
         System.out.println("before execute instructionSet = " + instructionSet);
         System.out.println("outFunctionNames = " + ToStringBuilder.reflectionToString(outFunctionNames, ToStringStyle.MULTI_LINE_STYLE));
         System.out.println("outVarNames = " + ToStringBuilder.reflectionToString(outVarNames, ToStringStyle.MULTI_LINE_STYLE));
-        
-        try {
-            runner.execute(exp, context, null, false, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    
+        runner.execute(exp, context, null, false, false);
         
         instructionSet = runner.getInstructionSetFromLocalCache(exp);
         outFunctionNames = runner.getOutFunctionNames(exp);
@@ -103,7 +90,5 @@ public class ArgumentTypeMismatchTest {
         System.out.println("after execute instructionSet = " + instructionSet);
         System.out.println("outFunctionNames = " + ToStringBuilder.reflectionToString(outFunctionNames, ToStringStyle.MULTI_LINE_STYLE));
         System.out.println("outVarNames = " + ToStringBuilder.reflectionToString(outVarNames, ToStringStyle.MULTI_LINE_STYLE));
-        
-        System.out.println("test ok!");
     }
 }

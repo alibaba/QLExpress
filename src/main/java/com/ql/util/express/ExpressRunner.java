@@ -1,9 +1,6 @@
 package com.ql.util.express;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -283,6 +280,24 @@ public class ExpressRunner {
 				aClassName, aFunctionName, aParameterClassTypes,null,null, errorInfo));
 
 	}
+    
+    /**
+     * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
+     * @param name 函数名称
+     * @param aClass 类
+     * @param aFunctionName 类中的方法名称
+     * @param aParameterClassTypes 方法的参数类型名称
+     * @param errorInfo 如果函数执行的结果是false，需要输出的错误信息
+     * @throws Exception
+     */
+    public void addFunctionOfClassMethod(String name, Class<?> aClass,
+                                         String aFunctionName, Class<?>[] aParameterClassTypes,
+                                         String errorInfo) throws Exception {
+        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
+                aClass, aFunctionName, aParameterClassTypes,null,null, errorInfo));
+        
+    }
+    
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      * @param name 函数名称
@@ -468,7 +483,9 @@ public class ExpressRunner {
 	   * 清除缓存
 	   */
 	public void clearExpressCache() {
-		this.expressInstructionSetCache.clear();
+        synchronized (expressInstructionSetCache) {
+            this.expressInstructionSetCache.clear();
+        }
 	}
 	/**
 	 * 根据表达式的名称进行执行
@@ -735,4 +752,57 @@ public class ExpressRunner {
 	public void setShortCircuit(boolean isShortCircuit) {
 		this.isShortCircuit = isShortCircuit;
 	}
+    
+    /**
+     * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
+     * 默认为不忽略，正常识别为String
+     */
+    public boolean isIgnoreConstChar() {
+        return this.parse.isIgnoreConstChar();
+    }
+    public void setIgnoreConstChar(boolean ignoreConstChar) {
+        this.parse.setIgnoreConstChar(ignoreConstChar);
+    }
+    
+    /**
+     * 提供简答的语法检查，保证可以在运行期本地环境编译成指令
+     * @param text
+     * @return
+     */
+    public boolean checkSyntax(String text)
+    {
+        return checkSyntax(text,false,null);
+    }
+    
+    /**
+     * 提供复杂的语法检查，(比如检查自定义的java类)，不保证运行期在本地环境可以编译成指令
+     * @param text
+     * @param mockRemoteJavaClass
+     * @param remoteJavaClassNames
+     * @return
+     */
+    public boolean checkSyntax(String text,boolean mockRemoteJavaClass,List<String> remoteJavaClassNames){
+
+        try {
+            Map<String, String> selfDefineClass = new HashMap<String, String>();
+            for (ExportItem item : this.loader.getExportInfo()) {
+                if (item.getType().equals(InstructionSet.TYPE_CLASS)) {
+                    selfDefineClass.put(item.getName(), item.getName());
+                }
+            }
+            Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
+            ExpressNode root = this.parse.parse(this.rootExpressPackage, words,text, isTrace, selfDefineClass,mockRemoteJavaClass);
+            InstructionSet result = createInstructionSet(root, "main");
+            if (this.isTrace && log.isDebugEnabled()) {
+                log.debug(result);
+            }
+            if(mockRemoteJavaClass && remoteJavaClassNames!=null) {
+                remoteJavaClassNames.addAll(Arrays.asList(result.getVirClasses()));
+            }
+            return true;
+        }catch (Exception e){
+            log.error("checkSyntax has Exception",e);
+            return false;
+        }
+    }
 }

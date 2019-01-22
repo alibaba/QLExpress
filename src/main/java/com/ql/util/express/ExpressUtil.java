@@ -1,20 +1,16 @@
 package com.ql.util.express;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import com.ql.util.express.config.QLExpressRunStrategy;
+import org.apache.commons.beanutils.PropertyUtils;
+
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.beanutils.PropertyUtils;
 
 
 /**
@@ -529,6 +525,9 @@ public class ExpressUtil {
 
 	public static Object getProperty(Object bean, Object name) {
 		try {
+		    if(bean==null && QLExpressRunStrategy.isAvoidNullPointer()){
+		        return null;
+            }
 			if(bean.getClass().isArray() && name.equals("length")){
 			   return Array.getLength(bean);
 			}else if (bean instanceof Class) {

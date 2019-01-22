@@ -3,6 +3,7 @@ package com.ql.util.express.bugfix;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -14,14 +15,7 @@ public class ThrowExceptionTest {
         try {
             return Long.valueOf(a).toString();
         }catch (Exception e) {
-            throw new Exception("Exception happened!",e);
-        }
-    }
-    
-    public String test(String a) throws Exception {
-        try {
-            return testParseLong(a);
-        }catch (Exception e) {
+//            e.printStackTrace();
             throw new Exception("Exception happened!",e);
         }
     }
@@ -36,9 +30,23 @@ public class ThrowExceptionTest {
             Object result = runner.execute(exp, context, null, false, false);
             System.out.println(result);
         }catch (Exception e){
-            e.printStackTrace();
-            e.getCause().printStackTrace();
-            e.getCause().getCause().printStackTrace();
+//            e.printStackTrace();
+    
+            String keywords = "run QlExpress Exception at line 1";
+            String exceptionString = e.toString();
+            Assert.assertTrue(exceptionString.contains(keywords));
+    
+            keywords = "java.lang.reflect.InvocationTargetException";
+            exceptionString = e.getCause().toString();
+            Assert.assertTrue(exceptionString.contains(keywords));
+            
+            keywords = "Exception happened";
+            exceptionString = e.getCause().getCause().toString();
+            Assert.assertTrue(exceptionString.contains(keywords));
+            
+            keywords = "java.lang.NumberFormatException";
+            exceptionString = e.getCause().getCause().getCause().toString();
+            Assert.assertTrue(exceptionString.contains(keywords));
         }
     }
 }

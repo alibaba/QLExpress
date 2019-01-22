@@ -17,8 +17,12 @@ public class InstructionNewVirClass extends Instruction {
 		this.className = name;
 		this.opDataNumber = aOpDataNumber;
 	}
-
-	public void execute(RunEnvironment environment, List<String> errorList)
+    
+    public String getClassName() {
+        return className;
+    }
+    
+    public void execute(RunEnvironment environment, List<String> errorList)
 			throws Exception {
 		ArraySwap parameters = environment.popArray(
 				environment.getContext(), this.opDataNumber);

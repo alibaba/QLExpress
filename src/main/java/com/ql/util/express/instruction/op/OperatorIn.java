@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.config.QLExpressRunStrategy;
 
 public class OperatorIn extends Operator {
 	public OperatorIn(String aName) {
@@ -19,6 +20,10 @@ public class OperatorIn extends Operator {
 	public Object executeInner(Object[] list) throws Exception {
 		Object obj = list[0];
 		if (obj == null) {
+		    if(QLExpressRunStrategy.isAvoidNullPointer()){
+                //避免空指针策略异常则返回false
+		        return false;
+            }
 			// 对象为空，不能执行方法
 			String msg = "对象为空，不能执行方法:";
 			throw new Exception(msg + this.name);

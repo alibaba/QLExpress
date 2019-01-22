@@ -38,7 +38,7 @@ public class InstructionSet implements Serializable{
 	public static String TYPE_FUNCTION ="function";
 	public static String TYPE_MARCO ="marco";
 	
-	public static boolean printInstructionError = true;
+	public static boolean printInstructionError = false;
 	
 	
 	private String type ="main";
@@ -82,6 +82,19 @@ public class InstructionSet implements Serializable{
 	  return result.keySet().toArray(new String[0]);
 
   }
+    
+    public String[] getVirClasses() throws Exception {
+        Map<String,String> result = new TreeMap<String,String>();
+        for (int i = 0; i < instructionList.length; i++) {
+            Instruction instruction = instructionList[i];
+            if (instruction instanceof InstructionNewVirClass) {
+                String functionName = ((InstructionNewVirClass)instruction).getClassName();
+                result.put(functionName, null);
+            }
+        }
+        return result.keySet().toArray(new String[0]);
+        
+    }
   public String[] getOutAttrNames() throws Exception{
 	  Map<String,String> result = new TreeMap<String,String>();
 	  for(Instruction instruction:instructionList){

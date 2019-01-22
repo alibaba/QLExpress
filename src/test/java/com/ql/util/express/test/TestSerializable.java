@@ -41,7 +41,6 @@ public class TestSerializable {
 
 		{
 
-			e.printStackTrace();
 			throw e;
 
 		}

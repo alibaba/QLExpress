@@ -17,12 +17,12 @@ public class SimpleShortCircuitLogicTest {
 	
 	private ExpressRunner runner = new ExpressRunner();
 	
-	public void initial() throws Exception {
+	public void initial() throws Exception{
 		runner.getOperatorFactory().getOperator("<").setErrorInfo("$1 < $2 = false");
         runner.getOperatorFactory().getOperator(">").setErrorInfo("$1 > $2 = false");
 	}
 	
-	public boolean calculateLogicTest(String expression, IExpressContext<String,Object> expressContext, List<String> errorInfo) throws Exception {			
+	public boolean calculateLogicTest(String expression,IExpressContext<String,Object> expressContext,List<String> errorInfo) throws Exception {			
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
         if(result.booleanValue() == true){
         	return true;
@@ -57,7 +57,7 @@ public class SimpleShortCircuitLogicTest {
 	}
 	
 	/**
-	 * 测试非短路逻辑,并且输出s出错信息
+	 * 测试非短路逻辑,并且输出出错信息
 	 * @throws Exception
 	 */
 	@Test

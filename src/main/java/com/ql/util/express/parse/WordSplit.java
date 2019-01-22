@@ -81,7 +81,7 @@ public class WordSplit
 	    			   if (point < i ){
 	    		             list.add(new Word(str.substring(point,i),line,i));
 	    		       }
-	    			   list.add(new Word(str.substring(i, i+length),line,i));
+                       list.add(new Word(str.substring(i, i+length),line,i+length));
 	    			   i = i + length;
 	    			   point = i;
 	    			   isFind = true;

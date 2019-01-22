@@ -3,6 +3,7 @@ package com.ql.util.express.test;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -24,7 +25,8 @@ public class PrintLineExceptionTest {
             Object obj = runner.execute(script, context, null, true, false);
             System.out.println(obj);
         }catch (Exception e){
-            e.printStackTrace();
+//            e.printStackTrace();
+            Assert.assertTrue(e.toString().contains("at line 7"));;
         }
     }
     

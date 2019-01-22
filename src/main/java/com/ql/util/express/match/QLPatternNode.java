@@ -34,7 +34,7 @@ public class QLPatternNode{
 	/**
 	 * 是否根节点,例如：if^
 	 */
-	protected boolean isTreeRoot;
+	protected boolean isTreeRoot =false;
 	
 	/**
 	 * 最小匹配次数，0..n
@@ -66,13 +66,26 @@ public class QLPatternNode{
 	 * 是否匹配成功，但在输出的时候忽略,用"~"表示
 	 * CONST$(,~$CONST)*
 	 */
-	protected boolean isSkip;
+	protected boolean isSkip =false;
 	
 	/**
 	 * 取反，例如：+@,匹配不是+的所有字符
 	 */
 	protected boolean blame = false;
-	
+
+	public boolean canMergeDetail(){
+		if (QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && this.name.equals("ANONY_PATTERN")
+				&& this.nodeType.getPatternNode() != null
+				&& this.isSkip == false
+				&& this.blame ==false
+				&& this.isChildMode == false
+				&& this.isTreeRoot == false
+				&& this.minMatchNum ==1
+				&& this.maxMatchNum == 1){
+			return true;
+		}
+		return  false;
+	}
 	
 	/**
 	 * 子匹配模式
@@ -81,9 +94,10 @@ public class QLPatternNode{
 	
 	protected QLPatternNode(INodeTypeManager aManager,String aName,String aOrgiContent) throws Exception{
 		this(aManager,aName,aOrgiContent,false,1);
-		if(this.toString().equals(aOrgiContent)==false){
-				throw new Exception("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
-		}
+//		if(this.toString().equals(aOrgiContent)==false){
+				//throw new Exception("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
+			//log.error(("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString()));
+//		}
 	}
 	protected QLPatternNode(INodeTypeManager aManager,String aName,String aOrgiContent,boolean aIsChildMode,int aLevel) throws Exception{
 		this.nodeTypeManager = aManager;
@@ -92,6 +106,16 @@ public class QLPatternNode{
 		this.isChildMode = aIsChildMode;
 		this.level = aLevel;
 		this.splitChild();
+		for (int i=0;i< children.size();i++){
+			QLPatternNode t = children.get(i);
+			if(t.canMergeDetail()) {
+				this.children.set(i,t.getNodeType().getPatternNode());
+				if(t.getNodeType().getPatternNode().getNodeType() == null){
+					t.getNodeType().getPatternNode().nodeType = t.getNodeType();
+				}
+			}
+		}
+
 	}
 	public void splitChild() throws Exception{
 		if(log.isTraceEnabled()){

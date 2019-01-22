@@ -1,16 +1,18 @@
 package com.ql.util.express.match;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResult {
-		protected List<QLMatchResultTree> matchs;
-		protected int matchLastIndex;
-		public  INodeType statementNodeType;
-		public QLMatchResult(List<QLMatchResultTree> aList,int aIndex){
-			this.matchLastIndex = aIndex;
-			this.matchs = aList;
+		private List<QLMatchResultTree> matchs = new ArrayList<QLMatchResultTree>();
+		private int matchLastIndex;
+
+
+		public void clear(){
+			this.matchLastIndex =0;
+			this.matchs.clear();
 		}
-		
+
 		public String toString(){
 			StringBuilder builder = new StringBuilder();
 			for(QLMatchResultTree item:matchs){
@@ -22,14 +24,23 @@ public class QLMatchResult {
 			return matchs;
 		}
 
-		public void setMatchs(List<QLMatchResultTree> matchs) {
-			this.matchs = matchs;
+		public QLMatchResult addQLMatchResultTree(QLMatchResultTree tree){
+			this.matchs.add(tree);
+			return this;
 		}
+	public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> aList){
+		this.matchs.addAll(aList);
+		return this;
+	}
+
+	public int getMatchSize(){
+		return this.matchs.size();
+	}
 		public int getMatchLastIndex() {
 			return matchLastIndex;
 		}
-
-		public void setMatchLastIndex(int matchLastIndex) {
-			this.matchLastIndex = matchLastIndex;
-		}
+	public QLMatchResult setMatchLastIndex(int index){
+		this.matchLastIndex = index;
+		return this;
 	}
+}

@@ -1,10 +1,9 @@
 package com.ql.util.express.test;
 
-import org.junit.Test;
-
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Test;
 
 /**
  * @author tianqiao
@@ -23,14 +22,9 @@ public class MethodInvokeTest {
 				null);
 		
 		IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();		
-		try{
-			Object r = runner.execute("getSearchResult(null)", 
-					expressContext, null, false, false);
-			System.out.print("r=" + r);
-		}catch(Exception e){
-			e.printStackTrace();
-			throw new Exception(e);
-		}
+        Object r = runner.execute("getSearchResult(null)", 
+                expressContext, null, false, false);
+        System.out.print("r=" + r);
 	}
 
 	@Test
@@ -50,14 +44,10 @@ public class MethodInvokeTest {
 				null);
 		
 		IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();		
-		try{
-			Object r = runner.execute("getSearchResult(getOnlinePersonalShopInfo(123L))", 
-					expressContext, null, false, false);
-			System.out.print("r=" + r);
-		}catch(Exception e){
-			e.printStackTrace();
-			throw new Exception(e);
-		}
+        Object r = runner.execute("getSearchResult(getOnlinePersonalShopInfo(123L))", 
+                expressContext, null, false, false);
+        System.out.print("r=" + r);
+
 	}
 	
 	@Test
@@ -72,14 +62,9 @@ public class MethodInvokeTest {
 		String express = "info = getOnlinePersonalShopInfo(127L);";
 
 		IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();		
-		try{
-			Object r = runner.execute(express, 
-					expressContext, null, false, false);
-			System.out.print("r=" + r);
-		}catch(Exception e){
-			e.printStackTrace();
-			throw new Exception(e);
-		}
+        Object r = runner.execute(express, 
+                expressContext, null, false, false);
+        System.out.print("r=" + r);
 	}
 	
 	@Test
@@ -94,14 +79,9 @@ public class MethodInvokeTest {
 		String express = "info = getOnlinePersonalShopInfo(127L);";
 
 		IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();		
-		try{
-			Object r = runner.execute(express, 
-					expressContext, null, false, false);
-			System.out.print("r=" + r);
-		}catch(Exception e){
-			e.printStackTrace();
-			throw new Exception(e);
-		}
+        Object r = runner.execute(express, 
+                expressContext, null, false, false);
+        System.out.print("r=" + r);
 	}
 	
 	@Test
@@ -121,7 +101,6 @@ public class MethodInvokeTest {
 					expressContext, null, false, false);
 			System.out.println("r=" + r);
 		}catch(Exception e){
-			e.printStackTrace();
 			System.out.println("return void checked success!");
 			return;
 		}

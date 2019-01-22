@@ -6,6 +6,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.opdata.OperateClass;
 import com.ql.util.express.instruction.opdata.OperateDataVirClass;
@@ -35,6 +36,9 @@ public class OperatorMethod extends OperatorBase {
 		}
 		
 		if (obj == null) {
+		    if(QLExpressRunStrategy.isAvoidNullPointer()){
+		        return null;
+            }
 			// 对象为空，不能执行方法
 			String msg = "对象为空，不能执行方法:";
 			throw new Exception(msg + this.methodName);

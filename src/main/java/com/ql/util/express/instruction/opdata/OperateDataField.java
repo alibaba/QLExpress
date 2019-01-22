@@ -2,8 +2,8 @@ package com.ql.util.express.instruction.opdata;
 
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
+import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.parse.AppendingClassFieldManager;
-import com.ql.util.express.parse.AppendingClassMethodManager;
 
 public class OperateDataField extends OperateDataAttr {
 	Object fieldObject;
@@ -22,7 +22,11 @@ public class OperateDataField extends OperateDataAttr {
 	
 	public void initialDataField(Object aFieldObject,String aFieldName){
 		super.initialDataAttr(null, null);
-		this.name = aFieldObject.getClass().getName() + "." + aFieldName;
+		if(aFieldObject==null){
+            this.name = Void.class.getName()+ "." + aFieldName;
+        }else {
+            this.name = aFieldObject.getClass().getName() + "." + aFieldName;
+        }
 		this.fieldObject = aFieldObject;
 		this.orgiFieldName = aFieldName;
 	}
@@ -90,6 +94,9 @@ public class OperateDataField extends OperateDataAttr {
 		if(this.fieldObject instanceof OperateDataVirClass){
 			return ((OperateDataVirClass)this.fieldObject).getValueType(transferFieldName(context,this.orgiFieldName));
 		}else{
+		    if(this.fieldObject==null && QLExpressRunStrategy.isAvoidNullPointer()){
+		        return Void.class;
+            }
 		    return ExpressUtil.getPropertyClass(this.fieldObject,transferFieldName(context,this.orgiFieldName));
 		}
 	}

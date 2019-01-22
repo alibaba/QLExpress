@@ -3,6 +3,7 @@ package com.ql.util.express.bugfix;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -21,8 +22,13 @@ public class ImportClassPath {
             result = runner.execute(exp,context,null,false,false);
             System.out.println(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("SimpleDateFormat 没有定义，此处应该报错");
+            //e.printStackTrace();
+            Assert.assertTrue(true);
+            return;
+            
         }
+        Assert.assertTrue(false);
     }
     
     @Test

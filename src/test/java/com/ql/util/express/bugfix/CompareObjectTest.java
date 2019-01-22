@@ -8,7 +8,7 @@ import org.junit.Test;
 public class CompareObjectTest {
     
     @Test
-    public void test() throws Exception{
+    public void test() throws Exception {
         
         System.out.println('a'<98);
         ExpressRunner runner = new ExpressRunner();
