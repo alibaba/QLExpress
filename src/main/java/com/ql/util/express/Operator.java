@@ -42,7 +42,7 @@ public abstract class Operator extends OperatorBase {
      *
      * @param op1
      * @param op2
-     * @return 0--等于 ，负数 < , 正数 >
+     * @return 0 等于 ，负数 小于 , 正数 大于
      * @throws Exception
      */
     public static int compareData(Object op1, Object op2) throws Exception {

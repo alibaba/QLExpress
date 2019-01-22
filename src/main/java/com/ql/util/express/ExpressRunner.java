@@ -754,7 +754,7 @@ public class ExpressRunner {
 	}
     
     /**
-     * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
+     * 是否忽略charset类型的数据，而识别为string，比如'a' -》 "a"
      * 默认为不忽略，正常识别为String
      */
     public boolean isIgnoreConstChar() {

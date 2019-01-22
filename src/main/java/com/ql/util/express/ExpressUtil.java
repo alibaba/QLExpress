@@ -600,7 +600,6 @@ public class ExpressUtil {
  * @param type
  * @param isForce 是否强制转换
  * @return
- * @throws Exception
  */
 	public static Object castObject(Object value, Class<?> type,boolean isForce){
 		if (value == null)
