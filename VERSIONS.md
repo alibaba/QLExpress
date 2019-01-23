@@ -112,4 +112,5 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 
 ## 3.2.2版本[2019-1-22]
 (1)android环境的重大优化：减少编译的内存消耗，堆栈溢出问题
-(2)空指针的保护策略
+
+(2)空指针的保护策略：com.ql.util.express.config.QLExpressRunStrategy.setAvoidNullPointer(true)
