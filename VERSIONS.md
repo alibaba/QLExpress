@@ -108,6 +108,7 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 
 ## 3.2.1版本[2018-2-23]
 (1)增加扩展功能:ExpressRunner#setIgnoreConstChar(Boolean),设置可以忽略单字符操作，即 'a'自动变成"a"。
+
 (2)增加接口来支持绑定自定义classloader的class的method:ExpressRunner#addFunctionOfClassMethod(String name, Class<?> aClass,...)。
 
 ## 3.2.2版本[2019-1-22]
