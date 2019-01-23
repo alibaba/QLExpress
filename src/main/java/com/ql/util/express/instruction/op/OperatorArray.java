@@ -22,7 +22,7 @@ public class OperatorArray extends OperatorBase {
 			throw new Exception("对象为null,不能执行数组相关操作");
 		}
 		Object tmpObject = p0.getObject(context);
-	    if( tmpObject.getClass().isArray() == false){
+	    if( !tmpObject.getClass().isArray()){
 			throw new Exception("对象:"+ tmpObject.getClass() +"不是数组,不能执行相关操作" );
 		}
 	    int index = ((Number)list.get(1).getObject(context)).intValue();		
