@@ -45,7 +45,7 @@ return sum;
 //逻辑三元操作
 a=1;
 b=2;
-max = a>b?a:b;
+maxnum = a>b?a:b;
 
 ``` 
 
