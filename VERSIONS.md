@@ -115,3 +115,10 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (1)android环境的重大优化：减少编译的内存消耗，堆栈溢出问题
 
 (2)空指针的保护策略：com.ql.util.express.config.QLExpressRunStrategy.setAvoidNullPointer(true)
+
+## 3.2.3版本[2019-6-18]
+(1)增加超时方法:TimeOutExceptionTest
+
+(2)安全审核方法:InvokeSecurityRiskMethodsTest
+
+(3)区分异常类型：ThrowExceptionTest
