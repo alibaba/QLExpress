@@ -2,6 +2,7 @@ package com.ql.util.express;
 
 import java.util.List;
 
+import com.ql.util.express.config.QLExpressTimer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,6 +15,10 @@ public class InstructionSetRunner {
 				boolean isTrace,boolean isCatchException,
 				Log aLog,boolean isSupportDynamicFieldName) throws Exception{
 		 try{
+
+		 	//开始计时
+			 QLExpressTimer.startTimer();
+
 			 OperateDataCacheManager.push(runner);
 			 return execute(runner,sets, loader, aContext, errorList, isTrace, isCatchException,true, aLog,isSupportDynamicFieldName);
 		 }finally{

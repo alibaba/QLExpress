@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction.op;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.exception.QLException;
 
 public class OperatorMinMax extends Operator {
 	public OperatorMinMax(String name) {
@@ -9,7 +10,7 @@ public class OperatorMinMax extends Operator {
 
 	public Object executeInner(Object[] list) throws Exception {
 		if (list.length == 0){
-			throw new Exception("操作数异常");
+			throw new QLException("操作数异常");
 		}
 		Object result = list[0];
 

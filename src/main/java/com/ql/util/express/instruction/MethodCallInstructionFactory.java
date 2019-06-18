@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.detail.InstructionOperator;
 import com.ql.util.express.instruction.op.OperatorBase;
 import com.ql.util.express.instruction.op.OperatorMethod;
@@ -21,7 +22,7 @@ public class MethodCallInstructionFactory extends InstructionFactory {
 		returnVal = returnVal || tmpHas;
 		//处理方法名称
 		if(children[1].getNodeType().getName().equalsIgnoreCase("CONST_STRING") == false){
-			throw new Exception("对象方法名称不是字符串常量:" + children[1] );
+			throw new QLException("对象方法名称不是字符串常量:" + children[1] );
 		}
 		String methodName = (String)children[1].getObjectValue();
 		//处理方法参数

@@ -9,7 +9,7 @@ public class Word {
    public Word(String aWord,int aLine,int aCol){
 	   this.word = aWord;
 	   this.line = aLine;
-	   this.col = aCol - aWord.length() + 1;
+	   this.col = aCol;
    }
   public String toString(){
 	  return this.word;// + "[" + this.line + "," + this.col + "]";

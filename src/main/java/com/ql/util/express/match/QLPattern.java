@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.ql.util.express.exception.QLCompileException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,9 +31,9 @@ public class QLPattern {
 
         }
 		if(result == null || result.getMatchSize() == 0){
-			throw new Exception("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
+			throw new QLCompileException("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
 		}else if(result != null && result.getMatchSize() != 1){
-			throw new Exception("程序错误，不满足语法规范，必须有一个根节点：" + pattern + ",最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
+			throw new QLCompileException("程序错误，不满足语法规范，必须有一个根节点：" + pattern + ",最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
 		}
 		return result;
 	}
@@ -85,7 +86,7 @@ public class QLPattern {
 						resultDetail = findMatchStatementWithAddRootOptimizeStack(staticParams,pattern.nodeType.getPatternNode(),pointDetail,false,deep);
 						if(pattern.targetNodeType != null && resultDetail != null && resultDetail.getMatchSize() >0){
 							if(resultDetail.getMatchSize() > 1){
-								throw new Exception("设置了类型转换的语法，只能有一个根节点");
+								throw new QLCompileException("设置了类型转换的语法，只能有一个根节点");
 							}
 							resultDetail.getMatchs().get(0).targetNodeType = pattern.targetNodeType;
 						}
@@ -135,7 +136,7 @@ public class QLPattern {
 						pointAnd = tempResultAnd.getMatchLastIndex();
 						if (item.isTreeRoot == true && tempResultAnd.getMatchSize() >0) {
 							if (tempResultAnd.getMatchSize() > 1) {
-                                throw new Exception("根节点的数量必须是1");
+                                throw new QLCompileException("根节点的数量必须是1");
                             }
 							if (root == null) {
 								QLMatchResultTree tempTree = tempResultAnd.getMatchs().get(0);
@@ -192,7 +193,7 @@ public class QLPattern {
 				}
 
 			}else{
-				throw new Exception("不正确的类型：" + pattern.matchMode.toString());
+				throw new QLCompileException("不正确的类型：" + pattern.matchMode.toString());
 			}
 
 			if(tempResult == null){
@@ -214,7 +215,7 @@ public class QLPattern {
 				lastPoint = tempResult.getMatchLastIndex();
 				if(pattern.isTreeRoot == true){
 					if(tempResult.getMatchSize() > 1){
-						throw new Exception("根节点的数量必须是1");
+						throw new QLCompileException("根节点的数量必须是1");
 					}
 					if(tempList.size() == 0){
 						tempList.addAll(tempResult.getMatchs());

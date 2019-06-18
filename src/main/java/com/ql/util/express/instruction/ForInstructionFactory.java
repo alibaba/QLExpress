@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
+import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.instruction.detail.InstructionCloseNewArea;
 import com.ql.util.express.instruction.detail.InstructionGoTo;
 import com.ql.util.express.instruction.detail.InstructionGoToWithCondition;
@@ -15,12 +16,12 @@ public class ForInstructionFactory extends  InstructionFactory {
 			Stack<ForRelBreakContinue> forStack, ExpressNode node,boolean isRoot)
 			throws Exception {		
     	if(node.getChildren().length < 2){
-    		throw new Exception("for 操作符至少需要2个操作数 " );
+    		throw new QLCompileException("for 操作符至少需要2个操作数 " );
     	}else if(node.getChildren().length > 2){
-    		throw new Exception("for 操作符最多只有2个操作数 " );
+    		throw new QLCompileException("for 操作符最多只有2个操作数 " );
     	}
     	if(node.getChildren()[0].getChildren()!= null && node.getChildren()[0].getChildren().length > 3){
-    		throw new Exception("循环语句的设置不合适:" + node.getChildren()[0]);	
+    		throw new QLCompileException("循环语句的设置不合适:" + node.getChildren()[0]);
     	}
     	//生成作用域开始指令
 	    result.addInstruction(new InstructionOpenNewArea().setLine(node.getLine()));			

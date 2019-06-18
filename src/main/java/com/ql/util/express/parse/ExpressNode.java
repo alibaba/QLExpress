@@ -3,6 +3,7 @@ package com.ql.util.express.parse;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.match.IDataNode;
 import com.ql.util.express.match.INodeType;
 
@@ -55,7 +56,7 @@ public class ExpressNode implements IDataNode{
 	}
 	public ExpressNode(NodeType aType,String aValue,String aOrgiValue,Object aObjectValue,NodeType aTreeType,int aLine,int aCol,int wordIndex) throws Exception{
 		if(aType == null){
-			throw new Exception(aValue + " 没有找到对应的节点类型");
+			throw new QLCompileException(aValue + " 没有找到对应的节点类型");
 		}
 		this.nodeType = aType;
 		this.treeType = aTreeType;

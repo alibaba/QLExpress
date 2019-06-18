@@ -1,5 +1,7 @@
 package com.ql.util.express;
 
+import com.ql.util.express.exception.QLException;
+
 import java.lang.reflect.Array;
 
 /**
@@ -15,7 +17,7 @@ public class DynamicParamsUtil {
         //参数定义不符合动态参数形式 || 用户自定义不支持 || 用户传入的参数不符合
         if(!maybeDynamicParams || !supportDynamicParams || !maybeDynamicParams(context,list,delaredParamsClasses)){
             if(delaredParamsClasses.length != list.length){
-                throw new Exception("定义的参数长度与运行期传入的参数长度不一致");
+                throw new QLException("定义的参数长度与运行期传入的参数长度不一致");
             }
             params = new Object[list.length];
             for (int i = 0; i < list.length; i++) {
@@ -45,7 +47,7 @@ public class DynamicParamsUtil {
                 }
             }
         }else {
-            throw new Exception("定义的参数长度与运行期传入的参数长度不一致");
+            throw new QLException("定义的参数长度与运行期传入的参数长度不一致");
         }
         return params;
 

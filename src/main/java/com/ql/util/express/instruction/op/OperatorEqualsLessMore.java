@@ -1,8 +1,9 @@
 package com.ql.util.express.instruction.op;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.exception.QLException;
 
- /**
+/**
  * 处理比较操作符号
  */
 public class OperatorEqualsLessMore extends Operator {
@@ -28,26 +29,18 @@ public class OperatorEqualsLessMore extends Operator {
 
 	public static boolean executeInner(String opStr, Object obj1, Object obj2)
 			throws Exception {
-
-		if (obj1 == null && obj2 == null) {
-			if (opStr.equals("==")) {
-				return true;
-			} else if (opStr.equals("!=") || opStr.equals("<>")) {
-				return false;
-			} else {
-				throw new Exception("两个空操作数不能执行这个操作：" + opStr);
-			}
-		} else if (obj1 == null || obj2 == null) {
-			if (opStr.equals("==")) {
-				return false;
-			} else if (opStr.equals("!=") || opStr.equals("<>")) {
-				return true;
-			} else {
-				throw new Exception("空操作数不能执行这个操作：" + opStr);
-			}
-		}
-
-		int i = Operator.compareData(obj1, obj2);
+	    
+	    if(opStr.equals("==")){
+	        return Operator.objectEquals(obj1, obj2);
+        }
+        if(opStr.equals("!=")||opStr.equals("<>")){
+            return !Operator.objectEquals(obj1, obj2);
+        }
+        //进行其他大小比较操作
+        if (obj1 == null || obj2 == null){
+            throw new QLException("空操作数无法进行数字比较操作：left = " + obj1+",right = "+ obj2);
+        }
+        int i = Operator.compareData(obj1, obj2);
 		boolean result = false;
 		if (i > 0) {
 			if (opStr.equals(">") || opStr.equals(">=") || opStr.equals("!=")

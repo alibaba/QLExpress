@@ -7,6 +7,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorNew extends OperatorBase {
@@ -51,7 +52,7 @@ public class OperatorNew extends OperatorBase {
 				s.append(types[i].getName());
 			}
 			s.append(")");
-			throw new Exception(s.toString());
+			throw new QLException(s.toString());
 		}
 
 		tmpObj = c.newInstance(objs);

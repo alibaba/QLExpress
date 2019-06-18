@@ -3,6 +3,7 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.ArraySwap;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.exception.QLException;
 
 public  class OperatorIf extends OperatorBase {
 	public OperatorIf(String aName) {
@@ -17,15 +18,15 @@ public  class OperatorIf extends OperatorBase {
 	
 	public  OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
 		if(list.length <2){
-			throw new Exception("\"" + this.aliasName + "\"操作至少要两个操作数");
+			throw new QLException("\"" + this.aliasName + "\"操作至少要两个操作数");
 		}
 		Object obj = list.get(0).getObject(parent);
 		if (obj == null) {
 			String msg ="\"" + this.aliasName + "\"的判断条件不能为空";
-			throw new Exception(msg);
+			throw new QLException(msg);
 		} else if ((obj instanceof Boolean) == false) {
 			String msg = "\"" + this.aliasName + "\"的判断条件 必须是 Boolean,不能是：";
-			throw new Exception(msg + obj.getClass().getName());
+			throw new QLException(msg + obj.getClass().getName());
 		} else {
 			if (((Boolean)obj).booleanValue() == true){
 				return list.get(1);

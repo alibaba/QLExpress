@@ -1,6 +1,7 @@
 package com.ql.util.express;
 
 import com.ql.util.express.config.QLExpressRunStrategy;
+import com.ql.util.express.exception.QLException;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.lang.reflect.*;
@@ -514,7 +515,7 @@ public class ExpressUtil {
 		while (m.find()) {
 			int index = Integer.parseInt(m.group().substring(1)) - 1;
 			if (index < 0 || index >= parameters.length) {
-				throw new Exception("设置的参数位置$" + (index + 1) + "超过了范围 "
+				throw new QLException("设置的参数位置$" + (index + 1) + "超过了范围 "
 						+ parameters.length);
 			}
 			m.appendReplacement(sb, " " + parameters[index].toString() + " ");

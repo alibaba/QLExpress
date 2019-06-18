@@ -2,6 +2,8 @@ package com.ql.util.express.instruction.detail;
 
 import java.util.List;
 
+import com.ql.util.express.exception.QLBizException;
+import com.ql.util.express.exception.QLException;
 import org.apache.commons.logging.Log;
 
 import com.ql.util.express.ArraySwap;
@@ -44,9 +46,11 @@ public class InstructionOperator extends Instruction{
             OperateData result = this.operator.execute(environment.getContext(), parameters, errorList);
             environment.push(result);
             environment.programPointAddOne();
-        }catch (Exception e){
-            throw new Exception(getExceptionPrefix(),e);
-        }
+        }catch (QLException e){
+			throw new QLException(getExceptionPrefix(),e);
+		}catch (Throwable t){
+			throw new QLBizException(getExceptionPrefix(),t);
+		}
 	}
 	public String toString(){
 		String result = "OP : " + this.operator.toString() +  " OPNUMBER[" + this.opDataNumber +"]";

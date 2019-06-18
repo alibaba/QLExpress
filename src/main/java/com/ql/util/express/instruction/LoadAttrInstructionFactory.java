@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.detail.InstructionCallMacro;
 import com.ql.util.express.instruction.detail.InstructionLoadAttr;
 import com.ql.util.express.parse.ExpressNode;
@@ -19,7 +20,7 @@ public class LoadAttrInstructionFactory extends InstructionFactory {
 		}else{
 		  result.addInstruction(new InstructionLoadAttr(node.getValue()).setLine(node.getLine()));
 		  if(node.getChildren().length >0){
-			  throw new Exception("表达式设置错误");
+			  throw new QLException("表达式设置错误");
 		  }
 		}  
 		return false;

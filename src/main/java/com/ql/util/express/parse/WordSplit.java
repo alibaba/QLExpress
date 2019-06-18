@@ -1,6 +1,8 @@
 
 package com.ql.util.express.parse;
 
+import com.ql.util.express.exception.QLCompileException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -31,6 +33,8 @@ public class WordSplit
 	     List<Word> list = new ArrayList<Word>();
 	     int i= 0;
 	     int point = 0;
+	   // 当前行第一个字符相对脚本起点的偏移量offset
+	   int currentLineOffset = 0;
 	     while(i<str.length()){
 	        c = str.charAt(i);
 	       if (c=='"' || c=='\''){//字符串处理        
@@ -40,7 +44,7 @@ public class WordSplit
 	         	index = str.indexOf(c,index + 1);
 	         }
 	         if (index < 0)
-	         	throw new Exception("字符串没有关闭");
+	         	throw new QLCompileException("字符串没有关闭");
 	         String tempDealStr = str.substring(i,index + 1);
 	         //处理 \\，\"的情况
 	         String tmpResult = "";
@@ -48,17 +52,17 @@ public class WordSplit
 	         while(tmpPoint >=0 ){
 	         	tmpResult = tmpResult + tempDealStr.substring(0,tmpPoint);
 	         	if(tmpPoint == tempDealStr.length() -1){
-	         		throw new Exception("字符串中的" + "\\错误:" + tempDealStr);
+	         		throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
 	         	}
 	         	tmpResult = tmpResult + tempDealStr.substring(tmpPoint + 1 ,tmpPoint + 2);
 	         	tempDealStr = tempDealStr.substring(tmpPoint + 2);
 	         	tmpPoint = tempDealStr.indexOf("\\");  
 	         }
 	         tmpResult = tmpResult + tempDealStr;
-	         list.add(new Word(tmpResult,line,i));
+	         list.add(new Word(tmpResult,line,i - currentLineOffset + 1));
 
 	         if (point < i ){
-	             list.add(new Word(str.substring(point,i),line,i));
+	             list.add(new Word(str.substring(point,i),line,point - currentLineOffset + 1));
 	         }
 	         i = index + 1;
 	         point = i;
@@ -66,10 +70,11 @@ public class WordSplit
 	    	   i = i + 1; //小数点的特殊处理
 	       }else if(c == ' ' ||c =='\r'|| c =='\n'||c=='\t'||c=='\u000C'){
 	    	    if (point < i ){
-		             list.add(new Word(str.substring(point,i),line,i));
+		             list.add(new Word(str.substring(point,i),line,point - currentLineOffset + 1));
 		        }
 		        if(c =='\n'){
-		         		 line = line + 1;
+		        	line = line + 1;
+					currentLineOffset = i + 1;
 		        } 
 		        i = i + 1;
 		        point = i;
@@ -79,9 +84,9 @@ public class WordSplit
 	    		   int length = s.length();
 	    		   if(i + length <= str.length() && str.substring(i, i+length).equals(s)){
 	    			   if (point < i ){
-	    		             list.add(new Word(str.substring(point,i),line,i));
+	    		             list.add(new Word(str.substring(point,i),line,point - currentLineOffset + 1));
 	    		       }
-                       list.add(new Word(str.substring(i, i+length),line,i+length));
+                       list.add(new Word(str.substring(i, i+length),line,i - currentLineOffset + 1));
 	    			   i = i + length;
 	    			   point = i;
 	    			   isFind = true;
@@ -94,7 +99,7 @@ public class WordSplit
 	       }
 	     }
 		if (point < i) {
-			list.add(new Word(str.substring(point, i), line, i));
+			list.add(new Word(str.substring(point, i), line, point - currentLineOffset + 1));
 		}
 
 		Word result[] = new Word[list.size()];

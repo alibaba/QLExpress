@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction.op;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.exception.QLException;
 
 public class OperatorOr extends Operator {
 	public OperatorOr(String name) {
@@ -27,7 +28,7 @@ public class OperatorOr extends Operator {
         	r1 = ((Boolean) o1).booleanValue();
         }else{
         	String msg = "没有定义类型" + o1 + "和" + o2 + " 的 " + this.name + "操作";
-			throw new Exception(msg);
+			throw new QLException(msg);
         }
         if(o2 == null){
         	r2 = false;
@@ -35,7 +36,7 @@ public class OperatorOr extends Operator {
         	r2 = ((Boolean) o2).booleanValue();
         }else{
         	String msg = "没有定义类型" + o1 + "和" + o2 + " 的 " + this.name + "操作";
-			throw new Exception(msg);
+			throw new QLException(msg);
         }
         boolean result = r1 || r2;
 		return  Boolean.valueOf(result);

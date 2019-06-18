@@ -16,6 +16,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 /**
@@ -141,7 +142,7 @@ class OperatorFunction extends OperatorBase {
 	}
 
 	public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-		throw new Exception("还没有实现");
+		throw new QLException("还没有实现");
 	}
 }
 
@@ -159,7 +160,7 @@ class OperatorReturn extends OperatorBase{
 	}
 
 	public OperateData executeInner(InstructionSetContext parent) throws Exception {
-		throw new Exception("return 是通过特殊指令来实现的，不能支持此方法");
+		throw new QLException("return 是通过特殊指令来实现的，不能支持此方法");
 	}	
 }
 class OperatorCall extends OperatorBase{
@@ -172,7 +173,7 @@ class OperatorCall extends OperatorBase{
 		this.errorInfo = aErrorInfo;
 	}
 	public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
-		throw new Exception("call 是通过特殊指令来实现的，不能支持此方法");
+		throw new QLException("call 是通过特殊指令来实现的，不能支持此方法");
 	}	
 }
 
@@ -186,7 +187,7 @@ class OperatorBreak extends OperatorBase{
 		this.errorInfo = aErrorInfo;
 	}
 	public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
-		throw new Exception("OperatorBreak 是通过特殊指令来实现的，不能支持此方法");
+		throw new QLException("OperatorBreak 是通过特殊指令来实现的，不能支持此方法");
 	}	
 }
 class OperatorContinue extends OperatorBase{
@@ -199,7 +200,7 @@ class OperatorContinue extends OperatorBase{
 		this.errorInfo = aErrorInfo;
 	}
 	public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
-		throw new Exception("OperatorContinue 是通过特殊指令来实现的，不能支持此方法");
+		throw new QLException("OperatorContinue 是通过特殊指令来实现的，不能支持此方法");
 	}	
 }
 
@@ -215,7 +216,7 @@ class OperatorFor extends OperatorBase {
 	}
 	
 	public  OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
-		throw new Exception("cache 是通过特殊指令来实现的，不能支持此方法");
+		throw new QLException("cache 是通过特殊指令来实现的，不能支持此方法");
 	}
 
 }

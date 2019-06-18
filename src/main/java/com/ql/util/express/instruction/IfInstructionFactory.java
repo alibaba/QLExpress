@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
+import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.instruction.detail.InstructionGoTo;
 import com.ql.util.express.instruction.detail.InstructionGoToWithCondition;
 import com.ql.util.express.parse.ExpressNode;
@@ -14,9 +15,9 @@ public class IfInstructionFactory extends  InstructionFactory {
 			throws Exception {		
 		ExpressNode[] oldChildren = node.getChildren();
     	if(oldChildren.length < 2){
-    		throw new Exception("if 操作符至少需要2个操作数 " );
+    		throw new QLCompileException("if 操作符至少需要2个操作数 " );
     	}else if(oldChildren.length > 5){
-        		throw new Exception("if 操作符最多只有5个操作数 " );
+        		throw new QLCompileException("if 操作符最多只有5个操作数 " );
     	}
     	ExpressNode[] children = new ExpressNode[3];
     	int point = 0;    	

@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ql.util.express.exception.QLCompileException;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.parse.ExpressNode;
 
 public class OperatorFactory {	
@@ -81,11 +83,11 @@ public class OperatorFactory {
 	@SuppressWarnings("unchecked")
 	public void addOperatorWithAlias(String aAliasName,String name,String errorInfo) throws Exception{
 		 if (this.operator.containsKey(name) == false){
-			 throw new Exception(name + " 不是系统级别的操作符号，不能设置别名");
+			 throw new QLException(name + " 不是系统级别的操作符号，不能设置别名");
 		 }else{
 			 OperatorBase orgiOperator = this.operator.get(name);
 			 if(orgiOperator == null){
-				 throw new Exception(name + " 不能被设置别名");
+				 throw new QLException(name + " 不能被设置别名");
 			 }
 			 OperatorBase destOperator = null;
 			if (orgiOperator instanceof CanClone) {
@@ -97,10 +99,10 @@ public class OperatorFactory {
 					constructor = (Constructor<OperatorBase>) opClass
 							.getConstructor(String.class, String.class,String.class);
 				} catch (Exception e) {
-					throw new Exception(name + " 不能被设置别名:" + e.getMessage());
+					throw new QLException(name + " 不能被设置别名:" + e.getMessage());
 				}
 				if (constructor == null) {
-					throw new Exception(name + " 不能被设置别名");
+					throw new QLException(name + " 不能被设置别名");
 				}
 				destOperator = constructor.newInstance(aAliasName, name,errorInfo);
 			}
@@ -129,13 +131,13 @@ public class OperatorFactory {
 			op = operator.get(opItem.getValue());
 		}
 		if (op == null)
-			throw new Exception("没有为\"" + opItem.getValue() + "\"定义操作符处理对象");
+			throw new QLCompileException("没有为\"" + opItem.getValue() + "\"定义操作符处理对象");
 		return op;
 	}
 	public OperatorBase newInstance(String opName) throws Exception {
 		OperatorBase op = operator.get(opName);
 		if (op == null){
-			throw new Exception("没有为\"" + opName + "\"定义操作符处理对象");
+			throw new QLCompileException("没有为\"" + opName + "\"定义操作符处理对象");
 		}	
 		return op;		
 	}

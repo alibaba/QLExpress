@@ -3,6 +3,7 @@ package com.ql.util.express.match;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ql.util.express.exception.QLCompileException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -95,7 +96,7 @@ public class QLPatternNode{
 	protected QLPatternNode(INodeTypeManager aManager,String aName,String aOrgiContent) throws Exception{
 		this(aManager,aName,aOrgiContent,false,1);
 //		if(this.toString().equals(aOrgiContent)==false){
-				//throw new Exception("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
+				//throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
 			//log.error(("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString()));
 //		}
 	}
@@ -146,7 +147,7 @@ public class QLPatternNode{
 			}else if(orgStr.charAt(i) == '$'){
 				if (this.matchMode != MatchMode.NULL
 						&& this.matchMode != MatchMode.AND) {
-					throw new Exception("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
+					throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
 							+ orgStr);
 				}
 				children.add(new QLPatternNode(this.nodeTypeManager,"ANONY_PATTERN",tempStr, false,this.level + 1));
@@ -155,7 +156,7 @@ public class QLPatternNode{
 			}else if(orgStr.charAt(i) == '|'){
 					if (this.matchMode != MatchMode.NULL
 							&& this.matchMode != MatchMode.OR) {
-						throw new Exception("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
+						throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
 								+ orgStr);
 					}
 					children.add(new QLPatternNode(this.nodeTypeManager,"ANONY_PATTERN",tempStr, false,this.level + 1));
@@ -170,7 +171,7 @@ public class QLPatternNode{
 		}
 		// 处理没有()的内容
 		if (count > 0) {
-			throw new Exception("不正确的模式串,(没有找到对应的):" + orgStr);
+			throw new QLCompileException("不正确的模式串,(没有找到对应的):" + orgStr);
 		}
         
 		if(this.children.size() > 0){

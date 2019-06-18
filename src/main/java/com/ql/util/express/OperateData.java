@@ -1,6 +1,8 @@
 package com.ql.util.express;
 
 
+import com.ql.util.express.exception.QLException;
+
 /**
  * 数据类型定义
  * @author qhlhl2010@gmail.com
@@ -48,7 +50,7 @@ public class OperateData implements java.io.Serializable {
 
 	public final Object getObject(InstructionSetContext context) throws Exception {
     	if(this.type != null && this.type.equals(void.class)){
-    		throw new Exception("void 不能参与任何操作运算,请检查使用在表达式中使用了没有返回值的函数,或者分支不完整的if语句");
+    		throw new QLException("void 不能参与任何操作运算,请检查使用在表达式中使用了没有返回值的函数,或者分支不完整的if语句");
     	}
 		return getObjectInner(context);
 	}

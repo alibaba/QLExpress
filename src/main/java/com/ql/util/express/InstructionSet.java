@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ql.util.express.config.QLExpressTimer;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.detail.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -200,7 +202,7 @@ public class InstructionSet implements Serializable{
 			}
 		}
 		if (environmen.getDataStackSize() > 1) {
-			throw new Exception("在表达式执行完毕后，堆栈中还存在多个数据");
+			throw new QLException("在表达式执行完毕后，堆栈中还存在多个数据");
 		}
 		CallResult result = OperateDataCacheManager.fetchCallResult(environmen.getReturnValue(), environmen.isExit());
 		return result;
@@ -209,9 +211,7 @@ public class InstructionSet implements Serializable{
 			Instruction instruction =null;
 		try {
 			while (environmen.programPoint < this.instructionList.length) {
-//				if (environmen.isExit() == true) {
-//					return;
-//				}
+				QLExpressTimer.assertTimeOut();
 				instruction = this.instructionList[environmen.programPoint];
 				instruction.setLog(aLog);// 设置log
 				instruction.execute(environmen, errorList);

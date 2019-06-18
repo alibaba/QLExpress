@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 import com.ql.util.express.parse.ExpressNode;
 
@@ -13,7 +14,7 @@ public class FunctionInstructionFactory extends InstructionFactory {
 			throws Exception {		
     	ExpressNode[] children = node.getChildren();
     	if(children.length != 3){
-    		throw new Exception("funciton 操作符需要3个操作数 " );
+    		throw new QLException("funciton 操作符需要3个操作数 " );
     	}
 		String functionName =children[0].getValue();
     	ExpressNode[] varDefines = children[1].getChildren();
@@ -29,7 +30,7 @@ public class FunctionInstructionFactory extends InstructionFactory {
     	
     	while(point<varDefines.length){
     		if(varDefines[point].isTypeEqualsOrChild("def") == false){
-    		  throw new Exception("function的参数定义错误," + varDefines[point] + "不是一个Class");
+    		  throw new QLException("function的参数定义错误," + varDefines[point] + "不是一个Class");
     		}
     		Class<?> varClass = (Class<?>)varDefines[point].getChildren()[0].getObjectValue();
     		String varName = varDefines[point].getChildren()[1].getValue();    		

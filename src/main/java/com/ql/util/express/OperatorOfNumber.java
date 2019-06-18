@@ -1,5 +1,7 @@
 package com.ql.util.express;
 
+import com.ql.util.express.exception.QLException;
+
 import java.math.BigDecimal;
 
 /**
@@ -217,7 +219,7 @@ class NormalNumberOperator {
 		if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() + op2.floatValue();
 		if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() + op2.doubleValue();
 		if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).add(new BigDecimal(op2.toString()));		
-		throw new Exception("不支持的对象执行了\"+\"操作");
+		throw new QLException("不支持的对象执行了\"+\"操作");
 	}
 
 
@@ -233,7 +235,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() - op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() - op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).subtract(new BigDecimal(op2.toString()));
-			throw new Exception("不支持的对象执行了\"-\"操作");
+			throw new QLException("不支持的对象执行了\"-\"操作");
 	    }
 
 	    public static Number multiplyNormal(Number op1,Number op2) throws Exception {
@@ -247,7 +249,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() * op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() * op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).multiply(new BigDecimal(op2.toString()));
-			throw new Exception("不支持的对象执行了\"*\"操作");
+			throw new QLException("不支持的对象执行了\"*\"操作");
 	    }
 	   public static Number divideNormal(Number op1,Number op2) throws Exception{
 			int type1 = OperatorOfNumber.getSeq(op1.getClass());
@@ -260,7 +262,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() / op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() / op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).divide(new BigDecimal(op2.toString()), BigDecimal.ROUND_HALF_UP);
-			throw new Exception("不支持的对象执行了\"/\"操作");
+			throw new QLException("不支持的对象执行了\"/\"操作");
 	    }
 
 
@@ -272,7 +274,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_SHORT) return op1.shortValue() % op2.shortValue();
 			if(type == NumberType.NUMBER_TYPE_INT) return op1.intValue() % op2.intValue();
 			if(type == NumberType.NUMBER_TYPE_LONG) return op1.longValue() % op2.longValue();
-			throw new Exception("不支持的对象执行了\"mod\"操作");
+			throw new QLException("不支持的对象执行了\"mod\"操作");
      }
 }
 

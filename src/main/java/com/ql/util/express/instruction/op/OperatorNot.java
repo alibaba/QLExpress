@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction.op;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.exception.QLException;
 
 public class OperatorNot extends Operator {
 	public OperatorNot(String name) {
@@ -19,7 +20,7 @@ public class OperatorNot extends Operator {
 			throws Exception {
 		Object result = null;
         if (op == null){
-        	throw new Exception("null 不能执行操作：" + this.getAliasName());
+        	throw new QLException("null 不能执行操作：" + this.getAliasName());
         }
 		if (Boolean.class.equals(op.getClass()) == true) {
 			boolean r = !((Boolean) op).booleanValue();
@@ -28,7 +29,7 @@ public class OperatorNot extends Operator {
 			//
 			String msg = "没有定义类型" + op.getClass().getName() + " 的 " + this.name
 					+ "操作";
-			throw new Exception(msg);
+			throw new QLException(msg);
 		}
 		return result;
 	}

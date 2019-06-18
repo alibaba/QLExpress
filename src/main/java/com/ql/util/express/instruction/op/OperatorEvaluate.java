@@ -4,6 +4,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.exception.QLException;
 
 public class OperatorEvaluate extends OperatorBase {
 	public OperatorEvaluate(String name) {
@@ -24,7 +25,7 @@ public class OperatorEvaluate extends OperatorBase {
 		Class<?> sourceType = op2.getType(parent);
 		if (targetType != null) {
 			if (ExpressUtil.isAssignable(targetType, sourceType) == false) {
-					throw new Exception("赋值时候，类型转换错误："
+					throw new QLException("赋值时候，类型转换错误："
 							+ ExpressUtil.getClassName(sourceType) + " 不能转换为 "
 							+ ExpressUtil.getClassName(targetType));
 			}

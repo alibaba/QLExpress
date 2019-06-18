@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction.op;
 
 import com.ql.util.express.Operator;
+import com.ql.util.express.exception.QLException;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public class OperatorBit extends Operator {
                     return ~(((Number) list[0]).longValue());
                 }
             }else{
-                throw new Exception("取反操作符 ~ 参数不合法:"+ Arrays.toString(list));
+                throw new QLException("取反操作符 ~ 参数不合法:"+ Arrays.toString(list));
             }
         }
         if( this.name.equals("&")){
@@ -33,7 +34,7 @@ public class OperatorBit extends Operator {
                 }
                 return (((Number)list[0]).longValue())&(((Number)list[1]).longValue());
             }else{
-                throw new Exception("按位与操作符 & 两边的参数不合法:"+ Arrays.toString(list));
+                throw new QLException("按位与操作符 & 两边的参数不合法:"+ Arrays.toString(list));
             }
         }
         if( this.name.equals("|")){
@@ -43,7 +44,7 @@ public class OperatorBit extends Operator {
                 }
                 return (((Number)list[0]).longValue())|(((Number)list[1]).longValue());
             }else{
-                throw new Exception("按位或操作符 | 两边的参数不合法:"+ Arrays.toString(list));
+                throw new QLException("按位或操作符 | 两边的参数不合法:"+ Arrays.toString(list));
             }
         }
         if( this.name.equals("^")){
@@ -53,7 +54,7 @@ public class OperatorBit extends Operator {
                 }
                 return (((Number)list[0]).longValue())^(((Number)list[1]).longValue());
             }else{
-                throw new Exception("按位异或操作符 ^ 两边的参数不合法:"+ Arrays.toString(list));
+                throw new QLException("按位异或操作符 ^ 两边的参数不合法:"+ Arrays.toString(list));
             }
         }
         if( this.name.equals("<<")){
@@ -63,7 +64,7 @@ public class OperatorBit extends Operator {
                 }
                 return (((Number)list[0]).longValue())<<(((Number)list[1]).longValue());
             }else{
-                throw new Exception("左移操作符 << 两边的参数不合法:"+ Arrays.toString(list));
+                throw new QLException("左移操作符 << 两边的参数不合法:"+ Arrays.toString(list));
             }
         }
         if( this.name.equals(">>")){
@@ -73,9 +74,9 @@ public class OperatorBit extends Operator {
                 }
                 return (((Number)list[0]).longValue())>>(((Number)list[1]).longValue());
             }else{
-                throw new Exception("右移操作符 >> 两边的参数不合法:"+ Arrays.toString(list));
+                throw new QLException("右移操作符 >> 两边的参数不合法:"+ Arrays.toString(list));
             }
         }
-        throw new Exception("不支持的位运算操作符:"+ Arrays.toString(list));
+        throw new QLException("不支持的位运算操作符:"+ Arrays.toString(list));
     }
 }

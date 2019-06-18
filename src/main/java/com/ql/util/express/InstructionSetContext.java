@@ -3,6 +3,7 @@ package com.ql.util.express;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionSetContext  implements IExpressContext<String,Object> {
@@ -57,7 +58,7 @@ public class InstructionSetContext  implements IExpressContext<String,Object> {
 	}
 	public void addSymbol(String varName,Object aliasNameObject) throws Exception{
 		if(this.symbolTable.containsKey(varName)){
-			throw new Exception("变量" + varName + "已经存在，不能重复定义，也不能再从函数内部 exprot ");
+			throw new QLException("变量" + varName + "已经存在，不能重复定义，也不能再从函数内部 exprot ");
 		}
 		this.symbolTable.put(varName,aliasNameObject);
 	}

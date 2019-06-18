@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.FunctionInstructionSet;
 
 
@@ -28,7 +29,7 @@ public class ExpressLoader {
 			throws Exception {
 		synchronized (expressInstructionSetCache) {
 			if (expressInstructionSetCache.containsKey(expressName)) {
-				throw new Exception("表达式定义重复：" + expressName);
+				throw new QLException("表达式定义重复：" + expressName);
 			}
 			expressInstructionSetCache.put(expressName, set);
 		}
@@ -38,7 +39,7 @@ public class ExpressLoader {
 			String expressString) throws Exception {
 		InstructionSet parseResult = null;
 		if (expressInstructionSetCache.containsKey(expressName)) {
-			throw new Exception("表达式定义重复：" + expressName);
+			throw new QLException("表达式定义重复：" + expressName);
 		}
 		synchronized (expressInstructionSetCache) {
 			parseResult = this.creator.parseInstructionSet(expressString);

@@ -66,4 +66,65 @@ public class ArrayTest {
 		}
 		System.out.println(expressContext);
 	}
+	
+	@Test
+	public void testArrayField() throws Exception {
+        ExpressRunner runner = new ExpressRunner(false,true);
+        String[] expressList = new String[]{
+              "(args[0]).test.code",
+              "System.out.println(args[0].code)"
+        };
+        
+        for(String express :expressList){
+            DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+            Args[] args = new Args[2];
+            args[0]= new Args();
+            args[0].setCode("parent");
+            Args child = new Args();
+            child.setCode("child");
+            args[0].setTest(child);
+            context.put("args",args);
+            runner.execute(express,context,null,true,false);
+        }
+        
+    }
+    
+    @Test
+    public void testFunction2() throws Exception {
+        ExpressRunner runner = new ExpressRunner();
+        String exp = "this.println((args[0]));";
+        String[] args = {"123","456"};
+        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        ((DefaultContext<String, Object>) context).put("args", args);
+        ((DefaultContext<String, Object>) context).put("this",new ArrayTest());
+        Object result = runner.execute(exp,context,null,false,false);
+    }
+    
+    public void println(String x) {
+	    System.out.println("println(String x)");
+    }
+    
+    public void println(Object x) {
+        System.out.println("println(Object x)");
+    }
+    
+    public class Args{
+	    private Args test;
+        private String code;
+        public Args getTest() {
+            return test;
+        }
+    
+        public void setTest(Args test) {
+            this.test = test;
+        }
+    
+        public String getCode() {
+            return code;
+        }
+    
+        public void setCode(String code) {
+            this.code = code;
+        }
+    }
 }

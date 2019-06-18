@@ -2,6 +2,7 @@ package com.ql.util.express.instruction.opdata;
 
 import java.util.List;
 
+import com.ql.util.express.exception.QLException;
 import org.apache.commons.logging.Log;
 
 import com.ql.util.express.InstructionSet;
@@ -39,7 +40,7 @@ public class OperateDataVirClass extends OperateDataAttr{
 				parent.getExpressRunner(),parent,parent.getExpressLoader(),parent.isSupportDynamicFieldName());
 		Object functionSet = parent.getSymbol(this.name);		
 		if (functionSet == null || functionSet instanceof InstructionSet == false) {
-			throw new Exception("没有找到自定义对象\"" + this.name + "\"");
+			throw new QLException("没有找到自定义对象\"" + this.name + "\"");
 		}
 		this.virClassInstructionSet = (InstructionSet)functionSet;
 		
@@ -56,7 +57,7 @@ public class OperateDataVirClass extends OperateDataAttr{
 	public OperateData callSelfFunction(String functionName,OperateData[] parameters) throws Exception{
 		Object function = this.context.getSymbol(functionName);
 		if (function == null || function instanceof InstructionSet == false) {
-			throw new Exception("在VClass:"+ this.name +"中没有定义函数\"" + functionName + "\"");
+			throw new QLException("在VClass:"+ this.name +"中没有定义函数\"" + functionName + "\"");
 		}
 		InstructionSet functionSet = (InstructionSet)function;
 		
@@ -99,7 +100,7 @@ public class OperateDataVirClass extends OperateDataAttr{
 			    return result;
 			}			
 		}else{
-			throw new Exception("不支持的数据类型:" + o.getClass().getName());
+			throw new QLException("不支持的数据类型:" + o.getClass().getName());
 		}
 	}
 	public void setValue(String name,Object value) throws Exception{
@@ -107,7 +108,7 @@ public class OperateDataVirClass extends OperateDataAttr{
 		if(o instanceof OperateData){
 			((OperateData)o).setObject(context,value);
 		}else{
-			throw new Exception("不支持的数据类型:" + o.getClass().getName());
+			throw new QLException("不支持的数据类型:" + o.getClass().getName());
 		}
 	}
 	public Class<?> getValueType(Object name) throws Exception{
@@ -115,7 +116,7 @@ public class OperateDataVirClass extends OperateDataAttr{
 		if(o instanceof OperateData){
 			return ((OperateData)o).getType(context);
 		}else{
-			throw new Exception("不支持的数据类型:" + o.getClass().getName());
+			throw new QLException("不支持的数据类型:" + o.getClass().getName());
 		}
 	}
 	public Object getObjectInner(InstructionSetContext context) {

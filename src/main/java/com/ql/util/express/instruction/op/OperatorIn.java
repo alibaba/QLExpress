@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ql.util.express.Operator;
 import com.ql.util.express.config.QLExpressRunStrategy;
+import com.ql.util.express.exception.QLException;
 
 public class OperatorIn extends Operator {
 	public OperatorIn(String aName) {
@@ -26,10 +27,10 @@ public class OperatorIn extends Operator {
             }
 			// 对象为空，不能执行方法
 			String msg = "对象为空，不能执行方法:";
-			throw new Exception(msg + this.name);
+			throw new QLException(msg + this.name);
 		} else if (((obj instanceof Number) || (obj instanceof String)) == false) {
 			String msg = "对象类型不匹配，只有数字和字符串类型才才能执行 in 操作,当前数据类型是:";
-			throw new Exception(msg + obj.getClass().getName());
+			throw new QLException(msg + obj.getClass().getName());
 		} else if(list.length == 2 && (list[1].getClass().isArray() || list[1] instanceof List)){
 			       if(obj.equals(list[1]) == true){
 			    	   return true;

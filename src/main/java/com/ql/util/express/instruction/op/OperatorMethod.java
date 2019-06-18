@@ -7,6 +7,7 @@ import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 import com.ql.util.express.config.QLExpressRunStrategy;
+import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.opdata.OperateClass;
 import com.ql.util.express.instruction.opdata.OperateDataVirClass;
@@ -41,7 +42,7 @@ public class OperatorMethod extends OperatorBase {
             }
 			// 对象为空，不能执行方法
 			String msg = "对象为空，不能执行方法:";
-			throw new Exception(msg + this.methodName);
+			throw new QLException(msg + this.methodName);
 		} else {
 			Class<?>[] types = new Class[list.length - 1];
 			Class<?>[] orgiTypes = new Class[list.length - 1];
@@ -69,8 +70,14 @@ public class OperatorMethod extends OperatorBase {
 				m = ExpressUtil.findMethodWithCache((Class<?>) obj, this.methodName,
 						types, true, true);
 			} else {
-				m = ExpressUtil.findMethodWithCache(obj.getClass(), this.methodName,
-						types, true, false);
+			    if(obj instanceof Class){
+                    m = ExpressUtil.findMethodWithCache((Class<?>) obj, this.methodName,
+                            types, true, true);
+                }
+                if(m==null) {
+                    m = ExpressUtil.findMethodWithCache(obj.getClass(), this.methodName,
+                            types, true, false);
+                }
 			}
 			if(m == null){
 				types = new Class[]{ArrayClass};
@@ -97,9 +104,11 @@ public class OperatorMethod extends OperatorBase {
 					}
 				}
 				s.append(")");
-				throw new Exception(s.toString());
+				throw new QLException(s.toString());
 			}
-			
+			//阻止调用不安全的方法
+			QLExpressRunStrategy.assertBlackMethod(m);
+
 			if (p0 instanceof OperateClass) {// 调用静态方法
 				boolean oldA = m.isAccessible();
 				m.setAccessible(true);

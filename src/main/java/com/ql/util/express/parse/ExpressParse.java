@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ql.util.express.exception.QLCompileException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -179,7 +180,7 @@ public class ExpressParse {
 			  point = point + 1;
 		  }else if(firstChar =='"'){
 			  if(lastChar !='"' || tempWord.length() <2){
-				  throw new Exception("没有关闭的字符串：" + tempWord);
+				  throw new QLCompileException("没有关闭的字符串：" + tempWord);
 			  }
 			  tempWord = tempWord.substring(1,tempWord.length() -1);
 			  tempType =nodeTypeManager.findNodeType("CONST_STRING");
@@ -188,7 +189,7 @@ public class ExpressParse {
 			  point = point + 1;
 		  }else if(firstChar =='\''){
 			  if(lastChar !='\'' || tempWord.length() <2){
-				  throw new Exception("没有关闭的字符：" + tempWord);
+				  throw new QLCompileException("没有关闭的字符：" + tempWord);
 			  }
 			  tempWord = tempWord.substring(1,tempWord.length() -1);
 			  
@@ -392,12 +393,12 @@ public class ExpressParse {
 		QLMatchResult result = QLPattern.findMatchStatement(this.nodeTypeManager, this.nodeTypeManager
 						.findNodeType("PROGRAM").getPatternNode(), tempList,0);
 		if(result == null){
-			throw new Exception("语法匹配失败");
+			throw new QLCompileException("语法匹配失败");
 		}
 		if(result.getMatchLastIndex() < tempList.size()){
 			int maxPoint = result.getMatchLastIndex();
 			ExpressNode tempNode = tempList.get(maxPoint);
-			throw new Exception("还有单词没有完成语法匹配：" + result.getMatchLastIndex() +"["+ tempNode.getValue() + ":line=" + tempNode.getLine() + ",col=" + tempNode.getCol() +"] 之后的单词 \n" + express);
+			throw new QLCompileException("还有单词没有完成语法匹配：" + result.getMatchLastIndex() +"["+ tempNode.getValue() + ":line=" + tempNode.getLine() + ",col=" + tempNode.getCol() +"] 之后的单词 \n" + express);
 		}
 		result.getMatchs().get(0).buildExpressNodeTree();
 		ExpressNode root =(ExpressNode)result.getMatchs().get(0).getRef();

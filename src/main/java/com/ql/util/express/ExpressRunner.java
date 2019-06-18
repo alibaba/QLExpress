@@ -4,6 +4,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ql.util.express.config.QLExpressTimer;
+import com.ql.util.express.exception.QLCompileException;
+import com.ql.util.express.exception.QLException;
+import com.ql.util.express.exception.QLTimeOutException;
 import com.ql.util.express.instruction.op.*;
 import com.ql.util.express.parse.*;
 import com.ql.util.express.rule.Condition;
@@ -454,11 +458,11 @@ public class ExpressRunner {
 		}
 		NodeType realNodeType = this.manager.findNodeType(realKeyWordName);
 		if(realNodeType == null){
-			throw new Exception("关键字：" + realKeyWordName +"不存在");
+			throw new QLException("关键字：" + realKeyWordName +"不存在");
 		}
 		boolean isExist = this.operatorManager.isExistOperator(realNodeType.getName());
 		if(isExist == false &&  errorInfo != null){
-			throw new Exception("关键字：" + realKeyWordName +"是通过指令来实现的，不能设置错误的提示信息，errorInfo 必须是 null");
+			throw new QLException("关键字：" + realKeyWordName +"是通过指令来实现的，不能设置错误的提示信息，errorInfo 必须是 null");
 		}
 		if(isExist == false || errorInfo == null){
 			//不需要新增操作符号，只需要建立一个关键子即可
@@ -540,31 +544,53 @@ public class ExpressRunner {
 		return  InstructionSetRunner.executeOuter(this,instructionSets,this.loader,context, errorList,
 				 	isTrace,isCatchException,aLog,false);
 	}
-/**
- * 执行一段文本
- * @param expressString 程序文本
- * @param context 执行上下文
- * @param errorList 输出的错误信息List
- * @param isCache 是否使用Cache中的指令集
- * @param isTrace 是否输出详细的执行指令信息
- * @return
- * @throws Exception
- */
+	/**
+	 * 执行一段文本
+	 * @param expressString 程序文本
+	 * @param context 执行上下文
+	 * @param errorList 输出的错误信息List
+	 * @param isCache 是否使用Cache中的指令集
+	 * @param isTrace 是否输出详细的执行指令信息
+	 * @param timeoutMillis 超时毫秒时间
+	 * @return
+	 * @throws Exception
+	 */
 	public Object execute(String expressString, IExpressContext<String,Object> context,
-			List<String> errorList, boolean isCache, boolean isTrace) throws Exception {
+			List<String> errorList, boolean isCache, boolean isTrace,long timeoutMillis) throws Exception {
+		//设置超时毫秒时间
+		QLExpressTimer.setTimer(timeoutMillis);
+		try {
+			return this.execute(expressString, context, errorList, isCache, isTrace, null);
+		}finally {
+			QLExpressTimer.reset();
+		}
+	}
+
+	/**
+	 * 执行一段文本
+	 * @param expressString 程序文本
+	 * @param context 执行上下文
+	 * @param errorList 输出的错误信息List
+	 * @param isCache 是否使用Cache中的指令集
+	 * @param isTrace 是否输出详细的执行指令信息
+	 * @return
+	 * @throws Exception
+	 */
+	public Object execute(String expressString, IExpressContext<String,Object> context,
+						  List<String> errorList, boolean isCache, boolean isTrace) throws Exception {
 		return this.execute(expressString, context, errorList, isCache, isTrace, null);
 	}
-/**
- * 执行一段文本
- * @param expressString 程序文本
- * @param context 执行上下文
- * @param errorList 输出的错误信息List
- * @param isCache 是否使用Cache中的指令集
- * @param isTrace 是否输出详细的执行指令信息
- * @param aLog 输出的log
- * @return
- * @throws Exception
- */
+	/**
+	 * 执行一段文本
+	 * @param expressString 程序文本
+	 * @param context 执行上下文
+	 * @param errorList 输出的错误信息List
+	 * @param isCache 是否使用Cache中的指令集
+	 * @param isTrace 是否输出详细的执行指令信息
+	 * @param aLog 输出的log
+	 * @return
+	 * @throws Exception
+	 */
 	public Object execute(String expressString, IExpressContext<String,Object> context,
 			List<String> errorList, boolean isCache, boolean isTrace, Log aLog)
 			throws Exception {
@@ -663,19 +689,25 @@ public class ExpressRunner {
 	 */
 	public InstructionSet parseInstructionSet(String text)
 			throws Exception {
-		Map<String,String> selfDefineClass = new HashMap<String,String> ();
-		for(ExportItem  item : this.loader.getExportInfo()){
-			if(item.getType().equals(InstructionSet.TYPE_CLASS)){
-				selfDefineClass.put(item.getName(), item.getName());
+		try {
+			Map<String, String> selfDefineClass = new HashMap<String, String>();
+			for (ExportItem item : this.loader.getExportInfo()) {
+				if (item.getType().equals(InstructionSet.TYPE_CLASS)) {
+					selfDefineClass.put(item.getName(), item.getName());
+				}
 			}
-		}
 
-		ExpressNode root = this.parse.parse(this.rootExpressPackage,text, isTrace,selfDefineClass);
-		InstructionSet result = createInstructionSet(root, "main");
-		if (this.isTrace && log.isDebugEnabled()) {
-			log.debug(result);
+			ExpressNode root = this.parse.parse(this.rootExpressPackage, text, isTrace, selfDefineClass);
+			InstructionSet result = createInstructionSet(root, "main");
+			if (this.isTrace && log.isDebugEnabled()) {
+				log.debug(result);
+			}
+			return result;
+		}catch (QLCompileException e){
+			throw e;
+		}catch (Exception e){
+			throw new QLCompileException("编译异常:\n"+text,e);
 		}
-		return result;
 	}
 	/**
 	 * 输出全局定义信息
@@ -719,7 +751,7 @@ public class ExpressRunner {
 		Stack<ForRelBreakContinue> forStack = new Stack<ForRelBreakContinue>();
 		createInstructionSetPrivate(result, forStack, root, true);
 		if (forStack.size() > 0) {
-			throw new Exception("For处理错误");
+			throw new QLCompileException("For处理错误");
 		}
 	}
 
