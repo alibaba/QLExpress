@@ -16,7 +16,11 @@ public class InvokeSecurityRiskMethodsTest {
     @Before
     public void before()        
     {
+        //系统默认阻止的方法黑名单:System.exit(1);Runtime.getRuntime().exec()两个函数
         QLExpressRunStrategy.setForbiddenInvokeSecurityRiskMethods(true);
+
+        //用户还可以增加一些类的方法黑名单
+        QLExpressRunStrategy.addSecurityRiskMethod(InvokeSecurityRiskMethodsTest.class,"echo");
     }
     @After
     public void after()
@@ -25,8 +29,14 @@ public class InvokeSecurityRiskMethodsTest {
     }
     private static String[] expressList = new String[]{
             "System.exit(1);",
-            "for(i=1;i<10;i++){\nRuntime.getRuntime().exec('echo 1+1');}"
+            "for(i=1;i<10;i++){\nRuntime.getRuntime().exec('echo 1+1');}",
+            "a = new com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest();a.echo('hello')"
     };
+
+    public String echo(String a)
+    {
+        return a;
+    }
 
     @Test
     public void test() throws Exception {
