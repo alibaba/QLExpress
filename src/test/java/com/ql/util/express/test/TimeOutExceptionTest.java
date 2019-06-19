@@ -6,8 +6,8 @@ import com.ql.util.express.exception.QLTimeOutException;
 import org.junit.Test;
 
 /**
- * @Author: tianqiao@taobao.com
- * @Date: 2019/6/18 10:52 AM
+ * @author tianqiao@taobao.com
+ * @since 2019/6/18 10:52 AM
  */
 public class TimeOutExceptionTest {
 

@@ -5,8 +5,8 @@ import com.ql.util.express.exception.QLTimeOutException;
 import java.sql.SQLTimeoutException;
 
 /**
- * @Author: tianqiao@taobao.com
- * @Date: 2019/6/17 4:12 PM
+ * @author tianqiao@taobao.com
+ * @since 2019/6/17 4:12 PM
  */
 public class QLExpressTimer {
 
