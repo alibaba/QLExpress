@@ -7,6 +7,13 @@
 由阿里的电商业务规则、表达式（布尔组合）、特殊数学公式计算（高精度）、语法分析、脚本二次定制等强需求而设计的一门动态脚本引擎解析工具。
 在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
 
+QLExpress脚本引擎被广泛应用在阿里的电商业务场景，具有以下的一些特性:
+- 1、线程安全，引擎运算过程中的产生的临时变量都是threadlocal类型。
+- 2、高效执行，比较耗时的脚本编译过程可以缓存在本地机器，运行时的临时变量创建采用了缓冲池的技术，和groovy性能相当。
+- 3、弱类型脚本语言，和groovy，javascript语法类似，虽然比强类型脚本语言要慢一些，但是使业务的灵活度大大增强。
+- 4、安全控制,可以通过设置相关运行参数，预防死循环、高危系统api调用等情况。
+- 5、代码精简，依赖最小，250k的jar包适合所有java的运行环境，在android系统的低端pos机也得到广泛运用。
+
 # 二、依赖和调用说明
 
 ```xml
@@ -509,9 +516,38 @@ InstructionSet instructionSet = expressRunner.parseInstructionSet(expressString)
 	void clearExpressCache();
 ```
 
-### （6）增强上下文参数Context相关的api
+### （7）安全风险控制
+#### 7.1 防止死循环
+```java
+    try {
+    	express = "sum=0;for(i=0;i<1000000000;i++){sum=sum+i;}return sum;";
+	//可通过timeoutMillis参数设置脚本的运行超时时间:1000ms
+	Object r = runner.execute(express, context, null, true, false, 1000);
+	System.out.println(r);
+	throw new Exception("没有捕获到超时异常");
+    } catch (QLTimeOutException e) {
+	System.out.println(e);
+    }
+```
+#### 7.1 防止调用不安全的系统api
+```java
+    ExpressRunner runner = new ExpressRunner();
+    QLExpressRunStrategy.setForbiddenInvokeSecurityRiskMethods(true);
+    
+    DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+    try {
+    	express = "System.exit(1);";
+	Object r = runner.execute(express, context, null, true, false);
+	System.out.println(r);
+	throw new Exception("没有捕获到不安全的方法");
+    } catch (QLException e) {
+	System.out.println(e);
+    }
+```
 
-#### 6.1 与spring框架的无缝集成
+### （8）增强上下文参数Context相关的api
+
+#### 8.1 与spring框架的无缝集成
 上下文参数 IExpressContext context 非常有用，它允许put任何变量，然后在脚本中识别出来。
 
 在实际中我们很希望能够无缝的集成到spring框架中，可以仿照下面的例子使用一个子类。
@@ -558,7 +594,7 @@ public class QLExpressContext extends HashMap<String, Object> implements
 完整的demo参照 [SpringDemoTest.java](https://github.com/alibaba/QLExpress/blob/master/src/test/java/com/ql/util/express/test/spring/SpringDemoTest.java)
 
 
-#### 6.2 自定义函数操作符获取原始的context控制上下文
+#### 8.2 自定义函数操作符获取原始的context控制上下文
 
 自定义的Operator需要直接继承OperatorBase，获取到parent即可，可以用于在运行一组脚本的时候，直接编辑上下文信息，业务逻辑处理上也非常有用。
 
