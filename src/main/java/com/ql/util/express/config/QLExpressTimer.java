@@ -25,7 +25,6 @@ public class QLExpressTimer {
     /**
      * 设置计时器
      * @param timeoutMillis 超时时间
-     * @return
      */
     public static void setTimer(long timeoutMillis)
     {
@@ -35,7 +34,6 @@ public class QLExpressTimer {
 
     /**
      * 开始计时
-     * @return
      */
     public static void startTimer()
     {
