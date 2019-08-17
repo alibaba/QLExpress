@@ -134,7 +134,7 @@ public class ExpressRunner {
 		this.addSystemFunctions();
         this.addSystemOperators();
 	}
-    
+
     private void addSystemOperators() {
 	    try {
             this.addOperator("instanceof", new OperatorInstanceOf("instanceof"));
@@ -142,7 +142,7 @@ public class ExpressRunner {
 	        throw new RuntimeException(e);
         }
     }
-    
+
     public void addSystemFunctions(){
 		  this.addFunction("max", new OperatorMinMax("max"));
 		  this.addFunction("min", new OperatorMinMax("min"));
@@ -284,7 +284,7 @@ public class ExpressRunner {
 				aClassName, aFunctionName, aParameterClassTypes,null,null, errorInfo));
 
 	}
-    
+
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      * @param name 函数名称
@@ -299,9 +299,9 @@ public class ExpressRunner {
                                          String errorInfo) throws Exception {
         this.addFunction(name, new OperatorSelfDefineClassFunction(name,
                 aClass, aFunctionName, aParameterClassTypes,null,null, errorInfo));
-        
+
     }
-    
+
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      * @param name 函数名称
@@ -665,17 +665,17 @@ public class ExpressRunner {
 		rule.setName(ruleName);
 		return rule;
 	}
-    
+
     public Condition parseContition(String text)
             throws Exception {
-        
+
         Map<String,String> selfDefineClass = new HashMap<String,String> ();
         for(ExportItem  item : this.loader.getExportInfo()){
             if(item.getType().equals(InstructionSet.TYPE_CLASS)){
                 selfDefineClass.put(item.getName(), item.getName());
             }
         }
-        
+
         Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
         ExpressNode root =  this.parse.parse(rootExpressPackage,words,text,isTrace,selfDefineClass);
         return RuleManager.createCondition(root,words);
@@ -774,7 +774,7 @@ public class ExpressRunner {
 	}
 
 	public String[] getOutFunctionNames(String express) throws Exception{
-		return this.parseInstructionSet(express).getOutFunctionNames();
+		return this.parseInstructionSet(express).getOutFunctionNames(this.loader);
 	}
 
 
@@ -784,7 +784,7 @@ public class ExpressRunner {
 	public void setShortCircuit(boolean isShortCircuit) {
 		this.isShortCircuit = isShortCircuit;
 	}
-    
+
     /**
      * 是否忽略charset类型的数据，而识别为string，比如'a' -》 "a"
      * 默认为不忽略，正常识别为String
@@ -795,7 +795,7 @@ public class ExpressRunner {
     public void setIgnoreConstChar(boolean ignoreConstChar) {
         this.parse.setIgnoreConstChar(ignoreConstChar);
     }
-    
+
     /**
      * 提供简答的语法检查，保证可以在运行期本地环境编译成指令
      * @param text
@@ -805,7 +805,7 @@ public class ExpressRunner {
     {
         return checkSyntax(text,false,null);
     }
-    
+
     /**
      * 提供复杂的语法检查，(比如检查自定义的java类)，不保证运行期在本地环境可以编译成指令
      * @param text

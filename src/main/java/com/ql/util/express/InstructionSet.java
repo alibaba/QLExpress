@@ -29,24 +29,24 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 public class InstructionSet implements Serializable{
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1841743860792681669L;
-	
+
 	private static final transient  Log log = LogFactory.getLog(InstructionSet.class);
 	public static AtomicInteger uniqIndex = new AtomicInteger(1);
 	public static String TYPE_MAIN ="main";
 	public static String TYPE_CLASS ="VClass";
 	public static String TYPE_FUNCTION ="function";
 	public static String TYPE_MARCO ="marco";
-	
+
 	public static boolean printInstructionError = false;
-	
-	
+
+
 	private String type ="main";
 	private String name;
 	private String globeName;
-	
+
   /**
    * 指令
    */
@@ -62,7 +62,7 @@ public class InstructionSet implements Serializable{
    * 函数参数定义
    */
   private List<OperateDataLocalVar> parameterList = new ArrayList<OperateDataLocalVar>();
-  
+
   public static int getUniqClassIndex(){
 	  return uniqIndex.getAndIncrement();
   }
@@ -84,7 +84,7 @@ public class InstructionSet implements Serializable{
 	  return result.keySet().toArray(new String[0]);
 
   }
-    
+
     public String[] getVirClasses() throws Exception {
         Map<String,String> result = new TreeMap<String,String>();
         for (int i = 0; i < instructionList.length; i++) {
@@ -95,19 +95,22 @@ public class InstructionSet implements Serializable{
             }
         }
         return result.keySet().toArray(new String[0]);
-        
+
     }
-  public String[] getOutAttrNames() throws Exception{
-	  Map<String,String> result = new TreeMap<String,String>();
-	  for(Instruction instruction:instructionList){
-		   if(instruction instanceof InstructionLoadAttr){
-			   if("null".equals(((InstructionLoadAttr)instruction).getAttrName())){
-				   continue;
-			   }
-			   result.put(((InstructionLoadAttr)instruction).getAttrName(),null);
-		   }
-	  }
-	 
+  public String[] getOutAttrNames(ExpressLoader loader) throws Exception{
+	    Map<String, String> result = new TreeMap<String, String>();
+	    for (Instruction instruction : instructionList) {
+
+		    if (instruction instanceof InstructionLoadAttr) {
+		    	InstructionLoadAttr currentLoadAttr= (InstructionLoadAttr) instruction;
+		    	InstructionSet currentInstructionSet=loader.getInstructionSet(currentLoadAttr.getAttrName());
+		    	if ("null".equals(currentLoadAttr.getAttrName())||null!=currentInstructionSet) {
+				    continue;
+		    	}
+		    	result.put(((InstructionLoadAttr) instruction).getAttrName(), null);
+		    }
+	    }
+
 	  //剔除本地变量定义和别名定义
 		for (int i = 0; i < instructionList.length; i++) {
 			Instruction instruction = instructionList[i];
@@ -132,7 +135,7 @@ public class InstructionSet implements Serializable{
 	  return result.keySet().toArray(new String[0]);
   }
 
-  
+
   /**
    * 添加指令，为了提高运行期的效率，指令集用数组存储
    * @param item
@@ -158,7 +161,7 @@ public class InstructionSet implements Serializable{
   }
 
 /**
- * 
+ *
  * @param environmen
  * @param context
  * @param errorList
@@ -170,7 +173,7 @@ public class InstructionSet implements Serializable{
 	public CallResult excute(RunEnvironment environmen,InstructionSetContext context,
 			List<String> errorList,boolean isReturnLastData,Log aLog)
 			throws Exception {
-		
+
 		//将函数export到上下文中,这儿就是重入也没有关系，不需要考虑并发
 		if(cacheFunctionSet == null){
 			Map<String,Object> tempMap = new HashMap<String,Object>();
@@ -179,9 +182,9 @@ public class InstructionSet implements Serializable{
 			}
 			cacheFunctionSet = tempMap;
 		}
-		
+
 		context.addSymbol(cacheFunctionSet);
-		
+
 		this.executeInnerOrigiInstruction(environmen, errorList, aLog);
 		if (environmen.isExit() == false) {// 是在执行完所有的指令后结束的代码
 			if (environmen.getDataStackSize() > 0) {
@@ -246,27 +249,27 @@ public class InstructionSet implements Serializable{
 	  return result;
   }
 
-	
+
 	public OperateDataLocalVar[] getParameters() {
 		return this.parameterList.toArray(new OperateDataLocalVar[0]);
 	}
 
 	public void addParameter(OperateDataLocalVar localVar) {
 		this.parameterList.add(localVar);
-	}	
+	}
   public void addInstruction(Instruction instruction){
 	  this.addArrayItem(instruction);
   }
   public void insertInstruction(int point,Instruction instruction){
 	  this.insertArrayItem(point, instruction);
-  } 
+  }
   public Instruction getInstruction(int point){
 	  return this.instructionList[point];
   }
   public int getCurrentPoint(){
-	  return this.instructionList.length - 1; 
+	  return this.instructionList.length - 1;
   }
-  
+
   public String getName() {
 	return name;
 }
@@ -327,4 +330,4 @@ public String toString() {
 	}
 }
 
-	
+
