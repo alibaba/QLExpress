@@ -770,11 +770,11 @@ public class ExpressRunner {
 	 * @throws Exception
 	 */
 	public String[] getOutVarNames(String express) throws Exception{
-		return this.parseInstructionSet(express).getOutAttrNames();
+		return this.parseInstructionSet(express).getOutAttrNames(this.loader);
 	}
 
 	public String[] getOutFunctionNames(String express) throws Exception{
-		return this.parseInstructionSet(express).getOutFunctionNames(this.loader);
+		return this.parseInstructionSet(express).getOutFunctionNames();
 	}
 
 
