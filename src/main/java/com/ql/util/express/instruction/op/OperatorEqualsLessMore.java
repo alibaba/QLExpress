@@ -42,7 +42,7 @@ public class OperatorEqualsLessMore extends Operator {
 				return false;
 			} else if (opStr.equals("!=") || opStr.equals("<>")) {
 				return true;
-			} else if (opStr.equals("<=") ) {
+			} else if (opStr.equals("<=") || opStr.equals(">=") || opStr.equals("<")  || opStr.equals(">")  ) {
 				return false;
 			} else {
 				throw new Exception("空操作数不能执行这个操作：" + opStr);
