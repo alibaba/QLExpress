@@ -14,7 +14,7 @@ public class TimeOutExceptionTest {
 
     private static String[] expressList = new String[]{
             "sum=0;for(i=0;i<1000000000;i++){sum=sum+i;}return sum;",
-            "for(i=1;i<10;i++){System.out.println('loop time:'+i);Thread.sleep(3000);}"
+            "for(i=1;i<10;i++){System.out.println('loop time:'+i);Thread.sleep(300);}"
     };
 
     @Test

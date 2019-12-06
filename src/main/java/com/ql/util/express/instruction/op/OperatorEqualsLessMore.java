@@ -3,6 +3,8 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.Operator;
 import com.ql.util.express.exception.QLException;
 
+import static com.ql.util.express.config.QLExpressRunStrategy.*;
+
 /**
  * 处理比较操作符号
  */
@@ -38,6 +40,9 @@ public class OperatorEqualsLessMore extends Operator {
         }
         //进行其他大小比较操作
         if (obj1 == null || obj2 == null){
+	    	if (isCompareNullLessMoreAsFalse()) {
+	    		return false;
+			}
             throw new QLException("空操作数无法进行数字比较操作：left = " + obj1+",right = "+ obj2);
         }
         int i = Operator.compareData(obj1, obj2);

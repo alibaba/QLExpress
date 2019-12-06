@@ -15,12 +15,26 @@ public class QLExpressRunStrategy {
     /**
      * 预防空指针
      */
+
     private static boolean avoidNullPointer = false;
-    
+
+    /**
+     * 当空对象进行大小比较时，返回false, 例如 1 > null 和 null > 1都返回false
+     */
+    private static boolean compareNullLessMoreAsFalse = false;
+
+    public static boolean isCompareNullLessMoreAsFalse() {
+        return compareNullLessMoreAsFalse;
+    }
+
+    public static void setCompareNullLessMoreAsFalse(boolean compareNullLessMoreAsFalse) {
+        QLExpressRunStrategy.compareNullLessMoreAsFalse = compareNullLessMoreAsFalse;
+    }
+
     public static boolean isAvoidNullPointer() {
         return avoidNullPointer;
     }
-    
+
     public static void setAvoidNullPointer(boolean avoidNullPointer) {
         QLExpressRunStrategy.avoidNullPointer = avoidNullPointer;
     }
