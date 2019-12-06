@@ -122,3 +122,5 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (2)安全审核方法:InvokeSecurityRiskMethodsTest
 
 (3)区分异常类型：ThrowExceptionTest
+## 3.2.4版本[2019-12-6]
+(1)增加null的数字比较方案"1>null"":NullCompareTest
