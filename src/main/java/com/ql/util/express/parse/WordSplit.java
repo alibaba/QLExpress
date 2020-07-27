@@ -36,7 +36,7 @@ public class WordSplit
 	       if (c=='"' || c=='\''){//字符串处理        
 	     	int index = str.indexOf(c,i + 1);
 	     	//处理字符串中的”问题
-	         while(index >0 && str.charAt(index - 1) =='\\'){
+	         while(index >0 && str.charAt(index - 1) =='\\' && str.charAt(index - 2) !='\\'){
 	         	index = str.indexOf(c,index + 1);
 	         }
 	         if (index < 0)
