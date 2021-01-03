@@ -9,12 +9,13 @@ public class InstructionGoTo extends Instruction{
 	/**
 	 * 跳转指令的偏移量
 	 */
-    int offset;
+	int offset;
 	public String name;
+	int moveTimes;
 
-    public InstructionGoTo(int aOffset){
-    	this.offset = aOffset;
-    }
+	public InstructionGoTo(int aOffset){
+		this.offset = aOffset;
+	}
 
 	public void execute(RunEnvironment environment,List<String> errorList) throws Exception {
 		if(environment.isTrace()  && log.isDebugEnabled() ){
@@ -23,12 +24,12 @@ public class InstructionGoTo extends Instruction{
 		environment.gotoWithOffset(this.offset);
 	}
 	public String toString(){
-	  String result =  (this.name ==null?"":this.name +":") + "GoTo ";
-	  if(this.offset >=0){
-		  result = result +"+";
-	  }
-	  result = result + this.offset + " ";
-	  return result;
+		String result =  (this.name ==null?"":this.name +":") + "GoTo ";
+		if(this.offset >=0){
+			result = result +"+";
+		}
+		result = result + this.offset + " ";
+		return result;
 	}
 
 	public int getOffset() {
@@ -39,4 +40,11 @@ public class InstructionGoTo extends Instruction{
 		this.offset = offset;
 	}
 
+	public int getMoveTimes() {
+		return moveTimes;
+	}
+
+	public void setMoveTimes(int moveTimes) {
+		this.moveTimes = moveTimes;
+	}
 }
