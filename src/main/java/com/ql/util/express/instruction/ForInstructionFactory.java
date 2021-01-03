@@ -76,10 +76,10 @@ public class ForInstructionFactory extends  InstructionFactory {
     	//修改Break和Continue指令的跳转位置,循环出堆
     	ForRelBreakContinue rel =  forStack.pop();
     	for(InstructionGoTo item:rel.breakList){
-    		item.setOffset(result.getCurrentPoint() -  item.getOffset()) ;
+    		item.setOffset(result.getCurrentPoint() -  item.getOffset()  - item.getMoveTimes() +1) ;
     	}
     	for(InstructionGoTo item:rel.continueList){
-    		item.setOffset(selfAddPoint -  item.getOffset() - 1);
+    		item.setOffset(selfAddPoint -  item.getOffset() -  item.getMoveTimes());
     	}    	
     	
     	//生成作用域结束指令
