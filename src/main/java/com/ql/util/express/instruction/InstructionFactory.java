@@ -17,6 +17,7 @@ public abstract class InstructionFactory {
 			if (result == null) {
 				result = (InstructionFactory) Class.forName(factory)
 						.newInstance();
+
 				instructionFactory.put(factory, result);
 			}
 			return result;
