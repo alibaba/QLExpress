@@ -159,8 +159,9 @@ public class JoinOperator extends Operator{
 			return opdata1;
 		}else{
 			java.util.List result = new java.util.ArrayList();
-			result.add(opdata1);
-			result.add(opdata2);
+			for (int i = 0; i < list.length; i++) {
+			    result.add(list[i]);
+			}
 			return result;				
 		}
 	}
