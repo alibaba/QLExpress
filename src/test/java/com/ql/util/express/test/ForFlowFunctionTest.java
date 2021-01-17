@@ -1,10 +1,9 @@
 package com.ql.util.express.test;
 
+import com.ql.util.express.*;
+import com.ql.util.express.instruction.op.OperatorBase;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.ql.util.express.DefaultContext;
-import com.ql.util.express.ExpressRunner;
 
 
 public class ForFlowFunctionTest {
@@ -20,5 +19,4 @@ public class ForFlowFunctionTest {
 		Object r = runner.execute(express, context, null, false, true);
 		Assert.assertTrue("for循环后面跟着一个函数的时候错误", r.toString().equals("10"));
 	}
-
 }
