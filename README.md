@@ -41,8 +41,8 @@ System.out.println(r);
 //支持 +,-,*,/,<,>,<=,>=,==,!=,<>【等同于!=】,%,mod【取模等同于%】,++,--,
 //in【类似sql】,like【sql语法】,&&,||,!,等操作符
 //支持for，break、continue、if then else 等标准的程序控制逻辑
-n=10;
-for(sum=0,i=0;i<n;i++){
+n=10, sum=0;
+for(i=0;i<n;i++){
 sum=sum+i;
 }
 return sum;
