@@ -1,16 +1,17 @@
 package com.ql.util.express.rule;
 
-import com.ql.util.express.ExpressRunner;
-import com.ql.util.express.IExpressContext;
-import com.ql.util.express.parse.ExpressNode;
-import com.ql.util.express.parse.Word;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.ql.util.express.ExpressRunner;
+import com.ql.util.express.IExpressContext;
+import com.ql.util.express.parse.ExpressNode;
+import com.ql.util.express.parse.Word;
 
 /**
  * Created by tianqiao on 16/12/8.
@@ -68,28 +69,32 @@ public class RuleManager {
 
 
         Boolean unionLogicResult = null;
-        ConditionType rootType = root.getType();
-        if(root.getChildren()!=null) {
-            for (Condition sub : root.getChildren()) {
-                Boolean subResult = calculateCondition(runner,context,sub,traceMap,isCache,isTrace, result);
-                if(unionLogicResult==null){
-                    unionLogicResult = subResult;
-                }else{
-                    if (rootType == ConditionType.And) {
-                        unionLogicResult = unionLogicResult && subResult;
-                    }else if (rootType == ConditionType.Or) {
-                        unionLogicResult = unionLogicResult || subResult;
-                    }
-                }
-                if(isShortCircuit) {
-                    if (rootType == ConditionType.And) {
-                        if(unionLogicResult==false){
-                            break;
+        if (root instanceof EmptyCondition) {
+            unionLogicResult = true;
+        } else {
+            ConditionType rootType = root.getType();
+            if (root.getChildren() != null) {
+                for (Condition sub : root.getChildren()) {
+                    Boolean subResult = calculateCondition(runner, context, sub, traceMap, isCache, isTrace, result);
+                    if (unionLogicResult == null) {
+                        unionLogicResult = subResult;
+                    } else {
+                        if (rootType == ConditionType.And) {
+                            unionLogicResult = unionLogicResult && subResult;
+                        } else if (rootType == ConditionType.Or) {
+                            unionLogicResult = unionLogicResult || subResult;
                         }
                     }
-                    if (rootType == ConditionType.Or) {
-                        if(unionLogicResult==true){
-                            break;
+                    if (isShortCircuit) {
+                        if (rootType == ConditionType.And) {
+                            if (unionLogicResult == false) {
+                                break;
+                            }
+                        }
+                        if (rootType == ConditionType.Or) {
+                            if (unionLogicResult == true) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -165,18 +170,26 @@ public class RuleManager {
         action = children[point];
         point++;
 
-        //[3]"else"
+        // add a pair of ruleCase
+        rule.addRuleCases(createRuleCase(condtion, action, words));
+
+        // [3]"else" here just care about else{} or else if{}
         if (point < children.length && isNodeType(children[point], "else")) {
             point++;
 
-            //[4]IfNode
+            // [4]IfNode ： mean else if(){}
             if (point < children.length && isNodeType(children[point], "if")) {
                 nextCase = children[point];
+                if (nextCase != null) {
+                    addRuleCaseByExpress(nextCase, rule, words);
+                }
             }
-        }
-        rule.addRuleCases(createRuleCase(condtion, action, words));
-        if (nextCase != null) {
-            addRuleCaseByExpress(nextCase, rule, words);
+            // [4] ActionNode : mean else{}
+            else if (point < children.length && isNodeType(children[point], "STAT_BLOCK")) {
+                rule.addRuleCases(createRuleCase(EmptyCondition.INSTANCE, children[point], words));
+            } else {
+                // do nothing ,not support
+            }
         }
     }
 
@@ -196,20 +209,22 @@ public class RuleManager {
     }
 
     private static RuleCase createRuleCase(ExpressNode condition, ExpressNode action, Word[] words) {
-
         Condition ruleCondition = new Condition();
         transferCondition(condition, ruleCondition, words);
+        return createRuleCase(ruleCondition, action, words);
+    }
+
+    private static RuleCase createRuleCase(Condition condition, ExpressNode action, Word[] words) {
         List<Action> actions = new ArrayList<Action>();
         if (isNodeType(action, "STAT_BLOCK")) {
             ExpressNode[] children = action.getChildren();
             for (ExpressNode actionChild : children) {
-                actions.add(new Action(makeActionString(actionChild,words)));
+                actions.add(new Action(makeActionString(actionChild, words)));
             }
         } else {
-            actions.add(new Action(makeActionString(action,words)));
+            actions.add(new Action(makeActionString(action, words)));
         }
-        RuleCase ruleCase = new RuleCase(ruleCondition, actions);
-        return ruleCase;
+        return new RuleCase(condition, actions);
     }
 
     private static void transferCondition(ExpressNode express, Condition condition, Word[] words) {
