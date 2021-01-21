@@ -27,7 +27,7 @@ public class OperateDataArrayItem extends OperateDataAttr {
 		builder.append(this.index);
     }
 	public Class<?> getType(InstructionSetContext context) throws Exception {
-		  return this.arrayObject.getObject(context).getClass();
+		  return this.arrayObject.getObject(context).getClass().getComponentType();
 	}
 	public Object getObjectInner(InstructionSetContext context){
 		try {
