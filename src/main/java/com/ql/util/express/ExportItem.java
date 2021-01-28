@@ -3,7 +3,7 @@ package com.ql.util.express;
 import java.io.Serializable;
 
 /**
- * 输出给其它指令共享使用的对象
+ * Output to objects shared by other commands
  * @author xuannan
  *
  */
@@ -16,7 +16,7 @@ public class ExportItem implements Serializable{
 	String globeName;
 	String name;
 	String type;//def,alias
-	String desc;//类名或者别名
+	String desc;//Class name or alias
 	public ExportItem(String aName,String aType,String aDesc){
 		this.globeName = aName;
 		this.name = aName;

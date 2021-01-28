@@ -1,13 +1,13 @@
 package com.ql.util.express;
 
 /**
- * 加载表达式资源接口
+ * Load expression resource interface
  * @author xuannan
  *
  */
 public interface IExpressResourceLoader {
 	/**
-	 * 根据表达式名称获取表达式的内容
+	 * Get the content of the expression based on the expression name
 	 * @param expressName
 	 * @return
 	 * @throws Exception

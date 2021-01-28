@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 作为表达式
+ * As an expression
  * @author tianqiao
  *
  */

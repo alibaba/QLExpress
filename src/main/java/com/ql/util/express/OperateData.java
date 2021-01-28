@@ -4,7 +4,7 @@ package com.ql.util.express;
 import com.ql.util.express.exception.QLException;
 
 /**
- * 数据类型定义
+ * Data type definition
  * @author qhlhl2010@gmail.com
  *
  */
@@ -19,7 +19,7 @@ public class OperateData implements java.io.Serializable {
 		this.dataObject = obj;
 	}
 	/**
-	 * 给对象缓存接口使用
+	 * Use for object cache interface
 	 * @param obj
 	 * @param aType
 	 */
@@ -50,7 +50,7 @@ public class OperateData implements java.io.Serializable {
 
 	public final Object getObject(InstructionSetContext context) throws Exception {
     	if(this.type != null && this.type.equals(void.class)){
-    		throw new QLException("void 不能参与任何操作运算,请检查使用在表达式中使用了没有返回值的函数,或者分支不完整的if语句");
+    		throw new QLException("Cannot participate in any operation, please check the use of a function that does not return a value in the expression, or if the branch is incomplete ");
     	}
 		return getObjectInner(context);
 	}
@@ -58,11 +58,11 @@ public class OperateData implements java.io.Serializable {
     	return this.dataObject;
     }
     public void setObject(InstructionSetContext parent, Object object) throws Exception {
-		throw new RuntimeException("必须在子类中实现此方法");
+		throw new RuntimeException("This method must be implemented in the subclass");
 	}
 	public String toJavaCode(){		
 		if(this.getClass().equals(OperateData.class) == false){
-			throw new RuntimeException(this.getClass().getName() + "没有实现：toJavaCode()");
+			throw new RuntimeException(this.getClass().getName() + "Not realized：toJavaCode()");
 		}
 		String result ="new " + OperateData.class.getName() +"(";
 		if(String.class.equals(this.type)){

@@ -21,7 +21,7 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 
 /**
- * 表达式执行编译后形成的指令集合
+ * The instruction set formed after the expression is executed and compiled
  * @author qhlhl2010@gmail.com
  *
  */
@@ -48,18 +48,18 @@ public class InstructionSet implements Serializable{
 	private String globeName;
 	
   /**
-   * 指令
+   * instruction
    */
   private Instruction[] instructionList = new Instruction[0];
   /**
-   * 函数和宏定义
+   * Function and macro definition
    */
   private Map<String,FunctionInstructionSet> functionDefine = new HashMap<String,FunctionInstructionSet>();
   //为了增加性能，开始的时候缓存为数组
   private Map<String,Object> cacheFunctionSet = null;
   private List<ExportItem> exportVar = new ArrayList<ExportItem>();
   /**
-   * 函数参数定义
+   * Function parameter definition
    */
   private List<OperateDataLocalVar> parameterList = new ArrayList<OperateDataLocalVar>();
   
@@ -108,7 +108,7 @@ public class InstructionSet implements Serializable{
 		   }
 	  }
 	 
-	  //剔除本地变量定义和别名定义
+	  //Eliminate local variable definitions and alias definitions
 		for (int i = 0; i < instructionList.length; i++) {
 			Instruction instruction = instructionList[i];
 			if (instruction instanceof InstructionOperator) {
@@ -134,7 +134,7 @@ public class InstructionSet implements Serializable{
 
   
   /**
-   * 添加指令，为了提高运行期的效率，指令集用数组存储
+   * Add instructions, in order to improve the efficiency of the runtime, the instruction set is stored in an array
    * @param item
    * @return
    */
@@ -145,7 +145,7 @@ public class InstructionSet implements Serializable{
 	  this.instructionList = newArray;
   }
   /**
-   * 插入数据
+   * Insert data
    * @param aPoint
    * @param item
    */
@@ -162,7 +162,7 @@ public class InstructionSet implements Serializable{
  * @param environmen
  * @param context
  * @param errorList
- * @param isReturnLastData 是否最后的结果，主要是在执行宏定义的时候需要
+ * @param isReturnLastData Whether the final result is mainly needed when executing the macro definition
  * @param aLog
  * @return
  * @throws Exception
@@ -171,7 +171,7 @@ public class InstructionSet implements Serializable{
 			List<String> errorList,boolean isReturnLastData,Log aLog)
 			throws Exception {
 		
-		//将函数export到上下文中,这儿就是重入也没有关系，不需要考虑并发
+		//Export the function to the context, it does not matter if it is reentrant here, no need to consider concurrency
 		if(cacheFunctionSet == null){
 			Map<String,Object> tempMap = new HashMap<String,Object>();
 			for(FunctionInstructionSet s : this.functionDefine.values()){
@@ -183,7 +183,7 @@ public class InstructionSet implements Serializable{
 		context.addSymbol(cacheFunctionSet);
 		
 		this.executeInnerOrigiInstruction(environmen, errorList, aLog);
-		if (environmen.isExit() == false) {// 是在执行完所有的指令后结束的代码
+		if (environmen.isExit() == false) {// Is the code that ends after executing all the instructions
 			if (environmen.getDataStackSize() > 0) {
 				OperateData tmpObject = environmen.pop();
 				if (tmpObject == null) {
@@ -202,7 +202,7 @@ public class InstructionSet implements Serializable{
 			}
 		}
 		if (environmen.getDataStackSize() > 1) {
-			throw new QLException("在表达式执行完毕后，堆栈中还存在多个数据");
+			throw new QLException("After the expression is executed, there are multiple data in the stack ");
 		}
 		CallResult result = OperateDataCacheManager.fetchCallResult(environmen.getReturnValue(), environmen.isExit());
 		return result;
@@ -218,8 +218,8 @@ public class InstructionSet implements Serializable{
 			}
 		} catch (Exception e) {
 			if (printInstructionError) {
-				log.error("当前ProgramPoint = " + environmen.programPoint);
-				log.error("当前指令" + instruction);
+				log.error("Current ProgramPoint = " + environmen.programPoint);
+				log.error("Current instruction =" + instruction);
 				log.error(e);
 			}
 			throw e;
@@ -299,7 +299,7 @@ public String toString() {
 	public String toString(int level) {
 		try {
 			StringBuffer buffer = new StringBuffer();
-			// 输出宏定义
+			//Output macro definition
 			for (FunctionInstructionSet set : this.functionDefine.values()) {
 				appendSpace(buffer,level);
 				buffer.append(set.type + ":" + set.name).append("(");

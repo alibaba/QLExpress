@@ -1,21 +1,21 @@
 package com.ql.util.express;
 
 /**
- * 表达式计算的数据注入接口
+ * Data injection interface for expression calculation
  * @author qhlhl2010@gmail.com
  *
  */
 public interface IExpressContext<K,V> {
     /**
-     * 根据名称从属性列表中提取属性值。如果表达式中用到了Spring的对象，也是通过此方法获取
-     * @param key 属性名称
+     * Extract the attribute value from the attribute list based on the name. If the Spring object is used in the expression, it is also obtained through this method
+     * @param key Attribute name
      * @return
      */
     public V get(Object key);
     /**
-     * 表达式计算的结果可以设置回调用系统，例如  userId = 3 + 4
-     * @param name 属性名称
-     * @param object 属性值
+     * The result of expression calculation can be set back to the calling system, for example userId = 3 + 4
+     * @param name Attribute name
+     * @param object Attribute value
      */
     public V put(K name, V object);
 }

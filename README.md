@@ -32,7 +32,7 @@ String express = "a+b*c";
 Object r = runner.execute(express, context, null, true, false);
 System.out.println(r);
 ```
-# III, grammar introduction
+# III, Grammar introduction
 ## 1. Operators and java object operations
 ### Ordinary java syntax
 ```
