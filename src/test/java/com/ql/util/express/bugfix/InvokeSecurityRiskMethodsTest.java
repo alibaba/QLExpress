@@ -16,10 +16,10 @@ public class InvokeSecurityRiskMethodsTest {
     @Before
     public void before()        
     {
-        //系统默认阻止的方法黑名单:System.exit(1);Runtime.getRuntime().exec()两个函数
+        //Blacklist of methods blocked by the system by default: System.exit(1); Runtime.getRuntime().exec() two functions
         QLExpressRunStrategy.setForbiddenInvokeSecurityRiskMethods(true);
 
-        //用户还可以增加一些类的方法黑名单
+        //Users can also add some method blacklists
         QLExpressRunStrategy.addSecurityRiskMethod(InvokeSecurityRiskMethodsTest.class,"echo");
     }
     @After
@@ -49,7 +49,7 @@ public class InvokeSecurityRiskMethodsTest {
 
                 Object r = runner.execute(express, context, null, true, false, 1000);
                 System.out.println(r);
-                throw new Exception("没有捕获到不安全的方法");
+                throw new Exception("Did not catch unsafe methods");
             } catch (QLException e) {
                 System.out.println(e.getCause());
             }

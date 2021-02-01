@@ -26,7 +26,7 @@ public class CheckySyntaxTest {
         for(String exp :expList) {
             ArrayList<String> mockClasses = new ArrayList<String>();
             Assert.assertTrue(runner.checkSyntax(exp,true,mockClasses));
-            System.out.println("未识别的java类列表:"+mockClasses);
+            System.out.println("List of unrecognized java classes:"+mockClasses);
         }
     }
     
@@ -43,7 +43,7 @@ public class CheckySyntaxTest {
         for(String exp :expList) {
             ArrayList<String> mockClasses = new ArrayList<String>();
             Assert.assertTrue(runner.checkSyntax(exp,true,mockClasses));
-            System.out.println("未识别的java类列表:"+mockClasses);
+            System.out.println("List of unrecognized java classes:"+mockClasses);
         }
     }
     

@@ -1,7 +1,7 @@
 package com.ql.util.express.exception;
 
 /**
- * 系统安全相关异常（比如调用操作系统命令等）
+ * System security related exceptions (such as calling operating system commands, etc.)
  * @author tianqiao@taobao.com
  * @since 2019/6/18 10:36 AM
  */

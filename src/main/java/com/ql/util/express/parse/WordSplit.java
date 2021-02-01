@@ -10,8 +10,8 @@ import java.util.List;
 
 
 /**
- * 语法解析类
- * 1、单词分解
+ * Grammar analysis class
+ * 1. Word decomposition
  * @author xuannan
  *
  */
@@ -19,7 +19,7 @@ import java.util.List;
 public class WordSplit
 {
    /**
-    * 文本分析函数，“.”作为操作符号处理
+    * Text analysis function, "." is handled as an operation symbol
     * @param str String
     * @throws Exception
     * @return String[]
@@ -33,26 +33,26 @@ public class WordSplit
 	     List<Word> list = new ArrayList<Word>();
 	     int i= 0;
 	     int point = 0;
-	   // 当前行第一个字符相对脚本起点的偏移量offset
+	   // The offset of the first character of the current line from the beginning of the script
 	   int currentLineOffset = 0;
 	     while(i<str.length()){
 	        c = str.charAt(i);
-	       if (c=='"' || c=='\''){//字符串处理        
+	       if (c=='"' || c=='\''){//String processing
 	     	int index = str.indexOf(c,i + 1);
-	     	//处理字符串中的”问题
+	     	//Dealing with "problems in strings
 	         while(index >0 && str.charAt(index - 1) =='\\'){
 	         	index = str.indexOf(c,index + 1);
 	         }
 	         if (index < 0)
-	         	throw new QLCompileException("字符串没有关闭");
+	         	throw new QLCompileException("String is not closed");
 	         String tempDealStr = str.substring(i,index + 1);
-	         //处理 \\，\"的情况
+	         //Handle the situation of \\,\"
 	         String tmpResult = "";
 	         int tmpPoint = tempDealStr.indexOf("\\");        
 	         while(tmpPoint >=0 ){
 	         	tmpResult = tmpResult + tempDealStr.substring(0,tmpPoint);
 	         	if(tmpPoint == tempDealStr.length() -1){
-	         		throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
+	         		throw new QLCompileException("In the string" + "\\error:" + tempDealStr);
 	         	}
 	         	tmpResult = tmpResult + tempDealStr.substring(tmpPoint + 1 ,tmpPoint + 2);
 	         	tempDealStr = tempDealStr.substring(tmpPoint + 2);
@@ -67,7 +67,7 @@ public class WordSplit
 	         i = index + 1;
 	         point = i;
 	       }else if(c=='.' && point < i && isNumber(str.substring(point,i))){
-	    	   i = i + 1; //小数点的特殊处理
+	    	   i = i + 1; //Special handling of decimal point
 	       }else if(c == ' ' ||c =='\r'|| c =='\n'||c=='\t'||c=='\u000C'){
 	    	    if (point < i ){
 		             list.add(new Word(str.substring(point,i),line,point - currentLineOffset + 1));
@@ -127,7 +127,7 @@ public class WordSplit
 		if (str == null || str.equals(""))
 			return false;
 		char c = str.charAt(0);
-		if (c >= '0' && c <= '9') { // 数字
+		if (c >= '0' && c <= '9') { // digital
 			return true;
 		} else {
 			return false;

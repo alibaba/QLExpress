@@ -39,7 +39,7 @@ public class AppendingClassFieldManager {
     public AppendingField getAppendingClassField(Object object, String FieldName)
     {
         for(AppendingField Field : Fields){
-            //object是定义类型的子类
+            //object is a subclass of the defined type
             if(FieldName.equals(Field.name) && (object.getClass()==Field.bindingClass || Field.bindingClass.isAssignableFrom(object.getClass()))){
                 return Field;
             }

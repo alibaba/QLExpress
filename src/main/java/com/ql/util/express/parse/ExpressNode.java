@@ -10,24 +10,24 @@ import com.ql.util.express.match.INodeType;
 
 public class ExpressNode implements IDataNode{
 	/**
-	 * 节点类型
+	 * Node type
 	 */
 	private NodeType nodeType;
 	
 	private NodeType treeType;
 	/**
-	 * 节点值
+	 * Node value
 	 */
 	private String value;
 	
 	/**
-	 * 节点原始值
+	 * Node original value
 	 */
 	private String orgiValue;
 	
 	private Object objectValue;
 	/**
-	 * 父节点
+	 * Parent node
 	 */
 	private ExpressNode parent;
 	private List<ExpressNode> leftChildren;
@@ -35,15 +35,15 @@ public class ExpressNode implements IDataNode{
 	private boolean isSplitStatement = false;
 	
 	/**
-	 * 行号
+	 * Line number
 	 */
 	private int line;
 	/**
-	 * 列号
+	 * Column number
 	 */
 	private int col;
 	/**
-	 * word的序号
+	 * word number
 	 */
 	private int wordIndex = -1;
 
@@ -56,7 +56,7 @@ public class ExpressNode implements IDataNode{
 	}
 	public ExpressNode(NodeType aType,String aValue,String aOrgiValue,Object aObjectValue,NodeType aTreeType,int aLine,int aCol,int wordIndex) throws Exception{
 		if(aType == null){
-			throw new QLCompileException(aValue + " 没有找到对应的节点类型");
+			throw new QLCompileException(aValue + " No corresponding node type found");
 		}
 		this.nodeType = aType;
 		this.treeType = aTreeType;
@@ -113,7 +113,7 @@ public class ExpressNode implements IDataNode{
 		if(this.treeType != null && this.treeType.getInstructionFactory() != null){
 			return this.treeType.getInstructionFactory();
 		}
-		throw new RuntimeException("没有定义节点的指令InstructionFactory信息：" + this.nodeType.getName()+ (this.treeType == null?"":" 或者 "  +this.treeType.getName()) );
+		throw new RuntimeException("The instruction InstructionFactory information of the node is not defined：" + this.nodeType.getName()+ (this.treeType == null?"":" or "  +this.treeType.getName()) );
 	}
 	
 	public String getOrgiValue() {

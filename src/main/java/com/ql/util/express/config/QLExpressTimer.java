@@ -23,8 +23,8 @@ public class QLExpressTimer {
 
 
     /**
-     * 设置计时器
-     * @param timeoutMillis 超时时间
+     * Set timer
+     * @param timeoutMillis overtime time
      */
     public static void setTimer(long timeoutMillis)
     {
@@ -33,7 +33,7 @@ public class QLExpressTimer {
     }
 
     /**
-     * 开始计时
+     * start the timer
      */
     public static void startTimer()
     {
@@ -46,13 +46,13 @@ public class QLExpressTimer {
 
 
     /**
-     * 断言是否超时
+     * Whether the assertion timed out
      * @throws QLTimeOutException
      */
     public static void assertTimeOut() throws QLTimeOutException {
 
         if(NEED_TIMER.get() && System.currentTimeMillis()>END_TIME.get()){
-            throw new QLTimeOutException("运行QLExpress脚本的下一条指令将超过了限定时间:" + TIME_OUT_MILLIS.get() + "ms");
+            throw new QLTimeOutException("The next instruction to run the QLExpress script will exceed the time limit:" + TIME_OUT_MILLIS.get() + "ms");
         }
     }
 

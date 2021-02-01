@@ -3,7 +3,7 @@ package com.ql.util.express;
 import java.io.Serializable;
 
 /**
- * 简单的缓存对象
+ * Simple cache object
  * @author tianqiao
  *
  */

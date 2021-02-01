@@ -17,60 +17,60 @@ public class QLPatternNode{
 	String name;
 	
 	/**
-	 * 原始的字符串
+	 * Original string
 	 */
 	String orgiContent;
 	/**
-	 * 匹配模式
+	 * Match mode
 	 */
 	MatchMode matchMode =MatchMode.NULL ;
 	/**
-	 * 是否一个子匹配模式
+	 * Is a submatch pattern
 	 */
 	boolean isChildMode = false;
 	/**
-	 * 层次
+	 * level
 	 */
 	int level =0;
 	/**
-	 * 是否根节点,例如：if^
+	 * Whether the root node, for example: if^
 	 */
 	protected boolean isTreeRoot =false;
 	
 	/**
-	 * 最小匹配次数，0..n
+	 * Minimum number of matches, 0..n
 	 */
 	protected int minMatchNum =1;
 	
 	/**
-	 * 最大匹配次数
+	 * Maximum number of matches
 	 */
 	protected int maxMatchNum =1;
 	
 	
 	/**
-	 * 匹配类型，例如 ID,if,SELECT
+	 * Match type, such as ID,if,SELECT
 	 */
 	protected INodeType nodeType;
 	
 	/**
-	 * 匹配到的节点需要转换成的类型，例如 ID -》CONST_STRING
+	 * The type that the matched node needs to be converted into, such as ID-"CONST_STRING
 	 */
 	protected INodeType targetNodeType;
 	
 	/**
-	 * 需要转为的虚拟类型，例如：(ID$(,$ID)*)#COL_LIST
+	 * The virtual type to be converted to, for example:(ID$(,$ID)*)#COL_LIST
 	 */
 	protected INodeType rootNodeType;
 	
 	/**
-	 * 是否匹配成功，但在输出的时候忽略,用"~"表示
+	 * Whether the match is successful, but ignored in the output, expressed with "~"
 	 * CONST$(,~$CONST)*
 	 */
 	protected boolean isSkip =false;
 	
 	/**
-	 * 取反，例如：+@,匹配不是+的所有字符
+	 * Negative, for example: +@, matches all characters that are not +
 	 */
 	protected boolean blame = false;
 
@@ -89,15 +89,15 @@ public class QLPatternNode{
 	}
 	
 	/**
-	 * 子匹配模式
+	 * Submatch
 	 */
 	List<QLPatternNode> children = new ArrayList<QLPatternNode>();
 	
 	protected QLPatternNode(INodeTypeManager aManager,String aName,String aOrgiContent) throws Exception{
 		this(aManager,aName,aOrgiContent,false,1);
 //		if(this.toString().equals(aOrgiContent)==false){
-				//throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
-			//log.error(("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString()));
+				//throw new QLCompileException("The parsed result of the grammar definition is inconsistent with the original value, original value: "+ aOrgiContent + "parsed result:" + this.toString());
+			//log.error(("The parsed result of the grammar definition is inconsistent with the original value, original value: "+ aOrgiContent + "parsed result:" + this.toString()));
 //		}
 	}
 	protected QLPatternNode(INodeTypeManager aManager,String aName,String aOrgiContent,boolean aIsChildMode,int aLevel) throws Exception{
@@ -124,7 +124,7 @@ public class QLPatternNode{
 			for(int i=0;i<this.level;i++){
 				str = str + "  ";
 			}
-			//log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.orgiContent);
+			//log.trace("Resolve matching mode [LEVEL="+ this.level +"]START:" + str + this.orgiContent);
 		}
 		String orgStr = this.orgiContent;
 		if(orgStr.equals("(") || orgStr.equals(")") || orgStr.equals("|")||orgStr.equals("||")||orgStr.equals("/**") || orgStr.equals("**/")||orgStr.equals("*")){
@@ -147,7 +147,7 @@ public class QLPatternNode{
 			}else if(orgStr.charAt(i) == '$'){
 				if (this.matchMode != MatchMode.NULL
 						&& this.matchMode != MatchMode.AND) {
-					throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
+					throw new QLCompileException("Incorrect pattern string, can not coexist | and $ in a matching pattern, please use string pattern:"
 							+ orgStr);
 				}
 				children.add(new QLPatternNode(this.nodeTypeManager,"ANONY_PATTERN",tempStr, false,this.level + 1));
@@ -156,7 +156,7 @@ public class QLPatternNode{
 			}else if(orgStr.charAt(i) == '|'){
 					if (this.matchMode != MatchMode.NULL
 							&& this.matchMode != MatchMode.OR) {
-						throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
+						throw new QLCompileException("Incorrect pattern string, can not coexist | and $ in a matching pattern, please use string pattern:"
 								+ orgStr);
 					}
 					children.add(new QLPatternNode(this.nodeTypeManager,"ANONY_PATTERN",tempStr, false,this.level + 1));
@@ -169,9 +169,9 @@ public class QLPatternNode{
 				tempStr = tempStr + orgStr.charAt(i);
 			}
 		}
-		// 处理没有()的内容
+		// Process content without ()
 		if (count > 0) {
-			throw new QLCompileException("不正确的模式串,(没有找到对应的):" + orgStr);
+			throw new QLCompileException("Incorrect pattern string, (the corresponding one was not found):" + orgStr);
 		}
         
 		if(this.children.size() > 0){
@@ -179,7 +179,7 @@ public class QLPatternNode{
 			tempStr ="";
 		}
 		
-		//需要剔除乘法*的情况
+		//Need to eliminate multiplication *
 		if(tempStr.endsWith("*") && tempStr.length() >1){
 	    	this.minMatchNum = 0;
 	    	this.maxMatchNum = Integer.MAX_VALUE;
@@ -216,7 +216,7 @@ public class QLPatternNode{
 	    	tempStr = tempStr.substring(0,tempStr.length() -1);
 		}
     	
-    	//处理(ABC|bcd)模式
+    	//Processing (ABC|bcd) mode
     	if(tempStr.length() > 2 && tempStr.charAt(0)=='(' && tempStr.charAt(tempStr.length() - 1) ==')'){
     		this.isChildMode = true;
     		this.children.add(new QLPatternNode(this.nodeTypeManager,"ANONY_PATTERN",tempStr.substring(1, tempStr.length() - 1), false,this.level + 1));

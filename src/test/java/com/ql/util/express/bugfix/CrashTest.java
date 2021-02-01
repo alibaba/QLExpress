@@ -21,15 +21,15 @@ public class CrashTest {
 
 
     public static String[] splitWord={
-            "~","&","|","<<", ">>",//位操作
-            "+", "-","*", "/", "%","++", "--",//四则运算：
-            ".",",",":",";","(", ")", "{", "}", "[", "]","?",//分隔符号
-            "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean运算符号
+            "~","&","|","<<", ">>",//Bit manipulation
+            "+", "-","*", "/", "%","++", "--",//Arithmetic：
+            ".",",",":",";","(", ")", "{", "}", "[", "]","?",//Delimiter
+            "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean operation symbol
             "=","/**","**/"
     };
 
     /**
-     * 版本3.0.9以下存在多线程初始化问题，这个类作为一个样例
+     * There is a multi-threaded initialization problem below version 3.0.9, this class is used as an example
      */
     public void testCrash() throws InterruptedException, BrokenBarrierException {
         System.out.println(Arrays.asList(splitWord));

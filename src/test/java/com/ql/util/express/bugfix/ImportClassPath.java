@@ -22,7 +22,7 @@ public class ImportClassPath {
             result = runner.execute(exp,context,null,false,false);
             System.out.println(result);
         } catch (Exception e) {
-            System.out.println("SimpleDateFormat 没有定义，此处应该报错");
+            System.out.println("SimpleDateFormat No definition, an error should be reported here");
             //e.printStackTrace();
             Assert.assertTrue(true);
             return;

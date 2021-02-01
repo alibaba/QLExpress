@@ -14,10 +14,10 @@ public class DynamicParamsUtil {
     public static Object[] transferDynamicParams(InstructionSetContext context, ArraySwap list, Class<?>[] delaredParamsClasses,boolean maybeDynamicParams) throws Exception {
 
         Object[] params = null;
-        //参数定义不符合动态参数形式 || 用户自定义不支持 || 用户传入的参数不符合
+        //The parameter definition does not conform to the dynamic parameter form || User-defined does not support || The parameter passed in by the user does not conform
         if(!maybeDynamicParams || !supportDynamicParams || !maybeDynamicParams(context,list,delaredParamsClasses)){
             if(delaredParamsClasses.length != list.length){
-                throw new QLException("定义的参数长度与运行期传入的参数长度不一致");
+                throw new QLException("The defined parameter length is inconsistent with the parameter length passed in during runtime");
             }
             params = new Object[list.length];
             for (int i = 0; i < list.length; i++) {
@@ -26,7 +26,7 @@ public class DynamicParamsUtil {
             return params;
         }
 
-        //支持不定参数的使用 function(arg1,arg2,arg3...)
+        //Support the use of indefinite parameters function(arg1,arg2,arg3...)
         //list -> parameres[]
         // arg1,arg2 -> arg1,arg2,[]
         // arg1,arg2,arg3,arg4,arg5   ->  arg1,arg2,[arg3,arg4,arg5]
@@ -47,7 +47,7 @@ public class DynamicParamsUtil {
                 }
             }
         }else {
-            throw new QLException("定义的参数长度与运行期传入的参数长度不一致");
+            throw new QLException("The defined parameter length is inconsistent with the parameter length passed in during runtime");
         }
         return params;
 
@@ -65,11 +65,11 @@ public class DynamicParamsUtil {
 
     private static boolean maybeDynamicParams(InstructionSetContext context, ArraySwap list, Class<?>[] delaredParamsClasses) throws Exception {
 
-        //长度不一致,有可能
+        //Inconsistent length, it is possible
         if(delaredParamsClasses.length != list.length) {
             return true;
         }
-        //长度一致的不定参数:不定参数的数组,只输入了一个参数并且为array,有可能
+        //Indefinite parameters with the same length: an array of indefinite parameters, only one parameter is input and it is an array, it is possible
         int length = list.length;
         Object lastParam = list.get(length-1).getObject(context);
         if(lastParam!=null && !lastParam.getClass().isArray())

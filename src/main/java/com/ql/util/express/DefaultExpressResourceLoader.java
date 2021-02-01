@@ -12,7 +12,7 @@ public class DefaultExpressResourceLoader implements IExpressResourceLoader {
 		InputStream in = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream(expressName);
 		if (in == null) {
-			throw new QLException("不能找到表达式文件：" + expressName);
+			throw new QLException("Cannot find expression file:" + expressName);
 		}
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		StringBuilder builder = new StringBuilder();
