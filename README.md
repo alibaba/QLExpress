@@ -15,11 +15,16 @@ The QLExpress script engine is widely used in Ali's e-commerce business scenario
 # II, Dependency and call instructions
 
 ```xml
-<dependency>
-  <groupId>com.alibaba</groupId>
-  <artifactId>QLExpress</artifactId>
-  <version>3.2.0</version>
-</dependency>
+ <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+
+ <dependency>
+    <groupId>com.github.manugraj</groupId>
+    <artifactId>QLExpress</artifactId>
+    <version>0.9.0</version>
+  </dependency>
 ```
 
 ```java
