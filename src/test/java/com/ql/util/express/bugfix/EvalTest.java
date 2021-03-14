@@ -12,6 +12,19 @@ import static org.junit.Assert.*;
 public class EvalTest {
 
     @Test
+    public void macroTest() throws Exception {
+        final ExpressRunner runner = new ExpressRunner(false,true);
+        runner.addMacro("myadd", "a+b");
+
+        String evalExpress = "int a=1;" +
+                "int b = 2;" +
+                "myadd";
+        Object res = runner.execute(evalExpress, new DefaultContext<String, Object>(), null,
+                false, true);
+        System.out.println(res);
+    }
+
+    @Test
     public void evalTest() throws Exception {
         String evalExpress = "eval('eval(\\'1+1\\')')";
         final ExpressRunner runner = new ExpressRunner(false,true);
