@@ -614,7 +614,6 @@ public class ExpressRunner {
 			 	isTrace,false,aLog,false);
 	}
 
-
 	public RuleResult executeRule(String expressString, IExpressContext<String,Object> context, boolean isCache, boolean isTrace)
 			throws Exception {
 		Rule rule = null;
