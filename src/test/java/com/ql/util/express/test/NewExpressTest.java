@@ -69,7 +69,9 @@ public class NewExpressTest {
 				{"int 中国 = 100; int 美国 = 200 ;return 中国 + 美国","300"},
 				{"1 加 1 ","2"},
 				{" 'a' love 'b' love 'c'","c{b{a}b}c"},
-				{"if 1==2 then {return 10}else{return 100}","100"}
+				{"if 1==2 then {return 10}else{return 100}","100"},
+				{"for (i=1;i<10;i++){continue}i", "10"},
+				{"for (i=1;i<10;i++){break}i", "1"}
 		};
 		for(int i=0;i<expresses.length;i++){
 			IExpressContext<String,Object> expressContext = new DefaultContext<String,Object>();
@@ -78,8 +80,9 @@ public class NewExpressTest {
 			runner.addOperator("love","+",new LoveOperator("love"));
 			Object result = runner.execute(expresses[i][0],expressContext, null, false,true);
 			System.out.println("运算结果：" + result);
-			System.out.println("环境结果：" + expressContext);		
-			Assert.assertTrue("表达式执行错误:" + expresses[i][0] + " 期望值：" + expresses[i][1] +" 运算结果：" + result ,expresses[i][1].equals(result == null?"null":result.toString()));
+			System.out.println("环境结果：" + expressContext);
+			Assert.assertEquals("表达式执行错误:" + expresses[i][0] + " 期望值：" + expresses[i][1] + " 运算结果："
+					+ result, expresses[i][1], result == null ? "null" : result.toString());
 		}
 	}
 }
