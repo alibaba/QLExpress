@@ -614,22 +614,6 @@ public class ExpressRunner {
 			 	isTrace,false,aLog,false);
 	}
 
-	/**
-	 * 用于同一线程中在引擎内部嵌套调用引擎, 比如实现类似 js 的 eval 函数 eval('1+1')
-	 * @param expressString
-	 * @param aContext
-	 * @param errorList
-	 * @param isTrace
-	 * @return
-	 * @throws Exception
-	 */
-	public Object eval(String expressString, IExpressContext<String,Object> aContext,
-					   List<String> errorList, boolean isTrace) throws Exception {
-		InstructionSet parseResult = this.parseInstructionSet(expressString);
-
-		return InstructionSetRunner.execute(this, parseResult, this.loader, aContext, errorList, isTrace,
-				false, true, null, false);
-	}
 
 	public RuleResult executeRule(String expressString, IExpressContext<String,Object> context, boolean isCache, boolean isTrace)
 			throws Exception {
