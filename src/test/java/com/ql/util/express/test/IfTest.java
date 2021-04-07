@@ -44,11 +44,11 @@ public class IfTest {
 	@Test
 	public void complexIf() {
 		QLPattern.printStackDepth = true;
-		String express = "if (secondProd in (\"9102\", \"9105\")\n" +
-				"        && (((tradeProduct == \"S_STANDARD\" || tradeProduct == \"S_PHASE_STANDARD\") && (bizIdentity == \"trade10001\" || bizIdentity == \"forex10004\"))\n" +
-				"            || (deliveryProductCode == \"TB_FACE_TO_FACE_PAY\" && bizIdentity == \"trade20001\")\n" +
-				"            || (deliveryProductCode == \"TB_FUND_PRE_AUTH\" && bizIdentity == \"order10010\"))) {\n" +
-				"            return \"AMT_TAOXI_TEMP\";\n" +
+		String express = "if (secondProd in (\"xxx\", \"dddd\")\n" +
+				"        && (((tradeProduct == \"standard\" || tradeProduct == \"phase_standard\") && (bizIdentity == \"taaa1111\" || bizIdentity == \"ffff\"))\n" +
+				"            || (deliveryProductCode == \"fpaap\" && bizIdentity == \"tttaaa1\")\n" +
+				"            || (deliveryProductCode == \"faaa_auth\" && bizIdentity == \"rrrr11010101\"))) {\n" +
+				"            return \"amttttt\";\n" +
 				"    }";
 		ExpressRunner runner = new ExpressRunner(false,true);
 		runner.checkSyntax(express);
