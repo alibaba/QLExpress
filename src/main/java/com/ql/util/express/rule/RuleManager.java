@@ -37,7 +37,7 @@ public class RuleManager {
                         actionResult = runner.execute(action.getText(),context,null,isCache,isTrace);
                     } catch (Exception e) {
                         result.setHasException(true);
-                        log.error("执行action出错:action=\n"+action.getText(),e);
+                        log.error("Error executing action:action=\n"+action.getText(),e);
                         actionResult = null;
                     }
                 }
@@ -60,7 +60,7 @@ public class RuleManager {
                 return r;
             } catch (Exception e) {
                 result.setHasException(true);
-                log.error("计算condition出错:condition=\n"+text,e);
+                log.error("Error calculating condition:condition=\n"+text,e);
                 traceMap.put(key,false);
                 return false;
             }
@@ -233,7 +233,7 @@ public class RuleManager {
                 transferCondition(child, subCondition, words);
             }
         } else {
-            if (isNodeType(express, "CHILD_EXPRESS")||isNodeType(express, "STAT_BLOCK")||isNodeType(express, "STAT_SEMICOLON")) {            //注意括号的情况
+            if (isNodeType(express, "CHILD_EXPRESS")||isNodeType(express, "STAT_BLOCK")||isNodeType(express, "STAT_SEMICOLON")) {            //Pay attention to the parentheses
                 ExpressNode realExpress = express.getChildren()[0];
                 condition.setPrior(true);
                 transferCondition(realExpress, condition, words);
@@ -254,14 +254,14 @@ public class RuleManager {
     {
         int min = getMinNode(express);
         int max = getMaxNode(express);
-        //最后需要匹配一个）括号的问题,另外还有是无参数的情况 function()
+        //Finally, you need to match a) parenthesis, and there are no parameters function()
         while(max+1<words.length && (words[max+1].word.equals(")")||words[max+1].word.equals("("))){
             max++;
         }
         if(min<0) min = 0;
         if(max>=words.length) max = words.length-1;
         StringBuilder result = new StringBuilder();
-        int balance = 0;//小括号的相互匹配数量
+        int balance = 0;//The number of matching parentheses
         for(int i=min;i<=max;i++)
         {
             if(words[i].word.equals("(")){
@@ -270,7 +270,7 @@ public class RuleManager {
                 balance--;
             }
             if(balance<0){
-                balance++;//当前字符不合并，恢复成0，用于最终的判断
+                balance++;//The current characters are not merged and restored to 0 for final judgment
                 break;
             }
             result.append(words[i].word);
@@ -280,7 +280,7 @@ public class RuleManager {
         }
         if(balance!=0){
             System.out.println(result);
-            throw new RuntimeException("括号匹配异常");
+            throw new RuntimeException("Bracket match abnormal");
         }
         return result.toString();
     }
@@ -289,14 +289,14 @@ public class RuleManager {
     {
         int min = getMinNode(express);
         int max = getMaxNode(express);
-        //最后需要匹配一个括号的问题
+        //Finally, the problem of matching a parenthesis
         while(max+1<words.length && (words[max+1].word.equals(")")||words[max+1].word.equals("("))){
             max++;
         }
         if(min<0) min = 0;
         if(max>=words.length) max = words.length-1;
         StringBuilder result = new StringBuilder();
-        int balance = 0;//小括号的相互匹配数量
+        int balance = 0;//The number of matching parentheses
         for(int i=min;i<=max;i++)
         {
             if(words[i].word.equals("(")){
@@ -305,13 +305,13 @@ public class RuleManager {
                 balance--;
             }
             if(balance<0){
-                balance++;//当前字符不合并，恢复成0，用于最终的判断
+                balance++;//The current characters are not merged and restored to 0 for final judgment
                 break;
             }
             result.append(words[i].word);
         }
         if(balance!=0){
-            throw new RuntimeException("括号匹配异常");
+            throw new RuntimeException("Bracket match abnormal");
         }
         return result.toString();
     }

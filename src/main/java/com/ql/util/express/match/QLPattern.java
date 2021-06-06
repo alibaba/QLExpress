@@ -12,8 +12,8 @@ public class QLPattern {
 
 	private static final Log log = LogFactory.getLog(QLPattern.class);
     
-    public static boolean optimizeStackDepth = true;//优化栈的递归深度
-	public static boolean printStackDepth = false;//打印栈的最大深度
+    public static boolean optimizeStackDepth = true;//Optimize the recursion depth of the stack
+	public static boolean printStackDepth = false;//Maximum depth of printing stack
 
 	public static QLPatternNode createPattern(INodeTypeManager nodeTypeManager,String name,String pattern) throws Exception{
 		return new QLPatternNode(nodeTypeManager,name,pattern);		
@@ -26,14 +26,14 @@ public class QLPattern {
         MatchParamsPack staticParams = new MatchParamsPack(aManager, nodes, maxDeep, maxMatchPoint,resultCache,arrayListCache);
 		QLMatchResult result  = findMatchStatementWithAddRootOptimizeStack(staticParams, pattern, point, true, 1);
 		if(printStackDepth) {
-            log.warn("递归堆栈深度:" + maxDeep.longValue() + "  重用QLMatchResult次数:" + resultCache.fetchCount
-					+ "  新建QLMatchResult次数:" + resultCache.newCount + "  新建ArrayList数量:" + arrayListCache.newCount);
+            log.warn("Recursive stack depth: \"+ maxDeep.longValue() +\" number of times to reuse QLMatchResult:" + resultCache.fetchCount
+					+ "Number of new MatchResults:" + resultCache.newCount + "Number of new ArrayLists:" + arrayListCache.newCount);
 
         }
 		if(result == null || result.getMatchSize() == 0){
-			throw new QLCompileException("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
+			throw new QLCompileException("Program error, does not meet the grammar specification, does not match the appropriate grammar, the maximum match is [0:" + (maxMatchPoint.longValue()-1) +"]");
 		}else if(result != null && result.getMatchSize() != 1){
-			throw new QLCompileException("程序错误，不满足语法规范，必须有一个根节点：" + pattern + ",最大匹配致[0:" + (maxMatchPoint.longValue()-1) +"]");
+			throw new QLCompileException("Program error, does not meet the grammatical specifications, there must be a root node: "+ pattern + ", the maximum match is [0:" + (maxMatchPoint.longValue()-1) +"]");
 		}
 		return result;
 	}
@@ -86,12 +86,12 @@ public class QLPattern {
 						resultDetail = findMatchStatementWithAddRootOptimizeStack(staticParams,pattern.nodeType.getPatternNode(),pointDetail,false,deep);
 						if(pattern.targetNodeType != null && resultDetail != null && resultDetail.getMatchSize() >0){
 							if(resultDetail.getMatchSize() > 1){
-								throw new QLCompileException("设置了类型转换的语法，只能有一个根节点");
+								throw new QLCompileException("The type conversion syntax is set, there can only be one root node");
 							}
 							resultDetail.getMatchs().get(0).targetNodeType = pattern.targetNodeType;
 						}
 					}
-					if(pattern.blame == true){//取返处理
+					if(pattern.blame == true){//Retrieve processing
 						if( resultDetail == null){
 							resultDetail = staticParams.resultCache.fetch();
 							resultDetail.addQLMatchResultTree(new QLMatchResultTree(tempNodeType,nodes.get(pointDetail),null));
@@ -116,7 +116,7 @@ public class QLPattern {
 				int pointAnd = lastPoint;
 
 				QLMatchResultTree root = null;
-				int matchCount =0;//用于调试日志的输出
+				int matchCount =0;//Output for debug log
 				List<QLMatchResultTree> tempListAnd =null;
 				boolean isBreak = false;
 				for (QLPatternNode item : pattern.children) {
@@ -136,7 +136,7 @@ public class QLPattern {
 						pointAnd = tempResultAnd.getMatchLastIndex();
 						if (item.isTreeRoot == true && tempResultAnd.getMatchSize() >0) {
 							if (tempResultAnd.getMatchSize() > 1) {
-                                throw new QLCompileException("根节点的数量必须是1");
+                                throw new QLCompileException("The number of root nodes must be 1");
                             }
 							if (root == null) {
 								QLMatchResultTree tempTree = tempResultAnd.getMatchs().get(0);
@@ -154,7 +154,7 @@ public class QLPattern {
 						} else {
 							tempListAnd.addAll(tempResultAnd.getMatchs());
 						}
-						//归还QLMatchResult对象到对象池
+						//Return the MatchResult object to the object pool
 						if (tempResultAnd!= null) {
 							staticParams.resultCache.sendBack(tempResultAnd);
 							tempResultAnd = null;
@@ -193,12 +193,12 @@ public class QLPattern {
 				}
 
 			}else{
-				throw new QLCompileException("不正确的类型：" + pattern.matchMode.toString());
+				throw new QLCompileException("Incorrect type：" + pattern.matchMode.toString());
 			}
 
 			if(tempResult == null){
 				if(count >= pattern.minMatchNum && count <=pattern.maxMatchNum){
-					//正确匹配
+					//Correct match
 					result = staticParams.resultCache.fetch();
 					if(tempList != null){
 						result.addQLMatchResultTreeList(tempList);
@@ -215,13 +215,13 @@ public class QLPattern {
 				lastPoint = tempResult.getMatchLastIndex();
 				if(pattern.isTreeRoot == true){
 					if(tempResult.getMatchSize() > 1){
-						throw new QLCompileException("根节点的数量必须是1");
+						throw new QLCompileException("The number of root nodes must be 1");
 					}
 					if(tempList.size() == 0){
 						tempList.addAll(tempResult.getMatchs());
 					}else{	
 						tempResult.getMatchs().get(0).addLeftAll(tempList);
-						//为了能回收QLMatchResult对象,这个地方必须进行数组拷贝
+						//In order to be able to recover the MatchResult object, this place must be an array copy
 						tempList = staticParams.arrayListCache.fetch();
 						tempList.addAll(tempResult.getMatchs());
 					}
@@ -230,7 +230,7 @@ public class QLPattern {
 				}
 			}
 
-			/**  归还QLMatchResult  */
+			/**  Return MatchResult  */
 			if(tempResult != null){
 				staticParams.resultCache.sendBack(tempResult);
 				tempResult = null;
@@ -247,7 +247,7 @@ public class QLPattern {
 			}
 		}
 		if(result != null && pattern.isSkip == true){
-			//忽略跳过所有匹配到的节点
+			//Ignore skip all matched nodes
 			result.getMatchs().clear();
 		}
 
@@ -266,7 +266,7 @@ public class QLPattern {
 	public static void traceLog(QLPatternNode pattern, QLMatchResult result,
 			List<? extends IDataNode> nodes, int point,int matchCount) {
 		if (log.isTraceEnabled() && (pattern.matchMode ==MatchMode.DETAIL || pattern.matchMode == MatchMode.AND && matchCount > 1 && pattern.name.equals("ANONY_PATTERN") == false )) {
-			log.trace("匹配--" + pattern.name +"[" + point  + ":" + (result.getMatchLastIndex() -1)+ "]:" + pattern);
+			log.trace("Match--" + pattern.name +"[" + point  + ":" + (result.getMatchLastIndex() -1)+ "]:" + pattern);
 		}
 	}
 	

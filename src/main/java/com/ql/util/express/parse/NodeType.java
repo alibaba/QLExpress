@@ -21,7 +21,7 @@ public class NodeType implements INodeType {
 	private NodeType realNodeType;
 	private String instructionFactory;
 	/**
-	 * 模式匹配
+	 * Pattern matching
 	 */
 	private QLPatternNode qlPatternNode;
 
@@ -67,13 +67,13 @@ public class NodeType implements INodeType {
 					this.qlPatternNode = QLPattern.createPattern(this.manager,
 							this.name, tempList[1]);
 				} else {
-					throw new RuntimeException("不能识别\"" + this.name
-							+ "\"的属性类型：" + tempList[0] + " 定义："
+					throw new RuntimeException("Not recognized\"" + this.name
+							+ "\"Attribute type：" + tempList[0] + " definition："
 							+ this.defineStr);
 				}
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("节点类型\"" + this.name + "\"初始化失败,定义："
+			throw new RuntimeException("Node type\"" + this.name + "\"Initialization failed, definition："
 					+ this.defineStr, e);
 		}
 	}
@@ -92,7 +92,7 @@ public class NodeType implements INodeType {
 			return ((NodeType) this.qlPatternNode.getNodeType())
 					.isContainerChild(child);
 		}
-		// 是and类型，不能增加子节点或进行判断
+		// It is of type and, cannot add child nodes or judge
 		if (this.qlPatternNode.isAndMode()
 				&& this.qlPatternNode.getChildren().size() > 0) {
 			return false;

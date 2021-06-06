@@ -37,7 +37,7 @@ public class AppendingClassMethodManager {
     public AppendingMethod getAppendingClassMethod(Object object, String methodName)
     {
         for(AppendingMethod method : methods){
-            //object是定义类型的子类
+            //object is a subclass of the defined type
             if(methodName.equals(method.name) && (object.getClass()==method.bindingClass || method.bindingClass.isAssignableFrom(object.getClass()))){
                 return method;
             }

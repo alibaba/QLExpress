@@ -16,7 +16,7 @@ public class InstructionSetRunner {
 				Log aLog,boolean isSupportDynamicFieldName) throws Exception{
 		 try{
 
-		 	//开始计时
+		 	//start the timer
 			 QLExpressTimer.startTimer();
 
 			 OperateDataCacheManager.push(runner);
@@ -27,7 +27,7 @@ public class InstructionSetRunner {
 	  }
 
     /**
-	 * 批量执行指令集合，指令集间可以共享 变量和函数
+	 * Batch execution of instruction sets, variables and functions can be shared between instruction sets
 	 * @param runner
 	 * @param sets
 	 * @param loader

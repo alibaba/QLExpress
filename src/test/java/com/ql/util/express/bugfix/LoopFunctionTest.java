@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * 自定义的LoopAnd，LoopOr，LoopSet function功能
+ * Custom LoopAnd, LoopOr, LoopSet function functions
  * Created by tianqiao on 18/2/8.
  */
 public class LoopFunctionTest {

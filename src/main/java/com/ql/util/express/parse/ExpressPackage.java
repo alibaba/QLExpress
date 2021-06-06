@@ -63,7 +63,7 @@ public class ExpressPackage {
 	private Class<?> getClassInner(String name,boolean isRootCall) {
 		Class<?> result = null;
 		if (isRootCall == true) {
-			// 如果本身具有包名，这直接定位
+			// If it has a package name, this directly locates
 			if (name.indexOf(".") >= 0) {
 				try {
 					result = Class.forName(name);
@@ -99,7 +99,7 @@ public class ExpressPackage {
 				try {
 					result = Class.forName(tmp);
 				} catch (ClassNotFoundException ex) {
-					// 不做任何操作
+					// Do nothing
 				}
 				if (result != null) {
 					return result;

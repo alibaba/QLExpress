@@ -9,7 +9,7 @@ import com.ql.util.express.instruction.FunctionInstructionSet;
 
 
 /**
- * 表达式装载器
+ * Expression loader
  * 
  * @author xuannan
  * 
@@ -29,7 +29,7 @@ public class ExpressLoader {
 			throws Exception {
 		synchronized (expressInstructionSetCache) {
 			if (expressInstructionSetCache.containsKey(expressName)) {
-				throw new QLException("表达式定义重复：" + expressName);
+				throw new QLException("Duplicate expression definition：" + expressName);
 			}
 			expressInstructionSetCache.put(expressName, set);
 		}
@@ -39,13 +39,13 @@ public class ExpressLoader {
 			String expressString) throws Exception {
 		InstructionSet parseResult = null;
 		if (expressInstructionSetCache.containsKey(expressName)) {
-			throw new QLException("表达式定义重复：" + expressName);
+			throw new QLException("Duplicate expression definition：" + expressName);
 		}
 		synchronized (expressInstructionSetCache) {
 			parseResult = this.creator.parseInstructionSet(expressString);
 			parseResult.setName(expressName);
 			parseResult.setGlobeName(expressName);
-			// 需要将函数和宏定义都提取出来
+			// Need to extract both functions and macro definitions
 			for (FunctionInstructionSet item : parseResult
 					.getFunctionInstructionSets()) {
 				this.addInstructionSet(item.name, item.instructionSet);

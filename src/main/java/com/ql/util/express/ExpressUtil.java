@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * 表达式工具类
+ * Expression tools
  * 
  * @author qhlhl2010@gmail.com
  * 
@@ -48,7 +48,7 @@ public class ExpressUtil {
 	public static Map<String,Object> methodCache = new ConcurrentHashMap<String, Object>();
 	
 	public static Class<?>[][] classMatchs =new Class[][]{
-			//原始数据类型
+			//Primitive data type
 			{BigDecimal.class,double.class},{BigDecimal.class,float.class},{BigDecimal.class,long.class},{BigDecimal.class,int.class}, {BigDecimal.class,short.class},{BigDecimal.class,byte.class},
 			{double.class,float.class},{double.class,long.class},{double.class,int.class}, {double.class,short.class},{double.class,byte.class},{double.class,BigDecimal.class},
 			{float.class,long.class},  {float.class,int.class},  {float.class,short.class},{float.class,byte.class},{float.class,BigDecimal.class},
@@ -136,7 +136,7 @@ public class ExpressUtil {
 			else if (source == Double.class)
 				source = double.class;
 		}
-		if (target == source)// 转换后需要在判断一下
+		if (target == source)// Need to judge after conversion
 			return true;
 
 		for (int i = 0; i < classMatchs.length; i++) {
@@ -201,7 +201,7 @@ public class ExpressUtil {
 		Class<?>[] bestMatch = null;
 		int bestMatchIndex = -1;
 
-		for (int i = candidates.length - 1; i >= 0; i--) {// 先从基类开始查找
+		for (int i = candidates.length - 1; i >= 0; i--) {// Start looking up from the base class
 			Class<?>[] targetMatch = candidates[i];
 			if (ExpressUtil.isSignatureAssignable(idealMatch, targetMatch)
 					&& ((bestMatch == null) || ExpressUtil
@@ -496,8 +496,8 @@ public class ExpressUtil {
 	}
 
 	/**
-	 * 替换字符串中的参数 replaceString("$1强化$2实施$2",new String[]{"qq","ff"})
-	 * ="qq 强化 ff 实施 ff"
+	 * Replace the parameters in the string replaceString("$1 strengthens $2 implements $2",new String[]{"qq","ff"})
+	 * ="qq strengthen ff implement ff"
 	 * 
 	 * @param str
 	 * @param parameters
@@ -515,7 +515,7 @@ public class ExpressUtil {
 		while (m.find()) {
 			int index = Integer.parseInt(m.group().substring(1)) - 1;
 			if (index < 0 || index >= parameters.length) {
-				throw new QLException("设置的参数位置$" + (index + 1) + "超过了范围 "
+				throw new QLException("Set parameter position$" + (index + 1) + ";Out of range "
 						+ parameters.length);
 			}
 			m.appendReplacement(sb, " " + parameters[index].toString() + " ");
@@ -585,7 +585,7 @@ public class ExpressUtil {
 				PropertyUtils.setProperty(bean, name.toString(),ExpressUtil.castObject(value, filedClass, false));
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("不能访问" + bean + "的property:" + name,e);
+			throw new RuntimeException("Can not access" + bean + "of property:" + name,e);
 		}
 	}
 
@@ -599,7 +599,7 @@ public class ExpressUtil {
  * 
  * @param value
  * @param type
- * @param isForce 是否强制转换
+ * @param isForce Whether to force conversion
  * @return
  */
 	public static Object castObject(Object value, Class<?> type,boolean isForce){
@@ -612,7 +612,7 @@ public class ExpressUtil {
 				&& (type.isPrimitive() || Number.class.isAssignableFrom(type))) {
 			return OperatorOfNumber.transfer((Number)value, type, isForce);
 		}else if(type.isArray() && value.getClass().isArray()) {
-			//需要对元素做兼容性,如果value的元素全部为null并且和声明的不一致,转化为所声明的类型
+			//Compatibility of elements is required. If the elements of value are all null and are inconsistent with the declared, they are converted to the declared type
 			Class<?> valueType = value.getClass().getComponentType();
 			Class<?> declareType = type.getComponentType();
 			if(declareType!=valueType){
@@ -637,7 +637,7 @@ public class ExpressUtil {
 
 	  
 		public static void main(String[] args) throws Exception {
-			System.out.println(replaceString("$1强化$2实施$2", new String[] { "qq",
+			System.out.println(replaceString("$1 strengthened $2 implemented $2", new String[] { "qq",
 					"ff" }));
 			System.out.println(Number.class.isAssignableFrom(Long.class));
 			Object obj = castObject(Double.valueOf(1d),Double.class,false);

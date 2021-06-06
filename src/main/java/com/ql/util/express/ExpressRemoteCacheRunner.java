@@ -5,13 +5,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 /**
- * 远程缓存对象
+ * Remote cache object
  * @author tianqiao
  *
  */
 public abstract class ExpressRemoteCacheRunner {
-	
-	
+
+
 
 	public void loadCache(String expressName,String text){
 		InstructionSet instructionSet;
@@ -23,37 +23,37 @@ public abstract class ExpressRemoteCacheRunner {
 			cache.setInstructionSet(instructionSet);
 			this.putCache(expressName, cache);
 		} catch (Exception e) {
-			throw new RuntimeException("解析指令并缓存过程出现错误.",e);
-		}		
+			throw new RuntimeException("An error occurred during the process of parsing instructions and caching.",e);
+		}
 	}
-	
-	
+
+
 	public Object execute(String name,IExpressContext<String,Object> context, List<String> errorList,
 			boolean isTrace,boolean isCatchException, Log aLog){
 		try {
 			CacheObject cache = (CacheObject) this.getCache(name);
 			if(cache==null){
-				throw new RuntimeException("未获取到缓存对象.");
+				throw new RuntimeException("The cache object was not obtained.");
 			}
 			return getExpressRunner().execute(cache.getInstructionSet(), context, errorList, isTrace, isCatchException, aLog);
 		} catch (Exception e) {
-			throw new RuntimeException("获取缓存信息，并且执行指令集出现错误.",e);
-		}		
+			throw new RuntimeException("Obtain cache information, and an error occurred in the execution instruction set.",e);
+		}
 	}
-	
+
 	/**
-	 * 获取执行器ExpressRunner
+	 * Get the executor ExpressRunner
 	 * @return
 	 */
 	public  abstract ExpressRunner getExpressRunner();
 	/**
-	 * 获取缓存对象
+	 * Get the cache object
 	 * @param key
 	 * @return
 	 */
 	public abstract Object getCache(String key);
 	/**
-	 * 放置缓存的对象
+	 * Place the cached object
 	 * @param key
 	 * @param object
 	 */

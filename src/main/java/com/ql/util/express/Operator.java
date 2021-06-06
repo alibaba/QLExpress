@@ -8,7 +8,7 @@ import com.ql.util.express.instruction.op.OperatorBase;
 import java.util.Date;
 
 /**
- * 操作符的基类
+ * Operator base class
  *
  * @author xuannan
  */
@@ -25,7 +25,7 @@ public abstract class Operator extends OperatorBase {
         }
         Object result = this.executeInner(parameters);
         if (result != null && result.getClass().equals(OperateData.class)) {
-            throw new QLException("操作符号定义的返回类型错误：" + this.getAliasName());
+            throw new QLException("The return type defined by the operation symbol is wrong: " + this.getAliasName());
         }
         if (result == null) {
             //return new OperateData(null,null);
@@ -39,7 +39,7 @@ public abstract class Operator extends OperatorBase {
     public abstract Object executeInner(Object[] list) throws Exception;
     
     /**
-     * 进行对象是否相等的比较
+     * Compare whether objects are equal
      * @param op1
      * @param op2
      * @return
@@ -53,34 +53,34 @@ public abstract class Operator extends OperatorBase {
             return false;
         }
         
-        //Character的值比较
+        //Character-Value comparison
         if(op1 instanceof Character || op2 instanceof Character){
             int compareResult = 0;
             if (op1 instanceof Character && op2 instanceof Character) {
-                return ((Character) op1).equals((Character) op2);
+                return op1.equals(op2);
             }else if (op1 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((Number) op1, (int) ((Character) op2).charValue());
+                compareResult = OperatorOfNumber.compareNumber((Number) op1, (int) (Character) op2);
                 return compareResult==0;
             } else if (op2 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((int) ((Character) op1).charValue(), (Number) op2);
+                compareResult = OperatorOfNumber.compareNumber((int) (Character) op1, (Number) op2);
                 return compareResult==0;
             }
         }
-        //数值的值比较
+        //Numerical value comparison
         if (op1 instanceof Number && op2 instanceof Number) {
-            //数字比较
+            //Number comparison
             int compareResult = OperatorOfNumber.compareNumber((Number) op1, (Number) op2);
             return compareResult==0;
         }
-        //调用原始Object的比较
+        //Call the comparison of the original Object
         return op1.equals(op2);
     }
-    /**
-     * 进行对象比较
-     *
+
+
+    /** Compare objects
      * @param op1
      * @param op2
-     * @return 0 等于 ，负数 小于 , 正数 大于
+     * @return
      * @throws Exception
      */
     public static int compareData(Object op1, Object op2) throws Exception {
@@ -103,10 +103,10 @@ public abstract class Operator extends OperatorBase {
             } else if (op2 instanceof Number) {
                 compareResult = OperatorOfNumber.compareNumber((int) ((Character) op1).charValue(), (Number) op2);
             } else {
-                throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
+                throw new QLException(op1 + ":" + op2 + " - Cannot perform compare operation ");
             }
         } else if (op1 instanceof Number && op2 instanceof Number) {
-            //数字比较
+            //Number comparison
             compareResult = OperatorOfNumber.compareNumber((Number) op1, (Number) op2);
         } else if ((op1 instanceof Boolean) && (op2 instanceof Boolean)) {
             if (((Boolean) op1).booleanValue() == ((Boolean) op2).booleanValue())
@@ -116,7 +116,7 @@ public abstract class Operator extends OperatorBase {
         } else if ((op1 instanceof Date) && (op2 instanceof Date)) {
             compareResult = ((Date) op1).compareTo((Date) op2);
         } else
-            throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
+            throw new QLException(op1 + ":" + op2 + " - Cannot perform compare operation ");
         return compareResult;
     }
     

@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * 
- * @骆凡
+ * @Luo Fan
  * Created by tianqiao on 17/7/5.
  */
 public class ContextMessagePutTest {
@@ -34,7 +34,7 @@ public class ContextMessagePutTest {
         ExpressRunner runner = new ExpressRunner();
         OperatorBase op = new OperatorContextPut("contextPut");
         runner.addFunction("contextPut",op);
-        String exp = "contextPut('success','false');contextPut('error','错误信息');contextPut('warning','提醒信息')";
+        String exp = "contextPut('success','false');contextPut('error','Error message');contextPut('warning','Reminder message')";
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
         context.put("success","true");
         Object result = runner.execute(exp,context,null,false,true);

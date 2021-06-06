@@ -3,10 +3,10 @@ package com.ql.util.express.parse;
 
 public class KeyWordDefine4Java {
 	public String[] splitWord={
-			 "^","~","&","|","<<", ">>",// 位操作
-			 "+", "-","*", "/", "%","++", "--",//四则运算：
-			 ".",",",":",";","(", ")", "{", "}", "[", "]","?",//分隔符号
-			 "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean运算符号
+			 "^","~","&","|","<<", ">>",// Bit manipulation
+			 "+", "-","*", "/", "%","++", "--",//Arithmetic：
+			 ".",",",":",";","(", ")", "{", "}", "[", "]","?",//Delimiter
+			 "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean operation symbol
 			 "=","/**","**/"
 	};
 	public  String[] keyWords = new String[] {

@@ -13,7 +13,7 @@ public class ExpressClassLoader extends ClassLoader {
 
 	public synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-		//System.out.print("开始查找 类" + name + "。。。。。。。。。。。");
+		//System.out.print("Start to find class" + name + "。。。。。。。。。。。");
 		Class<?> clasz = findLoadedClass(this, name);
 		if (clasz != null) {
 			//System.out.println(clasz.getClassLoader());
@@ -22,7 +22,7 @@ public class ExpressClassLoader extends ClassLoader {
 		if (clasz == null) {
 			clasz = parentLoadClass(this, name);
 		}
-		if (clasz == null && name.startsWith("[")) { // 进行数组处理
+		if (clasz == null && name.startsWith("[")) { // Array processing
 			int index = name.indexOf("L");
 			String str = name.substring(0, index);
 			String componentClassName = name.substring(index + 1,
@@ -35,7 +35,7 @@ public class ExpressClassLoader extends ClassLoader {
 				Class<?> componentType = this.loadClass(componentClassName);
 				clasz = Array.newInstance(componentType, dimes).getClass();
 			} catch (Exception e) {
-				// 不错处理
+				// Good deal
 			}
 		}
 
@@ -72,7 +72,7 @@ public class ExpressClassLoader extends ClassLoader {
 
 	public static Class<?> parentLoadClass(ClassLoader loader, String name)
 			throws ClassNotFoundException {
-		// 如果存在这个类，则直接返回
+		// If this class exists, return directly
 		Class<?> clasz = null;
 		if (clasz == null) {
 			try {

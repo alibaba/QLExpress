@@ -19,7 +19,7 @@ public class NodeTypeManager implements INodeTypeManager {
 		protected String[][] instructionFacotryMapping;
 	    protected Map<String,NodeType> nodeTypes = new HashMap<String,NodeType>();	
 	    
-	    //所有的函数定义
+	    //All function definitions
 	    protected Map<String,String> functions = new HashMap<String,String>();
 	    
 	    public NodeTypeManager() {
@@ -38,7 +38,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	    }
 	    
 		public void initial() {
-			//创建所有的关键字
+			//Create all keywords
 			NodeType[] tempKeyWordNodeTypes = new NodeType[splitWord.length + keyWords.length];
 			for (int i = 0; i < splitWord.length; i++) {
 				tempKeyWordNodeTypes[i] = this.createNodeType(splitWord[i] + ":TYPE=KEYWORD");
@@ -46,22 +46,22 @@ public class NodeTypeManager implements INodeTypeManager {
 			for (int i = 0 ; i < keyWords.length; i++) {
 				tempKeyWordNodeTypes[i + splitWord.length] = this.createNodeType(keyWords[i] + ":TYPE=KEYWORD");
 			}
-			// 初始化所有的类型信息，
+			// Initialize all type information,
 			for (int i = 0; i < tempKeyWordNodeTypes.length; i++) {
 				tempKeyWordNodeTypes[i].initial();
 			}
 			
-			// 创建所有的类型信息，但不能初始化
+			// Create all type information, but cannot initialize
 			NodeType[] nodeTypes = new NodeType[nodeTypeDefines.length];
 			for (int i = 0; i < nodeTypeDefines.length; i++) {
 				nodeTypes[i] = this.createNodeType(nodeTypeDefines[i]);
 			}
-			// 初始化所有的类型信息，
+			// Initialize all type information,
 			for (int i = 0; i < nodeTypes.length; i++) {
 				nodeTypes[i].initial();
 			}
 			
-			//初始化指令Facotry
+			//Initialization instruction Factory
 		if (this.instructionFacotryMapping != null) {
 			for (String[] list : this.instructionFacotryMapping) {
 				for (String s : list[0].split(",")) {
@@ -72,7 +72,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	}
 	    
 	/**
-	 * 创建节点类型，需要注意的是不能初始化，必须所有的类型都创建完成后才能调用初始化方法
+	 * When creating a node type, it should be noted that it cannot be initialized, and the initialization method must be called after all types are created.
 	 * @param aDefineStr
 	 * @return
 	 */
@@ -81,15 +81,15 @@ public class NodeTypeManager implements INodeTypeManager {
 		String name = aDefineStr.substring(0,index).trim();
 		NodeType define = nodeTypes.get(name);
 		if(define != null ){
-			log.warn("节点类型定义重复:"+name+" 定义1="+define.getDefineStr() + " 定义2=" + aDefineStr);
-			throw new RuntimeException("节点类型定义重复:"+name+" 定义1="+define.getDefineStr() + " 定义2=" + aDefineStr);
+			log.warn("Duplicate node type definition:"+name+" Definition 1="+define.getDefineStr() + " Definition 2=" + aDefineStr);
+			throw new RuntimeException("Duplicate node type definition:"+name+" Definition 1="+define.getDefineStr() + " Definition 2=" + aDefineStr);
 		}
 		define = new NodeType(this,name,aDefineStr);
 		nodeTypes.put(name, define);
 		return define;
 	}
 	/**
-	 * 根据类型名称查找节点类型
+	 * Find node type based on type name
 	 * @param name
 	 * @return
 	 */
@@ -97,7 +97,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	public NodeType findNodeType(String name){		
 		NodeType result = nodeTypes.get(name);
 		if(result == null){
-			throw new RuntimeException("没有定义的节点类型：" + name);
+			throw new RuntimeException("Undefined node type：" + name);
 		}
 		while(result.getRealNodeType() != null){
 			result = result.getRealNodeType();
@@ -106,7 +106,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	}
 	
 	/**
-	 * 增加关键字，但是用实际的类型代替，例如 :"如果" -》"if"
+	 * Add keywords, but replace them with actual types, for example: "if"-"if"
 	 * @param keyWordName
 	 * @param realName
 	 */
@@ -116,7 +116,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	}
 	
 	/**
-	 * 增加新的操作符号，其优先级别，以及语法关系与参照的操作符号一致
+	 * Add new operation symbols, their priority levels, and grammatical relations are consistent with the reference operation symbols
 	 * @param operName
 	 * @param refOperName
 	 * @throws Exception 
@@ -136,7 +136,7 @@ public class NodeTypeManager implements INodeTypeManager {
 	}
 	
 	/**
-	 * 判断是否存在节点类型定义
+	 * Determine whether there is a node type definition
 	 * @param name
 	 * @return
 	 */

@@ -8,14 +8,14 @@ import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionSetContext  implements IExpressContext<String,Object> {
 	/*
-	 * 没有知道数据类型的变量定义是否传递到最外层的Context
+	 * It is not known whether the variable definition of the data type is passed to the outermost Context
 	 */
 	private boolean isExpandToParent = true;
 	
 	private IExpressContext<String,Object> parent = null;
 	private Map<String,Object> content;
 	/**
-	 * 符号表
+	 * Symbol table
 	 */
 	private Map<String,Object> symbolTable =new HashMap<String,Object>();
 	
@@ -58,7 +58,7 @@ public class InstructionSetContext  implements IExpressContext<String,Object> {
 	}
 	public void addSymbol(String varName,Object aliasNameObject) throws Exception{
 		if(this.symbolTable.containsKey(varName)){
-			throw new QLException("变量" + varName + "已经存在，不能重复定义，也不能再从函数内部 exprot ");
+			throw new QLException("Variable:" + varName + " already exists, cannot be re-defined, nor can export from within the function ");
 		}
 		this.symbolTable.put(varName,aliasNameObject);
 	}
@@ -130,7 +130,7 @@ public class InstructionSetContext  implements IExpressContext<String,Object> {
 		}else if(this.parent != null){
 			return this.parent.put(key,value);
 		}else{
-			throw new RuntimeException("没有定义局部变量：" + key +",而且没有全局上下文");
+			throw new RuntimeException("No local variables defined：" + key +",with no global context");
 		}
 	}
 

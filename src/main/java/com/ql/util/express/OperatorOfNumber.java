@@ -3,21 +3,19 @@ package com.ql.util.express;
 import com.ql.util.express.exception.QLException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
- * 数字运行函数集合
- * @author qhlhl2010@gmail.com
  *
  */
-
 interface NumberType{
-	public int NUMBER_TYPE_BYTE = 1;
-	public int NUMBER_TYPE_SHORT = 2;
-	public int NUMBER_TYPE_INT = 3;
-	public int NUMBER_TYPE_LONG = 4;
-	public int NUMBER_TYPE_FLOAT = 5;
-	public int NUMBER_TYPE_DOUBLE = 6;
-	public int NUMBER_TYPE_BIGDECIMAL = 7;
+	int NUMBER_TYPE_BYTE = 1;
+	int NUMBER_TYPE_SHORT = 2;
+	int NUMBER_TYPE_INT = 3;
+	int NUMBER_TYPE_LONG = 4;
+	int NUMBER_TYPE_FLOAT = 5;
+	int NUMBER_TYPE_DOUBLE = 6;
+	int NUMBER_TYPE_BIGDECIMAL = 7;
 }
 
 public class OperatorOfNumber {
@@ -28,11 +26,11 @@ public class OperatorOfNumber {
 		}
 		BigDecimal b = new BigDecimal(Double.toString(v));
 		BigDecimal one = new BigDecimal("1");
-		return b.divide(one, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+		return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	/**
-	 * 获取数据类型精度顺序
+	 * Get data type precision order
 	 * @param aClass
 	 * @return
 	 */
@@ -44,10 +42,10 @@ public class OperatorOfNumber {
     	if(aClass == Float.class || aClass == float.class) return NumberType.NUMBER_TYPE_FLOAT;
     	if(aClass == Double.class || aClass == double.class) return NumberType.NUMBER_TYPE_DOUBLE;
     	if(aClass == BigDecimal.class) return NumberType.NUMBER_TYPE_BIGDECIMAL;
-    	throw new RuntimeException("不能处理的数据类型：" + aClass.getName());
+    	throw new RuntimeException("Unknown numerical class：" + aClass.getName());
     }
 	/**
-	 * 进行数据类型转换
+	 * Perform data type conversion
 	 * @param value
 	 * @param type
 	 * @return
@@ -55,96 +53,101 @@ public class OperatorOfNumber {
 	public static Number transfer(Number value,Class<?> type,boolean isForce){
 		if (isForce == true || value instanceof BigDecimal == false) {
 			if (type.equals(byte.class) || type.equals(Byte.class)) {
-				return ((Number) value).byteValue();
+				return value.byteValue();
 			} else if (type.equals(short.class) || type.equals(Short.class)) {
-				return ((Number) value).shortValue();
+				return value.shortValue();
 			} else if (type.equals(int.class) || type.equals(Integer.class)) {
-				return ((Number) value).intValue();
+				return value.intValue();
 			} else if (type.equals(long.class) || type.equals(Long.class)) {
-				return ((Number) value).longValue();
+				return value.longValue();
 			} else if (type.equals(float.class) || type.equals(Float.class)) {
-				return ((Number) value).floatValue();
+				return value.floatValue();
 			} else if (type.equals(double.class)
 					|| type.equals(Double.class)) {
-				return ((Number) value).doubleValue();
+				return value.doubleValue();
 			} else if (type.equals(BigDecimal.class)) {
 				return new BigDecimal(value.toString());
 			}else{
-				throw new RuntimeException("没有处理的数据类型：" + type.getName());
+				throw new RuntimeException("Data types not processed: " + type.getName());
 			}
 		} else {
 			if (type.equals(byte.class) || type.equals(Byte.class)) {
 				if(((BigDecimal)value).scale() >0 ){
-					throw new RuntimeException("有小数位，不能转化为："+ type.getName());
+					throw new RuntimeException("There are decimal places and cannot be converted to: "+ type.getName());
 				}
-				return ((Number) value).byteValue();
+				return value.byteValue();
 			} else if (type.equals(short.class) || type.equals(Short.class)) {
 				if(((BigDecimal)value).scale() >0 ){
-					throw new RuntimeException("有小数位，不能转化为："+ type.getName());
+					throw new RuntimeException("There are decimal places and cannot be converted to: "+ type.getName());
 				}
-				return ((Number) value).shortValue();
+				return value.shortValue();
 			} else if (type.equals(int.class) || type.equals(Integer.class)) {
 				if(((BigDecimal)value).scale() >0 ){
-					throw new RuntimeException("有小数位，不能转化为："+ type.getName());
+					throw new RuntimeException("There are decimal places and cannot be converted to: "+ type.getName());
 				}
-				return ((Number) value).intValue();
+				return value.intValue();
 			} else if (type.equals(long.class) || type.equals(Long.class)) {
 				if(((BigDecimal)value).scale() >0 ){
-					throw new RuntimeException("有小数位，不能转化为："+ type.getName());
+					throw cannotProcessDecimalFor(type);
 				}
-				return ((Number) value).longValue();
+				return value.longValue();
 			} else if (type.equals(float.class) || type.equals(Float.class)) {
-				return ((Number) value).floatValue();
+				return value.floatValue();
 			} else if (type.equals(double.class)
 					|| type.equals(Double.class)) {
-				return ((Number) value).doubleValue();
+				return value.doubleValue();
 			}else{
-				throw new RuntimeException("没有处理的数据类型：" + type.getName());
+				throw new RuntimeException("Data types not processed: " + type.getName());
 			}	
 		}
 	}
+
+	private static RuntimeException cannotProcessDecimalFor(Class<?> type) {
+		return new RuntimeException("There are decimal places and cannot be converted to: "+ type.getName());
+	}
+
 	public static int compareNumber(Number op1, Number op2){
 		int type1 = OperatorOfNumber.getSeq(op1.getClass());
 		int type2 = OperatorOfNumber.getSeq(op2.getClass());
 		int type = type1 >  type2 ? type1:type2;
 		if(type == 1)  {
-			byte o1 =	((Number)op1).byteValue();
-			byte o2 =  ((Number)op2).byteValue();
+			byte o1 =	op1.byteValue();
+			byte o2 =  op2.byteValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
 		}
 		if(type == 2) {
-			short o1 =	((Number)op1).shortValue();
-			short o2 =  ((Number)op2).shortValue();
+			short o1 =	op1.shortValue();
+			short o2 =  op2.shortValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
 		}
 		if(type == 3) {
-			int o1 =	((Number)op1).intValue();
-			int o2 =  ((Number)op2).intValue();
+			int o1 =	op1.intValue();
+			int o2 =  op2.intValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
 		}
 		if(type == 4) {
-			long o1 =	((Number)op1).longValue();
-			long o2 =  ((Number)op2).longValue();
+			long o1 =	op1.longValue();
+			long o2 =  op2.longValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
 		}
 		if(type == 5) {
-			float o1 =	((Number)op1).floatValue();
-			float o2 =  ((Number)op2).floatValue();
+			float o1 =	op1.floatValue();
+			float o2 =  op2.floatValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
 		}
 		if(type == 6){
-			double o1 =	((Number)op1).doubleValue();
-			double o2 =  ((Number)op2).doubleValue();
+			double o1 =	op1.doubleValue();
+			double o2 =  op2.doubleValue();
 			if(o1 == o2) return 0;
 			if(o1 < o2) return -1;
 			return 1;
@@ -200,9 +203,8 @@ public class OperatorOfNumber {
 }
 class NormalNumberOperator {
 
-	
+
 	/**
-	 * 普通的加法运算	
 	 * @param op1
 	 * @param op2
 	 * @return
@@ -219,12 +221,15 @@ class NormalNumberOperator {
 		if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() + op2.floatValue();
 		if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() + op2.doubleValue();
 		if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).add(new BigDecimal(op2.toString()));		
-		throw new QLException("不支持的对象执行了\"+\"操作");
+		throw unsupportedOperation("+");
+	}
+
+	private static QLException unsupportedOperation(String operation) {
+		return new QLException("Unsupported object performed operation: "+ operation);
 	}
 
 
-
-	 public  static  Number subtractNormal(Number op1,Number op2) throws Exception{
+	public  static  Number subtractNormal(Number op1,Number op2) throws Exception{
 			int type1 = OperatorOfNumber.getSeq(op1.getClass());
 			int type2 = OperatorOfNumber.getSeq(op2.getClass());
 			int type = type1 >  type2 ? type1:type2;
@@ -235,7 +240,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() - op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() - op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).subtract(new BigDecimal(op2.toString()));
-			throw new QLException("不支持的对象执行了\"-\"操作");
+			throw unsupportedOperation("-");
 	    }
 
 	    public static Number multiplyNormal(Number op1,Number op2) throws Exception {
@@ -249,7 +254,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() * op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() * op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).multiply(new BigDecimal(op2.toString()));
-			throw new QLException("不支持的对象执行了\"*\"操作");
+			throw unsupportedOperation("*");
 	    }
 	   public static Number divideNormal(Number op1,Number op2) throws Exception{
 			int type1 = OperatorOfNumber.getSeq(op1.getClass());
@@ -262,7 +267,7 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_FLOAT) return op1.floatValue() / op2.floatValue();
 			if(type == NumberType.NUMBER_TYPE_DOUBLE) return op1.doubleValue() / op2.doubleValue();
 			if(type == NumberType.NUMBER_TYPE_BIGDECIMAL) return new BigDecimal(op1.toString()).divide(new BigDecimal(op2.toString()), BigDecimal.ROUND_HALF_UP);
-			throw new QLException("不支持的对象执行了\"/\"操作");
+			throw unsupportedOperation("/");
 	    }
 
 
@@ -274,12 +279,12 @@ class NormalNumberOperator {
 			if(type == NumberType.NUMBER_TYPE_SHORT) return op1.shortValue() % op2.shortValue();
 			if(type == NumberType.NUMBER_TYPE_INT) return op1.intValue() % op2.intValue();
 			if(type == NumberType.NUMBER_TYPE_LONG) return op1.longValue() % op2.longValue();
-			throw new QLException("不支持的对象执行了\"mod\"操作");
+			throw unsupportedOperation("mod");
      }
 }
 
 /**
- * 高精度计算
+ * High-precision calculation
  * @author xuannan
  */
 class PreciseNumberOperator {

@@ -22,12 +22,12 @@ public class ExpressParse {
 	IExpressResourceLoader expressResourceLoader;
     
     /**
-     * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
-     * 在计算比如 '1'+'2'=='12'
+     * Whether to ignore charset type data and recognize it as string, such as'a' -> "a"
+     * In the calculation such as '1'+'2'=='12'
      */
 	private boolean ignoreConstChar = false;
 	/**
-	 * 是否需要高精度计算
+	 * Do you need high-precision calculations
 	 */
 	private boolean isPrecise = false;
     
@@ -75,7 +75,7 @@ public class ExpressParse {
 	}
     
     /**
-     * 进行单词类型分析
+     * Perform word type analysis
      * @param aRootExpressPackage
      * @param wordObjects
      * @param selfClassDefine
@@ -91,7 +91,7 @@ public class ExpressParse {
 		ExpressPackage  tmpImportPackage = null;
 		if(dealJavaClass==true){
 			tmpImportPackage = new ExpressPackage(aRootExpressPackage);  
-		    //先处理import，import必须放在文件的最开始，必须以;结束
+		    //Process import first, import must be placed at the very beginning of the file and must end with;
 		    boolean isImport = false;
 		    StringBuffer importName = new StringBuffer();
 		    while(point <wordObjects.length ){
@@ -121,7 +121,7 @@ public class ExpressParse {
 		  char firstChar = tempWord.charAt(0);
 		  char lastChar = tempWord.substring(tempWord.length() - 1).toLowerCase().charAt(0);		  
 		  if(firstChar >='0' && firstChar<='9'){
-			  if(result.size() >0){//对 负号进行特殊处理
+			  if(result.size() >0){//Special treatment for negative signs
 				  if(result.get(result.size() -1).getValue().equals("-")){
 					  if(result.size() == 1 
 						 || result.size() >=2 
@@ -180,7 +180,7 @@ public class ExpressParse {
 			  point = point + 1;
 		  }else if(firstChar =='"'){
 			  if(lastChar !='"' || tempWord.length() <2){
-				  throw new QLCompileException("没有关闭的字符串：" + tempWord);
+				  throw new QLCompileException("String not closed:" + tempWord);
 			  }
 			  tempWord = tempWord.substring(1,tempWord.length() -1);
 			  tempType =nodeTypeManager.findNodeType("CONST_STRING");
@@ -189,12 +189,12 @@ public class ExpressParse {
 			  point = point + 1;
 		  }else if(firstChar =='\''){
 			  if(lastChar !='\'' || tempWord.length() <2){
-				  throw new QLCompileException("没有关闭的字符：" + tempWord);
+				  throw new QLCompileException("No closed characters：" + tempWord);
 			  }
 			  tempWord = tempWord.substring(1,tempWord.length() -1);
 			  
 			  treeNodeType = nodeTypeManager.findNodeType("CONST");
-			  if(tempWord.length() == 1 && !ignoreConstChar){ //转换为字符串
+			  if(tempWord.length() == 1 && !ignoreConstChar){ //Convert to string
 				  tempType =nodeTypeManager.findNodeType("CONST_CHAR");
 				  objectValue = tempWord.charAt(0);
 			  }else{
@@ -211,7 +211,7 @@ public class ExpressParse {
 		  }else {
 				tempType = nodeTypeManager.isExistNodeTypeDefine(tempWord);
 				if(tempType != null && tempType.getKind() != NodeTypeKind.KEYWORD){
-					//不是关键字
+					//Not a keyword
 					tempType = null;
 				}
 				if (tempType == null) {
@@ -314,7 +314,7 @@ public class ExpressParse {
 		}    	
     }
     /**
-     * 提取自定义的Class
+     * Extract custom Class
      * @param words
      */
 	public static void fetchSelfDefineClass(Word[] words,Map<String,String> selfDefineClass){
@@ -332,15 +332,15 @@ public class ExpressParse {
 	public Word[]  splitWords(ExpressPackage rootExpressPackage,String express,boolean isTrace,Map<String,String> selfDefineClass) throws Exception{
 		Word[] words = WordSplit.parse(this.nodeTypeManager.splitWord,express);
 		if(isTrace == true && log.isDebugEnabled()){
-			log.debug("执行的表达式:" + express);	
-			log.debug("单词分解结果:" + WordSplit.getPrintInfo(words,","));  
+			log.debug("Expression executed:" + express);
+			log.debug("Word decomposition result:" + WordSplit.getPrintInfo(words,","));
 		}
 		words = this.dealInclude(words);
 		if(isTrace == true && log.isDebugEnabled()){
-			log.debug("预处理后结果:" + WordSplit.getPrintInfo(words,","));  
+			log.debug("Result after preprocessing:" + WordSplit.getPrintInfo(words,","));
 		}
 		
-		//提取自定义Class
+		//Extract custom class
 		if(selfDefineClass == null){
 			selfDefineClass = new HashMap<String,String>();
 		}
@@ -359,16 +359,16 @@ public class ExpressParse {
 		
     	List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage,words,selfDefineClass,true);
         if(isTrace == true && log.isDebugEnabled()){
-            log.debug("单词分析结果:" + printInfo(tempList,","));
+            log.debug("Word analysis result:" + printInfo(tempList,","));
         }
-        //比如用在远程配置脚本，本地jvm并不包含这个java类，可以
+        //For example, when used in remote configuration scripts, the local jvm does not contain this java class, you can
         if(mockRemoteJavaClass){
             List<ExpressNode> tempList2 = new ArrayList<ExpressNode>();
             for(int i=0;i<tempList.size();i++){
                 ExpressNode node = tempList.get(i);
                 if(node.getValue().equals("new") && node.getNodeType().getKind() == NodeTypeKind.KEYWORD && i+1<tempList.size() && !"CONST_CLASS".equals(tempList.get(i+1).getNodeType().getName())){
                     tempList2.add(node);
-                    //取出 ( 前面的类路径作为configClass名称
+                    //Take out (the previous class path as the configClass name
                     int end = i+1;
                     String configClass = tempList.get(end).getValue();
                     end++;
@@ -379,35 +379,35 @@ public class ExpressParse {
                     NodeType nodeType = nodeTypeManager.findNodeType("VClass");
                     ExpressNode vClassNode = new ExpressNode(nodeType,configClass);
                     tempList2.add(vClassNode);
-                    i = end-1;//因为循环之后，i++，所以i=end-1
+                    i = end-1;//Because after the loop, i++, so i=end-1
                 }else {
                     tempList2.add(node);
                 }
             }
             tempList = tempList2;
             if(isTrace == true && log.isDebugEnabled()){
-                log.debug("修正后单词分析结果:" + printInfo(tempList,","));
+                log.debug("Corrected word analysis result:" + printInfo(tempList,","));
             }
         }
 
 		QLMatchResult result = QLPattern.findMatchStatement(this.nodeTypeManager, this.nodeTypeManager
 						.findNodeType("PROGRAM").getPatternNode(), tempList,0);
 		if(result == null){
-			throw new QLCompileException("语法匹配失败");
+			throw new QLCompileException("Grammar match failed");
 		}
 		if(result.getMatchLastIndex() < tempList.size()){
 			int maxPoint = result.getMatchLastIndex();
 			ExpressNode tempNode = tempList.get(maxPoint);
-			throw new QLCompileException("还有单词没有完成语法匹配：" + result.getMatchLastIndex() +"["+ tempNode.getValue() + ":line=" + tempNode.getLine() + ",col=" + tempNode.getCol() +"] 之后的单词 \n" + express);
+			throw new QLCompileException("There are still words that have not completed grammatical matching：" + result.getMatchLastIndex() +"["+ tempNode.getValue() + ":line=" + tempNode.getLine() + ",col=" + tempNode.getCol() +"] Word after \n" + express);
 		}
 		result.getMatchs().get(0).buildExpressNodeTree();
 		ExpressNode root =(ExpressNode)result.getMatchs().get(0).getRef();
 		
-		//为了生成代码时候进行判断，需要设置每个节点的父亲
+		//In order to judge when generating code, you need to set the father of each node
     	resetParent(root,null);
     	
     	if(isTrace == true && log.isDebugEnabled()){
-    		log.debug("最后的语法树:" );
+    		log.debug("The final syntax tree:" );
     		printTreeNode(root,1);
     	}
 		return root;

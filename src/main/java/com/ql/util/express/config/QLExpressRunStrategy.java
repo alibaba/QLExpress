@@ -7,19 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ExpressRunner设置全局生效的配置，直接使用静态方法控制
+ * ExpressRunner Set the globally effective configuration, directly use the static method to control
  */
 public class QLExpressRunStrategy {
 
 
     /**
-     * 预防空指针
+     * Null pointer prevention
      */
 
     private static boolean avoidNullPointer = false;
 
     /**
-     * 当空对象进行大小比较时，返回false, 例如 1 > null 和 null > 1都返回false
+     * When comparing the size of an empty object, it returns false, for example, 1> null and null> 1 both return false
      */
     private static boolean compareNullLessMoreAsFalse = false;
 
@@ -40,9 +40,7 @@ public class QLExpressRunStrategy {
     }
 
 
-    /**
-     * 禁止调用不安全的方法
-     */
+
     private static boolean forbiddenInvokeSecurityRiskMethods = false;
 
     public static boolean isForbiddenInvokeSecurityRiskMethods() {
@@ -56,8 +54,8 @@ public class QLExpressRunStrategy {
     private static List<String>securityRiskMethods = new ArrayList<String>();
 
     static{
-        securityRiskMethods.add(System.class.getName()+"."+"exit");//系统退出
-        securityRiskMethods.add(Runtime.getRuntime().getClass().getName()+".exec");//运行脚本命令
+        securityRiskMethods.add(System.class.getName()+"."+"exit");
+        securityRiskMethods.add(Runtime.getRuntime().getClass().getName()+".exec");
     }
 
     public static void addSecurityRiskMethod(Class clazz, String methodName )
@@ -69,7 +67,7 @@ public class QLExpressRunStrategy {
 
         if(forbiddenInvokeSecurityRiskMethods && m!=null){
             if(securityRiskMethods.contains(m.getDeclaringClass().getName()+"."+m.getName())) {
-                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + m.toString());
+                throw new QLSecurityRiskException("An unsafe system method was called using QLExpress: " + m.toString());
             }
         }
     }

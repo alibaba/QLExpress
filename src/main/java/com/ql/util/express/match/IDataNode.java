@@ -3,14 +3,14 @@ package com.ql.util.express.match;
 
 
 public interface IDataNode {
-	public void setNodeType(INodeType type);
-	public void setTreeType(INodeType findNodeType);
-	public INodeType getNodeType();
-	public INodeType getTreeType();
+	void setNodeType(INodeType type);
+	void setTreeType(INodeType findNodeType);
+	INodeType getNodeType();
+	INodeType getTreeType();
 
-	public void addLeftChild(IDataNode ref);
-	public IDataNode createExpressNode(INodeType aType,String aValue) throws Exception;
+	void addLeftChild(IDataNode ref);
+	IDataNode createExpressNode(INodeType aType, String aValue) throws Exception;
 
-	public String getValue();
-	public void setObjectValue(Object value);
+	String getValue();
+	void setObjectValue(Object value);
 }
