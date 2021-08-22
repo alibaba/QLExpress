@@ -139,6 +139,11 @@ public class ExpressUtil {
 		if (target == source)// 转换后需要在判断一下
 			return true;
 
+		// QLambda 与函数式接口之间允许互转
+		if (source == QLambda.class && isFunctionInterface(target)) {
+			return true;
+		}
+
 		for (int i = 0; i < classMatchs.length; i++) {
 			if (target == classMatchs[i][0] && source == classMatchs[i][1]) {
 				return true;
@@ -630,17 +635,49 @@ public class ExpressUtil {
 			}
 			return value;
 
-		}else{
+		}else if (value.getClass() == QLambda.class && isFunctionInterface(type)) {
+			// 动态代理 QLambda 为指定接口类
+			return Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type},
+					new QLambdaInvocationHandler((QLambda) value));
+		} else {
 			return value;
 		}
 	}
 
-	  
-		public static void main(String[] args) throws Exception {
-			System.out.println(replaceString("$1强化$2实施$2", new String[] { "qq",
-					"ff" }));
-			System.out.println(Number.class.isAssignableFrom(Long.class));
-			Object obj = castObject(Double.valueOf(1d),Double.class,false);
-			System.out.println(obj +":" + obj.getClass());
-		}   
+	/**
+	 * 一个接口是否函数式接口的缓存
+	 */
+	private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<Class<?>, Boolean>();
+
+	/**
+	 * 是否函数式接口
+	 * 函数式接口的条件
+	 * 是接口
+	 * 有且仅有一个 abstract 方法
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	private static boolean isFunctionInterface(Class<?> clazz) {
+		if (clazz == null) {
+			return false;
+		}
+		Boolean cacheRes = IS_FUNCTION_INTERFACE_CACHE.get(clazz);
+		if (cacheRes != null) {
+			return cacheRes;
+		}
+		boolean res = clazz.isInterface() && hasOnlyOneAbstractMethod(clazz.getMethods());
+		IS_FUNCTION_INTERFACE_CACHE.put(clazz, res);
+		return res;
+	}
+
+	private static boolean hasOnlyOneAbstractMethod(Method[] methods) {
+		int count = 0;
+		for (Method method : methods) {
+			if (Modifier.isAbstract(method.getModifiers())) {
+				count++;
+			}
+		}
+		return count == 1;
+	}
 }

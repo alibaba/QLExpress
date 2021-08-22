@@ -131,6 +131,9 @@ public class ExpressRunner {
 		this.parse =  new ExpressParse(manager,this.expressResourceLoader,this.isPrecise);
 		rootExpressPackage.addPackage("java.lang");
 		rootExpressPackage.addPackage("java.util");
+
+		// 默认引入 java8 stream api, jdk 版本低于 8 也不会有影响, 因为是运行时动态取的
+		rootExpressPackage.addPackage("java.util.stream");
 		this.addSystemFunctions();
         this.addSystemOperators();
 	}

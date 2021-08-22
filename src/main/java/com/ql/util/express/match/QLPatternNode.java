@@ -127,7 +127,7 @@ public class QLPatternNode{
 			//log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.orgiContent);
 		}
 		String orgStr = this.orgiContent;
-		if(orgStr.equals("(") || orgStr.equals(")") || orgStr.equals("|")||orgStr.equals("||")||orgStr.equals("/**") || orgStr.equals("**/")||orgStr.equals("*")){
+		if(orgStr.equals("(") || orgStr.equals(")") || orgStr.equals("|")||orgStr.equals("||")||orgStr.equals("/**") || orgStr.equals("**/")||orgStr.equals("*") || orgStr.equals("->")){
 			this.matchMode = MatchMode.DETAIL;
 			this.nodeType = this.nodeTypeManager.findNodeType(orgStr);
 			return ;
