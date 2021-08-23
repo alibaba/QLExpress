@@ -6,6 +6,9 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.opdata.OperateDataArrayItem;
+import org.apache.commons.beanutils.PropertyUtils;
+
+import java.util.List;
 
 public class OperatorArray extends OperatorBase {
 	public OperatorArray(String aName) {
@@ -23,8 +26,21 @@ public class OperatorArray extends OperatorBase {
 			throw new QLException("对象为null,不能执行数组相关操作");
 		}
 		Object tmpObject = p0.getObject(context);
+
 	    if( tmpObject.getClass().isArray() == false){
-			throw new QLException("对象:"+ tmpObject.getClass() +"不是数组,不能执行相关操作" );
+			OperateData p1 = list.get(1);
+			Object property = p1.getObject(context);
+			//支持data.get(0) ->data[0]
+			if(tmpObject instanceof  List && property instanceof Number) {
+				Object r = ((List<?>) tmpObject).get(((Number) property).intValue());
+				OperateData result = OperateDataCacheManager.fetchOperateData(r, r.getClass());
+				return result;
+			}
+			//支持data.code -> data['code']
+			if(property instanceof String||property instanceof Character) {
+				OperateData result = OperateDataCacheManager.fetchOperateDataField(tmpObject, String.valueOf(property));
+				return result;
+			}
 		}
 	    int index = ((Number)list.get(1).getObject(context)).intValue();		
 	    OperateData result  = OperateDataCacheManager.fetchOperateDataArrayItem((OperateData)p0,index);
