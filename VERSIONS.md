@@ -124,3 +124,7 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (3)区分异常类型：ThrowExceptionTest
 ## 3.2.4版本[2019-12-6]
 (1)增加null的数字比较方案"1>null"":NullCompareTest
+
+## 3.2.5版本[2021-8-23]
+(1)支持强大的数组符号访问属性功能（List,Map,Array）：ArrayPorpertyMixTest
+

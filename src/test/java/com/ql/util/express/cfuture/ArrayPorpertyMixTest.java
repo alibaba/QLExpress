@@ -12,61 +12,14 @@ import java.util.Map;
 
 public class ArrayPorpertyMixTest {
 
-    public static class Node
-    {
-        private Node[] children;
-        private String code;
-        private String name;
-
-        public Node[] getChildren() {
-            return children;
-        }
-
-        public void setChildren(Node[] children) {
-            this.children = children;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public void setCode(String code) {
-            this.code = code;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Node(String code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-    }
-
-
-    @Test
-    public void testcheckSyntax() throws Exception {
-
-        ExpressRunner runner = new ExpressRunner(false,true);
-        String express[] = new String[]{
-                "request['AAAA'][0]['BBBB']",
-                "request.AAAA[0]['BBBB']"
-        };
-        for(String exp:express) {
-            runner.checkSyntax(exp);
-        }
-    }
-
     @Test
     public void testRun() throws Exception {
         String tests[] = new String[]{
                 "request['AAAA'][0]['BBBB'][0]",
                 "requestList[0]['AAAA'][0]['BBBB'][0]",
+                "abc = NewList(1,2,3); return abc[1]+abc[2]",
+                "abc = NewMap('aa':1,'bb':2); return abc['aa'] + abc.get('bb');",
+                "abc = [1,2,3]; return abc[1]+abc[2];",
         };
 
 
@@ -78,14 +31,14 @@ public class ArrayPorpertyMixTest {
         List<Object> requestList = new ArrayList<Object>();
         requestList.add(request);
 
-        ExpressRunner runner = new ExpressRunner(false,true);
+        ExpressRunner runner = new ExpressRunner();
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
 
         context.put("request",request);
         context.put("requestList",requestList);
         for(String exp:tests) {
             Object result = runner.execute(exp, context, null, false,
-                    true);
+                    false);
             System.out.println(result);
         }
     }
