@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LambdaTest {
 
@@ -52,12 +53,21 @@ public class LambdaTest {
 
     @Test
     public void streamTest() throws Exception {
-        String expr = "a = NewList(1,2,3);a.stream().filter(item -> item > 1)" +
+
+
+        List<Integer> a= Arrays.asList(1,2,3).stream().filter(item->item>1).map(item->item+1).collect(Collectors.toList());
+        a.stream().forEach(item->System.out.println(item));
+        Assert.assertEquals(Arrays.asList(3, 4), a);
+
+        String expr = "a = NewList(1,2,3).stream()" +
+                ".filter(item -> item > 1)" +
                 ".map(item->item+1)" +
-                ".collect(Collectors.toList())";
+                ".collect(Collectors.toList());" +
+                "a.stream().forEach(item->System.out.println(item));" +
+                "return a;";
         ExpressRunner runner = new ExpressRunner(false, true);
         Object res = runner.execute(expr, new DefaultContext<String, Object>(), null,
-                false, true);
+                false, false);
         Assert.assertEquals(Arrays.asList(3, 4), res);
     }
 
