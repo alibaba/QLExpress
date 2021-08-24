@@ -28,12 +28,11 @@ public class OperatorArray extends OperatorBase {
 		Object tmpObject = p0.getObject(context);
 
 	    if( tmpObject.getClass().isArray() == false){
-			OperateData p1 = list.get(1);
-			Object property = p1.getObject(context);
-			//支持data.get(0) ->data[0]
+			Object property = list.get(1).getObject(context);
+			//支持data.get(index) ->data[index]
 			if(tmpObject instanceof  List && property instanceof Number) {
-				Object r = ((List<?>) tmpObject).get(((Number) property).intValue());
-				OperateData result = OperateDataCacheManager.fetchOperateData(r, r.getClass());
+				int index = ((Number) property).intValue();
+				OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem((OperateData)p0,index);
 				return result;
 			}
 			//支持data.code -> data['code']
@@ -42,6 +41,7 @@ public class OperatorArray extends OperatorBase {
 				return result;
 			}
 		}
+	    //支持原生Array：data[index]
 	    int index = ((Number)list.get(1).getObject(context)).intValue();		
 	    OperateData result  = OperateDataCacheManager.fetchOperateDataArrayItem((OperateData)p0,index);
 		return result;

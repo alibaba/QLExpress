@@ -17,9 +17,13 @@ public class ArrayPorpertyMixTest {
         String tests[] = new String[]{
                 "request['AAAA'][0]['BBBB'][0]",
                 "requestList[0]['AAAA'][0]['BBBB'][0]",
+                "requestList[0]['AAAA'][0]['BBBB'][0]='10';return requestList[0]['AAAA'][0]['BBBB'][0];",
                 "abc = NewList(1,2,3); return abc[1]+abc[2]",
+                "abc = NewList(1,2,3); abc[1]=0;return abc[1]+abc[2]",
                 "abc = NewMap('aa':1,'bb':2); return abc['aa'] + abc.get('bb');",
+                "abc = NewMap('aa':1,'bb':2); abc['aa']='aa';return abc['aa'] + abc.get('bb');",
                 "abc = [1,2,3]; return abc[1]+abc[2];",
+                "abc = [1,2,3]; abc[1]=0;return abc[1]+abc[2];",
         };
 
 
