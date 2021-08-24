@@ -7,9 +7,7 @@ import com.ql.util.express.QLambda;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LambdaTest {
@@ -69,6 +67,43 @@ public class LambdaTest {
         Object res = runner.execute(expr, new DefaultContext<String, Object>(), null,
                 false, false);
         Assert.assertEquals(Arrays.asList(3, 4), res);
+    }
+
+    @Test
+    public void foreachTest() throws Exception {
+
+        Map<String, String> map = new HashMap<>();
+        map.put("a", "a");
+        map.put("b", "b");
+        map.put("c", "c");
+        map.put("d", "d");
+        map.forEach((k, v) -> {
+            System.out.println(k);
+            System.out.println(v);
+        });
+
+        List<Integer> list= Arrays.asList(1,2,3);
+        list.forEach(item ->{
+            System.out.println(item);
+        });
+
+
+
+        String expr = "map.forEach((k, v) -> {\n" +
+                "            System.out.println(k);\n" +
+                "            System.out.println(v);\n" +
+                "        });";
+        String expr2 = "list.forEach(item ->{\n" +
+                "            System.out.println(item);\n" +
+                "        });";
+        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        context.put("map",map);
+        context.put("list",list);
+        ExpressRunner runner = new ExpressRunner(false, true);
+        runner.execute(expr,context , null,
+                false, false);
+        runner.execute(expr2,context , null,
+                false, false);
     }
 
 }
