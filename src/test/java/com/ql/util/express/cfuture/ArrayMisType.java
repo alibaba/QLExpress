@@ -47,12 +47,13 @@ public class ArrayMisType {
 
         ExpressRunner runner = new ExpressRunner();
         String[][] testList= new String[][]{
-//            new String[]{"instance.test(strings)",instance.test(strings)},
-//            new String[]{"instance.test(strings[0]);",instance.test(strings[0])},
-//            new String[]{"instance.test(strings)",instance.test(strings)},
-//            new String[]{"instance.test(integers[0]);",instance.test(integers[0])},
-//            new String[]{"instance.test(strings[0],integers[0])",instance.test(strings[0],integers[0])},
+            new String[]{"instance.test(strings)",instance.test(strings)},
+            new String[]{"instance.test(strings[0]);",instance.test(strings[0])},
+            new String[]{"instance.test(strings)",instance.test(strings)},
+            new String[]{"instance.test(integers[0]);",instance.test(integers[0])},
+            new String[]{"instance.test(strings[0],integers[0])",instance.test(strings[0],integers[0])},
             new String[]{"instance.test(strings,integers[0])",instance.test(strings,integers[0])},
+            new String[]{"part = \"1@2@3\".split(\"@\"); return Integer.valueOf(part[2]);","3"}
         };
 
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
@@ -62,7 +63,7 @@ public class ArrayMisType {
         for(String[] test:testList) {
             System.out.println(test[0]);
             Object r = runner.execute(test[0], context, null, true, false);
-            Assert.assertTrue("判定失误", r.equals(test[1]));
+            Assert.assertTrue("判定失误", r.toString().equals(test[1]));
         }
     }
 }
