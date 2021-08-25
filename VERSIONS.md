@@ -127,4 +127,5 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 
 ## 3.2.5版本[2021-8-23]
 (1)支持强大的数组符号访问属性功能（List,Map,Array）：ArrayPorpertyMixTest
-
+(2)支持lambda表达式，stream方式操作集合书写更高效（List,Map）：LambdaTest
+(3)解决数组类型的方法匹配bug：ArrayMisType
