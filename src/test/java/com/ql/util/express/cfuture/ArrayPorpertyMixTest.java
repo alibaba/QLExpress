@@ -3,6 +3,7 @@ package com.ql.util.express.cfuture;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,15 +16,15 @@ public class ArrayPorpertyMixTest {
     @Test
     public void testRun() throws Exception {
         String tests[] = new String[]{
-                "request['AAAA'][0]['BBBB'][0]",
-                "requestList[0]['AAAA'][0]['BBBB'][0]",
-                "requestList[0]['AAAA'][0]['BBBB'][0]='10';return requestList[0]['AAAA'][0]['BBBB'][0];",
-                "abc = NewList(1,2,3); return abc[1]+abc[2]",
-                "abc = NewList(1,2,3); abc[1]=0;return abc[1]+abc[2]",
-                "abc = NewMap('aa':1,'bb':2); return abc['aa'] + abc.get('bb');",
-                "abc = NewMap('aa':1,'bb':2); abc['aa']='aa';return abc['aa'] + abc.get('bb');",
-                "abc = [1,2,3]; return abc[1]+abc[2];",
-                "abc = [1,2,3]; abc[1]=0;return abc[1]+abc[2];",
+                "request['AAAA'][0]['BBBB'][0]","0",
+                "requestList[0]['AAAA'][0]['BBBB'][0]","0",
+                "requestList[0]['AAAA'][0]['BBBB'][0]='10';return requestList[0]['AAAA'][0]['BBBB'][0];","10",
+                "abc = NewList(1,2,3); return abc[1]+abc[2]","5",
+                "abc = NewList(1,2,3); abc[1]=0;return abc[1]+abc[2]","3",
+                "abc = NewMap('aa':1,'bb':2); return abc['aa'] + abc.get('bb');","3",
+                "abc = NewMap('aa':1,'bb':2); abc['aa']='aa';return abc['aa'] + abc.get('bb');","aa2",
+                "abc = [1,2,3]; return abc[1]+abc[2];","5",
+                "abc = [1,2,3]; abc[1]=0;return abc[1]+abc[2];","3"
         };
 
 
@@ -40,10 +41,11 @@ public class ArrayPorpertyMixTest {
 
         context.put("request",request);
         context.put("requestList",requestList);
-        for(String exp:tests) {
-            Object result = runner.execute(exp, context, null, false,
+        for(int i=0;i<tests.length;i+=2) {
+            Object result = runner.execute(tests[i], context, null, false,
                     false);
             System.out.println(result);
+            Assert.assertTrue(result.toString().equals(tests[i+1]));
         }
     }
 
