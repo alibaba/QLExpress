@@ -76,6 +76,11 @@ public class ExpressRunner {
 	 */
 	ExpressPackage rootExpressPackage = new ExpressPackage(null);
 
+	/**
+	 * 线程冲入次数
+	 */
+	private final ThreadLocal<Integer> threadReentrantCount = ThreadLocal.withInitial(() -> 0);
+
 	public AppendingClassMethodManager getAppendingClassMethodManager() {
 		return appendingClassMethodManager;
 	}
@@ -613,8 +618,24 @@ public class ExpressRunner {
 		} else {
 			parseResult = this.parseInstructionSet(expressString);
 		}
-		return  InstructionSetRunner.executeOuter(this,parseResult,this.loader,context, errorList,
-			 	isTrace,false,aLog,false);
+		return executeReentrant(parseResult, context, errorList, isTrace, aLog);
+	}
+
+	private Object executeReentrant(InstructionSet sets, IExpressContext<String,Object> aContext,
+									List<String> errorList, boolean isTrace, Log aLog) throws Exception {
+		try {
+			int reentrantCount = threadReentrantCount.get() + 1;
+			threadReentrantCount.set(reentrantCount);
+
+			return reentrantCount > 1?
+			// 线程重入
+			InstructionSetRunner.execute(this, sets, this.loader, aContext, errorList,
+					isTrace, false, true, aLog, false):
+			InstructionSetRunner.executeOuter(this, sets, this.loader, aContext, errorList,
+					isTrace,false,aLog,false);
+		} finally {
+			threadReentrantCount.set(threadReentrantCount.get() - 1);
+		}
 	}
 
 	public RuleResult executeRule(String expressString, IExpressContext<String,Object> context, boolean isCache, boolean isTrace)
