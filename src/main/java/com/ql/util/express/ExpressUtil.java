@@ -1,5 +1,7 @@
 package com.ql.util.express;
 
+import com.ql.util.express.annotation.QLAlias;
+import com.ql.util.express.annotation.QLAliasUtils;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -340,8 +342,19 @@ public class ExpressUtil {
 			if (m.getName().equals(methodName)
 					&& (m.getParameterTypes().length == numArgs)
 					&& (publicOnly == false || isPublic(m)
-							&& (isStatic == false || isStatic(m))))
+							&& (isStatic == false || isStatic(m)))){
 				candidates.add(m);
+			}else if(m.isAnnotationPresent(QLAlias.class)){
+				String[] values= m.getAnnotation(QLAlias.class).value();
+				if(values.length>0){
+					for(int j=0;j<values.length;j++){
+						if(values[j].equals(methodName) && (m.getParameterTypes().length == numArgs)
+								&& (publicOnly == false || isPublic(m)
+								&& (isStatic == false || isStatic(m))))
+							candidates.add(m);
+					}
+				}
+			}
 		}
 		return candidates;
 	}
@@ -545,7 +558,9 @@ public class ExpressUtil {
 				}
 			}else if(bean instanceof Map ){
 				return ((Map<?,?>)bean).get(name);
-		    }else {
+		    }else if(bean.getClass().isAnnotationPresent(QLAlias.class) ){
+				return QLAliasUtils.getProperty(bean,name);
+			}else {
 				Object obj = PropertyUtils.getProperty(bean, name.toString());
 				return obj;
 			}
@@ -571,7 +586,9 @@ public class ExpressUtil {
 				}else{
 					return o.getClass();
 				}
-		    }else {
+		    }else if(bean.getClass().isAnnotationPresent(QLAlias.class) ){
+				return QLAliasUtils.getPropertyClass(bean,name);
+			}else {
 				return PropertyUtils.getPropertyDescriptor(bean, name.toString()).getPropertyType();
 			}
 		} catch (Exception e) {
