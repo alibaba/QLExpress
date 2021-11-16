@@ -588,7 +588,8 @@ public class ExpressUtil {
 				}
 		    }else if(bean.getClass().isAnnotationPresent(QLAlias.class) ){
 				return QLAliasUtils.getPropertyClass(bean,name);
-			}else {
+			}
+			else {
 				return PropertyUtils.getPropertyDescriptor(bean, name.toString()).getPropertyType();
 			}
 		} catch (Exception e) {

@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Description
- * @Author tianqiao@come-future.com
- * @Date 2021-11-15 6:31 下午
+ *
+ * @author tianqiao@come-future.com
+ * 2021-11-15 6:31 下午
  */
 public class QLAliasUtils {
 

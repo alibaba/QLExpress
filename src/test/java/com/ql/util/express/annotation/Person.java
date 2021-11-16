@@ -1,15 +1,15 @@
 package com.ql.util.express.annotation;
 
 /**
- * @Description
- * @Author tianqiao@come-future.com
- * @Date 2021-11-15 5:52 下午
+ *
+ * @author tianqiao@come-future.com
+ * 2021-11-15 5:52 下午
  */
-@QLAlias("患者")
+@QLAlias("人物")
 public class Person {
 
     @QLAlias({"出生年月","生日"})
-    private String birth = "1987-02-23";
+    private String birth;
     @QLAlias("姓名")
     private String name;
     @QLAlias("性别")
