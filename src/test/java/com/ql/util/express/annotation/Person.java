@@ -5,7 +5,6 @@ package com.ql.util.express.annotation;
  * @author tianqiao@come-future.com
  * 2021-11-15 5:52 下午
  */
-@QLAlias("人物")
 public class Person {
 
     @QLAlias({"出生年月","生日"})
