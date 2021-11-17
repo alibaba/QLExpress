@@ -21,29 +21,29 @@ public class QLAliasUtils {
         return instance;
     }
 
-    public static Class<?> getPropertyClass(Object bean, Object name)
+    public static Class<?> getPropertyClass(Object bean, String name)
     {
-        Field f = findQLAliasFieldsWithCache(bean.getClass(),name.toString());
+        Field f = findQLAliasFieldsWithCache(bean.getClass(),name);
         if(f!=null){
             f.setAccessible(true);
             return f.getType();
         }
         try {
-            return PropertyUtils.getPropertyDescriptor(bean, name.toString()).getPropertyType();
+            return PropertyUtils.getPropertyDescriptor(bean, name).getPropertyType();
         }catch (Exception e){
             return null;
         }
     }
 
-    public static Object getProperty(Object bean, Object name)
+    public static Object getProperty(Object bean, String name)
     {
         try {
-            Field f = findQLAliasFieldsWithCache(bean.getClass(), name.toString());
+            Field f = findQLAliasFieldsWithCache(bean.getClass(), name);
             if (f != null) {
                 f.setAccessible(true);
                 return f.get(bean);
             }
-            return PropertyUtils.getProperty(bean, name.toString());
+            return PropertyUtils.getProperty(bean, name);
         }catch (Exception e){
             return null;
         }
@@ -70,6 +70,11 @@ public class QLAliasUtils {
 
         Field[] fields = baseClass.getDeclaredFields();
         for (Field f : fields) {
+            //优先使用本身的定义
+            if (propertyName.equals(f.getName())) {
+                return f;
+            }
+            //使用注解定义
             QLAlias[] qlAliases = f.getAnnotationsByType(QLAlias.class);
             if (qlAliases != null) {
                 for (QLAlias alias : qlAliases) {

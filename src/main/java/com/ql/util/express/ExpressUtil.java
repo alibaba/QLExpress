@@ -558,10 +558,8 @@ public class ExpressUtil {
 				}
 			}else if(bean instanceof Map ){
 				return ((Map<?,?>)bean).get(name);
-		    }else if(bean.getClass().isAnnotationPresent(QLAlias.class) ){
-				return QLAliasUtils.getProperty(bean,name);
-			}else {
-				Object obj = PropertyUtils.getProperty(bean, name.toString());
+		    }else {
+				Object obj = QLAliasUtils.getProperty(bean,name.toString());
 				return obj;
 			}
 		} catch (Exception e) {
@@ -586,11 +584,8 @@ public class ExpressUtil {
 				}else{
 					return o.getClass();
 				}
-		    }else if(bean.getClass().isAnnotationPresent(QLAlias.class) ){
-				return QLAliasUtils.getPropertyClass(bean,name);
-			}
-			else {
-				return PropertyUtils.getPropertyDescriptor(bean, name.toString()).getPropertyType();
+		    }else{
+				return QLAliasUtils.getPropertyClass(bean,name.toString());
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
