@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
  * @author tianqiao@come-future.com
  * 2021-11-15 5:51 下午
  */
-public class AnnotationTest {
+public class QLAliasTest {
 
     @Test
     public void testQLAlias() throws Exception {
@@ -27,6 +27,8 @@ public class AnnotationTest {
                 "患者.生日()==患者.生日","true",//get方法和字段名字一样是不冲突的
                 "患者.患者姓名 + ' 今年 '+ 患者.获取年龄() +' 岁'","老王 今年 34 岁",//任意方法的注解
         };
+
+        //1、测试对象的方法，字段上的别名标签
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
         Person person = new Patient();
         person.setName("老王");
@@ -39,7 +41,7 @@ public class AnnotationTest {
             assertTrue((""+result).equals(exps[i+1]));
         }
 
-        //业务调用也可以通过对象的QLAlias直接来自动产生系统变量
+        //2、外部业务调用方也可以利用类、参数的QLAlias注解，自动注入ExpressContext
         QLAliasContext context2 = new QLAliasContext();
         context2.putAutoParams(person);//等价于context2.put("患者", person);
         for (int i=0;i<exps.length;i+=2) {

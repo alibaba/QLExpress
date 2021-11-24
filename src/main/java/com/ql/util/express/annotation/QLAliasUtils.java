@@ -57,14 +57,13 @@ public class QLAliasUtils {
             if(result == null){
                 fieldsCache.put(key, void.class);
             }else{
-                ((Field)result).setAccessible(true);
                 fieldsCache.put(key,result);
             }
         }else if(result == void.class){
             result = null;
         }
         return (Field)result;
-    }
+    } 
 
     public static Field findQLAliasFields(Class baseClass, String propertyName) {
 

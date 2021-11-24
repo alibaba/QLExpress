@@ -36,7 +36,7 @@ import static java.lang.annotation.ElementType.*;
  *
  */
 @Inherited
-@Target({TYPE, FIELD, METHOD})
+@Target({TYPE, FIELD, METHOD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QLAlias {
     /**

@@ -7,6 +7,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
+/**
+ * 可重入性单元测试
+ */
 public class RecursivelyRunnerTest {
 
     static ExpressRunner runner = new ExpressRunner();

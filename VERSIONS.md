@@ -129,3 +129,7 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (1)支持强大的数组符号访问属性功能（List,Map,Array）：ArrayPorpertyMixTest
 (2)支持lambda表达式，stream方式操作集合书写更高效（List,Map）：LambdaTest
 (3)解决数组类型的方法匹配bug：ArrayMisType
+
+## 3.2.6版本[2021-11-24]
+(1)彻底解决ExpressRunner重入问题，可以嵌套使用：RecursivelyRunnerTest
+(2)重磅特性：通过@QLAlias对字段和方法上添加注解，实现中文字段和中文方法调用：QLAliasTest
