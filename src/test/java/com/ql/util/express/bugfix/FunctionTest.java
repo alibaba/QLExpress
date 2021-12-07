@@ -12,7 +12,7 @@ public class FunctionTest {
     
     @Test
     public void testFunction() throws Exception{
-        ExpressRunner runner = new ExpressRunner();
+        ExpressRunner runner = new ExpressRunner(false,true);
         String exp = "function abc(int a,int b){ return a + b;} return abc(1+100,2*100)";
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
         Object result = runner.execute(exp,context,null,false,false);

@@ -7,7 +7,9 @@ public class KeyWordDefine4Java {
 			 "+", "-","*", "/", "%","++", "--",//四则运算：
 			 ".",",",":",";","(", ")", "{", "}", "[", "]","?",//分隔符号
 			 "!","<", ">", "<=", ">=", "==","!=","&&","||",//Boolean运算符号
-			 "=","/**","**/"
+			 "=","/**","**/",
+			 // lambda 表达式
+			 "->"
 	};
 	public  String[] keyWords = new String[] {
 			 "mod","nor","in",
@@ -30,6 +32,7 @@ public class KeyWordDefine4Java {
 				"OR:TYPE=WORDDEF,DEFINE=||",
 				"LEFT_COMMENT:TYPE=WORDDEF,DEFINE=/**",
 				"RIGHT_COMMENT:TYPE=WORDDEF,DEFINE=**/",
+				"ARROW:TYPE=WORDDEF,DEFINE=->",
 				"MULTI:TYPE=WORDDEF,DEFINE=*",
 				
 				
@@ -83,7 +86,7 @@ public class KeyWordDefine4Java {
 				"ARRAY_CALL:TYPE=EXPRESS,DEFINE=(FUNCTION_CALL|OBJECT_CALL)$([->ARRAY_CALL^$EXPRESS$]~)^*$(METHOD_CALL|FIELD_CALL)^*",
 
 				
-				"CAST_CALL:TYPE=EXPRESS,DEFINE=(LEFT_BRACKET~$CONST_CLASS$RIGHT_BRACKET~#cast)^*$ARRAY_CALL",
+				"CAST_CALL:TYPE=EXPRESS,DEFINE=(LEFT_BRACKET~$CONST_CLASS$RIGHT_BRACKET~#cast)^*$((LAMBDA#LAMBDA)|ARRAY_CALL)",
 				"EXPRESS_OP_L1:TYPE=EXPRESS,DEFINE=OP_LEVEL1^*$CAST_CALL",
 				"EXPRESS_OP_L2:TYPE=EXPRESS,DEFINE=EXPRESS_OP_L1$OP_LEVEL2^*",
 				"EXPRESS_OP_L3:TYPE=EXPRESS,DEFINE=EXPRESS_OP_L2$(OP_LEVEL3^$EXPRESS_OP_L2)^*",
@@ -126,7 +129,9 @@ public class KeyWordDefine4Java {
 				"COMMENT:TYPE=BLOCK,DEFINE=LEFT_COMMENT$(RIGHT_COMMENT@)*$RIGHT_COMMENT#COMMENT",
 				
 				"STATEMENT:TYPE=STATEMENT,DEFINE=COMMENT|STAT_IFELSE|STAT_IF|STAT_IFELSE_JAVA|STAT_IF_JAVA|STAT_FOR|STAT_MACRO|STAT_FUNCTION|STAT_CLASS|STAT_SEMICOLON",
-				
+				"LAMBDA:TYPE=EXPRESS,DEFINE=(LAMBDA_PARAMETER_DEFINE|ID)$ARROW~$LAMBDA_BODY",
+				"LAMBDA_BODY:TYPE=BLOCK,DEFINE=STAT_BLOCK|EXPRESS",
+				"LAMBDA_PARAMETER_DEFINE:TYPE=STATEMENT,DEFINE=LEFT_BRACKET->CHILD_EXPRESS^$(RIGHT_BRACKET~|(ID->CONST_STRING$(,~$ID->CONST_STRING)*$RIGHT_BRACKET~))",
 				"STAT_BLOCK:TYPE=BLOCK,DEFINE={->STAT_BLOCK^$STAT_LIST$}~",
 				"STAT_LIST:TYPE=BLOCK,DEFINE=(STAT_BLOCK|STATEMENT)*",
 				"PROGRAM:TYPE=BLOCK,DEFINE=STAT_LIST#STAT_BLOCK",
@@ -153,6 +158,6 @@ public class KeyWordDefine4Java {
 			{"NEW_VIR_OBJECT","com.ql.util.express.instruction.NewVClassInstructionFactory"},
 			{"COMMENT","com.ql.util.express.instruction.NullInstructionFactory"},
 			{"EXPRESS_KEY_VALUE","com.ql.util.express.instruction.KeyValueInstructionFactory"},
-			
+			{"LAMBDA", "com.ql.util.express.instruction.LambdaInstructionFactory"}
 	};
 }

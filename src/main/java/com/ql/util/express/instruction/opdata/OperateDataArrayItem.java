@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction.opdata;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
@@ -27,11 +28,15 @@ public class OperateDataArrayItem extends OperateDataAttr {
 		builder.append(this.index);
     }
 	public Class<?> getType(InstructionSetContext context) throws Exception {
-		  return this.arrayObject.getObject(context).getClass();
+		  return this.arrayObject.getObject(context).getClass().getComponentType();
 	}
 	public Object getObjectInner(InstructionSetContext context){
 		try {
-			return Array.get(this.arrayObject.getObject(context),this.index);
+			if(this.arrayObject.getObject(context) instanceof List){
+				return ((List) this.arrayObject.getObject(context)).get(this.index);
+			}else {
+				return Array.get(this.arrayObject.getObject(context), this.index);
+			}
 		} catch (Exception e) {
 			 throw new RuntimeException(e);
 		}
@@ -39,7 +44,11 @@ public class OperateDataArrayItem extends OperateDataAttr {
 
 	public void setObject(InstructionSetContext context, Object value) {
 		try {
-		 Array.set(this.arrayObject.getObject(context), this.index, value);
+			if(this.arrayObject.getObject(context) instanceof List){
+				((List) this.arrayObject.getObject(context)).set(this.index,value);
+			}else {
+				Array.set(this.arrayObject.getObject(context), this.index, value);
+			}
 		} catch (Exception e) {
 			 throw new RuntimeException(e);
 		}
