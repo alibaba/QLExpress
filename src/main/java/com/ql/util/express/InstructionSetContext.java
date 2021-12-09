@@ -51,7 +51,6 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         isSupportDynamicFieldName = false;
         runner = null;
         symbolTable.clear();
-
     }
 
     public void exportSymbol(String varName, Object aliasNameObject) throws Exception {

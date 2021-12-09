@@ -99,7 +99,6 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         callResultPoint = 0;
         environmentPoint = 0;
         contextPoint = 0;
-
     }
 
     public InstructionSetContext fetchInstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,

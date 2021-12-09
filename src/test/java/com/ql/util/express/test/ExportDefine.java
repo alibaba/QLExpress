@@ -29,6 +29,5 @@ public class ExportDefine {
         Assert.assertTrue("别名export实现 错误", r.toString().equalsIgnoreCase("qh-ssss-qh"));
         Assert.assertTrue("别名export实现 错误", ((BeanExample)context.get("example")).child.a.toString()
             .equalsIgnoreCase("qh-ssss-qh"));
-
     }
 }

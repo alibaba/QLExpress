@@ -129,7 +129,6 @@ public class LoopFunctionTest {
         exp = "loopOr(skuList,'x.price<10')";
         result = runner.execute(exp, context, null, false, true);
         assert ((Boolean)result);
-
     }
 
     private ArrayList<SkuDO> createSkuList() {

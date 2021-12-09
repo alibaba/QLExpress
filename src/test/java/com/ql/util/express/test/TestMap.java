@@ -18,7 +18,6 @@ public class TestMap {
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("Map读取错误", r.toString().equalsIgnoreCase("90"));
-
     }
 
     @Test
@@ -44,6 +43,5 @@ public class TestMap {
         Object r = runner.execute(expressionstr, expressContext, null,
             true, true);
         Assert.assertTrue("Map读取错误", r.toString().equalsIgnoreCase("1"));
-
     }
 }

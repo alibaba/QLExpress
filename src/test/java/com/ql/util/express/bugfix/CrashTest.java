@@ -14,7 +14,6 @@ public class CrashTest {
 
     @Test
     public void helloworld() {
-
     }
 
     public static String[] splitWord = {

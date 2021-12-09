@@ -16,7 +16,6 @@ public class OperatorField extends OperatorBase {
     public OperatorField(String aFieldName) {
         this.name = "FieldCall";
         this.filedName = aFieldName;
-
     }
 
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {

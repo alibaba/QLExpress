@@ -47,6 +47,5 @@ public class OperatorAnd extends Operator {
         }
         boolean result = r1 && r2;
         return Boolean.valueOf(result);
-
     }
 }

@@ -39,6 +39,5 @@ public class TestSerializable {
             throw e;
 
         }
-
     }
 }

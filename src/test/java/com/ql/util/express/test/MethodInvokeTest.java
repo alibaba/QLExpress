@@ -46,7 +46,6 @@ public class MethodInvokeTest {
         Object r = runner.execute("getSearchResult(getOnlinePersonalShopInfo(123L))",
             expressContext, null, false, false);
         System.out.print("r=" + r);
-
     }
 
     @Test

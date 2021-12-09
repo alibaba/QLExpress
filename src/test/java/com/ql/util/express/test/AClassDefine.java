@@ -61,6 +61,5 @@ public class AClassDefine {
         Object r = runner.executeByExpressName("ClassTest", context,
             null, false, false, null);
         Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("330--430--xuannan--xuanyu--199.99--11.11"));
-
     }
 }

@@ -34,7 +34,6 @@ public class NodeTypeManager implements INodeTypeManager {
         this.initial();
         this.addOperatorWithRealNodeType("and", "&&");
         this.addOperatorWithRealNodeType("or", "||");
-
     }
 
     public void initial() {

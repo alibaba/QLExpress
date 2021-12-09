@@ -45,6 +45,5 @@ public class IsAssignableTest {
         context.put("p", 100L);
         r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("数据类型转换错误：", r.toString().equalsIgnoreCase("toString-long:100"));
-
     }
 }

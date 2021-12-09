@@ -66,6 +66,5 @@ public class GetExpressFunctionNamesTest {
         context = new DefaultContext<>();
         r = runner.execute(express, context, null, false, false);
         System.out.println("result : " + r);
-
     }
 }

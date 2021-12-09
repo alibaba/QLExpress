@@ -43,7 +43,6 @@ public class AppendingClassFieldManager {
             }
         }
         return null;
-
     }
 
     public Object invoke(AppendingField Field, InstructionSetContext context, Object aFieldObject,

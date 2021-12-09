@@ -51,7 +51,6 @@ public class DynamicParamsUtil {
             throw new QLException("定义的参数长度与运行期传入的参数长度不一致");
         }
         return params;
-
     }
 
     public static boolean maybeDynamicParams(Class<?>[] delaredParamsClasses) {

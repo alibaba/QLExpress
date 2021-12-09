@@ -41,61 +41,49 @@ public class MyLog implements Log {
 
     public void trace(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void trace(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 
     public void debug(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void debug(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 
     public void info(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void info(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 
     public void warn(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void warn(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 
     public void error(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void error(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 
     public void fatal(Object message) {
         // TODO Auto-generated method stub
-
     }
 
     public void fatal(Object message, Throwable t) {
         // TODO Auto-generated method stub
-
     }
 }

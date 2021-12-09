@@ -38,7 +38,6 @@ public class TestStackOverFlowTest {
             System.out.println(express + " = " + result2);
             QLPattern.printStackDepth = false;
         }
-
     }
 
 }

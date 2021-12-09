@@ -62,6 +62,5 @@ public class DateFormatTest {
         }
         long cost = System.currentTimeMillis() - start;
         System.out.println(sb + "   运行10万次，耗时:" + cost + "ms");
-
     }
 }

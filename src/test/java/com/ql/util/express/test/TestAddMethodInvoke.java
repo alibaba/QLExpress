@@ -45,7 +45,6 @@ public class TestAddMethodInvoke {
         assert ((Boolean)result);
         result = runner.execute("'helloworld'.isNotBlank()", context, null, false, false);
         assert ((Boolean)result);
-
     }
 
     @Test
@@ -79,7 +78,6 @@ public class TestAddMethodInvoke {
             "list=new HashMap();list.put('a',1);list.put('b',2);list.put('c',3);return list.join(' , ');", context,
             null, false, false);
         System.out.println(result);
-
     }
 
     @Test
@@ -115,6 +113,5 @@ public class TestAddMethodInvoke {
         Object result2 = runner.execute("list=new ArrayList();list.add(1);list.add(2);list.add(3);list.长度;", context,
             null, false, false);
         System.out.println(result2);
-
     }
 }

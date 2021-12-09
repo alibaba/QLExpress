@@ -121,7 +121,6 @@ public class QLPatternNode {
                 }
             }
         }
-
     }
 
     public void splitChild() throws Exception {

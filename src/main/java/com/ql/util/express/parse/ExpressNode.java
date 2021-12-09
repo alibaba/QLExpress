@@ -239,7 +239,6 @@ public class ExpressNode implements IDataNode {
 
     public void setNodeType(INodeType type) {
         this.setNodeType((NodeType)type);
-
     }
 
     @Override

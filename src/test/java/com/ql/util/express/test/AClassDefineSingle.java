@@ -22,6 +22,5 @@ public class AClassDefineSingle {
         runner.loadMutilExpress("ClassTest", express);
         Object r = runner.executeByExpressName("ClassTest", context,
             null, true, false, null);
-
     }
 }

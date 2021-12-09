@@ -187,7 +187,6 @@ public class ConsoleFrame2
         }
         //System.out.println(writer.toString());
         jTextAreaResult.setText(writer.toString());
-
     }
 
     public void jTreeFileSelect_mouseClicked(MouseEvent me) {
@@ -202,7 +201,6 @@ public class ConsoleFrame2
         } catch (Exception e) {
             e.printStackTrace(new PrintWriter(writer));
         }
-
     }
 }
 

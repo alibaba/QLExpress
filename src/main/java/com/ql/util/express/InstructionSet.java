@@ -84,7 +84,6 @@ public class InstructionSet implements Serializable {
             }
         }
         return result.keySet().toArray(new String[0]);
-
     }
 
     public String[] getVirClasses() throws Exception {
@@ -97,7 +96,6 @@ public class InstructionSet implements Serializable {
             }
         }
         return result.keySet().toArray(new String[0]);
-
     }
 
     public String[] getOutAttrNames() throws Exception {

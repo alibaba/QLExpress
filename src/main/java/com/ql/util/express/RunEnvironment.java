@@ -39,7 +39,6 @@ public final class RunEnvironment {
 
         instructionSet = null;
         context = null;
-
     }
 
     public InstructionSet getInstructionSet() {

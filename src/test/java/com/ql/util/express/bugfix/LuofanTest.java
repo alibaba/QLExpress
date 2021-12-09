@@ -11,7 +11,6 @@ import org.junit.Test;
 public class LuofanTest {
 
     public class Response {
-
     }
 
     public static int lenOfAds(Response response) {

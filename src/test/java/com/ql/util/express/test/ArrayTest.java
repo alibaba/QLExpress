@@ -88,7 +88,6 @@ public class ArrayTest {
             context.put("args", args);
             runner.execute(express, context, null, true, false);
         }
-
     }
 
     @Test

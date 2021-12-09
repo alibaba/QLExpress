@@ -150,7 +150,6 @@ public class ExpressUtil {
         }
 
         return false;
-
     }
 
     public static boolean isAssignableOld(Class<?> lhsType, Class<?> rhsType) {
@@ -230,7 +229,6 @@ public class ExpressUtil {
         }
         //		builder.append(")");
         return builder.toString();
-
     }
 
     public static Method findMethodWithCache(Class<?> baseClass, String methodName,
@@ -293,7 +291,6 @@ public class ExpressUtil {
 
         int match = findMostSpecificSignature(idealMatch, candidateSigs);
         return match == -1 ? null : methods[match];
-
     }
 
     private static List<Method> gatherMethodsRecursive(Class<?> baseClass,
@@ -394,7 +391,6 @@ public class ExpressUtil {
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
     public static Class<?> getJavaClassInner(String type) {

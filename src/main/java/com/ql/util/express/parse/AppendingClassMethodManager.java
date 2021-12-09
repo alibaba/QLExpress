@@ -42,7 +42,6 @@ public class AppendingClassMethodManager {
             }
         }
         return null;
-
     }
 
     public OperateData invoke(AppendingMethod method, InstructionSetContext context, ArraySwap list,

@@ -336,7 +336,6 @@ public class QLPattern {
                 cache[this.point].clear();
             }
         }
-
     }
 
     public static class ArrayListCache<T> {
