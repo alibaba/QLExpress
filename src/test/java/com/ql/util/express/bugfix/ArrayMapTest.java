@@ -19,5 +19,4 @@ public class ArrayMapTest {
         Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);
     }
-
 }

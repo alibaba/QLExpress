@@ -123,11 +123,9 @@ public class MethodInvokeTest {
     public void testVoidMethod(Long id) {
         System.out.println("testVoidMethod");
     }
-
 }
 
 class PersonalShopInfo {
-
 }
 
 

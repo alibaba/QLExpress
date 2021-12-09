@@ -118,5 +118,4 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
             return OperateDataCacheManager.fetchOperateDataAttr("null", null);
         }
     }
-
 }

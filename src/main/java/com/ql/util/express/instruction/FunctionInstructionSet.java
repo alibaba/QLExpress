@@ -15,5 +15,4 @@ public class FunctionInstructionSet implements Serializable {
         this.type = aType;
         this.instructionSet = aInstructionSet;
     }
-
 }

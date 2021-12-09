@@ -8,5 +8,4 @@ import com.ql.util.express.instruction.detail.InstructionGoTo;
 public class ForRelBreakContinue {
     List<InstructionGoTo> breakList = new ArrayList<>();
     List<InstructionGoTo> continueList = new ArrayList<>();
-
 }

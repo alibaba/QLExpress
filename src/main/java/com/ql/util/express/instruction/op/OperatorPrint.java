@@ -21,5 +21,4 @@ public class OperatorPrint extends Operator {
         System.out.print(list[0]);
         return null;
     }
-
 }

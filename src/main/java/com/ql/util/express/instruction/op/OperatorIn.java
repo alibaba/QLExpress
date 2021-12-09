@@ -63,5 +63,4 @@ public class OperatorIn extends Operator {
             return Boolean.FALSE;
         }
     }
-
 }

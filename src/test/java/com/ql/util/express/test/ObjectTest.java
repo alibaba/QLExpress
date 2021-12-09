@@ -30,5 +30,4 @@ public class ObjectTest {
             true);
         System.out.println(r);
     }
-
 }

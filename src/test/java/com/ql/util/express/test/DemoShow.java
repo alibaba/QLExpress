@@ -204,5 +204,4 @@ public class DemoShow {
         Object r = runner.execute("类初始化;创建小强;体检", context, null, false, false);
         System.out.println(r);
     }
-
 }

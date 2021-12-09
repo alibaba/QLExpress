@@ -47,5 +47,4 @@ public class ArrayPorpertyMixTest {
             Assert.assertEquals(result.toString(), tests[i + 1]);
         }
     }
-
 }

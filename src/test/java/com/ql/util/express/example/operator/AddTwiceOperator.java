@@ -9,5 +9,4 @@ public class AddTwiceOperator extends Operator {
         int b = (Integer)list[1];
         return a + b + b;
     }
-
 }

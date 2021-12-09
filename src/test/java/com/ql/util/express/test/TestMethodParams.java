@@ -183,5 +183,4 @@ public class TestMethodParams {
         Object r = runner.execute(text, expressContext, null, false, false);
         assert (r.toString().equals(expert));
     }
-
 }

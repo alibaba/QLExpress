@@ -25,6 +25,5 @@ public class CallResult {
     public boolean isExit() {
         return isExit;
     }
-
 }
 

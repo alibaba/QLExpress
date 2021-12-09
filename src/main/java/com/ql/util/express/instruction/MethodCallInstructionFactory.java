@@ -33,5 +33,4 @@ public class MethodCallInstructionFactory extends InstructionFactory {
         result.addInstruction(new InstructionOperator(op, children.length - 1).setLine(node.getLine()));
         return returnVal;
     }
-
 }

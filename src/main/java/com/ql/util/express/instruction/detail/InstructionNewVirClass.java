@@ -62,5 +62,4 @@ public class InstructionNewVirClass extends Instruction {
         return "new VClass[" + this.className + "] OPNUMBER["
             + this.opDataNumber + "]";
     }
-
 }

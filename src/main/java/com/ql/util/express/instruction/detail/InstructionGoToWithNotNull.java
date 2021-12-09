@@ -61,5 +61,4 @@ public class InstructionGoToWithNotNull extends Instruction {
     public void setPopStackData(boolean isPopStackData) {
         this.isPopStackData = isPopStackData;
     }
-
 }

@@ -105,5 +105,4 @@ public class ExpressPackage {
 }
 
 class NullClass {
-
 }

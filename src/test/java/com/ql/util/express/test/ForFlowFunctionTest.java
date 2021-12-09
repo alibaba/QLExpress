@@ -18,5 +18,4 @@ public class ForFlowFunctionTest {
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertEquals("for循环后面跟着一个函数的时候错误", "10", r.toString());
     }
-
 }

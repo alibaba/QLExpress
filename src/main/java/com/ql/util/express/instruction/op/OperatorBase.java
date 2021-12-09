@@ -238,5 +238,4 @@ class OperatorFor extends OperatorBase {
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("cache 是通过特殊指令来实现的，不能支持此方法");
     }
-
 }

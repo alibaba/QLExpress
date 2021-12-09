@@ -39,5 +39,4 @@ public class InstructionGoTo extends Instruction {
     public void setOffset(int offset) {
         this.offset = offset;
     }
-
 }

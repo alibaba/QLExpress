@@ -84,5 +84,4 @@ class OperateDataSubject extends OperateData {
         }
         subject.value = ((Number)value).doubleValue();
     }
-
 }

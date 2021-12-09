@@ -61,7 +61,6 @@ public abstract class ExpressRemoteCacheRunner {
      * @param object
      */
     public abstract void putCache(String key, Object object);
-
 }
 
 

@@ -34,5 +34,4 @@ public class StaticMethodTest {
             return itemDim != null && (itemDim & 0x0f) == ITEM_DIM_VIRTUAL;
         }
     }
-
 }

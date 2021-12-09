@@ -43,5 +43,4 @@ public class CacheObject implements Serializable {
     public void setInstructionSet(InstructionSet instructionSet) {
         this.instructionSet = instructionSet;
     }
-
 }

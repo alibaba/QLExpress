@@ -16,5 +16,4 @@ public class ExampleDefine {
     public String getContext() {
         return context;
     }
-
 }

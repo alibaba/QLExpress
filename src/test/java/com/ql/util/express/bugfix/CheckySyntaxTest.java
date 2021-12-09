@@ -45,5 +45,4 @@ public class CheckySyntaxTest {
             System.out.println("未识别的java类列表:" + mockClasses);
         }
     }
-
 }

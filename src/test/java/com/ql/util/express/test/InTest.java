@@ -27,5 +27,4 @@ public class InTest {
         System.out.println(runner.execute(express2, context, null, false, false));
         System.out.println(runner.execute(express3, context, null, false, false));
     }
-
 }

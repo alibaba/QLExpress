@@ -18,5 +18,4 @@ public class ApproveOperator extends Operator {
         }
         return true;
     }
-
 }

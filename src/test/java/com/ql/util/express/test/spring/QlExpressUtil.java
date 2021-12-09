@@ -63,5 +63,4 @@ public class QlExpressUtil implements ApplicationContextAware {
         throws BeansException {
         applicationContext = aContext;
     }
-
 }

@@ -85,5 +85,4 @@ public class InstructionGoToWithCondition extends Instruction {
     public void setPopStackData(boolean isPopStackData) {
         this.isPopStackData = isPopStackData;
     }
-
 }

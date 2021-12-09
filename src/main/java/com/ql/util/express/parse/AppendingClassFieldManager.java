@@ -51,5 +51,4 @@ public class AppendingClassFieldManager {
         Object result = op.executeInner(new Object[] {aFieldObject});
         return result;
     }
-
 }

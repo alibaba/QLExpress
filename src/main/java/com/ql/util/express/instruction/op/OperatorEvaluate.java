@@ -40,5 +40,4 @@ public class OperatorEvaluate extends OperatorBase {
         op1.setObject(parent, result);
         return op1;
     }
-
 }

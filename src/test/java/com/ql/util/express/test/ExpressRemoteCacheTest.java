@@ -39,5 +39,4 @@ public class ExpressRemoteCacheTest {
             System.out.println("没有定义乘法计算器.");
         }
     }
-
 }

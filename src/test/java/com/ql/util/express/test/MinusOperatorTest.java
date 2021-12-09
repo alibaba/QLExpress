@@ -25,5 +25,4 @@ public class MinusOperatorTest {
         String test1 = "2>-1?-1:-2;";
         System.out.println(runner.execute(test1, context, null, true, false));
     }
-
 }

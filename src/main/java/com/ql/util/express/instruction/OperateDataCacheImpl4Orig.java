@@ -61,5 +61,4 @@ class OperateDataCacheImpl4Orig implements IOperateDataCache {
     public long getFetchCount() {
         return 0;
     }
-
 }

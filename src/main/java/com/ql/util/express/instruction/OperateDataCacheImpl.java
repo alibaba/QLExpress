@@ -215,5 +215,4 @@ public class OperateDataCacheImpl implements IOperateDataCache {
     public long getFetchCount() {
         return 0;
     }
-
 }

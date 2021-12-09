@@ -39,5 +39,4 @@ public class InstructionConstData extends Instruction {
             return "LoadData " + this.operateData.toString();
         }
     }
-
 }

@@ -89,5 +89,4 @@ public class ExpressCacheTest {
     private void calulateTask(boolean isCache, IExpressContext<String, Object> context) throws Exception {
         runner.execute("计算平均成绩", context, null, isCache, false);
     }
-
 }

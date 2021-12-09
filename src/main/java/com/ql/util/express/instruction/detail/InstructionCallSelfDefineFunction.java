@@ -92,5 +92,4 @@ public class InstructionCallSelfDefineFunction extends Instruction {
     public String toString() {
         return "call Function[" + this.functionName + "] OPNUMBER[" + this.opDataNumber + "]";
     }
-
 }

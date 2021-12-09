@@ -49,5 +49,4 @@ public class AppendingClassMethodManager {
         OperatorBase op = method.op;
         return op.execute(context, list, errorList);
     }
-
 }

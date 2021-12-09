@@ -31,5 +31,4 @@ public class FieldCallInstructionFactory extends InstructionFactory {
         result.addInstruction(new InstructionOperator(op, 1).setLine(node.getLine()));
         return returnVal;
     }
-
 }

@@ -168,5 +168,4 @@ public class NodeType implements INodeType {
     public QLPatternNode getPatternNode() {
         return this.qlPatternNode;
     }
-
 }

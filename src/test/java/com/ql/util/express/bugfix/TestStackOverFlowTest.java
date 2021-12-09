@@ -39,5 +39,4 @@ public class TestStackOverFlowTest {
             QLPattern.printStackDepth = false;
         }
     }
-
 }

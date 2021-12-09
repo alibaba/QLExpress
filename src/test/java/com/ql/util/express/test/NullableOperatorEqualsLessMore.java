@@ -28,6 +28,5 @@ public class NullableOperatorEqualsLessMore extends OperatorEqualsLessMore {
         }
         return OperatorEqualsLessMore.executeInner(opStr, obj1, obj2);
     }
-
 }
     
