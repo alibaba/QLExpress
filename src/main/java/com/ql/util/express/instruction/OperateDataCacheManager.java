@@ -18,11 +18,8 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 public class OperateDataCacheManager {
 
-    private static ThreadLocal<RunnerDataCache> m_OperateDataObjectCache = new ThreadLocal<RunnerDataCache>() {
-        protected RunnerDataCache initialValue() {
-            return new RunnerDataCache();
-        }
-    };
+    private static ThreadLocal<RunnerDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
+        RunnerDataCache::new);
 
     public static void push(ExpressRunner aRunner) {
         m_OperateDataObjectCache.get().push(aRunner);

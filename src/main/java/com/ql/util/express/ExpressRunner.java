@@ -99,11 +99,8 @@ public class ExpressRunner {
 
     private AppendingClassFieldManager appendingClassFieldManager;
 
-    private ThreadLocal<IOperateDataCache> m_OperateDataObjectCache = new ThreadLocal<IOperateDataCache>() {
-        protected IOperateDataCache initialValue() {
-            return new OperateDataCacheImpl(30);
-        }
-    };
+    private ThreadLocal<IOperateDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
+        () -> new OperateDataCacheImpl(30));
 
     public IOperateDataCache getOperateDataCache() {
         return this.m_OperateDataObjectCache.get();
