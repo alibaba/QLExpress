@@ -39,8 +39,8 @@ import org.apache.commons.logging.LogFactory;
  * @author xuannan
  */
 public class ExpressRunner {
-
     private static final Log log = LogFactory.getLog(ExpressRunner.class);
+
     private static final String GLOBAL_DEFINE_NAME = "全局定义";
     /**
      * 是否输出所有的跟踪信息，同时还需要log级别是DEBUG级别

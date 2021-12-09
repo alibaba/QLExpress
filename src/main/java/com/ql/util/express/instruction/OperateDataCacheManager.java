@@ -17,7 +17,6 @@ import com.ql.util.express.instruction.opdata.OperateDataKeyValue;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 public class OperateDataCacheManager {
-
     private static ThreadLocal<RunnerDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
         RunnerDataCache::new);
 
@@ -75,9 +74,7 @@ public class OperateDataCacheManager {
     public static void resetCache(ExpressRunner aRunner) {
         getOperateDataCache().resetCache();
         m_OperateDataObjectCache.get().pop(aRunner);
-
     }
-
 }
 
 class RunnerDataCache {
@@ -95,9 +92,8 @@ class RunnerDataCache {
     }
 
     public void pop(ExpressRunner aRunner) {
-
-        //	    原有的逻辑
-        //		this.cache = this.stack.pop().getOperateDataCache();
+        //原有的逻辑
+        //this.cache = this.stack.pop().getOperateDataCache();
 
         //bugfix处理ExpressRunner嵌套情况下，cache还原的问题
         this.stack.pop();
@@ -107,5 +103,4 @@ class RunnerDataCache {
             this.cache = null;
         }
     }
-
 }
