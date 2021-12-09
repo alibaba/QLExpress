@@ -22,11 +22,13 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
+
     <scm>
         <connection>scm:git:git@github.com:alibaba/QLExpress.git</connection>
         <developerConnection>scm:git:git@github.com:alibaba/QLExpress.git</developerConnection>
         <url>git@github.com:alibaba/QLExpress.git</url>
     </scm>
+
     <issueManagement>
         <url>https://github.com/alibaba/QLExpress/issues</url>
         <system>GitHub Issues</system>
