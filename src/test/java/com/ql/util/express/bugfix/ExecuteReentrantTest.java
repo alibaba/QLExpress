@@ -22,18 +22,18 @@ public class ExecuteReentrantTest {
             @Override
             public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
                 Object res = runner.execute(list.get(0).toString(), parent, null,
-                        false, true);
+                    false, true);
                 return new OperateData(res, res.getClass());
             }
         });
 
         Object res = runner.execute(express, new DefaultContext<>(), null,
-                false, true);
+            false, true);
         Assert.assertEquals(2, res);
 
         Object res1 = runner.execute("m = 'aaa';" +
-                        "eval('m')", new DefaultContext<>(), null,
-                false, true);
+                "eval('m')", new DefaultContext<>(), null,
+            false, true);
         Assert.assertEquals("aaa", res1);
     }
 

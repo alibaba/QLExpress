@@ -6,10 +6,9 @@ import java.util.Date;
  * Created by tianqiao on 17/3/8.
  */
 public class BizLogicBean {
-    
-    public UserDO getUserInfo(String nick)
-    {
-        if(nick.equals("小王")) {
+
+    public UserDO getUserInfo(String nick) {
+        if (nick.equals("小王")) {
             UserDO userDO = new UserDO();
             userDO.setNick(nick);
             userDO.setGmtCreate(new Date());
@@ -17,7 +16,7 @@ public class BizLogicBean {
             userDO.setPosition("salesman");
             userDO.setSalary(5000.0);
             return userDO;
-        }else if(nick.equals("马总")) {
+        } else if (nick.equals("马总")) {
             UserDO userDO = new UserDO();
             userDO.setNick(nick);
             userDO.setGmtCreate(new Date());

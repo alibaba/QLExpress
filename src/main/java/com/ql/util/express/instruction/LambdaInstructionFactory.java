@@ -1,5 +1,7 @@
 package com.ql.util.express.instruction;
 
+import java.util.Stack;
+
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
 import com.ql.util.express.exception.QLException;
@@ -7,15 +9,13 @@ import com.ql.util.express.instruction.detail.InstructionLoadLambda;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 import com.ql.util.express.parse.ExpressNode;
 
-import java.util.Stack;
-
 public class LambdaInstructionFactory extends InstructionFactory {
 
     private static final String LAMBDA_NODE_NAME = "LAMBDA";
 
     @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-                                     ExpressNode node, boolean isRoot) throws Exception {
+        ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildren();
         if (children.length != 2) {
             throw new QLException("lambda 操作符需要2个操作数");
@@ -39,7 +39,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
 
         // lambda 逻辑体
         ExpressNode lambdaBodyRoot = new ExpressNode(aCompile.getNodeTypeManager()
-                .findNodeType("FUNCTION_DEFINE"), LAMBDA_NODE_NAME);
+            .findNodeType("FUNCTION_DEFINE"), LAMBDA_NODE_NAME);
         if ("STAT_BLOCK".equals(node.getNodeType().getName())) {
             for (ExpressNode tempNode : children[1].getChildren()) {
                 lambdaBodyRoot.addLeftChild(tempNode);

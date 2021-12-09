@@ -2,6 +2,7 @@ package com.ql.util.express.exception;
 
 /**
  * 编译器的异常信息
+ *
  * @author tianqiao@taobao.com
  * @since 2019/6/18 2:13 PM
  */

@@ -10,14 +10,14 @@ import org.junit.Test;
  * Created by tianqiao on 17/6/15.
  */
 public class InOperatorTest {
-    
+
     @Test
-    public void testAllByFunction() throws Exception{
+    public void testAllByFunction() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         runner.addOperator("widelyin", new OperatorIn("widelyin") {
             @Override
             public Object executeInner(Object[] list) throws Exception {
-                if(list[0]==null){
+                if (list[0] == null) {
                     return false;
                 }
                 return super.executeInner(list);
@@ -27,8 +27,8 @@ public class InOperatorTest {
         // com.ql.util.express.instruction.InInstructionFactory对语法树做了特殊处理
         String exp = "data widelyin [2,3,4]";
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        context.put("data",2);
-        Object result = runner.execute(exp,context,null,false,true);
+        context.put("data", 2);
+        Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);
     }
 }

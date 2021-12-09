@@ -1,13 +1,12 @@
 package com.ql.util.express.annotation;
 
 /**
- *
  * @author tianqiao@come-future.com
  * 2021-11-15 5:52 下午
  */
 public class Person {
 
-    @QLAlias({"出生年月","生日"})
+    @QLAlias({"出生年月", "生日"})
     private String birth;
     @QLAlias("姓名")
     private String name;
@@ -16,7 +15,7 @@ public class Person {
 
     @QLAlias("获取年龄")
     public int getAge() {
-        return 2021- Integer.valueOf(this.birth.substring(0,4));
+        return 2021 - Integer.valueOf(this.birth.substring(0, 4));
     }
 
     public String getName() {
@@ -35,7 +34,7 @@ public class Person {
         this.sex = sex;
     }
 
-    @QLAlias({"出生年月","生日"})
+    @QLAlias({"出生年月", "生日"})
     public String getBirth() {
         return birth;
     }

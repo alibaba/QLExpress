@@ -4,44 +4,44 @@ import java.io.Serializable;
 
 /**
  * 简单的缓存对象
- * @author tianqiao
  *
+ * @author tianqiao
  */
-public class CacheObject implements Serializable{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -145121001676214513L;
+public class CacheObject implements Serializable {
 
-	private String expressName;
-	
-	private String text;
-	
-	private InstructionSet instructionSet;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -145121001676214513L;
 
-	public String getExpressName() {
-		return expressName;
-	}
+    private String expressName;
 
-	public void setExpressName(String name) {
-		this.expressName = name;
-	}
+    private String text;
 
-	public String getText() {
-		return text;
-	}
+    private InstructionSet instructionSet;
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public String getExpressName() {
+        return expressName;
+    }
 
-	public InstructionSet getInstructionSet() {
-		return instructionSet;
-	}
+    public void setExpressName(String name) {
+        this.expressName = name;
+    }
 
-	public void setInstructionSet(InstructionSet instructionSet) {
-		this.instructionSet = instructionSet;
-	}
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public InstructionSet getInstructionSet() {
+        return instructionSet;
+    }
+
+    public void setInstructionSet(InstructionSet instructionSet) {
+        this.instructionSet = instructionSet;
+    }
 
 }

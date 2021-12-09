@@ -1,11 +1,11 @@
 package com.ql.util.express.instruction.detail;
 
+import java.util.List;
+
 import com.ql.util.express.InstructionSet;
 import com.ql.util.express.QLambda;
 import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-
-import java.util.List;
 
 /**
  * 将一个 QLambda 加载到栈上
@@ -20,7 +20,7 @@ public class InstructionLoadLambda extends Instruction {
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         environment.push(
-                OperateDataCacheManager.fetchOperateData(new QLambda(lambdaSet, environment, errorList, log), null)
+            OperateDataCacheManager.fetchOperateData(new QLambda(lambdaSet, environment, errorList, log), null)
         );
         environment.programPointAddOne();
     }

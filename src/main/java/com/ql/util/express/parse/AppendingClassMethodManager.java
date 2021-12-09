@@ -1,12 +1,12 @@
 package com.ql.util.express.parse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ql.util.express.ArraySwap;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.op.OperatorBase;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by tianqiao on 16/10/16.
@@ -29,16 +29,15 @@ public class AppendingClassMethodManager {
 
     private List<AppendingMethod> methods = new ArrayList<AppendingMethod>();
 
-    public void addAppendingMethod(String name,Class<?> bindingClass,OperatorBase op)
-    {
-        methods.add(new AppendingMethod(name,bindingClass,op));
+    public void addAppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
+        methods.add(new AppendingMethod(name, bindingClass, op));
     }
 
-    public AppendingMethod getAppendingClassMethod(Object object, String methodName)
-    {
-        for(AppendingMethod method : methods){
+    public AppendingMethod getAppendingClassMethod(Object object, String methodName) {
+        for (AppendingMethod method : methods) {
             //object是定义类型的子类
-            if(methodName.equals(method.name) && (object.getClass()==method.bindingClass || method.bindingClass.isAssignableFrom(object.getClass()))){
+            if (methodName.equals(method.name) && (object.getClass() == method.bindingClass
+                || method.bindingClass.isAssignableFrom(object.getClass()))) {
                 return method;
             }
         }
@@ -46,10 +45,10 @@ public class AppendingClassMethodManager {
 
     }
 
-    public OperateData invoke(AppendingMethod method, InstructionSetContext context, ArraySwap list, List<String> errorList) throws Exception {
+    public OperateData invoke(AppendingMethod method, InstructionSetContext context, ArraySwap list,
+        List<String> errorList) throws Exception {
         OperatorBase op = method.op;
-        return op.execute(context,list,errorList);
+        return op.execute(context, list, errorList);
     }
-
 
 }
