@@ -6,6 +6,7 @@ import java.util.List;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.Operator;
+import org.junit.Test;
 
 public class DemoShow {
 
@@ -14,7 +15,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testArithmetic() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         runner.execute("(1+2)*3", null, null, false, true);
@@ -25,7 +26,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testForLoop() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -38,7 +39,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testForLoop2() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -52,7 +53,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testHanoiMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         runner.addFunctionOfClassMethod("汉诺塔算法", DemoShow.class.getName(),
@@ -66,7 +67,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testHanoiMethod2() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShow(), "hanoi",
@@ -80,7 +81,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testHanoiMethod3() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShow(), "hanoi",
@@ -108,7 +109,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testOperator() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -122,11 +123,11 @@ public class DemoShow {
         public Object executeInner(Object[] list) throws Exception {
             Object opdata1 = list[0];
             Object opdata2 = list[1];
-            if (opdata1 instanceof java.util.List) {
-                ((java.util.List)opdata1).add(opdata2);
+            if (opdata1 instanceof List) {
+                ((List)opdata1).add(opdata2);
                 return opdata1;
             } else {
-                java.util.List result = new java.util.ArrayList();
+                List result = new ArrayList();
                 result.add(opdata1);
                 result.add(opdata2);
                 return result;
@@ -139,7 +140,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testReplaceOperator() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -155,7 +156,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testShortLogicAndErrorInfo() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -192,7 +193,7 @@ public class DemoShow {
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testVirtualClass() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.loadMutilExpress("类初始化", "class People(){sex;height;money;skin};");

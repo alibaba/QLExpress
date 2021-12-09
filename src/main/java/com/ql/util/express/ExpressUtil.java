@@ -7,6 +7,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -405,9 +408,9 @@ public class ExpressUtil {
         if (type.equals(DT_BYTE)) {return Byte.class;}
         if (type.equals(DT_CHAR) || type.equals("Character")) {return Character.class;}
         if (type.equals(DT_BOOLEAN)) {return Boolean.class;}
-        if (type.equals(DT_DATE)) {return java.sql.Date.class;}
-        if (type.equals(DT_TIME)) {return java.sql.Time.class;}
-        if (type.equals(DT_DATETIME)) {return java.sql.Timestamp.class;}
+        if (type.equals(DT_DATE)) {return Date.class;}
+        if (type.equals(DT_TIME)) {return Time.class;}
+        if (type.equals(DT_DATETIME)) {return Timestamp.class;}
         if (type.equals(DT_OBJECT)) {return Object.class;}
         if (type.equals(DT_short)) {return short.class;}
         if (type.equals(DT_int)) {return int.class;}

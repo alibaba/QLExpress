@@ -151,23 +151,26 @@ runner.execute(exp,context,null,false,false,null);
 ```
 
 ### 如何自定义Operator
+
 ```java
-//定义一个继承自com.ql.util.express.Operator的操作符
-public class JoinOperator extends Operator{
-	public Object executeInner(Object[] list) throws Exception {
-		Object opdata1 = list[0];
-		Object opdata2 = list[1];
-		if(opdata1 instanceof java.util.List){
-			((java.util.List)opdata1).add(opdata2);
-			return opdata1;
-		}else{
-			java.util.List result = new java.util.ArrayList();
-            for(Object opdata:list){
+import java.util.ArrayList;
+import java.util.List;//定义一个继承自com.ql.util.express.Operator的操作符
+
+public class JoinOperator extends Operator {
+    public Object executeInner(Object[] list) throws Exception {
+        Object opdata1 = list[0];
+        Object opdata2 = list[1];
+        if (opdata1 instanceof List) {
+            ((List)opdata1).add(opdata2);
+            return opdata1;
+        } else {
+            List result = new ArrayList();
+            for (Object opdata : list) {
                 result.add(opdata);
             }
-			return result;				
-		}
-	}
+            return result;
+        }
+    }
 }
 
 ```
@@ -408,12 +411,12 @@ _list = 1 join 2 join 3;_         -> [1,2,3]
 _list = join(list,4,5,6);_        -> [1,2,3,4,5,6]
 
 ```java
-public class JoinOperator extends Operator{
+import java.util.ArrayList;import java.util.List;public class JoinOperator extends Operator{
 	public Object executeInner(Object[] list) throws Exception {
-        java.util.List result = new java.util.ArrayList();
+        List result = new ArrayList();
         Object opdata1 = list[0];
-        if(opdata1 instanceof java.util.List){
-           result.addAll((java.util.List)opdata1);
+        if(opdata1 instanceof List){
+           result.addAll((List)opdata1);
         }else{
             result.add(opdata1);
         }

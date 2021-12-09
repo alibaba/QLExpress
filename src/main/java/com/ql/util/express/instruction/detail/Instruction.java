@@ -1,12 +1,13 @@
 package com.ql.util.express.instruction.detail;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.ql.util.express.RunEnvironment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public abstract class Instruction implements java.io.Serializable {
+public abstract class Instruction implements Serializable {
 
     private static final long serialVersionUID = 1361458333068300443L;
     protected static transient Log staticLog = LogFactory.getLog(Instruction.class);

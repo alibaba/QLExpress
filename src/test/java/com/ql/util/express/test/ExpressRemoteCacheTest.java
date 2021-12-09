@@ -6,10 +6,11 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import com.ql.util.express.LocalExpressCacheRunner;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class ExpressRemoteCacheTest {
 
-    @org.junit.Test
+    @Test
     public void testcache() {
         ExpressRunner runner = new ExpressRunner();
         ExpressRemoteCacheRunner cacheRunner = new LocalExpressCacheRunner(runner);

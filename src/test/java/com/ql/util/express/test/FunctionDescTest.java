@@ -4,9 +4,10 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.instruction.op.OperatorBase;
 import com.ql.util.express.instruction.op.OperatorSelfDefineClassFunction;
+import org.junit.Test;
 
 public class FunctionDescTest {
-    @org.junit.Test
+    @Test
     public void testFunctionDesc() throws Exception {
         String express = "isVIP(\"qianghui\")";
         ExpressRunner runner = new ExpressRunner();

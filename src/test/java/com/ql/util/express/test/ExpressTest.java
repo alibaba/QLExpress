@@ -6,10 +6,11 @@ import java.util.List;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class ExpressTest {
 
-    @org.junit.Test
+    @Test
     public void testDemo() throws Exception {
         String express = "10 * 10 + 1 + 2 * 3 + 5 * 2";
         ExpressRunner runner = new ExpressRunner();
@@ -18,7 +19,7 @@ public class ExpressTest {
         System.out.println("表达式计算：" + express + " = " + r);
     }
 
-    @org.junit.Test
+    @Test
     public void tes10000次() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         String express = "10 * 10 + 1 + 2 * 3 + 5 * 2";
@@ -32,7 +33,7 @@ public class ExpressTest {
             + (System.currentTimeMillis() - start));
     }
 
-    @org.junit.Test
+    @Test
     public void testExpress() throws Exception {
         ExpressRunner runner = new ExpressRunner();
 

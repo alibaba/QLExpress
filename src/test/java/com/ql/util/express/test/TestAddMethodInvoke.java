@@ -2,6 +2,8 @@ package com.ql.util.express.test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
@@ -51,14 +53,14 @@ public class TestAddMethodInvoke {
         ExpressRunner runner = new ExpressRunner();
         IExpressContext<String, Object> context = new DefaultContext<>();
 
-        runner.addClassMethod("join", java.util.List.class, new Operator() {
+        runner.addClassMethod("join", List.class, new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 ArrayList arrayList = (ArrayList)list[0];
                 return StringUtils.join(arrayList, (String)list[1]);
             }
         });
-        runner.addClassMethod("join", java.util.Map.class, new Operator() {
+        runner.addClassMethod("join", Map.class, new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 HashMap map = (HashMap)list[0];
@@ -85,7 +87,7 @@ public class TestAddMethodInvoke {
         ExpressRunner runner = new ExpressRunner();
         IExpressContext<String, Object> context = new DefaultContext<>();
 
-        runner.addClassMethod("size", java.util.List.class, new Operator() {
+        runner.addClassMethod("size", List.class, new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 ArrayList arrayList = (ArrayList)list[0];
@@ -94,7 +96,7 @@ public class TestAddMethodInvoke {
             }
         });
 
-        runner.addClassField("长度", java.util.List.class, new Operator() {
+        runner.addClassField("长度", List.class, new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 ArrayList arrayList = (ArrayList)list[0];

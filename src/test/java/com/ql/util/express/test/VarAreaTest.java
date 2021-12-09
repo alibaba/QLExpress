@@ -3,9 +3,10 @@ package com.ql.util.express.test;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class VarAreaTest {
-    @org.junit.Test
+    @Test
     public void testVarArea1() throws Exception {
         String express =
             " qh = 1; " +
@@ -28,7 +29,7 @@ public class VarAreaTest {
 
     }
 
-    @org.junit.Test
+    @Test
     public void testVarArea2() throws Exception {
         String express =
             " qh = 1; " +

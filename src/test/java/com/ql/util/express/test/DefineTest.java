@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DefineTest {
-    @org.junit.Test
+    @Test
     public void testDefExpressInner() throws Exception {
         String express = "int qh =  1 ";
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -19,7 +19,7 @@ public class DefineTest {
         Assert.assertTrue("表达式变量作用域错误", context.get("qh").toString().equalsIgnoreCase("100"));
     }
 
-    @org.junit.Test
+    @Test
     public void testDefUserContext() throws Exception {
         String express = "qh = 1 + 1";
         DefaultContext<String, Object> context = new DefaultContext<>();
@@ -30,7 +30,7 @@ public class DefineTest {
         Assert.assertTrue("表达式变量作用域错误", context.get("qh").toString().equalsIgnoreCase("2"));
     }
 
-    @org.junit.Test
+    @Test
     public void testAlias() throws Exception {
         String express = " 定义别名 qh example.child; "
             + "{定义别名 qh example.child.a;" + " qh =qh + \"-ssss\";" + "};"
@@ -48,7 +48,7 @@ public class DefineTest {
             .equalsIgnoreCase("qh-ssss-qh"));
     }
 
-    @org.junit.Test
+    @Test
     public void testMacro() throws Exception {
         String express = "定义宏  惩罚   {bean.unionName(name)}; 惩罚; return  惩罚";
         ExpressRunner runner = new ExpressRunner();
@@ -78,7 +78,7 @@ public class DefineTest {
         Assert.assertEquals("自定义函数 错误", "3628800", r.toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testProperty() throws Exception {
         //String express =" cache isVIP(\"qh\") ;  cache isVIP(\"xuannan\") cache isVIP(\"qh\") ;";
 
@@ -97,7 +97,7 @@ public class DefineTest {
             .equalsIgnoreCase("ssssssss"));
     }
 
-    @org.junit.Test
+    @Test
     public void test_循环() throws Exception {
         String express = "qh = 0; 循环(int i = 1;  i<=10;i = i + 1){ if(i > 5) then{ 终止;}; " +
             "循环(int j=0;j<10;j= j+1){  " +

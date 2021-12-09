@@ -1,5 +1,7 @@
 package com.ql.util.express;
 
+import java.io.Serializable;
+
 import com.ql.util.express.exception.QLException;
 
 /**
@@ -8,7 +10,7 @@ import com.ql.util.express.exception.QLException;
  * @author qhlhl2010@gmail.com
  */
 
-public class OperateData implements java.io.Serializable {
+public class OperateData implements Serializable {
     private static final long serialVersionUID = 4749348640699065036L;
     protected Object dataObject;
     protected Class<?> type;

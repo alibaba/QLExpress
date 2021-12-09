@@ -10,6 +10,7 @@
 
 package com.ql.util.express.instruction.op;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.ql.util.express.ArraySwap;
@@ -26,7 +27,7 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
  *
  */
 
-public abstract class OperatorBase implements java.io.Serializable {
+public abstract class OperatorBase implements Serializable {
 
     protected String aliasName;
 

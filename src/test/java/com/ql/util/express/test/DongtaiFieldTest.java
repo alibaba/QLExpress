@@ -40,7 +40,7 @@ public class DongtaiFieldTest {
         ExpressRunner runner = new ExpressRunner(true, true);
         runner.loadExpress("TestFunctionParamerType");
         DefaultContext<String, Object> context = new DefaultContext<>();
-        context.put("auctionUtil", new com.ql.util.express.test.BeanExample());
+        context.put("auctionUtil", new BeanExample());
         context.put("log", log);
         Object r = runner.executeByExpressName("TestFunctionParamerType", context, null, false, false, null);
         System.out.println(r);

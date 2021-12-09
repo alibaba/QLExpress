@@ -3,6 +3,7 @@ package com.ql.util.express.test.spring;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
 import org.unitils.UnitilsJUnit4;
 import org.unitils.spring.annotation.SpringApplicationContext;
 import org.unitils.spring.annotation.SpringBeanByName;
@@ -13,7 +14,7 @@ public class SpringDemoTest extends UnitilsJUnit4 {
     @SpringBeanByName
     QlExpressUtil qlExpressUtil;
 
-    @org.junit.Test
+    @Test
     public void testScript() throws Exception {
 
         String express =
@@ -43,7 +44,7 @@ public class SpringDemoTest extends UnitilsJUnit4 {
             context);
     }
 
-    @org.junit.Test
+    @Test
     public void testScript2() throws Exception {
 
         String express =

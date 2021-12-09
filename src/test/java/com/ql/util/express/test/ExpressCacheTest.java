@@ -1,5 +1,7 @@
 package com.ql.util.express.test;
 
+import java.util.Date;
+
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
@@ -24,19 +26,19 @@ public class ExpressCacheTest {
         context.put("数学", 99);
         context.put("英语", 95);
         long times = 10000;
-        long start = new java.util.Date().getTime();
+        long start = new Date().getTime();
         while (times-- > 0) {
             calulateTask(false, context);
         }
-        long end = new java.util.Date().getTime();
+        long end = new Date().getTime();
         echo("不做缓存耗时：" + (end - start) + " ms");
 
         times = 10000;
-        start = new java.util.Date().getTime();
+        start = new Date().getTime();
         while (times-- > 0) {
             calulateTask(true, context);
         }
-        end = new java.util.Date().getTime();
+        end = new Date().getTime();
         echo("做缓存耗时：" + (end - start) + " ms");
 
     }
