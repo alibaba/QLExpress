@@ -28,7 +28,7 @@ public class OperatorTest {
         //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", r == 49);
+        Assert.assertEquals("操作符执行错误", 49, r);
     }
 
     /**
@@ -46,7 +46,7 @@ public class OperatorTest {
         //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", r == 10);
+        Assert.assertEquals("操作符执行错误", 10, r);
     }
 
     /**
@@ -64,7 +64,7 @@ public class OperatorTest {
         //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", r == 10);
+        Assert.assertEquals("操作符执行错误", 10, r);
     }
 
     /**
@@ -86,6 +86,6 @@ public class OperatorTest {
         //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, expressContext, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", r == 49);
+        Assert.assertEquals("操作符执行错误", 49, r);
     }
 }

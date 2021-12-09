@@ -5,6 +5,7 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -37,7 +38,7 @@ public class QLAliasTest {
         for (int i = 0; i < exps.length; i += 2) {
             Object result = runner.execute(exps[i], context, null, false, false);
             System.out.println(result);
-            assertTrue(("" + result).equals(exps[i + 1]));
+            assertEquals(("" + result), exps[i + 1]);
         }
 
         //2、外部业务调用方也可以利用类、参数的QLAlias注解，自动注入ExpressContext
@@ -46,7 +47,7 @@ public class QLAliasTest {
         for (int i = 0; i < exps.length; i += 2) {
             Object result = runner.execute(exps[i], context2, null, false, false);
             System.out.println(result);
-            assertTrue(("" + result).equals(exps[i + 1]));
+            assertEquals(("" + result), exps[i + 1]);
         }
     }
 }

@@ -24,7 +24,7 @@ public class VarAreaTest {
         Object r = runner.execute(express, context, null, false, false);
         System.out.println(r);
         System.out.println(context);
-        Assert.assertTrue("变量定义作用域错误", context.get("qh").toString().equals("104"));
+        Assert.assertEquals("变量定义作用域错误", "104", context.get("qh").toString());
 
     }
 
@@ -47,7 +47,7 @@ public class VarAreaTest {
         Object r = runner.execute(express, context, null, false, false);
         System.out.println(r);
         System.out.println(context);
-        Assert.assertTrue("变量定义作用域错误", context.get("qh").toString().equals("2"));
+        Assert.assertEquals("变量定义作用域错误", "2", context.get("qh").toString());
 
     }
 }

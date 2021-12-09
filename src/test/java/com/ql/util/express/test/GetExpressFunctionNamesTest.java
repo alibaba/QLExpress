@@ -24,7 +24,7 @@ public class GetExpressFunctionNamesTest {
         for (String s : names) {
             System.out.println("function : " + s);
         }
-        Assert.assertTrue("获取外部方法错误", names.length == 1);
+        Assert.assertEquals("获取外部方法错误", 1, names.length);
         Assert.assertTrue("获取外部方法错误", names[0].equalsIgnoreCase("fun3"));
 
         //注意:
@@ -38,7 +38,7 @@ public class GetExpressFunctionNamesTest {
         for (String s : names) {
             System.out.println("function : " + s);
         }
-        Assert.assertTrue("获取外部方法错误", names.length == 0);
+        Assert.assertEquals("获取外部方法错误", 0, names.length);
 
         IExpressContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, false);
@@ -61,7 +61,7 @@ public class GetExpressFunctionNamesTest {
         for (String s : names) {
             System.out.println("function : " + s);
         }
-        Assert.assertTrue("获取外部方法错误", names.length == 0);
+        Assert.assertEquals("获取外部方法错误", 0, names.length);
 
         context = new DefaultContext<>();
         r = runner.execute(express, context, null, false, false);

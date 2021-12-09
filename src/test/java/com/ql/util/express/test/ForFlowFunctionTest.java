@@ -16,7 +16,7 @@ public class ForFlowFunctionTest {
             new String[] {"int"}, null);
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
-        Assert.assertTrue("for循环后面跟着一个函数的时候错误", r.toString().equals("10"));
+        Assert.assertEquals("for循环后面跟着一个函数的时候错误", "10", r.toString());
     }
 
 }

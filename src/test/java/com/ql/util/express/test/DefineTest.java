@@ -75,7 +75,7 @@ public class DefineTest {
         runner.addOperatorWithAlias("定义函数", "function", null);
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, true, false);
-        Assert.assertTrue("自定义函数 错误", r.toString().equals("3628800"));
+        Assert.assertEquals("自定义函数 错误", "3628800", r.toString());
     }
 
     @org.junit.Test

@@ -57,7 +57,7 @@ public class ArrayMisType {
         for (String[] test : testList) {
             System.out.println(test[0]);
             Object r = runner.execute(test[0], context, null, true, false);
-            Assert.assertTrue("判定失误", r.toString().equals(test[1]));
+            Assert.assertEquals("判定失误", r.toString(), test[1]);
         }
     }
 }

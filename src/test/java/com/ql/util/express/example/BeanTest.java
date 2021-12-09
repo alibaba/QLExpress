@@ -18,7 +18,7 @@ public class BeanTest {
         //执行表达式，并将结果赋给r
         String r = (String)runner.execute(exp, null, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", "小强".equals(r));
+        Assert.assertEquals("操作符执行错误", "小强", r);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class BeanTest {
         //执行表达式，并将结果赋给r
         String r = (String)runner.execute(exp, expressContext, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", "小强".equals(r));
+        Assert.assertEquals("操作符执行错误", "小强", r);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class BeanTest {
         //执行表达式，并将结果赋给r
         String r = (String)runner.execute(exp, null, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", "Abcd".equals(r));
+        Assert.assertEquals("操作符执行错误", "Abcd", r);
     }
 
     /**
@@ -65,7 +65,7 @@ public class BeanTest {
         //执行表达式，并将结果赋给r
         String r = (String)runner.execute(exp, expressContext, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", "小强".equals(r));
+        Assert.assertEquals("操作符执行错误", "小强", r);
     }
 
     /**
@@ -86,6 +86,6 @@ public class BeanTest {
         //执行表达式，并将结果赋给r
         String r = (String)runner.execute(exp, expressContext, null, false, false);
         System.out.println(r);
-        Assert.assertTrue("操作符执行错误", "小强".equals(r));
+        Assert.assertEquals("操作符执行错误", "小强", r);
     }
 }

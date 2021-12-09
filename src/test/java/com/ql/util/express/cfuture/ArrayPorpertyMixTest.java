@@ -44,7 +44,7 @@ public class ArrayPorpertyMixTest {
             Object result = runner.execute(tests[i], context, null, false,
                 false);
             System.out.println(result);
-            Assert.assertTrue(result.toString().equals(tests[i + 1]));
+            Assert.assertEquals(result.toString(), tests[i + 1]);
         }
     }
 

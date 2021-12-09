@@ -31,8 +31,8 @@ public class DongtaiFieldTest {
         InstructionSetRunner.executeOuter(runner, set, null, context, null, true, false, null, true);
         runner.execute(express, context, null, false, true);
         System.out.println(context.get("费用"));
-        Assert.assertTrue("动态属性错误", fee.get("张三").toString().equals("100"));
-        Assert.assertTrue("动态属性错误", fee.get("李四").toString().equals("200"));
+        Assert.assertEquals("动态属性错误", "100", fee.get("张三").toString());
+        Assert.assertEquals("动态属性错误", "200", fee.get("李四").toString());
     }
 
     @Test

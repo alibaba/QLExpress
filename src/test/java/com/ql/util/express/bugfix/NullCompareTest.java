@@ -35,7 +35,7 @@ public class NullCompareTest {
             System.out.println(exp);
             ((DefaultContext<String, Object>)context).put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);
-            Assert.assertTrue((Boolean)result == false);
+            Assert.assertEquals(false, (boolean)(Boolean)result);
             System.out.println(result);
         }
 
@@ -49,7 +49,7 @@ public class NullCompareTest {
             System.out.println(exp);
             ((DefaultContext<String, Object>)context).put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);
-            Assert.assertTrue((Boolean)result == true);
+            Assert.assertEquals(true, (boolean)(Boolean)result);
             System.out.println(result);
         }
     }

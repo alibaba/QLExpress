@@ -23,7 +23,7 @@ public class NumberComputerTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(expressString, context, null, false, false);
         System.out.println(r); //0.58
-        Assert.assertTrue("精度计算错误", r.toString().equals("0.58"));
+        Assert.assertEquals("精度计算错误", "0.58", r.toString());
     }
 
     @Test
@@ -48,14 +48,14 @@ public class NumberComputerTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", bean);
         Object r = runner.execute(expressString, context, null, false, false);
-        Assert.assertTrue("精度计算错误", r.getClass().equals(Double.class));
+        Assert.assertEquals("精度计算错误", r.getClass(), Double.class);
 
         runner = new ExpressRunner(true, true);
         bean = new BeanExample();
         context = new DefaultContext<>();
         context.put("bean", bean);
         r = runner.execute(expressString, context, null, false, false);
-        Assert.assertTrue("精度计算错误", r.getClass().equals(BigDecimal.class));
+        Assert.assertEquals("精度计算错误", r.getClass(), BigDecimal.class);
 
     }
 

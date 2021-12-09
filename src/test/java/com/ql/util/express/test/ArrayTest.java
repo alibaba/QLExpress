@@ -21,7 +21,7 @@ public class ArrayTest {
         int[][] r = (int[][])runner.execute(express, context, null, false,
             true);
         System.out.println(r[0][1]);
-        Assert.assertTrue("数组操作实现错误", r[0][1] == 22);
+        Assert.assertEquals("数组操作实现错误", 22, r[0][1]);
     }
 
     @Test

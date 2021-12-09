@@ -28,7 +28,7 @@ public class ImportClassPath {
             return;
 
         }
-        Assert.assertTrue(false);
+        Assert.fail();
     }
 
     @Test

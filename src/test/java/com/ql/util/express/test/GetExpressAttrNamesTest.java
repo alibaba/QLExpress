@@ -15,7 +15,7 @@ public class GetExpressAttrNamesTest {
         for (String s : names) {
             System.out.println("var : " + s);
         }
-        Assert.assertTrue("获取外部属性错误", names.length == 2);
+        Assert.assertEquals("获取外部属性错误", 2, names.length);
         Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("b"));
         Assert.assertTrue("获取外部属性错误", names[1].equalsIgnoreCase("c"));
     }
@@ -29,7 +29,7 @@ public class GetExpressAttrNamesTest {
         for (String s : names) {
             System.out.println("var : " + s);
         }
-        Assert.assertTrue("获取外部属性错误", names.length == 1);
+        Assert.assertEquals("获取外部属性错误", 1, names.length);
         Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("a"));
     }
 }

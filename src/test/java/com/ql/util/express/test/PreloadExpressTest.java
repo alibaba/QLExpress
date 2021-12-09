@@ -18,6 +18,6 @@ public class PreloadExpressTest {
         context.put("n", 1);
         Object object = runner.execute("add(m,n)+sub(2,-2)", context, null, true, false);
         System.out.println(object);
-        Assert.assertTrue((Integer)object == 6);
+        Assert.assertEquals(6, (int)(Integer)object);
     }
 }

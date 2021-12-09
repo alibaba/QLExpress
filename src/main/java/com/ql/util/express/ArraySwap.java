@@ -14,5 +14,4 @@ public final class ArraySwap {
     public OperateData get(int i) {
         return this.arrays[i + start];
     }
-
 }

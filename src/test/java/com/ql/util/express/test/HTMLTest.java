@@ -13,6 +13,6 @@ public class HTMLTest {
         Object r = runner.execute(express, null, null, false, true);
         System.out.println(r);
         System.out.println("经\"费收\"入\"aaa-100");
-        Assert.assertTrue("字符串解析错误：", r.equals("经\"费收\"入\"aaa-100"));
+        Assert.assertEquals("字符串解析错误：", "经\"费收\"入\"aaa-100", r);
     }
 }

@@ -79,8 +79,8 @@ public class NewExpressTest {
             Object result = runner.execute(expresses[i][0], expressContext, null, false, true);
             System.out.println("运算结果：" + result);
             System.out.println("环境结果：" + expressContext);
-            Assert.assertTrue("表达式执行错误:" + expresses[i][0] + " 期望值：" + expresses[i][1] + " 运算结果：" + result,
-                expresses[i][1].equals(result == null ? "null" : result.toString()));
+            Assert.assertEquals("表达式执行错误:" + expresses[i][0] + " 期望值：" + expresses[i][1] + " 运算结果：" + result,
+                expresses[i][1], result == null ? "null" : result.toString());
         }
     }
 }

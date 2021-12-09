@@ -14,6 +14,6 @@ public class SubtractTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         System.out.println(r);
-        Assert.assertTrue("\"-\"号测试", r.toString().equals("-36"));
+        Assert.assertEquals("\"-\"号测试", "-36", r.toString());
     }
 }

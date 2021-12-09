@@ -15,7 +15,7 @@ public class ImportTest {
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
-        Assert.assertTrue("import 实现错误", r.toString().equals("1000"));
+        Assert.assertEquals("import 实现错误", "1000", r.toString());
         System.out.println(r);
         System.out.println(context);
     }
