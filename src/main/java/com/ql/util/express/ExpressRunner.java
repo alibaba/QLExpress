@@ -10,10 +10,6 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.exception.QLTimeOutException;
 import com.ql.util.express.instruction.op.*;
 import com.ql.util.express.parse.*;
-import com.ql.util.express.rule.Condition;
-import com.ql.util.express.rule.Rule;
-import com.ql.util.express.rule.RuleManager;
-import com.ql.util.express.rule.RuleResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,11 +46,6 @@ public class ExpressRunner {
 	 * 一段文本对应的指令集的缓存
 	 */
     private Map<String,InstructionSet> expressInstructionSetCache = new HashMap<String, InstructionSet>();
-
-	/**
-	 * 一段文本对应的规则的缓存
-	 */
-	private Map<String,Rule> ruleCache = new HashMap<String, Rule>();
 
     private ExpressLoader loader;
     private IExpressResourceLoader expressResourceLoader;
@@ -637,73 +628,6 @@ public class ExpressRunner {
 			threadReentrantCount.set(threadReentrantCount.get() - 1);
 		}
 	}
-
-	public RuleResult executeRule(String expressString, IExpressContext<String,Object> context, boolean isCache, boolean isTrace)
-			throws Exception {
-		Rule rule = null;
-		if (isCache == true) {
-			rule = ruleCache.get(expressString);
-			if (rule == null) {
-				synchronized (ruleCache) {
-					rule = ruleCache.get(expressString);
-					if (rule == null) {
-						rule = this.parseRule(expressString);
-						ruleCache.put(expressString,
-								rule);
-					}
-				}
-			}
-		} else {
-			rule = this.parseRule(expressString);
-		}
-		return RuleManager.executeRule(this,rule,context,isCache,isTrace);
-	}
-
-	static Pattern patternRule = Pattern.compile("rule[\\s]+'([^']+)'[\\s]+name[\\s]+'([^']+)'[\\s]+");
-
-	public Rule parseRule(String text)
-			throws Exception {
-		String ruleName = null;
-		String ruleCode = null;
-        Matcher matcher = patternRule.matcher(text);
-        if(matcher.find()) {
-            ruleCode = matcher.group(1);
-            ruleName = matcher.group(2);
-            text = text.substring(matcher.end());
-        }
-
-		Map<String,String> selfDefineClass = new HashMap<String,String> ();
-		for(ExportItem  item : this.loader.getExportInfo()){
-			if(item.getType().equals(InstructionSet.TYPE_CLASS)){
-				selfDefineClass.put(item.getName(), item.getName());
-			}
-		}
-
-//      分成两句话执行，用来保存中间的words结果
-//		ExpressNode root = this.parse.parse(this.rootExpressPackage,text, isTrace,selfDefineClass);
-
-		Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
-		ExpressNode root =  this.parse.parse(rootExpressPackage,words,text,isTrace,selfDefineClass);
-		Rule rule = RuleManager.createRule(root,words);
-		rule.setCode(ruleCode);
-		rule.setName(ruleName);
-		return rule;
-	}
-    
-    public Condition parseContition(String text)
-            throws Exception {
-        
-        Map<String,String> selfDefineClass = new HashMap<String,String> ();
-        for(ExportItem  item : this.loader.getExportInfo()){
-            if(item.getType().equals(InstructionSet.TYPE_CLASS)){
-                selfDefineClass.put(item.getName(), item.getName());
-            }
-        }
-        
-        Word[] words = this.parse.splitWords(rootExpressPackage,text,isTrace,selfDefineClass);
-        ExpressNode root =  this.parse.parse(rootExpressPackage,words,text,isTrace,selfDefineClass);
-        return RuleManager.createCondition(root,words);
-    }
 
 	/**
 	 * 解析一段文本，生成指令集合
