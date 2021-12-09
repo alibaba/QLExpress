@@ -27,7 +27,7 @@ public class ArgumentTypeMismatchTest {
         runner.addFunctionOfServiceMethod("abc", singleton, "functionABC",
             new Class[] {Long.class, Integer.class, String.class}, null);
         String exp = "abc(a,b,c)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("a", 1L);
         context.put("b", 2);
         context.put("c", "3");
@@ -48,7 +48,7 @@ public class ArgumentTypeMismatchTest {
             }
         });
         String exp = "abc(a,b,c)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("a", "1");
         context.put("b", "2");
         context.put("c", "3");
@@ -74,7 +74,7 @@ public class ArgumentTypeMismatchTest {
             "function = " + ToStringBuilder.reflectionToString(function, ToStringStyle.MULTI_LINE_STYLE));
 
         String exp = "abc(a,b,c)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("a", "1");
         context.put("b", "2");
         context.put("c", "3");

@@ -28,7 +28,7 @@ public class AppendingClassFieldManager {
         }
     }
 
-    private List<AppendingField> Fields = new ArrayList<AppendingField>();
+    private List<AppendingField> Fields = new ArrayList<>();
 
     public void addAppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
         Fields.add(new AppendingField(name, bindingClass, returnType, op));

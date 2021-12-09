@@ -15,7 +15,7 @@ public class TestMethodParams {
     @Test
     public void testMethodDynamicDemo() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
 
         //(1)默认的不定参数可以使用数组来代替
         Object r = runner.execute(
@@ -32,7 +32,7 @@ public class TestMethodParams {
     @Test
     public void testDynamicDemo() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         runner.addFunctionOfServiceMethod("getTemplate", this, "getTemplate", new Class[] {Object[].class}, null);
         runner.addFunctionOfClassMethod("getTemplateStatic", TestMethodParams.class.getName(), "getTemplateStatic",
             new Class[] {Object.class, String[].class}, null);
@@ -113,7 +113,7 @@ public class TestMethodParams {
         assert (objectClass.isAssignableFrom(stringClass));
 
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         runner.addFunctionOfServiceMethod("integerArrayInvoke", this, "integerArrayInvoke",
             new Class[] {Integer[].class}, null);
         runner.addFunctionOfServiceMethod("objectArrayInvokeWithHead", this, "objectArrayInvokeWithHead",
@@ -146,7 +146,7 @@ public class TestMethodParams {
         DynamicParamsUtil.supportDynamicParams = true;
 
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         runner.addFunctionOfServiceMethod("integerArrayInvoke", this, "integerArrayInvoke",
             new Class[] {Integer[].class}, null);
         runner.addFunctionOfServiceMethod("objectArrayInvoke", this, "objectArrayInvoke", new Class[] {Object[].class},

@@ -13,7 +13,7 @@ public class DateTest {
     @Test
     public void testDateCompare() throws Exception {
         String express = "a = new Date();b=a;a==b";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ExpressRunner runner = new ExpressRunner();
         Object r = runner.execute(express, context, null, false, false);
         Assert.assertTrue("testDateCompare", (Boolean)r);
@@ -22,7 +22,7 @@ public class DateTest {
     @Test
     public void testDateCompare1() throws Exception {
         String express = "a = new Date();for(i=0;i<1000;i++){f=f+i;}b=new Date();a<=b";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ExpressRunner runner = new ExpressRunner();
         Object r = runner.execute(express, context, null, false, false);
         Assert.assertTrue("testDateCompare", (Boolean)r);
@@ -31,7 +31,7 @@ public class DateTest {
     @Test
     public void testDateCompare2() throws Exception {
         String express = "a = new Date();for(i=0;i<1000;i++){f=f+i;}b=new Date();b>a";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ExpressRunner runner = new ExpressRunner();
         Object r = runner.execute(express, context, null, false, false);
         Assert.assertTrue("testDateCompare", (Boolean)r);

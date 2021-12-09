@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class LocalExpressCacheRunner extends ExpressRemoteCacheRunner {
 
-    private static Map<String, Object> expressMap = new HashMap<String, Object>();
+    private static Map<String, Object> expressMap = new HashMap<>();
 
     private ExpressRunner expressRunner;
 

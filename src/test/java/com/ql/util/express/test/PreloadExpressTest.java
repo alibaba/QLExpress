@@ -13,7 +13,7 @@ public class PreloadExpressTest {
         runner.loadMutilExpress(null,
             "function add(int a, int b){return a+b;} \n" +
                 "function sub(int a, int b){return a-b;}");
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("m", 1);
         context.put("n", 1);
         Object object = runner.execute("add(m,n)+sub(2,-2)", context, null, true, false);

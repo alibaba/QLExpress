@@ -14,7 +14,7 @@ public class ForFlowFunctionTest {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addFunctionOfServiceMethod("打印", System.out, "println",
             new String[] {"int"}, null);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("for循环后面跟着一个函数的时候错误", r.toString().equals("10"));
     }

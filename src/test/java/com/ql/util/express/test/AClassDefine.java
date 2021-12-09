@@ -19,7 +19,7 @@ public class AClassDefine {
             "println a + abc.a;" +
             "return a + abc.a;";
         ExpressRunner runner = new ExpressRunner(false, false);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMutilExpress("ClassTest", express);
 
         Object r = runner.executeByExpressName("ClassTest", context,
@@ -55,7 +55,7 @@ public class AClassDefine {
                 + " return result ;"
                 + "";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMutilExpress("", expressDefine);
         runner.loadMutilExpress("ClassTest", express);
         Object r = runner.executeByExpressName("ClassTest", context,

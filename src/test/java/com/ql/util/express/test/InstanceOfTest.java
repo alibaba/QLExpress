@@ -13,7 +13,7 @@ public class InstanceOfTest {
     @Test
     public void test() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         String express = "s='';return s  instanceof String";
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("InstanceOfTest 出错", r.toString().equals("true"));

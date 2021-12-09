@@ -50,7 +50,7 @@ public class ArrayMisType {
             new String[] {"part = \"1@2@3\".split(\"@\"); return Integer.valueOf(part[2]);", "3"}
         };
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("instance", instance);
         context.put("strings", strings);
         context.put("integers", integers);

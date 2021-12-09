@@ -25,7 +25,7 @@ public class QLPattern {
         AtomicLong maxMatchPoint = new AtomicLong();
         AtomicLong maxDeep = new AtomicLong(1);
         QLMatchResultCache resultCache = new QLMatchResultCache(5);
-        ArrayListCache<QLMatchResultTree> arrayListCache = new ArrayListCache<QLMatchResultTree>(50);
+        ArrayListCache<QLMatchResultTree> arrayListCache = new ArrayListCache<>(50);
         MatchParamsPack staticParams = new MatchParamsPack(aManager, nodes, maxDeep, maxMatchPoint, resultCache,
             arrayListCache);
         QLMatchResult result = findMatchStatementWithAddRootOptimizeStack(staticParams, pattern, point, true, 1);
@@ -355,7 +355,7 @@ public class QLPattern {
             this.point = this.len - 1;
             cache = new List[this.len];
             for (int i = 0; i < this.len; i++) {
-                cache[i] = new ArrayList<T>();
+                cache[i] = new ArrayList<>();
             }
         }
 
@@ -367,7 +367,7 @@ public class QLPattern {
                 point = point - 1;
                 fetchCount++;
             } else {
-                result = new ArrayList<T>();
+                result = new ArrayList<>();
                 newCount++;
             }
             return result;

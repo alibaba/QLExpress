@@ -32,7 +32,7 @@ public class RatingTest {
         //装载分成规则rating.ql文件
         runner.loadExpress("rating");
         //设置上下文
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("物流订单", logisticsOrder);
         context.put("交易订单", tcOrder);
         context.put("仓储订单", goodsOrder);

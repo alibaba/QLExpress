@@ -21,7 +21,7 @@ public class OperatorAnonymousNewMap extends OperatorBase {
     }
 
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Map<Object, Object> result = new HashMap<Object, Object>();
+        Map<Object, Object> result = new HashMap<>();
         for (int i = 0; i < list.length; i++) {
             result.put(((OperateDataKeyValue)list.get(i)).getKey().getObject(context), ((OperateDataKeyValue)list.get(
                 i)).getValue().getObject(context));

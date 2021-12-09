@@ -12,7 +12,7 @@ public class AddMacroDefineTest {
             "testLong", new String[] {"long"}, null);
         runner.addMacro("玄难", "abc(100);");
         String express = "玄难 + \" - Test\";";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         System.out.println(r);
     }

@@ -72,7 +72,7 @@ public class NewExpressTest {
             {"if 1==2 then {return 10}else{return 100}", "100"}
         };
         for (int i = 0; i < expresses.length; i++) {
-            IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+            IExpressContext<String, Object> expressContext = new DefaultContext<>();
             ExpressRunner runner = new ExpressRunner(false, true);
             runner.addOperatorWithAlias("加", "+", null);
             runner.addOperator("love", "+", new LoveOperator("love"));

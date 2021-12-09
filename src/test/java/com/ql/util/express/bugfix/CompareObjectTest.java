@@ -20,7 +20,7 @@ public class CompareObjectTest {
             "test<='a'",
             "'a'>=test",
         };
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("test", 'a' + 0);
         for (String exp : expList) {
             Object result = runner.execute(exp, context, null, true, false);

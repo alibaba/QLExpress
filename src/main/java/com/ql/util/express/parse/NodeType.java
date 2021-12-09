@@ -40,7 +40,7 @@ public class NodeType implements INodeType {
     public static String[][] splitProperties(String str) {
         Pattern p = Pattern.compile("(,|:)\\s*(([A-Z]|-|_)*)\\s*=");
         Matcher matcher = p.matcher(str);
-        List<String[]> list = new ArrayList<String[]>();
+        List<String[]> list = new ArrayList<>();
         int endIndex = 0;
         while (matcher.find()) {
             if (list.size() > 0) {

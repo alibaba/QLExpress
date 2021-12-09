@@ -29,7 +29,7 @@ public class IsAssignableTest {
 
         String express = "bean.testInt(p)";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", new BeanExample());
         context.put("p", 100);
 
@@ -37,7 +37,7 @@ public class IsAssignableTest {
         System.out.println(r);
         Assert.assertTrue("数据类型转换错误：", r.toString().equalsIgnoreCase("toString-int:100"));
 
-        context = new DefaultContext<String, Object>();
+        context = new DefaultContext<>();
         express = "bean.testLong(p)";
         context.put("bean", new BeanExample());
         context.put("p", 100L);

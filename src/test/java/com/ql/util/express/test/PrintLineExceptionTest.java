@@ -14,20 +14,17 @@ import org.junit.Test;
  * Created by tianqiao on 17/4/1.
  */
 public class PrintLineExceptionTest {
-
     @Test
     public void testLoadFromFile() throws Exception {
-
         String script = getResourceAsStream("lineTest.ql");
         ExpressRunner runner = new ExpressRunner(false, false);
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         try {
             Object obj = runner.execute(script, context, null, true, false);
             System.out.println(obj);
         } catch (Exception e) {
-            //            e.printStackTrace();
+            //e.printStackTrace();
             Assert.assertTrue(e.toString().contains("at line 7"));
-            ;
         }
     }
 
@@ -39,7 +36,7 @@ public class PrintLineExceptionTest {
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
         StringBuilder builder = new StringBuilder();
-        String tmpStr = null;
+        String tmpStr;
         while ((tmpStr = reader.readLine()) != null) {
             builder.append(tmpStr).append("\n");
         }

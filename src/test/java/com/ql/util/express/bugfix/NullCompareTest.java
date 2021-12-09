@@ -31,7 +31,7 @@ public class NullCompareTest {
             "x != 2",
         };
         for (String exp : explist) {
-            IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+            IExpressContext<String, Object> context = new DefaultContext<>();
             System.out.println(exp);
             ((DefaultContext<String, Object>)context).put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);
@@ -45,7 +45,7 @@ public class NullCompareTest {
             "x == 2",
         };
         for (String exp : explist) {
-            IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+            IExpressContext<String, Object> context = new DefaultContext<>();
             System.out.println(exp);
             ((DefaultContext<String, Object>)context).put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);

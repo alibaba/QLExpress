@@ -21,7 +21,7 @@ public class BitTest {
     public void IntBit() throws Exception {
         ExpressRunner runner = new ExpressRunner();
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         int num = -10;
         context.put("num", num);
         testQl("num & 11", num & 11, runner, context);
@@ -35,7 +35,7 @@ public class BitTest {
     public void LongBit() throws Exception {
         ExpressRunner runner = new ExpressRunner();
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         long num = -10L;
         context.put("num", num);
         testQl("num & 11", num & 11, runner, context);

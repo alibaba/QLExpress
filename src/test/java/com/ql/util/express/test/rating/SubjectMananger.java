@@ -22,7 +22,7 @@ public class SubjectMananger extends HashMap {
     }
 
     public List<SubjectValue> getSubjectValues() {
-        List<SubjectValue> result = new ArrayList<SubjectValue>();
+        List<SubjectValue> result = new ArrayList<>();
         for (Object f : this.values()) {
             UserSubject item = (UserSubject)f;
             for (Object t : item.entrySet()) {

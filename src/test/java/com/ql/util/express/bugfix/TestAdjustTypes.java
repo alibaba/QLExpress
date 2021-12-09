@@ -35,7 +35,7 @@ public class TestAdjustTypes {
         runner.addFunctionOfServiceMethod("test", instance, "test", new Class[] {Integer.class}, null);
         runner.addFunctionOfServiceMethod("testString", instance, "test", new Class[] {String.class}, null);
         String exp = "test(1) +test(1) + testString('aaaa')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);
     }
@@ -43,7 +43,7 @@ public class TestAdjustTypes {
     @Test
     public void testDemo2() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("testAdjustTypes", instance);
         String exp = "testAdjustTypes.test(1) + testAdjustTypes.test(1) + testAdjustTypes.test('aaaa')";
         Object result = runner.execute(exp, context, null, false, true);
@@ -53,7 +53,7 @@ public class TestAdjustTypes {
     @Test
     public void testDemo3() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("testAdjustTypes", instance);
         String exp
             = "testAdjustTypes.test(1) + testAdjustTypes.test(1) + testAdjustTypes.test('aaaa')+ testAdjustTypes.test"

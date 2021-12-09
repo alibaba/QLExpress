@@ -50,7 +50,7 @@ public class ExpressUtil {
     public static final String DT_char = "char";
     public static final String DT_boolean = "boolean";
 
-    public static Map<String, Object> methodCache = new ConcurrentHashMap<String, Object>();
+    public static Map<String, Object> methodCache = new ConcurrentHashMap<>();
 
     public static Class<?>[][] classMatchs = new Class[][] {
         //原始数据类型
@@ -269,8 +269,8 @@ public class ExpressUtil {
 
     private static Constructor<?> findConstructor(Class<?> baseClass, Class<?>[] types) {
         Constructor<?>[] constructors = baseClass.getConstructors();
-        List<Constructor<?>> constructorList = new ArrayList<Constructor<?>>();
-        List<Class<?>[]> listClass = new ArrayList<Class<?>[]>();
+        List<Constructor<?>> constructorList = new ArrayList<>();
+        List<Class<?>[]> listClass = new ArrayList<>();
         for (int i = 0; i < constructors.length; i++) {
             if (constructors[i].getParameterTypes().length == types.length) {
                 listClass.add(constructors[i].getParameterTypes());
@@ -296,7 +296,7 @@ public class ExpressUtil {
     private static List<Method> gatherMethodsRecursive(Class<?> baseClass,
         String methodName, int numArgs, boolean publicOnly,
         boolean isStatic, List<Method> candidates) {
-        if (candidates == null) {candidates = new ArrayList<Method>();}
+        if (candidates == null) {candidates = new ArrayList<>();}
 
         addCandidates(baseClass.getDeclaredMethods(), methodName, numArgs,
             publicOnly, isStatic, candidates);
@@ -621,7 +621,7 @@ public class ExpressUtil {
      * 一个接口是否函数式接口的缓存
      */
     private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE
-        = new ConcurrentHashMap<Class<?>, Boolean>();
+        = new ConcurrentHashMap<>();
 
     /**
      * 是否函数式接口

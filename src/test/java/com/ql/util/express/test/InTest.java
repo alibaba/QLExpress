@@ -15,10 +15,10 @@ public class InTest {
         String express3 = "2 in b";
 
         ExpressRunner runner = new ExpressRunner(true, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         int[] a = {1, 2, 3};
         context.put("a", a);
-        List<Integer> b = new ArrayList<Integer>();
+        List<Integer> b = new ArrayList<>();
         b.add(2);
         b.add(3);
 

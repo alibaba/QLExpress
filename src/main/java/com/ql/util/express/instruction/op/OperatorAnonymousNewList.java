@@ -20,7 +20,7 @@ public class OperatorAnonymousNewList extends OperatorBase {
     }
 
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         for (int i = 0; i < list.length; i++) {
             result.add(list.get(i).getObject(context));
         }

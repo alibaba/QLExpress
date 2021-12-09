@@ -24,8 +24,8 @@ public class DongtaiFieldTest {
             "费用.用户  = 200;";
 
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-        Map<String, Object> fee = new HashMap<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        Map<String, Object> fee = new HashMap<>();
         context.put("费用", fee);
         InstructionSet set = runner.parseInstructionSet(express);
         InstructionSetRunner.executeOuter(runner, set, null, context, null, true, false, null, true);
@@ -39,7 +39,7 @@ public class DongtaiFieldTest {
     public void testLoadFromFile() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         runner.loadExpress("TestFunctionParamerType");
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("auctionUtil", new com.ql.util.express.test.BeanExample());
         context.put("log", log);
         Object r = runner.executeByExpressName("TestFunctionParamerType", context, null, false, false, null);

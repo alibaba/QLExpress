@@ -13,7 +13,7 @@ public class ImportTest {
             "abc = new BeanExample(\"张三\").unionName(\"李四\") ;" +
             "return new BigInteger(\"1000\");";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("import 实现错误", r.toString().equals("1000"));
         System.out.println(r);

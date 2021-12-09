@@ -53,9 +53,9 @@ public class TypicalDemo {
      * @throws Exception
      */
     public String hasPermission(UserInfo userInfo, String expression) throws Exception {
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("userInfo", userInfo);
-        List<String> errorInfo = new ArrayList<String>();
+        List<String> errorInfo = new ArrayList<>();
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
         String resultStr = "";
         if (result.booleanValue() == true) {

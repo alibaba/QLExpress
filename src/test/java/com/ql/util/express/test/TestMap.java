@@ -15,7 +15,7 @@ public class TestMap {
     public void testInt2Object() throws Exception {
         String express = "Map a = new HashMap(); a.put(\"a\",100 - 10);return a.get(\"a\")";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         Assert.assertTrue("Map读取错误", r.toString().equalsIgnoreCase("90"));
 
@@ -24,7 +24,7 @@ public class TestMap {
     @Test
     public void testmain() throws Exception {
         IExpressContext<String, Object> expressContext = new IExpressContext<String, Object>() {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
 
             public Object put(String name, Object object) {
                 return map.put(name, object);
@@ -35,7 +35,7 @@ public class TestMap {
             }
         };
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("key1", 1);
         expressContext.put("map", map);
 

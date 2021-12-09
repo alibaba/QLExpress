@@ -156,7 +156,7 @@ public class ConsoleFrame
             contextText = "NewMap(" + contextText + ")";
             @SuppressWarnings("unchecked")
             Map<String, Object> tempMap = (Map<String, Object>)runner.execute(contextText, null, null, false, false);
-            DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             context.putAll(tempMap);
             r = runner.execute(script, context, null, false, false);
             System.out.print("QL>\n" +

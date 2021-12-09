@@ -35,7 +35,7 @@ public class ContextMessagePutTest {
         OperatorBase op = new OperatorContextPut("contextPut");
         runner.addFunction("contextPut", op);
         String exp = "contextPut('success','false');contextPut('error','错误信息');contextPut('warning','提醒信息')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("success", "true");
         Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);

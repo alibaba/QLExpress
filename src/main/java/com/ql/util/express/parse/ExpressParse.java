@@ -53,7 +53,7 @@ public class ExpressParse {
         boolean isInclude = false;
         StringBuffer includeFileName = new StringBuffer();
         int point = 0;
-        List<Word> result = new ArrayList<Word>();
+        List<Word> result = new ArrayList<>();
         while (point < wordObjects.length) {
             if (wordObjects[point].word.equals("include") == true) {
                 isInclude = true;
@@ -87,7 +87,7 @@ public class ExpressParse {
      */
     public List<ExpressNode> transferWord2ExpressNode(ExpressPackage aRootExpressPackage, Word[] wordObjects,
         Map<String, String> selfClassDefine, boolean dealJavaClass) throws Exception {
-        List<ExpressNode> result = new ArrayList<ExpressNode>();
+        List<ExpressNode> result = new ArrayList<>();
         String tempWord;
         NodeType tempType;
         int point = 0;
@@ -352,7 +352,7 @@ public class ExpressParse {
 
         //提取自定义Class
         if (selfDefineClass == null) {
-            selfDefineClass = new HashMap<String, String>();
+            selfDefineClass = new HashMap<>();
         }
         fetchSelfDefineClass(words, selfDefineClass);
         for (int i = 0; i < words.length; i++) {
@@ -375,7 +375,7 @@ public class ExpressParse {
         }
         //比如用在远程配置脚本，本地jvm并不包含这个java类，可以
         if (mockRemoteJavaClass) {
-            List<ExpressNode> tempList2 = new ArrayList<ExpressNode>();
+            List<ExpressNode> tempList2 = new ArrayList<>();
             for (int i = 0; i < tempList.size(); i++) {
                 ExpressNode node = tempList.get(i);
                 if (node.getValue().equals("new") && node.getNodeType().getKind() == NodeTypeKind.KEYWORD

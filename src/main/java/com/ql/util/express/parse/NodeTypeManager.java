@@ -16,10 +16,10 @@ public class NodeTypeManager implements INodeTypeManager {
     private String[] keyWords;
     private String[] nodeTypeDefines;
     protected String[][] instructionFacotryMapping;
-    protected Map<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
+    protected Map<String, NodeType> nodeTypes = new HashMap<>();
 
     //所有的函数定义
-    protected Map<String, String> functions = new HashMap<String, String>();
+    protected Map<String, String> functions = new HashMap<>();
 
     public NodeTypeManager() {
         this(new KeyWordDefine4Java());
@@ -155,7 +155,7 @@ public class NodeTypeManager implements INodeTypeManager {
     }
 
     public NodeType[] getNodeTypesByKind(NodeTypeKind aKind) {
-        List<NodeType> result = new ArrayList<NodeType>();
+        List<NodeType> result = new ArrayList<>();
         for (NodeType item : this.nodeTypes.values()) {
             if (item.getKind() == aKind) {
                 result.add(item);

@@ -76,7 +76,7 @@ public class OperatorTest {
     public void testAddTwiceWithParams() throws Exception {
         //定义表达式，相当于 i+(j+j)+(n+n)
         String exp = " i addT j addT n";
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("i", Integer.valueOf(1));
         expressContext.put("j", Integer.valueOf(22));
         expressContext.put("n", Integer.valueOf(2));

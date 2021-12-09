@@ -16,7 +16,7 @@ public class StringTest {
         ExpressRunner runner = new ExpressRunner();
         String exp = "a = \"11111,2222\";p = a.split(\",\");";
         System.out.println(exp);
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }

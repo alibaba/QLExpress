@@ -17,7 +17,7 @@ public class ExpressPackage {
 
     public void addPackage(String aPackageName) {
         if (this.m_packages == null) {
-            this.m_packages = new ArrayList<String>();
+            this.m_packages = new ArrayList<>();
         }
         int point = aPackageName.indexOf(".*");
         if (point >= 0) {
@@ -42,7 +42,7 @@ public class ExpressPackage {
                 return null;
             }
             if (this.name2CallCache == null) {
-                this.name2CallCache = new ConcurrentHashMap<String, Class<?>>();
+                this.name2CallCache = new ConcurrentHashMap<>();
             } else {
                 tempClass = this.name2CallCache.get(name);
             }

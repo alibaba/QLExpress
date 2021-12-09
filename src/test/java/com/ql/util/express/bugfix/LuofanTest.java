@@ -25,7 +25,7 @@ public class LuofanTest {
         runner.addFunctionOfClassMethod("lenOfAds", LuofanTest.class.getName(), "lenOfAds",
             new String[] {Response.class.getName()}, null);
         String exp = "lenOfAds(resp)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("resp", new Response());
         Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);

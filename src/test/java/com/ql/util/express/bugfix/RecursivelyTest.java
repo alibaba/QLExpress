@@ -20,7 +20,7 @@ public class RecursivelyTest {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 System.out.println("executeInner:r_exeAll");
-                IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+                IExpressContext<String, Object> context = new DefaultContext<>();
                 runnerInner.execute("1+2", context, null, false, true);
                 System.out.println(list[0]);
                 return null;
@@ -35,7 +35,7 @@ public class RecursivelyTest {
     public void testAllByFunction() throws Exception {
 
         String exp = "r_exeAll(1,2,3)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         runner.execute(exp, context, null, false, true);
     }
 }

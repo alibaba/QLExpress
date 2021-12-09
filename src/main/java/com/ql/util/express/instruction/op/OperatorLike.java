@@ -47,7 +47,7 @@ public class OperatorLike extends Operator {
         int start = 0;
         int end = -1;
         String tmpStr = "";
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         do {
             end = str.indexOf(s, start);
             if (end < 0) {tmpStr = str.substring(start);} else {tmpStr = str.substring(start, end);}

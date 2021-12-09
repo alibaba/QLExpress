@@ -27,16 +27,16 @@ public class ArrayPorpertyMixTest {
             "abc = [1,2,3]; abc[1]=0;return abc[1]+abc[2];", "3"
         };
 
-        Map<String, Object> BBBBValue = new HashMap<String, Object>();
+        Map<String, Object> BBBBValue = new HashMap<>();
         BBBBValue.put("BBBB", new String[] {"0", "1"});
         Object[] AAAAValue = new Object[] {BBBBValue};
-        Map<String, Object> request = new HashMap<String, Object>();
+        Map<String, Object> request = new HashMap<>();
         request.put("AAAA", AAAAValue);
-        List<Object> requestList = new ArrayList<Object>();
+        List<Object> requestList = new ArrayList<>();
         requestList.add(request);
 
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
 
         context.put("request", request);
         context.put("requestList", requestList);

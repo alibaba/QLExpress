@@ -40,7 +40,7 @@ public class GetExpressFunctionNamesTest {
         }
         Assert.assertTrue("获取外部方法错误", names.length == 0);
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, false);
         System.out.println("result : " + r);
 
@@ -63,7 +63,7 @@ public class GetExpressFunctionNamesTest {
         }
         Assert.assertTrue("获取外部方法错误", names.length == 0);
 
-        context = new DefaultContext<String, Object>();
+        context = new DefaultContext<>();
         r = runner.execute(express, context, null, false, false);
         System.out.println("result : " + r);
 

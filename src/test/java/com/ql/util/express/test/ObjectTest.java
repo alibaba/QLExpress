@@ -10,7 +10,7 @@ public class ObjectTest {
     public void testABC() throws Exception {
         String express = "object.amount*2+object.volume";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ObjectBean tempObject = new ObjectBean(100, 60);
         context.put("object", tempObject);
         Object r = runner.execute(express, context, null, false,
@@ -23,7 +23,7 @@ public class ObjectTest {
     public void testABC2() throws Exception {
         String express = "object.getAmount(1)";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ObjectBean tempObject = new ObjectBean(100, 60);
         context.put("object", tempObject);
         Object r = runner.execute(express, context, null, false,

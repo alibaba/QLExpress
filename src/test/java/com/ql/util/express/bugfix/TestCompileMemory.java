@@ -15,7 +15,7 @@ public class TestCompileMemory {
 
         QLPattern.printStackDepth = true;
 
-        List<String> expressList = new ArrayList<String>();
+        List<String> expressList = new ArrayList<>();
 
         String demo = "fieldList = formDO.getFieldList();\n" +
             "submitBtn = formDO.getSubmitBtn();\n" +

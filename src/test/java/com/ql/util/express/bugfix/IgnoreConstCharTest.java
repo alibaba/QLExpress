@@ -15,7 +15,7 @@ public class IgnoreConstCharTest {
         ExpressRunner runner = new ExpressRunner();
         runner.setIgnoreConstChar(true);
         String exp = "'1'+'2'==\"12\"";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, true);
         assert ((Boolean)result);
     }

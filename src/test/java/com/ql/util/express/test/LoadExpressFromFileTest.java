@@ -16,14 +16,14 @@ public class LoadExpressFromFileTest {
         for (ExportItem item : exports) {
             System.out.println(item.getGlobeName());
         }
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Log log = new MyLog("玄难测试");
         Object r = runner.executeByExpressName("main", context, null,
             false, false, log);
         System.out.println("运行结果" + r);
         System.out.println("context:" + context);
 
-        context = new DefaultContext<String, Object>();
+        context = new DefaultContext<>();
         r = runner.execute("initial;累加;累加;return qh;",
             context, null, true, false, log);
 
@@ -35,7 +35,7 @@ public class LoadExpressFromFileTest {
     public void testLoadInclude() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.loadExpress("includeRoot");
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.executeByExpressName("includeRoot", context, null, false, false, null);
         System.out.println(r);
         System.out.println(context);

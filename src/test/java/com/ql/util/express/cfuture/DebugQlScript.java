@@ -27,7 +27,7 @@ public class DebugQlScript {
             new String[] {"a=10;b=20;printContext();a=20;c=30;printContext();", null},
         };
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("name", "test");
         for (String[] test : testList) {
             Object r = runner.execute(test[0], context, null, true, false);

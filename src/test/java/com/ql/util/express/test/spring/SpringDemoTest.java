@@ -31,7 +31,7 @@ public class SpringDemoTest extends UnitilsJUnit4 {
                 "System.out.println('用户信息不存在');" +
                 "}";
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
         context.put("nick", "马总");
         qlExpressUtil.execute(express,
             context);
@@ -56,7 +56,7 @@ public class SpringDemoTest extends UnitilsJUnit4 {
                 "System.out.println('用户信息不存在');" +
                 "}";
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
         context.put("nick", "马总");
         qlExpressUtil.execute(express,
             context);

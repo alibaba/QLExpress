@@ -55,14 +55,14 @@ public class InstructionSet implements Serializable {
     /**
      * 函数和宏定义
      */
-    private Map<String, FunctionInstructionSet> functionDefine = new HashMap<String, FunctionInstructionSet>();
+    private Map<String, FunctionInstructionSet> functionDefine = new HashMap<>();
     //为了增加性能，开始的时候缓存为数组
     private Map<String, Object> cacheFunctionSet = null;
-    private List<ExportItem> exportVar = new ArrayList<ExportItem>();
+    private List<ExportItem> exportVar = new ArrayList<>();
     /**
      * 函数参数定义
      */
-    private List<OperateDataLocalVar> parameterList = new ArrayList<OperateDataLocalVar>();
+    private List<OperateDataLocalVar> parameterList = new ArrayList<>();
 
     public static int getUniqClassIndex() {
         return uniqIndex.getAndIncrement();
@@ -73,7 +73,7 @@ public class InstructionSet implements Serializable {
     }
 
     public String[] getOutFunctionNames() throws Exception {
-        Map<String, String> result = new TreeMap<String, String>();
+        Map<String, String> result = new TreeMap<>();
         for (int i = 0; i < instructionList.length; i++) {
             Instruction instruction = instructionList[i];
             if (instruction instanceof InstructionCallSelfDefineFunction) {
@@ -88,7 +88,7 @@ public class InstructionSet implements Serializable {
     }
 
     public String[] getVirClasses() throws Exception {
-        Map<String, String> result = new TreeMap<String, String>();
+        Map<String, String> result = new TreeMap<>();
         for (int i = 0; i < instructionList.length; i++) {
             Instruction instruction = instructionList[i];
             if (instruction instanceof InstructionNewVirClass) {
@@ -101,7 +101,7 @@ public class InstructionSet implements Serializable {
     }
 
     public String[] getOutAttrNames() throws Exception {
-        Map<String, String> result = new TreeMap<String, String>();
+        Map<String, String> result = new TreeMap<>();
         for (Instruction instruction : instructionList) {
             if (instruction instanceof InstructionLoadAttr) {
                 if ("null".equals(((InstructionLoadAttr)instruction).getAttrName())) {
@@ -177,7 +177,7 @@ public class InstructionSet implements Serializable {
 
         //将函数export到上下文中,这儿就是重入也没有关系，不需要考虑并发
         if (cacheFunctionSet == null) {
-            Map<String, Object> tempMap = new HashMap<String, Object>();
+            Map<String, Object> tempMap = new HashMap<>();
             for (FunctionInstructionSet s : this.functionDefine.values()) {
                 tempMap.put(s.name, s.instructionSet);
             }
@@ -253,7 +253,7 @@ public class InstructionSet implements Serializable {
     }
 
     public List<ExportItem> getExportDef() {
-        List<ExportItem> result = new ArrayList<ExportItem>();
+        List<ExportItem> result = new ArrayList<>();
         result.addAll(this.exportVar);
         return result;
     }

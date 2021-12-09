@@ -39,11 +39,11 @@ public class SimpleShortCircuitLogicTest {
     @Test
     public void testShortCircuit() throws Exception {
         runner.setShortCircuit(true);
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("违规天数", 100);
         expressContext.put("虚假交易扣分", 11);
         expressContext.put("VIP", false);
-        List<String> errorInfo = new ArrayList<String>();
+        List<String> errorInfo = new ArrayList<>();
         initial();
         String expression = "( 2 < 1 ) and (违规天数 < 90 or 虚假交易扣分 < 12)";
         boolean result = calculateLogicTest(expression, expressContext, errorInfo);
@@ -66,11 +66,11 @@ public class SimpleShortCircuitLogicTest {
     @Test
     public void testNoShortCircuit() throws Exception {
         runner.setShortCircuit(false);
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("违规天数", 100);
         expressContext.put("虚假交易扣分", 11);
         expressContext.put("VIP", false);
-        List<String> errorInfo = new ArrayList<String>();
+        List<String> errorInfo = new ArrayList<>();
         initial();
         String expression = "( 2 < 1 ) and (违规天数 < 90 or 虚假交易扣分 < 12)";
         boolean result = calculateLogicTest(expression, expressContext, errorInfo);

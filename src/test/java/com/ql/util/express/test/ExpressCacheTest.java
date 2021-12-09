@@ -19,7 +19,7 @@ public class ExpressCacheTest {
     @Test
     public void testScriptCache() throws Exception {
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("语文", 88);
         context.put("数学", 99);
         context.put("英语", 95);
@@ -48,7 +48,7 @@ public class ExpressCacheTest {
 
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
         runner.addMacro("是否优秀", "计算平均成绩>90");
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("语文", 88);
         context.put("数学", 99);
         context.put("英语", 95);
@@ -63,7 +63,7 @@ public class ExpressCacheTest {
         cacheRunner.loadCache("计算平均成绩", "(语文+数学+英语)/3.0");
         cacheRunner.loadCache("是否优秀", "计算平均成绩>90");
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("语文", 88);
         context.put("数学", 99);
         context.put("英语", 95);

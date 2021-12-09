@@ -17,7 +17,7 @@ public class TestAddMethodInvoke {
     @Test
     public void testStringMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute("'helloWorld'.length()", context, null, false, false);
         System.out.println(result);
 
@@ -49,7 +49,7 @@ public class TestAddMethodInvoke {
     @Test
     public void testArrayOrMapJoinMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
 
         runner.addClassMethod("join", java.util.List.class, new Operator() {
             @Override
@@ -83,7 +83,7 @@ public class TestAddMethodInvoke {
     @Test
     public void testAop() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
 
         runner.addClassMethod("size", java.util.List.class, new Operator() {
             @Override

@@ -62,7 +62,7 @@ public class WorkflowTest {
         runner.addFunction("报销入账", new ApproveOperator(2));
         runner.addFunction("打回修改", new ApproveOperator(3));
         //设置上下文变量
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("经理", "王经理");
         expressContext.put("总监", "李总监");
         expressContext.put("财务", "张财务");
@@ -95,7 +95,7 @@ public class WorkflowTest {
         //从指定文件中获取表示式构造指令集
 
         //设置上下文变量
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("经理", "王经理");
         expressContext.put("总监", "李总监");
         expressContext.put("财务", "张财务");
@@ -122,7 +122,7 @@ public class WorkflowTest {
         //加载文件
         runner.loadExpress("example/approve");
         //设置上下文变量
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("经理", "王经理");
         expressContext.put("总监", "李总监");
         expressContext.put("财务", "张财务");
@@ -151,7 +151,7 @@ public class WorkflowTest {
         runner.loadExpress("example/approve1");
         runner.loadExpress("example/approve2");
         //设置上下文变量
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("经理", "王经理");
         expressContext.put("总监", "李总监");
         expressContext.put("财务", "张财务");

@@ -17,7 +17,7 @@ public class ArrayTest {
             + " int[] b = new int[2]; " + "abc[0] = b;" + " b[0] =11;"
             + " abc[0][1] = 22; " + "return abc;";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         int[][] r = (int[][])runner.execute(express, context, null, false,
             true);
         System.out.println(r[0][1]);
@@ -47,7 +47,7 @@ public class ArrayTest {
 
         for (int point = 0; point < expressTest.length; point++) {
             String expressStr = expressTest[point][0];
-            List<String> errorList = new ArrayList<String>();
+            List<String> errorList = new ArrayList<>();
             Object result = runner.execute(expressStr, expressContext, null,
                 false, false);
             if (result == null
@@ -78,7 +78,7 @@ public class ArrayTest {
         };
 
         for (String express : expressList) {
-            DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             Args[] args = new Args[2];
             args[0] = new Args();
             args[0].setCode("parent");
@@ -96,7 +96,7 @@ public class ArrayTest {
         ExpressRunner runner = new ExpressRunner();
         String exp = "this.println((args[0]));";
         String[] args = {"123", "456"};
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         ((DefaultContext<String, Object>)context).put("args", args);
         ((DefaultContext<String, Object>)context).put("this", new ArrayTest());
         Object result = runner.execute(exp, context, null, false, false);

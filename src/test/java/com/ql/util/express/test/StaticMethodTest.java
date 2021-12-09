@@ -15,7 +15,7 @@ public class StaticMethodTest {
             StaticUtils.class.getName() + ".isVirtualSCItem(1L)"
         };
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("StaticUtils", StaticUtils.class);
         for (String express : expressArray) {
             Object r = runner.execute(express, context, null, false,

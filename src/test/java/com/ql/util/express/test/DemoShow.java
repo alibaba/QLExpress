@@ -28,7 +28,7 @@ public class DemoShow {
     @org.junit.Test
     public void testForLoop() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.execute("sum=0;for(i=0;i<10;i=i+1){sum=sum+i;}", context, null,
             true, true);
     }
@@ -41,7 +41,7 @@ public class DemoShow {
     @org.junit.Test
     public void testForLoop2() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.execute(
             "sum=0;for(i=0;i<10;i=i+1){for(j=0;j<10;j++){sum=sum+i+j;}}",
             context, null, false, true);
@@ -111,7 +111,7 @@ public class DemoShow {
     @org.junit.Test
     public void testOperator() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.addOperator("join", new JoinOperator());
         Object r = runner.execute("1 join 2 join 3", context, null, false, false);
         System.out.println(r);
@@ -142,7 +142,7 @@ public class DemoShow {
     @org.junit.Test
     public void testReplaceOperator() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute("1 + 2 + 3", context, null, false, false);
         System.out.println(r);
         runner.replaceOperator("+", new JoinOperator());
@@ -158,7 +158,7 @@ public class DemoShow {
     @org.junit.Test
     public void testShortLogicAndErrorInfo() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("A类违规天数90天内", true);
         context.put("虚假交易扣分", 11);
         context.put("假冒扣分", 11);
@@ -167,7 +167,7 @@ public class DemoShow {
         String expression =
             "A类违规天数90天内 ==false and (虚假交易扣分<48 or 假冒扣分<12) and 待整改卖家 ==false and 宝贝相符DSR>4.6";
         expression = initial(runner, expression);
-        List<String> errorInfo = new ArrayList<String>();
+        List<String> errorInfo = new ArrayList<>();
         boolean result = (Boolean)runner.execute(expression, context, errorInfo, true, false);
         if (result) {
             System.out.println("符合营销活动规则");
@@ -198,7 +198,7 @@ public class DemoShow {
         runner.loadMutilExpress("类初始化", "class People(){sex;height;money;skin};");
         runner.loadMutilExpress("创建小强", "a = new People();a.sex='male';a.height=185;a.money=10000000;");
         runner.loadMutilExpress("体检", "if(a.sex=='male' && a.height>180 && a.money>5000000) return '高富帅，鉴定完毕'");
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
 
         Object r = runner.execute("类初始化;创建小强;体检", context, null, false, false);
         System.out.println(r);

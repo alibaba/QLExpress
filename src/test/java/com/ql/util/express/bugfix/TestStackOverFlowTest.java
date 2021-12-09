@@ -26,7 +26,7 @@ public class TestStackOverFlowTest {
             QLPattern.printStackDepth = true;
             QLPattern.optimizeStackDepth = false;
             ExpressRunner runner = new ExpressRunner();
-            IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+            IExpressContext<String, Object> context = new DefaultContext<>();
             Object result = runner.execute(express, context, null, true, false);
             System.out.println(express + " = " + result);
 

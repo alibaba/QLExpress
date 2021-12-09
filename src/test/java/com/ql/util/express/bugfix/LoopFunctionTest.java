@@ -34,7 +34,7 @@ public class LoopFunctionTest {
                 String exp = (String)list[1];
                 Integer index = 0;
                 for (Object obj : objs) {
-                    IExpressContext<String, Object> map = new DefaultContext<String, Object>();
+                    IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
@@ -67,7 +67,7 @@ public class LoopFunctionTest {
                 String exp = (String)list[1];
                 Integer index = 0;
                 for (Object obj : objs) {
-                    IExpressContext<String, Object> map = new DefaultContext<String, Object>();
+                    IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
@@ -100,7 +100,7 @@ public class LoopFunctionTest {
                 String exp = (String)list[1];
                 Integer index = 0;
                 for (Object obj : objs) {
-                    IExpressContext<String, Object> map = new DefaultContext<String, Object>();
+                    IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
@@ -114,7 +114,7 @@ public class LoopFunctionTest {
         });
 
         ArrayList<SkuDO> skuList = createSkuList();
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         String exp = "loopAnd(skuList,'x.price>10')";
         context.put("skuList", skuList);
         Object result = runner.execute(exp, context, null, false, true);
@@ -133,7 +133,7 @@ public class LoopFunctionTest {
     }
 
     private ArrayList<SkuDO> createSkuList() {
-        ArrayList<SkuDO> skuList = new ArrayList<SkuDO>();
+        ArrayList<SkuDO> skuList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             SkuDO sku = new SkuDO();
             sku.setPrice(10.1);

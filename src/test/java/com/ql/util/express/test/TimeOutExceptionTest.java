@@ -20,7 +20,7 @@ public class TimeOutExceptionTest {
     public void test() throws Exception {
 
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
 
         for (String express : expressList) {
             try {

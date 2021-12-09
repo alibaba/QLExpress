@@ -11,7 +11,7 @@ public class DefineTest {
     @org.junit.Test
     public void testDefExpressInner() throws Exception {
         String express = "int qh =  1 ";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ExpressRunner runner = new ExpressRunner(false, true);
         context.put("qh", 100);
         Object r = runner.execute(express, context, null, false, false);
@@ -22,7 +22,7 @@ public class DefineTest {
     @org.junit.Test
     public void testDefUserContext() throws Exception {
         String express = "qh = 1 + 1";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         ExpressRunner runner = new ExpressRunner();
         context.put("qh", 100);
         Object r = runner.execute(express, context, null, false, false);
@@ -37,7 +37,7 @@ public class DefineTest {
             + " qh.a = qh.a +\"-qh\";" + " return example.child.a";
         ExpressRunner runner = new ExpressRunner();
         runner.addOperatorWithAlias("定义别名", "alias", null);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("example", new BeanExample());
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("则", "then", null);
@@ -53,7 +53,7 @@ public class DefineTest {
         String express = "定义宏  惩罚   {bean.unionName(name)}; 惩罚; return  惩罚";
         ExpressRunner runner = new ExpressRunner();
         runner.addOperatorWithAlias("定义宏", "macro", null);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", new BeanExample("qhlhl2010@gmail.com"));
         context.put("name", "xuannn");
         Object r = runner.execute(express, context, null, false, false);
@@ -73,7 +73,7 @@ public class DefineTest {
             "递归(10);";
         ExpressRunner runner = new ExpressRunner();
         runner.addOperatorWithAlias("定义函数", "function", null);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, true, false);
         Assert.assertTrue("自定义函数 错误", r.toString().equals("3628800"));
     }
@@ -86,7 +86,7 @@ public class DefineTest {
             " map.name =\"ffff\";" +
             "return map.name;";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("example", new BeanExample("张三"));
         context.put("map", new HashMap<String, Object>());
         runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(),
@@ -115,7 +115,7 @@ public class DefineTest {
         runner.addOperatorWithAlias("继续", "continue", null);
         runner.addOperatorWithAlias("终止", "break", null);
         runner.addFunctionOfServiceMethod("打印", System.out, "println", new String[] {Object.class.getName()}, null);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", new BeanExample("qhlhl2010@gmail.com"));
         context.put("name", "xuannn");
         int count = 1;

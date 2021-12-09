@@ -23,7 +23,7 @@ public class CheckySyntaxTest {
             Assert.assertTrue(runner.checkSyntax(exp));
         }
         for (String exp : expList) {
-            ArrayList<String> mockClasses = new ArrayList<String>();
+            ArrayList<String> mockClasses = new ArrayList<>();
             Assert.assertTrue(runner.checkSyntax(exp, true, mockClasses));
             System.out.println("未识别的java类列表:" + mockClasses);
         }
@@ -40,7 +40,7 @@ public class CheckySyntaxTest {
         };
 
         for (String exp : expList) {
-            ArrayList<String> mockClasses = new ArrayList<String>();
+            ArrayList<String> mockClasses = new ArrayList<>();
             Assert.assertTrue(runner.checkSyntax(exp, true, mockClasses));
             System.out.println("未识别的java类列表:" + mockClasses);
         }

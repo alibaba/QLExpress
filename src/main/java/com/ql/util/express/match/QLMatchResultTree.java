@@ -31,21 +31,21 @@ public class QLMatchResultTree {
 
     public void addLeft(QLMatchResultTree node) {
         if (this.left == null) {
-            this.left = new ArrayList<QLMatchResultTree>();
+            this.left = new ArrayList<>();
         }
         this.left.add(node);
     }
 
     public void addLeftAll(List<QLMatchResultTree> list) {
         if (this.left == null) {
-            this.left = new ArrayList<QLMatchResultTree>();
+            this.left = new ArrayList<>();
         }
         this.left.addAll(list);
     }
 
     public void addRightAll(List<QLMatchResultTree> list) {
         if (this.right == null) {
-            this.right = new ArrayList<QLMatchResultTree>();
+            this.right = new ArrayList<>();
         }
         this.right.addAll(list);
     }

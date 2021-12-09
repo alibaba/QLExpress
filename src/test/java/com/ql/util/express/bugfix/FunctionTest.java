@@ -14,7 +14,7 @@ public class FunctionTest {
     public void testFunction() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         String exp = "function abc(int a,int b){ return a + b;} return abc(1+100,2*100)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
@@ -28,7 +28,7 @@ public class FunctionTest {
                 "return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n" +
                 "}\n" +
                 "FAILFUN(-1,'error')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
@@ -44,12 +44,12 @@ public class FunctionTest {
         runner.loadMutilExpress("", funExp);
 
         String exp = "FAILFUN(-1,'error')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
 
         String exp2 = "FAILFUN(-12,'error')";
-        IExpressContext<String, Object> context2 = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context2 = new DefaultContext<>();
         Object result2 = runner.execute(exp2, context2, null, false, false);
         System.out.println(result);
     }

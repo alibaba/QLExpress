@@ -17,7 +17,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     /**
      * 符号表
      */
-    private Map<String, Object> symbolTable = new HashMap<String, Object>();
+    private Map<String, Object> symbolTable = new HashMap<>();
 
     private ExpressLoader expressLoader;
 
@@ -137,7 +137,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
             return this.content.put(key, value);
         } else if (this.isExpandToParent == false) {
             if (this.content == null) {
-                this.content = new HashMap<String, Object>();
+                this.content = new HashMap<>();
             }
             return this.content.put(key, value);
         } else if (this.parent != null) {

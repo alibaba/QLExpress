@@ -11,7 +11,7 @@ public class CallWithNullParameterTest {
     public void testABC() throws Exception {
         String express = "new com.ql.util.express.test.BeanExample().testLongObject(null);";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false,
             true);
         System.out.println(r);

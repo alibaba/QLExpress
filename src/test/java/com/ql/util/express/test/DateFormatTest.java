@@ -18,7 +18,7 @@ public class DateFormatTest {
 
         runner.addFunction("DateFormat", new Operator() {
 
-            private Map<String, Date> cache = new HashMap<String, Date>();
+            private Map<String, Date> cache = new HashMap<>();
 
             @Override
             public Object executeInner(Object[] objects) throws Exception {
@@ -34,7 +34,7 @@ public class DateFormatTest {
             }
         });
 
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("nowStr", new SimpleDateFormat("yyyy-MM-dd").parse("2018-02-23"));
 
         String sb = "nowStr.before(new Date(2018,2,22))";

@@ -25,7 +25,7 @@ public class GetExpressAttrNamesTest {
         String express = "if(a!=null)return a";
         ExpressRunner runner = new ExpressRunner(true, true);
         String[] names = runner.getOutVarNames(express);
-        runner.execute(express, new DefaultContext<String, Object>(), null, false, false);
+        runner.execute(express, new DefaultContext<>(), null, false, false);
         for (String s : names) {
             System.out.println("var : " + s);
         }

@@ -86,7 +86,7 @@ public class OperateDataCacheManager {
 class RunnerDataCache {
     IOperateDataCache cache;
 
-    Stack<ExpressRunner> stack = new Stack<ExpressRunner>();
+    Stack<ExpressRunner> stack = new Stack<>();
 
     public void push(ExpressRunner aRunner) {
         this.cache = aRunner.getOperateDataCache();

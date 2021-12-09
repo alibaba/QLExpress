@@ -11,7 +11,7 @@ public class ATempTest {
         //String express = "include Test; max(1,2,3)";
         String express = "when 1==2 then println(100000)";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, false);
         System.out.println(r);
     }

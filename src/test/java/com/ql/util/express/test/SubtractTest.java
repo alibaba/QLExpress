@@ -11,7 +11,7 @@ public class SubtractTest {
         //String express = "return max(max(0.0,1) - 0.95,0);";
         String express = "-3-(-5*-7-9)-(9-2);";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);
         System.out.println(r);
         Assert.assertTrue("\"-\"号测试", r.toString().equals("-36"));

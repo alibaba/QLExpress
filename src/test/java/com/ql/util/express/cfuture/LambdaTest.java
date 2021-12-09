@@ -20,7 +20,7 @@ public class LambdaTest {
     public void lambdaAddTest() throws Exception {
         String express = "la = (a,b)->a+b; la.apply(1,2)";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
 
         Object res = runner.execute(express, context, null, true, true);
         Assert.assertEquals(3, res);
@@ -42,7 +42,7 @@ public class LambdaTest {
             }
         });
 
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("l", Arrays.asList("a", "b", "c"));
         Object res = runner.execute("l map (item, index)->item+index", context, null,
             true, true);
@@ -68,7 +68,7 @@ public class LambdaTest {
             "a.stream().forEach(item->System.out.println(item));" +
             "return a;";
         ExpressRunner runner = new ExpressRunner(false, true);
-        Object res = runner.execute(expr, new DefaultContext<String, Object>(), null,
+        Object res = runner.execute(expr, new DefaultContext<>(), null,
             false, false);
         Assert.assertEquals(Arrays.asList(3, 4), res);
     }
@@ -98,7 +98,7 @@ public class LambdaTest {
         String expr2 = "list.forEach(item ->{\n" +
             "            System.out.println(item);\n" +
             "        });";
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("map", map);
         context.put("list", list);
         ExpressRunner runner = new ExpressRunner(false, true);

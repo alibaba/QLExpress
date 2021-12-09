@@ -170,7 +170,7 @@ public class ConsoleFrame2
             ExpressRunner runner = new ExpressRunner(false, true);
             contextText = "NewMap(" + contextText + ")";
             Map<String, Object> tempMap = (Map<String, Object>)runner.execute(contextText, null, null, false, false);
-            DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             context.putAll(tempMap);
             r = runner.execute(script, context, null, false, true);
             writer.write("QL>\n" +

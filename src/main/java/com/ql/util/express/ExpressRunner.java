@@ -60,7 +60,7 @@ public class ExpressRunner {
     /**
      * 一段文本对应的指令集的缓存
      */
-    private Map<String, InstructionSet> expressInstructionSetCache = new HashMap<String, InstructionSet>();
+    private Map<String, InstructionSet> expressInstructionSetCache = new HashMap<>();
 
     private ExpressLoader loader;
     private IExpressResourceLoader expressResourceLoader;
@@ -237,8 +237,6 @@ public class ExpressRunner {
         this.manager.addFunctionName(name);
     }
 
-    ;
-
     /**
      * 添加函数定义扩展类的方法
      *
@@ -249,10 +247,7 @@ public class ExpressRunner {
     public void addFunctionAndClassMethod(String name, Class<?> bindingClass, OperatorBase op) {
         this.addFunction(name, op);
         this.addClassMethod(name, bindingClass, op);
-
     }
-
-    ;
 
     /**
      * 添加类的方法
@@ -710,7 +705,7 @@ public class ExpressRunner {
     public InstructionSet parseInstructionSet(String text)
         throws Exception {
         try {
-            Map<String, String> selfDefineClass = new HashMap<String, String>();
+            Map<String, String> selfDefineClass = new HashMap<>();
             for (ExportItem item : this.loader.getExportInfo()) {
                 if (item.getType().equals(InstructionSet.TYPE_CLASS)) {
                     selfDefineClass.put(item.getName(), item.getName());
@@ -771,7 +766,7 @@ public class ExpressRunner {
 
     public void createInstructionSet(ExpressNode root, InstructionSet result)
         throws Exception {
-        Stack<ForRelBreakContinue> forStack = new Stack<ForRelBreakContinue>();
+        Stack<ForRelBreakContinue> forStack = new Stack<>();
         createInstructionSetPrivate(result, forStack, root, true);
         if (forStack.size() > 0) {
             throw new QLCompileException("For处理错误");
@@ -843,7 +838,7 @@ public class ExpressRunner {
     public boolean checkSyntax(String text, boolean mockRemoteJavaClass, List<String> remoteJavaClassNames) {
 
         try {
-            Map<String, String> selfDefineClass = new HashMap<String, String>();
+            Map<String, String> selfDefineClass = new HashMap<>();
             for (ExportItem item : this.loader.getExportInfo()) {
                 if (item.getType().equals(InstructionSet.TYPE_CLASS)) {
                     selfDefineClass.put(item.getName(), item.getName());

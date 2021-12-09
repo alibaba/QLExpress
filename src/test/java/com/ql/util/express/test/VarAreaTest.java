@@ -17,7 +17,7 @@ public class VarAreaTest {
                 "}; " +
                 "qh = qh + 1;";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("则", "then", null);
         runner.addOperatorWithAlias("否则", "else", null);
@@ -40,7 +40,7 @@ public class VarAreaTest {
                 "}; " +
                 "qh = qh + 1;";
         ExpressRunner runner = new ExpressRunner();
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("则", "then", null);
         runner.addOperatorWithAlias("否则", "else", null);

@@ -13,7 +13,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 public class QLAliasUtils {
 
     private final static QLAliasUtils instance = new QLAliasUtils();
-    public static Map<String, Object> fieldsCache = new ConcurrentHashMap<String, Object>();
+    public static Map<String, Object> fieldsCache = new ConcurrentHashMap<>();
 
     protected static QLAliasUtils getInstance() {
         return instance;

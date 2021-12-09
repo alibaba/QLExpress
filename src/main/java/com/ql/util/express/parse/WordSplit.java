@@ -28,7 +28,7 @@ public class WordSplit {
         }
         char c;
         int line = 1;
-        List<Word> list = new ArrayList<Word>();
+        List<Word> list = new ArrayList<>();
         int i = 0;
         int point = 0;
         // 当前行第一个字符相对脚本起点的偏移量offset

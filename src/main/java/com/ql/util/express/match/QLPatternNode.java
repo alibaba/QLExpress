@@ -94,7 +94,7 @@ public class QLPatternNode {
     /**
      * 子匹配模式
      */
-    List<QLPatternNode> children = new ArrayList<QLPatternNode>();
+    List<QLPatternNode> children = new ArrayList<>();
 
     protected QLPatternNode(INodeTypeManager aManager, String aName, String aOrgiContent) throws Exception {
         this(aManager, aName, aOrgiContent, false, 1);

@@ -31,7 +31,7 @@ public class OpCallTest {
 
         for (int point = 0; point < expressTest.length; point++) {
             String expressStr = expressTest[point][0];
-            List<String> errorList = new ArrayList<String>();
+            List<String> errorList = new ArrayList<>();
             Object result = runner.execute(expressStr, expressContext, errorList,
                 false, true);
             if (result == null

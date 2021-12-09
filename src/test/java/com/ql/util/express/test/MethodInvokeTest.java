@@ -20,7 +20,7 @@ public class MethodInvokeTest {
             new Class[] {PersonalShopInfo.class},
             null);
 
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         Object r = runner.execute("getSearchResult(null)",
             expressContext, null, false, false);
         System.out.print("r=" + r);
@@ -42,7 +42,7 @@ public class MethodInvokeTest {
             new Class[] {PersonalShopInfo.class},
             null);
 
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         Object r = runner.execute("getSearchResult(getOnlinePersonalShopInfo(123L))",
             expressContext, null, false, false);
         System.out.print("r=" + r);
@@ -60,7 +60,7 @@ public class MethodInvokeTest {
             null);
         String express = "info = getOnlinePersonalShopInfo(127L);";
 
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         Object r = runner.execute(express,
             expressContext, null, false, false);
         System.out.print("r=" + r);
@@ -77,7 +77,7 @@ public class MethodInvokeTest {
             null);
         String express = "info = getOnlinePersonalShopInfo(127L);";
 
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         Object r = runner.execute(express,
             expressContext, null, false, false);
         System.out.print("r=" + r);
@@ -94,7 +94,7 @@ public class MethodInvokeTest {
             null);
         String express = "info = testVoidMethod(1L);";
 
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         try {
             Object r = runner.execute(express,
                 expressContext, null, false, false);

@@ -26,7 +26,7 @@ public class BeanTest {
         String exp = "cust.setName(\"小强\");" +
             // "cust.name = \"小强\";" +
             "return cust.getName();";
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("cust", new CustBean(1));
         ExpressRunner runner = new ExpressRunner();
         //执行表达式，并将结果赋给r
@@ -57,7 +57,7 @@ public class BeanTest {
         String exp = "cust.setName(\"小强\");" +
             "定义别名 custName cust.name;" +
             "return custName;";
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("cust", new CustBean(1));
         ExpressRunner runner = new ExpressRunner();
         //
@@ -78,7 +78,7 @@ public class BeanTest {
         String exp = "cust.setName(\"小强\");" +
             "定义宏 custName {cust.name};" +
             "return custName;";
-        IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> expressContext = new DefaultContext<>();
         expressContext.put("cust", new CustBean(1));
         ExpressRunner runner = new ExpressRunner();
         //

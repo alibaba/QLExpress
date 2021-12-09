@@ -14,7 +14,7 @@ import com.ql.util.express.instruction.FunctionInstructionSet;
  */
 public class ExpressLoader {
     private ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache
-        = new ConcurrentHashMap<String, InstructionSet>();
+        = new ConcurrentHashMap<>();
     ExpressRunner creator;
 
     public ExpressLoader(ExpressRunner aCreator) {
@@ -69,7 +69,7 @@ public class ExpressLoader {
     }
 
     public ExportItem[] getExportInfo() {
-        Map<String, ExportItem> result = new TreeMap<String, ExportItem>();
+        Map<String, ExportItem> result = new TreeMap<>();
         for (InstructionSet item : expressInstructionSetCache.values()) {
             for (ExportItem var : item.getExportDef()) {
                 var.setGlobeName(item.getGlobeName() + "." + var.name);

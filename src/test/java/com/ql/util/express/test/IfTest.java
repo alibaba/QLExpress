@@ -28,7 +28,7 @@ public class IfTest {
             {"if (1==2) return 100; return 10000;", "10000"},
         };
         for (int i = 0; i < expresses.length; i++) {
-            IExpressContext<String, Object> expressContext = new DefaultContext<String, Object>();
+            IExpressContext<String, Object> expressContext = new DefaultContext<>();
             ExpressRunner runner = new ExpressRunner(false, true);
             runner.addOperatorWithAlias("加", "+", null);
             runner.addOperator("love", "+", new LoveOperator("love"));

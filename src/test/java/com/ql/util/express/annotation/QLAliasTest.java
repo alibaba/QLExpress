@@ -28,7 +28,7 @@ public class QLAliasTest {
         };
 
         //1、测试对象的方法，字段上的别名标签
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        IExpressContext<String, Object> context = new DefaultContext<>();
         Person person = new Patient();
         person.setName("老王");
         person.setSex("男");

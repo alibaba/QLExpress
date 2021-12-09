@@ -17,7 +17,7 @@ public class AClassDefineSingle {
                 + " print(example.整数值);"
                 + "";
         ExpressRunner runner = new ExpressRunner(false, true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMutilExpress("", expressDefine);
         runner.loadMutilExpress("ClassTest", express);
         Object r = runner.executeByExpressName("ClassTest", context,
