@@ -44,7 +44,7 @@ public class InstructionSet implements Serializable {
 
     public static boolean printInstructionError = false;
 
-    private String type = "main";
+    private String type;
     private String name;
     private String globeName;
 

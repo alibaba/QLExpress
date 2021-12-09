@@ -20,7 +20,7 @@ public class OperatorNot extends Operator {
 
     public Object executeInner(Object op)
         throws Exception {
-        Object result = null;
+        Object result;
         if (op == null) {
             throw new QLException("null 不能执行操作：" + this.getAliasName());
         }

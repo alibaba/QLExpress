@@ -58,7 +58,7 @@ public class InstructionSetRunner {
         InstructionSetContext context, List<String> errorList, boolean isTrace, boolean isCatchException,
         boolean isReturnLastData, Log aLog) throws Exception {
 
-        RunEnvironment environmen = null;
+        RunEnvironment environmen;
         Object result = null;
         environmen = OperateDataCacheManager.fetRunEnvironment(set,
             (InstructionSetContext)context, isTrace);

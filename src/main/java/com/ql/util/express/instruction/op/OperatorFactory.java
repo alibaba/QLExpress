@@ -13,7 +13,7 @@ public class OperatorFactory {
     /**
      * 是否需要高精度计算
      */
-    protected boolean isPrecise = false;
+    protected boolean isPrecise;
     private Map<String, OperatorBase> operator = new HashMap<>();
 
     public OperatorFactory(boolean aIsPrecise) {
@@ -91,12 +91,12 @@ public class OperatorFactory {
             if (orgiOperator == null) {
                 throw new QLException(name + " 不能被设置别名");
             }
-            OperatorBase destOperator = null;
+            OperatorBase destOperator;
             if (orgiOperator instanceof CanClone) {
                 destOperator = ((CanClone)orgiOperator).cloneMe(aAliasName, errorInfo);
             } else {
                 Class<OperatorBase> opClass = (Class<OperatorBase>)orgiOperator.getClass();
-                Constructor<OperatorBase> constructor = null;
+                Constructor<OperatorBase> constructor;
                 try {
                     constructor = (Constructor<OperatorBase>)opClass
                         .getConstructor(String.class, String.class, String.class);

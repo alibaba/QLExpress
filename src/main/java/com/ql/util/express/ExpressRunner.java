@@ -45,7 +45,7 @@ public class ExpressRunner {
     /**
      * 是否输出所有的跟踪信息，同时还需要log级别是DEBUG级别
      */
-    private boolean isTrace = false;
+    private boolean isTrace;
 
     /**
      * 是否使用逻辑短路特性增强质量的效率
@@ -55,7 +55,7 @@ public class ExpressRunner {
     /**
      * 是否需要高精度计算
      */
-    private boolean isPrecise = false;
+    private boolean isPrecise;
 
     /**
      * 一段文本对应的指令集的缓存
@@ -659,7 +659,7 @@ public class ExpressRunner {
     public Object execute(String expressString, IExpressContext<String, Object> context,
         List<String> errorList, boolean isCache, boolean isTrace, Log aLog)
         throws Exception {
-        InstructionSet parseResult = null;
+        InstructionSet parseResult;
         if (isCache == true) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {

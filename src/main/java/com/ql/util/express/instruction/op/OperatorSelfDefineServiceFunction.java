@@ -28,7 +28,6 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
         if (errorInfo != null && errorInfo.trim().length() == 0) {
-            errorInfo = null;
         }
         this.name = aOperName;
         this.errorInfo = aErrorInfo;
@@ -52,7 +51,6 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         throws Exception {
 
         if (errorInfo != null && errorInfo.trim().length() == 0) {
-            errorInfo = null;
         }
         this.name = aOperName;
         this.errorInfo = aErrorInfo;

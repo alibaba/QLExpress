@@ -99,7 +99,6 @@ public class DefineTest {
 
     @org.junit.Test
     public void test_循环() throws Exception {
-        long s = System.currentTimeMillis();
         String express = "qh = 0; 循环(int i = 1;  i<=10;i = i + 1){ if(i > 5) then{ 终止;}; " +
             "循环(int j=0;j<10;j= j+1){  " +
             "    if(j > 5)then{" +
@@ -119,14 +118,15 @@ public class DefineTest {
         context.put("bean", new BeanExample("qhlhl2010@gmail.com"));
         context.put("name", "xuannn");
         int count = 1;
-        s = System.currentTimeMillis();
-        Object r = runner.execute(express, context, null, false, false);
+        long s = System.currentTimeMillis();
 
+        Object r = runner.execute(express, context, null, false, false);
+        System.out.println("r = " + r);
         System.out.println("编译耗时：" + (System.currentTimeMillis() - s));
 
         for (int i = 0; i < count; i++) {
             r = runner.execute(express, context, null, false, false);
-            Assert.assertTrue("循环处理错误", r.toString().equals("75"));
+            Assert.assertEquals("循环处理错误", "75", r.toString());
         }
         System.out.println("执行耗时：" + (System.currentTimeMillis() - s));
         System.out.println(context);

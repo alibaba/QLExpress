@@ -27,8 +27,8 @@ public class OperatorAnd extends Operator {
 
         Object o1 = op1;
         Object o2 = op2;
-        boolean r1 = false;
-        boolean r2 = false;
+        boolean r1;
+        boolean r2;
         if (o1 == null) {
             r1 = false;
         } else if (o1 instanceof Boolean) {

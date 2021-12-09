@@ -22,7 +22,7 @@ public class InstructionGoToWithCondition extends Instruction {
     }
 
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
-        Object o = null;
+        Object o;
         if (this.isPopStackData == false) {
             o = environment.peek().getObject(environment.getContext());
             if (o == null) {
@@ -32,7 +32,7 @@ public class InstructionGoToWithCondition extends Instruction {
         } else {
             o = environment.pop().getObject(environment.getContext());
         }
-        boolean r = false;
+        boolean r;
         if (o == null) {
             r = false;
         } else if (o instanceof Boolean) {

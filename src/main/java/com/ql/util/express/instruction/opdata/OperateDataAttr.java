@@ -40,7 +40,7 @@ public class OperateDataAttr extends OperateData {
 
     public String toString() {
         try {
-            String str = "";
+            String str;
             if (this.type == null) {
                 str = name;
             } else {

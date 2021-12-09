@@ -45,8 +45,8 @@ public class OperatorLike extends Operator {
 
     public String[] split(String str, String s) {
         int start = 0;
-        int end = -1;
-        String tmpStr = "";
+        int end;
+        String tmpStr;
         ArrayList<String> list = new ArrayList<>();
         do {
             end = str.indexOf(s, start);

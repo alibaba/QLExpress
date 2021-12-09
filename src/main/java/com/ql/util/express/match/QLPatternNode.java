@@ -31,11 +31,11 @@ public class QLPatternNode {
     /**
      * 是否一个子匹配模式
      */
-    boolean isChildMode = false;
+    boolean isChildMode;
     /**
      * 层次
      */
-    int level = 0;
+    int level;
     /**
      * 是否根节点,例如：if^
      */
@@ -261,7 +261,7 @@ public class QLPatternNode {
     }
 
     public String toString() {
-        String result = "";
+        String result;
         if (this.matchMode == MatchMode.AND) {
             result = this.joinStringList(this.children, "$");
         } else if (this.matchMode == MatchMode.OR) {

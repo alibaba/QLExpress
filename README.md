@@ -558,38 +558,38 @@ InstructionSet instructionSet = expressRunner.parseInstructionSet(expressString)
 
 ```java
 public class QLExpressContext extends HashMap<String, Object> implements
-		IExpressContext<String, Object> {
+    IExpressContext<String, Object> {
 
-	private ApplicationContext context;
+    private ApplicationContext context;
 
-	//构造函数，传入context和 ApplicationContext
-	public QLExpressContext(Map<String, Object> map,
-                            ApplicationContext aContext) {
-		super(map);
-		this.context = aContext;
-	}
+    //构造函数，传入context和 ApplicationContext
+    public QLExpressContext(Map<String, Object> map,
+        ApplicationContext aContext) {
+        super(map);
+        this.context = aContext;
+    }
 
-	/**
-	 * 抽象方法：根据名称从属性列表中提取属性值
-	 */
-	public Object get(Object name) {
-		Object result = null;
-		result = super.get(name);
-		try {
-			if (result == null && this.context != null
-					&& this.context.containsBean((String) name)) {
-				// 如果在Spring容器中包含bean，则返回String的Bean
-				result = this.context.getBean((String) name);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
+    /**
+     * 抽象方法：根据名称从属性列表中提取属性值
+     */
+    public Object get(Object name) {
+        Object result;
+        result = super.get(name);
+        try {
+            if (result == null && this.context != null
+                && this.context.containsBean((String)name)) {
+                // 如果在Spring容器中包含bean，则返回String的Bean
+                result = this.context.getBean((String)name);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
 
-	public Object put(String name, Object object) {
-		return super.put(name, object);
-	}
+    public Object put(String name, Object object) {
+        return super.put(name, object);
+    }
 
 }
 

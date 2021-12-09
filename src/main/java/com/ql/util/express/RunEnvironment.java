@@ -4,7 +4,7 @@ import com.ql.util.express.exception.QLException;
 
 public final class RunEnvironment {
     private static int INIT_DATA_LENTH = 15;
-    private boolean isTrace = false;
+    private boolean isTrace;
     private int point = -1;
     protected int programPoint = 0;
     private OperateData[] dataContainer;

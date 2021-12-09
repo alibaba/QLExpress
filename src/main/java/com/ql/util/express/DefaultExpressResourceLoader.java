@@ -16,7 +16,7 @@ public class DefaultExpressResourceLoader implements IExpressResourceLoader {
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder builder = new StringBuilder();
-        String tmpStr = null;
+        String tmpStr;
         while ((tmpStr = reader.readLine()) != null) {
             builder.append(tmpStr).append("\n");
         }

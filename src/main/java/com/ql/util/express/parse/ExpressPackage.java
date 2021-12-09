@@ -84,7 +84,7 @@ public class ExpressPackage {
         }
         if (this.m_packages != null) {
             for (int i = 0; i < m_packages.size(); i++) {
-                String tmp = "";
+                String tmp;
                 if (m_packages.get(i).endsWith("." + name) == true) {
                     tmp = m_packages.get(i);
                 } else {

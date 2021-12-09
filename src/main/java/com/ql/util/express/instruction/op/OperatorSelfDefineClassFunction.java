@@ -29,7 +29,6 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
         if (errorInfo != null && errorInfo.trim().length() == 0) {
-            errorInfo = null;
         }
         this.name = aOperName;
         this.errorInfo = aErrorInfo;
@@ -51,7 +50,6 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
         if (errorInfo != null && errorInfo.trim().length() == 0) {
-            errorInfo = null;
         }
         this.name = aOperName;
         this.errorInfo = aErrorInfo;
@@ -73,7 +71,6 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
         if (errorInfo != null && errorInfo.trim().length() == 0) {
-            errorInfo = null;
         }
         this.name = aOperName;
         this.errorInfo = aErrorInfo;
@@ -102,7 +99,7 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Object[] parameres = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
             this.maybeDynamicParams);
-        Object obj = null;
+        Object obj;
         if (Modifier.isStatic(this.method.getModifiers())) {
             obj = this.method.invoke(null, ExpressUtil.transferArray(parameres, parameterClasses));
         } else {

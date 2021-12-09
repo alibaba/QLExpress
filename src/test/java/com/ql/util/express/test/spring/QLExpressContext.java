@@ -26,7 +26,7 @@ public class QLExpressContext extends HashMap<String, Object> implements
      * 抽象方法：根据名称从属性列表中提取属性值
      */
     public Object get(Object name) {
-        Object result = null;
+        Object result;
         result = super.get(name);
         try {
             if (result == null && this.context != null

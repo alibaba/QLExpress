@@ -28,7 +28,7 @@ public class InstructionOperator extends Instruction {
         ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && this.log.isDebugEnabled()) {
             String str = this.operator.toString() + "(";
-            OperateData p = null;
+            OperateData p;
             for (int i = 0; i < parameters.length; i++) {
                 p = parameters.get(i);
                 if (i > 0) {

@@ -28,7 +28,7 @@ public class ExpressParse {
     /**
      * 是否需要高精度计算
      */
-    private boolean isPrecise = false;
+    private boolean isPrecise;
 
     public boolean isIgnoreConstChar() {
         return ignoreConstChar;
@@ -116,7 +116,7 @@ public class ExpressParse {
         String orgiValue = null;
         Object objectValue = null;
         NodeType treeNodeType = null;
-        Word tmpWordObject = null;
+        Word tmpWordObject;
         while (point < wordObjects.length) {
             tmpWordObject = wordObjects[point];
             tempWord = wordObjects[point].word;

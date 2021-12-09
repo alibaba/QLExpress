@@ -20,7 +20,7 @@ public class FunctionInstructionFactory extends InstructionFactory {
         ExpressNode[] varDefines = children[1].getChildren();
         int point = 0;
 
-        String instructionSetType = "";
+        String instructionSetType;
         if (node.isTypeEqualsOrChild("class")) {
             instructionSetType = InstructionSet.TYPE_CLASS;
         } else {

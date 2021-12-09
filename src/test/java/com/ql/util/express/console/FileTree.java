@@ -29,7 +29,7 @@ public class FileTree extends JTree {
 
     private void node_mouseAction(MouseEvent e) {
         int row = this.getRowForLocation(e.getX(), e.getY());
-        PathNode pathNode = null;
+        PathNode pathNode;
         if (row != -1) {
             TreePath path = this.getPathForRow(row);
             pathNode = (PathNode)path.getLastPathComponent();

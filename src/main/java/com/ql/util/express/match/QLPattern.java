@@ -57,7 +57,7 @@ public class QLPattern {
             maxDeep.set(deep);
         }
 
-        QLMatchResult result = null;
+        QLMatchResult result;
         List<QLMatchResultTree> tempList = null;
         int count = 0;
         int lastPoint = point;
@@ -168,7 +168,6 @@ public class QLPattern {
                         //归还QLMatchResult对象到对象池
                         if (tempResultAnd != null) {
                             staticParams.resultCache.sendBack(tempResultAnd);
-                            tempResultAnd = null;
                         }
                     } else {
                         isBreak = true;
@@ -242,7 +241,6 @@ public class QLPattern {
             /**  归还QLMatchResult  */
             if (tempResult != null) {
                 staticParams.resultCache.sendBack(tempResult);
-                tempResult = null;
             }
 
             count = count + 1;
@@ -305,8 +303,8 @@ public class QLPattern {
         public int fetchCount = 0;
 
         private QLMatchResult[] cache;
-        private int len = 10;
-        private int point = 9;
+        private int len;
+        private int point;
 
         public QLMatchResultCache(int aLen) {
             this.len = aLen;
@@ -318,7 +316,7 @@ public class QLPattern {
         }
 
         public QLMatchResult fetch() {
-            QLMatchResult result = null;
+            QLMatchResult result;
             if (point >= 0) {
                 result = cache[point];
                 cache[point] = null;
@@ -347,8 +345,8 @@ public class QLPattern {
         public int fetchCount = 0;
 
         private List<T>[] cache;
-        private int len = 50;
-        private int point = 49;
+        private int len;
+        private int point;
 
         public ArrayListCache(int aLen) {
             this.len = aLen;
@@ -360,7 +358,7 @@ public class QLPattern {
         }
 
         public List<T> fetch() {
-            List<T> result = null;
+            List<T> result;
             if (point >= 0) {
                 result = cache[point];
                 cache[point] = null;

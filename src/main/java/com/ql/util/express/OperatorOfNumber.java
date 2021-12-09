@@ -304,7 +304,7 @@ class PreciseNumberOperator {
     public static int DIVIDE_PRECISION = 10;
 
     public static Number addPrecise(Number op1, Number op2) throws Exception {
-        BigDecimal result = null;
+        BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
                 result = ((BigDecimal)op1).add((BigDecimal)op2);
@@ -332,7 +332,7 @@ class PreciseNumberOperator {
     }
 
     public static Number subtractPrecise(Number op1, Number op2) throws Exception {
-        BigDecimal result = null;
+        BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
                 result = ((BigDecimal)op1).subtract((BigDecimal)op2);
@@ -359,7 +359,7 @@ class PreciseNumberOperator {
     }
 
     public static Number multiplyPrecise(Number op1, Number op2) throws Exception {
-        BigDecimal result = null;
+        BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
                 result = ((BigDecimal)op1).multiply((BigDecimal)op2);
@@ -386,7 +386,7 @@ class PreciseNumberOperator {
     }
 
     public static Number dividePrecise(Number op1, Number op2) throws Exception {
-        BigDecimal result = null;
+        BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
                 result = ((BigDecimal)op1).divide((BigDecimal)op2, DIVIDE_PRECISION, BigDecimal.ROUND_HALF_UP);

@@ -149,7 +149,7 @@ public class ConsoleFrame
                 contextText = contextText + "\"" + tempStr[0] + "\":" + tempStr[1];
             }
         }
-        Object r = null;
+        Object r;
         try {
             output.clear();
             ExpressRunner runner = new ExpressRunner(false, false);

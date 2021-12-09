@@ -24,7 +24,7 @@ public class ExpressContextExample extends HashMap<String, Object> implements IE
      * 抽象方法：根据名称从属性列表中提取属性值
      */
     public Object get(Object name) {
-        Object result = null;
+        Object result;
         if (((String)name).equalsIgnoreCase("三星卖家")) {
             result = Boolean.valueOf(true);
         } else if (((String)name).equalsIgnoreCase("消保用户")) {

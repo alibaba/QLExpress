@@ -21,7 +21,7 @@ public class OperatorDef extends OperatorBase {
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Object type = list.get(0).getObject(context);
         String varName = (String)list.get(1).getObject(context);
-        Class<?> tmpClass = null;
+        Class<?> tmpClass;
         if (type instanceof Class) {
             tmpClass = (Class<?>)type;
         } else {

@@ -56,7 +56,7 @@ public abstract class Operator extends OperatorBase {
 
         //Character的值比较
         if (op1 instanceof Character || op2 instanceof Character) {
-            int compareResult = 0;
+            int compareResult;
             if (op1 instanceof Character && op2 instanceof Character) {
                 return ((Character)op1).equals((Character)op2);
             } else if (op1 instanceof Number) {
@@ -91,7 +91,7 @@ public abstract class Operator extends OperatorBase {
             return 0;
         }
 
-        int compareResult = -1;
+        int compareResult;
 
         if (op1 instanceof String) {
             compareResult = ((String)op1).compareTo(op2.toString());

@@ -44,7 +44,7 @@ public class ExpressNode implements IDataNode {
     /**
      * word的序号
      */
-    private int wordIndex = -1;
+    private int wordIndex;
 
     public int getWordIndex() {
         return wordIndex;

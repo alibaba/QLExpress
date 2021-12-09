@@ -38,7 +38,7 @@ public class ExpressLoader {
 
     public InstructionSet parseInstructionSet(String expressName,
         String expressString) throws Exception {
-        InstructionSet parseResult = null;
+        InstructionSet parseResult;
         if (expressInstructionSetCache.containsKey(expressName)) {
             throw new QLException("表达式定义重复：" + expressName);
         }

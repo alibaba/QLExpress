@@ -17,7 +17,7 @@ public class ImportClassPath {
         ExpressRunner runner = new ExpressRunner();
         String exp = "return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
-        Object result = null;
+        Object result;
         try {
             result = runner.execute(exp, context, null, false, false);
             System.out.println(result);
@@ -37,7 +37,7 @@ public class ImportClassPath {
         ExpressRunner runner = new ExpressRunner();
         String exp = "return new java.text.SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
-        Object result = null;
+        Object result;
         result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
@@ -50,7 +50,7 @@ public class ImportClassPath {
             = "import java.text.SimpleDateFormat; return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new "
             + "Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
-        Object result = null;
+        Object result;
         result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }

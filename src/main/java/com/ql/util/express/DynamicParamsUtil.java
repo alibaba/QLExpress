@@ -14,7 +14,7 @@ public class DynamicParamsUtil {
     public static Object[] transferDynamicParams(InstructionSetContext context, ArraySwap list,
         Class<?>[] delaredParamsClasses, boolean maybeDynamicParams) throws Exception {
 
-        Object[] params = null;
+        Object[] params;
         //参数定义不符合动态参数形式 || 用户自定义不支持 || 用户传入的参数不符合
         if (!maybeDynamicParams || !supportDynamicParams || !maybeDynamicParams(context, list, delaredParamsClasses)) {
             if (delaredParamsClasses.length != list.length) {

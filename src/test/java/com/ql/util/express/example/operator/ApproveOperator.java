@@ -3,7 +3,7 @@ package com.ql.util.express.example.operator;
 import com.ql.util.express.Operator;
 
 public class ApproveOperator extends Operator {
-    int operater = 0;
+    int operater;
 
     public ApproveOperator(int op) {
         this.operater = op;

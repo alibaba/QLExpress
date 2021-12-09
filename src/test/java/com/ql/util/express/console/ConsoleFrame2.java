@@ -164,7 +164,7 @@ public class ConsoleFrame2
                 contextText = contextText + "\"" + tempStr[0] + "\":" + tempStr[1];
             }
         }
-        Object r = null;
+        Object r;
         StringWriter writer = new StringWriter();
         try {
             ExpressRunner runner = new ExpressRunner(false, true);
