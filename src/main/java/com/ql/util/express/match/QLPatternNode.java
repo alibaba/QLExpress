@@ -300,7 +300,9 @@ public class QLPatternNode {
     public String joinStringList(List<QLPatternNode> list, String splitChar) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < list.size(); i++) {
-            if (i > 0) {buffer.append(splitChar);}
+            if (i > 0) {
+                buffer.append(splitChar);
+            }
             buffer.append(list.get(i));
         }
         return buffer.toString();

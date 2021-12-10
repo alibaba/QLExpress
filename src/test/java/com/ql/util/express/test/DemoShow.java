@@ -93,7 +93,9 @@ public class DemoShow {
 
     // 将n个盘从one座借助two座,移到three座
     public void hanoi(int n, char one, char two, char three) {
-        if (n == 1) {move(one, three);} else {
+        if (n == 1) {
+            move(one, three);
+        } else {
             hanoi(n - 1, one, three, two);
             move(one, three);
             hanoi(n - 1, two, one, three);

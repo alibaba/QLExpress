@@ -35,13 +35,16 @@ public class WordSplit {
         int currentLineOffset = 0;
         while (i < str.length()) {
             c = str.charAt(i);
-            if (c == '"' || c == '\'') {//字符串处理
+            //字符串处理
+            if (c == '"' || c == '\'') {
                 int index = str.indexOf(c, i + 1);
                 //处理字符串中的”问题
                 while (index > 0 && str.charAt(index - 1) == '\\') {
                     index = str.indexOf(c, index + 1);
                 }
-                if (index < 0) {throw new QLCompileException("字符串没有关闭");}
+                if (index < 0) {
+                    throw new QLCompileException("字符串没有关闭");
+                }
                 String tempDealStr = str.substring(i, index + 1);
                 //处理 \\，\"的情况
                 String tmpResult = "";
@@ -121,9 +124,12 @@ public class WordSplit {
     }
 
     protected static boolean isNumber(String str) {
-        if (str == null || str.equals("")) {return false;}
+        if (str == null || str.equals("")) {
+            return false;
+        }
         char c = str.charAt(0);
-        if (c >= '0' && c <= '9') { // 数字
+        // 数字
+        if (c >= '0' && c <= '9') {
             return true;
         } else {
             return false;
@@ -133,7 +139,9 @@ public class WordSplit {
     public static String getPrintInfo(Object[] list, String splitOp) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < list.length; i++) {
-            if (i > 0) {buffer.append(splitOp);}
+            if (i > 0) {
+                buffer.append(splitOp);
+            }
             buffer.append("{" + list[i] + "}");
         }
         return buffer.toString();

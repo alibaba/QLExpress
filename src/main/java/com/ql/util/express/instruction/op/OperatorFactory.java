@@ -134,7 +134,9 @@ public class OperatorFactory {
         if (op == null) {
             op = operator.get(opItem.getValue());
         }
-        if (op == null) {throw new QLCompileException("没有为\"" + opItem.getValue() + "\"定义操作符处理对象");}
+        if (op == null) {
+            throw new QLCompileException("没有为\"" + opItem.getValue() + "\"定义操作符处理对象");
+        }
         return op;
     }
 

@@ -38,7 +38,11 @@ public class OperatorLike extends Operator {
                 }
                 index = index + 1;
             }
-        } else if (s1.equals(s2)) {result = true;} else {result = false;}
+        } else if (s1.equals(s2)) {
+            result = true;
+        } else {
+            result = false;
+        }
 
         return Boolean.valueOf(result);
     }
@@ -50,10 +54,18 @@ public class OperatorLike extends Operator {
         ArrayList<String> list = new ArrayList<>();
         do {
             end = str.indexOf(s, start);
-            if (end < 0) {tmpStr = str.substring(start);} else {tmpStr = str.substring(start, end);}
-            if (tmpStr.length() > 0) {list.add(tmpStr);}
+            if (end < 0) {
+                tmpStr = str.substring(start);
+            } else {
+                tmpStr = str.substring(start, end);
+            }
+            if (tmpStr.length() > 0) {
+                list.add(tmpStr);
+            }
             start = end + 1;
-            if (start >= str.length()) {break;}
+            if (start >= str.length()) {
+                break;
+            }
         } while (end >= 0);
         return list.toArray(new String[0]);
     }

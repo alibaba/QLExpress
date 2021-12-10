@@ -100,7 +100,9 @@ public class OperatorMethod extends OperatorBase {
                 s.append("没有找到" + obj.getClass().getName() + "的方法："
                     + methodName + "(");
                 for (int i = 0; i < orgiTypes.length; i++) {
-                    if (i > 0) {s.append(",");}
+                    if (i > 0) {
+                        s.append(",");
+                    }
                     if (orgiTypes[i] == null) {
                         s.append("null");
                     } else {

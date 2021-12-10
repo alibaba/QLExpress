@@ -66,21 +66,37 @@ public class ExpressPackage {
         Class<?> result = null;
         if (isRootCall) {
             // 如果本身具有包名，这直接定位
-            if (name.indexOf(".") >= 0) {
+            if (name.contains(".")) {
                 try {
                     result = Class.forName(name);
-                } catch (Throwable ex) {
+                } catch (Throwable ignore) {
                 }
                 return result;
             }
-            if (Integer.TYPE.getName().equals(name)) {return Integer.TYPE;}
-            if (Short.TYPE.getName().equals(name)) {return Short.TYPE;}
-            if (Long.TYPE.getName().equals(name)) {return Long.TYPE;}
-            if (Double.TYPE.getName().equals(name)) {return Double.TYPE;}
-            if (Float.TYPE.getName().equals(name)) {return Float.TYPE;}
-            if (Byte.TYPE.getName().equals(name)) {return Byte.TYPE;}
-            if (Character.TYPE.getName().equals(name)) {return Character.TYPE;}
-            if (Boolean.TYPE.getName().equals(name)) {return Boolean.TYPE;}
+            if (Integer.TYPE.getName().equals(name)) {
+                return Integer.TYPE;
+            }
+            if (Short.TYPE.getName().equals(name)) {
+                return Short.TYPE;
+            }
+            if (Long.TYPE.getName().equals(name)) {
+                return Long.TYPE;
+            }
+            if (Double.TYPE.getName().equals(name)) {
+                return Double.TYPE;
+            }
+            if (Float.TYPE.getName().equals(name)) {
+                return Float.TYPE;
+            }
+            if (Byte.TYPE.getName().equals(name)) {
+                return Byte.TYPE;
+            }
+            if (Character.TYPE.getName().equals(name)) {
+                return Character.TYPE;
+            }
+            if (Boolean.TYPE.getName().equals(name)) {
+                return Boolean.TYPE;
+            }
         }
         if (this.m_packages != null) {
             for (int i = 0; i < m_packages.size(); i++) {

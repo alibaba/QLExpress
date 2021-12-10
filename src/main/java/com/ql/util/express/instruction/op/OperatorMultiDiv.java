@@ -19,7 +19,8 @@ public class OperatorMultiDiv extends Operator {
             obj = OperatorOfNumber.multiply(op1, op2, this.isPrecise);
         } else if (this.getName().equals("/")) {
             obj = OperatorOfNumber.divide(op1, op2, this.isPrecise);
-        } else if (this.getName().equals("%")) {obj = OperatorOfNumber.modulo(op1, op2);} else if (this.getName()
+        } else if (this.getName().equals("%")) {obj = OperatorOfNumber.modulo(op1, op2);
+        } else if (this.getName()
             .equals(
                 "mod")) {obj = OperatorOfNumber.modulo(op1, op2);}
 

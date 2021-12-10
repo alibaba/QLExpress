@@ -37,7 +37,9 @@ public class CustBean {
     }
 
     public static String firstToUpper(String value) {
-        if (StringUtils.isBlank(value)) {return "";}
+        if (StringUtils.isBlank(value)) {
+            return "";
+        }
         value = StringUtils.trim(value);
         String f = StringUtils.substring(value, 0, 1);
         String s = "";

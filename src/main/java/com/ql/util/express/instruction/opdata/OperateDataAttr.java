@@ -72,7 +72,11 @@ public class OperateDataAttr extends OperateData {
             return this.type;
         }
         Object obj = context.get(name);
-        if (obj == null) {return null;} else {return obj.getClass();}
+        if (obj == null) {
+            return null;
+        } else {
+            return obj.getClass();
+        }
     }
 
     public void setObject(InstructionSetContext parent, Object object) throws Exception {

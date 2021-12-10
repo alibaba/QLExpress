@@ -40,7 +40,9 @@ public class ExpressClassLoader extends ClassLoader {
             }
         }
 
-        if (clasz == null) {throw new ClassNotFoundException(name);}
+        if (clasz == null) {
+            throw new ClassNotFoundException(name);
+        }
         return clasz;
     }
 

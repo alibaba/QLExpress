@@ -111,7 +111,9 @@ public abstract class Operator extends OperatorBase {
             //数字比较
             compareResult = OperatorOfNumber.compareNumber((Number)op1, (Number)op2);
         } else if ((op1 instanceof Boolean) && (op2 instanceof Boolean)) {
-            if (((Boolean)op1).booleanValue() == ((Boolean)op2).booleanValue()) {compareResult = 0;} else {
+            if (((Boolean)op1).booleanValue() == ((Boolean)op2).booleanValue()) {
+                compareResult = 0;
+            } else {
                 compareResult = -1;
             }
         } else if ((op1 instanceof Date) && (op2 instanceof Date)) {
