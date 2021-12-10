@@ -16,6 +16,7 @@ public class OperatorIf extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         if (list.length < 2) {
             throw new QLException("\"" + this.aliasName + "\"操作至少要两个操作数");

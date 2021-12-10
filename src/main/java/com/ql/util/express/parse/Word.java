@@ -12,6 +12,7 @@ public class Word {
         this.col = aCol;
     }
 
+    @Override
     public String toString() {
         return this.word;// + "[" + this.line + "," + this.col + "]";
     }

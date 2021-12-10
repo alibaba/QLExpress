@@ -11,6 +11,7 @@ public class OperatorCast extends OperatorBase {
         this.name = aName;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Class<?> tmpClass = (Class<?>)list.get(0).getObject(parent);
         Object castObj = ExpressUtil.castObject(list.get(1).getObject(parent), tmpClass, true);

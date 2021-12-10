@@ -18,6 +18,7 @@ public class InstructionLoadAttr extends Instruction {
         return this.attrName;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         Object o = environment.getContext().getSymbol(this.attrName);
         if (o != null && o instanceof InstructionSet) {//是函数，则执行
@@ -37,6 +38,7 @@ public class InstructionLoadAttr extends Instruction {
         }
     }
 
+    @Override
     public String toString() {
         return "LoadAttr:" + this.attrName;
     }

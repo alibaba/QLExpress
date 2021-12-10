@@ -17,6 +17,7 @@ public class OperatorExportAlias extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         String varName = (String)list.get(0).getObjectInner(context);
         OperateDataAttr realAttr = (OperateDataAttr)list.get(1);

@@ -32,6 +32,7 @@ public class InstructionCallSelfDefineFunction extends Instruction {
         return opDataNumber;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList)
         throws Exception {
         ArraySwap parameters = environment.popArray(
@@ -89,6 +90,7 @@ public class InstructionCallSelfDefineFunction extends Instruction {
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 
+    @Override
     public String toString() {
         return "call Function[" + this.functionName + "] OPNUMBER[" + this.opDataNumber + "]";
     }

@@ -28,14 +28,17 @@ public class OperateDataArrayItem extends OperateDataAttr {
         this.index = -1;
     }
 
+    @Override
     public void toResource(StringBuilder builder, int level) {
         builder.append(this.index);
     }
 
+    @Override
     public Class<?> getType(InstructionSetContext context) throws Exception {
         return this.arrayObject.getObject(context).getClass().getComponentType();
     }
 
+    @Override
     public Object getObjectInner(InstructionSetContext context) {
         try {
             if (this.arrayObject.getObject(context) instanceof List) {
@@ -48,6 +51,7 @@ public class OperateDataArrayItem extends OperateDataAttr {
         }
     }
 
+    @Override
     public void setObject(InstructionSetContext context, Object value) {
         try {
             if (this.arrayObject.getObject(context) instanceof List) {

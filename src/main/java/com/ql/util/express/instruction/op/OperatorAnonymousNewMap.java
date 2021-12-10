@@ -20,6 +20,7 @@ public class OperatorAnonymousNewMap extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Map<Object, Object> result = new HashMap<>();
         for (int i = 0; i < list.length; i++) {

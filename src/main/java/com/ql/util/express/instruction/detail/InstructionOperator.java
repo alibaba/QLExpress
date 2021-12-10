@@ -24,6 +24,7 @@ public class InstructionOperator extends Instruction {
         return this.operator;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && this.log.isDebugEnabled()) {
@@ -54,6 +55,7 @@ public class InstructionOperator extends Instruction {
         }
     }
 
+    @Override
     public String toString() {
         return "OP : " + this.operator.toString() + " OPNUMBER[" + this.opDataNumber + "]";
     }

@@ -68,6 +68,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
+    @Override
     public OperatorBase cloneMe(String opName, String errorInfo)
         throws Exception {
         return new OperatorSelfDefineServiceFunction(opName,
@@ -75,6 +76,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
             this.operDataDesc, this.operDataAnnotation, errorInfo);
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Object[] parameres = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
             this.maybeDynamicParams);

@@ -17,6 +17,7 @@ public class InstructionGoToWithNotNull extends Instruction {
         this.isPopStackData = aIsPopStackData;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         Object o;
         if (!this.isPopStackData) {
@@ -37,6 +38,7 @@ public class InstructionGoToWithNotNull extends Instruction {
         }
     }
 
+    @Override
     public String toString() {
         String result = "GoToIf[NOTNULL,isPop=" + this.isPopStackData + "] ";
         if (this.offset >= 0) {

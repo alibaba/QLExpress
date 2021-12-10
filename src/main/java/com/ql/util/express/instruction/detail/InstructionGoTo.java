@@ -16,6 +16,7 @@ public class InstructionGoTo extends Instruction {
         this.offset = aOffset;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) {
         if (environment.isTrace() && log.isDebugEnabled()) {
             log.debug(this);
@@ -23,6 +24,7 @@ public class InstructionGoTo extends Instruction {
         environment.gotoWithOffset(this.offset);
     }
 
+    @Override
     public String toString() {
         String result = (this.name == null ? "" : this.name + ":") + "GoTo ";
         if (this.offset >= 0) {

@@ -77,6 +77,7 @@ public class QLMatchResultTree {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         printNode(builder, 1);

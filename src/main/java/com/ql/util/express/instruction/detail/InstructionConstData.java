@@ -18,6 +18,7 @@ public class InstructionConstData extends Instruction {
         return this.operateData;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList)
         throws Exception {
         if (environment.isTrace() && log.isDebugEnabled()) {
@@ -32,6 +33,7 @@ public class InstructionConstData extends Instruction {
         environment.programPointAddOne();
     }
 
+    @Override
     public String toString() {
         if (this.operateData instanceof OperateDataAttr) {
             return "LoadData attr:" + this.operateData;

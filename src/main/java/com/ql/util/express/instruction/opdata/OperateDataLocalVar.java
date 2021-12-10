@@ -15,6 +15,7 @@ public class OperateDataLocalVar extends OperateDataAttr {
         super.clear();
     }
 
+@Override
     public String toString() {
         try {
             return name + ":localVar";
@@ -23,6 +24,7 @@ public class OperateDataLocalVar extends OperateDataAttr {
         }
     }
 
+    @Override
     public Object getObjectInner(InstructionSetContext context) {
         try {
             return this.dataObject;
@@ -31,10 +33,12 @@ public class OperateDataLocalVar extends OperateDataAttr {
         }
     }
 
+    @Override
     public Class<?> getType(InstructionSetContext context) {
         return this.type;
     }
 
+    @Override
     public void setObject(InstructionSetContext parent, Object value) {
         this.dataObject = value;
     }

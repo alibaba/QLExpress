@@ -8,6 +8,7 @@ public class OperatorRound extends Operator {
         this.name = name;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         return executeInner(list[0], list[1]);
     }

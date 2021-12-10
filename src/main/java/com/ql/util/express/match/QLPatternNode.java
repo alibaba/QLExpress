@@ -259,6 +259,7 @@ public class QLPatternNode {
         return this.matchMode == MatchMode.AND;
     }
 
+    @Override
     public String toString() {
         String result;
         if (this.matchMode == MatchMode.AND) {

@@ -19,6 +19,7 @@ public class OperatorAnonymousNewList extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         List<Object> result = new ArrayList<>();
         for (int i = 0; i < list.length; i++) {

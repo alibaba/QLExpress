@@ -14,6 +14,7 @@ public class OperatorNot extends Operator {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         return executeInner(list[0]);
     }

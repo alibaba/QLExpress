@@ -17,6 +17,7 @@ public class InstructionCallMacro extends Instruction {
         this.name = aName;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         if (environment.isTrace() && log.isDebugEnabled()) {
             log.debug(this);
@@ -44,6 +45,7 @@ public class InstructionCallMacro extends Instruction {
         environment.programPointAddOne();
     }
 
+    @Override
     public String toString() {
         return "call macro " + this.name;
     }

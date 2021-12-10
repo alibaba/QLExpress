@@ -83,6 +83,7 @@ public class ExpressNode implements IDataNode {
         return result;
     }
 
+    @Override
     public NodeType getNodeType() {
         return nodeType;
     }
@@ -91,6 +92,7 @@ public class ExpressNode implements IDataNode {
         this.nodeType = type;
     }
 
+    @Override
     public String getValue() {
         if (value == null) {
             return this.nodeType.getName();
@@ -135,6 +137,7 @@ public class ExpressNode implements IDataNode {
         return objectValue;
     }
 
+    @Override
     public void setObjectValue(Object objectValue) {
         this.objectValue = objectValue;
     }
@@ -167,6 +170,7 @@ public class ExpressNode implements IDataNode {
         return this.treeType;
     }
 
+    @Override
     public NodeType getTreeType() {
         if (this.treeType == null) {
             return this.nodeType;
@@ -226,16 +230,19 @@ public class ExpressNode implements IDataNode {
         return result.toArray(new ExpressNode[0]);
     }
 
+    @Override
     public String toString() {
         // return str + "[" + this.line +"," + this.col +"]";
         return (this.orgiValue == null ? this.getValue() : this.orgiValue) + (this.nodeType.getName() == null ? ""
             : (":" + this.nodeType.getName()));
     }
 
+    @Override
     public IDataNode createExpressNode(INodeType aType, String aValue) throws Exception {
         return new ExpressNode((NodeType)aType, aValue);
     }
 
+    @Override
     public void setNodeType(INodeType type) {
         this.setNodeType((NodeType)type);
     }

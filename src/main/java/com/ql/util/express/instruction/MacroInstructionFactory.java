@@ -7,6 +7,7 @@ import com.ql.util.express.InstructionSet;
 import com.ql.util.express.parse.ExpressNode;
 
 public class MacroInstructionFactory extends InstructionFactory {
+    @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
         throws Exception {

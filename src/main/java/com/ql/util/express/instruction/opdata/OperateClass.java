@@ -13,10 +13,12 @@ public class OperateClass extends OperateData {
         this.m_class = aClass;
     }
 
+    @Override
     public void toResource(StringBuilder builder, int level) {
         builder.append(this.name);
     }
 
+    @Override
     public String toString() {
         return "Class:" + name;
         // return name;
@@ -31,6 +33,7 @@ public class OperateClass extends OperateData {
         this.m_class = newClass;
     }
 
+    @Override
     public Object getObjectInner(InstructionSetContext parent) {
         return m_class;
     }

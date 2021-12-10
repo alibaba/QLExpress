@@ -2,7 +2,6 @@ package com.ql.util.express.parse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import com.ql.util.express.exception.QLCompileException;
@@ -108,17 +107,15 @@ public class WordSplit {
     }
 
     public static String[] sortSplitWord(String[] splitWord) {
-        Arrays.sort(splitWord, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                if (o1.length() == o2.length()) {
-                    return 0;
-                } else if (o1.length() > o2.length()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-
+        Arrays.sort(splitWord, (o1, o2) -> {
+            if (o1.length() == o2.length()) {
+                return 0;
+            } else if (o1.length() > o2.length()) {
+                return -1;
+            } else {
+                return 1;
             }
+
         });
         return splitWord;
     }

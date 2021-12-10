@@ -12,6 +12,7 @@ public class OperatorDoubleAddReduce extends OperatorBase {
         this.name = name;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent,
         ArraySwap list) throws Exception {
         Object obj = list.get(0).getObject(parent);

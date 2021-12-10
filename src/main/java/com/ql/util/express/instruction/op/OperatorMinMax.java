@@ -8,6 +8,7 @@ public class OperatorMinMax extends Operator {
         this.name = name;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         if (list.length == 0) {
             throw new QLException("操作数异常");

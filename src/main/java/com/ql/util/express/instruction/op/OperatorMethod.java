@@ -27,6 +27,7 @@ public class OperatorMethod extends OperatorBase {
 
     static Class<?> ArrayClass = (new Object[] {}).getClass();
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         OperateData p0 = list.get(0);
         Object obj = p0.getObject(parent);
@@ -130,6 +131,7 @@ public class OperatorMethod extends OperatorBase {
         }
     }
 
+    @Override
     public String toString() {
         return this.name + ":" + this.methodName;
     }

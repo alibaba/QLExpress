@@ -14,6 +14,7 @@ import com.ql.util.express.instruction.op.OperatorBase;
  */
 public abstract class Operator extends OperatorBase {
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Object[] parameters = new Object[list.length];
         for (int i = 0; i < list.length; i++) {

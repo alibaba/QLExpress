@@ -15,6 +15,7 @@ public class OperatorNew extends OperatorBase {
         this.name = aName;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Class<?> obj = (Class<?>)list.get(0).getObject(parent);
         if (obj.isArray()) {

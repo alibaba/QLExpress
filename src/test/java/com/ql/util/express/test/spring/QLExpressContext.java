@@ -29,8 +29,7 @@ public class QLExpressContext extends HashMap<String, Object> implements
         Object result;
         result = super.get(name);
         try {
-            if (result == null && this.context != null
-                && this.context.containsBean((String)name)) {
+            if (result == null && this.context != null && this.context.containsBean((String)name)) {
                 // 如果在Spring容器中包含bean，则返回String的Bean
                 result = this.context.getBean((String)name);
             }

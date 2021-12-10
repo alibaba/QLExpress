@@ -12,6 +12,7 @@ public class ExpressClassLoader extends ClassLoader {
         return this.defineClass(name, code, 0, code.length);
     }
 
+    @Override
     public synchronized Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException {
         //System.out.print("开始查找 类" + name + "。。。。。。。。。。。");

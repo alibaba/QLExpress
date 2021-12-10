@@ -61,6 +61,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         }
     }
 
+    @Override
     public void resetCache() {
         for (int i = 0; i <= dataPoint && i < length; i++) {
             dataList[i].clear();
@@ -101,6 +102,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         contextPoint = 0;
     }
 
+    @Override
     public InstructionSetContext fetchInstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,
         IExpressContext<String, Object> aParent, ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName) {
         InstructionSetContext result;
@@ -115,6 +117,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public RunEnvironment fetRunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext,
         boolean aIsTrace) {
         RunEnvironment result;
@@ -128,6 +131,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public CallResult fetchCallResult(Object aReturnValue, boolean aIsExit) {
         CallResult result;
         if (callResultPoint < length) {
@@ -140,6 +144,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateData fetchOperateData(Object obj, Class<?> aType) {
         OperateData result;
         if (dataPoint < length) {
@@ -152,6 +157,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateDataAttr fetchOperateDataAttr(String name, Class<?> aType) {
         OperateDataAttr result;
         if (attrPoint < length) {
@@ -164,6 +170,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateDataLocalVar fetchOperateDataLocalVar(String name, Class<?> aType) {
         OperateDataLocalVar result;
         if (localVarPoint < length) {
@@ -176,6 +183,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateDataField fetchOperateDataField(Object aFieldObject, String aFieldName) {
         OperateDataField result;
         if (fieldPoint < length) {
@@ -188,6 +196,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateDataArrayItem fetchOperateDataArrayItem(OperateData aArrayObject, int aIndex) {
         OperateDataArrayItem result;
         if (arrayPoint < length) {
@@ -200,6 +209,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public OperateDataKeyValue fetchOperateDataKeyValue(OperateData aKey, OperateData aValue) {
         OperateDataKeyValue result;
         if (this.keyValuePoint < length) {
@@ -212,6 +222,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
         return result;
     }
 
+    @Override
     public long getFetchCount() {
         return 0;
     }

@@ -19,6 +19,7 @@ public class OperatorAnonymousNewArray extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
 
         Class<?> type = this.findArrayClassType(context, list);

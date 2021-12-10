@@ -22,6 +22,7 @@ public class InstructionNewVirClass extends Instruction {
         return className;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList)
         throws Exception {
         ArraySwap parameters = environment.popArray(
@@ -58,6 +59,7 @@ public class InstructionNewVirClass extends Instruction {
             environment.isTrace(), this.log);
     }
 
+    @Override
     public String toString() {
         return "new VClass[" + this.className + "] OPNUMBER["
             + this.opDataNumber + "]";

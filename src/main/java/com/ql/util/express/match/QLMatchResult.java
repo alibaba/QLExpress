@@ -12,6 +12,7 @@ public class QLMatchResult {
         this.matchs.clear();
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (QLMatchResultTree item : matchs) {

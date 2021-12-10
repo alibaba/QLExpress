@@ -14,6 +14,7 @@ public class OperatorReduce extends Operator {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         return OperatorOfNumber.subtract(list[0], list[1], this.isPrecise);
     }

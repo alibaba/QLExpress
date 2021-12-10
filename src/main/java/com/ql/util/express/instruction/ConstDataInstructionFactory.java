@@ -18,6 +18,7 @@ public class ConstDataInstructionFactory extends InstructionFactory {
         }
     }
 
+    @Override
     public boolean createInstruction(ExpressRunner aCompile,
         InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) {

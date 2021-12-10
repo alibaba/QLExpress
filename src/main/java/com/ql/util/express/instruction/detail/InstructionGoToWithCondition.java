@@ -21,6 +21,7 @@ public class InstructionGoToWithCondition extends Instruction {
         this.isPopStackData = aIsPopStackData;
     }
 
+    @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         Object o;
         if (!this.isPopStackData) {
@@ -53,6 +54,7 @@ public class InstructionGoToWithCondition extends Instruction {
         }
     }
 
+    @Override
     public String toString() {
         String result = "GoToIf[" + this.condition + ",isPop=" + this.isPopStackData + "] ";
         if (this.offset >= 0) {

@@ -126,18 +126,22 @@ public class OperateDataVirClass extends OperateDataAttr {
         }
     }
 
+    @Override
     public Object getObjectInner(InstructionSetContext context) {
         return this;
     }
 
+    @Override
     public Class<?> getType(InstructionSetContext context) {
         return this.getClass();
     }
 
+    @Override
     public void setObject(InstructionSetContext parent, Object object) {
         throw new RuntimeException("不支持的方法");
     }
 
+    @Override
     public String toString() {
         return "VClass[" + this.name + "]";
     }

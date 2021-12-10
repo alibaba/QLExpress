@@ -85,6 +85,7 @@ public abstract class OperatorBase implements Serializable {
         return result;
     }
 
+    @Override
     public String toString() {
         if (this.aliasName != null) {
             return this.aliasName;
@@ -151,6 +152,7 @@ class OperatorFunction extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         throw new QLException("还没有实现");
     }
@@ -167,6 +169,7 @@ class OperatorReturn extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         return executeInner(parent);
     }
@@ -187,6 +190,7 @@ class OperatorCall extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("call 是通过特殊指令来实现的，不能支持此方法");
     }
@@ -203,6 +207,7 @@ class OperatorBreak extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("OperatorBreak 是通过特殊指令来实现的，不能支持此方法");
     }
@@ -219,6 +224,7 @@ class OperatorContinue extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("OperatorContinue 是通过特殊指令来实现的，不能支持此方法");
     }
@@ -235,6 +241,7 @@ class OperatorFor extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("cache 是通过特殊指令来实现的，不能支持此方法");
     }

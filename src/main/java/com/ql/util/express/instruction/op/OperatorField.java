@@ -18,6 +18,7 @@ public class OperatorField extends OperatorBase {
         this.filedName = aFieldName;
     }
 
+    @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         OperateData operateData = list.get(0);
         if (operateData == null && QLExpressRunStrategy.isAvoidNullPointer()) {
@@ -27,6 +28,7 @@ public class OperatorField extends OperatorBase {
         return OperateDataCacheManager.fetchOperateDataField(obj, this.filedName);
     }
 
+    @Override
     public String toString() {
         return this.name + ":" + this.filedName;
     }

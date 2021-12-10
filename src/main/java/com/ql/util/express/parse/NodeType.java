@@ -104,6 +104,7 @@ public class NodeType implements INodeType {
         this.qlPatternNode = QLPattern.createPattern(this.manager, this.name, str);
     }
 
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append(name + ":TYPE=" + this.kind);
@@ -132,6 +133,7 @@ public class NodeType implements INodeType {
         this.instructionFactory = instructionFactory;
     }
 
+    @Override
     public NodeTypeManager getManager() {
         return manager;
     }
@@ -144,10 +146,12 @@ public class NodeType implements INodeType {
         this.kind = kind;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public QLPatternNode getPatternNode() {
         return this.qlPatternNode;
     }

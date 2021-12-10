@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import com.ql.util.express.exception.QLException;
 
 public class DefaultExpressResourceLoader implements IExpressResourceLoader {
+    @Override
     public String loadExpress(String expressName) throws Exception {
         expressName = expressName.replace('.', '/') + ".ql";
         InputStream in = Thread.currentThread().getContextClassLoader()
