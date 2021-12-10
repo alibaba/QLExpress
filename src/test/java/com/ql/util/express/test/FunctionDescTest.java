@@ -14,7 +14,7 @@ public class FunctionDescTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(),
             "isVIP", new String[] {"String"}, new String[] {"用户名称"}, new String[] {"UserName"}, "$1不是VIP用户");
-        OperatorBase op = runner.getFunciton("isVIP");
+        OperatorBase op = runner.getFunction("isVIP");
         System.out.println(op.getOperDataDesc());
         System.out.println(op.getOperDataAnnotaion());
 

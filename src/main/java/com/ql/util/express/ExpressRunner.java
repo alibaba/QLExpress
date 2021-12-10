@@ -63,15 +63,19 @@ public class ExpressRunner {
     private Map<String, InstructionSet> expressInstructionSetCache = new HashMap<>();
 
     private ExpressLoader loader;
+
     private IExpressResourceLoader expressResourceLoader;
+
     /**
      * 语法定义的管理器
      */
     private NodeTypeManager manager;
+
     /**
      * 操作符的管理器
      */
     private OperatorFactory operatorManager;
+
     /**
      * 语法分析器
      */
@@ -112,24 +116,24 @@ public class ExpressRunner {
 
     /**
      * @param aIsPrecise 是否需要高精度计算支持
-     * @param aIstrace   是否跟踪执行指令的过程
+     * @param aIsTrace   是否跟踪执行指令的过程
      */
-    public ExpressRunner(boolean aIsPrecise, boolean aIstrace) {
-        this(aIsPrecise, aIstrace, new DefaultExpressResourceLoader(), null);
+    public ExpressRunner(boolean aIsPrecise, boolean aIsTrace) {
+        this(aIsPrecise, aIsTrace, new DefaultExpressResourceLoader(), null);
     }
 
-    public ExpressRunner(boolean aIsPrecise, boolean aIstrace, NodeTypeManager aManager) {
-        this(aIsPrecise, aIstrace, new DefaultExpressResourceLoader(), aManager);
+    public ExpressRunner(boolean aIsPrecise, boolean aIsStrace, NodeTypeManager aManager) {
+        this(aIsPrecise, aIsStrace, new DefaultExpressResourceLoader(), aManager);
     }
 
     /**
      * @param aIsPrecise             是否需要高精度计算支持
-     * @param aIstrace               是否跟踪执行指令的过程
+     * @param aIsTrace               是否跟踪执行指令的过程
      * @param aExpressResourceLoader 表达式的资源装载器
      */
-    public ExpressRunner(boolean aIsPrecise, boolean aIstrace, IExpressResourceLoader aExpressResourceLoader,
+    public ExpressRunner(boolean aIsPrecise, boolean aIsTrace, IExpressResourceLoader aExpressResourceLoader,
         NodeTypeManager aManager) {
-        this.isTrace = aIstrace;
+        this.isTrace = aIsTrace;
         this.isPrecise = aIsPrecise;
         this.expressResourceLoader = aExpressResourceLoader;
         if (aManager == null) {
@@ -206,7 +210,7 @@ public class ExpressRunner {
      * @param express
      * @throws Exception
      */
-    public void loadMutilExpress(String groupName, String express) throws Exception {
+    public void loadMultiExpress(String groupName, String express) throws Exception {
         if (groupName == null || groupName.trim().length() == 0) {
             groupName = GLOBAL_DEFINE_NAME;
         }
@@ -292,7 +296,7 @@ public class ExpressRunner {
      * @param name 函数名称
      * @return
      */
-    public OperatorBase getFunciton(String name) {
+    public OperatorBase getFunction(String name) {
         return this.operatorManager.getOperator(name);
     }
 
@@ -545,8 +549,7 @@ public class ExpressRunner {
     public Object executeByExpressName(String name, IExpressContext<String, Object> context, List<String> errorList,
         boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
         return InstructionSetRunner.executeOuter(this, this.loader.getInstructionSet(name), this.loader, context,
-            errorList,
-            isTrace, isCatchException, aLog, false);
+            errorList, isTrace, isCatchException, aLog, false);
     }
 
     /**
@@ -564,8 +567,7 @@ public class ExpressRunner {
      */
     @Deprecated
     public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
-        List<String> errorList,
-        boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
         return InstructionSetRunner.executeOuter(this, instructionSets[0], this.loader, context, errorList,
             isTrace, isCatchException, aLog, false);
     }
@@ -583,8 +585,7 @@ public class ExpressRunner {
      * @throws Exception
      */
     public Object execute(InstructionSet instructionSets, IExpressContext<String, Object> context,
-        List<String> errorList,
-        boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
         return InstructionSetRunner.executeOuter(this, instructionSets, this.loader, context, errorList,
             isTrace, isCatchException, aLog, false);
     }
@@ -601,8 +602,8 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public Object execute(String expressString, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isCache, boolean isTrace, long timeoutMillis) throws Exception {
+    public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
+        boolean isCache, boolean isTrace, long timeoutMillis) throws Exception {
         //设置超时毫秒时间
         QLExpressTimer.setTimer(timeoutMillis);
         try {
@@ -623,8 +624,8 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public Object execute(String expressString, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isCache, boolean isTrace) throws Exception {
+    public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
+        boolean isCache, boolean isTrace) throws Exception {
         return this.execute(expressString, context, errorList, isCache, isTrace, null);
     }
 
@@ -640,9 +641,8 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public Object execute(String expressString, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isCache, boolean isTrace, Log aLog)
-        throws Exception {
+    public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
+        boolean isCache, boolean isTrace, Log aLog) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
@@ -723,31 +723,27 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public InstructionSet getInstructionSetFromLocalCache(String expressString)
-        throws Exception {
+    public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
         InstructionSet parseResult = expressInstructionSetCache.get(expressString);
         if (parseResult == null) {
             synchronized (expressInstructionSetCache) {
                 parseResult = expressInstructionSetCache.get(expressString);
                 if (parseResult == null) {
                     parseResult = this.parseInstructionSet(expressString);
-                    expressInstructionSetCache.put(expressString,
-                        parseResult);
+                    expressInstructionSetCache.put(expressString, parseResult);
                 }
             }
         }
         return parseResult;
     }
 
-    public InstructionSet createInstructionSet(ExpressNode root, String type)
-        throws Exception {
+    public InstructionSet createInstructionSet(ExpressNode root, String type) throws Exception {
         InstructionSet result = new InstructionSet(type);
         createInstructionSet(root, result);
         return result;
     }
 
-    public void createInstructionSet(ExpressNode root, InstructionSet result)
-        throws Exception {
+    public void createInstructionSet(ExpressNode root, InstructionSet result) throws Exception {
         Stack<ForRelBreakContinue> forStack = new Stack<>();
         createInstructionSetPrivate(result, forStack, root, true);
         if (forStack.size() > 0) {
@@ -755,11 +751,9 @@ public class ExpressRunner {
         }
     }
 
-    public boolean createInstructionSetPrivate(InstructionSet result,
-        Stack<ForRelBreakContinue> forStack, ExpressNode node,
-        boolean isRoot) throws Exception {
-        InstructionFactory factory = InstructionFactory
-            .getInstructionFactory(node.getInstructionFactory());
+    public boolean createInstructionSetPrivate(InstructionSet result, Stack<ForRelBreakContinue> forStack,
+        ExpressNode node, boolean isRoot) throws Exception {
+        InstructionFactory factory = InstructionFactory.getInstructionFactory(node.getInstructionFactory());
         return factory.createInstruction(this, result, forStack, node, isRoot);
     }
 
@@ -817,7 +811,6 @@ public class ExpressRunner {
      * @return
      */
     public boolean checkSyntax(String text, boolean mockRemoteJavaClass, List<String> remoteJavaClassNames) {
-
         try {
             Map<String, String> selfDefineClass = new HashMap<>();
             for (ExportItem item : this.loader.getExportInfo()) {

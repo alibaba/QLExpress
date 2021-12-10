@@ -12,7 +12,7 @@ public class OpCallTest {
     public void testList() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addOperator("@love", new LoveOperator("@love"));
-        runner.loadMutilExpress(null, "function abc(String s){println(s)}");
+        runner.loadMultiExpress(null, "function abc(String s){println(s)}");
         runner.addOperatorWithAlias("打印", "println", null);
         runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(),
             "isVIP", new Class[] {String.class}, "");

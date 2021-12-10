@@ -41,7 +41,7 @@ public class FunctionTest {
                 "System.out.println(errorCode+\" \"+message);\n" +
                 "return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n" +
                 "}\n";
-        runner.loadMutilExpress("", funExp);
+        runner.loadMultiExpress("", funExp);
 
         String exp = "FAILFUN(-1,'error')";
         IExpressContext<String, Object> context = new DefaultContext<>();

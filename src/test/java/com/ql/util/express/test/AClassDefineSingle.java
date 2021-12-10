@@ -18,8 +18,8 @@ public class AClassDefineSingle {
                 + "";
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.loadMutilExpress("", expressDefine);
-        runner.loadMutilExpress("ClassTest", express);
+        runner.loadMultiExpress("", expressDefine);
+        runner.loadMultiExpress("ClassTest", express);
         Object r = runner.executeByExpressName("ClassTest", context,
             null, true, false, null);
     }

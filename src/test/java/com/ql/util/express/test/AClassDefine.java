@@ -20,7 +20,7 @@ public class AClassDefine {
             "return a + abc.a;";
         ExpressRunner runner = new ExpressRunner(false, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.loadMutilExpress("ClassTest", express);
+        runner.loadMultiExpress("ClassTest", express);
 
         Object r = runner.executeByExpressName("ClassTest", context,
             null, false, false, null);
@@ -56,8 +56,8 @@ public class AClassDefine {
                 + "";
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.loadMutilExpress("", expressDefine);
-        runner.loadMutilExpress("ClassTest", express);
+        runner.loadMultiExpress("", expressDefine);
+        runner.loadMultiExpress("ClassTest", express);
         Object r = runner.executeByExpressName("ClassTest", context,
             null, false, false, null);
         Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("330--430--xuannan--xuanyu--199.99--11.11"));

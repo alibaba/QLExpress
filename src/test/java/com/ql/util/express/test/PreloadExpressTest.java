@@ -10,7 +10,7 @@ public class PreloadExpressTest {
     @Test
     public void preloadExpress() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        runner.loadMutilExpress(null,
+        runner.loadMultiExpress(null,
             "function add(int a, int b){return a+b;} \n" +
                 "function sub(int a, int b){return a-b;}");
         DefaultContext<String, Object> context = new DefaultContext<>();
