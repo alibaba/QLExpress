@@ -15,7 +15,7 @@ import javax.swing.tree.TreePath;
  * <p>Description: 系统目录树，动态生成，解决载入慢的问题 </p>
  */
 public class FileTree extends JTree {
-    private static final long serialVersionUID = 1L;
+
     private DefaultTreeModel model;
 
     public FileTree(String dir) {
@@ -107,7 +107,7 @@ public class FileTree extends JTree {
         /**
          *
          */
-        private static final long serialVersionUID = 1L;
+    
         final String value;
         final boolean isFolder;
 

@@ -5,7 +5,7 @@ import java.util.List;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionGoToWithNotNull extends Instruction {
-    private static final long serialVersionUID = -2314675800146495935L;
+
     /**
      * 跳转指令的偏移量
      */

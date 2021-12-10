@@ -1,6 +1,5 @@
 package com.ql.util.express;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +26,8 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author qhlhl2010@gmail.com
  */
-public class InstructionSet implements Serializable {
-    private static final long serialVersionUID = 1841743860792681669L;
+public class InstructionSet {
+
 
     private static final transient Log log = LogFactory.getLog(InstructionSet.class);
     public static final AtomicInteger UNIQUE_INDEX = new AtomicInteger(1);

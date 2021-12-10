@@ -5,7 +5,7 @@ import java.util.List;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionReturn extends Instruction {
-    private static final long serialVersionUID = -4991998239277488949L;
+
     final boolean haveReturnValue;
 
     public InstructionReturn(boolean aHaveReturnValue) {

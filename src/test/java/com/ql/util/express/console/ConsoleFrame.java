@@ -20,7 +20,7 @@ import com.ql.util.express.console.FileTree.PathNode;
 
 public class ConsoleFrame
     extends JFrame {
-    private static final long serialVersionUID = 1L;
+
     JPanel contentPane;
     final BorderLayout borderLayout1 = new BorderLayout();
     final JMenuBar jMenuBar1 = new JMenuBar();

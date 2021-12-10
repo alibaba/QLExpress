@@ -1,11 +1,9 @@
 package com.ql.util.express.instruction;
 
-import java.io.Serializable;
-
 import com.ql.util.express.InstructionSet;
 
-public class FunctionInstructionSet implements Serializable {
-    private static final long serialVersionUID = 8735208809492617401L;
+public class FunctionInstructionSet {
+
     public final String name;
     public final String type;
     public final InstructionSet instructionSet;

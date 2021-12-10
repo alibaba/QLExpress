@@ -15,7 +15,7 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 import org.apache.commons.logging.Log;
 
 public class InstructionCallSelfDefineFunction extends Instruction {
-    private static final long serialVersionUID = 8315682251443515151L;
+
     final String functionName;
     final int opDataNumber;
 

@@ -7,7 +7,7 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionGoToWithCondition extends Instruction {
-    private static final long serialVersionUID = -4817805156872407837L;
+
     /**
      * 跳转指令的偏移量
      */

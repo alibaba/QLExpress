@@ -6,8 +6,6 @@ import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionCloseNewArea extends Instruction {
-    private static final long serialVersionUID = -996832248972683705L;
-
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) {
         //目前的模式，不需要执行任何操作

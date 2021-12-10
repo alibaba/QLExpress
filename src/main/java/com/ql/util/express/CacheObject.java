@@ -1,15 +1,11 @@
 package com.ql.util.express;
 
-import java.io.Serializable;
-
 /**
  * 简单的缓存对象
  *
  * @author tianqiao
  */
-public class CacheObject implements Serializable {
-    private static final long serialVersionUID = -145121001676214513L;
-
+public class CacheObject {
     private String expressName;
 
     private String text;

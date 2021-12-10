@@ -71,63 +71,61 @@ public class OperatorMethod extends OperatorBase {
                     return appendingClassMethodManager.invoke(appendingClassMethod, parent, list, null);
                 }
             }
-            Method m = null;
-            if (p0 instanceof OperateClass) {// 调用静态方法
-                m = ExpressUtil.findMethodWithCache((Class<?>)obj, this.methodName,
-                    types, true, true);
+            Method method = null;
+            // 调用静态方法
+            if (p0 instanceof OperateClass) {
+                method = ExpressUtil.findMethodWithCache((Class<?>)obj, this.methodName, types, true, true);
             } else {
                 if (obj instanceof Class) {
-                    m = ExpressUtil.findMethodWithCache((Class<?>)obj, this.methodName,
-                        types, true, true);
+                    method = ExpressUtil.findMethodWithCache((Class<?>)obj, this.methodName, types, true, true);
                 }
-                if (m == null) {
-                    m = ExpressUtil.findMethodWithCache(obj.getClass(), this.methodName,
-                        types, true, false);
+                if (method == null) {
+                    method = ExpressUtil.findMethodWithCache(obj.getClass(), this.methodName, types, true, false);
                 }
             }
-            if (m == null) {
+            if (method == null) {
                 types = new Class[] {ARRAY_CLASS};
-                if (p0 instanceof OperateClass) {// 调用静态方法
-                    m = ExpressUtil.findMethodWithCache((Class<?>)obj, methodName,
-                        types, true, true);
+                // 调用静态方法
+                if (p0 instanceof OperateClass) {
+                    method = ExpressUtil.findMethodWithCache((Class<?>)obj, methodName, types, true, true);
                 } else {
-                    m = ExpressUtil.findMethodWithCache(obj.getClass(), methodName,
-                        types, true, false);
+                    method = ExpressUtil.findMethodWithCache(obj.getClass(), methodName, types, true, false);
                 }
                 objs = new Object[] {objs};
             }
-            if (m == null) {
-                StringBuilder s = new StringBuilder();
-                s.append("没有找到" + obj.getClass().getName() + "的方法："
-                    + methodName + "(");
+            if (method == null) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("没有找到" + obj.getClass().getName() + "的方法：" + methodName + "(");
                 for (int i = 0; i < originalTypes.length; i++) {
                     if (i > 0) {
-                        s.append(",");
+                        stringBuilder.append(",");
                     }
                     if (originalTypes[i] == null) {
-                        s.append("null");
+                        stringBuilder.append("null");
                     } else {
-                        s.append(originalTypes[i].getName());
+                        stringBuilder.append(originalTypes[i].getName());
                     }
                 }
-                s.append(")");
-                throw new QLException(s.toString());
+                stringBuilder.append(")");
+                throw new QLException(stringBuilder.toString());
             }
-            //阻止调用不安全的方法
-            QLExpressRunStrategy.assertBlackMethod(m);
 
-            if (p0 instanceof OperateClass) {// 调用静态方法
-                boolean oldA = m.isAccessible();
-                m.setAccessible(true);
-                tmpObj = m.invoke(null, ExpressUtil.transferArray(objs, m.getParameterTypes()));
-                m.setAccessible(oldA);
+            //阻止调用不安全的方法
+            QLExpressRunStrategy.assertBlackMethod(method);
+
+            // 调用静态方法
+            if (p0 instanceof OperateClass) {
+                boolean oldA = method.isAccessible();
+                method.setAccessible(true);
+                tmpObj = method.invoke(null, ExpressUtil.transferArray(objs, method.getParameterTypes()));
+                method.setAccessible(oldA);
             } else {
-                boolean oldA = m.isAccessible();
-                m.setAccessible(true);
-                tmpObj = m.invoke(obj, ExpressUtil.transferArray(objs, m.getParameterTypes()));
-                m.setAccessible(oldA);
+                boolean oldA = method.isAccessible();
+                method.setAccessible(true);
+                tmpObj = method.invoke(obj, ExpressUtil.transferArray(objs, method.getParameterTypes()));
+                method.setAccessible(oldA);
             }
-            return OperateDataCacheManager.fetchOperateData(tmpObj, m.getReturnType());
+            return OperateDataCacheManager.fetchOperateData(tmpObj, method.getReturnType());
         }
     }
 
