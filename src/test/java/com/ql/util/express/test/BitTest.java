@@ -12,7 +12,6 @@ public class BitTest {
 
     @Test
     public void testBit() throws Exception {
-
         assert (~-3 == ~-3L);
         IntBit();
         LongBit();
@@ -51,6 +50,6 @@ public class BitTest {
         System.out.print(express);
         Object obj = runner.execute(express, context, null, true, false);
         System.out.println("=" + obj);
-        assert ((obj == null && expert == null) || obj == expert || obj.equals(expert));
+        assert (obj == expert || obj.equals(expert));
     }
 }

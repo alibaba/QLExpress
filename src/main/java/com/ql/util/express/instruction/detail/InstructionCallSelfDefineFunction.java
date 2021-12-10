@@ -60,14 +60,13 @@ public class InstructionCallSelfDefineFunction extends Instruction {
         }
 
         Object function = environment.getContext().getSymbol(functionName);
-        if (function == null || !(function instanceof InstructionSet)) {
-            throw new QLException(getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到\""
-                + this.functionName + "\"的定义");
+        if (!(function instanceof InstructionSet)) {
+            throw new QLException(getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到\"" + this.functionName + "\"的定义");
         }
         InstructionSet functionSet = (InstructionSet)function;
         OperateData result = InstructionCallSelfDefineFunction
             .executeSelfFunction(environment, functionSet, parameters,
-                errorList, this.log);
+                errorList, log);
         environment.push(result);
         environment.programPointAddOne();
     }

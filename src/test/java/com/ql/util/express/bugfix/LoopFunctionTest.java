@@ -39,7 +39,7 @@ public class LoopFunctionTest {
                     map.put("index", index++);
                     try {
                         Object r = loopRunner.execute(exp, map, null, true, false);
-                        if (r != null && r instanceof Boolean && (Boolean)r) {
+                        if (r instanceof Boolean && (Boolean)r) {
                             continue;
                         } else {
                             return false;
@@ -72,7 +72,7 @@ public class LoopFunctionTest {
                     map.put("index", index++);
                     try {
                         Object r = loopRunner.execute(exp, map, null, true, false);
-                        if (r != null && r instanceof Boolean && (Boolean)r) {
+                        if (r instanceof Boolean && (Boolean)r) {
                             return true;
                         } else {
                             continue;

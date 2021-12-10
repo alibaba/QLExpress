@@ -34,7 +34,7 @@ public class InstructionCallMacro extends Instruction {
             context,
             errorList,
             environment.isTrace(),
-            false, false, this.log,
+            false, false, log,
             environment.getContext().isSupportDynamicFieldName());
         if (result instanceof OperateData) {
             environment.push((OperateData)result);

@@ -39,7 +39,7 @@ public class OperateDataVirClass extends OperateDataAttr {
         this.context = OperateDataCacheManager.fetchInstructionSetContext(false,
             parent.getExpressRunner(), parent, parent.getExpressLoader(), parent.isSupportDynamicFieldName());
         Object functionSet = parent.getSymbol(this.name);
-        if (functionSet == null || !(functionSet instanceof InstructionSet)) {
+        if (!(functionSet instanceof InstructionSet)) {
             throw new QLException("没有找到自定义对象\"" + this.name + "\"");
         }
         this.virClassInstructionSet = (InstructionSet)functionSet;
@@ -58,7 +58,7 @@ public class OperateDataVirClass extends OperateDataAttr {
 
     public OperateData callSelfFunction(String functionName, OperateData[] parameters) throws Exception {
         Object function = this.context.getSymbol(functionName);
-        if (function == null || !(function instanceof InstructionSet)) {
+        if (!(function instanceof InstructionSet)) {
             throw new QLException("在VClass:" + this.name + "中没有定义函数\"" + functionName + "\"");
         }
         InstructionSet functionSet = (InstructionSet)function;

@@ -24,7 +24,6 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
  * 操作符号定义
  *
  * @author qhlhl2010@gmail.com
- *
  */
 
 public abstract class OperatorBase implements Serializable {
@@ -72,11 +71,8 @@ public abstract class OperatorBase implements Serializable {
         //输出错误信息
         if (errorList != null && this.errorInfo != null && result != null) {
             Object obj = result.getObject(context);
-            if (obj != null
-                && obj instanceof Boolean
-                && !((Boolean)obj).booleanValue()) {
-                String tmpStr = ExpressUtil.replaceString(this.errorInfo,
-                    toObjectList(context, list));
+            if (obj instanceof Boolean && !(Boolean)obj) {
+                String tmpStr = ExpressUtil.replaceString(this.errorInfo, toObjectList(context, list));
                 if (!errorList.contains(tmpStr)) {
                     errorList.add(tmpStr);
                 }

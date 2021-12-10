@@ -25,7 +25,7 @@ public abstract class Instruction implements Serializable {
 
     public void setLog(Log aLog) {
         if (aLog != null) {
-            this.log = aLog;
+            log = aLog;
         }
     }
 

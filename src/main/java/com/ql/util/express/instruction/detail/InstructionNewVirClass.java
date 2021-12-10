@@ -56,7 +56,7 @@ public class InstructionNewVirClass extends Instruction {
         environment.push(result);
         environment.programPointAddOne();
         result.initialInstance(environment.getContext(), list, errorList,
-            environment.isTrace(), this.log);
+            environment.isTrace(), log);
     }
 
     @Override
