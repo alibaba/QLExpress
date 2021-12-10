@@ -27,8 +27,6 @@ import org.apache.commons.logging.LogFactory;
  * @author qhlhl2010@gmail.com
  */
 public class InstructionSet {
-
-
     private static final transient Log log = LogFactory.getLog(InstructionSet.class);
     public static final AtomicInteger UNIQUE_INDEX = new AtomicInteger(1);
     public static final String TYPE_CLASS = "VClass";

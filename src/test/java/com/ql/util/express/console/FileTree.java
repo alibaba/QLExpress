@@ -104,10 +104,6 @@ public class FileTree extends JTree {
     }
 
     class PathNode extends DefaultMutableTreeNode {
-        /**
-         *
-         */
-    
         final String value;
         final boolean isFolder;
 

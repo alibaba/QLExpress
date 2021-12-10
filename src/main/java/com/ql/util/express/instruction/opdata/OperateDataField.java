@@ -104,7 +104,8 @@ public class OperateDataField extends OperateDataAttr {
             }
         }
         if (this.fieldObject instanceof OperateDataVirClass) {
-            return ((OperateDataVirClass)this.fieldObject).getValueType(transferFieldName(context, this.originalFieldName));
+            return ((OperateDataVirClass)this.fieldObject).getValueType(
+                transferFieldName(context, this.originalFieldName));
         } else {
             if (this.fieldObject == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 return Void.class;
@@ -116,8 +117,8 @@ public class OperateDataField extends OperateDataAttr {
     @Override
     public void setObject(InstructionSetContext context, Object value) throws Exception {
         if (this.fieldObject instanceof OperateDataVirClass) {
-            ((OperateDataVirClass)this.fieldObject).setValue(transferFieldName(context, this.originalFieldName).toString(),
-                value);
+            ((OperateDataVirClass)this.fieldObject).setValue(
+                transferFieldName(context, this.originalFieldName).toString(), value);
         } else {
             ExpressUtil.setProperty(fieldObject, transferFieldName(context, this.originalFieldName), value);
         }

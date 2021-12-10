@@ -72,7 +72,6 @@ public class ConsoleFrame2
 
     /**
      * Component initialization.
-     *
      */
     private void jbInit() {
         contentPane = (JPanel)getContentPane();

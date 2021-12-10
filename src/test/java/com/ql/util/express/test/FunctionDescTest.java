@@ -25,7 +25,8 @@ public class FunctionDescTest {
             BeanExample.class.getName(), "isVIPTwo", new String[] {"String"}, null, null, null));
         Object r2 = runner.execute(express, context, null, false, false);
         System.out.println(r2);
-        //		Assert.assertTrue("属性操作错误", r.toString().equalsIgnoreCase("ffff"));
-        //		Assert.assertTrue("属性操作错误", ((BeanExample)context.get("example")).child.a.toString().equalsIgnoreCase("ssssssss"));
+        //Assert.assertTrue("属性操作错误", r.toString().equalsIgnoreCase("ffff"));
+        //Assert.assertTrue("属性操作错误", ((BeanExample)context.get("example")).child.a.toString().equalsIgnoreCase
+        // ("ssssssss"));
     }
 }

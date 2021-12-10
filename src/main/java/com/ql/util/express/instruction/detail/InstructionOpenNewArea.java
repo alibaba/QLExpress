@@ -7,8 +7,6 @@ import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionOpenNewArea extends Instruction {
-
-
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) {
         //目前的模式，不需要执行任何操作
