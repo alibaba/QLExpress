@@ -8,7 +8,7 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class InstructionLoadAttr extends Instruction {
     private static final long serialVersionUID = -2761666977949467250L;
-    String attrName;
+    final String attrName;
 
     public InstructionLoadAttr(String aName) {
         this.attrName = aName;

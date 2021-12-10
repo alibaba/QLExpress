@@ -8,7 +8,6 @@ import com.ql.util.express.OperateData;
 /**
  * 处理 ",","(",")",";"
  */
-
 public class OperatorNullOp extends OperatorBase {
     public OperatorNullOp(String name) {
         this.name = name;

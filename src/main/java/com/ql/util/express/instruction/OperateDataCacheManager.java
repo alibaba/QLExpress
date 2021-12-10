@@ -17,15 +17,15 @@ import com.ql.util.express.instruction.opdata.OperateDataKeyValue;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 public class OperateDataCacheManager {
-    private static final ThreadLocal<RunnerDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
+    private static final ThreadLocal<RunnerDataCache> RUNNER_DATA_CACHE_THREAD_LOCAL = ThreadLocal.withInitial(
         RunnerDataCache::new);
 
     public static void push(ExpressRunner aRunner) {
-        m_OperateDataObjectCache.get().push(aRunner);
+        RUNNER_DATA_CACHE_THREAD_LOCAL.get().push(aRunner);
     }
 
     public static IOperateDataCache getOperateDataCache() {
-        return m_OperateDataObjectCache.get().cache;
+        return RUNNER_DATA_CACHE_THREAD_LOCAL.get().cache;
     }
 
     public static OperateData fetchOperateData(Object obj, Class<?> aType) {
@@ -73,14 +73,14 @@ public class OperateDataCacheManager {
 
     public static void resetCache(ExpressRunner aRunner) {
         getOperateDataCache().resetCache();
-        m_OperateDataObjectCache.get().pop(aRunner);
+        RUNNER_DATA_CACHE_THREAD_LOCAL.get().pop(aRunner);
     }
 }
 
 class RunnerDataCache {
     IOperateDataCache cache;
 
-    Stack<ExpressRunner> stack = new Stack<>();
+    final Stack<ExpressRunner> stack = new Stack<>();
 
     public void push(ExpressRunner aRunner) {
         this.cache = aRunner.getOperateDataCache();

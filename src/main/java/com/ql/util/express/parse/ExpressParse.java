@@ -17,8 +17,8 @@ import org.apache.commons.logging.LogFactory;
 public class ExpressParse {
 
     private static final Log log = LogFactory.getLog(ExpressParse.class);
-    NodeTypeManager nodeTypeManager;
-    IExpressResourceLoader expressResourceLoader;
+    final NodeTypeManager nodeTypeManager;
+    final IExpressResourceLoader expressResourceLoader;
 
     /**
      * 是否忽略charset类型的数据，而识别为string，比如'a' -> "a"
@@ -51,14 +51,14 @@ public class ExpressParse {
 
     protected Word[] dealInclude(Word[] wordObjects) throws Exception {
         boolean isInclude = false;
-        StringBuffer includeFileName = new StringBuffer();
+        StringBuilder includeFileName = new StringBuilder();
         int point = 0;
         List<Word> result = new ArrayList<>();
         while (point < wordObjects.length) {
-            if (wordObjects[point].word.equals("include")) {
+            if ("include".equals(wordObjects[point].word)) {
                 isInclude = true;
                 includeFileName.setLength(0);
-            } else if (isInclude && wordObjects[point].word.equals(";")) {
+            } else if (isInclude && ";".equals(wordObjects[point].word)) {
                 isInclude = false;
                 Word[] childExpressWord = this.getExpressByName(includeFileName.toString());
                 childExpressWord = this.dealInclude(childExpressWord);
@@ -96,12 +96,12 @@ public class ExpressParse {
             tmpImportPackage = new ExpressPackage(aRootExpressPackage);
             //先处理import，import必须放在文件的最开始，必须以;结束
             boolean isImport = false;
-            StringBuffer importName = new StringBuffer();
+            StringBuilder importName = new StringBuilder();
             while (point < wordObjects.length) {
-                if (wordObjects[point].word.equals("import")) {
+                if ("import".equals(wordObjects[point].word)) {
                     isImport = true;
                     importName.setLength(0);
-                } else if (wordObjects[point].word.equals(";")) {
+                } else if (";".equals(wordObjects[point].word)) {
                     isImport = false;
                     tmpImportPackage.addPackage(importName.toString());
                 } else if (isImport) {
@@ -125,7 +125,7 @@ public class ExpressParse {
             char lastChar = tempWord.substring(tempWord.length() - 1).toLowerCase().charAt(0);
             if (firstChar >= '0' && firstChar <= '9') {
                 if (result.size() > 0) {//对 负号进行特殊处理
-                    if (result.get(result.size() - 1).getValue().equals("-")) {
+                    if ("-".equals(result.get(result.size() - 1).getValue())) {
                         if (result.size() == 1
                             || result.size() >= 2
                             && (result.get(result.size() - 2).isTypeEqualsOrChild("OP_LIST")
@@ -157,7 +157,7 @@ public class ExpressParse {
                     } else {
                         objectValue = Float.valueOf(tempWord);
                     }
-                } else if (tempWord.indexOf(".") >= 0) {
+                } else if (tempWord.contains(".")) {
                     tempType = nodeTypeManager.findNodeType("CONST_DOUBLE");
                     if (this.isPrecise) {
                         objectValue = new BigDecimal(tempWord);
@@ -172,10 +172,10 @@ public class ExpressParse {
                     long tempLong = Long.parseLong(tempWord);
                     if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
                         tempType = nodeTypeManager.findNodeType("CONST_INTEGER");
-                        objectValue = Integer.valueOf((int)tempLong);
+                        objectValue = (int)tempLong;
                     } else {
                         tempType = nodeTypeManager.findNodeType("CONST_LONG");
-                        objectValue = Long.valueOf(tempLong);
+                        objectValue = tempLong;
                     }
                 }
                 treeNodeType = nodeTypeManager.findNodeType("CONST");
@@ -205,7 +205,7 @@ public class ExpressParse {
                 }
 
                 point = point + 1;
-            } else if (tempWord.equals("true") || tempWord.equals("false")) {
+            } else if ("true".equals(tempWord) || "false".equals(tempWord)) {
                 tempType = nodeTypeManager.findNodeType("CONST_BOOLEAN");
                 treeNodeType = nodeTypeManager.findNodeType("CONST");
                 objectValue = Boolean.valueOf(tempWord);
@@ -231,7 +231,7 @@ public class ExpressParse {
                                 break;
                             }
                             if (j < wordObjects.length - 1
-                                && wordObjects[j + 1].word.equals(".")) {
+                                && ".".equals(wordObjects[j + 1].word)) {
                                 tmpStr = tmpStr + wordObjects[j + 1].word;
                                 j = j + 2;
                                 continue;
@@ -377,14 +377,14 @@ public class ExpressParse {
             List<ExpressNode> tempList2 = new ArrayList<>();
             for (int i = 0; i < tempList.size(); i++) {
                 ExpressNode node = tempList.get(i);
-                if (node.getValue().equals("new") && node.getNodeType().getKind() == NodeTypeKind.KEYWORD
+                if ("new".equals(node.getValue()) && node.getNodeType().getKind() == NodeTypeKind.KEYWORD
                     && i + 1 < tempList.size() && !"CONST_CLASS".equals(tempList.get(i + 1).getNodeType().getName())) {
                     tempList2.add(node);
                     //取出 ( 前面的类路径作为configClass名称
                     int end = i + 1;
                     String configClass = tempList.get(end).getValue();
                     end++;
-                    while (!tempList.get(end).getValue().equals("(")) {
+                    while (!"(".equals(tempList.get(end).getValue())) {
                         configClass = configClass + tempList.get(end).getValue();
                         end++;
                     }
@@ -428,7 +428,7 @@ public class ExpressParse {
     }
 
     public static String printInfo(List<ExpressNode> list, String splitOp) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             if (i > 0) {
                 buffer.append(splitOp);

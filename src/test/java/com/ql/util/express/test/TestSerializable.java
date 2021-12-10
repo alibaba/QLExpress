@@ -14,16 +14,12 @@ public class TestSerializable {
     public void testSerializable() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         InstructionSet staff = runner.parseInstructionSet("1+1");
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("target/qlcache.dat"));
-            out.writeObject(staff);
-            out.close();
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("target/qlcache.dat"));
-            InstructionSet newStaff = (InstructionSet)in.readObject();
-            in.close();
-            System.out.print(newStaff);
-        } catch (Exception e) {
-            throw e;
-        }
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("target/qlcache.dat"));
+        out.writeObject(staff);
+        out.close();
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream("target/qlcache.dat"));
+        InstructionSet newStaff = (InstructionSet)in.readObject();
+        in.close();
+        System.out.print(newStaff);
     }
 }

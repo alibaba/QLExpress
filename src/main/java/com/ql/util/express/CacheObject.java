@@ -8,10 +8,6 @@ import java.io.Serializable;
  * @author tianqiao
  */
 public class CacheObject implements Serializable {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = -145121001676214513L;
 
     private String expressName;

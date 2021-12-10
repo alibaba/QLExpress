@@ -21,7 +21,7 @@ public class MethodCallInstructionFactory extends InstructionFactory {
         boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, children[0], false);
         returnVal = returnVal || tmpHas;
         //处理方法名称
-        if (!children[1].getNodeType().getName().equalsIgnoreCase("CONST_STRING")) {
+        if (!"CONST_STRING".equalsIgnoreCase(children[1].getNodeType().getName())) {
             throw new QLException("对象方法名称不是字符串常量:" + children[1]);
         }
         String methodName = (String)children[1].getObjectValue();

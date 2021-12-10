@@ -6,9 +6,9 @@ import com.ql.util.express.InstructionSet;
 
 public class FunctionInstructionSet implements Serializable {
     private static final long serialVersionUID = 8735208809492617401L;
-    public String name;
-    public String type;
-    public InstructionSet instructionSet;
+    public final String name;
+    public final String type;
+    public final InstructionSet instructionSet;
 
     public FunctionInstructionSet(String aName, String aType, InstructionSet aInstructionSet) {
         this.name = aName;

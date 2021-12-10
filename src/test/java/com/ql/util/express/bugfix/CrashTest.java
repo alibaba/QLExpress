@@ -12,7 +12,7 @@ import org.junit.Test;
  * Created by tianqiao on 16/11/10.
  */
 public class CrashTest {
-    public static String[] splitWord = {
+    public static final String[] splitWord = {
         "~", "&", "|", "<<", ">>",//位操作
         "+", "-", "*", "/", "%", "++", "--",//四则运算：
         ".", ",", ":", ";", "(", ")", "{", "}", "[", "]", "?",//分隔符号

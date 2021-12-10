@@ -58,7 +58,7 @@ public class LambdaTest {
 
         List<Integer> a = Arrays.asList(1, 2, 3).stream().filter(item -> item > 1).map(item -> item + 1).collect(
             Collectors.toList());
-        a.stream().forEach(item -> System.out.println(item));
+        a.stream().forEach(System.out::println);
         Assert.assertEquals(Arrays.asList(3, 4), a);
 
         String expr = "a = NewList(1,2,3).stream()" +
@@ -87,9 +87,7 @@ public class LambdaTest {
         });
 
         List<Integer> list = Arrays.asList(1, 2, 3);
-        list.forEach(item -> {
-            System.out.println(item);
-        });
+        list.forEach(System.out::println);
 
         String expr = "map.forEach((k, v) -> {\n" +
             "            System.out.println(k);\n" +

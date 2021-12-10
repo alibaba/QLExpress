@@ -14,7 +14,9 @@ import com.ql.util.express.instruction.opdata.OperateDataVirClass;
 import com.ql.util.express.parse.AppendingClassMethodManager;
 
 public class OperatorMethod extends OperatorBase {
-    String methodName;
+    private String methodName;
+
+    private static final Class<?> ARRAY_CLASS = (new Object[] {}).getClass();
 
     public OperatorMethod() {
         this.name = "MethodCall";
@@ -24,8 +26,6 @@ public class OperatorMethod extends OperatorBase {
         this.name = "MethodCall";
         this.methodName = aMethodName;
     }
-
-    static Class<?> ArrayClass = (new Object[] {}).getClass();
 
     @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
@@ -86,7 +86,7 @@ public class OperatorMethod extends OperatorBase {
                 }
             }
             if (m == null) {
-                types = new Class[] {ArrayClass};
+                types = new Class[] {ARRAY_CLASS};
                 if (p0 instanceof OperateClass) {// 调用静态方法
                     m = ExpressUtil.findMethodWithCache((Class<?>)obj, methodName,
                         types, true, true);

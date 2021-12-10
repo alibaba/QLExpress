@@ -15,7 +15,7 @@ public class Patient extends Person {
 
     @QLAlias("获取患者年龄")
     public int getAge() {
-        return 2021 - Integer.valueOf(this.getBirth().substring(0, 4));
+        return 2021 - Integer.parseInt(this.getBirth().substring(0, 4));
     }
 
     public String getLevel() {

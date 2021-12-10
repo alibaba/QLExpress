@@ -105,9 +105,9 @@ public class ExpressTest {
                 + "50008163,50023804,50020332,27)", "false"}
         };
         IExpressContext<String, Object> expressContext = new ExpressContextExample(null);
-        expressContext.put("b", new Integer(200));
-        expressContext.put("c", new Integer(300));
-        expressContext.put("d", new Integer(400));
+        expressContext.put("b", 200);
+        expressContext.put("c", 300);
+        expressContext.put("d", 400);
         expressContext.put("bean", new BeanExample());
         expressContext.put("abc", 1L);
         expressContext.put("defVar", 1000);

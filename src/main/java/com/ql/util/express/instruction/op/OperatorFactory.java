@@ -13,7 +13,7 @@ public class OperatorFactory {
     /**
      * 是否需要高精度计算
      */
-    protected boolean isPrecise;
+    protected final boolean isPrecise;
     private final Map<String, OperatorBase> operator = new HashMap<>();
 
     public OperatorFactory(boolean aIsPrecise) {

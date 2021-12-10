@@ -24,7 +24,7 @@ public class OperatorLike extends Operator {
         boolean result = true;
         String s1 = op1.toString();
         String s2 = op2.toString();
-        if (s2.indexOf("%") >= 0) {
+        if (s2.contains("%")) {
             String[] list = split(s2, "%");
             int index = 0;
             for (int i = 0; i < list.length; i++) {
@@ -39,10 +39,11 @@ public class OperatorLike extends Operator {
                 }
                 index = index + 1;
             }
-        } else
+        } else {
             result = s1.equals(s2);
+        }
 
-        return Boolean.valueOf(result);
+        return result;
     }
 
     public String[] split(String str, String s) {

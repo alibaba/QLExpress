@@ -84,7 +84,7 @@ public class ExpressRunner {
     /**
      * 缺省的Class查找的包管理器
      */
-    ExpressPackage rootExpressPackage = new ExpressPackage(null);
+    final ExpressPackage rootExpressPackage = new ExpressPackage(null);
 
     /**
      * 线程冲入次数

@@ -53,7 +53,7 @@ public class TypicalDemo {
         List<String> errorInfo = new ArrayList<>();
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
         String resultStr = "";
-        if (result.booleanValue()) {
+        if (result) {
             resultStr = "可以订购此商品";
         } else {
             for (int i = 0; i < errorInfo.size(); i++) {
@@ -88,9 +88,9 @@ public class TypicalDemo {
 }
 
 class UserInfo {
-    long id;
-    long tag;
-    String name;
+    final long id;
+    final long tag;
+    final String name;
 
     public UserInfo(long aId, String aName, long aUserTag) {
         this.id = aId;

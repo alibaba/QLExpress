@@ -3,7 +3,7 @@ package com.ql.util.express.test;
 import org.apache.commons.logging.Log;
 
 public class MyLog implements Log {
-    String name;
+    final String name;
 
     public MyLog(String aName) {
         this.name = aName;

@@ -23,13 +23,13 @@ public class OperatorMinMax extends Operator {
         Object op2) throws Exception {
         Object result = null;
         int compareResult = Operator.compareData(op1, op2);
-        if (this.name.equals("min")) {
+        if ("min".equals(this.name)) {
             if (compareResult < 0) {
                 result = op1;
             } else {
                 result = op2;
             }
-        } else if (this.name.equals("max")) {
+        } else if ("max".equals(this.name)) {
             if (compareResult < 0) {
                 result = op2;
             } else {

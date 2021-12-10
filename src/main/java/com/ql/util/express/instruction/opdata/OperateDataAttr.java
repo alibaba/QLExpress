@@ -57,7 +57,7 @@ public class OperateDataAttr extends OperateData {
 
     @Override
     public Object getObjectInner(InstructionSetContext context) throws Exception {
-        if (this.name.equalsIgnoreCase("null")) {
+        if ("null".equalsIgnoreCase(this.name)) {
             return null;
         }
         if (context == null) {

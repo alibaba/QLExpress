@@ -23,6 +23,7 @@ class SubjectOperator extends Operator {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public OperateData executeInner(InstructionSetContext context,
         ArraySwap list) throws Exception {
@@ -46,9 +47,9 @@ class SubjectOperator extends Operator {
 
 @SuppressWarnings("rawtypes")
 class OperateDataSubject extends OperateData {
-    Object userId;
-    Object subjectId;
-    Map container;
+    final Object userId;
+    final Object subjectId;
+    final Map container;
 
     public OperateDataSubject(Map aContainer, Object aUserId, Object aSubjectId) {
         super(null, Double.class);

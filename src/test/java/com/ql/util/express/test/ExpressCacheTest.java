@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 public class ExpressCacheTest {
 
-    ExpressRunner runner = new ExpressRunner();
+    final ExpressRunner runner = new ExpressRunner();
 
     @Test
     public void testScriptCache() throws Exception {

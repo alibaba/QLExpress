@@ -17,9 +17,9 @@ public class OperatorDoubleAddReduce extends OperatorBase {
         ArraySwap list) throws Exception {
         Object obj = list.get(0).getObject(parent);
         Object result = null;
-        if (this.getName().equals("++")) {
+        if ("++".equals(this.getName())) {
             result = OperatorOfNumber.add(obj, 1, this.isPrecise);
-        } else if (this.getName().equals("--")) {
+        } else if ("--".equals(this.getName())) {
             result = OperatorOfNumber.subtract(obj, 1, this.isPrecise);
         }
         list.get(0).setObject(parent, result);

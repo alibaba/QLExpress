@@ -30,6 +30,8 @@ import org.apache.commons.beanutils.PropertyUtils;
  */
 @SuppressWarnings("unchecked")
 public class ExpressUtil {
+    private static final Pattern PATTERN = Pattern.compile("\\$\\d+");
+
     public static final String DT_STRING = "String";
     public static final String DT_SHORT = "Short";
     public static final String DT_INTEGER = "Integer";
@@ -53,9 +55,9 @@ public class ExpressUtil {
     public static final String DT_char = "char";
     public static final String DT_boolean = "boolean";
 
-    public static Map<String, Object> methodCache = new ConcurrentHashMap<>();
+    public static final Map<String, Object> METHOD_CACHE = new ConcurrentHashMap<>();
 
-    private static final Class<?>[][] classMatches = new Class[][] {
+    private static final Class<?>[][] CLASS_MATCHES = new Class[][] {
         //原始数据类型
         {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
         {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
@@ -170,8 +172,8 @@ public class ExpressUtil {
             return true;
         }
 
-        for (int i = 0; i < classMatches.length; i++) {
-            if (target == classMatches[i][0] && source == classMatches[i][1]) {
+        for (int i = 0; i < CLASS_MATCHES.length; i++) {
+            if (target == CLASS_MATCHES[i][0] && source == CLASS_MATCHES[i][1]) {
                 return true;
             }
         }
@@ -217,8 +219,9 @@ public class ExpressUtil {
             }
 
             return (rhsType == Float.TYPE) && (lhsType == Double.TYPE);
-        } else
+        } else {
             return lhsType.isAssignableFrom(rhsType);
+        }
     }
 
     public static boolean isSignatureAssignable(Class<?>[] from, Class<?>[] to) {
@@ -278,14 +281,14 @@ public class ExpressUtil {
     public static Method findMethodWithCache(Class<?> baseClass, String methodName,
         Class<?>[] types, boolean publicOnly, boolean isStatic) {
         String key = createCacheKey(baseClass, methodName, types, publicOnly, isStatic);
-        Object result = methodCache.get(key);
+        Object result = METHOD_CACHE.get(key);
         if (result == null) {
             result = findMethod(baseClass, methodName, types, publicOnly, isStatic);
             if (result == null) {
-                methodCache.put(key, void.class);
+                METHOD_CACHE.put(key, void.class);
             } else {
                 ((Method)result).setAccessible(true);
-                methodCache.put(key, result);
+                METHOD_CACHE.put(key, result);
             }
         } else if (result == void.class) {
             result = null;
@@ -302,10 +305,10 @@ public class ExpressUtil {
 
     public static Constructor<?> findConstructorWithCache(Class<?> baseClass, Class<?>[] types) {
         String key = createCacheKey(baseClass, "new", types, true, false);
-        Constructor<?> result = (Constructor<?>)methodCache.get(key);
+        Constructor<?> result = (Constructor<?>)METHOD_CACHE.get(key);
         if (result == null) {
             result = findConstructor(baseClass, types);
-            methodCache.put(key, result);
+            METHOD_CACHE.put(key, result);
         }
         return result;
     }
@@ -457,7 +460,7 @@ public class ExpressUtil {
         if (type.equals(DT_BYTE)) {
             return Byte.class;
         }
-        if (type.equals(DT_CHAR) || type.equals("Character")) {
+        if (type.equals(DT_CHAR) || "Character".equals(type)) {
             return Character.class;
         }
         if (type.equals(DT_BOOLEAN)) {
@@ -516,7 +519,7 @@ public class ExpressUtil {
 
     private static String getClassName(String name) {
         String arrays = "";
-        if (name.indexOf("[") >= 0) {
+        if (name.contains("[")) {
             int point = 0;
             while (name.charAt(point) == '[') {
                 arrays = arrays + "[]";
@@ -543,7 +546,7 @@ public class ExpressUtil {
             }
         }
         int index = name.lastIndexOf('.');
-        if (index > 0 && name.substring(0, index).equals("java.lang")) {
+        if (index > 0 && "java.lang".equals(name.substring(0, index))) {
             name = name.substring(index + 1);
         }
         name = name + arrays;
@@ -568,8 +571,7 @@ public class ExpressUtil {
         if (str == null || parameters == null || parameters.length == 0) {
             return str;
         }
-        Pattern p = Pattern.compile("\\$\\d+");
-        Matcher m = p.matcher(str);
+        Matcher m = PATTERN.matcher(str);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             int index = Integer.parseInt(m.group().substring(1)) - 1;
@@ -588,10 +590,10 @@ public class ExpressUtil {
             if (bean == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 return null;
             }
-            if (bean.getClass().isArray() && name.equals("length")) {
+            if (bean.getClass().isArray() && "length".equals(name)) {
                 return Array.getLength(bean);
             } else if (bean instanceof Class) {
-                if (name.equals("class")) {
+                if ("class".equals(name)) {
                     return bean;
                 } else {
                     Field f = ((Class<?>)bean).getDeclaredField(name.toString());
@@ -609,10 +611,10 @@ public class ExpressUtil {
 
     public static Class<?> getPropertyClass(Object bean, Object name) {
         try {
-            if (bean.getClass().isArray() && name.equals("length")) {
+            if (bean.getClass().isArray() && "length".equals(name)) {
                 return int.class;
             } else if (bean instanceof Class) {
-                if (name.equals("class")) {
+                if ("class".equals(name)) {
                     return Class.class;
                 } else {
                     Field f = ((Class<?>)bean).getDeclaredField(name.toString());

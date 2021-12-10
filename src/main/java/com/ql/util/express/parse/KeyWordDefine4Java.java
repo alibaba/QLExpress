@@ -1,7 +1,7 @@
 package com.ql.util.express.parse;
 
 public class KeyWordDefine4Java {
-    public String[] splitWord = {
+    public final String[] splitWord = {
         "^", "~", "&", "|", "<<", ">>",// 位操作
         "+", "-", "*", "/", "%", "++", "--",//四则运算：
         ".", ",", ":", ";", "(", ")", "{", "}", "[", "]", "?",//分隔符号
@@ -10,7 +10,7 @@ public class KeyWordDefine4Java {
         // lambda 表达式
         "->"
     };
-    public String[] keyWords = new String[] {
+    public final String[] keyWords = new String[] {
         "mod", "nor", "in",
         "for", "if", "when", "then", "else", "exportAlias", "alias",
         "break", "continue", "return", "macro", "function",
@@ -18,7 +18,7 @@ public class KeyWordDefine4Java {
         "like", "class", "VClass",
         "cast"
     };
-    public String[] nodeTypeDefines = new String[] {
+    public final String[] nodeTypeDefines = new String[] {
         "ID:TYPE=WORDDEF",
         "EOF:TYPE=WORDDEF",
         "FUNCTION_NAME:TYPE=WORDDEF",
@@ -146,7 +146,7 @@ public class KeyWordDefine4Java {
         "STAT_LIST:TYPE=BLOCK,DEFINE=(STAT_BLOCK|STATEMENT)*",
         "PROGRAM:TYPE=BLOCK,DEFINE=STAT_LIST#STAT_BLOCK",
     };
-    public String[][] instructionFactoryMapping = {
+    public final String[][] instructionFactoryMapping = {
         {"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL",
             "com.ql.util.express.instruction.OperatorInstructionFactory"},
         {"in", "com.ql.util.express.instruction.InInstructionFactory"},

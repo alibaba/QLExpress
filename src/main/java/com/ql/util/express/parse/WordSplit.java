@@ -108,20 +108,14 @@ public class WordSplit {
 
     public static String[] sortSplitWord(String[] splitWord) {
         Arrays.sort(splitWord, (o1, o2) -> {
-            if (o1.length() == o2.length()) {
-                return 0;
-            } else if (o1.length() > o2.length()) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return Integer.compare(o2.length(), o1.length());
 
         });
         return splitWord;
     }
 
     protected static boolean isNumber(String str) {
-        if (str == null || str.equals("")) {
+        if (str == null || "".equals(str)) {
             return false;
         }
         char c = str.charAt(0);
@@ -130,7 +124,7 @@ public class WordSplit {
     }
 
     public static String getPrintInfo(Object[] list, String splitOp) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < list.length; i++) {
             if (i > 0) {
                 buffer.append(splitOp);

@@ -26,7 +26,7 @@ public class OperatorOr extends Operator {
         if (op1 == null) {
             r1 = false;
         } else if (op1 instanceof Boolean) {
-            r1 = ((Boolean)op1).booleanValue();
+            r1 = (Boolean)op1;
         } else {
             String msg = "没有定义类型" + op1 + "和" + op2 + " 的 " + this.name + "操作";
             throw new QLException(msg);
@@ -34,12 +34,12 @@ public class OperatorOr extends Operator {
         if (op2 == null) {
             r2 = false;
         } else if (op2 instanceof Boolean) {
-            r2 = ((Boolean)op2).booleanValue();
+            r2 = (Boolean)op2;
         } else {
             String msg = "没有定义类型" + op1 + "和" + op2 + " 的 " + this.name + "操作";
             throw new QLException(msg);
         }
         boolean result = r1 || r2;
-        return Boolean.valueOf(result);
+        return result;
     }
 }

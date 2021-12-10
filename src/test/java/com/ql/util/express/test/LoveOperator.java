@@ -7,6 +7,7 @@ class LoveOperator extends Operator {
         this.name = aName;
     }
 
+    @Override
     public Object executeInner(Object[] list) {
         String op1 = list[0].toString();
         String op2 = list[1].toString();

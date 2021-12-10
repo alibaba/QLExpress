@@ -22,7 +22,7 @@ public class FieldCallInstructionFactory extends InstructionFactory {
         returnVal = returnVal || tmpHas;
 
         //处理属性名称
-        if (!children[1].getNodeType().getName().equalsIgnoreCase("CONST_STRING")) {
+        if (!"CONST_STRING".equalsIgnoreCase(children[1].getNodeType().getName())) {
             throw new QLCompileException("对象属性名称不是字符串常量:" + children[1]);
         }
 

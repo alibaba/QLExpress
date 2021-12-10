@@ -37,7 +37,7 @@ public class InstructionGoToWithCondition extends Instruction {
         if (o == null) {
             r = false;
         } else if (o instanceof Boolean) {
-            r = ((Boolean)o).booleanValue();
+            r = (Boolean)o;
         } else {
             throw new QLException(getExceptionPrefix() + "指令错误:" + o + " 不是Boolean");
         }

@@ -8,8 +8,9 @@ class GroupOperator extends Operator {
         this.name = aName;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
-        Object result = Integer.valueOf(0);
+        Object result = 0;
         for (int i = 0; i < list.length; i++) {
             result = OperatorOfNumber.add(result, list[i], false);
         }

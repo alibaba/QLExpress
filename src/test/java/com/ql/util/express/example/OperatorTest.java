@@ -77,9 +77,9 @@ public class OperatorTest {
         //定义表达式，相当于 i+(j+j)+(n+n)
         String exp = " i addT j addT n";
         IExpressContext<String, Object> expressContext = new DefaultContext<>();
-        expressContext.put("i", Integer.valueOf(1));
-        expressContext.put("j", Integer.valueOf(22));
-        expressContext.put("n", Integer.valueOf(2));
+        expressContext.put("i", 1);
+        expressContext.put("j", 22);
+        expressContext.put("n", 2);
         ExpressRunner runner = new ExpressRunner();
         //定义操作符addT，其实现为AddTwiceOperator
         runner.addOperator("addT", new AddTwiceOperator());

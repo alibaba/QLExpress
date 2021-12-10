@@ -70,8 +70,9 @@ public class QLPattern {
                 QLMatchResult resultDetail = null;
                 if (pattern.nodeType == aManager.findNodeType("EOF") && pointDetail == nodes.size()) {
                     resultDetail = staticParams.resultCache.fetch().setMatchLastIndex(pointDetail + 1);
-                } else if (pattern.nodeType == aManager.findNodeType("EOF") && pointDetail < nodes.size() && nodes.get(
-                    pointDetail).getValue().equals("}")) {
+                } else if (pattern.nodeType == aManager.findNodeType("EOF") && pointDetail < nodes.size() && "}".equals(
+                    nodes.get(
+                        pointDetail).getValue())) {
                     resultDetail = staticParams.resultCache.fetch().setMatchLastIndex(pointDetail);
                 } else if (pointDetail == nodes.size() && pattern.nodeType.getPatternNode() != null) {
                     resultDetail = findMatchStatementWithAddRootOptimizeStack(staticParams,
@@ -273,18 +274,18 @@ public class QLPattern {
     public static void traceLog(QLPatternNode pattern, QLMatchResult result,
         List<? extends IDataNode> nodes, int point, int matchCount) {
         if (log.isTraceEnabled() && (pattern.matchMode == MatchMode.DETAIL
-            || pattern.matchMode == MatchMode.AND && matchCount > 1 && !pattern.name.equals("ANONY_PATTERN"))) {
+            || pattern.matchMode == MatchMode.AND && matchCount > 1 && !"ANONY_PATTERN".equals(pattern.name))) {
             log.trace("匹配--" + pattern.name + "[" + point + ":" + (result.getMatchLastIndex() - 1) + "]:" + pattern);
         }
     }
 
     public static class MatchParamsPack {
-        INodeTypeManager aManager;
-        List<? extends IDataNode> nodes;
-        AtomicLong maxDeep;
-        AtomicLong maxMatchPoint;
-        QLMatchResultCache resultCache;
-        ArrayListCache arrayListCache;
+        final INodeTypeManager aManager;
+        final List<? extends IDataNode> nodes;
+        final AtomicLong maxDeep;
+        final AtomicLong maxMatchPoint;
+        final QLMatchResultCache resultCache;
+        final ArrayListCache arrayListCache;
 
         public MatchParamsPack(INodeTypeManager aManager, List<? extends IDataNode> nodes, AtomicLong maxDeep,
             AtomicLong maxMatchPoint, QLMatchResultCache aResultCache, ArrayListCache aArrayListCache) {

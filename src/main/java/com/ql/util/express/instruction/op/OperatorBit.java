@@ -16,7 +16,7 @@ public class OperatorBit extends Operator {
 
     @Override
     public Object executeInner(Object[] list) throws Exception {
-        if (this.name.equals("~")) {
+        if ("~".equals(this.name)) {
             if (list.length == 1 && list[0] instanceof Number) {
                 if (list[0] instanceof Integer) {
                     return ~(((Number)list[0]).intValue());
@@ -27,7 +27,7 @@ public class OperatorBit extends Operator {
                 throw new QLException("取反操作符 ~ 参数不合法:" + Arrays.toString(list));
             }
         }
-        if (this.name.equals("&")) {
+        if ("&".equals(this.name)) {
             if (list.length == 2 && list[0] instanceof Number && list[1] instanceof Number) {
                 if (list[0] instanceof Integer && list[1] instanceof Integer) {
                     return (Integer)list[0] & (Integer)list[1];
@@ -37,7 +37,7 @@ public class OperatorBit extends Operator {
                 throw new QLException("按位与操作符 & 两边的参数不合法:" + Arrays.toString(list));
             }
         }
-        if (this.name.equals("|")) {
+        if ("|".equals(this.name)) {
             if (list.length == 2 && list[0] instanceof Number && list[1] instanceof Number) {
                 if (list[0] instanceof Integer && list[1] instanceof Integer) {
                     return (Integer)list[0] | (Integer)list[1];
@@ -47,7 +47,7 @@ public class OperatorBit extends Operator {
                 throw new QLException("按位或操作符 | 两边的参数不合法:" + Arrays.toString(list));
             }
         }
-        if (this.name.equals("^")) {
+        if ("^".equals(this.name)) {
             if (list.length == 2 && list[0] instanceof Number && list[1] instanceof Number) {
                 if (list[0] instanceof Integer && list[1] instanceof Integer) {
                     return (Integer)list[0] ^ (Integer)list[1];
@@ -57,7 +57,7 @@ public class OperatorBit extends Operator {
                 throw new QLException("按位异或操作符 ^ 两边的参数不合法:" + Arrays.toString(list));
             }
         }
-        if (this.name.equals("<<")) {
+        if ("<<".equals(this.name)) {
             if (list.length == 2 && list[0] instanceof Number && list[1] instanceof Number) {
                 if (list[0] instanceof Integer && list[1] instanceof Integer) {
                     return (Integer)list[0] << (Integer)list[1];
@@ -67,7 +67,7 @@ public class OperatorBit extends Operator {
                 throw new QLException("左移操作符 << 两边的参数不合法:" + Arrays.toString(list));
             }
         }
-        if (this.name.equals(">>")) {
+        if (">>".equals(this.name)) {
             if (list.length == 2 && list[0] instanceof Number && list[1] instanceof Number) {
                 if (list[0] instanceof Integer && list[1] instanceof Integer) {
                     return (Integer)list[0] >> (Integer)list[1];

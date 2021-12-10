@@ -108,8 +108,8 @@ public class FileTree extends JTree {
          *
          */
         private static final long serialVersionUID = 1L;
-        String value;
-        boolean isFolder;
+        final String value;
+        final boolean isFolder;
 
         public PathNode(String name, Object value, boolean isFolder) {
             super(name);

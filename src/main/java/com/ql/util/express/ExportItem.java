@@ -9,8 +9,8 @@ import java.io.Serializable;
  */
 public class ExportItem implements Serializable {
     private static final long serialVersionUID = 5440012774123494760L;
-    public static String TYPE_ALIAS = "alias";
-    public static String TYPE_DEF = "def";
+    public static final String TYPE_ALIAS = "alias";
+    public static final String TYPE_DEF = "def";
     public static String TYPE_FUNCTION = "function";
     public static String TYPE_MACRO = "macro";
     String globeName;

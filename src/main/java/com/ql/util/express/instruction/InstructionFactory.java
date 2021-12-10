@@ -9,15 +9,14 @@ import com.ql.util.express.InstructionSet;
 import com.ql.util.express.parse.ExpressNode;
 
 public abstract class InstructionFactory {
-    private static final Map<String, InstructionFactory> instructionFactory = new HashMap<>();
+    private static final Map<String, InstructionFactory> INSTRUCTION_FACTORY_MAP = new HashMap<>();
 
     public static InstructionFactory getInstructionFactory(String factory) {
         try {
-            InstructionFactory result = instructionFactory.get(factory);
+            InstructionFactory result = INSTRUCTION_FACTORY_MAP.get(factory);
             if (result == null) {
-                result = (InstructionFactory)Class.forName(factory)
-                    .newInstance();
-                instructionFactory.put(factory, result);
+                result = (InstructionFactory)Class.forName(factory).newInstance();
+                INSTRUCTION_FACTORY_MAP.put(factory, result);
             }
             return result;
         } catch (Exception e) {
@@ -26,6 +25,5 @@ public abstract class InstructionFactory {
     }
 
     public abstract boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
-        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
-        throws Exception;
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception;
 }

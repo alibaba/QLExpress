@@ -11,7 +11,7 @@ import org.junit.Test;
  */
 public class TestAdjustTypes {
 
-    public static TestAdjustTypes instance = new TestAdjustTypes();
+    public static final TestAdjustTypes instance = new TestAdjustTypes();
 
     public Integer test(Integer a) {
         System.out.println("invoke Integer");

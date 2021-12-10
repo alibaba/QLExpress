@@ -25,7 +25,7 @@ public class SimpleShortCircuitLogicTest {
     public boolean calculateLogicTest(String expression, IExpressContext<String, Object> expressContext,
         List<String> errorInfo) throws Exception {
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
-        return result.booleanValue();
+        return result;
     }
 
     /**

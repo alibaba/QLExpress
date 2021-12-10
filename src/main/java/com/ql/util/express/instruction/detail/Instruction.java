@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 public abstract class Instruction implements Serializable {
 
     private static final long serialVersionUID = 1361458333068300443L;
-    protected static transient Log staticLog = LogFactory.getLog(Instruction.class);
+    protected static final transient Log staticLog = LogFactory.getLog(Instruction.class);
     protected static transient Log log = staticLog;
     private Integer line = 0;
 

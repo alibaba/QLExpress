@@ -12,14 +12,14 @@ import org.apache.commons.logging.LogFactory;
 public class NodeTypeManager implements INodeTypeManager {
     private static final Log log = LogFactory.getLog(NodeTypeManager.class);
 
-    public String[] splitWord;
+    public final String[] splitWord;
     private final String[] keyWords;
     private final String[] nodeTypeDefines;
-    protected String[][] instructionFactoryMapping;
-    protected Map<String, NodeType> nodeTypes = new HashMap<>();
+    protected final String[][] instructionFactoryMapping;
+    protected final Map<String, NodeType> nodeTypes = new HashMap<>();
 
     //所有的函数定义
-    protected Map<String, String> functions = new HashMap<>();
+    protected final Map<String, String> functions = new HashMap<>();
 
     public NodeTypeManager() {
         this(new KeyWordDefine4Java());

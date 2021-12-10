@@ -29,7 +29,7 @@ public class OperatorIf extends OperatorBase {
             String msg = "\"" + this.aliasName + "\"的判断条件 必须是 Boolean,不能是：";
             throw new QLException(msg + obj.getClass().getName());
         } else {
-            if (((Boolean)obj).booleanValue()) {
+            if ((Boolean)obj) {
                 return list.get(1);
             } else {
                 if (list.length == 3) {

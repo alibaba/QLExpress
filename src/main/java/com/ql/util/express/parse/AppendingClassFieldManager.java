@@ -12,13 +12,13 @@ import com.ql.util.express.Operator;
 public class AppendingClassFieldManager {
 
     public class AppendingField {
-        public String name;
+        public final String name;
 
-        public Class<?> bindingClass;
+        public final Class<?> bindingClass;
 
-        public Operator op;
+        public final Operator op;
 
-        public Class<?> returnType;
+        public final Class<?> returnType;
 
         public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
             this.name = name;

@@ -11,12 +11,12 @@ import org.junit.Test;
 public class SkylightRuleTransferTest {
 
     static Pattern pattern = Pattern.compile("[\\s]+");
-    static Pattern pattern2 = Pattern.compile("(rule|RULE)[\\s]+([\\S]+)[\\s]+(name|NAME)[\\s]+([\\S]+)[\\s]+");
+    static final Pattern pattern2 = Pattern.compile("(rule|RULE)[\\s]+([\\S]+)[\\s]+(name|NAME)[\\s]+([\\S]+)[\\s]+");
 
     public class Rule {
         public String name;
         public String code;
-        public String content;
+        public final String content;
         public String ql;
 
         public Rule(String content) throws Exception {

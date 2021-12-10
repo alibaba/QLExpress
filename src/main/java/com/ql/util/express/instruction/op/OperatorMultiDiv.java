@@ -13,17 +13,24 @@ public class OperatorMultiDiv extends Operator {
         return executeInner(list[0], list[1]);
     }
 
-    public Object executeInner(Object op1,
-        Object op2) throws Exception {
+    public Object executeInner(Object op1, Object op2) throws Exception {
         Object obj = null;
-        if (this.getName().equals("*")) {
-            obj = OperatorOfNumber.multiply(op1, op2, this.isPrecise);
-        } else if (this.getName().equals("/")) {
-            obj = OperatorOfNumber.divide(op1, op2, this.isPrecise);
-        } else if (this.getName().equals("%")) {obj = OperatorOfNumber.modulo(op1, op2);
-        } else if (this.getName()
-            .equals(
-                "mod")) {obj = OperatorOfNumber.modulo(op1, op2);}
+        switch (this.getName()) {
+            case "*":
+                obj = OperatorOfNumber.multiply(op1, op2, this.isPrecise);
+                break;
+            case "/":
+                obj = OperatorOfNumber.divide(op1, op2, this.isPrecise);
+                break;
+            case "%":
+                obj = OperatorOfNumber.modulo(op1, op2);
+                break;
+            case "mod":
+                obj = OperatorOfNumber.modulo(op1, op2);
+                break;
+            default:
+                break;
+        }
 
         return obj;
     }

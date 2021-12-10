@@ -5,7 +5,7 @@ import java.awt.*;
 import javax.swing.*;
 
 public class Console {
-    boolean packFrame = false;
+    final boolean packFrame = false;
 
     /**
      * Construct and show the application.
@@ -35,16 +35,14 @@ public class Console {
      * @param args String[]
      */
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-
-                new Console();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
+
+            new Console();
         });
     }
 }

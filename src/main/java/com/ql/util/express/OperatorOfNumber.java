@@ -126,68 +126,32 @@ public class OperatorOfNumber {
         if (type == 1) {
             byte o1 = op1.byteValue();
             byte o2 = op2.byteValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Byte.compare(o1, o2);
         }
         if (type == 2) {
             short o1 = op1.shortValue();
             short o2 = op2.shortValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Short.compare(o1, o2);
         }
         if (type == 3) {
             int o1 = op1.intValue();
             int o2 = op2.intValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Integer.compare(o1, o2);
         }
         if (type == 4) {
             long o1 = op1.longValue();
             long o2 = op2.longValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Long.compare(o1, o2);
         }
         if (type == 5) {
             float o1 = op1.floatValue();
             float o2 = op2.floatValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Float.compare(o1, o2);
         }
         if (type == 6) {
             double o1 = op1.doubleValue();
             double o2 = op2.doubleValue();
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 < o2) {
-                return -1;
-            }
-            return 1;
+            return Double.compare(o1, o2);
         }
         if (type == 7) {
             BigDecimal o1 = new BigDecimal(op1.toString());
@@ -392,7 +356,7 @@ class NormalNumberOperator {
  */
 class PreciseNumberOperator {
 
-    public static int DIVIDE_PRECISION = 10;
+    public static final int DIVIDE_PRECISION = 10;
 
     public static Number addPrecise(Number op1, Number op2) {
         BigDecimal result;

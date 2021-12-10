@@ -27,7 +27,7 @@ public class StaticMethodTest {
     public static class StaticUtils {
         public static long ITEM_DIM_MASTER = 0x01;
 
-        public static long ITEM_DIM_VIRTUAL = 0x02;
+        public static final long ITEM_DIM_VIRTUAL = 0x02;
 
         public static boolean isVirtualSCItem(
             Long itemDim) {

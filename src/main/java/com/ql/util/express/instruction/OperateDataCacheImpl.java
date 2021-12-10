@@ -15,15 +15,15 @@ import com.ql.util.express.instruction.opdata.OperateDataKeyValue;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 public class OperateDataCacheImpl implements IOperateDataCache {
-    OperateData[] dataList;
-    OperateDataAttr[] attrList;
-    OperateDataLocalVar[] localVarList;
-    OperateDataField[] fieldList;
-    OperateDataArrayItem[] arrayList;
-    OperateDataKeyValue[] keyValueList;
-    RunEnvironment[] environmentList;
-    CallResult[] callResultList;
-    InstructionSetContext[] contextList;
+    final OperateData[] dataList;
+    final OperateDataAttr[] attrList;
+    final OperateDataLocalVar[] localVarList;
+    final OperateDataField[] fieldList;
+    final OperateDataArrayItem[] arrayList;
+    final OperateDataKeyValue[] keyValueList;
+    final RunEnvironment[] environmentList;
+    final CallResult[] callResultList;
+    final InstructionSetContext[] contextList;
 
     int dataPoint = 0;
     int attrPoint = 0;
@@ -35,7 +35,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
     int callResultPoint = 0;
     int contextPoint = 0;
 
-    int length;
+    final int length;
 
     public OperateDataCacheImpl(int len) {
         length = len;

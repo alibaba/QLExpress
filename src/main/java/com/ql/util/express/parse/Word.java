@@ -1,9 +1,9 @@
 package com.ql.util.express.parse;
 
 public class Word {
-    public String word;
-    public int line;
-    public int col;
+    public final String word;
+    public final int line;
+    public final int col;
     public int index;
 
     public Word(String aWord, int aLine, int aCol) {

@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class RecursivelyRunnerTest {
 
-    static ExpressRunner runner = new ExpressRunner();
+    static final ExpressRunner runner = new ExpressRunner();
 
     @Test
     public void testEvalOperator() throws Exception {

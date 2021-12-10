@@ -27,9 +27,9 @@ public class ExpressContextExample extends HashMap<String, Object> implements IE
     public Object get(Object name) {
         Object result;
         if (((String)name).equalsIgnoreCase("三星卖家")) {
-            result = Boolean.valueOf(true);
+            result = Boolean.TRUE;
         } else if (((String)name).equalsIgnoreCase("消保用户")) {
-            result = Boolean.valueOf(true);
+            result = Boolean.TRUE;
         } else {
             result = super.get(name);
         }

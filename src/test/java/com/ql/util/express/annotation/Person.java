@@ -15,7 +15,7 @@ public class Person {
 
     @QLAlias("获取年龄")
     public int getAge() {
-        return 2021 - Integer.valueOf(this.birth.substring(0, 4));
+        return 2021 - Integer.parseInt(this.birth.substring(0, 4));
     }
 
     public String getName() {

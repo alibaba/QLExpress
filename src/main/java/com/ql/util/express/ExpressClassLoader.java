@@ -76,17 +76,14 @@ public class ExpressClassLoader extends ClassLoader {
     public static Class<?> parentLoadClass(ClassLoader loader, String name) {
         // 如果存在这个类，则直接返回
         Class<?> clasz = null;
-        if (clasz == null) {
-            try {
-                clasz = loader.getClass().getClassLoader().loadClass(name);
-            } catch (Throwable e) {
-            }
+        try {
+            clasz = loader.getClass().getClassLoader().loadClass(name);
+        } catch (Throwable ignore) {
         }
         if (clasz == null) {
             try {
-                clasz = Thread.currentThread().getContextClassLoader()
-                    .loadClass(name);
-            } catch (Throwable e) {
+                clasz = Thread.currentThread().getContextClassLoader().loadClass(name);
+            } catch (Throwable ignore) {
             }
         }
         return clasz;

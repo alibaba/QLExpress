@@ -52,13 +52,13 @@ public class NodeType implements INodeType {
             int index = this.defineStr.indexOf(":", 1);
             String[][] properties = splitProperties(this.defineStr.substring(index));
             for (String[] tempList : properties) {
-                if (tempList[0].equalsIgnoreCase("type")) {
+                if ("type".equalsIgnoreCase(tempList[0])) {
                     this.setKind(NodeTypeKind.valueOf(tempList[1]));
-                } else if (tempList[0].equalsIgnoreCase("real")) {
+                } else if ("real".equalsIgnoreCase(tempList[0])) {
                     this.realNodeType = manager.findNodeType(tempList[1]);
-                } else if (tempList[0].equalsIgnoreCase("factory")) {
+                } else if ("factory".equalsIgnoreCase(tempList[0])) {
                     this.instructionFactory = tempList[1];
-                } else if (tempList[0].equalsIgnoreCase("define")) {
+                } else if ("define".equalsIgnoreCase(tempList[0])) {
                     this.qlPatternNode = QLPattern.createPattern(this.manager, this.name, tempList[1]);
                 } else {
                     throw new RuntimeException(

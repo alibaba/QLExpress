@@ -59,10 +59,10 @@ public abstract class Operator extends OperatorBase {
             if (op1 instanceof Character && op2 instanceof Character) {
                 return op1.equals(op2);
             } else if (op1 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)((Character)op2).charValue());
+                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)(Character)op2);
                 return compareResult == 0;
             } else if (op2 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((int)((Character)op1).charValue(), (Number)op2);
+                compareResult = OperatorOfNumber.compareNumber((int)(Character)op1, (Number)op2);
                 return compareResult == 0;
             }
         }
@@ -85,7 +85,6 @@ public abstract class Operator extends OperatorBase {
      * @throws Exception
      */
     public static int compareData(Object op1, Object op2) throws Exception {
-
         if (op1 == op2) {
             return 0;
         }
@@ -100,9 +99,9 @@ public abstract class Operator extends OperatorBase {
             if (op1 instanceof Character && op2 instanceof Character) {
                 compareResult = ((Character)op1).compareTo((Character)op2);
             } else if (op1 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)((Character)op2).charValue());
+                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)(Character)op2);
             } else if (op2 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((int)((Character)op1).charValue(), (Number)op2);
+                compareResult = OperatorOfNumber.compareNumber((int)(Character)op1, (Number)op2);
             } else {
                 throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
             }

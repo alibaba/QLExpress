@@ -16,14 +16,14 @@ enum MatchMode {
 
 public class QLPatternNode {
     private static final Log log = LogFactory.getLog(QLPatternNode.class);
-    INodeTypeManager nodeTypeManager;
+    final INodeTypeManager nodeTypeManager;
 
-    String name;
+    final String name;
 
     /**
      * 原始的字符串
      */
-    String originalContent;
+    final String originalContent;
     /**
      * 匹配模式
      */
@@ -35,7 +35,7 @@ public class QLPatternNode {
     /**
      * 层次
      */
-    int level;
+    final int level;
     /**
      * 是否根节点,例如：if^
      */
@@ -78,7 +78,7 @@ public class QLPatternNode {
     protected boolean blame = false;
 
     public boolean canMergeDetail() {
-        return QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && this.name.equals("ANONY_PATTERN")
+        return QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && "ANONY_PATTERN".equals(this.name)
             && this.nodeType.getPatternNode() != null
             && !this.isSkip
             && !this.blame
@@ -91,7 +91,7 @@ public class QLPatternNode {
     /**
      * 子匹配模式
      */
-    List<QLPatternNode> children = new ArrayList<>();
+    final List<QLPatternNode> children = new ArrayList<>();
 
     protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent) throws Exception {
         this(aManager, aName, aOriginalContent, false, 1);
@@ -129,9 +129,9 @@ public class QLPatternNode {
             //log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.originalContent);
         }
         String originalStr = this.originalContent;
-        if (originalStr.equals("(") || originalStr.equals(")") || originalStr.equals("|") || originalStr.equals("||")
-            || originalStr.equals("/**") || originalStr.equals("**/") || originalStr.equals("*")
-            || originalStr.equals("->")) {
+        if ("(".equals(originalStr) || ")".equals(originalStr) || "|".equals(originalStr) || "||".equals(originalStr)
+            || "/**".equals(originalStr) || "**/".equals(originalStr) || "*".equals(originalStr)
+            || "->".equals(originalStr)) {
             this.matchMode = MatchMode.DETAIL;
             this.nodeType = this.nodeTypeManager.findNodeType(originalStr);
             return;
@@ -296,7 +296,7 @@ public class QLPatternNode {
     }
 
     public String joinStringList(List<QLPatternNode> list, String splitChar) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             if (i > 0) {
                 buffer.append(splitChar);

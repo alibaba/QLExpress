@@ -11,13 +11,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * 2021-11-15 6:31 下午
  */
 public class QLAliasUtils {
-
-    private final static QLAliasUtils instance = new QLAliasUtils();
-    public static Map<String, Object> fieldsCache = new ConcurrentHashMap<>();
-
-    protected static QLAliasUtils getInstance() {
-        return instance;
-    }
+    public static final Map<String, Object> FIELD_CACHE = new ConcurrentHashMap<>();
 
     public static Class<?> getPropertyClass(Object bean, String name) {
         Field f = findQLAliasFieldsWithCache(bean.getClass(), name);
@@ -47,13 +41,13 @@ public class QLAliasUtils {
 
     private static Field findQLAliasFieldsWithCache(Class baseClass, String propertyName) {
         String key = baseClass + "#" + propertyName;
-        Object result = fieldsCache.get(key);
+        Object result = FIELD_CACHE.get(key);
         if (result == null) {
             result = findQLAliasFields(baseClass, propertyName);
             if (result == null) {
-                fieldsCache.put(key, void.class);
+                FIELD_CACHE.put(key, void.class);
             } else {
-                fieldsCache.put(key, result);
+                FIELD_CACHE.put(key, result);
             }
         } else if (result == void.class) {
             result = null;
@@ -85,8 +79,7 @@ public class QLAliasUtils {
         }
         Class<?> superclass = baseClass.getSuperclass();
         if (superclass != null) {
-            Field f = findQLAliasFields(superclass, propertyName);
-            return f;
+            return findQLAliasFields(superclass, propertyName);
         }
         return null;
     }

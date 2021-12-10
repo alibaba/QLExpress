@@ -11,7 +11,7 @@ import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionCallMacro extends Instruction {
     private static final long serialVersionUID = -5760553701305043649L;
-    String name;
+    final String name;
 
     public InstructionCallMacro(String aName) {
         this.name = aName;

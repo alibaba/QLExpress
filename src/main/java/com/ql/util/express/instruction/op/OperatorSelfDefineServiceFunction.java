@@ -15,10 +15,10 @@ import com.ql.util.express.instruction.OperateDataCacheManager;
  * @author qhlhl2010@gmail.com
  */
 public class OperatorSelfDefineServiceFunction extends OperatorBase implements CanClone {
-    Object serviceObject;
-    String functionName;
-    String[] parameterTypes;
-    Class<?>[] parameterClasses;
+    final Object serviceObject;
+    final String functionName;
+    final String[] parameterTypes;
+    final Class<?>[] parameterClasses;
     Method method;
     boolean isReturnVoid;
     boolean maybeDynamicParams;

@@ -37,6 +37,7 @@ class ReplaceOperatorAddReduce extends Operator {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         return executeInner(list[0], list[1]);
     }
@@ -58,6 +59,7 @@ class ReplaceOperatorAddReduce2 extends Operator {
         this.errorInfo = aErrorInfo;
     }
 
+    @Override
     public Object executeInner(Object[] list) throws Exception {
         return executeInner(list[0], list[1]);
     }

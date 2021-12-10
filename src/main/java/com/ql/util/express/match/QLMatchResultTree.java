@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResultTree {
-    INodeType matchNodeType;
-    IDataNode ref;
+    final INodeType matchNodeType;
+    final IDataNode ref;
 
     INodeType targetNodeType;
     private List<QLMatchResultTree> left;

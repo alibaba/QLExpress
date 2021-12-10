@@ -26,27 +26,28 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
  * @author qhlhl2010@gmail.com
  */
 public abstract class OperatorBase implements Serializable {
-
     protected String aliasName;
 
     protected String name;
 
     protected String errorInfo;
+
     /**
      * 是否需要高精度计算
      */
     protected boolean isPrecise = false;
+
     /**
      * 操作数描述
      */
     protected String[] operatorDataDesc;
+
     /**
      * 操作数的其它定义
      */
     protected String[] operatorDataAnnotation;
 
-    public Object[] toObjectList(InstructionSetContext parent, ArraySwap list)
-        throws Exception {
+    public Object[] toObjectList(InstructionSetContext parent, ArraySwap list) throws Exception {
         if (list == null) {
             return new Object[0];
         }
@@ -63,8 +64,7 @@ public abstract class OperatorBase implements Serializable {
         return result;
     }
 
-    public OperateData execute(InstructionSetContext context,
-        ArraySwap list, List<String> errorList) throws Exception {
+    public OperateData execute(InstructionSetContext context, ArraySwap list, List<String> errorList) throws Exception {
         OperateData result;
         result = this.executeInner(context, list);
         //输出错误信息

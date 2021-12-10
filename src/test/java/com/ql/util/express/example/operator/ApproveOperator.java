@@ -9,6 +9,7 @@ public class ApproveOperator extends Operator {
         this.operator = op;
     }
 
+    @Override
     public Object executeInner(Object[] list) {
         if (this.operator == 1) {
             System.out.println(list[0] + "审批:金额:" + list[1]);

@@ -40,7 +40,7 @@ public class SubjectManager extends HashMap {
 
 @SuppressWarnings({"serial", "rawtypes"})
 class UserSubject extends HashMap {
-    Object userId;
+    final Object userId;
 
     public UserSubject(Object aUserId) {
         super();

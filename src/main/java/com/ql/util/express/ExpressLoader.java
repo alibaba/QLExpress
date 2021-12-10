@@ -13,16 +13,14 @@ import com.ql.util.express.instruction.FunctionInstructionSet;
  * @author xuannan
  */
 public class ExpressLoader {
-    private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache
-        = new ConcurrentHashMap<>();
-    ExpressRunner creator;
+    private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache = new ConcurrentHashMap<>();
+    final ExpressRunner creator;
 
     public ExpressLoader(ExpressRunner aCreator) {
         this.creator = aCreator;
     }
 
-    public InstructionSet loadExpress(String expressName)
-        throws Exception {
+    public InstructionSet loadExpress(String expressName) throws Exception {
         return parseInstructionSet(expressName, this.creator.getExpressResourceLoader().loadExpress(expressName));
     }
 
@@ -36,8 +34,7 @@ public class ExpressLoader {
         }
     }
 
-    public InstructionSet parseInstructionSet(String expressName,
-        String expressString) throws Exception {
+    public InstructionSet parseInstructionSet(String expressName, String expressString) throws Exception {
         InstructionSet parseResult;
         if (expressInstructionSetCache.containsKey(expressName)) {
             throw new QLException("表达式定义重复：" + expressName);

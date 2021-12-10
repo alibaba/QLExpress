@@ -11,8 +11,8 @@ import org.junit.Test;
  */
 public class RecursivelyTest {
 
-    static ExpressRunner runner = new ExpressRunner();
-    static ExpressRunner runnerInner = new ExpressRunner();
+    static final ExpressRunner runner = new ExpressRunner();
+    static final ExpressRunner runnerInner = new ExpressRunner();
 
     static {
 

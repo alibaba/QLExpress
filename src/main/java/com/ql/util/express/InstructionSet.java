@@ -27,22 +27,16 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author qhlhl2010@gmail.com
  */
-
 public class InstructionSet implements Serializable {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1841743860792681669L;
 
     private static final transient Log log = LogFactory.getLog(InstructionSet.class);
-    public static AtomicInteger uniqIndex = new AtomicInteger(1);
-    public static String TYPE_MAIN = "main";
-    public static String TYPE_CLASS = "VClass";
-    public static String TYPE_FUNCTION = "function";
-    public static String TYPE_MARCO = "marco";
+    public static final AtomicInteger UNIQUE_INDEX = new AtomicInteger(1);
+    public static final String TYPE_CLASS = "VClass";
+    public static final String TYPE_FUNCTION = "function";
+    public static final String TYPE_MARCO = "marco";
 
-    public static boolean printInstructionError = false;
+    public static final boolean PRINT_INSTRUCTION_ERROR = false;
 
     private final String type;
     private String name;
@@ -65,7 +59,7 @@ public class InstructionSet implements Serializable {
     private final List<OperateDataLocalVar> parameterList = new ArrayList<>();
 
     public static int getUniqClassIndex() {
-        return uniqIndex.getAndIncrement();
+        return UNIQUE_INDEX.getAndIncrement();
     }
 
     public InstructionSet(String aType) {
@@ -116,13 +110,13 @@ public class InstructionSet implements Serializable {
                 String opName = ((InstructionOperator)instruction)
                     .getOperator().getName();
                 if (opName != null) {//addOperator(op)中op.name有可能为空
-                    if (opName.equalsIgnoreCase("def")
-                        || opName.equalsIgnoreCase("exportDef")) {
+                    if ("def".equalsIgnoreCase(opName)
+                        || "exportDef".equalsIgnoreCase(opName)) {
                         String varLocalName = (String)((InstructionConstData)instructionList[i - 1])
                             .getOperateData().getObject(null);
                         result.remove(varLocalName);
-                    } else if (opName.equalsIgnoreCase("alias")
-                        || opName.equalsIgnoreCase("exportAlias")) {
+                    } else if ("alias".equalsIgnoreCase(opName)
+                        || "exportAlias".equalsIgnoreCase(opName)) {
                         String varLocalName = (String)((InstructionConstData)instructionList[i - 2])
                             .getOperateData().getObject(null);
                         result.remove(varLocalName);
@@ -221,7 +215,7 @@ public class InstructionSet implements Serializable {
                 instruction.execute(environment, errorList);
             }
         } catch (Exception e) {
-            if (printInstructionError) {
+            if (PRINT_INSTRUCTION_ERROR) {
                 log.error("当前ProgramPoint = " + environment.programPoint);
                 log.error("当前指令" + instruction);
                 log.error(e);

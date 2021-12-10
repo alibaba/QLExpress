@@ -22,36 +22,36 @@ public class ConsoleFrame
     extends JFrame {
     private static final long serialVersionUID = 1L;
     JPanel contentPane;
-    BorderLayout borderLayout1 = new BorderLayout();
-    JMenuBar jMenuBar1 = new JMenuBar();
-    JMenu jMenuFile = new JMenu();
-    JMenuItem jMenuFileExit = new JMenuItem();
-    JToolBar jToolBar = new JToolBar();
-    JButton jButton1 = new JButton();
-    ImageIcon image1 = new ImageIcon(ConsoleFrame.class.
+    final BorderLayout borderLayout1 = new BorderLayout();
+    final JMenuBar jMenuBar1 = new JMenuBar();
+    final JMenu jMenuFile = new JMenu();
+    final JMenuItem jMenuFileExit = new JMenuItem();
+    final JToolBar jToolBar = new JToolBar();
+    final JButton jButton1 = new JButton();
+    final ImageIcon image1 = new ImageIcon(ConsoleFrame.class.
         getResource("run.png"));
-    JLabel statusBar = new JLabel();
-    JTabbedPane jTabbedPaneContent = new JTabbedPane();
-    JPanel jPaneRunner = new JPanel();
-    JSplitPane jSplitPaneRun = new JSplitPane();
-    BorderLayout borderLayout2 = new BorderLayout();
-    JTextArea jTextAreaScript = new JTextArea();
-    JScrollPane jScrollPaneScript = new JScrollPane();
-    JSplitPane jSplitPaneS_C = new JSplitPane();
-    JScrollPane jScrollPaneContext = new JScrollPane();
-    JScrollPane jScrollPaneResult = new JScrollPane();
-    JTextArea jTextAreaContext = new JTextArea();
-    JTextArea jTextAreaResult = new JTextArea();
-    JPanel jPanelResult = new JPanel();
-    BorderLayout borderLayout3 = new BorderLayout();
-    JLabel jLabelScript = new JLabel();
-    JLabel jLabelResult = new JLabel();
-    JLabel jLabelContext = new JLabel();
-    JPanel jPanelScript = new JPanel();
-    BorderLayout borderLayout4 = new BorderLayout();
-    JPanel jPanelContext = new JPanel();
-    BorderLayout borderLayout5 = new BorderLayout();
-    StringBufferOutputStream output = new StringBufferOutputStream(jTextAreaResult);
+    final JLabel statusBar = new JLabel();
+    final JTabbedPane jTabbedPaneContent = new JTabbedPane();
+    final JPanel jPaneRunner = new JPanel();
+    final JSplitPane jSplitPaneRun = new JSplitPane();
+    final BorderLayout borderLayout2 = new BorderLayout();
+    final JTextArea jTextAreaScript = new JTextArea();
+    final JScrollPane jScrollPaneScript = new JScrollPane();
+    final JSplitPane jSplitPaneS_C = new JSplitPane();
+    final JScrollPane jScrollPaneContext = new JScrollPane();
+    final JScrollPane jScrollPaneResult = new JScrollPane();
+    final JTextArea jTextAreaContext = new JTextArea();
+    final JTextArea jTextAreaResult = new JTextArea();
+    final JPanel jPanelResult = new JPanel();
+    final BorderLayout borderLayout3 = new BorderLayout();
+    final JLabel jLabelScript = new JLabel();
+    final JLabel jLabelResult = new JLabel();
+    final JLabel jLabelContext = new JLabel();
+    final JPanel jPanelScript = new JPanel();
+    final BorderLayout borderLayout4 = new BorderLayout();
+    final JPanel jPanelContext = new JPanel();
+    final BorderLayout borderLayout5 = new BorderLayout();
+    final StringBufferOutputStream output = new StringBufferOutputStream(jTextAreaResult);
 
     public ConsoleFrame() {
         try {
@@ -202,7 +202,7 @@ class ConsoleFrame_jButton1_actionAdapter implements ActionListener {
 
 class ConsoleFrame_jMenuFileExit_ActionAdapter
     implements ActionListener {
-    ConsoleFrame adaptee;
+    final ConsoleFrame adaptee;
 
     ConsoleFrame_jMenuFileExit_ActionAdapter(ConsoleFrame adaptee) {
         this.adaptee = adaptee;
@@ -214,8 +214,8 @@ class ConsoleFrame_jMenuFileExit_ActionAdapter
 }
 
 class StringBufferOutputStream extends OutputStream {
-    protected ByteArrayOutputStream buffer;
-    JTextArea jTextArea;
+    protected final ByteArrayOutputStream buffer;
+    final JTextArea jTextArea;
 
     public StringBufferOutputStream(JTextArea aJTextAreaResult) {
         jTextArea = aJTextAreaResult;

@@ -26,8 +26,8 @@ public class OperatorNot extends Operator {
             throw new QLException("null 不能执行操作：" + this.getAliasName());
         }
         if (Boolean.class.equals(op.getClass())) {
-            boolean r = !((Boolean)op).booleanValue();
-            result = Boolean.valueOf(r);
+            boolean r = !(Boolean)op;
+            result = r;
         } else {
             //
             String msg = "没有定义类型" + op.getClass().getName() + " 的 " + this.name

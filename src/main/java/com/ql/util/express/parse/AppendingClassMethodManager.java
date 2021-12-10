@@ -14,11 +14,11 @@ import com.ql.util.express.instruction.op.OperatorBase;
 public class AppendingClassMethodManager {
 
     public class AppendingMethod {
-        public String name;
+        public final String name;
 
-        public Class<?> bindingClass;
+        public final Class<?> bindingClass;
 
-        public OperatorBase op;
+        public final OperatorBase op;
 
         public AppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
             this.name = name;
