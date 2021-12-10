@@ -161,8 +161,10 @@ public class ExpressUtil {
                 source = double.class;
             }
         }
-        if (target == source)// 转换后需要在判断一下
-        {return true;}
+        // 转换后需要在判断一下
+        if (target == source) {
+            return true;
+        }
 
         // QLambda 与函数式接口之间允许互转
         if (source == QLambda.class && isFunctionInterface(target)) {
@@ -240,9 +242,8 @@ public class ExpressUtil {
 
         for (int i = candidates.length - 1; i >= 0; i--) {// 先从基类开始查找
             Class<?>[] targetMatch = candidates[i];
-            if (ExpressUtil.isSignatureAssignable(idealMatch, targetMatch)
-                && ((bestMatch == null) || ExpressUtil
-                .isSignatureAssignable(targetMatch, bestMatch))) {
+            if (ExpressUtil.isSignatureAssignable(idealMatch, targetMatch) && ((bestMatch == null)
+                || ExpressUtil.isSignatureAssignable(targetMatch, bestMatch))) {
                 bestMatch = targetMatch;
                 bestMatchIndex = i;
             }
@@ -255,13 +256,11 @@ public class ExpressUtil {
         }
     }
 
-    public static String createCacheKey(Class<?> aBaseClass,
-        String aMethodName, Class<?>[] aTypes, boolean aPublicOnly,
+    public static String createCacheKey(Class<?> aBaseClass, String aMethodName, Class<?>[] aTypes, boolean aPublicOnly,
         boolean aIsStatic) {
         StringBuilder builder = new StringBuilder();
-        //		builder.append(aPublicOnly).append("-").append(aIsStatic).append("-");
-        builder.append(aBaseClass.getName()).append(".").append(aMethodName)
-            .append(".");
+        //builder.append(aPublicOnly).append("-").append(aIsStatic).append("-");
+        builder.append(aBaseClass.getName()).append(".").append(aMethodName).append(".");
         if (aTypes == null) {
             builder.append("null");
         } else {
@@ -276,7 +275,7 @@ public class ExpressUtil {
                 }
             }
         }
-        //		builder.append(")");
+        //builder.append(")");
         return builder.toString();
     }
 
@@ -298,12 +297,11 @@ public class ExpressUtil {
         return (Method)result;
     }
 
-    public static Method findMethod(Class<?> baseClass, String methodName,
-        Class<?>[] types, boolean publicOnly, boolean isStatic) {
-        List<Method> candidates = gatherMethodsRecursive(baseClass, methodName,
-            types.length, publicOnly, isStatic, null /* candidates */);
-        Method method = findMostSpecificMethod(types, candidates
-            .toArray(new Method[0]));
+    public static Method findMethod(Class<?> baseClass, String methodName, Class<?>[] types, boolean publicOnly,
+        boolean isStatic) {
+        List<Method> candidates = gatherMethodsRecursive(baseClass, methodName, types.length, publicOnly, isStatic,
+            null /* candidates */);
+        Method method = findMostSpecificMethod(types, candidates.toArray(new Method[0]));
         return method;
     }
 
