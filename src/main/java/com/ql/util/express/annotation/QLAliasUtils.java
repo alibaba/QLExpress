@@ -25,9 +25,8 @@ public class QLAliasUtils {
     public static Class<?> getPropertyClass(Object bean, String name)
     {
         Field f = findQLAliasFieldsWithCache(bean.getClass(),name);
-        if(f!=null){
-            f.setAccessible(true);
-            return f.getType();
+        if (f != null) {
+            name = f.getName();
         }
         try {
             return PropertyUtils.getPropertyDescriptor(bean, name).getPropertyType();
