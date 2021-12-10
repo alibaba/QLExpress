@@ -109,7 +109,7 @@ public class OperateDataVirClass extends OperateDataAttr {
     }
 
     public void setValue(String name, Object value) throws Exception {
-        Object o = this.context.findAliasOrDefSymbol(name.toString());
+        Object o = this.context.findAliasOrDefSymbol(name);
         if (o instanceof OperateData) {
             ((OperateData)o).setObject(context, value);
         } else {

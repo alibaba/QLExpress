@@ -54,9 +54,9 @@ public class AvoidNullPointMockTest {
             "demo.getParent().getCode() in (1,2,3)",
         };
         for (String expression : expressionList) {
-            IExpressContext<String, Object> context = new DefaultContext<>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             System.out.println(expression);
-            ((DefaultContext<String, Object>)context).put("demo", new DemoObject());
+            context.put("demo", new DemoObject());
             Object result = runner.execute(expression, context, null, true, false);
             System.out.println(result);
         }

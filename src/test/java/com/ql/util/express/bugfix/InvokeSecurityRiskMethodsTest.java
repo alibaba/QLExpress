@@ -45,7 +45,7 @@ public class InvokeSecurityRiskMethodsTest {
                 System.out.println(r);
                 throw new Exception("没有捕获到不安全的方法");
             } catch (QLException e) {
-                e.printStackTrace();
+                System.out.println(e.getCause());
             }
         }
     }

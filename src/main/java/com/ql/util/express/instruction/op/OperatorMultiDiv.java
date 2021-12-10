@@ -23,8 +23,6 @@ public class OperatorMultiDiv extends Operator {
                 obj = OperatorOfNumber.divide(op1, op2, this.isPrecise);
                 break;
             case "%":
-                obj = OperatorOfNumber.modulo(op1, op2);
-                break;
             case "mod":
                 obj = OperatorOfNumber.modulo(op1, op2);
                 break;

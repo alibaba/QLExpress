@@ -44,7 +44,7 @@ public class DefineTest {
         runner.addOperatorWithAlias("否则", "else", null);
         Object r = runner.execute(express, context, null, false, false);
         Assert.assertTrue("别名实现 错误", r.toString().equalsIgnoreCase("qh-ssss-qh"));
-        Assert.assertTrue("别名实现 错误", ((BeanExample)context.get("example")).child.a.toString()
+        Assert.assertTrue("别名实现 错误", ((BeanExample)context.get("example")).child.a
             .equalsIgnoreCase("qh-ssss-qh"));
     }
 
@@ -93,7 +93,7 @@ public class DefineTest {
             "isVIP", new String[] {"String"}, "$1不是VIP用户");
         Object r = runner.execute(express, context, null, false, false);
         Assert.assertTrue("属性操作错误", r.toString().equalsIgnoreCase("ffff"));
-        Assert.assertTrue("属性操作错误", ((BeanExample)context.get("example")).child.a.toString()
+        Assert.assertTrue("属性操作错误", ((BeanExample)context.get("example")).child.a
             .equalsIgnoreCase("ssssssss"));
     }
 

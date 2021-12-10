@@ -95,9 +95,9 @@ public class ArrayTest {
         ExpressRunner runner = new ExpressRunner();
         String exp = "this.println((args[0]));";
         String[] args = {"123", "456"};
-        IExpressContext<String, Object> context = new DefaultContext<>();
-        ((DefaultContext<String, Object>)context).put("args", args);
-        ((DefaultContext<String, Object>)context).put("this", new ArrayTest());
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        context.put("args", args);
+        context.put("this", new ArrayTest());
         Object result = runner.execute(exp, context, null, false, false);
     }
 

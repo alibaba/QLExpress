@@ -304,7 +304,7 @@ class NormalNumberOperator {
     public static Number divideNormal(Number op1, Number op2) throws Exception {
         int type1 = OperatorOfNumber.getSeq(op1.getClass());
         int type2 = OperatorOfNumber.getSeq(op2.getClass());
-        int type = type1 > type2 ? type1 : type2;
+        int type = Math.max(type1, type2);
         if (type == NumberType.NUMBER_TYPE_BYTE) {
             return op1.byteValue() / op2.byteValue();
         }

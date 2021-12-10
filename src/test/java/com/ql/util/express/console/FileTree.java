@@ -41,7 +41,7 @@ public class FileTree extends JTree {
     }
 
     private PathNode builderNode(PathNode pathNode) {
-        String filePath = pathNode.getValue().toString();
+        String filePath = pathNode.getValue();
         File file = new File(filePath);
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {

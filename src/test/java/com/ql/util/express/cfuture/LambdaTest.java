@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
@@ -55,8 +56,7 @@ public class LambdaTest {
 
     @Test
     public void streamTest() throws Exception {
-
-        List<Integer> a = Arrays.asList(1, 2, 3).stream().filter(item -> item > 1).map(item -> item + 1).collect(
+        List<Integer> a = Stream.of(1, 2, 3).filter(item -> item > 1).map(item -> item + 1).collect(
             Collectors.toList());
         a.stream().forEach(System.out::println);
         Assert.assertEquals(Arrays.asList(3, 4), a);

@@ -27,7 +27,7 @@ public class ExportDefine {
         Object r = runner.execute(express, context, null, false, true);
         System.out.println(r);
         Assert.assertTrue("别名export实现 错误", r.toString().equalsIgnoreCase("qh-ssss-qh"));
-        Assert.assertTrue("别名export实现 错误", ((BeanExample)context.get("example")).child.a.toString()
+        Assert.assertTrue("别名export实现 错误", ((BeanExample)context.get("example")).child.a
             .equalsIgnoreCase("qh-ssss-qh"));
     }
 }

@@ -242,9 +242,7 @@ public class InstructionSet {
     }
 
     public List<ExportItem> getExportDef() {
-        List<ExportItem> result = new ArrayList<>();
-        result.addAll(this.exportVar);
-        return result;
+        return new ArrayList<>(this.exportVar);
     }
 
     public OperateDataLocalVar[] getParameters() {

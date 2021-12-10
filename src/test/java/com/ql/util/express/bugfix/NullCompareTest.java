@@ -30,11 +30,11 @@ public class NullCompareTest {
             "x != 2",
         };
         for (String expression : expressionArray) {
-            IExpressContext<String, Object> context = new DefaultContext<>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             System.out.println(expression);
-            ((DefaultContext<String, Object>)context).put("x", 2);
+            context.put("x", 2);
             Object result = runner.execute(expression, context, null, true, false);
-            Assert.assertEquals(false, (Boolean)result);
+            Assert.assertEquals(false, result);
             System.out.println(result);
         }
 
@@ -44,11 +44,11 @@ public class NullCompareTest {
             "x == 2",
         };
         for (String exp : expressionArray) {
-            IExpressContext<String, Object> context = new DefaultContext<>();
+            DefaultContext<String, Object> context = new DefaultContext<>();
             System.out.println(exp);
-            ((DefaultContext<String, Object>)context).put("x", 2);
+            context.put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);
-            Assert.assertEquals(true, (Boolean)result);
+            Assert.assertEquals(true, result);
             System.out.println(result);
         }
     }

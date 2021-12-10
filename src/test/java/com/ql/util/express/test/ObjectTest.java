@@ -16,7 +16,7 @@ public class ObjectTest {
         Object r = runner.execute(express, context, null, false,
             true);
         System.out.println(r);
-        Assert.assertEquals("数据执行错误", false, r.toString().equals(260));
+        Assert.assertFalse("数据执行错误", r.toString().equals(260));
     }
 
     @Test

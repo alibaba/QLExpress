@@ -32,7 +32,7 @@ public class LoopFunctionTest {
 
                 Collection objs = (Collection)list[0];
                 String exp = (String)list[1];
-                Integer index = 0;
+                int index = 0;
                 for (Object obj : objs) {
                     IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);
@@ -65,7 +65,7 @@ public class LoopFunctionTest {
 
                 Collection objs = (Collection)list[0];
                 String exp = (String)list[1];
-                Integer index = 0;
+                int index = 0;
                 for (Object obj : objs) {
                     IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);
@@ -98,7 +98,7 @@ public class LoopFunctionTest {
 
                 Collection objs = (Collection)list[0];
                 String exp = (String)list[1];
-                Integer index = 0;
+                int index = 0;
                 for (Object obj : objs) {
                     IExpressContext<String, Object> map = new DefaultContext<>();
                     map.put("x", obj);

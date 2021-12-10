@@ -2,6 +2,7 @@ package com.ql.util.express.parse;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +63,7 @@ public class ExpressParse {
                 isInclude = false;
                 Word[] childExpressWord = this.getExpressByName(includeFileName.toString());
                 childExpressWord = this.dealInclude(childExpressWord);
-                for (int i = 0; i < childExpressWord.length; i++) {
-                    result.add(childExpressWord[i]);
-                }
+                result.addAll(Arrays.asList(childExpressWord));
             } else if (isInclude) {
                 includeFileName.append(wordObjects[point].word);
             } else {
@@ -230,8 +229,7 @@ public class ExpressParse {
                                 isClass = true;
                                 break;
                             }
-                            if (j < wordObjects.length - 1
-                                && ".".equals(wordObjects[j + 1].word)) {
+                            if (j < wordObjects.length - 1 && ".".equals(wordObjects[j + 1].word)) {
                                 tmpStr = tmpStr + wordObjects[j + 1].word;
                                 j = j + 2;
                                 continue;

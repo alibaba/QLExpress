@@ -53,7 +53,7 @@ public class WordSplit {
                     if (tmpPoint == tempDealStr.length() - 1) {
                         throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
                     }
-                    tmpResult = tmpResult + tempDealStr.substring(tmpPoint + 1, tmpPoint + 2);
+                    tmpResult = tmpResult + tempDealStr.charAt(tmpPoint + 1);
                     tempDealStr = tempDealStr.substring(tmpPoint + 2);
                     tmpPoint = tempDealStr.indexOf("\\");
                 }
