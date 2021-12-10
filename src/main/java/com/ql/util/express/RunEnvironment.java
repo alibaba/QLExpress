@@ -3,7 +3,7 @@ package com.ql.util.express;
 import com.ql.util.express.exception.QLException;
 
 public final class RunEnvironment {
-    private static int INIT_DATA_LENTH = 15;
+    private static int INIT_DATA_LENGTH = 15;
     private boolean isTrace;
     private int point = -1;
     protected int programPoint = 0;
@@ -17,7 +17,7 @@ public final class RunEnvironment {
     private InstructionSetContext context;
 
     public RunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext, boolean aIsTrace) {
-        dataContainer = new OperateData[INIT_DATA_LENTH];
+        dataContainer = new OperateData[INIT_DATA_LENGTH];
         this.instructionSet = aInstructionSet;
         this.context = aContext;
         this.isTrace = aIsTrace;

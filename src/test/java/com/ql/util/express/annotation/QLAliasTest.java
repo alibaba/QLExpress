@@ -16,7 +16,7 @@ public class QLAliasTest {
     @Test
     public void testQLAlias() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String exps[] = new String[] {
+        String[] exps = new String[] {
             "患者.birth", "1987-02-23",
             "患者.生日()", "1987-02-23",
             "患者.级别", "高危",

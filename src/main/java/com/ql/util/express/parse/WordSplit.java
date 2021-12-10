@@ -101,7 +101,7 @@ public class WordSplit {
             list.add(new Word(str.substring(point, i), line, point - currentLineOffset + 1));
         }
 
-        Word result[] = new Word[list.size()];
+        Word[] result = new Word[list.size()];
         list.toArray(result);
         return result;
     }

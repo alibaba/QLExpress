@@ -21,7 +21,7 @@ public class TestMap {
     }
 
     @Test
-    public void testmain() throws Exception {
+    public void test_main() throws Exception {
         IExpressContext<String, Object> expressContext = new IExpressContext<String, Object>() {
             Map<String, Object> map = new HashMap<>();
 
@@ -29,6 +29,7 @@ public class TestMap {
                 return map.put(name, object);
             }
 
+            @Override
             public Object get(Object key) {
                 return map.get(key);
             }
@@ -38,10 +39,9 @@ public class TestMap {
         map.put("key1", 1);
         expressContext.put("map", map);
 
-        String expressionstr = "map.key1";
+        String expression = "map.key1";
         ExpressRunner runner = new ExpressRunner(false, true);
-        Object r = runner.execute(expressionstr, expressContext, null,
-            true, true);
+        Object r = runner.execute(expression, expressContext, null, true, true);
         Assert.assertTrue("Map读取错误", r.toString().equalsIgnoreCase("1"));
     }
 }

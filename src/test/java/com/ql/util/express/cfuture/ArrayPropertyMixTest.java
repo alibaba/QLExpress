@@ -14,7 +14,7 @@ import org.junit.Test;
 public class ArrayPropertyMixTest {
     @Test
     public void testRun() throws Exception {
-        String tests[] = new String[] {
+        String[] tests = new String[] {
             "request['AAAA'][0]['BBBB'][0]", "0",
             "requestList[0]['AAAA'][0]['BBBB'][0]", "0",
             "requestList[0]['AAAA'][0]['BBBB'][0]='10';return requestList[0]['AAAA'][0]['BBBB'][0];", "10",

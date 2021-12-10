@@ -81,7 +81,7 @@ public class TypicalDemo {
         runner.addMacro("已经开店", "hasOrderGoods(userInfo,100)");//100表示旺铺商品的ID
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
         TypicalDemo demo = new TypicalDemo();
         demo.initial();
         System.out.println(demo.hasPermission(new UserInfo(100, "xuannan", 7), "三星卖家   而且   已经开店"));

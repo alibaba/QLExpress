@@ -11,7 +11,7 @@ public class TestStackOverFlowTest {
     @Test
     public void test() throws Exception {
 
-        String expressList[] = new String[] {
+        String[] expressList = new String[] {
             "1",
             "1+2",
             "max(1,2)",

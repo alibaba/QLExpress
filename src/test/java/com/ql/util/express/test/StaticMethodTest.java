@@ -8,7 +8,7 @@ public class StaticMethodTest {
 
     @Test
     public void testStaticMethod() throws Exception {
-        String expressArray[] = new String[] {
+        String[] expressArray = new String[] {
             "StaticUtils.ITEM_DIM_MASTER",
             "StaticUtils.isVirtualSCItem(1L)",
             StaticUtils.class.getName() + ".ITEM_DIM_MASTER",
