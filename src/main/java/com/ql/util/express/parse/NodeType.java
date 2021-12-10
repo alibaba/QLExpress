@@ -9,23 +9,15 @@ import com.ql.util.express.match.INodeType;
 import com.ql.util.express.match.QLPattern;
 import com.ql.util.express.match.QLPatternNode;
 
-enum NodeTypeKind {
-    KEYWORD,
-    BLOCK,
-    EXPRESS,
-    OPERATOR,
-    WORDDEF,
-    GROUP,
-    STATEMENT
-}
-
 public class NodeType implements INodeType {
-    NodeTypeManager manager;
-    private String name;
-    private String defineStr;
+    private static final Pattern PATTERN = Pattern.compile("([,:])\\s*(([A-Z]|-|_)*)\\s*=");
+    private final NodeTypeManager manager;
+    private final String name;
+    private final String defineStr;
     private NodeTypeKind kind;
     private NodeType realNodeType;
     private String instructionFactory;
+
     /**
      * 模式匹配
      */
@@ -38,18 +30,15 @@ public class NodeType implements INodeType {
     }
 
     public static String[][] splitProperties(String str) {
-        Pattern p = Pattern.compile("(,|:)\\s*(([A-Z]|-|_)*)\\s*=");
-        Matcher matcher = p.matcher(str);
+        Matcher matcher = PATTERN.matcher(str);
         List<String[]> list = new ArrayList<>();
         int endIndex = 0;
         while (matcher.find()) {
             if (list.size() > 0) {
-                list.get(list.size() - 1)[1] = str.substring(endIndex,
-                    matcher.start()).trim();
+                list.get(list.size() - 1)[1] = str.substring(endIndex, matcher.start()).trim();
             }
             list.add(new String[2]);
-            list.get(list.size() - 1)[0] = str.substring(matcher.start() + 1,
-                matcher.end() - 1).trim();
+            list.get(list.size() - 1)[0] = str.substring(matcher.start() + 1, matcher.end() - 1).trim();
             endIndex = matcher.end();
         }
         if (list.size() > 0) {
@@ -70,17 +59,14 @@ public class NodeType implements INodeType {
                 } else if (tempList[0].equalsIgnoreCase("factory")) {
                     this.instructionFactory = tempList[1];
                 } else if (tempList[0].equalsIgnoreCase("define")) {
-                    this.qlPatternNode = QLPattern.createPattern(this.manager,
-                        this.name, tempList[1]);
+                    this.qlPatternNode = QLPattern.createPattern(this.manager, this.name, tempList[1]);
                 } else {
-                    throw new RuntimeException("不能识别\"" + this.name
-                        + "\"的属性类型：" + tempList[0] + " 定义："
-                        + this.defineStr);
+                    throw new RuntimeException(
+                        "不能识别\"" + this.name + "\"的属性类型：" + tempList[0] + " 定义：" + this.defineStr);
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("节点类型\"" + this.name + "\"初始化失败,定义："
-                + this.defineStr, e);
+            throw new RuntimeException("节点类型\"" + this.name + "\"初始化失败,定义：" + this.defineStr, e);
         }
     }
 
@@ -96,17 +82,14 @@ public class NodeType implements INodeType {
             return false;
         }
         if (this.qlPatternNode.isDetailMode()) {
-            return ((NodeType)this.qlPatternNode.getNodeType())
-                .isContainerChild(child);
+            return ((NodeType)this.qlPatternNode.getNodeType()).isContainerChild(child);
         }
         // 是and类型，不能增加子节点或进行判断
-        if (this.qlPatternNode.isAndMode()
-            && this.qlPatternNode.getChildren().size() > 0) {
+        if (this.qlPatternNode.isAndMode() && this.qlPatternNode.getChildren().size() > 0) {
             return false;
         }
         for (QLPatternNode node : this.qlPatternNode.getChildren()) {
-            if (node.getNodeType() != null
-                && ((NodeType)node.getNodeType()).isContainerChild(child)) {
+            if (node.getNodeType() != null && ((NodeType)node.getNodeType()).isContainerChild(child)) {
                 return true;
             }
         }
@@ -168,4 +151,14 @@ public class NodeType implements INodeType {
     public QLPatternNode getPatternNode() {
         return this.qlPatternNode;
     }
+}
+
+enum NodeTypeKind {
+    KEYWORD,
+    BLOCK,
+    EXPRESS,
+    OPERATOR,
+    WORDDEF,
+    GROUP,
+    STATEMENT
 }

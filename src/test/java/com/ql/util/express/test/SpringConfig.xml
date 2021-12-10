@@ -2,5 +2,4 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-autowire="byName">
     <bean id="beanExample" class="com.ql.util.express.test.BeanExample"/>
-    <bean id="runExample" class="com.ql.util.express.test.RunExample"/>
 </beans>
