@@ -11,7 +11,6 @@ class LoveOperator extends Operator {
         throws Exception {
         String op1 = list[0].toString();
         String op2 = list[1].toString();
-        String result = op2 + "{" + op1 + "}" + op2;
-        return result;
+        return op2 + "{" + op1 + "}" + op2;
     }
 }

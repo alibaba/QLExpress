@@ -31,18 +31,15 @@ public class OperatorArray extends OperatorBase {
             //支持data.get(index) ->data[index]
             if (tmpObject instanceof List && property instanceof Number) {
                 int index = ((Number)property).intValue();
-                OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
-                return result;
+                return OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
             }
             //支持data.code -> data['code']
             if (property instanceof String || property instanceof Character) {
-                OperateData result = OperateDataCacheManager.fetchOperateDataField(tmpObject, String.valueOf(property));
-                return result;
+                return OperateDataCacheManager.fetchOperateDataField(tmpObject, String.valueOf(property));
             }
         }
         //支持原生Array：data[index]
         int index = ((Number)list.get(1).getObject(context)).intValue();
-        OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
-        return result;
+        return OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
     }
 }

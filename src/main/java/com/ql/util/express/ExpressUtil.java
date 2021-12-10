@@ -301,8 +301,7 @@ public class ExpressUtil {
         boolean isStatic) {
         List<Method> candidates = gatherMethodsRecursive(baseClass, methodName, types.length, publicOnly, isStatic,
             null /* candidates */);
-        Method method = findMostSpecificMethod(types, candidates.toArray(new Method[0]));
-        return method;
+        return findMostSpecificMethod(types, candidates.toArray(new Method[0]));
     }
 
     public static Constructor<?> findConstructorWithCache(Class<?> baseClass, Class<?>[] types) {
@@ -606,8 +605,7 @@ public class ExpressUtil {
             } else if (bean instanceof Map) {
                 return ((Map<?, ?>)bean).get(name);
             } else {
-                Object obj = QLAliasUtils.getProperty(bean, name.toString());
-                return obj;
+                return QLAliasUtils.getProperty(bean, name.toString());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

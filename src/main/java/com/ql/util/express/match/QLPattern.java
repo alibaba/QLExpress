@@ -123,7 +123,6 @@ public class QLPattern {
             } else if (pattern.matchMode == MatchMode.AND) {
                 //tempResult = matchAndOneTime(aManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
 
-                int orgiPoint = lastPoint;
                 int pointAnd = lastPoint;
 
                 QLMatchResultTree root = null;
@@ -181,7 +180,7 @@ public class QLPattern {
                 if (!isBreak) {
                     tempResult = staticParams.resultCache.fetch().addQLMatchResultTreeList(tempListAnd);
                     tempResult.setMatchLastIndex(pointAnd);
-                    traceLog(pattern, tempResult, nodes, orgiPoint, matchCount);
+                    traceLog(pattern, tempResult, nodes, lastPoint, matchCount);
                 } else {
                     tempResult = null;
                 }

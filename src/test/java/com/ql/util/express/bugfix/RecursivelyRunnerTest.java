@@ -42,16 +42,14 @@ public class RecursivelyRunnerTest {
 
         @Override
         public Object executeInner(Object[] list) throws Exception {
-            Object result = runner.execute((String)list[0], new DefaultContext(), null, true, false);
-            return result;
+            return runner.execute((String)list[0], new DefaultContext(), null, true, false);
         }
     }
 
     public static class SubRunner {
 
         public Object eval2(String obj) throws Exception {
-            Object result = runner.execute(obj, new DefaultContext(), null, true, false);
-            return result;
+            return runner.execute(obj, new DefaultContext(), null, true, false);
         }
     }
 }

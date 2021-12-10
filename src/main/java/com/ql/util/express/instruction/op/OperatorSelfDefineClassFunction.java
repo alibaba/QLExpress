@@ -89,11 +89,10 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
 
     public OperatorBase cloneMe(String opName, String errorInfo)
         throws Exception {
-        OperatorBase result = new OperatorSelfDefineClassFunction(opName,
+        return new OperatorSelfDefineClassFunction(opName,
             this.operClass.getName(), this.functionName,
             this.parameterClasses, this.operDataDesc,
             this.operDataAnnotation, errorInfo);
-        return result;
     }
 
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {

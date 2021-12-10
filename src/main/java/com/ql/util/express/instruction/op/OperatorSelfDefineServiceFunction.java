@@ -70,10 +70,9 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
 
     public OperatorBase cloneMe(String opName, String errorInfo)
         throws Exception {
-        OperatorBase result = new OperatorSelfDefineServiceFunction(opName,
+        return new OperatorSelfDefineServiceFunction(opName,
             this.serviceObject, this.functionName, this.parameterClasses,
             this.operDataDesc, this.operDataAnnotation, errorInfo);
-        return result;
     }
 
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {

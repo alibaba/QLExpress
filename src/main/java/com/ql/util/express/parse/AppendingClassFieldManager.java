@@ -48,7 +48,6 @@ public class AppendingClassFieldManager {
     public Object invoke(AppendingField Field, InstructionSetContext context, Object aFieldObject,
         List<String> errorList) throws Exception {
         Operator op = Field.op;
-        Object result = op.executeInner(new Object[] {aFieldObject});
-        return result;
+        return op.executeInner(new Object[] {aFieldObject});
     }
 }

@@ -206,8 +206,7 @@ public class InstructionSet implements Serializable {
         if (environmen.getDataStackSize() > 1) {
             throw new QLException("在表达式执行完毕后，堆栈中还存在多个数据");
         }
-        CallResult result = OperateDataCacheManager.fetchCallResult(environmen.getReturnValue(), environmen.isExit());
-        return result;
+        return OperateDataCacheManager.fetchCallResult(environmen.getReturnValue(), environmen.isExit());
     }
 
     public void executeInnerOrigiInstruction(RunEnvironment environmen, List<String> errorList, Log aLog)

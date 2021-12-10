@@ -50,8 +50,7 @@ public class InstructionSetRunner {
         throws Exception {
         InstructionSetContext context = OperateDataCacheManager.fetchInstructionSetContext(
             true, runner, aContext, loader, isSupportDynamicFieldName);
-        Object result = execute(sets, context, errorList, isTrace, isCatchException, isReturnLastData, aLog);
-        return result;
+        return execute(sets, context, errorList, isTrace, isCatchException, isReturnLastData, aLog);
     }
 
     public static Object execute(InstructionSet set,

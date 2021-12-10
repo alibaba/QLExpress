@@ -227,10 +227,9 @@ public class ExpressNode implements IDataNode {
     }
 
     public String toString() {
-        String str = (this.orgiValue == null ? this.getValue() : this.orgiValue) + (this.nodeType.getName() == null ? ""
-            : (":" + this.nodeType.getName()));
         // return str + "[" + this.line +"," + this.col +"]";
-        return str;
+        return (this.orgiValue == null ? this.getValue() : this.orgiValue) + (this.nodeType.getName() == null ? ""
+            : (":" + this.nodeType.getName()));
     }
 
     public IDataNode createExpressNode(INodeType aType, String aValue) throws Exception {

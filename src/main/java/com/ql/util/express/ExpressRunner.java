@@ -760,8 +760,7 @@ public class ExpressRunner {
         boolean isRoot) throws Exception {
         InstructionFactory factory = InstructionFactory
             .getInstructionFactory(node.getInstructionFactory());
-        boolean hasLocalVar = factory.createInstruction(this, result, forStack, node, isRoot);
-        return hasLocalVar;
+        return factory.createInstruction(this, result, forStack, node, isRoot);
     }
 
     /**

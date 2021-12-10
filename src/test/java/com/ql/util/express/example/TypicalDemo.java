@@ -24,8 +24,7 @@ public class TypicalDemo {
      * @return
      */
     public boolean userTagJudge(UserInfo user, int tagBitIndex) {
-        boolean r = (user.getUserTag() & ((long)Math.pow(2, tagBitIndex))) > 0;
-        return r;
+        return (user.getUserTag() & ((long)Math.pow(2, tagBitIndex))) > 0;
     }
 
     /**

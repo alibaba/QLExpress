@@ -55,7 +55,6 @@ public class InstructionOperator extends Instruction {
     }
 
     public String toString() {
-        String result = "OP : " + this.operator.toString() + " OPNUMBER[" + this.opDataNumber + "]";
-        return result;
+        return "OP : " + this.operator.toString() + " OPNUMBER[" + this.opDataNumber + "]";
     }
 }

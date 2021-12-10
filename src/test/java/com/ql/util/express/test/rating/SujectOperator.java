@@ -34,8 +34,7 @@ class SujectOperator extends Operator {
         if (userId == null || subjectId == null) {
             throw new Exception("科目主体ID和科目名称不能为null");
         }
-        OperateData result = new OperateDataSubject((Map)context.get("费用科目"), userId, subjectId);
-        return result;
+        return new OperateDataSubject((Map)context.get("费用科目"), userId, subjectId);
     }
 
     @Override
