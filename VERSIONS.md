@@ -133,3 +133,6 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 ## 3.2.6版本[2021-11-24]
 (1)彻底解决ExpressRunner重入问题，可以嵌套使用：RecursivelyRunnerTest
 (2)重磅特性：通过@QLAlias对字段和方法上添加注解，实现中文字段和中文方法调用：QLAliasTest
+
+## 3.2.7版本[2021-12-10]
+(1)QLAliasTest 添加set方法

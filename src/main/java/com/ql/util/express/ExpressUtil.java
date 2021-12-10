@@ -599,8 +599,7 @@ public class ExpressUtil {
 			}else if(bean instanceof Map ){
 				((Map<Object,Object>)bean).put(name, value);
 		    } else {
-		    	Class<?> filedClass = PropertyUtils.getPropertyType(bean, name.toString());
-				PropertyUtils.setProperty(bean, name.toString(),ExpressUtil.castObject(value, filedClass, false));
+				QLAliasUtils.setProperty(bean,name.toString(),value);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("不能访问" + bean + "的property:" + name,e);

@@ -1,5 +1,6 @@
 package com.ql.util.express.annotation;
 
+import com.ql.util.express.ExpressUtil;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.lang.reflect.Field;
@@ -40,12 +41,24 @@ public class QLAliasUtils {
         try {
             Field f = findQLAliasFieldsWithCache(bean.getClass(), name);
             if (f != null) {
-                f.setAccessible(true);
-                return f.get(bean);
+                name = f.getName();
             }
             return PropertyUtils.getProperty(bean, name);
         }catch (Exception e){
             return null;
+        }
+    }
+    public static void setProperty(Object bean, Object name, Object value)
+    {
+        try {
+            Field f = findQLAliasFieldsWithCache(bean.getClass(), name.toString());
+            if (f != null) {
+                name = f.getName();
+            }
+            Class<?> filedClass = PropertyUtils.getPropertyType(bean, name.toString());
+            PropertyUtils.setProperty(bean, name.toString(), ExpressUtil.castObject(value, filedClass, false));
+        }catch (Exception e){
+
         }
     }
 
