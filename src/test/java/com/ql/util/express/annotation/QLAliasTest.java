@@ -6,7 +6,6 @@ import com.ql.util.express.IExpressContext;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author tianqiao@come-future.com

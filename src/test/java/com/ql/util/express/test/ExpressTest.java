@@ -20,7 +20,7 @@ public class ExpressTest {
     }
 
     @Test
-    public void tes10000次() throws Exception {
+    public void test_10000次() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         String express = "10 * 10 + 1 + 2 * 3 + 5 * 2";
         int num = 100000;
@@ -103,15 +103,14 @@ public class ExpressTest {
 
             {"sum=0;n=7.3;for(i=0;i<n;i=i+1){sum=sum+i;};sum;", "28"},
             {"0 in (16,50008090,9,8,7,50011397,50013864,28,1625,50006842,50020808,50020857,50008164,50020611,"
-                + "50008163,50023804,50020332,27)",
-                "false"}
+                + "50008163,50023804,50020332,27)", "false"}
         };
         IExpressContext<String, Object> expressContext = new ExpressContextExample(null);
         expressContext.put("b", new Integer(200));
         expressContext.put("c", new Integer(300));
         expressContext.put("d", new Integer(400));
         expressContext.put("bean", new BeanExample());
-        expressContext.put("abc", 1l);
+        expressContext.put("abc", 1L);
         expressContext.put("defVar", 1000);
 
         for (int point = 0; point < expressTest.length; point++) {

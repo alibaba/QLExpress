@@ -75,6 +75,7 @@ public class TestOverFlow {
         fun_abc2(a, b, c + 1);
     }
 
+    @Test
     public void test() {
         try {
             this.count = 0;
@@ -84,6 +85,7 @@ public class TestOverFlow {
         }
     }
 
+    @Test
     public void test_a() {
         try {
             this.count = 0;
@@ -94,6 +96,7 @@ public class TestOverFlow {
         }
     }
 
+    @Test
     public void testReturn() {
         try {
             this.count = 0;
@@ -112,6 +115,7 @@ public class TestOverFlow {
         }
     }
 
+    @Test
     public void test_abc() {
         try {
             this.count = 0;
@@ -122,6 +126,7 @@ public class TestOverFlow {
         }
     }
 
+    @Test
     public void test_abc2() {
         try {
             this.count = 0;
@@ -132,6 +137,7 @@ public class TestOverFlow {
         }
     }
 
+    @Test
     public void testOverFlow() {
         test();
         test_a();
