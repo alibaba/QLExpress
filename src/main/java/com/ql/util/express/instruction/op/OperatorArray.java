@@ -31,7 +31,7 @@ public class OperatorArray extends OperatorBase {
             //支持data.get(index) ->data[index]
             if (tmpObject instanceof List && property instanceof Number) {
                 int index = ((Number)property).intValue();
-                OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem((OperateData)p0, index);
+                OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
                 return result;
             }
             //支持data.code -> data['code']
@@ -42,7 +42,7 @@ public class OperatorArray extends OperatorBase {
         }
         //支持原生Array：data[index]
         int index = ((Number)list.get(1).getObject(context)).intValue();
-        OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem((OperateData)p0, index);
+        OperateData result = OperateDataCacheManager.fetchOperateDataArrayItem(p0, index);
         return result;
     }
 }

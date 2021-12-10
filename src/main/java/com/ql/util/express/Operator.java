@@ -58,7 +58,7 @@ public abstract class Operator extends OperatorBase {
         if (op1 instanceof Character || op2 instanceof Character) {
             int compareResult;
             if (op1 instanceof Character && op2 instanceof Character) {
-                return ((Character)op1).equals((Character)op2);
+                return op1.equals(op2);
             } else if (op1 instanceof Number) {
                 compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)((Character)op2).charValue());
                 return compareResult == 0;

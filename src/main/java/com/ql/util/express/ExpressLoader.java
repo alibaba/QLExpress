@@ -78,6 +78,6 @@ public class ExpressLoader {
             result.put(item.getGlobeName(),
                 new ExportItem(item.getGlobeName(), item.getName(), item.getType(), item.toString()));
         }
-        return (ExportItem[])result.values().toArray(new ExportItem[0]);
+        return result.values().toArray(new ExportItem[0]);
     }
 }

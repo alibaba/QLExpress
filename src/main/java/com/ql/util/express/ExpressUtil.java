@@ -253,7 +253,7 @@ public class ExpressUtil {
         Class<?>[] types, boolean publicOnly, boolean isStatic) {
         List<Method> candidates = gatherMethodsRecursive(baseClass, methodName,
             types.length, publicOnly, isStatic, null /* candidates */);
-        Method method = findMostSpecificMethod(types, (Method[])candidates
+        Method method = findMostSpecificMethod(types, candidates
             .toArray(new Method[0]));
         return method;
     }
@@ -279,7 +279,7 @@ public class ExpressUtil {
             }
         }
 
-        int match = findMostSpecificSignature(types, (Class[][])listClass
+        int match = findMostSpecificSignature(types, listClass
             .toArray(new Class[0][]));
         return match == -1 ? null : constructorList.get(match);
     }

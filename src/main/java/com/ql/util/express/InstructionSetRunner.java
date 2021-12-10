@@ -61,7 +61,7 @@ public class InstructionSetRunner {
         RunEnvironment environmen;
         Object result = null;
         environmen = OperateDataCacheManager.fetRunEnvironment(set,
-            (InstructionSetContext)context, isTrace);
+            context, isTrace);
         try {
             CallResult tempResult = set.excute(environmen, context, errorList,
                 isReturnLastData, aLog);

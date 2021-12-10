@@ -52,7 +52,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             this.context.addSymbol(var.getName(), var);
             var.setObject(context, parameters[i].getObject(parent));
         }
-        InstructionSetRunner.execute((InstructionSet)virClassInstructionSet,
+        InstructionSetRunner.execute(virClassInstructionSet,
             context, errorList, aIsTrace, false, false, log);
     }
 
@@ -74,7 +74,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             tempContext.addSymbol(var.getName(), var);
             var.setObject(tempContext, parameters[i].getObject(this.context));
         }
-        Object result = InstructionSetRunner.execute((InstructionSet)functionSet,
+        Object result = InstructionSetRunner.execute(functionSet,
             tempContext, null, this.isTrace, false, true, this.log);
         return OperateDataCacheManager.fetchOperateData(result, null);
     }

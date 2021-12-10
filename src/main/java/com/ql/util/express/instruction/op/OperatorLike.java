@@ -55,6 +55,6 @@ public class OperatorLike extends Operator {
             start = end + 1;
             if (start >= str.length()) {break;}
         } while (end >= 0);
-        return (String[])list.toArray(new String[0]);
+        return list.toArray(new String[0]);
     }
 }

@@ -21,7 +21,7 @@ public class OperatorDoubleAddReduce extends OperatorBase {
         } else if (this.getName().equals("--")) {
             result = OperatorOfNumber.subtract(obj, 1, this.isPrecise);
         }
-        ((OperateData)list.get(0)).setObject(parent, result);
+        list.get(0).setObject(parent, result);
 
         if (result == null) {
             return OperateDataCacheManager.fetchOperateData(null, null);

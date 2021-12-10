@@ -55,7 +55,7 @@ public class NodeType implements INodeType {
         if (list.size() > 0) {
             list.get(list.size() - 1)[1] = str.substring(endIndex).trim();
         }
-        return (String[][])list.toArray(new String[0][2]);
+        return list.toArray(new String[0][2]);
     }
 
     public void initial() {

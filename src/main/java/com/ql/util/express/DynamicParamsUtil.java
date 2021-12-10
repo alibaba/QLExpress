@@ -35,7 +35,7 @@ public class DynamicParamsUtil {
         int beforeCount = paramLength - 1;
         int paramsCount = list.length - beforeCount;
 
-        if (beforeCount >= 0 && ((Class<?>)(delaredParamsClasses[beforeCount])).isArray() && paramsCount >= 0) {
+        if (beforeCount >= 0 && delaredParamsClasses[beforeCount].isArray() && paramsCount >= 0) {
             Class<?> componentType = delaredParamsClasses[beforeCount].getComponentType();
             params = new Object[beforeCount + 1];
             Object[] lastParameres = (Object[])Array.newInstance(componentType, paramsCount);

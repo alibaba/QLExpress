@@ -58,18 +58,18 @@ public class OperatorOfNumber {
     public static Number transfer(Number value, Class<?> type, boolean isForce) {
         if (isForce || !(value instanceof BigDecimal)) {
             if (type.equals(byte.class) || type.equals(Byte.class)) {
-                return ((Number)value).byteValue();
+                return value.byteValue();
             } else if (type.equals(short.class) || type.equals(Short.class)) {
-                return ((Number)value).shortValue();
+                return value.shortValue();
             } else if (type.equals(int.class) || type.equals(Integer.class)) {
-                return ((Number)value).intValue();
+                return value.intValue();
             } else if (type.equals(long.class) || type.equals(Long.class)) {
-                return ((Number)value).longValue();
+                return value.longValue();
             } else if (type.equals(float.class) || type.equals(Float.class)) {
-                return ((Number)value).floatValue();
+                return value.floatValue();
             } else if (type.equals(double.class)
                 || type.equals(Double.class)) {
-                return ((Number)value).doubleValue();
+                return value.doubleValue();
             } else if (type.equals(BigDecimal.class)) {
                 return new BigDecimal(value.toString());
             } else {
@@ -80,27 +80,27 @@ public class OperatorOfNumber {
                 if (((BigDecimal)value).scale() > 0) {
                     throw new RuntimeException("有小数位，不能转化为：" + type.getName());
                 }
-                return ((Number)value).byteValue();
+                return value.byteValue();
             } else if (type.equals(short.class) || type.equals(Short.class)) {
                 if (((BigDecimal)value).scale() > 0) {
                     throw new RuntimeException("有小数位，不能转化为：" + type.getName());
                 }
-                return ((Number)value).shortValue();
+                return value.shortValue();
             } else if (type.equals(int.class) || type.equals(Integer.class)) {
                 if (((BigDecimal)value).scale() > 0) {
                     throw new RuntimeException("有小数位，不能转化为：" + type.getName());
                 }
-                return ((Number)value).intValue();
+                return value.intValue();
             } else if (type.equals(long.class) || type.equals(Long.class)) {
                 if (((BigDecimal)value).scale() > 0) {
                     throw new RuntimeException("有小数位，不能转化为：" + type.getName());
                 }
-                return ((Number)value).longValue();
+                return value.longValue();
             } else if (type.equals(float.class) || type.equals(Float.class)) {
-                return ((Number)value).floatValue();
+                return value.floatValue();
             } else if (type.equals(double.class)
                 || type.equals(Double.class)) {
-                return ((Number)value).doubleValue();
+                return value.doubleValue();
             } else {
                 throw new RuntimeException("没有处理的数据类型：" + type.getName());
             }
@@ -112,43 +112,43 @@ public class OperatorOfNumber {
         int type2 = OperatorOfNumber.getSeq(op2.getClass());
         int type = type1 > type2 ? type1 : type2;
         if (type == 1) {
-            byte o1 = ((Number)op1).byteValue();
-            byte o2 = ((Number)op2).byteValue();
+            byte o1 = op1.byteValue();
+            byte o2 = op2.byteValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;
         }
         if (type == 2) {
-            short o1 = ((Number)op1).shortValue();
-            short o2 = ((Number)op2).shortValue();
+            short o1 = op1.shortValue();
+            short o2 = op2.shortValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;
         }
         if (type == 3) {
-            int o1 = ((Number)op1).intValue();
-            int o2 = ((Number)op2).intValue();
+            int o1 = op1.intValue();
+            int o2 = op2.intValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;
         }
         if (type == 4) {
-            long o1 = ((Number)op1).longValue();
-            long o2 = ((Number)op2).longValue();
+            long o1 = op1.longValue();
+            long o2 = op2.longValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;
         }
         if (type == 5) {
-            float o1 = ((Number)op1).floatValue();
-            float o2 = ((Number)op2).floatValue();
+            float o1 = op1.floatValue();
+            float o2 = op2.floatValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;
         }
         if (type == 6) {
-            double o1 = ((Number)op1).doubleValue();
-            double o2 = ((Number)op2).doubleValue();
+            double o1 = op1.doubleValue();
+            double o2 = op2.doubleValue();
             if (o1 == o2) {return 0;}
             if (o1 < o2) {return -1;}
             return 1;

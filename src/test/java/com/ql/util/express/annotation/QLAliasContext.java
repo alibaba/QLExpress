@@ -13,7 +13,7 @@ public class QLAliasContext extends DefaultContext {
             if (value.getClass().isAnnotationPresent(QLAlias.class)) {
                 QLAlias[] annotations = value.getClass().getAnnotationsByType(QLAlias.class);
                 for (int i = 0; i < annotations.length; i++) {
-                    String[] name = ((QLAlias)annotations[i]).value();
+                    String[] name = annotations[i].value();
                     for (int j = 0; j < annotations.length; j++) {
                         super.put(name[j], value);
                     }
