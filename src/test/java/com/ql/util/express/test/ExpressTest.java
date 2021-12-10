@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ExpressTest {
-
     @Test
     public void testDemo() throws Exception {
         String express = "10 * 10 + 1 + 2 * 3 + 5 * 2";
@@ -20,7 +19,7 @@ public class ExpressTest {
     }
 
     @Test
-    public void test_10000次() throws Exception {
+    public void test_10000_times() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         String express = "10 * 10 + 1 + 2 * 3 + 5 * 2";
         int num = 100000;

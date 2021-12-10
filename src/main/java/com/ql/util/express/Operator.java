@@ -13,7 +13,6 @@ import com.ql.util.express.instruction.op.OperatorBase;
  * @author xuannan
  */
 public abstract class Operator extends OperatorBase {
-
     @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         Object[] parameters = new Object[list.length];

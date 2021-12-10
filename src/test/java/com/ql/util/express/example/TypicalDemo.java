@@ -14,7 +14,7 @@ import com.ql.util.express.IExpressContext;
  */
 public class TypicalDemo {
 
-    private ExpressRunner runner = new ExpressRunner();
+    private final ExpressRunner runner = new ExpressRunner();
 
     /**
      * 判断一个用户TAG的第X位是否为1。这个的demo,其实现合理性不考虑
@@ -36,11 +36,7 @@ public class TypicalDemo {
      */
     public boolean hasOrderGoods(UserInfo user, long goodsId) {
         //随机模拟一个
-        if (user.getUserId() % 2 == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return user.getUserId() % 2 == 1;
     }
 
     /**

@@ -86,9 +86,7 @@ public class QLAliasUtils {
         Class<?> superclass = baseClass.getSuperclass();
         if (superclass != null) {
             Field f = findQLAliasFields(superclass, propertyName);
-            if (f != null) {
-                return f;
-            }
+            return f;
         }
         return null;
     }

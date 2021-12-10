@@ -3,6 +3,7 @@ package com.ql.util.express.test;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
@@ -34,7 +35,7 @@ public class PrintLineExceptionTest {
         if (in == null) {
             throw new Exception("classLoader中找不到资源文件:" + path);
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         StringBuilder builder = new StringBuilder();
         String tmpStr;
         while ((tmpStr = reader.readLine()) != null) {

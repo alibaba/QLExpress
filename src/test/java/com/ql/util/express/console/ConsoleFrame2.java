@@ -205,7 +205,7 @@ public class ConsoleFrame2
 
 class ConsoleFrame_jTreeFileSelect_mouseAdapter2
     extends MouseAdapter {
-    private ConsoleFrame2 adaptee;
+    private final ConsoleFrame2 adaptee;
 
     ConsoleFrame_jTreeFileSelect_mouseAdapter2(ConsoleFrame2 adaptee) {
         this.adaptee = adaptee;
@@ -218,7 +218,7 @@ class ConsoleFrame_jTreeFileSelect_mouseAdapter2
 
 class ConsoleFrame_jButton1_actionAdapter2
     implements ActionListener {
-    private ConsoleFrame2 adaptee;
+    private final ConsoleFrame2 adaptee;
 
     ConsoleFrame_jButton1_actionAdapter2(ConsoleFrame2 adaptee) {
         this.adaptee = adaptee;

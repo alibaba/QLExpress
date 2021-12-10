@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExpressPackage {
     private List<String> m_packages;
     private Map<String, Class<?>> name2CallCache = null;
-    private Class<?> S_NULL = NullClass.class;
-    private ExpressPackage parent;
+    private final Class<?> S_NULL = NullClass.class;
+    private final ExpressPackage parent;
 
     public ExpressPackage(ExpressPackage aParent) {
         this.parent = aParent;

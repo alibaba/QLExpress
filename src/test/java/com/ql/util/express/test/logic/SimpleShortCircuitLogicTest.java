@@ -15,7 +15,7 @@ import org.junit.Test;
  */
 public class SimpleShortCircuitLogicTest {
 
-    private ExpressRunner runner = new ExpressRunner();
+    private final ExpressRunner runner = new ExpressRunner();
 
     public void initial() {
         runner.getOperatorFactory().getOperator("<").setErrorInfo("$1 < $2 = false");
@@ -25,10 +25,7 @@ public class SimpleShortCircuitLogicTest {
     public boolean calculateLogicTest(String expression, IExpressContext<String, Object> expressContext,
         List<String> errorInfo) throws Exception {
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
-        if (result.booleanValue()) {
-            return true;
-        }
-        return false;
+        return result.booleanValue();
     }
 
     /**

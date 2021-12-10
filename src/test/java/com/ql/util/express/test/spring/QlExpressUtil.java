@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class QlExpressUtil implements ApplicationContextAware {
 
-    private static ExpressRunner runner;
+    private static final ExpressRunner runner;
 
     static {
         runner = new ExpressRunner();

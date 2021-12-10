@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 @SuppressWarnings("serial")
 public class ExpressContextExample extends HashMap<String, Object> implements IExpressContext<String, Object> {
 
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     public ExpressContextExample(ApplicationContext aContext) {
         this.context = aContext;

@@ -13,7 +13,7 @@ import com.ql.util.express.instruction.FunctionInstructionSet;
  * @author xuannan
  */
 public class ExpressLoader {
-    private ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache
+    private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache
         = new ConcurrentHashMap<>();
     ExpressRunner creator;
 

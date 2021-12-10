@@ -563,7 +563,7 @@ InstructionSet instructionSet = expressRunner.parseInstructionSet(expressString)
 public class QLExpressContext extends HashMap<String, Object> implements
     IExpressContext<String, Object> {
 
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     //构造函数，传入context和 ApplicationContext
     public QLExpressContext(Map<String, Object> map,

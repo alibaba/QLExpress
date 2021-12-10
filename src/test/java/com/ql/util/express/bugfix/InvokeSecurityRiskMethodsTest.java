@@ -24,7 +24,7 @@ public class InvokeSecurityRiskMethodsTest {
         QLExpressRunStrategy.setForbiddenInvokeSecurityRiskMethods(false);
     }
 
-    private static String[] expressList = new String[] {
+    private static final String[] expressList = new String[] {
         "System.exit(1);",
         "for(i=1;i<10;i++){\nRuntime.getRuntime().exec('echo 1+1');}",
         "a = new com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest();a.echo('hello')"
@@ -36,18 +36,16 @@ public class InvokeSecurityRiskMethodsTest {
 
     @Test
     public void test() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
 
         for (String express : expressList) {
             try {
-
                 Object r = runner.execute(express, context, null, true, false, 1000);
                 System.out.println(r);
                 throw new Exception("没有捕获到不安全的方法");
             } catch (QLException e) {
-                System.out.println(e.getCause());
+                e.printStackTrace();
             }
         }
     }

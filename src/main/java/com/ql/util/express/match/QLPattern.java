@@ -301,8 +301,8 @@ public class QLPattern {
         public int newCount = 0;
         public int fetchCount = 0;
 
-        private QLMatchResult[] cache;
-        private int len;
+        private final QLMatchResult[] cache;
+        private final int len;
         private int point;
 
         public QLMatchResultCache(int aLen) {
@@ -342,8 +342,8 @@ public class QLPattern {
         public int newCount = 0;
         public int fetchCount = 0;
 
-        private List<T>[] cache;
-        private int len;
+        private final List<T>[] cache;
+        private final int len;
         private int point;
 
         public ArrayListCache(int aLen) {

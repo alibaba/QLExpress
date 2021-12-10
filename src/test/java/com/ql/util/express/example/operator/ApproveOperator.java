@@ -3,7 +3,7 @@ package com.ql.util.express.example.operator;
 import com.ql.util.express.Operator;
 
 public class ApproveOperator extends Operator {
-    private int operator;
+    private final int operator;
 
     public ApproveOperator(int op) {
         this.operator = op;
@@ -12,9 +12,7 @@ public class ApproveOperator extends Operator {
     public Object executeInner(Object[] list) {
         if (this.operator == 1) {
             System.out.println(list[0] + "审批:金额:" + list[1]);
-            if (((Integer)list[1]) > 6000) {
-                return false;
-            }
+            return ((Integer)list[1]) <= 6000;
         } else if (this.operator == 2) {
             System.out.println("报销入卡:金额:" + list[0]);
         } else {

@@ -44,7 +44,7 @@ public class InstructionSet implements Serializable {
 
     public static boolean printInstructionError = false;
 
-    private String type;
+    private final String type;
     private String name;
     private String globeName;
 
@@ -55,14 +55,14 @@ public class InstructionSet implements Serializable {
     /**
      * 函数和宏定义
      */
-    private Map<String, FunctionInstructionSet> functionDefine = new HashMap<>();
+    private final Map<String, FunctionInstructionSet> functionDefine = new HashMap<>();
     //为了增加性能，开始的时候缓存为数组
     private Map<String, Object> cacheFunctionSet = null;
-    private List<ExportItem> exportVar = new ArrayList<>();
+    private final List<ExportItem> exportVar = new ArrayList<>();
     /**
      * 函数参数定义
      */
-    private List<OperateDataLocalVar> parameterList = new ArrayList<>();
+    private final List<OperateDataLocalVar> parameterList = new ArrayList<>();
 
     public static int getUniqClassIndex() {
         return uniqIndex.getAndIncrement();

@@ -40,7 +40,7 @@ public class ThrowExceptionTest {
             } catch (QLCompileException e) {
                 System.out.println("捕获QLCompileException类型的异常成功.");
                 System.out.println(e.getCause());
-                //                e.printStackTrace();
+                //e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Exception("捕获到系统异常");
@@ -62,7 +62,7 @@ public class ThrowExceptionTest {
             } catch (QLException e) {
                 System.out.println("捕获QLException类型的异常成功.");
                 System.out.println(e.getCause());
-                //                e.printStackTrace();
+                //e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Exception("捕获到系统异常");
@@ -84,7 +84,7 @@ public class ThrowExceptionTest {
                 System.out.println("捕获到QLBizException业务系统异常成功.");
                 System.out.println(e.getCause());
                 System.out.println(e.getCause().getCause());
-                //                e.printStackTrace();
+                //e.printStackTrace();
 
                 String keywords = "run QlExpress Exception at line 1";
                 String exceptionString = e.toString();

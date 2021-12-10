@@ -27,7 +27,7 @@ public class AppendingClassMethodManager {
         }
     }
 
-    private List<AppendingMethod> methods = new ArrayList<>();
+    private final List<AppendingMethod> methods = new ArrayList<>();
 
     public void addAppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
         methods.add(new AppendingMethod(name, bindingClass, op));

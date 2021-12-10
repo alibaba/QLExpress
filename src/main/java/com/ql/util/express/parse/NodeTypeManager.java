@@ -13,8 +13,8 @@ public class NodeTypeManager implements INodeTypeManager {
     private static final Log log = LogFactory.getLog(NodeTypeManager.class);
 
     public String[] splitWord;
-    private String[] keyWords;
-    private String[] nodeTypeDefines;
+    private final String[] keyWords;
+    private final String[] nodeTypeDefines;
     protected String[][] instructionFactoryMapping;
     protected Map<String, NodeType> nodeTypes = new HashMap<>();
 

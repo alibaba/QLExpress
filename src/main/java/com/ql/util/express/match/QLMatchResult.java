@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResult {
-    private List<QLMatchResultTree> matches = new ArrayList<>();
+    private final List<QLMatchResultTree> matches = new ArrayList<>();
     private int matchLastIndex;
 
     public void clear() {

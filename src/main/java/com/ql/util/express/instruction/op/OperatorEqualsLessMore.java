@@ -48,14 +48,14 @@ public class OperatorEqualsLessMore extends Operator {
         int i = Operator.compareData(obj1, obj2);
         boolean result = false;
         if (i > 0) {
-            if (opStr.equals(">") || opStr.equals(">=") || opStr.equals("!=")
-                || opStr.equals("<>")) {result = true;} else {result = false;}
+            result = opStr.equals(">") || opStr.equals(">=") || opStr.equals("!=")
+                || opStr.equals("<>");
         } else if (i == 0) {
-            if (opStr.equals("=") || opStr.equals("==") || opStr.equals(">=")
-                || opStr.equals("<=")) {result = true;} else {result = false;}
+            result = opStr.equals("=") || opStr.equals("==") || opStr.equals(">=")
+                || opStr.equals("<=");
         } else if (i < 0) {
-            if (opStr.equals("<") || opStr.equals("<=") || opStr.equals("!=")
-                || opStr.equals("<>")) {result = true;} else {result = false;}
+            result = opStr.equals("<") || opStr.equals("<=") || opStr.equals("!=")
+                || opStr.equals("<>");
         }
         return result;
     }

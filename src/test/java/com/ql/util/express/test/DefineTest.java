@@ -62,7 +62,7 @@ public class DefineTest {
     }
 
     @Test
-    public void test_自定义函数() throws Exception {
+    public void test_self_define_function() throws Exception {
         String express = "定义函数  递归(int a){" +
             " if(a == 1)then{ " +
             "   return 1;" +
@@ -98,7 +98,7 @@ public class DefineTest {
     }
 
     @Test
-    public void test_循环() throws Exception {
+    public void test_loop() throws Exception {
         String express = "qh = 0; 循环(int i = 1;  i<=10;i = i + 1){ if(i > 5) then{ 终止;}; " +
             "循环(int j=0;j<10;j= j+1){  " +
             "    if(j > 5)then{" +

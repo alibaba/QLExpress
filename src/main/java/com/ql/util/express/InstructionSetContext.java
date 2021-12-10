@@ -17,7 +17,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     /**
      * 符号表
      */
-    private Map<String, Object> symbolTable = new HashMap<>();
+    private final Map<String, Object> symbolTable = new HashMap<>();
 
     private ExpressLoader expressLoader;
 

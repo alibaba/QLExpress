@@ -39,11 +39,8 @@ public class OperatorLike extends Operator {
                 }
                 index = index + 1;
             }
-        } else if (s1.equals(s2)) {
-            result = true;
-        } else {
-            result = false;
-        }
+        } else
+            result = s1.equals(s2);
 
         return Boolean.valueOf(result);
     }

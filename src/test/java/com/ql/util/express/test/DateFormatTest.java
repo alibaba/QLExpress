@@ -18,19 +18,17 @@ public class DateFormatTest {
 
         runner.addFunction("DateFormat", new Operator() {
 
-            private Map<String, Date> cache = new HashMap<>();
+            private final Map<String, Date> cache = new HashMap<>();
 
             @Override
             public Object executeInner(Object[] objects) throws Exception {
                 String s = objects[0].toString();
-                Date d = cache.get(s);
-                if (d != null) {
-                    return d;
-                } else {
-                    d = new SimpleDateFormat("yyyy-MM-dd").parse(s);
-                    cache.put(s, d);
-                    return d;
+                Date date = cache.get(s);
+                if (date == null) {
+                    date = new SimpleDateFormat("yyyy-MM-dd").parse(s);
+                    cache.put(s, date);
                 }
+                return date;
             }
         });
 

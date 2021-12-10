@@ -28,7 +28,7 @@ public class ExpressParse {
     /**
      * 是否需要高精度计算
      */
-    private boolean isPrecise;
+    private final boolean isPrecise;
 
     public boolean isIgnoreConstChar() {
         return ignoreConstChar;

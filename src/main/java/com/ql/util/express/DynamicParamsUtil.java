@@ -55,10 +55,7 @@ public class DynamicParamsUtil {
 
     public static boolean maybeDynamicParams(Class<?>[] declaredParamsClasses) {
         int length = declaredParamsClasses.length;
-        if (length > 0 && declaredParamsClasses[length - 1].isArray()) {
-            return true;
-        }
-        return false;
+        return length > 0 && declaredParamsClasses[length - 1].isArray();
     }
 
     private static boolean maybeDynamicParams(InstructionSetContext context, ArraySwap list,
@@ -71,9 +68,6 @@ public class DynamicParamsUtil {
         //长度一致的不定参数:不定参数的数组,只输入了一个参数并且为array,有可能
         int length = list.length;
         Object lastParam = list.get(length - 1).getObject(context);
-        if (lastParam != null && !lastParam.getClass().isArray()) {
-            return true;
-        }
-        return false;
+        return lastParam != null && !lastParam.getClass().isArray();
     }
 }

@@ -19,7 +19,7 @@ public class LoopFunctionTest {
     public void test() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addFunction("loopAnd", new Operator() {
-            private ExpressRunner loopRunner = new ExpressRunner();
+            private final ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {
@@ -52,7 +52,7 @@ public class LoopFunctionTest {
             }
         });
         runner.addFunction("loopOr", new Operator() {
-            private ExpressRunner loopRunner = new ExpressRunner();
+            private final ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {
@@ -85,7 +85,7 @@ public class LoopFunctionTest {
             }
         });
         runner.addFunction("loopSet", new Operator() {
-            private ExpressRunner loopRunner = new ExpressRunner();
+            private final ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {

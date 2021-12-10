@@ -55,7 +55,7 @@ public class ExpressUtil {
 
     public static Map<String, Object> methodCache = new ConcurrentHashMap<>();
 
-    private static Class<?>[][] classMatches = new Class[][] {
+    private static final Class<?>[][] classMatches = new Class[][] {
         //原始数据类型
         {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
         {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
@@ -216,13 +216,9 @@ public class ExpressUtil {
                 return true;
             }
 
-            if ((rhsType == Float.TYPE) && (lhsType == Double.TYPE)) {
-                return true;
-            }
-        } else if (lhsType.isAssignableFrom(rhsType)) {
-            return true;
-        }
-        return false;
+            return (rhsType == Float.TYPE) && (lhsType == Double.TYPE);
+        } else
+            return lhsType.isAssignableFrom(rhsType);
     }
 
     public static boolean isSignatureAssignable(Class<?>[] from, Class<?>[] to) {

@@ -38,7 +38,6 @@ public class RecursivelyRunnerTest {
     }
 
     public static class EvalOperator extends Operator {
-
         @Override
         public Object executeInner(Object[] list) throws Exception {
             return runner.execute((String)list[0], new DefaultContext(), null, true, false);
@@ -46,7 +45,6 @@ public class RecursivelyRunnerTest {
     }
 
     public static class SubRunner {
-
         public Object eval2(String obj) throws Exception {
             return runner.execute(obj, new DefaultContext(), null, true, false);
         }

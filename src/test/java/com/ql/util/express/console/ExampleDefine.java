@@ -1,8 +1,8 @@
 package com.ql.util.express.console;
 
 public class ExampleDefine {
-    private String script;
-    private String context;
+    private final String script;
+    private final String context;
 
     public ExampleDefine(String aScript, String aContext) {
         this.script = aScript;

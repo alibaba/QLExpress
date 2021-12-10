@@ -3,12 +3,12 @@ package com.ql.util.express;
 import com.ql.util.express.exception.QLException;
 
 public final class RunEnvironment {
-    private static int INIT_DATA_LENGTH = 15;
+    private static final int INIT_DATA_LENGTH = 15;
     private boolean isTrace;
     private int point = -1;
     protected int programPoint = 0;
     private OperateData[] dataContainer;
-    private ArraySwap arraySwap = new ArraySwap();
+    private final ArraySwap arraySwap = new ArraySwap();
 
     private boolean isExit = false;
     private Object returnValue = null;

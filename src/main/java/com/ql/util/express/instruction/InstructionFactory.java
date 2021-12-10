@@ -9,7 +9,7 @@ import com.ql.util.express.InstructionSet;
 import com.ql.util.express.parse.ExpressNode;
 
 public abstract class InstructionFactory {
-    private static Map<String, InstructionFactory> instructionFactory = new HashMap<>();
+    private static final Map<String, InstructionFactory> instructionFactory = new HashMap<>();
 
     public static InstructionFactory getInstructionFactory(String factory) {
         try {

@@ -185,7 +185,7 @@ public class ConsoleFrame
 }
 
 class ConsoleFrame_jButton1_actionAdapter implements ActionListener {
-    private ConsoleFrame adaptee;
+    private final ConsoleFrame adaptee;
 
     ConsoleFrame_jButton1_actionAdapter(ConsoleFrame adaptee) {
         this.adaptee = adaptee;

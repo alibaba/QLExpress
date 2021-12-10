@@ -126,11 +126,7 @@ public class WordSplit {
         }
         char c = str.charAt(0);
         // 数字
-        if (c >= '0' && c <= '9') {
-            return true;
-        } else {
-            return false;
-        }
+        return c >= '0' && c <= '9';
     }
 
     public static String getPrintInfo(Object[] list, String splitOp) {

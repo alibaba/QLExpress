@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 public class QLExpressContext extends HashMap<String, Object> implements
     IExpressContext<String, Object> {
 
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     public QLExpressContext(ApplicationContext aContext) {
         this.context = aContext;

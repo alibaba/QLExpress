@@ -45,7 +45,7 @@ public class ExpressRunner {
     /**
      * 是否输出所有的跟踪信息，同时还需要log级别是DEBUG级别
      */
-    private boolean isTrace;
+    private final boolean isTrace;
 
     /**
      * 是否使用逻辑短路特性增强质量的效率
@@ -55,31 +55,31 @@ public class ExpressRunner {
     /**
      * 是否需要高精度计算
      */
-    private boolean isPrecise;
+    private final boolean isPrecise;
 
     /**
      * 一段文本对应的指令集的缓存
      */
-    private Map<String, InstructionSet> expressInstructionSetCache = new HashMap<>();
+    private final Map<String, InstructionSet> expressInstructionSetCache = new HashMap<>();
 
-    private ExpressLoader loader;
+    private final ExpressLoader loader;
 
-    private IExpressResourceLoader expressResourceLoader;
+    private final IExpressResourceLoader expressResourceLoader;
 
     /**
      * 语法定义的管理器
      */
-    private NodeTypeManager manager;
+    private final NodeTypeManager manager;
 
     /**
      * 操作符的管理器
      */
-    private OperatorFactory operatorManager;
+    private final OperatorFactory operatorManager;
 
     /**
      * 语法分析器
      */
-    private ExpressParse parse;
+    private final ExpressParse parse;
 
     /**
      * 缺省的Class查找的包管理器
@@ -103,7 +103,7 @@ public class ExpressRunner {
 
     private AppendingClassFieldManager appendingClassFieldManager;
 
-    private ThreadLocal<IOperateDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
+    private final ThreadLocal<IOperateDataCache> m_OperateDataObjectCache = ThreadLocal.withInitial(
         () -> new OperateDataCacheImpl(30));
 
     public IOperateDataCache getOperateDataCache() {

@@ -71,9 +71,9 @@ public class FileTree extends JTree {
     }
 
     class FileTreeRenderer implements TreeCellRenderer {
-        private Icon folder_open = new ImageIcon("com/ql/util/console/openFile.png");
-        private Icon folder_close = new ImageIcon("com/ql/util/console/closeFile.png");
-        private Icon file = new ImageIcon("com/ql/util/console/help.png");
+        private final Icon folder_open = new ImageIcon("com/ql/util/console/openFile.png");
+        private final Icon folder_close = new ImageIcon("com/ql/util/console/closeFile.png");
+        private final Icon file = new ImageIcon("com/ql/util/console/help.png");
 
         public Component getTreeCellRendererComponent(JTree tree, Object value,
             boolean selected, boolean expanded, boolean leaf, int row,

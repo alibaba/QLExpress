@@ -25,7 +25,6 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
  *
  * @author qhlhl2010@gmail.com
  */
-
 public abstract class OperatorBase implements Serializable {
 
     protected String aliasName;

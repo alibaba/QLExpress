@@ -15,7 +15,7 @@ import org.junit.Test;
  */
 public class ShortCircuitLogicTest {
 
-    private ExpressRunner runner = new ExpressRunner();
+    private final ExpressRunner runner = new ExpressRunner();
 
     public void initial() throws Exception {
         runner.addOperatorWithAlias("小于", "<", "$1 小于 $2 不满足期望");
@@ -25,10 +25,7 @@ public class ShortCircuitLogicTest {
     public boolean calculateLogicTest(String expression, IExpressContext<String, Object> expressContext,
         List<String> errorInfo) throws Exception {
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
-        if (result.booleanValue()) {
-            return true;
-        }
-        return false;
+        return result.booleanValue();
     }
 
     /**

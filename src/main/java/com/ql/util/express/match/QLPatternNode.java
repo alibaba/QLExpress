@@ -78,17 +78,14 @@ public class QLPatternNode {
     protected boolean blame = false;
 
     public boolean canMergeDetail() {
-        if (QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && this.name.equals("ANONY_PATTERN")
+        return QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && this.name.equals("ANONY_PATTERN")
             && this.nodeType.getPatternNode() != null
             && !this.isSkip
             && !this.blame
             && !this.isChildMode
             && !this.isTreeRoot
             && this.minMatchNum == 1
-            && this.maxMatchNum == 1) {
-            return true;
-        }
-        return false;
+            && this.maxMatchNum == 1;
     }
 
     /**
@@ -163,8 +160,7 @@ public class QLPatternNode {
             } else if (originalStr.charAt(i) == '|') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.OR) {
-                    throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
-                        + originalStr);
+                    throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:" + originalStr);
                 }
                 children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
                 this.matchMode = MatchMode.OR;

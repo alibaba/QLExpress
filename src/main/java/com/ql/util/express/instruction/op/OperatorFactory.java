@@ -14,7 +14,7 @@ public class OperatorFactory {
      * 是否需要高精度计算
      */
     protected boolean isPrecise;
-    private Map<String, OperatorBase> operator = new HashMap<>();
+    private final Map<String, OperatorBase> operator = new HashMap<>();
 
     public OperatorFactory(boolean aIsPrecise) {
         this.isPrecise = aIsPrecise;

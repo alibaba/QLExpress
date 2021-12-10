@@ -113,11 +113,7 @@ public class MethodInvokeTest {
 
     //搜索引擎返回是否存在改店铺信息
     public boolean getSearchResult(PersonalShopInfo personalInfo) {
-        if (personalInfo == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return personalInfo != null;
     }
 
     public void testVoidMethod(Long id) {

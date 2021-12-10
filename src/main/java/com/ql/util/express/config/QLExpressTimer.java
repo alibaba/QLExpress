@@ -7,10 +7,10 @@ import com.ql.util.express.exception.QLTimeOutException;
  * @since 2019/6/17 4:12 PM
  */
 public class QLExpressTimer {
-    private static ThreadLocal<Boolean> NEED_TIMER = ThreadLocal.withInitial(() -> false);
-    private static ThreadLocal<Long> TIME_OUT_MILLIS = new ThreadLocal<Long>() {};
-    private static ThreadLocal<Long> START_TIME = new ThreadLocal<Long>() {};
-    private static ThreadLocal<Long> END_TIME = new ThreadLocal<Long>() {};
+    private static final ThreadLocal<Boolean> NEED_TIMER = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Long> TIME_OUT_MILLIS = new ThreadLocal<Long>() {};
+    private static final ThreadLocal<Long> START_TIME = new ThreadLocal<Long>() {};
+    private static final ThreadLocal<Long> END_TIME = new ThreadLocal<Long>() {};
 
     /**
      * 设置计时器

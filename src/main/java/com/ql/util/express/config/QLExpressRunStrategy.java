@@ -51,7 +51,7 @@ public class QLExpressRunStrategy {
         QLExpressRunStrategy.forbiddenInvokeSecurityRiskMethods = forbiddenInvokeSecurityRiskMethods;
     }
 
-    private static List<String> securityRiskMethods = new ArrayList<>();
+    private static final List<String> securityRiskMethods = new ArrayList<>();
 
     static {
         securityRiskMethods.add(System.class.getName() + "." + "exit");//系统退出
