@@ -13,5 +13,5 @@ public interface IExpressResourceLoader {
      * @return
      * @throws Exception
      */
-    public String loadExpress(String expressName) throws Exception;
+    String loadExpress(String expressName) throws Exception;
 }

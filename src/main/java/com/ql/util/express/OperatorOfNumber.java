@@ -11,13 +11,13 @@ import com.ql.util.express.exception.QLException;
  */
 
 interface NumberType {
-    public int NUMBER_TYPE_BYTE = 1;
-    public int NUMBER_TYPE_SHORT = 2;
-    public int NUMBER_TYPE_INT = 3;
-    public int NUMBER_TYPE_LONG = 4;
-    public int NUMBER_TYPE_FLOAT = 5;
-    public int NUMBER_TYPE_DOUBLE = 6;
-    public int NUMBER_TYPE_BIGDECIMAL = 7;
+    int NUMBER_TYPE_BYTE = 1;
+    int NUMBER_TYPE_SHORT = 2;
+    int NUMBER_TYPE_INT = 3;
+    int NUMBER_TYPE_LONG = 4;
+    int NUMBER_TYPE_FLOAT = 5;
+    int NUMBER_TYPE_DOUBLE = 6;
+    int NUMBER_TYPE_BIGDECIMAL = 7;
 }
 
 public class OperatorOfNumber {

@@ -12,7 +12,7 @@ public interface IExpressContext<K, V> {
      * @param key 属性名称
      * @return
      */
-    public V get(Object key);
+    V get(Object key);
 
     /**
      * 表达式计算的结果可以设置回调用系统，例如  userId = 3 + 4
@@ -20,5 +20,5 @@ public interface IExpressContext<K, V> {
      * @param name   属性名称
      * @param object 属性值
      */
-    public V put(K name, V object);
+    V put(K name, V object);
 }
