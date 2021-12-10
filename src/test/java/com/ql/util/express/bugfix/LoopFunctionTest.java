@@ -22,7 +22,7 @@ public class LoopFunctionTest {
             private ExpressRunner loppRunner = new ExpressRunner();
 
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 if (list[0] == null) {
                     return false;
                 }
@@ -55,7 +55,7 @@ public class LoopFunctionTest {
             private ExpressRunner loppRunner = new ExpressRunner();
 
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 if (list[0] == null) {
                     return false;
                 }
@@ -88,7 +88,7 @@ public class LoopFunctionTest {
             private ExpressRunner loppRunner = new ExpressRunner();
 
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 if (list[0] == null) {
                     return false;
                 }

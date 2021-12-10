@@ -24,7 +24,7 @@ public class OperatorNullOp extends OperatorBase {
         return executeInner(parent);
     }
 
-    public OperateData executeInner(IExpressContext<String, Object> parent) throws Exception {
+    public OperateData executeInner(IExpressContext<String, Object> parent) {
         return null;
     }
 }

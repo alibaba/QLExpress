@@ -9,9 +9,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ExpressRemoteCacheTest {
-
     @Test
-    public void testcache() {
+    public void test_cache() {
         ExpressRunner runner = new ExpressRunner();
         ExpressRemoteCacheRunner cacheRunner = new LocalExpressCacheRunner(runner);
         cacheRunner.loadCache("加法计算", "a+b");

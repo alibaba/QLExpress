@@ -42,7 +42,7 @@ class ReplaceOperatorAddReduce extends Operator {
     }
 
     public Object executeInner(Object op1,
-        Object op2) throws Exception {
+        Object op2) {
         return "(" + op1 + "*" + op2 + ")";
     }
 }
@@ -63,7 +63,7 @@ class ReplaceOperatorAddReduce2 extends Operator {
     }
 
     public Object executeInner(Object op1,
-        Object op2) throws Exception {
+        Object op2) {
         return "(" + op1 + "****" + op2 + ")";
     }
 }

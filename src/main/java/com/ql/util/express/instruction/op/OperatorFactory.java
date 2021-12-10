@@ -115,7 +115,7 @@ public class OperatorFactory {
         }
     }
 
-    public boolean isExistOperator(String operName) throws Exception {
+    public boolean isExistOperator(String operName) {
         return operator.containsKey(operName);
     }
 

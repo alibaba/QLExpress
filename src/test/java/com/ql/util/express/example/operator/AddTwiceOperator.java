@@ -4,7 +4,7 @@ import com.ql.util.express.Operator;
 
 public class AddTwiceOperator extends Operator {
 
-    public Object executeInner(Object[] list) throws Exception {
+    public Object executeInner(Object[] list) {
         int a = (Integer)list[0];
         int b = (Integer)list[1];
         return a + b + b;

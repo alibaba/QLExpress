@@ -69,9 +69,8 @@ public class ConsoleFrame
     /**
      * Component initialization.
      *
-     * @throws Exception
      */
-    private void jbInit() throws Exception {
+    private void jbInit() {
         contentPane = (JPanel)getContentPane();
         contentPane.setLayout(borderLayout1);
         setSize(new Dimension(1000, 600));
@@ -187,8 +186,7 @@ public class ConsoleFrame
     }
 }
 
-class ConsoleFrame_jButton1_actionAdapter
-    implements ActionListener {
+class ConsoleFrame_jButton1_actionAdapter implements ActionListener {
     private ConsoleFrame adaptee;
 
     ConsoleFrame_jButton1_actionAdapter(ConsoleFrame adaptee) {
@@ -230,12 +228,11 @@ class StringBufferOutputStream extends OutputStream {
         this.buffer.reset();
     }
 
-    public void write(int ch)
-        throws IOException {
+    public void write(int ch) {
         this.buffer.write(ch);
     }
 
-    public void flush() throws IOException {
+    public void flush() {
         jTextArea.setText(this.buffer.toString());
     }
 }

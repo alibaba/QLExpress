@@ -16,7 +16,7 @@ public class InstructionGoTo extends Instruction {
         this.offset = aOffset;
     }
 
-    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
+    public void execute(RunEnvironment environment, List<String> errorList) {
         if (environment.isTrace() && log.isDebugEnabled()) {
             log.debug(this);
         }

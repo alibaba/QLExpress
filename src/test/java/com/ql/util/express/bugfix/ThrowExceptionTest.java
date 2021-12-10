@@ -14,7 +14,7 @@ import org.junit.Test;
  */
 public class ThrowExceptionTest {
 
-    public String testParseLong(String a) throws Exception {
+    public String testParseLong(String a) {
         return Long.valueOf(a).toString();
     }
 

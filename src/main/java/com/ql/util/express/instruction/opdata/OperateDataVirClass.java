@@ -130,7 +130,7 @@ public class OperateDataVirClass extends OperateDataAttr {
         return this;
     }
 
-    public Class<?> getType(InstructionSetContext context) throws Exception {
+    public Class<?> getType(InstructionSetContext context) {
         return this.getClass();
     }
 

@@ -45,7 +45,7 @@ public class AvoidNullPointMockTest {
     public void testNullPoint() throws Exception {
 
         ExpressRunner runner = new ExpressRunner(false, true);
-        String[] explist = new String[] {
+        String[] expressionList = new String[] {
             "x in(1,2,3)",
             "demo.code",
             "demo.parent.code",
@@ -53,11 +53,11 @@ public class AvoidNullPointMockTest {
             "demo.getParent().getCode()",
             "demo.getParent().getCode() in (1,2,3)",
         };
-        for (String exp : explist) {
+        for (String expression : expressionList) {
             IExpressContext<String, Object> context = new DefaultContext<>();
-            System.out.println(exp);
+            System.out.println(expression);
             ((DefaultContext<String, Object>)context).put("demo", new DemoObject());
-            Object result = runner.execute(exp, context, null, true, false);
+            Object result = runner.execute(expression, context, null, true, false);
             System.out.println(result);
         }
     }

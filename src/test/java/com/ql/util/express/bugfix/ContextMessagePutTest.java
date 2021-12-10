@@ -21,7 +21,7 @@ public class ContextMessagePutTest {
         }
 
         @Override
-        public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        public OperateData executeInner(InstructionSetContext parent, ArraySwap list) {
             String key = list.get(0).toString();
             Object value = list.get(1);
             parent.put(key, value);

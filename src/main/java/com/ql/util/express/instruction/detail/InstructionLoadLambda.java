@@ -18,7 +18,7 @@ public class InstructionLoadLambda extends Instruction {
     }
 
     @Override
-    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
+    public void execute(RunEnvironment environment, List<String> errorList) {
         environment.push(
             OperateDataCacheManager.fetchOperateData(new QLambda(lambdaSet, environment, errorList, log), null)
         );

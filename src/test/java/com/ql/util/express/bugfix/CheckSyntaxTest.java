@@ -9,10 +9,9 @@ import org.junit.Test;
 /**
  * Created by tianqiao on 18/2/26.
  */
-public class CheckySyntaxTest {
-
+public class CheckSyntaxTest {
     @Test
-    public void testCheckySyntax0() throws Exception {
+    public void testCheckSyntax0() {
         ExpressRunner runner = new ExpressRunner(false, true);
         String[] expList = new String[] {
             "import java.text.SimpleDateFormat;new SimpleDateFormat()",
@@ -30,7 +29,7 @@ public class CheckySyntaxTest {
     }
 
     @Test
-    public void testCheckySyntax() throws Exception {
+    public void testCheckSyntax() {
         ExpressRunner runner = new ExpressRunner(false, true);
         String[] expList = new String[] {
             "import com.taobao.ABC;a = new ABC();",

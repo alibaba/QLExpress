@@ -12,9 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DongtaiFieldTest {
-
-    private static final Log log = LogFactory.getLog(DongtaiFieldTest.class);
+public class DynamicFieldTest {
+    private static final Log log = LogFactory.getLog(DynamicFieldTest.class);
 
     @Test
     public void testField() throws Exception {
@@ -38,11 +37,11 @@ public class DongtaiFieldTest {
     @Test
     public void testLoadFromFile() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
-        runner.loadExpress("TestFunctionParamerType");
+        runner.loadExpress("TestFunctionParameterType");
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("auctionUtil", new BeanExample());
         context.put("log", log);
-        Object r = runner.executeByExpressName("TestFunctionParamerType", context, null, false, false, null);
+        Object r = runner.executeByExpressName("TestFunctionParameterType", context, null, false, false, null);
         System.out.println(r);
         System.out.println(context);
     }

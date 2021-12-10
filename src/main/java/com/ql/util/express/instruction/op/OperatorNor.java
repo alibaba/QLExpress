@@ -17,7 +17,7 @@ public class OperatorNor extends Operator {
         return executeInner(list[0], list[1]);
     }
 
-    public Object executeInner(Object op1, Object op2) throws Exception {
+    public Object executeInner(Object op1, Object op2) {
 
         if (op1 != null) {
             return op1;

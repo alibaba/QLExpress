@@ -68,7 +68,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         this.symbolTable.put(varName, aliasNameObject);
     }
 
-    public void addSymbol(Map<String, Object> aliasNameObjects) throws Exception {
+    public void addSymbol(Map<String, Object> aliasNameObjects) {
         this.symbolTable.putAll(aliasNameObjects);
     }
 
@@ -84,7 +84,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         return this.runner;
     }
 
-    public Object findAliasOrDefSymbol(String varName) throws Exception {
+    public Object findAliasOrDefSymbol(String varName) {
         Object result = this.symbolTable.get(varName);
         if (result == null) {
             if (this.parent != null && this.parent instanceof InstructionSetContext) {

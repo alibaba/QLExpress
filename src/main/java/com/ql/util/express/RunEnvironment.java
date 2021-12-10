@@ -133,16 +133,15 @@ public final class RunEnvironment {
      * @param context
      * @param len
      * @return
-     * @throws Exception
      */
-    public ArraySwap popArray(InstructionSetContext context, int len) throws Exception {
+    public ArraySwap popArray(InstructionSetContext context, int len) {
         int start = point - len + 1;
         this.arraySwap.swap(this.dataContainer, start, len);
         point = point - len;
         return this.arraySwap;
     }
 
-    public OperateData[] popArrayOld(InstructionSetContext context, int len) throws Exception {
+    public OperateData[] popArrayOld(InstructionSetContext context, int len) {
         int start = point - len + 1;
         OperateData[] result = new OperateData[len];
         System.arraycopy(this.dataContainer, start, result, 0, len);

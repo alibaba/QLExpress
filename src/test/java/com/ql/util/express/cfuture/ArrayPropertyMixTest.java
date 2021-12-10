@@ -11,8 +11,7 @@ import com.ql.util.express.IExpressContext;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ArrayPorpertyMixTest {
-
+public class ArrayPropertyMixTest {
     @Test
     public void testRun() throws Exception {
         String tests[] = new String[] {
@@ -41,8 +40,7 @@ public class ArrayPorpertyMixTest {
         context.put("request", request);
         context.put("requestList", requestList);
         for (int i = 0; i < tests.length; i += 2) {
-            Object result = runner.execute(tests[i], context, null, false,
-                false);
+            Object result = runner.execute(tests[i], context, null, false, false);
             System.out.println(result);
             Assert.assertEquals(result.toString(), tests[i + 1]);
         }

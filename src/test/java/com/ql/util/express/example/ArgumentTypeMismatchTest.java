@@ -39,7 +39,7 @@ public class ArgumentTypeMismatchTest {
         ExpressRunner runner = new ExpressRunner();
         runner.addFunction("abc", new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 Long paramA = Long.valueOf(list[0].toString());
                 Integer paramB = Integer.valueOf(list[1].toString());
                 String paramC = list[2].toString();
@@ -60,7 +60,7 @@ public class ArgumentTypeMismatchTest {
         ExpressRunner runner = new ExpressRunner();
         runner.addFunction("abc", new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 Long paramA = Long.valueOf(list[0].toString());
                 Integer paramB = Integer.valueOf(list[1].toString());
                 String paramC = list[2].toString();

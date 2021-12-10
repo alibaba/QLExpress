@@ -122,7 +122,7 @@ public class DemoShow {
 
     @SuppressWarnings({"unchecked", "rawtypes", "serial"})
     public class JoinOperator extends Operator {
-        public Object executeInner(Object[] list) throws Exception {
+        public Object executeInner(Object[] list) {
             Object opdata1 = list[0];
             Object opdata2 = list[1];
             if (opdata1 instanceof List) {

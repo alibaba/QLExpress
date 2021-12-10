@@ -72,7 +72,7 @@ public class InstructionSet implements Serializable {
         this.type = aType;
     }
 
-    public String[] getOutFunctionNames() throws Exception {
+    public String[] getOutFunctionNames() {
         Map<String, String> result = new TreeMap<>();
         for (int i = 0; i < instructionList.length; i++) {
             Instruction instruction = instructionList[i];
@@ -86,7 +86,7 @@ public class InstructionSet implements Serializable {
         return result.keySet().toArray(new String[0]);
     }
 
-    public String[] getVirClasses() throws Exception {
+    public String[] getVirClasses() {
         Map<String, String> result = new TreeMap<>();
         for (int i = 0; i < instructionList.length; i++) {
             Instruction instruction = instructionList[i];

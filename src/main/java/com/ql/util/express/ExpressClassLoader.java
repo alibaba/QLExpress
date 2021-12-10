@@ -72,8 +72,7 @@ public class ExpressClassLoader extends ClassLoader {
         }
     }
 
-    public static Class<?> parentLoadClass(ClassLoader loader, String name)
-        throws ClassNotFoundException {
+    public static Class<?> parentLoadClass(ClassLoader loader, String name) {
         // 如果存在这个类，则直接返回
         Class<?> clasz = null;
         if (clasz == null) {

@@ -17,7 +17,7 @@ public class OperatorKeyValue extends OperatorBase {
         this.errorInfo = aErrorInfo;
     }
 
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext context, ArraySwap list) {
         return OperateDataCacheManager.fetchOperateDataKeyValue(list.get(0), list.get(1));
     }
 }

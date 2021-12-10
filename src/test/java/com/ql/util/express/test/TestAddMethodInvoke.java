@@ -25,14 +25,14 @@ public class TestAddMethodInvoke {
 
         runner.addFunctionAndClassMethod("isBlank", Object.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 String str = (String)list[0];
                 return str.trim().length() == 0;
             }
         });
         runner.addFunctionAndClassMethod("isNotBlank", String.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 String str = (String)list[0];
                 return str.trim().length() > 0;
             }
@@ -54,14 +54,14 @@ public class TestAddMethodInvoke {
 
         runner.addClassMethod("join", List.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 ArrayList arrayList = (ArrayList)list[0];
                 return StringUtils.join(arrayList, (String)list[1]);
             }
         });
         runner.addClassMethod("join", Map.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 HashMap map = (HashMap)list[0];
                 StringBuilder sb = new StringBuilder();
                 for (Object key : map.keySet()) {
@@ -87,7 +87,7 @@ public class TestAddMethodInvoke {
 
         runner.addClassMethod("size", List.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 ArrayList arrayList = (ArrayList)list[0];
                 System.out.println("拦截到List.size()方法");
                 return arrayList.size();
@@ -96,7 +96,7 @@ public class TestAddMethodInvoke {
 
         runner.addClassField("长度", List.class, new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 ArrayList arrayList = (ArrayList)list[0];
                 System.out.println("拦截到List.长度 字段的计算");
                 return arrayList.size();

@@ -44,9 +44,8 @@ public abstract class Operator extends OperatorBase {
      * @param op1
      * @param op2
      * @return
-     * @throws Exception
      */
-    public static boolean objectEquals(Object op1, Object op2) throws Exception {
+    public static boolean objectEquals(Object op1, Object op2) {
         if (op1 == null && op2 == null) {
             return true;
         }

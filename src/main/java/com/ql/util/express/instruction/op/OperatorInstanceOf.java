@@ -12,7 +12,7 @@ public class OperatorInstanceOf extends Operator {
     }
 
     @Override
-    public Object executeInner(Object[] list) throws Exception {
+    public Object executeInner(Object[] list) {
         Object obj = list[0];
         Object cls = list[1];
         if (obj != null && cls != null && cls instanceof Class) {

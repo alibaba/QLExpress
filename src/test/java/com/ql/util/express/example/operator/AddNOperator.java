@@ -7,7 +7,7 @@ import com.ql.util.express.Operator;
  */
 public class AddNOperator extends Operator {
 
-    public Object executeInner(Object[] list) throws Exception {
+    public Object executeInner(Object[] list) {
         int r = 0;
         for (int i = 0; i < list.length; i++) {
             r = r + (Integer)list[i];

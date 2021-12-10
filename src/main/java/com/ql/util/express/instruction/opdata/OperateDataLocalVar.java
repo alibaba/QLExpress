@@ -31,7 +31,7 @@ public class OperateDataLocalVar extends OperateDataAttr {
         }
     }
 
-    public Class<?> getType(InstructionSetContext context) throws Exception {
+    public Class<?> getType(InstructionSetContext context) {
         return this.type;
     }
 

@@ -16,11 +16,11 @@ public class ArrayMisType {
         return "String class method";
     }
 
-    public String test(String astr, Integer ainteger) {
+    public String test(String aString, Integer aInteger) {
         return "String&Integer class method";
     }
 
-    public String test(String[] astr, Integer ainteger) {
+    public String test(String[] aString, Integer aInteger) {
         return "String[]&Integer class method";
     }
 

@@ -73,9 +73,8 @@ public class ConsoleFrame2
     /**
      * Component initialization.
      *
-     * @throws Exception
      */
-    private void jbInit() throws Exception {
+    private void jbInit() {
         contentPane = (JPanel)getContentPane();
         contentPane.setLayout(borderLayout1);
         setSize(new Dimension(1000, 600));

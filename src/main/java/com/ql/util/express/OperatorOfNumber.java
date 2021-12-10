@@ -394,7 +394,7 @@ class PreciseNumberOperator {
 
     public static int DIVIDE_PRECISION = 10;
 
-    public static Number addPrecise(Number op1, Number op2) throws Exception {
+    public static Number addPrecise(Number op1, Number op2) {
         BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
@@ -421,7 +421,7 @@ class PreciseNumberOperator {
         }
     }
 
-    public static Number subtractPrecise(Number op1, Number op2) throws Exception {
+    public static Number subtractPrecise(Number op1, Number op2) {
         BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
@@ -448,7 +448,7 @@ class PreciseNumberOperator {
         }
     }
 
-    public static Number multiplyPrecise(Number op1, Number op2) throws Exception {
+    public static Number multiplyPrecise(Number op1, Number op2) {
         BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
@@ -475,7 +475,7 @@ class PreciseNumberOperator {
         }
     }
 
-    public static Number dividePrecise(Number op1, Number op2) throws Exception {
+    public static Number dividePrecise(Number op1, Number op2) {
         BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {

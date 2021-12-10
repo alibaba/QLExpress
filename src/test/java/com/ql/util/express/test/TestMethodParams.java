@@ -48,7 +48,7 @@ public class TestMethodParams {
     }
 
     //等价于getTemplate(Object[] params)
-    public Object getTemplate(Object... params) throws Exception {
+    public Object getTemplate(Object... params) {
         String result = "";
         for (Object obj : params) {
             result = result + obj + ",";
@@ -56,7 +56,7 @@ public class TestMethodParams {
         return result;
     }
 
-    public static Object getTemplateStatic(Object a, String... params) throws Exception {
+    public static Object getTemplateStatic(Object a, String... params) {
         String result = "";
         for (Object obj : params) {
             result = result + obj + ",";
@@ -65,7 +65,7 @@ public class TestMethodParams {
     }
 
     //等价于Integer[] params
-    public Integer integerArrayInvoke(Integer... params) throws Exception {
+    public Integer integerArrayInvoke(Integer... params) {
         if (params == null) {
             return 0;
         }
@@ -80,7 +80,7 @@ public class TestMethodParams {
     }
 
     //等价于Object[] params
-    public Object objectArrayInvoke(Object... params) throws Exception {
+    public Object objectArrayInvoke(Object... params) {
         if (params == null) {
             return "";
         }

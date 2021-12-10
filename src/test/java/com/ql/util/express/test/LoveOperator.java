@@ -7,8 +7,7 @@ class LoveOperator extends Operator {
         this.name = aName;
     }
 
-    public Object executeInner(Object[] list)
-        throws Exception {
+    public Object executeInner(Object[] list) {
         String op1 = list[0].toString();
         String op2 = list[1].toString();
         return op2 + "{" + op1 + "}" + op2;

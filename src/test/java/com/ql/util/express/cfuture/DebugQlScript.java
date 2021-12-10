@@ -17,7 +17,7 @@ public class DebugQlScript {
         ExpressRunner runner = new ExpressRunner();
         runner.addFunction("printContext", new OperatorBase() {
             @Override
-            public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+            public OperateData executeInner(InstructionSetContext parent, ArraySwap list) {
                 System.out.println(parent.getParent());//打印对象
                 return new OperateData(parent.getParent(), parent.getParent().getClass());
             }

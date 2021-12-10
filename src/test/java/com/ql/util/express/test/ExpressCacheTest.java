@@ -28,7 +28,7 @@ public class ExpressCacheTest {
         long times = 10000;
         long start = new Date().getTime();
         while (times-- > 0) {
-            calulateTask(false, context);
+            calculateTask(false, context);
         }
         long end = new Date().getTime();
         echo("不做缓存耗时：" + (end - start) + " ms");
@@ -36,7 +36,7 @@ public class ExpressCacheTest {
         times = 10000;
         start = new Date().getTime();
         while (times-- > 0) {
-            calulateTask(true, context);
+            calculateTask(true, context);
         }
         end = new Date().getTime();
         echo("做缓存耗时：" + (end - start) + " ms");
@@ -86,7 +86,7 @@ public class ExpressCacheTest {
         System.out.println(obj);
     }
 
-    private void calulateTask(boolean isCache, IExpressContext<String, Object> context) throws Exception {
+    private void calculateTask(boolean isCache, IExpressContext<String, Object> context) throws Exception {
         runner.execute("计算平均成绩", context, null, isCache, false);
     }
 }

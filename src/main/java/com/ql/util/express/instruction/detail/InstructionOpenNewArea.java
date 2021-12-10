@@ -9,7 +9,7 @@ import com.ql.util.express.instruction.OperateDataCacheManager;
 public class InstructionOpenNewArea extends Instruction {
     private static final long serialVersionUID = -118527079334123637L;
 
-    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
+    public void execute(RunEnvironment environment, List<String> errorList) {
         //目前的模式，不需要执行任何操作
         if (environment.isTrace() && log.isDebugEnabled()) {
             log.debug(this);

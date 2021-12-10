@@ -17,7 +17,7 @@ public class SimpleShortCircuitLogicTest {
 
     private ExpressRunner runner = new ExpressRunner();
 
-    public void initial() throws Exception {
+    public void initial() {
         runner.getOperatorFactory().getOperator("<").setErrorInfo("$1 < $2 = false");
         runner.getOperatorFactory().getOperator(">").setErrorInfo("$1 > $2 = false");
     }

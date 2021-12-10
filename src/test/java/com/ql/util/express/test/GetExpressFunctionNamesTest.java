@@ -48,7 +48,7 @@ public class GetExpressFunctionNamesTest {
         runner = new ExpressRunner(true, true);
         runner.addFunction("fun3", new Operator() {
             @Override
-            public Object executeInner(Object[] list) throws Exception {
+            public Object executeInner(Object[] list) {
                 String s = "";
                 for (Object obj : list) {
                     s = s + obj;
