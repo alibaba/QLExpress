@@ -22,7 +22,7 @@ public class NewInstructionFactory extends InstructionFactory {
                 tempStr = tempStr + "[]";
             }
             children[0].setValue(tempStr);
-            children[0].setOrgiValue(tempStr);
+            children[0].setOriginalValue(tempStr);
             children[0].setObjectValue(ExpressUtil.getJavaClass(tempStr));
         } else if (node.isTypeEqualsOrChild("anonymousNewArray")) {
             op = aCompile.getOperatorFactory().newInstance("anonymousNewArray");

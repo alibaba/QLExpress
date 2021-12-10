@@ -15,7 +15,7 @@ public class NodeTypeManager implements INodeTypeManager {
     public String[] splitWord;
     private String[] keyWords;
     private String[] nodeTypeDefines;
-    protected String[][] instructionFacotryMapping;
+    protected String[][] instructionFactoryMapping;
     protected Map<String, NodeType> nodeTypes = new HashMap<>();
 
     //所有的函数定义
@@ -25,12 +25,12 @@ public class NodeTypeManager implements INodeTypeManager {
         this(new KeyWordDefine4Java());
     }
 
-    public NodeTypeManager(KeyWordDefine4Java keyWorkdDefine) {
-        this.splitWord = keyWorkdDefine.splitWord;
+    public NodeTypeManager(KeyWordDefine4Java keyWordDefine) {
+        this.splitWord = keyWordDefine.splitWord;
         WordSplit.sortSplitWord(this.splitWord);
-        this.keyWords = keyWorkdDefine.keyWords;
-        this.nodeTypeDefines = keyWorkdDefine.nodeTypeDefines;
-        this.instructionFacotryMapping = keyWorkdDefine.instructionFacotryMapping;
+        this.keyWords = keyWordDefine.keyWords;
+        this.nodeTypeDefines = keyWordDefine.nodeTypeDefines;
+        this.instructionFactoryMapping = keyWordDefine.instructionFactoryMapping;
         this.initial();
         this.addOperatorWithRealNodeType("and", "&&");
         this.addOperatorWithRealNodeType("or", "||");
@@ -60,9 +60,9 @@ public class NodeTypeManager implements INodeTypeManager {
             nodeTypes[i].initial();
         }
 
-        //初始化指令Facotry
-        if (this.instructionFacotryMapping != null) {
-            for (String[] list : this.instructionFacotryMapping) {
+        //初始化指令Factory
+        if (this.instructionFactoryMapping != null) {
+            for (String[] list : this.instructionFactoryMapping) {
                 for (String s : list[0].split(",")) {
                     this.findNodeType(s).setInstructionFactory(list[1]);
                 }
@@ -121,15 +121,15 @@ public class NodeTypeManager implements INodeTypeManager {
     /**
      * 增加新的操作符号，其优先级别，以及语法关系与参照的操作符号一致
      *
-     * @param operName
-     * @param refOperName
+     * @param operatorName
+     * @param refOperatorName
      * @throws Exception
      */
-    public void addOperatorWithLevelOfReference(String operName, String refOperName) throws Exception {
-        NodeType target = this.createNodeType(operName + ":TYPE=KEYWORD");
+    public void addOperatorWithLevelOfReference(String operatorName, String refOperatorName) throws Exception {
+        NodeType target = this.createNodeType(operatorName + ":TYPE=KEYWORD");
         target.initial();
         NodeType[] list = this.getNodeTypesByKind(NodeTypeKind.OPERATOR);
-        NodeType refNodeType = this.findNodeType(refOperName);
+        NodeType refNodeType = this.findNodeType(refOperatorName);
         target.setInstructionFactory(refNodeType.getInstructionFactory());
         for (NodeType item : list) {
             if (item.isContainerChild(refNodeType)) {

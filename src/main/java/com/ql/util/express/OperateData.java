@@ -40,7 +40,7 @@ public class OperateData implements Serializable {
         throw new RuntimeException(this.getClass().getName() + "必须实现方法:getDefineType");
     }
 
-    public Class<?> getOrgiType() {
+    public Class<?> getOriginalType() {
         return this.type;
     }
 

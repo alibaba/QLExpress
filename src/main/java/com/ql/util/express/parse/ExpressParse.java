@@ -113,7 +113,7 @@ public class ExpressParse {
             }
         }
 
-        String orgiValue = null;
+        String originalValue = null;
         Object objectValue = null;
         NodeType treeNodeType = null;
         Word tmpWordObject;
@@ -242,7 +242,7 @@ public class ExpressParse {
                     }
                     if (isClass) {
                         tempWord = ExpressUtil.getClassName(tmpClass);
-                        orgiValue = tmpStr;
+                        originalValue = tmpStr;
                         tempType = nodeTypeManager.findNodeType("CONST_CLASS");
                         objectValue = tmpClass;
                     } else if (this.nodeTypeManager.isFunction(tempWord)) {
@@ -259,11 +259,11 @@ public class ExpressParse {
                     point = point + 1;
                 }
             }
-            result.add(new ExpressNode(tempType, tempWord, orgiValue, objectValue, treeNodeType, tmpWordObject.line,
+            result.add(new ExpressNode(tempType, tempWord, originalValue, objectValue, treeNodeType, tmpWordObject.line,
                 tmpWordObject.col, tmpWordObject.index));
             treeNodeType = null;
             objectValue = null;
-            orgiValue = null;
+            originalValue = null;
         }
         return result;
     }
@@ -414,8 +414,8 @@ public class ExpressParse {
                 "还有单词没有完成语法匹配：" + result.getMatchLastIndex() + "[" + tempNode.getValue() + ":line=" + tempNode.getLine()
                     + ",col=" + tempNode.getCol() + "] 之后的单词 \n" + express);
         }
-        result.getMatchs().get(0).buildExpressNodeTree();
-        ExpressNode root = (ExpressNode)result.getMatchs().get(0).getRef();
+        result.getMatches().get(0).buildExpressNodeTree();
+        ExpressNode root = (ExpressNode)result.getMatches().get(0).getRef();
 
         //为了生成代码时候进行判断，需要设置每个节点的父亲
         resetParent(root, null);

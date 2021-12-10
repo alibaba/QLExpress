@@ -19,95 +19,86 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     String functionName;
     String[] parameterTypes;
     Class<?>[] parameterClasses;
-    Class<?> operClass;
-    Object operInstance;
+    Class<?> operatorClass;
+    Object operatorInstance;
     Method method;
     boolean isReturnVoid;
     boolean maybeDynamicParams;
 
-    public OperatorSelfDefineClassFunction(String aOperName, Class<?> aOperClass, String aFunctionName,
+    public OperatorSelfDefineClassFunction(String aOperatorName, Class<?> aOperatorClass, String aFunctionName,
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
-        if (errorInfo != null && errorInfo.trim().length() == 0) {
-        }
-        this.name = aOperName;
+        this.name = aOperatorName;
         this.errorInfo = aErrorInfo;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operDataDesc = aParameterDesc;
-        this.operDataAnnotation = aParameterAnnotation;
+        this.operatorDataDesc = aParameterDesc;
+        this.operatorDataAnnotation = aParameterAnnotation;
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
         }
-        operClass = aOperClass;
-        method = operClass.getMethod(functionName, parameterClasses);
+        operatorClass = aOperatorClass;
+        method = operatorClass.getMethod(functionName, parameterClasses);
         this.isReturnVoid = method.getReturnType().equals(void.class);
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineClassFunction(String aOperName, String aClassName, String aFunctionName,
+    public OperatorSelfDefineClassFunction(String aOperatorName, String aClassName, String aFunctionName,
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
-        if (errorInfo != null && errorInfo.trim().length() == 0) {
-        }
-        this.name = aOperName;
+        this.name = aOperatorName;
         this.errorInfo = aErrorInfo;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operDataDesc = aParameterDesc;
-        this.operDataAnnotation = aParameterAnnotation;
+        this.operatorDataDesc = aParameterDesc;
+        this.operatorDataAnnotation = aParameterAnnotation;
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
         }
-        operClass = ExpressUtil.getJavaClass(aClassName);
-        method = operClass.getMethod(functionName, parameterClasses);
+        operatorClass = ExpressUtil.getJavaClass(aClassName);
+        method = operatorClass.getMethod(functionName, parameterClasses);
         this.isReturnVoid = method.getReturnType().equals(void.class);
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineClassFunction(String aOperName, String aClassName, String aFunctionName,
+    public OperatorSelfDefineClassFunction(String aOperatorName, String aClassName, String aFunctionName,
         String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
         throws Exception {
-        if (errorInfo != null && errorInfo.trim().length() == 0) {
-        }
-        this.name = aOperName;
+        this.name = aOperatorName;
         this.errorInfo = aErrorInfo;
         this.functionName = aFunctionName;
         this.parameterTypes = aParameterTypes;
-        this.operDataDesc = aParameterDesc;
-        this.operDataAnnotation = aParameterAnnotation;
+        this.operatorDataDesc = aParameterDesc;
+        this.operatorDataAnnotation = aParameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterClasses[i] = ExpressUtil.getJavaClass(this.parameterTypes[i]);
         }
-        operClass = ExpressUtil.getJavaClass(aClassName);
-        method = operClass.getMethod(functionName, parameterClasses);
+        operatorClass = ExpressUtil.getJavaClass(aClassName);
+        method = operatorClass.getMethod(functionName, parameterClasses);
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
     @Override
-    public OperatorBase cloneMe(String opName, String errorInfo)
-        throws Exception {
-        return new OperatorSelfDefineClassFunction(opName,
-            this.operClass.getName(), this.functionName,
-            this.parameterClasses, this.operDataDesc,
-            this.operDataAnnotation, errorInfo);
+    public OperatorBase cloneMe(String opName, String errorInfo) throws Exception {
+        return new OperatorSelfDefineClassFunction(opName, this.operatorClass.getName(), this.functionName,
+            this.parameterClasses, this.operatorDataDesc, this.operatorDataAnnotation, errorInfo);
     }
 
     @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Object[] parameres = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
+        Object[] parameters = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
             this.maybeDynamicParams);
         Object obj;
         if (Modifier.isStatic(this.method.getModifiers())) {
-            obj = this.method.invoke(null, ExpressUtil.transferArray(parameres, parameterClasses));
+            obj = this.method.invoke(null, ExpressUtil.transferArray(parameters, parameterClasses));
         } else {
-            if (operInstance == null) {
-                operInstance = operClass.newInstance();
+            if (operatorInstance == null) {
+                operatorInstance = operatorClass.newInstance();
             }
-            obj = this.method.invoke(operInstance, ExpressUtil.transferArray(parameres, parameterClasses));
+            obj = this.method.invoke(operatorInstance, ExpressUtil.transferArray(parameters, parameterClasses));
         }
 
         if (obj != null) {

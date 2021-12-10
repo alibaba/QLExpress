@@ -87,15 +87,15 @@ public class OperatorFactory {
         if (!this.operator.containsKey(name)) {
             throw new QLException(name + " 不是系统级别的操作符号，不能设置别名");
         } else {
-            OperatorBase orgiOperator = this.operator.get(name);
-            if (orgiOperator == null) {
+            OperatorBase originalOperator = this.operator.get(name);
+            if (originalOperator == null) {
                 throw new QLException(name + " 不能被设置别名");
             }
             OperatorBase destOperator;
-            if (orgiOperator instanceof CanClone) {
-                destOperator = ((CanClone)orgiOperator).cloneMe(aAliasName, errorInfo);
+            if (originalOperator instanceof CanClone) {
+                destOperator = ((CanClone)originalOperator).cloneMe(aAliasName, errorInfo);
             } else {
-                Class<OperatorBase> opClass = (Class<OperatorBase>)orgiOperator.getClass();
+                Class<OperatorBase> opClass = (Class<OperatorBase>)originalOperator.getClass();
                 Constructor<OperatorBase> constructor;
                 try {
                     constructor = opClass
@@ -115,12 +115,12 @@ public class OperatorFactory {
         }
     }
 
-    public boolean isExistOperator(String operName) {
-        return operator.containsKey(operName);
+    public boolean isExistOperator(String operatorName) {
+        return operator.containsKey(operatorName);
     }
 
-    public OperatorBase getOperator(String aOperName) {
-        return this.operator.get(aOperName);
+    public OperatorBase getOperator(String aOperatorName) {
+        return this.operator.get(aOperatorName);
     }
 
     /**

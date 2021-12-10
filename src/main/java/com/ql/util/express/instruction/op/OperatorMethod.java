@@ -49,7 +49,7 @@ public class OperatorMethod extends OperatorBase {
             throw new QLException(msg + this.methodName);
         } else {
             Class<?>[] types = new Class[list.length - 1];
-            Class<?>[] orgiTypes = new Class[list.length - 1];
+            Class<?>[] originalTypes = new Class[list.length - 1];
 
             Object[] objs = new Object[list.length - 1];
             Object tmpObj;
@@ -58,7 +58,7 @@ public class OperatorMethod extends OperatorBase {
                 p = list.get(i + 1);
                 tmpObj = p.getObject(parent);
                 types[i] = p.getType(parent);
-                orgiTypes[i] = p.getType(parent);
+                originalTypes[i] = p.getType(parent);
                 objs[i] = tmpObj;
             }
             AppendingClassMethodManager appendingClassMethodManager = parent.getExpressRunner()
@@ -100,14 +100,14 @@ public class OperatorMethod extends OperatorBase {
                 StringBuilder s = new StringBuilder();
                 s.append("没有找到" + obj.getClass().getName() + "的方法："
                     + methodName + "(");
-                for (int i = 0; i < orgiTypes.length; i++) {
+                for (int i = 0; i < originalTypes.length; i++) {
                     if (i > 0) {
                         s.append(",");
                     }
-                    if (orgiTypes[i] == null) {
+                    if (originalTypes[i] == null) {
                         s.append("null");
                     } else {
-                        s.append(orgiTypes[i].getName());
+                        s.append(originalTypes[i].getName());
                     }
                 }
                 s.append(")");

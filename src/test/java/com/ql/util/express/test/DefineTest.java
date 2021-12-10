@@ -55,9 +55,9 @@ public class DefineTest {
         runner.addOperatorWithAlias("定义宏", "macro", null);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", new BeanExample("qhlhl2010@gmail.com"));
-        context.put("name", "xuannn");
+        context.put("name", "xuannan");
         Object r = runner.execute(express, context, null, false, false);
-        Assert.assertTrue("别名宏 错误", r.toString().equalsIgnoreCase("qhlhl2010@gmail.com-xuannn"));
+        Assert.assertTrue("别名宏 错误", r.toString().equalsIgnoreCase("qhlhl2010@gmail.com-xuannan"));
         System.out.println(r);
     }
 
@@ -116,7 +116,7 @@ public class DefineTest {
         runner.addFunctionOfServiceMethod("打印", System.out, "println", new String[] {Object.class.getName()}, null);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("bean", new BeanExample("qhlhl2010@gmail.com"));
-        context.put("name", "xuannn");
+        context.put("name", "xuannan");
         int count = 1;
         long s = System.currentTimeMillis();
 

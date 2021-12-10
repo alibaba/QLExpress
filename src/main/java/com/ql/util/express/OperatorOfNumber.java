@@ -17,7 +17,7 @@ interface NumberType {
     int NUMBER_TYPE_LONG = 4;
     int NUMBER_TYPE_FLOAT = 5;
     int NUMBER_TYPE_DOUBLE = 6;
-    int NUMBER_TYPE_BIGDECIMAL = 7;
+    int NUMBER_TYPE_BIG_DECIMAL = 7;
 }
 
 public class OperatorOfNumber {
@@ -57,7 +57,7 @@ public class OperatorOfNumber {
             return NumberType.NUMBER_TYPE_DOUBLE;
         }
         if (aClass == BigDecimal.class) {
-            return NumberType.NUMBER_TYPE_BIGDECIMAL;
+            return NumberType.NUMBER_TYPE_BIG_DECIMAL;
         }
         throw new RuntimeException("不能处理的数据类型：" + aClass.getName());
     }
@@ -275,7 +275,7 @@ class NormalNumberOperator {
         if (type == NumberType.NUMBER_TYPE_DOUBLE) {
             return op1.doubleValue() + op2.doubleValue();
         }
-        if (type == NumberType.NUMBER_TYPE_BIGDECIMAL) {
+        if (type == NumberType.NUMBER_TYPE_BIG_DECIMAL) {
             return new BigDecimal(op1.toString()).add(new BigDecimal(op2.toString()));
         }
         throw new QLException("不支持的对象执行了\"+\"操作");
@@ -303,7 +303,7 @@ class NormalNumberOperator {
         if (type == NumberType.NUMBER_TYPE_DOUBLE) {
             return op1.doubleValue() - op2.doubleValue();
         }
-        if (type == NumberType.NUMBER_TYPE_BIGDECIMAL) {
+        if (type == NumberType.NUMBER_TYPE_BIG_DECIMAL) {
             return new BigDecimal(op1.toString()).subtract(new BigDecimal(op2.toString()));
         }
         throw new QLException("不支持的对象执行了\"-\"操作");
@@ -331,7 +331,7 @@ class NormalNumberOperator {
         if (type == NumberType.NUMBER_TYPE_DOUBLE) {
             return op1.doubleValue() * op2.doubleValue();
         }
-        if (type == NumberType.NUMBER_TYPE_BIGDECIMAL) {
+        if (type == NumberType.NUMBER_TYPE_BIG_DECIMAL) {
             return new BigDecimal(op1.toString()).multiply(new BigDecimal(op2.toString()));
         }
         throw new QLException("不支持的对象执行了\"*\"操作");
@@ -359,7 +359,7 @@ class NormalNumberOperator {
         if (type == NumberType.NUMBER_TYPE_DOUBLE) {
             return op1.doubleValue() / op2.doubleValue();
         }
-        if (type == NumberType.NUMBER_TYPE_BIGDECIMAL) {
+        if (type == NumberType.NUMBER_TYPE_BIG_DECIMAL) {
             return new BigDecimal(op1.toString()).divide(new BigDecimal(op2.toString()), BigDecimal.ROUND_HALF_UP);
         }
         throw new QLException("不支持的对象执行了\"/\"操作");

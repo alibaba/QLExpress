@@ -12,12 +12,12 @@ import com.ql.util.express.Operator;
  *
  * @author xuannan
  */
-class SujectOperator extends Operator {
-    public SujectOperator(String aName) {
+class SubjectOperator extends Operator {
+    public SubjectOperator(String aName) {
         this.name = aName;
     }
 
-    public SujectOperator(String aAliasName, String aName, String aErrorInfo) {
+    public SubjectOperator(String aAliasName, String aName, String aErrorInfo) {
         this.name = aName;
         this.aliasName = aAliasName;
         this.errorInfo = aErrorInfo;

@@ -48,7 +48,7 @@ public class OperateDataVirClass extends OperateDataAttr {
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
             OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOrgiType());
+                vars[i].getOriginalType());
             this.context.addSymbol(var.getName(), var);
             var.setObject(context, parameters[i].getObject(parent));
         }
@@ -70,7 +70,7 @@ public class OperateDataVirClass extends OperateDataAttr {
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
             OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOrgiType());
+                vars[i].getOriginalType());
             tempContext.addSymbol(var.getName(), var);
             var.setObject(tempContext, parameters[i].getObject(this.context));
         }

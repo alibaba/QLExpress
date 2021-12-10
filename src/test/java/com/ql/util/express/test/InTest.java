@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class InTest {
     @Test
-    public void testOperaterIn() throws Exception {
+    public void testOperatorIn() throws Exception {
         String express1 = "2 in (2,3) ";
         String express2 = "2 in a";
         String express3 = "2 in b";

@@ -21,11 +21,10 @@ public class SkylightRuleTransferTest {
 
         public Rule(String content) throws Exception {
             this.content = content;
-            praseContent();
+            parseContent();
         }
 
-        private void praseContent() throws Exception {
-
+        private void parseContent() throws Exception {
             Matcher matcher = pattern2.matcher(content);
             if (matcher.find()) {
                 this.code = matcher.group(2);

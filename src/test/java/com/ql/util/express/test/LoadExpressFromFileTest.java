@@ -10,7 +10,7 @@ public class LoadExpressFromFileTest {
     @Test
     public void testLoadFromFile() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        runner.loadExpress("functiondef");
+        runner.loadExpress("functionDef");
         runner.loadExpress("main");
         ExportItem[] exports = runner.getExportInfo();
         for (ExportItem item : exports) {

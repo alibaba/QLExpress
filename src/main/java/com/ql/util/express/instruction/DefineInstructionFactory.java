@@ -32,7 +32,7 @@ class DefineInstructionFactory extends InstructionFactory {
         }
         if (arrayDimeCount > 0) {
             node.getLeftChildren().get(0).setValue(node.getLeftChildren().get(0).getValue() + tempStr);
-            node.getLeftChildren().get(0).setOrgiValue(node.getLeftChildren().get(0).getOrgiValue() + tempStr);
+            node.getLeftChildren().get(0).setOriginalValue(node.getLeftChildren().get(0).getOriginalValue() + tempStr);
             Object objValue = node.getLeftChildren().get(0).getObjectValue();
             if (objValue instanceof Class) {
                 Class<?> tmpClass = ExpressUtil.getJavaClass(ExpressUtil.getClassName((Class<?>)objValue) + tempStr);

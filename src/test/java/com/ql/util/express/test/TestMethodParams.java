@@ -107,13 +107,13 @@ public class TestMethodParams {
     @Test
     public void testMethodArrayParamType() throws Exception {
 
-        Class<?> longClasss = Long.class;
-        Class<?> numberClasss = Number.class;
+        Class<?> longClass = Long.class;
+        Class<?> numberClass = Number.class;
         Class<?> stringClass = String.class;
         Class<?> objectClass = Object.class;
 
-        assert (numberClasss.isAssignableFrom(longClasss));
-        assert (objectClass.isAssignableFrom(numberClasss));
+        assert (numberClass.isAssignableFrom(longClass));
+        assert (objectClass.isAssignableFrom(numberClass));
         assert (objectClass.isAssignableFrom(stringClass));
 
         ExpressRunner runner = new ExpressRunner();

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"serial", "rawtypes"})
-public class SubjectMananger extends HashMap {
+public class SubjectManager extends HashMap {
     @SuppressWarnings("unchecked")
     public Object get(Object userName) {
         UserSubject userSubject = (UserSubject)super.get(userName);

@@ -63,7 +63,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
 
     public void addSymbol(String varName, Object aliasNameObject) throws Exception {
         if (this.symbolTable.containsKey(varName)) {
-            throw new QLException("变量" + varName + "已经存在，不能重复定义，也不能再从函数内部 exprot ");
+            throw new QLException("变量" + varName + "已经存在，不能重复定义，也不能再从函数内部 export");
         }
         this.symbolTable.put(varName, aliasNameObject);
     }

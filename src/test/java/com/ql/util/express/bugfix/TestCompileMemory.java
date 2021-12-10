@@ -97,15 +97,15 @@ public class TestCompileMemory {
             "    submitBtn.getSubmitBtn().setVisible(false);\n" +
             "    field.setDisabled(true);\n" +
             "    applyHref = submitBtn.getSubmitBtn().getHref();\n" +
-            "    globalerror.setUiType(\"globalError\");\n" +
-            "    globalerror.setValue(\"无操作权限，请点击申请\");\n" +
-            "    globalerror.setHref(applyHref);\n" +
-            "    fieldList.add(globalerror);\n" +
+            "    globalError.setUiType(\"globalError\");\n" +
+            "    globalError.setValue(\"无操作权限，请点击申请\");\n" +
+            "    globalError.setHref(applyHref);\n" +
+            "    fieldList.add(globalError);\n" +
             "} else if (leaf == true){\n" +
             "    submitBtn.getSubmitBtn().setDisabled(true);\n" +
-            "    globalerror.setUiType(\"globalError\");\n" +
-            "    globalerror.setValue(\"叶子类目下不能添加子类目\");\n" +
-            "    fieldList.add(globalerror)\n" +
+            "    globalError.setUiType(\"globalError\");\n" +
+            "    globalError.setValue(\"叶子类目下不能添加子类目\");\n" +
+            "    fieldList.add(globalError)\n" +
             "} else {\n" +
             "    submitBtn.getSubmitBtn().setDisabled(false);\n" +
             "    submitBtn.getSubmitBtn().setVisible(true);\n" +
@@ -123,9 +123,7 @@ public class TestCompileMemory {
 
         for (String express : expressList) {
             ExpressRunner runner2 = new ExpressRunner();
-
             InstructionSet result2 = runner2.parseInstructionSet(express);
-
             System.out.println(express + " 编译结果如下:\n" + result2);
         }
         QLPattern.printStackDepth = false;

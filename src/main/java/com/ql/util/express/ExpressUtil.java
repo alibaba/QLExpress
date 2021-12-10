@@ -347,15 +347,14 @@ public class ExpressUtil {
 
         addCandidates(baseClass.getDeclaredMethods(), methodName, numArgs, publicOnly, isStatic, candidates);
 
-        Class<?>[] intfs = baseClass.getInterfaces();
-        for (int i = 0; i < intfs.length; i++) {
-            gatherMethodsRecursive(intfs[i], methodName, numArgs, publicOnly, isStatic, candidates);
+        Class<?>[] interfaces = baseClass.getInterfaces();
+        for (int i = 0; i < interfaces.length; i++) {
+            gatherMethodsRecursive(interfaces[i], methodName, numArgs, publicOnly, isStatic, candidates);
         }
 
         Class<?> superclass = baseClass.getSuperclass();
         if (superclass != null) {
-            gatherMethodsRecursive(superclass, methodName, numArgs, publicOnly,
-                isStatic, candidates);
+            gatherMethodsRecursive(superclass, methodName, numArgs, publicOnly, isStatic, candidates);
         }
 
         return candidates;

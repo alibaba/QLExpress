@@ -22,7 +22,7 @@ public class ExpressNode implements IDataNode {
     /**
      * 节点原始值
      */
-    private String orgiValue;
+    private String originalValue;
 
     private Object objectValue;
     /**
@@ -54,7 +54,7 @@ public class ExpressNode implements IDataNode {
         this(aType, aValue, null, null, null, -1, -1, -1);
     }
 
-    public ExpressNode(NodeType aType, String aValue, String aOrgiValue, Object aObjectValue, NodeType aTreeType,
+    public ExpressNode(NodeType aType, String aValue, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
         int aLine, int aCol, int wordIndex) throws Exception {
         if (aType == null) {
             throw new QLCompileException(aValue + " 没有找到对应的节点类型");
@@ -64,8 +64,8 @@ public class ExpressNode implements IDataNode {
         if (aValue != null && aValue.length() > 0) {
             this.value = aValue;
         }
-        if (aOrgiValue != null && aOrgiValue.length() > 0) {
-            this.orgiValue = aOrgiValue;
+        if (aOriginalValue != null && aOriginalValue.length() > 0) {
+            this.originalValue = aOriginalValue;
         }
         if (aObjectValue != null) {
             this.objectValue = aObjectValue;
@@ -125,12 +125,12 @@ public class ExpressNode implements IDataNode {
                 : " 或者 " + this.treeType.getName()));
     }
 
-    public String getOrgiValue() {
-        return orgiValue;
+    public String getOriginalValue() {
+        return originalValue;
     }
 
-    public void setOrgiValue(String orgiValue) {
-        this.orgiValue = orgiValue;
+    public void setOriginalValue(String originalValue) {
+        this.originalValue = originalValue;
     }
 
     public Object getObjectValue() {
@@ -233,7 +233,8 @@ public class ExpressNode implements IDataNode {
     @Override
     public String toString() {
         // return str + "[" + this.line +"," + this.col +"]";
-        return (this.orgiValue == null ? this.getValue() : this.orgiValue) + (this.nodeType.getName() == null ? ""
+        return (this.originalValue == null ? this.getValue() : this.originalValue) + (this.nodeType.getName() == null
+            ? ""
             : (":" + this.nodeType.getName()));
     }
 

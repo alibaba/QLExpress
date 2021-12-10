@@ -161,7 +161,7 @@ public class InstructionSet implements Serializable {
     }
 
     /**
-     * @param environmen
+     * @param environment
      * @param context
      * @param errorList
      * @param isReturnLastData 是否最后的结果，主要是在执行宏定义的时候需要
@@ -169,7 +169,7 @@ public class InstructionSet implements Serializable {
      * @return
      * @throws Exception
      */
-    public CallResult excute(RunEnvironment environmen, InstructionSetContext context,
+    public CallResult execute(RunEnvironment environment, InstructionSetContext context,
         List<String> errorList, boolean isReturnLastData, Log aLog)
         throws Exception {
 
@@ -184,44 +184,45 @@ public class InstructionSet implements Serializable {
 
         context.addSymbol(cacheFunctionSet);
 
-        this.executeInnerOrigiInstruction(environmen, errorList, aLog);
-        if (!environmen.isExit()) {// 是在执行完所有的指令后结束的代码
-            if (environmen.getDataStackSize() > 0) {
-                OperateData tmpObject = environmen.pop();
+        this.executeInnerOriginalInstruction(environment, errorList, aLog);
+        if (!environment.isExit()) {// 是在执行完所有的指令后结束的代码
+            if (environment.getDataStackSize() > 0) {
+                OperateData tmpObject = environment.pop();
                 if (tmpObject == null) {
-                    environmen.quitExpress(null);
+                    environment.quitExpress(null);
                 } else {
                     if (isReturnLastData) {
                         if (tmpObject.getType(context) != null && tmpObject.getType(context).equals(void.class)) {
-                            environmen.quitExpress(null);
+                            environment.quitExpress(null);
                         } else {
-                            environmen.quitExpress(tmpObject.getObject(context));
+                            environment.quitExpress(tmpObject.getObject(context));
                         }
                     } else {
-                        environmen.quitExpress(tmpObject);
+                        environment.quitExpress(tmpObject);
                     }
                 }
             }
         }
-        if (environmen.getDataStackSize() > 1) {
+        if (environment.getDataStackSize() > 1) {
             throw new QLException("在表达式执行完毕后，堆栈中还存在多个数据");
         }
-        return OperateDataCacheManager.fetchCallResult(environmen.getReturnValue(), environmen.isExit());
+        return OperateDataCacheManager.fetchCallResult(environment.getReturnValue(), environment.isExit());
     }
 
-    public void executeInnerOrigiInstruction(RunEnvironment environmen, List<String> errorList, Log aLog)
+    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList, Log aLog)
         throws Exception {
         Instruction instruction = null;
         try {
-            while (environmen.programPoint < this.instructionList.length) {
+            while (environment.programPoint < this.instructionList.length) {
                 QLExpressTimer.assertTimeOut();
-                instruction = this.instructionList[environmen.programPoint];
-                instruction.setLog(aLog);// 设置log
-                instruction.execute(environmen, errorList);
+                instruction = this.instructionList[environment.programPoint];
+                // 设置log
+                instruction.setLog(aLog);
+                instruction.execute(environment, errorList);
             }
         } catch (Exception e) {
             if (printInstructionError) {
-                log.error("当前ProgramPoint = " + environmen.programPoint);
+                log.error("当前ProgramPoint = " + environment.programPoint);
                 log.error("当前指令" + instruction);
                 log.error(e);
             }
@@ -233,8 +234,8 @@ public class InstructionSet implements Serializable {
         return this.instructionList.length;
     }
 
-    public void addMacroDefine(String macroName, FunctionInstructionSet iset) {
-        this.functionDefine.put(macroName, iset);
+    public void addMacroDefine(String macroName, FunctionInstructionSet functionInstructionSet) {
+        this.functionDefine.put(macroName, functionInstructionSet);
     }
 
     public FunctionInstructionSet getMacroDefine(String macroName) {

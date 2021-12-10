@@ -62,7 +62,7 @@ maxnum = a>b?a:b;
 - 注释目前只支持 /** **/，不支持单行注释 //
 - 不支持java8的lambda表达式
 - 不支持for循环集合操作for (GRCRouteLineResultDTO item : list)
-- 弱类型语言，请不要定义类型声明,更不要用Templete（Map<String,List>之类的）
+- 弱类型语言，请不要定义类型声明,更不要用Template（Map<String,List>之类的）
 - array的声明不一样
 - min,max,round,print,println,like,in 都是系统默认函数的关键字，请不要作为变量名
 
@@ -364,7 +364,7 @@ QLExpressRunner如下图所示，从语法树分析、上下文、执行过程�
 	private boolean isShortCircuit = true;
 ```
 在很多业务决策系统中，往往需要对布尔条件表达式进行分析输出，普通的java运算一般会通过逻辑短路来减少性能的消耗。例如规则公式：
-_star>10000 and shoptype in('tmall','juhuasuan') and price between (100,900)_
+_star>10000 and shopType in('tmall','juhuasuan') and price between (100,900)_
 假设第一个条件 _star>10000_ 不满足就停止运算。但业务系统却还是希望把后面的逻辑都能够运算一遍，并且输出中间过程，保证更快更好的做出决策。
 
 参照单元测试:[ShortCircuitLogicTest.java](https://github.com/alibaba/QLExpress/blob/master/src/test/java/com/ql/util/express/test/logic/ShortCircuitLogicTest.java)

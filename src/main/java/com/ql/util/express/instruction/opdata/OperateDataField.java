@@ -7,7 +7,7 @@ import com.ql.util.express.parse.AppendingClassFieldManager;
 
 public class OperateDataField extends OperateDataAttr {
     Object fieldObject;
-    String orgiFieldName;
+    String originalFieldName;
 
     public OperateDataField(Object aFieldObject, String aFieldName) {
         super(null, null);
@@ -17,7 +17,7 @@ public class OperateDataField extends OperateDataAttr {
             this.name = aFieldObject.getClass().getName() + "." + aFieldName;
         }
         this.fieldObject = aFieldObject;
-        this.orgiFieldName = aFieldName;
+        this.originalFieldName = aFieldName;
     }
 
     public void initialDataField(Object aFieldObject, String aFieldName) {
@@ -28,14 +28,14 @@ public class OperateDataField extends OperateDataAttr {
             this.name = aFieldObject.getClass().getName() + "." + aFieldName;
         }
         this.fieldObject = aFieldObject;
-        this.orgiFieldName = aFieldName;
+        this.originalFieldName = aFieldName;
     }
 
     public void clearDataField() {
         super.clearDataAttr();
         this.name = null;
         this.fieldObject = null;
-        this.orgiFieldName = null;
+        this.originalFieldName = null;
     }
 
     @Override
@@ -78,16 +78,16 @@ public class OperateDataField extends OperateDataAttr {
 
         if (appendingClassFieldManager != null) {
             AppendingClassFieldManager.AppendingField appendingField
-                = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.orgiFieldName);
+                = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.originalFieldName);
             if (appendingField != null) {
                 return appendingClassFieldManager.invoke(appendingField, context, this.fieldObject, null);
             }
         }
         //如果能找到aFieldName的定义,则再次运算
         if (this.fieldObject instanceof OperateDataVirClass) {
-            return ((OperateDataVirClass)this.fieldObject).getValue(transferFieldName(context, this.orgiFieldName));
+            return ((OperateDataVirClass)this.fieldObject).getValue(transferFieldName(context, this.originalFieldName));
         } else {
-            return ExpressUtil.getProperty(this.fieldObject, transferFieldName(context, this.orgiFieldName));
+            return ExpressUtil.getProperty(this.fieldObject, transferFieldName(context, this.originalFieldName));
         }
     }
 
@@ -98,28 +98,28 @@ public class OperateDataField extends OperateDataAttr {
 
         if (appendingClassFieldManager != null) {
             AppendingClassFieldManager.AppendingField appendingField
-                = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.orgiFieldName);
+                = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.originalFieldName);
             if (appendingField != null) {
                 return appendingField.returnType;
             }
         }
         if (this.fieldObject instanceof OperateDataVirClass) {
-            return ((OperateDataVirClass)this.fieldObject).getValueType(transferFieldName(context, this.orgiFieldName));
+            return ((OperateDataVirClass)this.fieldObject).getValueType(transferFieldName(context, this.originalFieldName));
         } else {
             if (this.fieldObject == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 return Void.class;
             }
-            return ExpressUtil.getPropertyClass(this.fieldObject, transferFieldName(context, this.orgiFieldName));
+            return ExpressUtil.getPropertyClass(this.fieldObject, transferFieldName(context, this.originalFieldName));
         }
     }
 
     @Override
     public void setObject(InstructionSetContext context, Object value) throws Exception {
         if (this.fieldObject instanceof OperateDataVirClass) {
-            ((OperateDataVirClass)this.fieldObject).setValue(transferFieldName(context, this.orgiFieldName).toString(),
+            ((OperateDataVirClass)this.fieldObject).setValue(transferFieldName(context, this.originalFieldName).toString(),
                 value);
         } else {
-            ExpressUtil.setProperty(fieldObject, transferFieldName(context, this.orgiFieldName), value);
+            ExpressUtil.setProperty(fieldObject, transferFieldName(context, this.originalFieldName), value);
         }
     }
 }

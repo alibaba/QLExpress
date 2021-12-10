@@ -7,8 +7,7 @@ import org.junit.Test;
 /**
  * Created by tianqiao on 18/4/3.
  */
-public class ReplaceComapreOpetatorTest {
-
+public class ReplaceCompareOperatorTest {
     @Test
     public void testReplaceOperatorTest() throws Exception {
         String express = "null > 1 || null < 1 || null == 1 || null >= 1 || null <= 1 ||null like '%222%'";

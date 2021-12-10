@@ -15,8 +15,8 @@ public class FunctionDescTest {
         runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(),
             "isVIP", new String[] {"String"}, new String[] {"用户名称"}, new String[] {"UserName"}, "$1不是VIP用户");
         OperatorBase op = runner.getFunction("isVIP");
-        System.out.println(op.getOperDataDesc());
-        System.out.println(op.getOperDataAnnotaion());
+        System.out.println(op.getOperatorDataDesc());
+        System.out.println(op.getOperatorDataAnnotation());
 
         Object r = runner.execute(express, context, null, false, false);
         System.out.println(r);

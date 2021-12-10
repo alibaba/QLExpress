@@ -22,8 +22,8 @@ public class OperateDataAttr extends OperateData {
         this.name = null;
     }
 
-    public void setDefineType(Class<?> orgiType) {
-        this.type = orgiType;
+    public void setDefineType(Class<?> originalType) {
+        this.type = originalType;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class QLPatternNode {
     /**
      * 原始的字符串
      */
-    String orgiContent;
+    String originalContent;
     /**
      * 匹配模式
      */
@@ -96,19 +96,19 @@ public class QLPatternNode {
      */
     List<QLPatternNode> children = new ArrayList<>();
 
-    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOrgiContent) throws Exception {
-        this(aManager, aName, aOrgiContent, false, 1);
-        //		if(this.toString().equals(aOrgiContent)==false){
-        //throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString());
-        //log.error(("语法定义解析后的结果与原始值不一致，原始值:"+ aOrgiContent + " 解析结果:" + this.toString()));
-        //		}
+    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent) throws Exception {
+        this(aManager, aName, aOriginalContent, false, 1);
+        //if (this.toString().equals(aOriginalContent) == false) {
+        //    throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString());
+        //    log.error(("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString()));
+        //}
     }
 
-    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOrgiContent, boolean aIsChildMode,
+    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent, boolean aIsChildMode,
         int aLevel) throws Exception {
         this.nodeTypeManager = aManager;
         this.name = aName;
-        this.orgiContent = aOrgiContent;
+        this.originalContent = aOriginalContent;
         this.isChildMode = aIsChildMode;
         this.level = aLevel;
         this.splitChild();
@@ -129,55 +129,56 @@ public class QLPatternNode {
             for (int i = 0; i < this.level; i++) {
                 str = str + "  ";
             }
-            //log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.orgiContent);
+            //log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.originalContent);
         }
-        String orgStr = this.orgiContent;
-        if (orgStr.equals("(") || orgStr.equals(")") || orgStr.equals("|") || orgStr.equals("||") || orgStr.equals(
-            "/**") || orgStr.equals("**/") || orgStr.equals("*") || orgStr.equals("->")) {
+        String originalStr = this.originalContent;
+        if (originalStr.equals("(") || originalStr.equals(")") || originalStr.equals("|") || originalStr.equals("||")
+            || originalStr.equals("/**") || originalStr.equals("**/") || originalStr.equals("*")
+            || originalStr.equals("->")) {
             this.matchMode = MatchMode.DETAIL;
-            this.nodeType = this.nodeTypeManager.findNodeType(orgStr);
+            this.nodeType = this.nodeTypeManager.findNodeType(originalStr);
             return;
         }
 
         String tempStr = "";
         int count = 0;
-        for (int i = 0; i < orgStr.length(); i++) {
-            if (orgStr.charAt(i) == '(') {
-                tempStr = tempStr + orgStr.charAt(i);
+        for (int i = 0; i < originalStr.length(); i++) {
+            if (originalStr.charAt(i) == '(') {
+                tempStr = tempStr + originalStr.charAt(i);
                 count = count + 1;
-            } else if (orgStr.charAt(i) == ')') {
-                tempStr = tempStr + orgStr.charAt(i);
+            } else if (originalStr.charAt(i) == ')') {
+                tempStr = tempStr + originalStr.charAt(i);
                 count = count - 1;
             } else if (count > 0) {
-                tempStr = tempStr + orgStr.charAt(i);
-            } else if (orgStr.charAt(i) == '$') {
+                tempStr = tempStr + originalStr.charAt(i);
+            } else if (originalStr.charAt(i) == '$') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.AND) {
                     throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
-                        + orgStr);
+                        + originalStr);
                 }
                 children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
                 this.matchMode = MatchMode.AND;
                 tempStr = "";
-            } else if (orgStr.charAt(i) == '|') {
+            } else if (originalStr.charAt(i) == '|') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.OR) {
                     throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
-                        + orgStr);
+                        + originalStr);
                 }
                 children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
                 this.matchMode = MatchMode.OR;
                 tempStr = "";
-            } else if (orgStr.charAt(i) == '#') {
-                this.rootNodeType = this.nodeTypeManager.findNodeType(orgStr.substring(i + 1));
+            } else if (originalStr.charAt(i) == '#') {
+                this.rootNodeType = this.nodeTypeManager.findNodeType(originalStr.substring(i + 1));
                 break;
             } else {
-                tempStr = tempStr + orgStr.charAt(i);
+                tempStr = tempStr + originalStr.charAt(i);
             }
         }
         // 处理没有()的内容
         if (count > 0) {
-            throw new QLCompileException("不正确的模式串,(没有找到对应的):" + orgStr);
+            throw new QLCompileException("不正确的模式串,(没有找到对应的):" + originalStr);
         }
 
         if (this.children.size() > 0) {
@@ -309,4 +310,3 @@ public class QLPatternNode {
         return buffer.toString();
     }
 }
-

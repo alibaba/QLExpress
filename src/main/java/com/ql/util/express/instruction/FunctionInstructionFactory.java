@@ -15,7 +15,7 @@ public class FunctionInstructionFactory extends InstructionFactory {
         throws Exception {
         ExpressNode[] children = node.getChildren();
         if (children.length != 3) {
-            throw new QLException("funciton 操作符需要3个操作数 ");
+            throw new QLException("function 操作符需要3个操作数 ");
         }
         String functionName = children[0].getValue();
         ExpressNode[] varDefines = children[1].getChildren();

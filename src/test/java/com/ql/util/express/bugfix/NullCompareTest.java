@@ -22,29 +22,28 @@ public class NullCompareTest {
     }
 
     @Test
-    public void testNullCompar() throws Exception {
-
+    public void testNullCompare() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String[] explist = new String[] {
+        String[] expressionArray = new String[] {
             "x < 1",
             "y > 1",
             "x != 2",
         };
-        for (String exp : explist) {
+        for (String expression : expressionArray) {
             IExpressContext<String, Object> context = new DefaultContext<>();
-            System.out.println(exp);
+            System.out.println(expression);
             ((DefaultContext<String, Object>)context).put("x", 2);
-            Object result = runner.execute(exp, context, null, true, false);
+            Object result = runner.execute(expression, context, null, true, false);
             Assert.assertEquals(false, (Boolean)result);
             System.out.println(result);
         }
 
-        explist = new String[] {
+        expressionArray = new String[] {
             "x > 1",
             "y == null",
             "x == 2",
         };
-        for (String exp : explist) {
+        for (String exp : expressionArray) {
             IExpressContext<String, Object> context = new DefaultContext<>();
             System.out.println(exp);
             ((DefaultContext<String, Object>)context).put("x", 2);

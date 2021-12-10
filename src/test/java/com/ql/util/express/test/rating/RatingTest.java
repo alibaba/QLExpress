@@ -28,7 +28,7 @@ public class RatingTest {
         //建立计算器
         ExpressRunner runner = new ExpressRunner(true, true);
         //增加自定义函数
-        runner.addFunction("费用科目", new SujectOperator("费用科目"));
+        runner.addFunction("费用科目", new SubjectOperator("费用科目"));
         //装载分成规则rating.ql文件
         runner.loadExpress("rating");
         //设置上下文

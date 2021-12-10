@@ -27,7 +27,7 @@ public class RatingWithPropertyTest {
         //建立计算器
         ExpressRunner runner = new ExpressRunner();
         //增加自定义函数
-        runner.addFunction("费用科目", new SujectOperator("费用科目"));
+        runner.addFunction("费用科目", new SubjectOperator("费用科目"));
         //装载分成规则rating.ql文件
         runner.loadExpress("ratingWithProperty");
         //设置上下文
@@ -35,13 +35,13 @@ public class RatingWithPropertyTest {
         context.put("物流订单", logisticsOrder);
         context.put("交易订单", tcOrder);
         context.put("仓储订单", goodsOrder);
-        SubjectMananger subjectMananger = new SubjectMananger();
-        context.put("费用", subjectMananger);
+        SubjectManager subjectManager = new SubjectManager();
+        context.put("费用", subjectManager);
 
         runner.executeByExpressName("ratingWithProperty", context, null, false, false, null);
         //输出分成结果
         System.out.println("----------分成结果----------------");
-        for (Object item : subjectMananger.getSubjectValues()) {
+        for (Object item : subjectManager.getSubjectValues()) {
             System.out.println(item);
         }
     }

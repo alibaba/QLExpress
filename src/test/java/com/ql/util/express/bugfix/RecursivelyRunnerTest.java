@@ -24,8 +24,7 @@ public class RecursivelyRunnerTest {
 
     @Test
     public void testSubRunner() throws Exception {
-
-        //bind SubRunner.evel method
+        //bind SubRunner.eval method
         SubRunner subRunner = new SubRunner();
         Method[] methods = SubRunner.class.getDeclaredMethods();
         for (Method m : methods) {

@@ -41,11 +41,11 @@ public abstract class OperatorBase implements Serializable {
     /**
      * 操作数描述
      */
-    protected String[] operDataDesc;
+    protected String[] operatorDataDesc;
     /**
      * 操作数的其它定义
      */
-    protected String[] operDataAnnotation;
+    protected String[] operatorDataAnnotation;
 
     public Object[] toObjectList(InstructionSetContext parent, ArraySwap list)
         throws Exception {
@@ -96,12 +96,12 @@ public abstract class OperatorBase implements Serializable {
 
     public abstract OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception;
 
-    public String[] getOperDataDesc() {
-        return this.operDataDesc;
+    public String[] getOperatorDataDesc() {
+        return this.operatorDataDesc;
     }
 
-    public String[] getOperDataAnnotaion() {
-        return this.operDataAnnotation;
+    public String[] getOperatorDataAnnotation() {
+        return this.operatorDataAnnotation;
     }
 
     public void setName(String aName) {

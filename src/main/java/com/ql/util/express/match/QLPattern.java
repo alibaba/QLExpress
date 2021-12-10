@@ -99,7 +99,7 @@ public class QLPattern {
                             if (resultDetail.getMatchSize() > 1) {
                                 throw new QLCompileException("设置了类型转换的语法，只能有一个根节点");
                             }
-                            resultDetail.getMatchs().get(0).targetNodeType = pattern.targetNodeType;
+                            resultDetail.getMatches().get(0).targetNodeType = pattern.targetNodeType;
                         }
                     }
                     if (pattern.blame) {//取返处理
@@ -149,20 +149,20 @@ public class QLPattern {
                                 throw new QLCompileException("根节点的数量必须是1");
                             }
                             if (root == null) {
-                                QLMatchResultTree tempTree = tempResultAnd.getMatchs().get(0);
+                                QLMatchResultTree tempTree = tempResultAnd.getMatches().get(0);
                                 while (tempTree.getLeft() != null && tempTree.getLeft().size() > 0) {
                                     tempTree = tempTree.getLeft().get(0);
                                 }
                                 tempTree.addLeftAll(tempListAnd);
                                 tempListAnd.clear();
                             } else {
-                                tempResultAnd.getMatchs().get(0).addLeft(root);
+                                tempResultAnd.getMatches().get(0).addLeft(root);
                             }
-                            root = tempResultAnd.getMatchs().get(0);
+                            root = tempResultAnd.getMatches().get(0);
                         } else if (root != null) {
-                            root.addRightAll(tempResultAnd.getMatchs());
+                            root.addRightAll(tempResultAnd.getMatches());
                         } else {
-                            tempListAnd.addAll(tempResultAnd.getMatchs());
+                            tempListAnd.addAll(tempResultAnd.getMatches());
                         }
                         //归还QLMatchResult对象到对象池
                         if (tempResultAnd != null) {
@@ -225,15 +225,15 @@ public class QLPattern {
                         throw new QLCompileException("根节点的数量必须是1");
                     }
                     if (tempList.size() == 0) {
-                        tempList.addAll(tempResult.getMatchs());
+                        tempList.addAll(tempResult.getMatches());
                     } else {
-                        tempResult.getMatchs().get(0).addLeftAll(tempList);
+                        tempResult.getMatches().get(0).addLeftAll(tempList);
                         //为了能回收QLMatchResult对象,这个地方必须进行数组拷贝
                         tempList = staticParams.arrayListCache.fetch();
-                        tempList.addAll(tempResult.getMatchs());
+                        tempList.addAll(tempResult.getMatches());
                     }
                 } else {
-                    tempList.addAll(tempResult.getMatchs());
+                    tempList.addAll(tempResult.getMatches());
                 }
             }
 
@@ -254,15 +254,15 @@ public class QLPattern {
         }
         if (result != null && pattern.isSkip) {
             //忽略跳过所有匹配到的节点
-            result.getMatchs().clear();
+            result.getMatches().clear();
         }
 
         if (result != null && result.getMatchSize() > 0 && pattern.rootNodeType != null) {
             QLMatchResultTree tempTree = new QLMatchResultTree(pattern.rootNodeType,
                 nodes.get(0).createExpressNode(pattern.rootNodeType, null));
-            tempTree.addLeftAll(result.getMatchs());
-            result.getMatchs().clear();
-            result.getMatchs().add(tempTree);
+            tempTree.addLeftAll(result.getMatches());
+            result.getMatches().clear();
+            result.getMatches().add(tempTree);
         }
         if (tempList != null) {
             staticParams.arrayListCache.sendBack(tempList);

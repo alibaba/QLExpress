@@ -19,7 +19,7 @@ public class LoopFunctionTest {
     public void test() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addFunction("loopAnd", new Operator() {
-            private ExpressRunner loppRunner = new ExpressRunner();
+            private ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {
@@ -38,7 +38,7 @@ public class LoopFunctionTest {
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
-                        Object r = loppRunner.execute(exp, map, null, true, false);
+                        Object r = loopRunner.execute(exp, map, null, true, false);
                         if (r != null && r instanceof Boolean && (Boolean)r) {
                             continue;
                         } else {
@@ -52,7 +52,7 @@ public class LoopFunctionTest {
             }
         });
         runner.addFunction("loopOr", new Operator() {
-            private ExpressRunner loppRunner = new ExpressRunner();
+            private ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {
@@ -71,7 +71,7 @@ public class LoopFunctionTest {
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
-                        Object r = loppRunner.execute(exp, map, null, true, false);
+                        Object r = loopRunner.execute(exp, map, null, true, false);
                         if (r != null && r instanceof Boolean && (Boolean)r) {
                             return true;
                         } else {
@@ -85,7 +85,7 @@ public class LoopFunctionTest {
             }
         });
         runner.addFunction("loopSet", new Operator() {
-            private ExpressRunner loppRunner = new ExpressRunner();
+            private ExpressRunner loopRunner = new ExpressRunner();
 
             @Override
             public Object executeInner(Object[] list) {
@@ -104,7 +104,7 @@ public class LoopFunctionTest {
                     map.put("x", obj);
                     map.put("index", index++);
                     try {
-                        loppRunner.execute(exp, map, null, true, false);
+                        loopRunner.execute(exp, map, null, true, false);
                     } catch (Exception e) {
                         return null;
                     }

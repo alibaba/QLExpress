@@ -81,7 +81,7 @@ public class InstructionCallSelfDefineFunction extends Instruction {
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
             OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOrgiType());
+                vars[i].getOriginalType());
             context.addSymbol(var.getName(), var);
             var.setObject(context, parameters.get(i).getObject(environment.getContext()));
         }

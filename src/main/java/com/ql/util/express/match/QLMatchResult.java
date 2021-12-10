@@ -4,39 +4,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResult {
-    private List<QLMatchResultTree> matchs = new ArrayList<>();
+    private List<QLMatchResultTree> matches = new ArrayList<>();
     private int matchLastIndex;
 
     public void clear() {
         this.matchLastIndex = 0;
-        this.matchs.clear();
+        this.matches.clear();
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (QLMatchResultTree item : matchs) {
+        for (QLMatchResultTree item : matches) {
             item.printNode(builder, 1);
         }
         return builder.toString();
     }
 
-    public List<QLMatchResultTree> getMatchs() {
-        return matchs;
+    public List<QLMatchResultTree> getMatches() {
+        return matches;
     }
 
     public QLMatchResult addQLMatchResultTree(QLMatchResultTree tree) {
-        this.matchs.add(tree);
+        this.matches.add(tree);
         return this;
     }
 
     public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> aList) {
-        this.matchs.addAll(aList);
+        this.matches.addAll(aList);
         return this;
     }
 
     public int getMatchSize() {
-        return this.matchs.size();
+        return this.matches.size();
     }
 
     public int getMatchLastIndex() {
