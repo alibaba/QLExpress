@@ -360,11 +360,11 @@ public class ExpressRunner {
      * @param errorInfo       如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, String aClassName,
-        String aFunctionName, String[] aParameterTypes, String errorInfo)
-        throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-            aClassName, aFunctionName, aParameterTypes, null, null, errorInfo));
+    public void addFunctionOfClassMethod(String name, String aClassName, String aFunctionName, String[] aParameterTypes,
+        String errorInfo) throws Exception {
+        OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
+            aClassName, aFunctionName, aParameterTypes, null, null, errorInfo);
+        this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
     /**
@@ -379,13 +379,11 @@ public class ExpressRunner {
      * @param errorInfo            如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, String aClassName,
-        String aFunctionName, String[] aParameterTypes,
-        String[] aParameterDesc, String[] aParameterAnnotation,
-        String errorInfo)
-        throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-            aClassName, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo));
+    public void addFunctionOfClassMethod(String name, String aClassName, String aFunctionName, String[] aParameterTypes,
+        String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo) throws Exception {
+        OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
+            aClassName, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+        this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
     /**
@@ -398,11 +396,11 @@ public class ExpressRunner {
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject,
-        String aFunctionName, Class<?>[] aParameterClassTypes,
-        String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
-            aServiceObject, aFunctionName, aParameterClassTypes, null, null, errorInfo));
+    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
+        Class<?>[] aParameterClassTypes, String errorInfo) throws Exception {
+        OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
+            name, aServiceObject, aFunctionName, aParameterClassTypes, null, null, errorInfo);
+        this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
     /**
@@ -417,12 +415,12 @@ public class ExpressRunner {
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject,
-        String aFunctionName, Class<?>[] aParameterClassTypes,
-        String[] aParameterDesc, String[] aParameterAnnotation,
-        String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
-            aServiceObject, aFunctionName, aParameterClassTypes, aParameterDesc, aParameterAnnotation, errorInfo));
+    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
+        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+        throws Exception {
+        OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
+            name, aServiceObject, aFunctionName, aParameterClassTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+        this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
     /**
@@ -435,44 +433,43 @@ public class ExpressRunner {
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject,
-        String aFunctionName, String[] aParameterTypes, String errorInfo)
-        throws Exception {
-        this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
-            aServiceObject, aFunctionName, aParameterTypes, null, null, errorInfo));
+    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
+        String[] aParameterTypes, String errorInfo) throws Exception {
+        OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
+            name, aServiceObject, aFunctionName, aParameterTypes, null, null, errorInfo);
+        this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject,
-        String aFunctionName, String[] aParameterTypes,
-        String[] aParameterDesc, String[] aParameterAnnotation,
-        String errorInfo)
+    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
+        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.addFunction(name, new OperatorSelfDefineServiceFunction(name,
-            aServiceObject, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo));
+        OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
+            name, aServiceObject, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+        this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
     /**
      * 添加操作符号，此操作符号的优先级与 "*"相同，语法形式也是  data name data
      *
      * @param name
-     * @param op
+     * @param operator
      * @throws Exception
      */
-    public void addOperator(String name, Operator op) throws Exception {
-        this.addOperator(name, "*", op);
+    public void addOperator(String name, Operator operator) throws Exception {
+        this.addOperator(name, "*", operator);
     }
 
     /**
      * 添加操作符号，此操作符号与给定的参照操作符号在优先级别和语法形式上一致
      *
-     * @param name         操作符号名称
-     * @param aRefOpername 参照的操作符号，例如 "+","--"等
-     * @param op
+     * @param name             操作符号名称
+     * @param aRefOperatorName 参照的操作符号，例如 "+","--"等
+     * @param operator
      * @throws Exception
      */
-    public void addOperator(String name, String aRefOpername, Operator op) throws Exception {
-        this.manager.addOperatorWithLevelOfReference(name, aRefOpername);
-        this.operatorManager.addOperator(name, op);
+    public void addOperator(String name, String aRefOperatorName, Operator operator) throws Exception {
+        this.manager.addOperatorWithLevelOfReference(name, aRefOperatorName);
+        this.operatorManager.addOperator(name, operator);
     }
 
     /**
@@ -484,8 +481,7 @@ public class ExpressRunner {
      * @param errorInfo
      * @throws Exception
      */
-    public void addOperatorWithAlias(String keyWordName, String realKeyWordName,
-        String errorInfo) throws Exception {
+    public void addOperatorWithAlias(String keyWordName, String realKeyWordName, String errorInfo) throws Exception {
         if (errorInfo != null && errorInfo.trim().length() == 0) {
             errorInfo = null;
         }
