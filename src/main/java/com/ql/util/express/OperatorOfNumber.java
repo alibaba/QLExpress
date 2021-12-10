@@ -67,8 +67,7 @@ public class OperatorOfNumber {
                 return value.longValue();
             } else if (type.equals(float.class) || type.equals(Float.class)) {
                 return value.floatValue();
-            } else if (type.equals(double.class)
-                || type.equals(Double.class)) {
+            } else if (type.equals(double.class) || type.equals(Double.class)) {
                 return value.doubleValue();
             } else if (type.equals(BigDecimal.class)) {
                 return new BigDecimal(value.toString());
@@ -98,8 +97,7 @@ public class OperatorOfNumber {
                 return value.longValue();
             } else if (type.equals(float.class) || type.equals(Float.class)) {
                 return value.floatValue();
-            } else if (type.equals(double.class)
-                || type.equals(Double.class)) {
+            } else if (type.equals(double.class) || type.equals(Double.class)) {
                 return value.doubleValue();
             } else {
                 throw new RuntimeException("没有处理的数据类型：" + type.getName());
@@ -110,7 +108,7 @@ public class OperatorOfNumber {
     public static int compareNumber(Number op1, Number op2) {
         int type1 = OperatorOfNumber.getSeq(op1.getClass());
         int type2 = OperatorOfNumber.getSeq(op2.getClass());
-        int type = type1 > type2 ? type1 : type2;
+        int type = Math.max(type1, type2);
         if (type == 1) {
             byte o1 = op1.byteValue();
             byte o2 = op2.byteValue();
