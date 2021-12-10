@@ -34,7 +34,7 @@ public class InstructionConstData extends Instruction {
 
     public String toString() {
         if (this.operateData instanceof OperateDataAttr) {
-            return "LoadData attr:" + this.operateData.toString();
+            return "LoadData attr:" + this.operateData;
         } else {
             return "LoadData " + this.operateData.toString();
         }

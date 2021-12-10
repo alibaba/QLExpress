@@ -116,7 +116,7 @@ public class NodeType implements INodeType {
     public void addChild(NodeType child) throws Exception {
         String str = child.name;
         if (this.qlPatternNode != null) {
-            str = this.qlPatternNode.toString() + "|" + str;
+            str = this.qlPatternNode + "|" + str;
         }
         this.qlPatternNode = QLPattern.createPattern(this.manager, this.name, str);
     }

@@ -76,7 +76,7 @@ public class OperateData implements Serializable {
         } else if (this.type.isPrimitive()) {
             result = result + this.dataObject.getClass().getName() + ".valueOf(\"" + this.dataObject + "\")";
         } else {
-            result = result + "new " + this.dataObject.getClass().getName() + "(\"" + this.dataObject.toString()
+            result = result + "new " + this.dataObject.getClass().getName() + "(\"" + this.dataObject
                 + "\")";
         }
         result = result + "," + type.getName() + ".class";
@@ -96,7 +96,7 @@ public class OperateData implements Serializable {
 
     public void toResource(StringBuilder builder, int level) {
         if (this.dataObject != null) {
-            builder.append(this.dataObject.toString());
+            builder.append(this.dataObject);
         } else {
             builder.append("null");
         }

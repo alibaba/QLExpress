@@ -299,7 +299,7 @@ public class ExpressParse {
     public static void printTreeNode(ExpressNode node, int level) {
         StringBuilder builder = new StringBuilder();
         printTreeNode(builder, node, level);
-        System.out.println(builder.toString());
+        System.out.println(builder);
     }
 
     public static void resetParent(ExpressNode node, ExpressNode parent) {

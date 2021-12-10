@@ -366,7 +366,7 @@ public class ExpressUtil {
         try {
             String baseName = "";
             if (!baseClass.isPrimitive()) {
-                return loadClass(arrayString.toString() + "L"
+                return loadClass(arrayString + "L"
                     + baseClass.getName() + ";");
             } else {
                 if (baseClass.equals(boolean.class)) {
@@ -386,7 +386,7 @@ public class ExpressUtil {
                 } else if (baseClass.equals(short.class)) {
                     baseName = "S";
                 }
-                return loadClass(arrayString.toString() + baseName);
+                return loadClass(arrayString + baseName);
             }
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);

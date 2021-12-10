@@ -66,7 +66,7 @@ public class QLExpressRunStrategy {
 
         if (forbiddenInvokeSecurityRiskMethods && m != null) {
             if (securityRiskMethods.contains(m.getDeclaringClass().getName() + "." + m.getName())) {
-                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + m.toString());
+                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + m);
             }
         }
     }

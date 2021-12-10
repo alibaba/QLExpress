@@ -84,7 +84,7 @@ public class TestMethodParams {
         }
         String result = "";
         for (Object obj : params) {
-            if (obj != null) {result = result + obj.toString() + ",";}
+            if (obj != null) {result = result + obj + ",";}
         }
         System.out.println(result);
         return result;

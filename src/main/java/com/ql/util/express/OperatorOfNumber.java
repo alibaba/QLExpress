@@ -156,7 +156,7 @@ public class OperatorOfNumber {
             BigDecimal o2 = new BigDecimal(op2.toString());
             return o1.compareTo(o2);
         }
-        throw new RuntimeException("比较操作错误:op1=" + op1.toString() + ",op2=" + op2.toString());
+        throw new RuntimeException("比较操作错误:op1=" + op1 + ",op2=" + op2);
     }
 
     public static Object add(Object op1, Object op2, boolean isPrecise) throws Exception {
@@ -167,7 +167,7 @@ public class OperatorOfNumber {
             op2 = "null";
         }
         if (op1 instanceof String || op2 instanceof String) {
-            return op1.toString() + op2.toString();
+            return op1.toString() + op2;
         }
         if (isPrecise) {
             return PreciseNumberOperator.addPrecise((Number)op1, (Number)op2);
