@@ -17,7 +17,7 @@ public class InstructionReturn extends Instruction {
         if (environment.isTrace() && log.isDebugEnabled()) {
             log.debug(this);
         }
-        if (this.haveReturnValue == true) {
+        if (this.haveReturnValue) {
             environment.quitExpress(environment.pop().getObject(environment.getContext()));
         } else {
             environment.quitExpress();

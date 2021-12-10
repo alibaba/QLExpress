@@ -65,11 +65,11 @@ public class InstructionSetRunner {
         try {
             CallResult tempResult = set.excute(environmen, context, errorList,
                 isReturnLastData, aLog);
-            if (tempResult.isExit() == true) {
+            if (tempResult.isExit()) {
                 result = tempResult.getReturnValue();
             }
         } catch (Exception e) {
-            if (isCatchException == true) {
+            if (isCatchException) {
                 if (aLog != null) {
                     aLog.error(e.getMessage(), e);
                 } else {

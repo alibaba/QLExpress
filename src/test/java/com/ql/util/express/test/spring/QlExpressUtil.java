@@ -40,11 +40,11 @@ public class QlExpressUtil implements ApplicationContextAware {
     }
 
     private void initRunner(ExpressRunner runner) {
-        if (isInitialRunner == true) {
+        if (isInitialRunner) {
             return;
         }
         synchronized (runner) {
-            if (isInitialRunner == true) {
+            if (isInitialRunner) {
                 return;
             }
             try {

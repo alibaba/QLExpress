@@ -14,8 +14,8 @@ public class BlockInstructionFactory extends InstructionFactory {
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
         throws Exception {
         if (node.isTypeEqualsOrChild("STAT_SEMICOLON")
-            && result.getCurrentPoint() >= 0 && result.getInstruction(
-            result.getCurrentPoint()) instanceof InstructionClearDataStack == false) {
+            && result.getCurrentPoint() >= 0 && !(result.getInstruction(
+            result.getCurrentPoint()) instanceof InstructionClearDataStack)) {
             result.addInstruction(new InstructionClearDataStack().setLine(node.getLine()));
         }
 
@@ -26,7 +26,7 @@ public class BlockInstructionFactory extends InstructionFactory {
             boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
             hasDef = hasDef || tmpHas;
         }
-        if (hasDef == true && isRoot == false
+        if (hasDef && !isRoot
             && node.getTreeType().isEqualsOrChild("STAT_BLOCK")) {
             result.insertInstruction(tmpPoint, new InstructionOpenNewArea().setLine(node.getLine()));
             result.insertInstruction(result.getCurrentPoint() + 1,

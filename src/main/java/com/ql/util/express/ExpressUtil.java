@@ -102,14 +102,14 @@ public class ExpressUtil {
         if (source == null)//null转换
         {return !target.isPrimitive();}
 
-        if (target.isAssignableFrom(source) == true) {
+        if (target.isAssignableFrom(source)) {
             return true;
         }
         if (source.isPrimitive() && target == Object.class) {
             return true;
         }
 
-        if (target.isPrimitive() == false) {
+        if (!target.isPrimitive()) {
             if (target == Byte.class) {target = byte.class;} else if (target == Short.class) {
                 target = short.class;
             } else if (target == Integer.class) {
@@ -122,7 +122,7 @@ public class ExpressUtil {
                 target = double.class;
             }
         }
-        if (source.isPrimitive() == false) {
+        if (!source.isPrimitive()) {
             if (source == Byte.class) {source = byte.class;} else if (source == Short.class) {
                 source = short.class;
             } else if (source == Integer.class) {
@@ -322,16 +322,16 @@ public class ExpressUtil {
             Method m = methods[i];
             if (m.getName().equals(methodName)
                 && (m.getParameterTypes().length == numArgs)
-                && (publicOnly == false || isPublic(m)
-                && (isStatic == false || isStatic(m)))) {
+                && (!publicOnly || isPublic(m)
+                && (!isStatic || isStatic(m)))) {
                 candidates.add(m);
             } else if (m.isAnnotationPresent(QLAlias.class)) {
                 String[] values = m.getAnnotation(QLAlias.class).value();
                 if (values.length > 0) {
                     for (int j = 0; j < values.length; j++) {
                         if (values[j].equals(methodName) && (m.getParameterTypes().length == numArgs)
-                            && (publicOnly == false || isPublic(m)
-                            && (isStatic == false || isStatic(m)))) {candidates.add(m);}
+                            && (!publicOnly || isPublic(m)
+                            && (!isStatic || isStatic(m)))) {candidates.add(m);}
                     }
                 }
             }
@@ -365,7 +365,7 @@ public class ExpressUtil {
 
         try {
             String baseName = "";
-            if (baseClass.isPrimitive() == false) {
+            if (!baseClass.isPrimitive()) {
                 return loadClass(arrayString.toString() + "L"
                     + baseClass.getName() + ";");
             } else {
@@ -460,7 +460,7 @@ public class ExpressUtil {
             }
         }
         int index = name.lastIndexOf('.');
-        if (index > 0 && name.substring(0, index).equals("java.lang") == true) {
+        if (index > 0 && name.substring(0, index).equals("java.lang")) {
             name = name.substring(index + 1);
         }
         name = name + arrays;

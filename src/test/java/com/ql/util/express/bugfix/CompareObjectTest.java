@@ -25,7 +25,7 @@ public class CompareObjectTest {
         for (String exp : expList) {
             Object result = runner.execute(exp, context, null, true, false);
             System.out.println(result);
-            assert (true == (Boolean)result);
+            assert ((Boolean)result);
         }
     }
 }

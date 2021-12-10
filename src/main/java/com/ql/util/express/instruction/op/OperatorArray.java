@@ -26,7 +26,7 @@ public class OperatorArray extends OperatorBase {
         }
         Object tmpObject = p0.getObject(context);
 
-        if (tmpObject.getClass().isArray() == false) {
+        if (!tmpObject.getClass().isArray()) {
             Object property = list.get(1).getObject(context);
             //支持data.get(index) ->data[index]
             if (tmpObject instanceof List && property instanceof Number) {

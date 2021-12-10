@@ -496,10 +496,10 @@ public class ExpressRunner {
             throw new QLException("关键字：" + realKeyWordName + "不存在");
         }
         boolean isExist = this.operatorManager.isExistOperator(realNodeType.getName());
-        if (isExist == false && errorInfo != null) {
+        if (!isExist && errorInfo != null) {
             throw new QLException("关键字：" + realKeyWordName + "是通过指令来实现的，不能设置错误的提示信息，errorInfo 必须是 null");
         }
-        if (isExist == false || errorInfo == null) {
+        if (!isExist || errorInfo == null) {
             //不需要新增操作符号，只需要建立一个关键子即可
             this.manager.addOperatorWithRealNodeType(keyWordName, realNodeType.getName());
         } else {
@@ -644,15 +644,14 @@ public class ExpressRunner {
         List<String> errorList, boolean isCache, boolean isTrace, Log aLog)
         throws Exception {
         InstructionSet parseResult;
-        if (isCache == true) {
+        if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {
                 synchronized (expressInstructionSetCache) {
                     parseResult = expressInstructionSetCache.get(expressString);
                     if (parseResult == null) {
                         parseResult = this.parseInstructionSet(expressString);
-                        expressInstructionSetCache.put(expressString,
-                            parseResult);
+                        expressInstructionSetCache.put(expressString, parseResult);
                     }
                 }
             }
@@ -686,8 +685,7 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public InstructionSet parseInstructionSet(String text)
-        throws Exception {
+    public InstructionSet parseInstructionSet(String text) throws Exception {
         try {
             Map<String, String> selfDefineClass = new HashMap<>();
             for (ExportItem item : this.loader.getExportInfo()) {

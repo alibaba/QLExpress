@@ -80,10 +80,10 @@ public class QLPatternNode {
     public boolean canMergeDetail() {
         if (QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && this.name.equals("ANONY_PATTERN")
             && this.nodeType.getPatternNode() != null
-            && this.isSkip == false
-            && this.blame == false
-            && this.isChildMode == false
-            && this.isTreeRoot == false
+            && !this.isSkip
+            && !this.blame
+            && !this.isChildMode
+            && !this.isTreeRoot
             && this.minMatchNum == 1
             && this.maxMatchNum == 1) {
             return true;
@@ -207,7 +207,7 @@ public class QLPatternNode {
                 tempStr = tempStr.substring(0, index);
             }
         }
-        if (tempStr.endsWith("^") == true && tempStr.length() > 1) {
+        if (tempStr.endsWith("^") && tempStr.length() > 1) {
             this.isTreeRoot = true;
             tempStr = tempStr.substring(0, tempStr.length() - 1);
         }
@@ -271,7 +271,7 @@ public class QLPatternNode {
         if (this.targetNodeType != null) {
             result = result + "->" + this.targetNodeType.getName();
         }
-        if (this.isChildMode == true) {
+        if (this.isChildMode) {
             result = "(" + result + ")";
         }
         if (this.isSkip) {

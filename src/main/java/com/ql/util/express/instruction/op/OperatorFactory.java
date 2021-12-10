@@ -84,7 +84,7 @@ public class OperatorFactory {
 
     @SuppressWarnings("unchecked")
     public void addOperatorWithAlias(String aAliasName, String name, String errorInfo) throws Exception {
-        if (this.operator.containsKey(name) == false) {
+        if (!this.operator.containsKey(name)) {
             throw new QLException(name + " 不是系统级别的操作符号，不能设置别名");
         } else {
             OperatorBase orgiOperator = this.operator.get(name);

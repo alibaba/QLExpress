@@ -102,7 +102,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
             result = this.expressLoader.getInstructionSet(varName);
         }
         if (result == null) {
-            if (this.isExpandToParent == true && this.parent != null
+            if (this.isExpandToParent && this.parent != null
                 && this.parent instanceof InstructionSetContext) {
                 result = ((InstructionSetContext)this.parent)
                     .getSymbol(varName);
@@ -125,7 +125,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     public Object get(Object key) {
         if (this.content != null && this.content.containsKey(key)) {
             return this.content.get(key);
-        } else if (this.isExpandToParent == true && this.parent != null) {
+        } else if (this.isExpandToParent && this.parent != null) {
             return this.parent.get(key);
         }
         return null;
@@ -134,7 +134,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     public Object put(String key, Object value) {
         if (this.content != null && this.content.containsKey(key)) {
             return this.content.put(key, value);
-        } else if (this.isExpandToParent == false) {
+        } else if (!this.isExpandToParent) {
             if (this.content == null) {
                 this.content = new HashMap<>();
             }

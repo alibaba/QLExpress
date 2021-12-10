@@ -24,7 +24,7 @@ public class OperatorNot extends Operator {
         if (op == null) {
             throw new QLException("null 不能执行操作：" + this.getAliasName());
         }
-        if (Boolean.class.equals(op.getClass()) == true) {
+        if (Boolean.class.equals(op.getClass())) {
             boolean r = !((Boolean)op).booleanValue();
             result = Boolean.valueOf(r);
         } else {

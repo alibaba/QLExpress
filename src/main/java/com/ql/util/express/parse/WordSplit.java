@@ -90,7 +90,7 @@ public class WordSplit {
                         break;
                     }
                 }
-                if (isFind == false) {
+                if (!isFind) {
                     i = i + 1;
                 }
             }

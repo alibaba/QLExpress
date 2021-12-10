@@ -29,7 +29,7 @@ public class FunctionInstructionFactory extends InstructionFactory {
         InstructionSet functionSet = new InstructionSet(instructionSetType);
 
         while (point < varDefines.length) {
-            if (varDefines[point].isTypeEqualsOrChild("def") == false) {
+            if (!varDefines[point].isTypeEqualsOrChild("def")) {
                 throw new QLException("function的参数定义错误," + varDefines[point] + "不是一个Class");
             }
             Class<?> varClass = (Class<?>)varDefines[point].getChildren()[0].getObjectValue();

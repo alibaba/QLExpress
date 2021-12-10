@@ -51,7 +51,7 @@ public class OperateDataField extends OperateDataAttr {
     }
 
     public Object transferFieldName(InstructionSetContext context, String oldName) {
-        if (context.isSupportDynamicFieldName() == false) {
+        if (!context.isSupportDynamicFieldName()) {
             return oldName;
         } else {
             try {

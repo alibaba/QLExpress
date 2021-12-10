@@ -102,7 +102,7 @@ public class QLPattern {
                             resultDetail.getMatchs().get(0).targetNodeType = pattern.targetNodeType;
                         }
                     }
-                    if (pattern.blame == true) {//取返处理
+                    if (pattern.blame) {//取返处理
                         if (resultDetail == null) {
                             resultDetail = staticParams.resultCache.fetch();
                             resultDetail.addQLMatchResultTree(
@@ -145,7 +145,7 @@ public class QLPattern {
                             tempListAnd = staticParams.arrayListCache.fetch();
                         }
                         pointAnd = tempResultAnd.getMatchLastIndex();
-                        if (item.isTreeRoot == true && tempResultAnd.getMatchSize() > 0) {
+                        if (item.isTreeRoot && tempResultAnd.getMatchSize() > 0) {
                             if (tempResultAnd.getMatchSize() > 1) {
                                 throw new QLCompileException("根节点的数量必须是1");
                             }
@@ -178,7 +178,7 @@ public class QLPattern {
                     tempListAnd.add(root);
                 }
 
-                if (isBreak == false) {
+                if (!isBreak) {
                     tempResult = staticParams.resultCache.fetch().addQLMatchResultTreeList(tempListAnd);
                     tempResult.setMatchLastIndex(pointAnd);
                     traceLog(pattern, tempResult, nodes, orgiPoint, matchCount);
@@ -221,7 +221,7 @@ public class QLPattern {
                     tempList = staticParams.arrayListCache.fetch();
                 }
                 lastPoint = tempResult.getMatchLastIndex();
-                if (pattern.isTreeRoot == true) {
+                if (pattern.isTreeRoot) {
                     if (tempResult.getMatchSize() > 1) {
                         throw new QLCompileException("根节点的数量必须是1");
                     }
@@ -253,7 +253,7 @@ public class QLPattern {
                 break;
             }
         }
-        if (result != null && pattern.isSkip == true) {
+        if (result != null && pattern.isSkip) {
             //忽略跳过所有匹配到的节点
             result.getMatchs().clear();
         }
@@ -274,7 +274,7 @@ public class QLPattern {
     public static void traceLog(QLPatternNode pattern, QLMatchResult result,
         List<? extends IDataNode> nodes, int point, int matchCount) {
         if (log.isTraceEnabled() && (pattern.matchMode == MatchMode.DETAIL
-            || pattern.matchMode == MatchMode.AND && matchCount > 1 && pattern.name.equals("ANONY_PATTERN") == false)) {
+            || pattern.matchMode == MatchMode.AND && matchCount > 1 && !pattern.name.equals("ANONY_PATTERN"))) {
             log.trace("匹配--" + pattern.name + "[" + point + ":" + (result.getMatchLastIndex() - 1) + "]:" + pattern);
         }
     }

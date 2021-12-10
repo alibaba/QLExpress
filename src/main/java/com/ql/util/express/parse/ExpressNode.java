@@ -77,7 +77,7 @@ public class ExpressNode implements IDataNode {
 
     public boolean isTypeEqualsOrChild(String parent) {
         boolean result = this.getTreeType().isEqualsOrChild(parent);
-        if (result == false && this.treeType != null) {
+        if (!result && this.treeType != null) {
             result = this.getNodeType().isEqualsOrChild(parent);
         }
         return result;

@@ -67,7 +67,7 @@ public class OperateData implements Serializable {
     }
 
     public String toJavaCode() {
-        if (this.getClass().equals(OperateData.class) == false) {
+        if (!this.getClass().equals(OperateData.class)) {
             throw new RuntimeException(this.getClass().getName() + "没有实现：toJavaCode()");
         }
         String result = "new " + OperateData.class.getName() + "(";

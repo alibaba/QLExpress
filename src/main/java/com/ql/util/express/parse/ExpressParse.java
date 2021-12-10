@@ -55,17 +55,17 @@ public class ExpressParse {
         int point = 0;
         List<Word> result = new ArrayList<>();
         while (point < wordObjects.length) {
-            if (wordObjects[point].word.equals("include") == true) {
+            if (wordObjects[point].word.equals("include")) {
                 isInclude = true;
                 includeFileName.setLength(0);
-            } else if (isInclude == true && wordObjects[point].word.equals(";") == true) {
+            } else if (isInclude && wordObjects[point].word.equals(";")) {
                 isInclude = false;
                 Word[] childExpressWord = this.getExpressByName(includeFileName.toString());
                 childExpressWord = this.dealInclude(childExpressWord);
                 for (int i = 0; i < childExpressWord.length; i++) {
                     result.add(childExpressWord[i]);
                 }
-            } else if (isInclude == true) {
+            } else if (isInclude) {
                 includeFileName.append(wordObjects[point].word);
             } else {
                 result.add(wordObjects[point]);
@@ -92,19 +92,19 @@ public class ExpressParse {
         NodeType tempType;
         int point = 0;
         ExpressPackage tmpImportPackage = null;
-        if (dealJavaClass == true) {
+        if (dealJavaClass) {
             tmpImportPackage = new ExpressPackage(aRootExpressPackage);
             //先处理import，import必须放在文件的最开始，必须以;结束
             boolean isImport = false;
             StringBuffer importName = new StringBuffer();
             while (point < wordObjects.length) {
-                if (wordObjects[point].word.equals("import") == true) {
+                if (wordObjects[point].word.equals("import")) {
                     isImport = true;
                     importName.setLength(0);
-                } else if (wordObjects[point].word.equals(";") == true) {
+                } else if (wordObjects[point].word.equals(";")) {
                     isImport = false;
                     tmpImportPackage.addPackage(importName.toString());
-                } else if (isImport == true) {
+                } else if (isImport) {
                     importName.append(wordObjects[point].word);
                 } else {
                     break;
@@ -132,10 +132,9 @@ public class ExpressParse {
                             || result.get(result.size() - 2).isTypeEqualsOrChild(",")
                             || result.get(result.size() - 2).isTypeEqualsOrChild("return")
                             || result.get(result.size() - 2).isTypeEqualsOrChild("?")
-                            || result.get(result.size() - 2).isTypeEqualsOrChild(":")
-                        )
-                            && result.get(result.size() - 2).isTypeEqualsOrChild(")") == false
-                            && result.get(result.size() - 2).isTypeEqualsOrChild("]") == false
+                            || result.get(result.size() - 2).isTypeEqualsOrChild(":"))
+                            && !result.get(result.size() - 2).isTypeEqualsOrChild(")")
+                            && !result.get(result.size() - 2).isTypeEqualsOrChild("]")
                         ) {
                             result.remove(result.size() - 1);
                             tempWord = "-" + tempWord;
@@ -145,7 +144,7 @@ public class ExpressParse {
                 if (lastChar == 'd') {
                     tempType = nodeTypeManager.findNodeType("CONST_DOUBLE");
                     tempWord = tempWord.substring(0, tempWord.length() - 1);
-                    if (this.isPrecise == true) {
+                    if (this.isPrecise) {
                         objectValue = new BigDecimal(tempWord);
                     } else {
                         objectValue = Double.valueOf(tempWord);
@@ -153,14 +152,14 @@ public class ExpressParse {
                 } else if (lastChar == 'f') {
                     tempType = nodeTypeManager.findNodeType("CONST_FLOAT");
                     tempWord = tempWord.substring(0, tempWord.length() - 1);
-                    if (this.isPrecise == true) {
+                    if (this.isPrecise) {
                         objectValue = new BigDecimal(tempWord);
                     } else {
                         objectValue = Float.valueOf(tempWord);
                     }
                 } else if (tempWord.indexOf(".") >= 0) {
                     tempType = nodeTypeManager.findNodeType("CONST_DOUBLE");
-                    if (this.isPrecise == true) {
+                    if (this.isPrecise) {
                         objectValue = new BigDecimal(tempWord);
                     } else {
                         objectValue = Double.valueOf(tempWord);
@@ -221,7 +220,7 @@ public class ExpressParse {
                     boolean isClass = false;
                     String tmpStr = "";
                     Class<?> tmpClass = null;
-                    if (dealJavaClass == true) {
+                    if (dealJavaClass) {
                         int j = point;
                         while (j < wordObjects.length) {
                             tmpStr = tmpStr + wordObjects[j].word;
@@ -232,7 +231,7 @@ public class ExpressParse {
                                 break;
                             }
                             if (j < wordObjects.length - 1
-                                && wordObjects[j + 1].word.equals(".") == true) {
+                                && wordObjects[j + 1].word.equals(".")) {
                                 tmpStr = tmpStr + wordObjects[j + 1].word;
                                 j = j + 2;
                                 continue;
@@ -241,7 +240,7 @@ public class ExpressParse {
                             }
                         }
                     }
-                    if (isClass == true) {
+                    if (isClass) {
                         tempWord = ExpressUtil.getClassName(tmpClass);
                         orgiValue = tmpStr;
                         tempType = nodeTypeManager.findNodeType("CONST_CLASS");
@@ -341,12 +340,12 @@ public class ExpressParse {
     public Word[] splitWords(ExpressPackage rootExpressPackage, String express, boolean isTrace,
         Map<String, String> selfDefineClass) throws Exception {
         Word[] words = WordSplit.parse(this.nodeTypeManager.splitWord, express);
-        if (isTrace == true && log.isDebugEnabled()) {
+        if (isTrace && log.isDebugEnabled()) {
             log.debug("执行的表达式:" + express);
             log.debug("单词分解结果:" + WordSplit.getPrintInfo(words, ","));
         }
         words = this.dealInclude(words);
-        if (isTrace == true && log.isDebugEnabled()) {
+        if (isTrace && log.isDebugEnabled()) {
             log.debug("预处理后结果:" + WordSplit.getPrintInfo(words, ","));
         }
 
@@ -370,7 +369,7 @@ public class ExpressParse {
         Map<String, String> selfDefineClass, boolean mockRemoteJavaClass) throws Exception {
 
         List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage, words, selfDefineClass, true);
-        if (isTrace == true && log.isDebugEnabled()) {
+        if (isTrace && log.isDebugEnabled()) {
             log.debug("单词分析结果:" + printInfo(tempList, ","));
         }
         //比如用在远程配置脚本，本地jvm并不包含这个java类，可以
@@ -398,7 +397,7 @@ public class ExpressParse {
                 }
             }
             tempList = tempList2;
-            if (isTrace == true && log.isDebugEnabled()) {
+            if (isTrace && log.isDebugEnabled()) {
                 log.debug("修正后单词分析结果:" + printInfo(tempList, ","));
             }
         }
@@ -421,7 +420,7 @@ public class ExpressParse {
         //为了生成代码时候进行判断，需要设置每个节点的父亲
         resetParent(root, null);
 
-        if (isTrace == true && log.isDebugEnabled()) {
+        if (isTrace && log.isDebugEnabled()) {
             log.debug("最后的语法树:");
             printTreeNode(root, 1);
         }

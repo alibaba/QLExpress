@@ -58,7 +58,7 @@ public class TypicalDemo {
         List<String> errorInfo = new ArrayList<>();
         Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
         String resultStr = "";
-        if (result.booleanValue() == true) {
+        if (result.booleanValue()) {
             resultStr = "可以订购此商品";
         } else {
             for (int i = 0; i < errorInfo.size(); i++) {

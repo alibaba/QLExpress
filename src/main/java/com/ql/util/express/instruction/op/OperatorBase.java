@@ -74,10 +74,10 @@ public abstract class OperatorBase implements Serializable {
             Object obj = result.getObject(context);
             if (obj != null
                 && obj instanceof Boolean
-                && ((Boolean)obj).booleanValue() == false) {
+                && !((Boolean)obj).booleanValue()) {
                 String tmpStr = ExpressUtil.replaceString(this.errorInfo,
                     toObjectList(context, list));
-                if (errorList.contains(tmpStr) == false) {
+                if (!errorList.contains(tmpStr)) {
                     errorList.add(tmpStr);
                 }
             }

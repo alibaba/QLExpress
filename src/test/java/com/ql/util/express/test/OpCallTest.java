@@ -35,12 +35,12 @@ public class OpCallTest {
             Object result = runner.execute(expressStr, expressContext, errorList,
                 false, true);
             if (result == null
-                && expressTest[point][1].equalsIgnoreCase("null") == false
+                && !expressTest[point][1].equalsIgnoreCase("null")
                 || expressTest[point][1].equalsIgnoreCase("null")
                 && result != null
                 || result != null
-                && expressTest[point][1]
-                .equalsIgnoreCase(result.toString()) == false) {
+                && !expressTest[point][1]
+                .equalsIgnoreCase(result.toString())) {
                 throw new Exception("处理错误,计算结果与预期的不匹配:" + expressStr + " = "
                     + result + "但是期望值是：" + expressTest[point][1]);
             }

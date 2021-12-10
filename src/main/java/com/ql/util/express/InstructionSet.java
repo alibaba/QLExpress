@@ -185,13 +185,13 @@ public class InstructionSet implements Serializable {
         context.addSymbol(cacheFunctionSet);
 
         this.executeInnerOrigiInstruction(environmen, errorList, aLog);
-        if (environmen.isExit() == false) {// 是在执行完所有的指令后结束的代码
+        if (!environmen.isExit()) {// 是在执行完所有的指令后结束的代码
             if (environmen.getDataStackSize() > 0) {
                 OperateData tmpObject = environmen.pop();
                 if (tmpObject == null) {
                     environmen.quitExpress(null);
                 } else {
-                    if (isReturnLastData == true) {
+                    if (isReturnLastData) {
                         if (tmpObject.getType(context) != null && tmpObject.getType(context).equals(void.class)) {
                             environmen.quitExpress(null);
                         } else {

@@ -26,7 +26,7 @@ public class OperatorEvaluate extends OperatorBase {
         Class<?> targetType = op1.getDefineType();
         Class<?> sourceType = op2.getType(parent);
         if (targetType != null) {
-            if (ExpressUtil.isAssignable(targetType, sourceType) == false) {
+            if (!ExpressUtil.isAssignable(targetType, sourceType)) {
                 throw new QLException("赋值时候，类型转换错误："
                     + ExpressUtil.getClassName(sourceType) + " 不能转换为 "
                     + ExpressUtil.getClassName(targetType));

@@ -56,7 +56,7 @@ public class OperatorOfNumber {
      * @return
      */
     public static Number transfer(Number value, Class<?> type, boolean isForce) {
-        if (isForce == true || value instanceof BigDecimal == false) {
+        if (isForce || !(value instanceof BigDecimal)) {
             if (type.equals(byte.class) || type.equals(Byte.class)) {
                 return ((Number)value).byteValue();
             } else if (type.equals(short.class) || type.equals(Short.class)) {
@@ -171,7 +171,7 @@ public class OperatorOfNumber {
         if (op1 instanceof String || op2 instanceof String) {
             return op1.toString() + op2.toString();
         }
-        if (isPrecise == true) {
+        if (isPrecise) {
             return PreciseNumberOperator.addPrecise((Number)op1, (Number)op2);
         } else {
             return NormalNumberOperator.addNormal((Number)op1, (Number)op2);
@@ -179,7 +179,7 @@ public class OperatorOfNumber {
     }
 
     public static Number subtract(Object op1, Object op2, boolean isPrecise) throws Exception {
-        if (isPrecise == true) {
+        if (isPrecise) {
             return PreciseNumberOperator.subtractPrecise((Number)op1, (Number)op2);
         } else {
             return NormalNumberOperator.subtractNormal((Number)op1, (Number)op2);
@@ -187,7 +187,7 @@ public class OperatorOfNumber {
     }
 
     public static Number multiply(Object op1, Object op2, boolean isPrecise) throws Exception {
-        if (isPrecise == true) {
+        if (isPrecise) {
             return PreciseNumberOperator.multiplyPrecise((Number)op1, (Number)op2);
         } else {
             return NormalNumberOperator.multiplyNormal((Number)op1, (Number)op2);
@@ -195,7 +195,7 @@ public class OperatorOfNumber {
     }
 
     public static Number divide(Object op1, Object op2, boolean isPrecise) throws Exception {
-        if (isPrecise == true) {
+        if (isPrecise) {
             return PreciseNumberOperator.dividePrecise((Number)op1, (Number)op2);
         } else {
             return NormalNumberOperator.divideNormal((Number)op1, (Number)op2);
