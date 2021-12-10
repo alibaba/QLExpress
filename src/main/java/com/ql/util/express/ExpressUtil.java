@@ -55,7 +55,7 @@ public class ExpressUtil {
 
     public static Map<String, Object> methodCache = new ConcurrentHashMap<>();
 
-    public static Class<?>[][] classMatchs = new Class[][] {
+    private static Class<?>[][] classMatches = new Class[][] {
         //原始数据类型
         {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
         {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
@@ -72,35 +72,34 @@ public class ExpressUtil {
     };
 
     public static Class<?> getSimpleDataType(Class<?> aClass) {
-        if (aClass.isPrimitive()) {
-            if (Integer.class.equals(aClass)) {
-                return Integer.TYPE;
-            }
-            if (Short.class.equals(aClass)) {
-                return Short.TYPE;
-            }
-            if (Long.class.equals(aClass)) {
-                return Long.TYPE;
-            }
-            if (Double.class.equals(aClass)) {
-                return Double.TYPE;
-            }
-            if (Float.class.equals(aClass)) {
-                return Float.TYPE;
-            }
-            if (Byte.class.equals(aClass)) {
-                return Byte.TYPE;
-            }
-            if (Character.class.equals(aClass)) {
-                return Character.TYPE;
-            }
-            if (Boolean.class.equals(aClass)) {
-                return Boolean.TYPE;
-            }
-            return aClass;
-        } else {
+        if (!aClass.isPrimitive()) {
             return aClass;
         }
+        if (Integer.class.equals(aClass)) {
+            return Integer.TYPE;
+        }
+        if (Short.class.equals(aClass)) {
+            return Short.TYPE;
+        }
+        if (Long.class.equals(aClass)) {
+            return Long.TYPE;
+        }
+        if (Double.class.equals(aClass)) {
+            return Double.TYPE;
+        }
+        if (Float.class.equals(aClass)) {
+            return Float.TYPE;
+        }
+        if (Byte.class.equals(aClass)) {
+            return Byte.TYPE;
+        }
+        if (Character.class.equals(aClass)) {
+            return Character.TYPE;
+        }
+        if (Boolean.class.equals(aClass)) {
+            return Boolean.TYPE;
+        }
+        return aClass;
     }
 
     public static boolean isAssignable(Class<?> target, Class<?> source) {
@@ -171,8 +170,8 @@ public class ExpressUtil {
             return true;
         }
 
-        for (int i = 0; i < classMatchs.length; i++) {
-            if (target == classMatchs[i][0] && source == classMatchs[i][1]) {
+        for (int i = 0; i < classMatches.length; i++) {
+            if (target == classMatches[i][0] && source == classMatches[i][1]) {
                 return true;
             }
         }
@@ -240,7 +239,8 @@ public class ExpressUtil {
         Class<?>[] bestMatch = null;
         int bestMatchIndex = -1;
 
-        for (int i = candidates.length - 1; i >= 0; i--) {// 先从基类开始查找
+        // 先从基类开始查找
+        for (int i = candidates.length - 1; i >= 0; i--) {
             Class<?>[] targetMatch = candidates[i];
             if (ExpressUtil.isSignatureAssignable(idealMatch, targetMatch) && ((bestMatch == null)
                 || ExpressUtil.isSignatureAssignable(targetMatch, bestMatch))) {
