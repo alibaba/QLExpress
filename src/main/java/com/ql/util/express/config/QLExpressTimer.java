@@ -1,6 +1,6 @@
 package com.ql.util.express.config;
 
-import com.ql.util.express.exception.QLTimeOutException;
+import com.ql.util.express.exception.QLTimeoutException1;
 
 /**
  * @author tianqiao@taobao.com
@@ -36,11 +36,11 @@ public class QLExpressTimer {
     /**
      * 断言是否超时
      *
-     * @throws QLTimeOutException
+     * @throws QLTimeoutException1
      */
-    public static void assertTimeOut() throws QLTimeOutException {
+    public static void assertTimeOut() throws QLTimeoutException1 {
         if (NEED_TIMER.get() && System.currentTimeMillis() > END_TIME.get()) {
-            throw new QLTimeOutException("运行QLExpress脚本的下一条指令将超过了限定时间:" + TIME_OUT_MILLIS.get() + "ms");
+            throw new QLTimeoutException1("运行QLExpress脚本的下一条指令将超过了限定时间:" + TIME_OUT_MILLIS.get() + "ms");
         }
     }
 

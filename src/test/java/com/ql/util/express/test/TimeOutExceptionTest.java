@@ -2,7 +2,7 @@ package com.ql.util.express.test;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
-import com.ql.util.express.exception.QLTimeOutException;
+import com.ql.util.express.exception.QLTimeoutException1;
 import org.junit.Test;
 
 /**
@@ -28,7 +28,7 @@ public class TimeOutExceptionTest {
                 Object r = runner.execute(express, context, null, true, false, 1000);
                 System.out.println(r);
                 throw new Exception("没有捕获到超时异常");
-            } catch (QLTimeOutException e) {
+            } catch (QLTimeoutException1 e) {
                 e.printStackTrace();
             }
         }

@@ -26,9 +26,9 @@ public class OperatorOfNumber {
             throw new IllegalArgumentException(
                 "The scale must be a positive integer or zero");
         }
-        BigDecimal b = new BigDecimal(Double.toString(v));
-        BigDecimal one = new BigDecimal("1");
-        return b.divide(one, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        BigDecimal bigDecimal = BigDecimal.valueOf(v);
+        BigDecimal oneBigDecimal = new BigDecimal("1");
+        return bigDecimal.divide(oneBigDecimal, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     /**

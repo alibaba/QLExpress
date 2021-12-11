@@ -43,11 +43,15 @@ public class InstructionSet {
      * 指令
      */
     private Instruction[] instructionList = new Instruction[0];
+
     /**
      * 函数和宏定义
      */
     private final Map<String, FunctionInstructionSet> functionDefine = new HashMap<>();
-    //为了增加性能，开始的时候缓存为数组
+
+    /**
+     * 为了增加性能，开始的时候缓存为数组
+     */
     private Map<String, Object> cacheFunctionSet = null;
     private final List<ExportItem> exportVar = new ArrayList<>();
     /**

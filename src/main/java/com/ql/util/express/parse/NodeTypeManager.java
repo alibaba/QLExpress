@@ -18,7 +18,9 @@ public class NodeTypeManager implements INodeTypeManager {
     protected final String[][] instructionFactoryMapping;
     protected final Map<String, NodeType> nodeTypes = new HashMap<>();
 
-    //所有的函数定义
+    /**
+     * 所有的函数定义
+     */
     protected final Map<String, String> functions = new HashMap<>();
 
     public NodeTypeManager() {
