@@ -267,7 +267,7 @@ public class ExpressParse {
     }
 
     public static void printTreeNode(StringBuilder builder, ExpressNode node, int level) {
-        builder.append(level + ":");
+        builder.append(level).append(":");
 
         for (int i = 0; i < level; i++) {
             builder.append("   ");
@@ -278,7 +278,7 @@ public class ExpressParse {
                 builder.append("   ");
             }
         }
-        builder.append("\t" + node.getTreeType().getName()).append("\n");
+        builder.append("\t").append(node.getTreeType().getName()).append("\n");
 
         List<ExpressNode> leftChildren = node.getLeftChildren();
         if (leftChildren != null && leftChildren.size() > 0) {

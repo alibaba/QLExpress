@@ -85,11 +85,11 @@ public class QLMatchResultTree {
     }
 
     public void printNode(StringBuilder builder, int level) {
-        builder.append(level + ":");
+        builder.append(level).append(":");
         for (int i = 0; i < level; i++) {
             builder.append("   ");
         }
-        builder.append(ref.getValue() + ":" + this.matchNodeType.getName())
+        builder.append(ref.getValue()).append(":").append(this.matchNodeType.getName())
             .append("\n");
         if (this.left != null) {
             for (QLMatchResultTree item : this.left) {

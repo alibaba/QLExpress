@@ -45,7 +45,7 @@ public class OperatorNew extends OperatorBase {
         if (c == null) {
             // "没有找到" + obj.getName() + "的构造方法："
             StringBuilder s = new StringBuilder();
-            s.append("没有找到" + obj.getName() + "的构造方法：" + obj.getName() + "(");
+            s.append("没有找到").append(obj.getName()).append("的构造方法：").append(obj.getName()).append("(");
             for (int i = 0; i < types.length; i++) {
                 if (i > 0) {
                     s.append(",");

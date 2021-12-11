@@ -10,24 +10,6 @@ import com.ql.util.express.Operator;
  * Created by tianqiao on 16/10/16.
  */
 public class AppendingClassFieldManager {
-
-    public class AppendingField {
-        public final String name;
-
-        public final Class<?> bindingClass;
-
-        public final Operator op;
-
-        public final Class<?> returnType;
-
-        public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
-            this.name = name;
-            this.bindingClass = bindingClass;
-            this.op = op;
-            this.returnType = returnType;
-        }
-    }
-
     private final List<AppendingField> Fields = new ArrayList<>();
 
     public void addAppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
@@ -49,5 +31,22 @@ public class AppendingClassFieldManager {
         List<String> errorList) throws Exception {
         Operator op = Field.op;
         return op.executeInner(new Object[] {aFieldObject});
+    }
+
+    public static class AppendingField {
+        public final String name;
+
+        public final Class<?> bindingClass;
+
+        public final Operator op;
+
+        public final Class<?> returnType;
+
+        public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
+            this.name = name;
+            this.bindingClass = bindingClass;
+            this.op = op;
+            this.returnType = returnType;
+        }
     }
 }

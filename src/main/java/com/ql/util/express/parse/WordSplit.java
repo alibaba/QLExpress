@@ -46,19 +46,19 @@ public class WordSplit {
                 }
                 String tempDealStr = str.substring(i, index + 1);
                 //处理 \\，\"的情况
-                String tmpResult = "";
+                StringBuilder tmpResult = new StringBuilder();
                 int tmpPoint = tempDealStr.indexOf("\\");
                 while (tmpPoint >= 0) {
-                    tmpResult = tmpResult + tempDealStr.substring(0, tmpPoint);
+                    tmpResult.append(tempDealStr.substring(0, tmpPoint));
                     if (tmpPoint == tempDealStr.length() - 1) {
                         throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
                     }
-                    tmpResult = tmpResult + tempDealStr.charAt(tmpPoint + 1);
+                    tmpResult.append(tempDealStr.charAt(tmpPoint + 1));
                     tempDealStr = tempDealStr.substring(tmpPoint + 2);
                     tmpPoint = tempDealStr.indexOf("\\");
                 }
-                tmpResult = tmpResult + tempDealStr;
-                list.add(new Word(tmpResult, line, i - currentLineOffset + 1));
+                tmpResult.append(tempDealStr);
+                list.add(new Word(tmpResult.toString(), line, i - currentLineOffset + 1));
 
                 if (point < i) {
                     list.add(new Word(str.substring(point, i), line, point - currentLineOffset + 1));
@@ -129,7 +129,7 @@ public class WordSplit {
             if (i > 0) {
                 buffer.append(splitOp);
             }
-            buffer.append("{" + list[i] + "}");
+            buffer.append("{").append(list[i]).append("}");
         }
         return buffer.toString();
     }

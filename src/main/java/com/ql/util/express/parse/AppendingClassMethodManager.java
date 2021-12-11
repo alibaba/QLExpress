@@ -12,21 +12,6 @@ import com.ql.util.express.instruction.op.OperatorBase;
  * Created by tianqiao on 16/10/16.
  */
 public class AppendingClassMethodManager {
-
-    public class AppendingMethod {
-        public final String name;
-
-        public final Class<?> bindingClass;
-
-        public final OperatorBase op;
-
-        public AppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
-            this.name = name;
-            this.bindingClass = bindingClass;
-            this.op = op;
-        }
-    }
-
     private final List<AppendingMethod> methods = new ArrayList<>();
 
     public void addAppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
@@ -46,7 +31,21 @@ public class AppendingClassMethodManager {
 
     public OperateData invoke(AppendingMethod method, InstructionSetContext context, ArraySwap list,
         List<String> errorList) throws Exception {
-        OperatorBase op = method.op;
+        OperatorBase op = method.operatorBase;
         return op.execute(context, list, errorList);
+    }
+
+    public static class AppendingMethod {
+        public final String name;
+
+        public final Class<?> bindingClass;
+
+        public final OperatorBase operatorBase;
+
+        public AppendingMethod(String name, Class<?> bindingClass, OperatorBase op) {
+            this.name = name;
+            this.bindingClass = bindingClass;
+            this.operatorBase = op;
+        }
     }
 }

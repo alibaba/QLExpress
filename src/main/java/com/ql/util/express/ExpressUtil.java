@@ -518,11 +518,11 @@ public class ExpressUtil {
     }
 
     private static String getClassName(String name) {
-        String arrays = "";
+        StringBuilder arrays = new StringBuilder();
         if (name.contains("[")) {
             int point = 0;
             while (name.charAt(point) == '[') {
-                arrays = arrays + "[]";
+                arrays.append("[]");
                 ++point;
             }
             if (name.charAt(point) == 'L') {

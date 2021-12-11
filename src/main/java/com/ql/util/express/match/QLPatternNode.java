@@ -122,9 +122,9 @@ public class QLPatternNode {
 
     public void splitChild() throws Exception {
         if (log.isTraceEnabled()) {
-            String str = "";
+            StringBuilder str = new StringBuilder();
             for (int i = 0; i < this.level; i++) {
-                str = str + "  ";
+                str.append("  ");
             }
             //log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.originalContent);
         }
@@ -137,39 +137,41 @@ public class QLPatternNode {
             return;
         }
 
-        String tempStr = "";
+        StringBuilder tempStr = new StringBuilder();
         int count = 0;
         for (int i = 0; i < originalStr.length(); i++) {
             if (originalStr.charAt(i) == '(') {
-                tempStr = tempStr + originalStr.charAt(i);
+                tempStr.append(originalStr.charAt(i));
                 count = count + 1;
             } else if (originalStr.charAt(i) == ')') {
-                tempStr = tempStr + originalStr.charAt(i);
+                tempStr.append(originalStr.charAt(i));
                 count = count - 1;
             } else if (count > 0) {
-                tempStr = tempStr + originalStr.charAt(i);
+                tempStr.append(originalStr.charAt(i));
             } else if (originalStr.charAt(i) == '$') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.AND) {
                     throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
                         + originalStr);
                 }
-                children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
+                children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",
+                    tempStr.toString(), false, this.level + 1));
                 this.matchMode = MatchMode.AND;
-                tempStr = "";
+                tempStr = new StringBuilder();
             } else if (originalStr.charAt(i) == '|') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.OR) {
                     throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:" + originalStr);
                 }
-                children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
+                children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",
+                    tempStr.toString(), false, this.level + 1));
                 this.matchMode = MatchMode.OR;
-                tempStr = "";
+                tempStr = new StringBuilder();
             } else if (originalStr.charAt(i) == '#') {
                 this.rootNodeType = this.nodeTypeManager.findNodeType(originalStr.substring(i + 1));
                 break;
             } else {
-                tempStr = tempStr + originalStr.charAt(i);
+                tempStr.append(originalStr.charAt(i));
             }
         }
         // 处理没有()的内容
@@ -178,18 +180,19 @@ public class QLPatternNode {
         }
 
         if (this.children.size() > 0) {
-            children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr, false, this.level + 1));
-            tempStr = "";
+            children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",
+                tempStr.toString(), false, this.level + 1));
+            tempStr = new StringBuilder();
         }
 
         //需要剔除乘法*的情况
-        if (tempStr.endsWith("*") && tempStr.length() > 1) {
+        if (tempStr.toString().endsWith("*") && tempStr.length() > 1) {
             this.minMatchNum = 0;
             this.maxMatchNum = Integer.MAX_VALUE;
-            tempStr = tempStr.substring(0, tempStr.length() - 1);
+            tempStr = new StringBuilder(tempStr.substring(0, tempStr.length() - 1));
         }
 
-        if (tempStr.endsWith("}")) {
+        if (tempStr.toString().endsWith("}")) {
             int index = tempStr.lastIndexOf("{");
             if (index > 0) {
                 String numStr = tempStr.substring(index + 1, tempStr.length() - 1);
@@ -201,21 +204,21 @@ public class QLPatternNode {
                     this.minMatchNum = Integer.parseInt(numStr);
                     this.maxMatchNum = Integer.parseInt(numStr);
                 }
-                tempStr = tempStr.substring(0, index);
+                tempStr = new StringBuilder(tempStr.substring(0, index));
             }
         }
-        if (tempStr.endsWith("^") && tempStr.length() > 1) {
+        if (tempStr.toString().endsWith("^") && tempStr.length() > 1) {
             this.isTreeRoot = true;
-            tempStr = tempStr.substring(0, tempStr.length() - 1);
+            tempStr = new StringBuilder(tempStr.substring(0, tempStr.length() - 1));
         }
 
-        if (tempStr.endsWith("~") && tempStr.length() > 1) {
+        if (tempStr.toString().endsWith("~") && tempStr.length() > 1) {
             this.isSkip = true;
-            tempStr = tempStr.substring(0, tempStr.length() - 1);
+            tempStr = new StringBuilder(tempStr.substring(0, tempStr.length() - 1));
         }
-        if (tempStr.endsWith("@") && tempStr.length() > 1) {
+        if (tempStr.toString().endsWith("@") && tempStr.length() > 1) {
             this.blame = true;
-            tempStr = tempStr.substring(0, tempStr.length() - 1);
+            tempStr = new StringBuilder(tempStr.substring(0, tempStr.length() - 1));
         }
 
         //处理(ABC|bcd)模式
@@ -225,18 +228,18 @@ public class QLPatternNode {
                 new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr.substring(1, tempStr.length() - 1),
                     false, this.level + 1));
             this.matchMode = MatchMode.AND;
-            tempStr = "";
+            tempStr = new StringBuilder();
 
         }
 
         int index = tempStr.indexOf("->");
         if (index > 0) {
             this.targetNodeType = this.nodeTypeManager.findNodeType(tempStr.substring(index + 2));
-            tempStr = tempStr.substring(0, index);
+            tempStr = new StringBuilder(tempStr.substring(0, index));
         }
         if (tempStr.length() > 0) {
             this.matchMode = MatchMode.DETAIL;
-            this.nodeType = this.nodeTypeManager.findNodeType(tempStr);
+            this.nodeType = this.nodeTypeManager.findNodeType(tempStr.toString());
         }
     }
 

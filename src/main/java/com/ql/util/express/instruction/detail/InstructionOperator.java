@@ -28,21 +28,21 @@ public class InstructionOperator extends Instruction {
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
-            String str = this.operator.toString() + "(";
+            StringBuilder str = new StringBuilder(this.operator.toString() + "(");
             OperateData p;
             for (int i = 0; i < parameters.length; i++) {
                 p = parameters.get(i);
                 if (i > 0) {
-                    str = str + ",";
+                    str.append(",");
                 }
                 if (p instanceof OperateDataAttr) {
-                    str = str + p + ":" + p.getObject(environment.getContext());
+                    str.append(p).append(":").append(p.getObject(environment.getContext()));
                 } else {
-                    str = str + p;
+                    str.append(p);
                 }
             }
-            str = str + ")";
-            log.debug(str);
+            str.append(")");
+            log.debug(str.toString());
         }
         try {
             OperateData result = this.operator.execute(environment.getContext(), parameters, errorList);

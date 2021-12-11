@@ -128,7 +128,6 @@ public class InstructionSet {
      * 添加指令，为了提高运行期的效率，指令集用数组存储
      *
      * @param item
-     * @return
      */
     private void addArrayItem(Instruction item) {
         Instruction[] newArray = new Instruction[this.instructionList.length + 1];
@@ -310,7 +309,7 @@ public class InstructionSet {
             // 输出宏定义
             for (FunctionInstructionSet set : this.functionDefine.values()) {
                 appendSpace(buffer, level);
-                buffer.append(set.type + ":" + set.name).append("(");
+                buffer.append(set.type).append(":").append(set.name).append("(");
                 for (int i = 0; i < set.instructionSet.parameterList.size(); i++) {
                     OperateDataLocalVar var = set.instructionSet.parameterList.get(i);
                     if (i > 0) {

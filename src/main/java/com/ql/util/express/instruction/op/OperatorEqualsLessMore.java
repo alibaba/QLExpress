@@ -29,9 +29,7 @@ public class OperatorEqualsLessMore extends Operator {
         return executeInner(this.name, op1, op2);
     }
 
-    public static boolean executeInner(String opStr, Object obj1, Object obj2)
-        throws Exception {
-
+    public static boolean executeInner(String opStr, Object obj1, Object obj2) throws Exception {
         if ("==".equals(opStr)) {
             return Operator.objectEquals(obj1, obj2);
         }
@@ -48,14 +46,11 @@ public class OperatorEqualsLessMore extends Operator {
         int i = Operator.compareData(obj1, obj2);
         boolean result = false;
         if (i > 0) {
-            result = ">".equals(opStr) || ">=".equals(opStr) || "!=".equals(opStr)
-                || "<>".equals(opStr);
+            result = ">".equals(opStr) || ">=".equals(opStr) || "!=".equals(opStr) || "<>".equals(opStr);
         } else if (i == 0) {
-            result = "=".equals(opStr) || "==".equals(opStr) || ">=".equals(opStr)
-                || "<=".equals(opStr);
+            result = "=".equals(opStr) || "==".equals(opStr) || ">=".equals(opStr) || "<=".equals(opStr);
         } else if (i < 0) {
-            result = "<".equals(opStr) || "<=".equals(opStr) || "!=".equals(opStr)
-                || "<>".equals(opStr);
+            result = "<".equals(opStr) || "<=".equals(opStr) || "!=".equals(opStr) || "<>".equals(opStr);
         }
         return result;
     }

@@ -16,7 +16,7 @@ import com.ql.util.express.parse.AppendingClassMethodManager;
 public class OperatorMethod extends OperatorBase {
     private String methodName;
 
-    private static final Class<?> ARRAY_CLASS = (new Object[] {}).getClass();
+    private static final Class<?> ARRAY_CLASS = Object[].class;
 
     public OperatorMethod() {
         this.name = "MethodCall";
@@ -95,7 +95,8 @@ public class OperatorMethod extends OperatorBase {
             }
             if (method == null) {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("没有找到" + obj.getClass().getName() + "的方法：" + methodName + "(");
+                stringBuilder.append("没有找到").append(obj.getClass().getName()).append("的方法：").append(methodName).append(
+                    "(");
                 for (int i = 0; i < originalTypes.length; i++) {
                     if (i > 0) {
                         stringBuilder.append(",");

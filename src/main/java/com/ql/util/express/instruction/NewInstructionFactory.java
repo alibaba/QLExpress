@@ -17,13 +17,13 @@ public class NewInstructionFactory extends InstructionFactory {
         OperatorBase op = aCompile.getOperatorFactory().newInstance("new");
         ExpressNode[] children = node.getChildren();
         if (node.isTypeEqualsOrChild("NEW_ARRAY")) {
-            String tempStr = children[0].getValue();
+            StringBuilder tempStr = new StringBuilder(children[0].getValue());
             for (int i = 0; i < children.length - 1; i++) {
-                tempStr = tempStr + "[]";
+                tempStr.append("[]");
             }
-            children[0].setValue(tempStr);
-            children[0].setOriginalValue(tempStr);
-            children[0].setObjectValue(ExpressUtil.getJavaClass(tempStr));
+            children[0].setValue(tempStr.toString());
+            children[0].setOriginalValue(tempStr.toString());
+            children[0].setObjectValue(ExpressUtil.getJavaClass(tempStr.toString()));
         } else if (node.isTypeEqualsOrChild("anonymousNewArray")) {
             op = aCompile.getOperatorFactory().newInstance("anonymousNewArray");
         }

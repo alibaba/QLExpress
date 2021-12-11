@@ -28,22 +28,21 @@ public class InstructionNewVirClass extends Instruction {
         ArraySwap parameters = environment.popArray(
             environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
-            String str = "new VClass(";
+            StringBuilder str = new StringBuilder("new VClass(");
             OperateData p;
             for (int i = 0; i < parameters.length; i++) {
                 p = parameters.get(i);
                 if (i > 0) {
-                    str = str + ",";
+                    str.append(",");
                 }
                 if (p instanceof OperateDataAttr) {
-                    str = str + p + ":"
-                        + p.getObject(environment.getContext());
+                    str.append(p).append(":").append(p.getObject(environment.getContext()));
                 } else {
-                    str = str + p;
+                    str.append(p);
                 }
             }
-            str = str + ")";
-            log.debug(str);
+            str.append(")");
+            log.debug(str.toString());
         }
 
         //因为会影响堆栈，要先把对象拷贝出来

@@ -98,8 +98,7 @@ public class OperatorFactory {
                 Class<OperatorBase> opClass = (Class<OperatorBase>)originalOperator.getClass();
                 Constructor<OperatorBase> constructor;
                 try {
-                    constructor = opClass
-                        .getConstructor(String.class, String.class, String.class);
+                    constructor = opClass.getConstructor(String.class, String.class, String.class);
                 } catch (Exception e) {
                     throw new QLException(name + " 不能被设置别名:" + e.getMessage());
                 }

@@ -107,9 +107,9 @@ public class NodeType implements INodeType {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append(name + ":TYPE=" + this.kind);
+        result.append(name).append(":TYPE=").append(this.kind);
         if (this.instructionFactory != null) {
-            result.append(",FACTORY=" + this.instructionFactory);
+            result.append(",FACTORY=").append(this.instructionFactory);
         }
         if (this.qlPatternNode != null) {
             result.append(",DEFINE=").append(this.qlPatternNode);

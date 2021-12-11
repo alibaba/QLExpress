@@ -42,7 +42,8 @@ public class OperatorAnonymousNewArray extends OperatorBase {
             } else if (type == null) {
                 //第一次赋值
                 type = type1;
-            } else if (type1 == type || type.isAssignableFrom(type1)) {//type1是type的子类
+            } else if (type1 == type || type.isAssignableFrom(type1)) {
+                //type1是type的子类
                 //doNothing
             } else if (type1.isAssignableFrom(type)) {
                 //寻找更基础的类

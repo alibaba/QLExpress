@@ -89,8 +89,6 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         if (result == null) {
             if (this.parent != null && this.parent instanceof InstructionSetContext) {
                 result = ((InstructionSetContext)this.parent).findAliasOrDefSymbol(varName);
-            } else {
-                result = null;
             }
         }
         return result;
