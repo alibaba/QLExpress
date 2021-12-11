@@ -3,7 +3,7 @@ package com.ql.util.express.instruction.opdata;
 import com.ql.util.express.InstructionSetContext;
 
 public class OperateDataAlias extends OperateDataAttr {
-    final OperateDataAttr realAttr;
+    private final OperateDataAttr realAttr;
 
     public OperateDataAlias(String aName, OperateDataAttr aRealAttr) {
         super(aName, null);
@@ -14,8 +14,8 @@ public class OperateDataAlias extends OperateDataAttr {
     public String toString() {
         try {
             return this.name + "[alias=" + this.realAttr.name + "]";
-        } catch (Exception ex) {
-            return ex.getMessage();
+        } catch (Exception e) {
+            return e.getMessage();
         }
     }
 

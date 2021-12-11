@@ -10,18 +10,18 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 /**
- * 用户自定义的服务函数操作
+ * 用户自定义的对象方法操作
  *
  * @author qhlhl2010@gmail.com
  */
 public class OperatorSelfDefineServiceFunction extends OperatorBase implements CanClone {
-    final Object serviceObject;
-    final String functionName;
-    final String[] parameterTypes;
-    final Class<?>[] parameterClasses;
-    Method method;
-    boolean isReturnVoid;
-    boolean maybeDynamicParams;
+    private final Object serviceObject;
+    private final String functionName;
+    private final String[] parameterTypes;
+    private final Class<?>[] parameterClasses;
+    private final Method method;
+    private boolean isReturnVoid;
+    private final boolean maybeDynamicParams;
 
     public OperatorSelfDefineServiceFunction(String aOperatorName, Object aServiceObject, String aFunctionName,
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)

@@ -11,7 +11,7 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 /**
- * 用户自定义的函数操作
+ * 用户自定义的类静态方法操作
  *
  * @author qhlhl2010@gmail.com
  */
@@ -21,9 +21,9 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     private final Class<?>[] parameterClasses;
     private final Class<?> operatorClass;
     private Object operatorInstance;
-    private Method method;
+    private final Method method;
     private boolean isReturnVoid;
-    private boolean maybeDynamicParams;
+    private final boolean maybeDynamicParams;
 
     public OperatorSelfDefineClassFunction(String aOperatorName, Class<?> aOperatorClass, String aFunctionName,
         Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)

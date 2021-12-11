@@ -4,8 +4,8 @@ import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 
 public class OperateClass extends OperateData {
-    private String name;
-    private Class<?> clazz;
+    private final String name;
+    private final Class<?> clazz;
 
     public OperateClass(String name, Class<?> aClass) {
         super(null, null);
@@ -19,26 +19,16 @@ public class OperateClass extends OperateData {
     }
 
     @Override
-    public String toString() {
-        return "Class:" + name;
-        // return name;
-    }
-
-    public Class<?> getVarClass() {
-        return this.clazz;
-    }
-
-    public void reset(String aName, Class<?> newClass) {
-        this.name = aName;
-        this.clazz = newClass;
-    }
-
-    @Override
     public Object getObjectInner(InstructionSetContext parent) {
         return clazz;
     }
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String toString() {
+        return "Class:" + name;
     }
 }

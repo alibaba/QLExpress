@@ -7,8 +7,8 @@ import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 
 public class OperateDataArrayItem extends OperateDataAttr {
-    OperateData arrayObject;
-    int index;
+    private OperateData arrayObject;
+    private int index;
 
     public OperateDataArrayItem(OperateData aArrayObject, int aIndex) {
         super("array[" + aArrayObject + "," + aIndex + "]", null);
