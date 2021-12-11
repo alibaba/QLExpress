@@ -122,8 +122,11 @@ public class ExpressUtil {
         if (target == null) {
             return false;
         }
-        if (source == null)//null转换
-        {return !target.isPrimitive();}
+
+        //null转换
+        if (source == null) {
+            return !target.isPrimitive();
+        }
 
         if (target.isAssignableFrom(source)) {
             return true;
@@ -299,7 +302,7 @@ public class ExpressUtil {
     public static Method findMethod(Class<?> baseClass, String methodName, Class<?>[] types, boolean publicOnly,
         boolean isStatic) {
         List<Method> candidates = gatherMethodsRecursive(baseClass, methodName, types.length, publicOnly, isStatic,
-            null /* candidates */);
+            null);
         return findMostSpecificMethod(types, candidates.toArray(new Method[0]));
     }
 

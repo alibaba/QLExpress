@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ExpressPackage {
-    private List<String> m_packages;
+    private List<String> packages;
     private Map<String, Class<?>> name2CallCache = null;
     private final Class<?> S_NULL = NullClass.class;
     private final ExpressPackage parent;
@@ -16,19 +16,19 @@ public class ExpressPackage {
     }
 
     public void addPackage(String aPackageName) {
-        if (this.m_packages == null) {
-            this.m_packages = new ArrayList<>();
+        if (this.packages == null) {
+            this.packages = new ArrayList<>();
         }
         int point = aPackageName.indexOf(".*");
         if (point >= 0) {
             aPackageName = aPackageName.substring(0, point);
         }
-        this.m_packages.add(aPackageName);
+        this.packages.add(aPackageName);
     }
 
     public void removePackage(String aPackageName) {
-        if (this.m_packages != null) {
-            this.m_packages.remove(aPackageName);
+        if (this.packages != null) {
+            this.packages.remove(aPackageName);
         }
     }
 
@@ -38,7 +38,7 @@ public class ExpressPackage {
             tempClass = this.parent.getClass(name);
         }
         if (tempClass == null) {
-            if (this.m_packages == null && this.parent != null) {
+            if (this.packages == null && this.parent != null) {
                 return null;
             }
             if (this.name2CallCache == null) {
@@ -98,13 +98,13 @@ public class ExpressPackage {
                 return Boolean.TYPE;
             }
         }
-        if (this.m_packages != null) {
-            for (int i = 0; i < m_packages.size(); i++) {
+        if (this.packages != null) {
+            for (int i = 0; i < packages.size(); i++) {
                 String tmp;
-                if (m_packages.get(i).endsWith("." + name)) {
-                    tmp = m_packages.get(i);
+                if (packages.get(i).endsWith("." + name)) {
+                    tmp = packages.get(i);
                 } else {
-                    tmp = m_packages.get(i) + "." + name;
+                    tmp = packages.get(i) + "." + name;
                 }
                 try {
                     result = Class.forName(tmp);

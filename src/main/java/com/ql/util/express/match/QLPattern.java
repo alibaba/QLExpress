@@ -12,8 +12,15 @@ public class QLPattern {
 
     private static final Log log = LogFactory.getLog(QLPattern.class);
 
-    public static boolean optimizeStackDepth = true;//优化栈的递归深度
-    public static boolean printStackDepth = false;//打印栈的最大深度
+    /**
+     * 优化栈的递归深度
+     */
+    public static boolean optimizeStackDepth = true;
+
+    /**
+     * 打印栈的最大深度
+     */
+    public static boolean printStackDepth = false;
 
     public static QLPatternNode createPattern(INodeTypeManager nodeTypeManager, String name, String pattern)
         throws Exception {
@@ -102,7 +109,9 @@ public class QLPattern {
                             resultDetail.getMatches().get(0).targetNodeType = pattern.targetNodeType;
                         }
                     }
-                    if (pattern.blame) {//取返处理
+
+                    //取返处理
+                    if (pattern.blame) {
                         if (resultDetail == null) {
                             resultDetail = staticParams.resultCache.fetch();
                             resultDetail.addQLMatchResultTree(
@@ -126,7 +135,8 @@ public class QLPattern {
                 int pointAnd = lastPoint;
 
                 QLMatchResultTree root = null;
-                int matchCount = 0;//用于调试日志的输出
+                //用于调试日志的输出
+                int matchCount = 0;
                 List<QLMatchResultTree> tempListAnd = null;
                 boolean isBreak = false;
                 for (QLPatternNode item : pattern.children) {

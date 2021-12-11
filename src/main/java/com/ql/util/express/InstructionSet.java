@@ -104,18 +104,16 @@ public class InstructionSet {
         for (int i = 0; i < instructionList.length; i++) {
             Instruction instruction = instructionList[i];
             if (instruction instanceof InstructionOperator) {
-                String opName = ((InstructionOperator)instruction)
-                    .getOperator().getName();
-                if (opName != null) {//addOperator(op)中op.name有可能为空
-                    if ("def".equalsIgnoreCase(opName)
-                        || "exportDef".equalsIgnoreCase(opName)) {
-                        String varLocalName = (String)((InstructionConstData)instructionList[i - 1])
-                            .getOperateData().getObject(null);
+                String opName = ((InstructionOperator)instruction).getOperator().getName();
+                //addOperator(op)中op.name有可能为空
+                if (opName != null) {
+                    if ("def".equalsIgnoreCase(opName) || "exportDef".equalsIgnoreCase(opName)) {
+                        String varLocalName = (String)((InstructionConstData)instructionList[i - 1]).getOperateData()
+                            .getObject(null);
                         result.remove(varLocalName);
-                    } else if ("alias".equalsIgnoreCase(opName)
-                        || "exportAlias".equalsIgnoreCase(opName)) {
-                        String varLocalName = (String)((InstructionConstData)instructionList[i - 2])
-                            .getOperateData().getObject(null);
+                    } else if ("alias".equalsIgnoreCase(opName) || "exportAlias".equalsIgnoreCase(opName)) {
+                        String varLocalName = (String)((InstructionConstData)instructionList[i - 2]).getOperateData()
+                            .getObject(null);
                         result.remove(varLocalName);
                     }
                 }
@@ -175,7 +173,8 @@ public class InstructionSet {
         context.addSymbol(cacheFunctionSet);
 
         this.executeInnerOriginalInstruction(environment, errorList, aLog);
-        if (!environment.isExit()) {// 是在执行完所有的指令后结束的代码
+        // 是在执行完所有的指令后结束的代码
+        if (!environment.isExit()) {
             if (environment.getDataStackSize() > 0) {
                 OperateData tmpObject = environment.pop();
                 if (tmpObject == null) {

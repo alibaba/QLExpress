@@ -56,7 +56,6 @@ public class QLAliasUtils {
     }
 
     public static Field findQLAliasFields(Class baseClass, String propertyName) {
-
         Field[] fields = baseClass.getDeclaredFields();
         for (Field f : fields) {
             //优先使用本身的定义

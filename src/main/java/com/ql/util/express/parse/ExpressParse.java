@@ -123,7 +123,8 @@ public class ExpressParse {
             char firstChar = tempWord.charAt(0);
             char lastChar = tempWord.substring(tempWord.length() - 1).toLowerCase().charAt(0);
             if (firstChar >= '0' && firstChar <= '9') {
-                if (result.size() > 0) {//对 负号进行特殊处理
+                if (result.size() > 0) {
+                    // 对负号进行特殊处理
                     if ("-".equals(result.get(result.size() - 1).getValue())) {
                         if (result.size() == 1
                             || result.size() >= 2
@@ -195,7 +196,8 @@ public class ExpressParse {
                 tempWord = tempWord.substring(1, tempWord.length() - 1);
 
                 treeNodeType = nodeTypeManager.findNodeType("CONST");
-                if (tempWord.length() == 1 && !ignoreConstChar) { //转换为字符串
+                if (tempWord.length() == 1 && !ignoreConstChar) {
+                    //转换为字符串
                     tempType = nodeTypeManager.findNodeType("CONST_CHAR");
                     objectValue = tempWord.charAt(0);
                 } else {
@@ -389,7 +391,8 @@ public class ExpressParse {
                     NodeType nodeType = nodeTypeManager.findNodeType("VClass");
                     ExpressNode vClassNode = new ExpressNode(nodeType, configClass);
                     tempList2.add(vClassNode);
-                    i = end - 1;//因为循环之后，i++，所以i=end-1
+                    //因为循环之后，i++，所以i=end-1
+                    i = end - 1;
                 } else {
                     tempList2.add(node);
                 }

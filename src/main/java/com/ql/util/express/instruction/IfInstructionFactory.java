@@ -36,14 +36,19 @@ public class IfInstructionFactory extends InstructionFactory {
             children[2] = new ExpressNode(aCompile.getNodeTypeManager().findNodeType("STAT_BLOCK"), null);
         }
         int[] finishPoint = new int[children.length];
-        boolean r1 = aCompile.createInstructionSetPrivate(result, forStack, children[0], false);//condition
+        //condition
+        boolean r1 = aCompile.createInstructionSetPrivate(result, forStack, children[0], false);
         finishPoint[0] = result.getCurrentPoint();
-        boolean r2 = aCompile.createInstructionSetPrivate(result, forStack, children[1], false);//true
+
+        //true
+        boolean r2 = aCompile.createInstructionSetPrivate(result, forStack, children[1], false);
         result.insertInstruction(finishPoint[0] + 1,
             new InstructionGoToWithCondition(false, result.getCurrentPoint() - finishPoint[0] + 2, true).setLine(
                 node.getLine()));
         finishPoint[1] = result.getCurrentPoint();
-        boolean r3 = aCompile.createInstructionSetPrivate(result, forStack, children[2], false);//false
+
+        //false
+        boolean r3 = aCompile.createInstructionSetPrivate(result, forStack, children[2], false);
         result.insertInstruction(finishPoint[1] + 1,
             new InstructionGoTo(result.getCurrentPoint() - finishPoint[1] + 1).setLine(node.getLine()));
         return r1 || r2 || r3;

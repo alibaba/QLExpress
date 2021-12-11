@@ -15,7 +15,8 @@ public class LoadAttrInstructionFactory extends InstructionFactory {
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
         throws Exception {
         FunctionInstructionSet functionSet = result.getMacroDefine(node.getValue());
-        if (functionSet != null) {//是宏定义
+        if (functionSet != null) {
+            //是宏定义
             result.insertInstruction(result.getCurrentPoint() + 1, new InstructionCallMacro(node.getValue()).setLine(
                 node.getLine()).setLine(node.getLine()));
         } else {

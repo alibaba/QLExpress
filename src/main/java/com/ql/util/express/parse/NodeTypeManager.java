@@ -77,7 +77,8 @@ public class NodeTypeManager implements INodeTypeManager {
      * @return
      */
     public NodeType createNodeType(String aDefineStr) {
-        int index = aDefineStr.indexOf(":", 1);//避免对操作符号":"的错误处理
+        //避免对操作符号":"的错误处理
+        int index = aDefineStr.indexOf(":", 1);
         String name = aDefineStr.substring(0, index).trim();
         NodeType define = nodeTypes.get(name);
         if (define != null) {

@@ -53,7 +53,8 @@ public class OperatorAnonymousNewArray extends OperatorBase {
             }
         }
         if (type == null) {
-            type = Object.class;//参数全部为null的情况
+            //参数全部为null的情况
+            type = Object.class;
         }
         return type;
     }

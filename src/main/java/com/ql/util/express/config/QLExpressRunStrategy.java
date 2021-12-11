@@ -28,8 +28,11 @@ public class QLExpressRunStrategy {
     private static final List<String> SECURITY_RISK_METHODS = new ArrayList<>();
 
     static {
-        SECURITY_RISK_METHODS.add(System.class.getName() + "." + "exit");//系统退出
-        SECURITY_RISK_METHODS.add(Runtime.getRuntime().getClass().getName() + ".exec");//运行脚本命令
+        //系统退出
+        SECURITY_RISK_METHODS.add(System.class.getName() + "." + "exit");
+
+        //运行脚本命令
+        SECURITY_RISK_METHODS.add(Runtime.getRuntime().getClass().getName() + ".exec");
     }
 
     public static boolean isCompareNullLessMoreAsFalse() {

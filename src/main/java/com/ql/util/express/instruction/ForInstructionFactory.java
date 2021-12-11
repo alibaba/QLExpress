@@ -31,7 +31,8 @@ public class ForInstructionFactory extends InstructionFactory {
         //生成条件语句部分指令
         ExpressNode conditionNode = node.getChildren()[0];
         int nodePoint = 0;
-        if (conditionNode.getChildren() != null && conditionNode.getChildren().length == 3) {//变量定义，判断，自增都存在
+        //变量定义，判断，自增都存在
+        if (conditionNode.getChildren() != null && conditionNode.getChildren().length == 3) {
             int tempPoint = result.getCurrentPoint();
             aCompile.createInstructionSetPrivate(result, forStack, conditionNode.getChildren()[0], false);
             if (result.getCurrentPoint() > tempPoint) {

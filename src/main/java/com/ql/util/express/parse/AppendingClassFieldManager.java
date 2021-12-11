@@ -10,26 +10,26 @@ import com.ql.util.express.Operator;
  * Created by tianqiao on 16/10/16.
  */
 public class AppendingClassFieldManager {
-    private final List<AppendingField> Fields = new ArrayList<>();
+    private final List<AppendingField> appendingFields = new ArrayList<>();
 
     public void addAppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
-        Fields.add(new AppendingField(name, bindingClass, returnType, op));
+        appendingFields.add(new AppendingField(name, bindingClass, returnType, op));
     }
 
-    public AppendingField getAppendingClassField(Object object, String FieldName) {
-        for (AppendingField Field : Fields) {
+    public AppendingField getAppendingClassField(Object object, String fieldName) {
+        for (AppendingField appendingField : appendingFields) {
             //object是定义类型的子类
-            if (FieldName.equals(Field.name) && (object.getClass() == Field.bindingClass
-                || Field.bindingClass.isAssignableFrom(object.getClass()))) {
-                return Field;
+            if (fieldName.equals(appendingField.name) && (object.getClass() == appendingField.bindingClass
+                || appendingField.bindingClass.isAssignableFrom(object.getClass()))) {
+                return appendingField;
             }
         }
         return null;
     }
 
-    public Object invoke(AppendingField Field, InstructionSetContext context, Object aFieldObject,
+    public Object invoke(AppendingField appendingField, InstructionSetContext context, Object aFieldObject,
         List<String> errorList) throws Exception {
-        Operator op = Field.op;
+        Operator op = appendingField.op;
         return op.executeInner(new Object[] {aFieldObject});
     }
 

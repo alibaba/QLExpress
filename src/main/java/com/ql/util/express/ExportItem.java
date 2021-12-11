@@ -6,15 +6,22 @@ package com.ql.util.express;
  * @author xuannan
  */
 public class ExportItem {
-
     public static final String TYPE_ALIAS = "alias";
     public static final String TYPE_DEF = "def";
     public static String TYPE_FUNCTION = "function";
     public static String TYPE_MACRO = "macro";
     String globeName;
     String name;
-    String type;//def,alias
-    String desc;//类名或者别名
+
+    /**
+     * def, alias
+     */
+    String type;
+
+    /**
+     * 类名或者别名
+     */
+    String desc;
 
     public ExportItem(String aName, String aType, String aDesc) {
         this.globeName = aName;

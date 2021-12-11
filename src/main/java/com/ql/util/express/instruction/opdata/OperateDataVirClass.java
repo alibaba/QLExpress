@@ -83,9 +83,11 @@ public class OperateDataVirClass extends OperateDataAttr {
         Object o = this.context.findAliasOrDefSymbol(name.toString());
         if (o == null) {
             return null;
-        } else if (o instanceof OperateData) {//变量定义
+        } else if (o instanceof OperateData) {
+            //变量定义
             return ((OperateData)o).getObject(context);
-        } else if (o instanceof InstructionSet) {//宏定义
+        } else if (o instanceof InstructionSet) {
+            //宏定义
             InstructionSetContext tempContext = OperateDataCacheManager.fetchInstructionSetContext(
                 true, this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
                 this.context.isSupportDynamicFieldName());

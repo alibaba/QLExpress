@@ -66,7 +66,8 @@ public class WordSplit {
                 i = index + 1;
                 point = i;
             } else if (c == '.' && point < i && isNumber(str.substring(point, i))) {
-                i = i + 1; //小数点的特殊处理
+                //小数点的特殊处理
+                i = i + 1;
             } else if (c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\u000C') {
                 if (point < i) {
                     list.add(new Word(str.substring(point, i), line, point - currentLineOffset + 1));
