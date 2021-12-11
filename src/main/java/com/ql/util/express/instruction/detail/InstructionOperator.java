@@ -3,6 +3,7 @@ package com.ql.util.express.instruction.detail;
 import java.util.List;
 
 import com.ql.util.express.ArraySwap;
+import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.exception.QLBizException;
@@ -25,26 +26,27 @@ public class InstructionOperator extends Instruction {
 
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
-        ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
+        InstructionSetContext instructionSetContext = environment.getContext();
+        ArraySwap parameters = environment.popArray(instructionSetContext, this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
-            StringBuilder str = new StringBuilder(this.operator.toString() + "(");
+            StringBuilder stringBuilder = new StringBuilder(this.operator.toString() + "(");
             OperateData operateData;
             for (int i = 0; i < parameters.length; i++) {
                 operateData = parameters.get(i);
                 if (i > 0) {
-                    str.append(",");
+                    stringBuilder.append(",");
                 }
                 if (operateData instanceof OperateDataAttr) {
-                    str.append(operateData).append(":").append(operateData.getObject(environment.getContext()));
+                    stringBuilder.append(operateData).append(":").append(operateData.getObject(instructionSetContext));
                 } else {
-                    str.append(operateData);
+                    stringBuilder.append(operateData);
                 }
             }
-            str.append(")");
-            log.debug(str.toString());
+            stringBuilder.append(")");
+            log.debug(stringBuilder.toString());
         }
         try {
-            OperateData result = this.operator.execute(environment.getContext(), parameters, errorList);
+            OperateData result = this.operator.execute(instructionSetContext, parameters, errorList);
             environment.push(result);
             environment.programPointAddOne();
         } catch (QLException e) {
