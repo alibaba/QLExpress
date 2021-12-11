@@ -23,16 +23,16 @@ public class QLExpressRunStrategy {
     /**
      * 禁止调用不安全的方法
      */
-    private static boolean forbiddenInvokeSecurityRiskMethods = false;
+    private static boolean forbidInvokeSecurityRiskMethods = false;
 
-    private static final List<String> SECURITY_RISK_METHODS = new ArrayList<>();
+    private static final List<String> SECURITY_RISK_METHOD_LIST = new ArrayList<>();
 
     static {
         //系统退出
-        SECURITY_RISK_METHODS.add(System.class.getName() + "." + "exit");
+        SECURITY_RISK_METHOD_LIST.add(System.class.getName() + "." + "exit");
 
         //运行脚本命令
-        SECURITY_RISK_METHODS.add(Runtime.getRuntime().getClass().getName() + ".exec");
+        SECURITY_RISK_METHOD_LIST.add(Runtime.getRuntime().getClass().getName() + ".exec");
     }
 
     public static boolean isCompareNullLessMoreAsFalse() {
@@ -51,23 +51,32 @@ public class QLExpressRunStrategy {
         QLExpressRunStrategy.avoidNullPointer = avoidNullPointer;
     }
 
-    public static boolean isForbiddenInvokeSecurityRiskMethods() {
-        return forbiddenInvokeSecurityRiskMethods;
+    public static boolean isForbidInvokeSecurityRiskMethods() {
+        return forbidInvokeSecurityRiskMethods;
     }
 
-    public static void setForbiddenInvokeSecurityRiskMethods(boolean forbiddenInvokeSecurityRiskMethods) {
-        QLExpressRunStrategy.forbiddenInvokeSecurityRiskMethods = forbiddenInvokeSecurityRiskMethods;
+    public static void setForbidInvokeSecurityRiskMethods(boolean forbidInvokeSecurityRiskMethods) {
+        QLExpressRunStrategy.forbidInvokeSecurityRiskMethods = forbidInvokeSecurityRiskMethods;
     }
 
-    public static void addSecurityRiskMethod(Class clazz, String methodName) {
-        QLExpressRunStrategy.SECURITY_RISK_METHODS.add(clazz.getName() + "." + methodName);
+    /**
+     * TODO 未考虑方法重载的场景
+     *
+     * @param clazz
+     * @param methodName
+     */
+    public static void addSecurityRiskMethod(Class<?> clazz, String methodName) {
+        QLExpressRunStrategy.SECURITY_RISK_METHOD_LIST.add(clazz.getName() + "." + methodName);
     }
 
-    public static void assertBlackMethod(Method method) throws QLSecurityRiskException {
-        if (forbiddenInvokeSecurityRiskMethods && method != null) {
-            if (SECURITY_RISK_METHODS.contains(method.getDeclaringClass().getName() + "." + method.getName())) {
-                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
-            }
+    public static void assertSecurityRiskMethod(Method method) throws QLSecurityRiskException {
+        if (!forbidInvokeSecurityRiskMethods || method == null) {
+            return;
+        }
+
+        String fullMethodName = method.getDeclaringClass().getName() + "." + method.getName();
+        if (SECURITY_RISK_METHOD_LIST.contains(fullMethodName)) {
+            throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
         }
     }
 }

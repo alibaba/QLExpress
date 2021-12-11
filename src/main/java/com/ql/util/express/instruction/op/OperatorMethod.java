@@ -112,7 +112,7 @@ public class OperatorMethod extends OperatorBase {
             }
 
             //阻止调用不安全的方法
-            QLExpressRunStrategy.assertBlackMethod(method);
+            QLExpressRunStrategy.assertSecurityRiskMethod(method);
 
             // 调用静态方法
             if (p0 instanceof OperateClass) {
