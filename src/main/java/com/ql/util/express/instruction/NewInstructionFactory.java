@@ -11,8 +11,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class NewInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile,
-        InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         OperatorBase op = aCompile.getOperatorFactory().newInstance("new");
         ExpressNode[] children = node.getChildren();

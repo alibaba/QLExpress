@@ -19,25 +19,27 @@ public class OperateDataVirClass extends OperateDataAttr {
     /**
      * 虚拟Class的数据上下文
      */
-    InstructionSetContext context;
+    private InstructionSetContext context;
+
     /**
      * 虚拟类的指令集合
      */
-    InstructionSet virClassInstructionSet;
+    private InstructionSet virClassInstructionSet;
 
-    boolean isTrace;
-    Log log;
+    private boolean isTrace;
+
+    private Log log;
 
     public OperateDataVirClass(String name) {
         super(name, null);
     }
 
-    public void initialInstance(InstructionSetContext parent, OperateData[] parameters,
-        List<String> errorList, boolean aIsTrace, Log aLog) throws Exception {
+    public void initialInstance(InstructionSetContext parent, OperateData[] parameters, List<String> errorList,
+        boolean aIsTrace, Log aLog) throws Exception {
         this.isTrace = aIsTrace;
         this.log = aLog;
-        this.context = OperateDataCacheManager.fetchInstructionSetContext(false,
-            parent.getExpressRunner(), parent, parent.getExpressLoader(), parent.isSupportDynamicFieldName());
+        this.context = OperateDataCacheManager.fetchInstructionSetContext(false, parent.getExpressRunner(), parent,
+            parent.getExpressLoader(), parent.isSupportDynamicFieldName());
         Object functionSet = parent.getSymbol(this.name);
         if (!(functionSet instanceof InstructionSet)) {
             throw new QLException("没有找到自定义对象\"" + this.name + "\"");
@@ -52,8 +54,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             this.context.addSymbol(var.getName(), var);
             var.setObject(context, parameters[i].getObject(parent));
         }
-        InstructionSetRunner.execute(virClassInstructionSet,
-            context, errorList, aIsTrace, false, false, log);
+        InstructionSetRunner.execute(virClassInstructionSet, context, errorList, aIsTrace, false, false, log);
     }
 
     public OperateData callSelfFunction(String functionName, OperateData[] parameters) throws Exception {
@@ -63,8 +64,8 @@ public class OperateDataVirClass extends OperateDataAttr {
         }
         InstructionSet functionSet = (InstructionSet)function;
 
-        InstructionSetContext tempContext = OperateDataCacheManager.fetchInstructionSetContext(
-            true, this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
+        InstructionSetContext tempContext = OperateDataCacheManager.fetchInstructionSetContext(true,
+            this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
             this.context.isSupportDynamicFieldName());
         OperateDataLocalVar[] vars = functionSet.getParameters();
         for (int i = 0; i < vars.length; i++) {
@@ -74,8 +75,8 @@ public class OperateDataVirClass extends OperateDataAttr {
             tempContext.addSymbol(var.getName(), var);
             var.setObject(tempContext, parameters[i].getObject(this.context));
         }
-        Object result = InstructionSetRunner.execute(functionSet,
-            tempContext, null, this.isTrace, false, true, this.log);
+        Object result = InstructionSetRunner.execute(functionSet, tempContext, null, this.isTrace, false, true,
+            this.log);
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 
@@ -88,17 +89,11 @@ public class OperateDataVirClass extends OperateDataAttr {
             return ((OperateData)o).getObject(context);
         } else if (o instanceof InstructionSet) {
             //宏定义
-            InstructionSetContext tempContext = OperateDataCacheManager.fetchInstructionSetContext(
-                true, this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
+            InstructionSetContext tempContext = OperateDataCacheManager.fetchInstructionSetContext(true,
+                this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
                 this.context.isSupportDynamicFieldName());
-            Object result = InstructionSetRunner.execute(
-                this.context.getExpressRunner(),
-                (InstructionSet)o,
-                this.context.getExpressLoader(),
-                tempContext,
-                null,
-                this.isTrace,
-                false, false, this.log,
+            Object result = InstructionSetRunner.execute(this.context.getExpressRunner(), (InstructionSet)o,
+                this.context.getExpressLoader(), tempContext, null, this.isTrace, false, false, this.log,
                 this.context.isSupportDynamicFieldName());
             if (result instanceof OperateData) {
                 return ((OperateData)result).getObject(this.context);

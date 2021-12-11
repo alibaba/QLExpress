@@ -13,9 +13,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class ForInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
-        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
-        throws Exception {
+    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+        ExpressNode node, boolean isRoot) throws Exception {
         if (node.getChildren().length < 2) {
             throw new QLCompileException("for 操作符至少需要2个操作数 ");
         } else if (node.getChildren().length > 2) {

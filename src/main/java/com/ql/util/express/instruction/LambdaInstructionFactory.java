@@ -10,7 +10,6 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 import com.ql.util.express.parse.ExpressNode;
 
 public class LambdaInstructionFactory extends InstructionFactory {
-
     private static final String LAMBDA_NODE_NAME = "LAMBDA";
 
     @Override

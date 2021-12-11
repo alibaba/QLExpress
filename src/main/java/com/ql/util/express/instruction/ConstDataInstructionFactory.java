@@ -19,8 +19,7 @@ public class ConstDataInstructionFactory extends InstructionFactory {
     }
 
     @Override
-    public boolean createInstruction(ExpressRunner aCompile,
-        InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) {
         result.addInstruction(new InstructionConstData(genOperateData(node)).setLine(node.getLine()));
         return false;

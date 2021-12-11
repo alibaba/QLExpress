@@ -25,7 +25,7 @@ public class OperateDataCacheManager {
     }
 
     public static IOperateDataCache getOperateDataCache() {
-        return RUNNER_DATA_CACHE_THREAD_LOCAL.get().cache;
+        return RUNNER_DATA_CACHE_THREAD_LOCAL.get().getCache();
     }
 
     public static OperateData fetchOperateData(Object obj, Class<?> aType) {
@@ -78,9 +78,9 @@ public class OperateDataCacheManager {
 }
 
 class RunnerDataCache {
-    IOperateDataCache cache;
+    private IOperateDataCache cache;
 
-    final Stack<ExpressRunner> stack = new Stack<>();
+    private final Stack<ExpressRunner> stack = new Stack<>();
 
     public void push(ExpressRunner aRunner) {
         this.cache = aRunner.getOperateDataCache();
@@ -102,5 +102,9 @@ class RunnerDataCache {
         } else {
             this.cache = null;
         }
+    }
+
+    public IOperateDataCache getCache() {
+        return cache;
     }
 }

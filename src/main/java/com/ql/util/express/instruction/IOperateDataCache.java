@@ -27,8 +27,7 @@ public interface IOperateDataCache {
 
     OperateDataKeyValue fetchOperateDataKeyValue(OperateData aKey, OperateData aValue);
 
-    RunEnvironment fetRunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext,
-        boolean aIsTrace);
+    RunEnvironment fetRunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext, boolean aIsTrace);
 
     CallResult fetchCallResult(Object aReturnValue, boolean aIsExit);
 

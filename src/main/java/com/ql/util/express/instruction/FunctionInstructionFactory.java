@@ -42,8 +42,8 @@ public class FunctionInstructionFactory extends InstructionFactory {
 
         ExpressNode functionRoot = new ExpressNode(aCompile.getNodeTypeManager().findNodeType("FUNCTION_DEFINE"),
             "function-" + functionName);
-        for (ExpressNode tempNode : children[2].getChildren()) {
-            functionRoot.addLeftChild(tempNode);
+        for (ExpressNode expressNode : children[2].getChildren()) {
+            functionRoot.addLeftChild(expressNode);
         }
         aCompile.createInstructionSet(functionRoot, functionSet);
         result.addMacroDefine(functionName, new FunctionInstructionSet(functionName, instructionSetType, functionSet));

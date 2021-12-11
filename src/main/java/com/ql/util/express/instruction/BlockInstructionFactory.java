@@ -11,11 +11,9 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class BlockInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
-        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
-        throws Exception {
-        if (node.isTypeEqualsOrChild("STAT_SEMICOLON")
-            && result.getCurrentPoint() >= 0 && !(result.getInstruction(
+    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+        ExpressNode node, boolean isRoot) throws Exception {
+        if (node.isTypeEqualsOrChild("STAT_SEMICOLON") && result.getCurrentPoint() >= 0 && !(result.getInstruction(
             result.getCurrentPoint()) instanceof InstructionClearDataStack)) {
             result.addInstruction(new InstructionClearDataStack().setLine(node.getLine()));
         }

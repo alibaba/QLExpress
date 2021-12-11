@@ -40,9 +40,8 @@ class DefineInstructionFactory extends InstructionFactory {
         }
 
         children = node.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            ExpressNode tmpNode = children[i];
-            aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
+        for (ExpressNode expressNode : children) {
+            aCompile.createInstructionSetPrivate(result, forStack, expressNode, false);
         }
         OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

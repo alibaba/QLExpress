@@ -6,8 +6,8 @@ import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.parse.AppendingClassFieldManager;
 
 public class OperateDataField extends OperateDataAttr {
-    Object fieldObject;
-    String originalFieldName;
+    private Object fieldObject;
+    private String originalFieldName;
 
     public OperateDataField(Object aFieldObject, String aFieldName) {
         super(null, null);
@@ -57,8 +57,7 @@ public class OperateDataField extends OperateDataAttr {
             return oldName;
         } else {
             try {
-                OperateDataAttr o = (OperateDataAttr)context
-                    .findAliasOrDefSymbol(oldName);
+                OperateDataAttr o = (OperateDataAttr)context.findAliasOrDefSymbol(oldName);
                 if (o != null) {
                     return o.getObject(context);
                 } else {
@@ -72,7 +71,6 @@ public class OperateDataField extends OperateDataAttr {
 
     @Override
     public Object getObjectInner(InstructionSetContext context) throws Exception {
-
         AppendingClassFieldManager appendingClassFieldManager = context.getExpressRunner()
             .getAppendingClassFieldManager();
 

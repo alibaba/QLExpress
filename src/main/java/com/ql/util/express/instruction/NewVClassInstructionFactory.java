@@ -9,8 +9,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class NewVClassInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile,
-        InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildren();
         boolean returnVal = false;

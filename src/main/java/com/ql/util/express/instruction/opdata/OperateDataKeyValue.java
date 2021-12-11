@@ -4,8 +4,8 @@ import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
 
 public class OperateDataKeyValue extends OperateData {
-    OperateData key;
-    OperateData value;
+    private OperateData key;
+    private OperateData value;
 
     public OperateDataKeyValue(OperateData aKey, OperateData aValue) {
         super(null, null);
@@ -34,11 +34,6 @@ public class OperateDataKeyValue extends OperateData {
     }
 
     @Override
-    public String toString() {
-        return this.key + ":" + this.value;
-    }
-
-    @Override
     public Object getObjectInner(InstructionSetContext context) {
         throw new RuntimeException("没有实现方法：getObjectInner");
     }
@@ -49,8 +44,12 @@ public class OperateDataKeyValue extends OperateData {
     }
 
     @Override
-    public void setObject(InstructionSetContext parent,
-        Object object) {
+    public void setObject(InstructionSetContext parent, Object object) {
         throw new RuntimeException("没有实现方法：setObject");
+    }
+
+    @Override
+    public String toString() {
+        return this.key + ":" + this.value;
     }
 }
