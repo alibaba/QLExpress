@@ -30,6 +30,7 @@ public class ReplaceCompareOperatorTest {
 
         }
 
+        @Override
         public Object executeInner(Object op1, Object op2) throws Exception {
             if (op1 == null || op2 == null) {
                 return false;

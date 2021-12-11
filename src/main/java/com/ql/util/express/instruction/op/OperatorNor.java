@@ -19,7 +19,6 @@ public class OperatorNor extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) {
-
         if (op1 != null) {
             return op1;
         } else {

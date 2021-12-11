@@ -6,7 +6,6 @@ import com.ql.util.express.Operator;
  * Created by tianqiao on 17/9/19.
  */
 public class OperatorInstanceOf extends Operator {
-
     public OperatorInstanceOf(String anInstanceof) {
         this.name = anInstanceof;
     }

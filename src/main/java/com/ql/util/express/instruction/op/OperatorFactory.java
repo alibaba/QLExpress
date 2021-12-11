@@ -12,7 +12,7 @@ public class OperatorFactory {
     /**
      * 是否需要高精度计算
      */
-    protected final boolean isPrecise;
+    private final boolean isPrecise;
 
     private final Map<String, OperatorBase> operatorMap = new HashMap<>();
 
@@ -26,10 +26,10 @@ public class OperatorFactory {
         addOperator("def", new OperatorDef("def"));
         addOperator("exportDef", new OperatorExportDef("exportDef"));
         addOperator("!", new OperatorNot("!"));
-        addOperator("*", new OperatorMultiDiv("*"));
-        addOperator("/", new OperatorMultiDiv("/"));
-        addOperator("%", new OperatorMultiDiv("%"));
-        addOperator("mod", new OperatorMultiDiv("mod"));
+        addOperator("*", new OperatorMultiplyDivide("*"));
+        addOperator("/", new OperatorMultiplyDivide("/"));
+        addOperator("%", new OperatorMultiplyDivide("%"));
+        addOperator("mod", new OperatorMultiplyDivide("mod"));
         addOperator("+", new OperatorAdd("+"));
         addOperator("-", new OperatorReduce("-"));
         addOperator("<", new OperatorEqualsLessMore("<"));

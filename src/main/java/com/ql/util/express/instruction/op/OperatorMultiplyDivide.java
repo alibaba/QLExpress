@@ -3,8 +3,8 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.Operator;
 import com.ql.util.express.OperatorOfNumber;
 
-public class OperatorMultiDiv extends Operator {
-    public OperatorMultiDiv(String name) {
+public class OperatorMultiplyDivide extends Operator {
+    public OperatorMultiplyDivide(String name) {
         this.name = name;
     }
 
@@ -14,22 +14,21 @@ public class OperatorMultiDiv extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        Object obj = null;
+        Object result = null;
         switch (this.getName()) {
             case "*":
-                obj = OperatorOfNumber.multiply(op1, op2, this.isPrecise);
+                result = OperatorOfNumber.multiply(op1, op2, this.isPrecise);
                 break;
             case "/":
-                obj = OperatorOfNumber.divide(op1, op2, this.isPrecise);
+                result = OperatorOfNumber.divide(op1, op2, this.isPrecise);
                 break;
             case "%":
             case "mod":
-                obj = OperatorOfNumber.modulo(op1, op2);
+                result = OperatorOfNumber.modulo(op1, op2);
                 break;
             default:
                 break;
         }
-
-        return obj;
+        return result;
     }
 }

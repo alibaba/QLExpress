@@ -15,12 +15,13 @@ public class OperatorMinMax extends Operator {
         }
         Object result = list[0];
 
-        for (int i = 1; i < list.length; i++) {result = executeInner(result, list[i]);}
+        for (int i = 1; i < list.length; i++) {
+            result = executeInner(result, list[i]);
+        }
         return result;
     }
 
-    public Object executeInner(Object op1,
-        Object op2) throws Exception {
+    public Object executeInner(Object op1, Object op2) throws Exception {
         Object result = null;
         int compareResult = Operator.compareData(op1, op2);
         if ("min".equals(this.name)) {

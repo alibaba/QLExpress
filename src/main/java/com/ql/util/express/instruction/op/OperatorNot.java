@@ -19,8 +19,7 @@ public class OperatorNot extends Operator {
         return executeInner(list[0]);
     }
 
-    public Object executeInner(Object op)
-        throws Exception {
+    public Object executeInner(Object op) throws Exception {
         Object result;
         if (op == null) {
             throw new QLException("null 不能执行操作：" + this.getAliasName());
@@ -28,9 +27,7 @@ public class OperatorNot extends Operator {
         if (Boolean.class.equals(op.getClass())) {
             result = !(Boolean)op;
         } else {
-            //
-            String msg = "没有定义类型" + op.getClass().getName() + " 的 " + this.name
-                + "操作";
+            String msg = "没有定义类型" + op.getClass().getName() + " 的 " + this.name + "操作";
             throw new QLException(msg);
         }
         return result;

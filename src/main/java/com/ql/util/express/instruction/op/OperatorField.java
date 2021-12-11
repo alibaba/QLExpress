@@ -7,7 +7,7 @@ import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorField extends OperatorBase {
-    String filedName;
+    private String filedName;
 
     public OperatorField() {
         this.name = "FieldCall";
