@@ -13,7 +13,7 @@ public class QLExpressTimer {
     private static final ThreadLocal<Long> END_TIME = new ThreadLocal<Long>() {};
 
     /**
-     * 设置计时器
+     * 设置超时时间
      *
      * @param timeoutMillis 超时时间
      */
@@ -27,9 +27,9 @@ public class QLExpressTimer {
      */
     public static void startTimer() {
         if (NEED_TIMER.get()) {
-            long t = System.currentTimeMillis();
-            START_TIME.set(t);
-            END_TIME.set(t + TIME_OUT_MILLIS.get());
+            long currentTimeMillis = System.currentTimeMillis();
+            START_TIME.set(currentTimeMillis);
+            END_TIME.set(currentTimeMillis + TIME_OUT_MILLIS.get());
         }
     }
 
@@ -40,7 +40,7 @@ public class QLExpressTimer {
      */
     public static void assertTimeOut() throws QLTimeoutException {
         if (NEED_TIMER.get() && System.currentTimeMillis() > END_TIME.get()) {
-            throw new QLTimeoutException("运行QLExpress脚本的下一条指令将超过了限定时间:" + TIME_OUT_MILLIS.get() + "ms");
+            throw new QLTimeoutException("运行QLExpress脚本的下一条指令将超过限定时间:" + TIME_OUT_MILLIS.get() + "ms");
         }
     }
 
