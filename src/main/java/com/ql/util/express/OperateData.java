@@ -7,7 +7,6 @@ import com.ql.util.express.exception.QLException;
  *
  * @author qhlhl2010@gmail.com
  */
-
 public class OperateData {
 
     protected Object dataObject;

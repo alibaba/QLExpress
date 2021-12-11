@@ -173,23 +173,6 @@ class OperatorReturn extends OperatorBase {
     }
 }
 
-class OperatorCall extends OperatorBase {
-    public OperatorCall(String name) {
-        this.name = name;
-    }
-
-    public OperatorCall(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
-    }
-
-    @Override
-    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
-        throw new QLException("call 是通过特殊指令来实现的，不能支持此方法");
-    }
-}
-
 class OperatorBreak extends OperatorBase {
     public OperatorBreak(String name) {
         this.name = name;

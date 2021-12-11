@@ -21,7 +21,6 @@ public class OperatorAnonymousNewArray extends OperatorBase {
 
     @Override
     public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-
         Class<?> type = this.findArrayClassType(context, list);
         type = ExpressUtil.getSimpleDataType(type);
         int[] dims = new int[1];

@@ -9,7 +9,6 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.parse.ExpressNode;
 
 public class OperatorFactory {
-
     /**
      * 是否需要高精度计算
      */
