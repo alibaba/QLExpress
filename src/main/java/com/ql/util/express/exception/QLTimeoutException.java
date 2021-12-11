@@ -6,12 +6,12 @@ package com.ql.util.express.exception;
  * @author tianqiao@taobao.com
  * @since 2019/6/18 10:36 AM
  */
-public class QLTimeoutException1 extends QLException {
+public class QLTimeoutException extends QLException {
 
-    public QLTimeoutException1() {
+    public QLTimeoutException() {
     }
 
-    public QLTimeoutException1(String message) {
+    public QLTimeoutException(String message) {
         super(message);
     }
 }
