@@ -106,7 +106,7 @@ public class QLPattern {
                             if (resultDetail.getMatchSize() > 1) {
                                 throw new QLCompileException("设置了类型转换的语法，只能有一个根节点");
                             }
-                            resultDetail.getMatches().get(0).targetNodeType = pattern.targetNodeType;
+                            resultDetail.getMatches().get(0).setTargetNodeType(pattern.targetNodeType);
                         }
                     }
 

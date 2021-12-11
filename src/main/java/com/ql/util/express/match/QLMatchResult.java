@@ -12,15 +12,6 @@ public class QLMatchResult {
         this.matches.clear();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        for (QLMatchResultTree item : matches) {
-            item.printNode(builder, 1);
-        }
-        return builder.toString();
-    }
-
     public List<QLMatchResultTree> getMatches() {
         return matches;
     }
@@ -46,5 +37,14 @@ public class QLMatchResult {
     public QLMatchResult setMatchLastIndex(int index) {
         this.matchLastIndex = index;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (QLMatchResultTree item : matches) {
+            item.printNode(builder, 1);
+        }
+        return builder.toString();
     }
 }

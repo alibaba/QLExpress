@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResultTree {
-    final INodeType matchNodeType;
-    final IDataNode ref;
+    private final INodeType matchNodeType;
+    private final IDataNode ref;
 
-    INodeType targetNodeType;
+    private INodeType targetNodeType;
     private List<QLMatchResultTree> left;
     private List<QLMatchResultTree> right;
 
@@ -77,13 +77,6 @@ public class QLMatchResultTree {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        printNode(builder, 1);
-        return builder.toString();
-    }
-
     public void printNode(StringBuilder builder, int level) {
         builder.append(level).append(":");
         for (int i = 0; i < level; i++) {
@@ -101,5 +94,16 @@ public class QLMatchResultTree {
                 item.printNode(builder, level + 1);
             }
         }
+    }
+
+    public void setTargetNodeType(INodeType targetNodeType) {
+        this.targetNodeType = targetNodeType;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        printNode(builder, 1);
+        return builder.toString();
     }
 }
