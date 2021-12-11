@@ -13,7 +13,8 @@ public class OperatorFactory {
      * 是否需要高精度计算
      */
     protected final boolean isPrecise;
-    private final Map<String, OperatorBase> operator = new HashMap<>();
+
+    private final Map<String, OperatorBase> operatorMap = new HashMap<>();
 
     public OperatorFactory(boolean aIsPrecise) {
         this.isPrecise = aIsPrecise;
@@ -55,7 +56,8 @@ public class OperatorFactory {
         addOperator("function", new OperatorFunction("function"));
         addOperator("in", new OperatorIn("in"));
         addOperator("like", new OperatorLike("like"));
-        //bit operator
+
+        // bit operator
         addOperator("&", new OperatorBit("&"));
         addOperator("|", new OperatorBit("|"));
         addOperator("^", new OperatorBit("^"));
@@ -64,29 +66,28 @@ public class OperatorFactory {
         addOperator(">>", new OperatorBit(">>"));
     }
 
-    public void addOperator(String name, OperatorBase op) {
-        OperatorBase oldOp = this.operator.get(name);
-        if (oldOp != null) {
-            throw new RuntimeException("重复定义操作符：" + name + "定义1："
-                + oldOp.getClass() + " 定义2：" + op.getClass());
+    public void addOperator(String name, OperatorBase operatorBase) {
+        OperatorBase existOperator = this.operatorMap.get(name);
+        if (existOperator != null) {
+            throw new RuntimeException("重复定义操作符：" + name + "定义1：" + existOperator.getClass() + " 定义2：" + operatorBase.getClass());
         }
-        op.setPrecise(this.isPrecise);
-        op.setAliasName(name);
-        operator.put(name, op);
+        operatorBase.setPrecise(this.isPrecise);
+        operatorBase.setAliasName(name);
+        operatorMap.put(name, operatorBase);
     }
 
     public OperatorBase replaceOperator(String name, OperatorBase op) {
-        OperatorBase old = this.operator.remove(name);
+        OperatorBase old = this.operatorMap.remove(name);
         this.addOperator(name, op);
         return old;
     }
 
     @SuppressWarnings("unchecked")
     public void addOperatorWithAlias(String aAliasName, String name, String errorInfo) throws Exception {
-        if (!this.operator.containsKey(name)) {
+        if (!this.operatorMap.containsKey(name)) {
             throw new QLException(name + " 不是系统级别的操作符号，不能设置别名");
         } else {
-            OperatorBase originalOperator = this.operator.get(name);
+            OperatorBase originalOperator = this.operatorMap.get(name);
             if (originalOperator == null) {
                 throw new QLException(name + " 不能被设置别名");
             }
@@ -106,7 +107,7 @@ public class OperatorFactory {
                 }
                 destOperator = constructor.newInstance(aAliasName, name, errorInfo);
             }
-            if (this.operator.containsKey(aAliasName)) {
+            if (this.operatorMap.containsKey(aAliasName)) {
                 throw new RuntimeException("操作符号：\"" + aAliasName + "\" 已经存在");
             }
             this.addOperator(aAliasName, destOperator);
@@ -114,23 +115,23 @@ public class OperatorFactory {
     }
 
     public boolean isExistOperator(String operatorName) {
-        return operator.containsKey(operatorName);
+        return operatorMap.containsKey(operatorName);
     }
 
     public OperatorBase getOperator(String aOperatorName) {
-        return this.operator.get(aOperatorName);
+        return this.operatorMap.get(aOperatorName);
     }
 
     /**
      * 创建一个新的操作符实例
      */
     public OperatorBase newInstance(ExpressNode opItem) throws Exception {
-        OperatorBase op = operator.get(opItem.getNodeType().getName());
+        OperatorBase op = operatorMap.get(opItem.getNodeType().getName());
         if (op == null) {
-            op = operator.get(opItem.getTreeType().getName());
+            op = operatorMap.get(opItem.getTreeType().getName());
         }
         if (op == null) {
-            op = operator.get(opItem.getValue());
+            op = operatorMap.get(opItem.getValue());
         }
         if (op == null) {
             throw new QLCompileException("没有为\"" + opItem.getValue() + "\"定义操作符处理对象");
@@ -139,7 +140,7 @@ public class OperatorFactory {
     }
 
     public OperatorBase newInstance(String opName) throws Exception {
-        OperatorBase op = operator.get(opName);
+        OperatorBase op = operatorMap.get(opName);
         if (op == null) {
             throw new QLCompileException("没有为\"" + opName + "\"定义操作符处理对象");
         }

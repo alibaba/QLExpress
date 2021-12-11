@@ -31,8 +31,8 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         this.serviceObject = aServiceObject;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
-        this.operatorDataDesc = aParameterDesc;
-        this.operatorDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = aParameterDesc;
+        this.operateDataAnnotation = aParameterAnnotation;
         this.parameterTypes = new String[this.parameterClasses.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
@@ -51,8 +51,8 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         this.serviceObject = aServiceObject;
         this.functionName = aFunctionName;
         this.parameterTypes = aParameterTypes;
-        this.operatorDataDesc = aParameterDesc;
-        this.operatorDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = aParameterDesc;
+        this.operateDataAnnotation = aParameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterClasses[i] = ExpressUtil.getJavaClass(this.parameterTypes[i]);
@@ -65,7 +65,7 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     @Override
     public OperatorBase cloneMe(String operatorName, String errorInfo) throws Exception {
         return new OperatorSelfDefineServiceFunction(operatorName, this.serviceObject, this.functionName,
-            this.parameterClasses, this.operatorDataDesc, this.operatorDataAnnotation, errorInfo);
+            this.parameterClasses, this.operateDataDesc, this.operateDataAnnotation, errorInfo);
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.ql.util.express.exception.QLException;
  * Created by tianqiao on 16/12/15.
  */
 public class OperatorBit extends Operator {
-
     public OperatorBit(String name) {
         this.name = name;
     }

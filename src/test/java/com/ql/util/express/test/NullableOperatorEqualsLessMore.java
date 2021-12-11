@@ -16,6 +16,7 @@ public class NullableOperatorEqualsLessMore extends OperatorEqualsLessMore {
         super(aAliasName, aName, aErrorInfo);
     }
 
+    @Override
     public Object executeInner(Object op1, Object op2) throws Exception {
         return executeInner(this.name, op1, op2);
     }

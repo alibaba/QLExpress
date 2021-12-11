@@ -25,10 +25,8 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
  * @author qhlhl2010@gmail.com
  */
 public abstract class OperatorBase {
-    protected String aliasName;
-
     protected String name;
-
+    protected String aliasName;
     protected String errorInfo;
 
     /**
@@ -39,12 +37,12 @@ public abstract class OperatorBase {
     /**
      * 操作数描述
      */
-    protected String[] operatorDataDesc;
+    protected String[] operateDataDesc;
 
     /**
      * 操作数的其它定义
      */
-    protected String[] operatorDataAnnotation;
+    protected String[] operateDataAnnotation;
 
     public Object[] toObjectList(InstructionSetContext parent, ArraySwap list) throws Exception {
         if (list == null) {
@@ -90,12 +88,12 @@ public abstract class OperatorBase {
 
     public abstract OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception;
 
-    public String[] getOperatorDataDesc() {
-        return this.operatorDataDesc;
+    public String[] getOperateDataDesc() {
+        return this.operateDataDesc;
     }
 
-    public String[] getOperatorDataAnnotation() {
-        return this.operatorDataAnnotation;
+    public String[] getOperateDataAnnotation() {
+        return this.operateDataAnnotation;
     }
 
     public void setName(String aName) {

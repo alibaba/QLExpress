@@ -36,7 +36,8 @@ public class OperatorEqualsLessMore extends Operator {
         if ("!=".equals(opStr) || "<>".equals(opStr)) {
             return !Operator.objectEquals(obj1, obj2);
         }
-        //进行其他大小比较操作
+
+        // 进行其他大小比较操作
         if (obj1 == null || obj2 == null) {
             if (isCompareNullLessMoreAsFalse()) {
                 return false;

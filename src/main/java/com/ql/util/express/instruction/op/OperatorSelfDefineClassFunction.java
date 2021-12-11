@@ -33,8 +33,8 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operatorDataDesc = aParameterDesc;
-        this.operatorDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = aParameterDesc;
+        this.operateDataAnnotation = aParameterAnnotation;
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
         }
@@ -52,8 +52,8 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operatorDataDesc = aParameterDesc;
-        this.operatorDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = aParameterDesc;
+        this.operateDataAnnotation = aParameterAnnotation;
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
         }
@@ -70,8 +70,8 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         this.errorInfo = aErrorInfo;
         this.functionName = aFunctionName;
         this.parameterTypes = aParameterTypes;
-        this.operatorDataDesc = aParameterDesc;
-        this.operatorDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = aParameterDesc;
+        this.operateDataAnnotation = aParameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterClasses[i] = ExpressUtil.getJavaClass(this.parameterTypes[i]);
@@ -84,7 +84,7 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     @Override
     public OperatorBase cloneMe(String opName, String errorInfo) throws Exception {
         return new OperatorSelfDefineClassFunction(opName, this.operatorClass.getName(), this.functionName,
-            this.parameterClasses, this.operatorDataDesc, this.operatorDataAnnotation, errorInfo);
+            this.parameterClasses, this.operateDataDesc, this.operateDataAnnotation, errorInfo);
     }
 
     @Override

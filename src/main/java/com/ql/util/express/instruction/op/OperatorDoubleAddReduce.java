@@ -13,8 +13,7 @@ public class OperatorDoubleAddReduce extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext parent,
-        ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Object obj = list.get(0).getObject(parent);
         Object result = null;
         if ("++".equals(this.getName())) {
