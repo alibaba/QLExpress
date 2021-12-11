@@ -9,9 +9,8 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
 import com.ql.util.express.instruction.opdata.OperateDataVirClass;
 
 public class InstructionNewVirClass extends Instruction {
-
-    final String className;
-    final int opDataNumber;
+    private final String className;
+    private final int opDataNumber;
 
     public InstructionNewVirClass(String name, int aOpDataNumber) {
         this.className = name;
@@ -23,10 +22,8 @@ public class InstructionNewVirClass extends Instruction {
     }
 
     @Override
-    public void execute(RunEnvironment environment, List<String> errorList)
-        throws Exception {
-        ArraySwap parameters = environment.popArray(
-            environment.getContext(), this.opDataNumber);
+    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
+        ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
             StringBuilder str = new StringBuilder("new VClass(");
             OperateData p;
@@ -54,13 +51,11 @@ public class InstructionNewVirClass extends Instruction {
         OperateDataVirClass result = new OperateDataVirClass(className);
         environment.push(result);
         environment.programPointAddOne();
-        result.initialInstance(environment.getContext(), list, errorList,
-            environment.isTrace(), log);
+        result.initialInstance(environment.getContext(), list, errorList, environment.isTrace(), log);
     }
 
     @Override
     public String toString() {
-        return "new VClass[" + this.className + "] OPNUMBER["
-            + this.opDataNumber + "]";
+        return "new VClass[" + this.className + "] OPNUMBER[" + this.opDataNumber + "]";
     }
 }

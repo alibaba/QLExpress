@@ -5,8 +5,7 @@ import java.util.List;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionReturn extends Instruction {
-
-    final boolean haveReturnValue;
+    private final boolean haveReturnValue;
 
     public InstructionReturn(boolean aHaveReturnValue) {
         this.haveReturnValue = aHaveReturnValue;

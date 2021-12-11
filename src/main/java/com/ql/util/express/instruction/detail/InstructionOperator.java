@@ -11,9 +11,8 @@ import com.ql.util.express.instruction.op.OperatorBase;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class InstructionOperator extends Instruction {
-
-    final OperatorBase operator;
-    final int opDataNumber;
+    private final OperatorBase operator;
+    private final int opDataNumber;
 
     public InstructionOperator(OperatorBase aOperator, int aOpDataNumber) {
         this.operator = aOperator;
@@ -29,16 +28,16 @@ public class InstructionOperator extends Instruction {
         ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
             StringBuilder str = new StringBuilder(this.operator.toString() + "(");
-            OperateData p;
+            OperateData operateData;
             for (int i = 0; i < parameters.length; i++) {
-                p = parameters.get(i);
+                operateData = parameters.get(i);
                 if (i > 0) {
                     str.append(",");
                 }
-                if (p instanceof OperateDataAttr) {
-                    str.append(p).append(":").append(p.getObject(environment.getContext()));
+                if (operateData instanceof OperateDataAttr) {
+                    str.append(operateData).append(":").append(operateData.getObject(environment.getContext()));
                 } else {
-                    str.append(p);
+                    str.append(operateData);
                 }
             }
             str.append(")");

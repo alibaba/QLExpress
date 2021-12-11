@@ -7,8 +7,7 @@ import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class InstructionLoadAttr extends Instruction {
-
-    final String attrName;
+    private final String attrName;
 
     public InstructionLoadAttr(String aName) {
         this.attrName = aName;
