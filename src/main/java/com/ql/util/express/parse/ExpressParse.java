@@ -382,14 +382,14 @@ public class ExpressParse {
                     tempList2.add(node);
                     //取出 ( 前面的类路径作为configClass名称
                     int end = i + 1;
-                    String configClass = tempList.get(end).getValue();
+                    StringBuilder configClass = new StringBuilder(tempList.get(end).getValue());
                     end++;
                     while (!"(".equals(tempList.get(end).getValue())) {
-                        configClass = configClass + tempList.get(end).getValue();
+                        configClass.append(tempList.get(end).getValue());
                         end++;
                     }
                     NodeType nodeType = nodeTypeManager.findNodeType("VClass");
-                    ExpressNode vClassNode = new ExpressNode(nodeType, configClass);
+                    ExpressNode vClassNode = new ExpressNode(nodeType, configClass.toString());
                     tempList2.add(vClassNode);
                     //因为循环之后，i++，所以i=end-1
                     i = end - 1;

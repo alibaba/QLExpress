@@ -69,8 +69,7 @@ public class InstructionSet {
 
     public String[] getOutFunctionNames() {
         Map<String, String> result = new TreeMap<>();
-        for (int i = 0; i < instructionList.length; i++) {
-            Instruction instruction = instructionList[i];
+        for (Instruction instruction : instructionList) {
             if (instruction instanceof InstructionCallSelfDefineFunction) {
                 String functionName = ((InstructionCallSelfDefineFunction)instruction).getFunctionName();
                 if (!functionDefine.containsKey(functionName)) {
@@ -83,8 +82,7 @@ public class InstructionSet {
 
     public String[] getVirClasses() {
         Map<String, String> result = new TreeMap<>();
-        for (int i = 0; i < instructionList.length; i++) {
-            Instruction instruction = instructionList[i];
+        for (Instruction instruction : instructionList) {
             if (instruction instanceof InstructionNewVirClass) {
                 String functionName = ((InstructionNewVirClass)instruction).getClassName();
                 result.put(functionName, null);

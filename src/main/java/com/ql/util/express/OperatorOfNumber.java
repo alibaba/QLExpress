@@ -1,6 +1,7 @@
 package com.ql.util.express;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.ql.util.express.exception.QLException;
 
@@ -28,7 +29,7 @@ public class OperatorOfNumber {
         }
         BigDecimal bigDecimal = BigDecimal.valueOf(v);
         BigDecimal oneBigDecimal = new BigDecimal("1");
-        return bigDecimal.divide(oneBigDecimal, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return bigDecimal.divide(oneBigDecimal, scale, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
@@ -443,18 +444,18 @@ class PreciseNumberOperator {
         BigDecimal result;
         if (op1 instanceof BigDecimal) {
             if (op2 instanceof BigDecimal) {
-                result = ((BigDecimal)op1).divide((BigDecimal)op2, DIVIDE_PRECISION, BigDecimal.ROUND_HALF_UP);
+                result = ((BigDecimal)op1).divide((BigDecimal)op2, DIVIDE_PRECISION, RoundingMode.HALF_UP);
             } else {
                 result = ((BigDecimal)op1).divide(new BigDecimal(op2.toString()), DIVIDE_PRECISION,
-                    BigDecimal.ROUND_HALF_UP);
+                    RoundingMode.HALF_UP);
             }
         } else {
             if (op2 instanceof BigDecimal) {
                 result = new BigDecimal(op1.toString()).divide((BigDecimal)op2, DIVIDE_PRECISION,
-                    BigDecimal.ROUND_HALF_UP);
+                    RoundingMode.HALF_UP);
             } else {
                 result = new BigDecimal(op1.toString()).divide(new BigDecimal(op2.toString()), DIVIDE_PRECISION,
-                    BigDecimal.ROUND_HALF_UP);
+                    RoundingMode.HALF_UP);
             }
         }
         if (result.scale() == 0) {

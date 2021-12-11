@@ -14,8 +14,6 @@ public class OperatorRound extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) {
-        double r = OperatorOfNumber.round(
-            ((Number)op1).doubleValue(), ((Number)op2).intValue());
-        return r;
+        return OperatorOfNumber.round(((Number)op1).doubleValue(), ((Number)op2).intValue());
     }
 }

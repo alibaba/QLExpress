@@ -49,7 +49,7 @@ public class WordSplit {
                 StringBuilder tmpResult = new StringBuilder();
                 int tmpPoint = tempDealStr.indexOf("\\");
                 while (tmpPoint >= 0) {
-                    tmpResult.append(tempDealStr.substring(0, tmpPoint));
+                    tmpResult.append(tempDealStr, 0, tmpPoint);
                     if (tmpPoint == tempDealStr.length() - 1) {
                         throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
                     }
@@ -108,10 +108,7 @@ public class WordSplit {
     }
 
     public static String[] sortSplitWord(String[] splitWord) {
-        Arrays.sort(splitWord, (o1, o2) -> {
-            return Integer.compare(o2.length(), o1.length());
-
-        });
+        Arrays.sort(splitWord, (o1, o2) -> Integer.compare(o2.length(), o1.length()));
         return splitWord;
     }
 

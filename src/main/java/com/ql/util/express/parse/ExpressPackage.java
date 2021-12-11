@@ -99,12 +99,12 @@ public class ExpressPackage {
             }
         }
         if (this.packages != null) {
-            for (int i = 0; i < packages.size(); i++) {
+            for (String aPackage : packages) {
                 String tmp;
-                if (packages.get(i).endsWith("." + name)) {
-                    tmp = packages.get(i);
+                if (aPackage.endsWith("." + name)) {
+                    tmp = aPackage;
                 } else {
-                    tmp = packages.get(i) + "." + name;
+                    tmp = aPackage + "." + name;
                 }
                 try {
                     result = Class.forName(tmp);

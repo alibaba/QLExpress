@@ -3,7 +3,6 @@ package com.ql.util.express.parse;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.Operator;
 
 /**
@@ -27,8 +26,7 @@ public class AppendingClassFieldManager {
         return null;
     }
 
-    public Object invoke(AppendingField appendingField, InstructionSetContext context, Object aFieldObject,
-        List<String> errorList) throws Exception {
+    public Object invoke(AppendingField appendingField, Object aFieldObject) throws Exception {
         Operator op = appendingField.op;
         return op.executeInner(new Object[] {aFieldObject});
     }

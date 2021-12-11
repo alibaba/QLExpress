@@ -25,8 +25,8 @@ public class CastInstructionFactory extends InstructionFactory {
             throw new QLException("扩展操作只能有一个类型为Class的操作数,当前的数据类型是：" + children[0].getNodeType().getName());
         }
 
-        for (int i = 0; i < children.length; i++) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, children[i], false);
+        for (ExpressNode child : children) {
+            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

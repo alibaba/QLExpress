@@ -22,14 +22,14 @@ public class IfInstructionFactory extends InstructionFactory {
         }
         ExpressNode[] children = new ExpressNode[3];
         int point = 0;
-        for (int i = 0; i < oldChildren.length; i++) {
-            if (oldChildren[i].isTypeEqualsOrChild("then")
-                || oldChildren[i].isTypeEqualsOrChild("else")
-                || oldChildren[i].isTypeEqualsOrChild("?")
-                || oldChildren[i].isTypeEqualsOrChild(":")) {
+        for (ExpressNode oldChild : oldChildren) {
+            if (oldChild.isTypeEqualsOrChild("then")
+                || oldChild.isTypeEqualsOrChild("else")
+                || oldChild.isTypeEqualsOrChild("?")
+                || oldChild.isTypeEqualsOrChild(":")) {
                 continue;
             }
-            children[point] = oldChildren[i];
+            children[point] = oldChild;
             point = point + 1;
         }
         if (point == 2) {

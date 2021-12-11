@@ -32,8 +32,8 @@ public class NewInstructionFactory extends InstructionFactory {
 
         // 需要重新获取数据
         children = node.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, children[i], false);
+        for (ExpressNode child : children) {
+            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

@@ -24,8 +24,7 @@ class KeyValueInstructionFactory extends InstructionFactory {
             && children[1].isTypeEqualsOrChild("STAT_BLOCK")) {
             returnVal = new MacroInstructionFactory().createInstruction(aCompile, result, forStack, node, isRoot);
         } else if (node.getParent() != null && node.getParent().isTypeEqualsOrChild("STATEMENT")) {
-            for (int i = 0; i < children.length; i++) {
-                ExpressNode tmpNode = children[i];
+            for (ExpressNode tmpNode : children) {
                 boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
                 returnVal = returnVal || tmpHas;
             }
@@ -33,8 +32,7 @@ class KeyValueInstructionFactory extends InstructionFactory {
             result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
             returnVal = true;
         } else {
-            for (int i = 0; i < children.length; i++) {
-                ExpressNode tmpNode = children[i];
+            for (ExpressNode tmpNode : children) {
                 boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
                 returnVal = returnVal || tmpHas;
             }

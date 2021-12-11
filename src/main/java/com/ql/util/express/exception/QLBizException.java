@@ -7,6 +7,7 @@ package com.ql.util.express.exception;
  * @since 2019/6/18 2:13 PM
  */
 public class QLBizException extends Exception {
+    private static final long serialVersionUID = -5602081330453002691L;
 
     public QLBizException() {
     }

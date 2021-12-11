@@ -39,7 +39,6 @@ public class OperatorOr extends Operator {
             String msg = "没有定义类型" + op1 + "和" + op2 + " 的 " + this.name + "操作";
             throw new QLException(msg);
         }
-        boolean result = r1 || r2;
-        return result;
+        return r1 || r2;
     }
 }

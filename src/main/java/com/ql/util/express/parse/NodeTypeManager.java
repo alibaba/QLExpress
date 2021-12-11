@@ -48,8 +48,8 @@ public class NodeTypeManager implements INodeTypeManager {
             tempKeyWordNodeTypes[i + splitWord.length] = this.createNodeType(keyWords[i] + ":TYPE=KEYWORD");
         }
         // 初始化所有的类型信息，
-        for (int i = 0; i < tempKeyWordNodeTypes.length; i++) {
-            tempKeyWordNodeTypes[i].initial();
+        for (NodeType tempKeyWordNodeType : tempKeyWordNodeTypes) {
+            tempKeyWordNodeType.initial();
         }
 
         // 创建所有的类型信息，但不能初始化
@@ -58,8 +58,8 @@ public class NodeTypeManager implements INodeTypeManager {
             nodeTypes[i] = this.createNodeType(nodeTypeDefines[i]);
         }
         // 初始化所有的类型信息，
-        for (int i = 0; i < nodeTypes.length; i++) {
-            nodeTypes[i].initial();
+        for (NodeType nodeType : nodeTypes) {
+            nodeType.initial();
         }
 
         //初始化指令Factory

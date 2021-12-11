@@ -27,12 +27,12 @@ public class OperatorLike extends Operator {
         if (s2.contains("%")) {
             String[] list = split(s2, "%");
             int index = 0;
-            for (int i = 0; i < list.length; i++) {
+            for (String s : list) {
                 if (index >= s1.length()) {
                     result = false;
                     break;
                 }
-                index = s1.indexOf(list[i], index);
+                index = s1.indexOf(s, index);
                 if (index < 0) {
                     result = false;
                     break;

@@ -80,7 +80,7 @@ public class OperateDataField extends OperateDataAttr {
             AppendingClassFieldManager.AppendingField appendingField
                 = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.originalFieldName);
             if (appendingField != null) {
-                return appendingClassFieldManager.invoke(appendingField, context, this.fieldObject, null);
+                return appendingClassFieldManager.invoke(appendingField, this.fieldObject);
             }
         }
         //如果能找到aFieldName的定义,则再次运算

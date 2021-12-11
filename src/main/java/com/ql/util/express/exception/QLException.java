@@ -7,6 +7,7 @@ package com.ql.util.express.exception;
  * @since 2019/6/18 2:13 PM
  */
 public class QLException extends Exception {
+    private static final long serialVersionUID = -1861857045313408218L;
 
     public QLException() {
     }

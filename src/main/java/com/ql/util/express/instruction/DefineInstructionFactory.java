@@ -15,7 +15,6 @@ class DefineInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildren();
-        int[] finishPoint = new int[children.length];
         int arrayDimeCount = 0;
         String tempStr = "";
         for (int i = children.length - 2; i > 0; i--) {
@@ -43,8 +42,7 @@ class DefineInstructionFactory extends InstructionFactory {
         children = node.getChildren();
         for (int i = 0; i < children.length; i++) {
             ExpressNode tmpNode = children[i];
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
-            finishPoint[i] = result.getCurrentPoint();
+            aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
         }
         OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

@@ -17,15 +17,15 @@ public class InInstructionFactory extends InstructionFactory {
         if (children[1].isTypeEqualsOrChild("CHILD_EXPRESS")) {
             node.getLeftChildren().remove(1);
             ExpressNode[] parameterList = children[1].getChildren();
-            for (int i = 0; i < parameterList.length; i++) {
-                node.getLeftChildren().add(parameterList[i]);
+            for (ExpressNode expressNode : parameterList) {
+                node.getLeftChildren().add(expressNode);
             }
         }
 
         boolean returnVal = false;
         children = node.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, children[i], false);
+        for (ExpressNode child : children) {
+            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
         OperatorBase op = aCompile.getOperatorFactory().newInstance(node);

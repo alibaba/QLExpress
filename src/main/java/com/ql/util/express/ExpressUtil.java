@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ql.util.express.annotation.QLAlias;
-import com.ql.util.express.annotation.QLAliasUtils;
+import com.ql.util.express.util.QLAliasUtils;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -175,8 +175,8 @@ public class ExpressUtil {
             return true;
         }
 
-        for (int i = 0; i < CLASS_MATCHES.length; i++) {
-            if (target == CLASS_MATCHES[i][0] && source == CLASS_MATCHES[i][1]) {
+        for (Class<?>[] classMatch : CLASS_MATCHES) {
+            if (target == classMatch[0] && source == classMatch[1]) {
                 return true;
             }
         }
@@ -320,10 +320,10 @@ public class ExpressUtil {
         Constructor<?>[] constructors = baseClass.getConstructors();
         List<Constructor<?>> constructorList = new ArrayList<>();
         List<Class<?>[]> listClass = new ArrayList<>();
-        for (int i = 0; i < constructors.length; i++) {
-            if (constructors[i].getParameterTypes().length == types.length) {
-                listClass.add(constructors[i].getParameterTypes());
-                constructorList.add(constructors[i]);
+        for (Constructor<?> constructor : constructors) {
+            if (constructor.getParameterTypes().length == types.length) {
+                listClass.add(constructor.getParameterTypes());
+                constructorList.add(constructor);
             }
         }
 
@@ -350,8 +350,8 @@ public class ExpressUtil {
         addCandidates(baseClass.getDeclaredMethods(), methodName, numArgs, publicOnly, isStatic, candidates);
 
         Class<?>[] interfaces = baseClass.getInterfaces();
-        for (int i = 0; i < interfaces.length; i++) {
-            gatherMethodsRecursive(interfaces[i], methodName, numArgs, publicOnly, isStatic, candidates);
+        for (Class<?> anInterface : interfaces) {
+            gatherMethodsRecursive(anInterface, methodName, numArgs, publicOnly, isStatic, candidates);
         }
 
         Class<?> superclass = baseClass.getSuperclass();
@@ -364,8 +364,7 @@ public class ExpressUtil {
 
     private static List<Method> addCandidates(Method[] methods, String methodName,
         int numArgs, boolean publicOnly, boolean isStatic, List<Method> candidates) {
-        for (int i = 0; i < methods.length; i++) {
-            Method m = methods[i];
+        for (Method m : methods) {
             if (m.getName().equals(methodName)
                 && (m.getParameterTypes().length == numArgs)
                 && (!publicOnly || isPublic(m)
@@ -374,8 +373,8 @@ public class ExpressUtil {
             } else if (m.isAnnotationPresent(QLAlias.class)) {
                 String[] values = m.getAnnotation(QLAlias.class).value();
                 if (values.length > 0) {
-                    for (int j = 0; j < values.length; j++) {
-                        if (values[j].equals(methodName) && (m.getParameterTypes().length == numArgs)
+                    for (String value : values) {
+                        if (value.equals(methodName) && (m.getParameterTypes().length == numArgs)
                             && (!publicOnly || isPublic(m)
                             && (!isStatic || isStatic(m)))) {candidates.add(m);}
                     }
@@ -684,8 +683,8 @@ public class ExpressUtil {
             if (declareType != valueType) {
                 Object[] values = (Object[])value;
                 boolean allBlank = true;
-                for (int i = 0; i < values.length; i++) {
-                    if (values[i] != null) {
+                for (Object o : values) {
+                    if (o != null) {
                         allBlank = false;
                         break;
                     }

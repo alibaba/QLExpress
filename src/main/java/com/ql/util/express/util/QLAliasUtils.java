@@ -1,9 +1,10 @@
-package com.ql.util.express.annotation;
+package com.ql.util.express.util;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ql.util.express.annotation.QLAlias;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**

@@ -46,8 +46,8 @@ public class OperatorIn extends Operator {
             } else if (list[1] instanceof List) {
                 @SuppressWarnings("unchecked")
                 List<Object> array = (List<Object>)list[1];
-                for (int i = 0; i < array.size(); i++) {
-                    boolean f = OperatorEqualsLessMore.executeInner("==", obj, array.get(i));
+                for (Object o : array) {
+                    boolean f = OperatorEqualsLessMore.executeInner("==", obj, o);
                     if (f) {
                         return Boolean.TRUE;
                     }
