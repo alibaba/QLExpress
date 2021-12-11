@@ -16,26 +16,31 @@ enum MatchMode {
 
 public class QLPatternNode {
     private static final Log log = LogFactory.getLog(QLPatternNode.class);
-    final INodeTypeManager nodeTypeManager;
+
+    private final INodeTypeManager nodeTypeManager;
 
     final String name;
 
     /**
      * 原始的字符串
      */
-    final String originalContent;
+    private final String originalContent;
+
     /**
      * 匹配模式
      */
     MatchMode matchMode = MatchMode.NULL;
+
     /**
      * 是否一个子匹配模式
      */
-    boolean isChildMode;
+    private boolean isChildMode;
+
     /**
      * 层次
      */
-    final int level;
+    private final int level;
+
     /**
      * 是否根节点,例如：if^
      */
@@ -151,16 +156,14 @@ public class QLPatternNode {
             } else if (originalStr.charAt(i) == '$') {
                 if (this.matchMode != MatchMode.NULL
                     && this.matchMode != MatchMode.AND) {
-                    throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:"
-                        + originalStr);
+                    throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:" + originalStr);
                 }
                 children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",
                     tempStr.toString(), false, this.level + 1));
                 this.matchMode = MatchMode.AND;
                 tempStr = new StringBuilder();
             } else if (originalStr.charAt(i) == '|') {
-                if (this.matchMode != MatchMode.NULL
-                    && this.matchMode != MatchMode.OR) {
+                if (this.matchMode != MatchMode.NULL && this.matchMode != MatchMode.OR) {
                     throw new QLCompileException("不正确的模式串,在一个匹配模式中不能|,$并存,请使用字串模式:" + originalStr);
                 }
                 children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",

@@ -32,11 +32,11 @@ public class AppendingClassFieldManager {
     }
 
     public static class AppendingField {
-        public final String name;
+        private final String name;
 
-        public final Class<?> bindingClass;
+        private final Class<?> bindingClass;
 
-        public final Operator op;
+        private final Operator op;
 
         public final Class<?> returnType;
 

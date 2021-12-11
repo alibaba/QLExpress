@@ -9,16 +9,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class QLPattern {
-
     private static final Log log = LogFactory.getLog(QLPattern.class);
 
     /**
      * 优化栈的递归深度
+     * TODO public field
      */
     public static boolean optimizeStackDepth = true;
 
     /**
      * 打印栈的最大深度
+     * TODO public field
      */
     public static boolean printStackDepth = false;
 
