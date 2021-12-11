@@ -12,7 +12,7 @@ public class BreakInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) {
         InstructionGoTo breakInstruction = new InstructionGoTo(result.getCurrentPoint() + 1);
-        breakInstruction.name = "break";
+        breakInstruction.setName("break");
         forStack.peek().breakList.add(breakInstruction);
         result.addInstruction(breakInstruction.setLine(node.getLine()));
         return false;

@@ -7,11 +7,10 @@ import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class InstructionConstData extends Instruction {
+    private final OperateData operateData;
 
-    final OperateData operateData;
-
-    public InstructionConstData(OperateData data) {
-        this.operateData = data;
+    public InstructionConstData(OperateData operateData) {
+        this.operateData = operateData;
     }
 
     public OperateData getOperateData() {
@@ -19,12 +18,10 @@ public class InstructionConstData extends Instruction {
     }
 
     @Override
-    public void execute(RunEnvironment environment, List<String> errorList)
-        throws Exception {
+    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         if (environment.isTrace() && log.isDebugEnabled()) {
             if (this.operateData instanceof OperateDataAttr) {
-                log.debug(this + ":"
-                    + this.operateData.getObject(environment.getContext()));
+                log.debug(this + ":" + this.operateData.getObject(environment.getContext()));
             } else {
                 log.debug(this);
             }

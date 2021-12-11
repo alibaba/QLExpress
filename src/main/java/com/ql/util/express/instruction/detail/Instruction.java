@@ -30,6 +30,5 @@ public abstract class Instruction {
         return "run QlExpress Exception at line " + line + " :";
     }
 
-    public abstract void execute(RunEnvironment environment, List<String> errorList)
-        throws Exception;
+    public abstract void execute(RunEnvironment environment, List<String> errorList) throws Exception;
 }

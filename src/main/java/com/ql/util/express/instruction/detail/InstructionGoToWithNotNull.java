@@ -5,12 +5,11 @@ import java.util.List;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionGoToWithNotNull extends Instruction {
-
     /**
      * 跳转指令的偏移量
      */
-    int offset;
-    boolean isPopStackData;
+    private final int offset;
+    private final boolean isPopStackData;
 
     public InstructionGoToWithNotNull(int aOffset, boolean aIsPopStackData) {
         this.offset = aOffset;
@@ -46,21 +45,5 @@ public class InstructionGoToWithNotNull extends Instruction {
         }
         result = result + this.offset;
         return result;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public boolean isPopStackData() {
-        return isPopStackData;
-    }
-
-    public void setPopStackData(boolean isPopStackData) {
-        this.isPopStackData = isPopStackData;
     }
 }

@@ -12,7 +12,7 @@ public class ContinueInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) {
         InstructionGoTo continueInstruction = new InstructionGoTo(result.getCurrentPoint() + 1);
-        continueInstruction.name = "continue";
+        continueInstruction.setName("continue");
         forStack.peek().continueList.add(continueInstruction);
         result.addInstruction(continueInstruction.setLine(node.getLine()));
         return false;

@@ -10,8 +10,7 @@ import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionCallMacro extends Instruction {
-
-    final String name;
+    private final String name;
 
     public InstructionCallMacro(String aName) {
         this.name = aName;
@@ -24,17 +23,10 @@ public class InstructionCallMacro extends Instruction {
         }
 
         InstructionSetContext context = environment.getContext();
-
         Object functionSet = context.getSymbol(this.name);
 
-        Object result = InstructionSetRunner.execute(
-            context.getExpressRunner(),
-            (InstructionSet)functionSet,
-            context.getExpressLoader(),
-            context,
-            errorList,
-            environment.isTrace(),
-            false, false, log,
+        Object result = InstructionSetRunner.execute(context.getExpressRunner(), (InstructionSet)functionSet,
+            context.getExpressLoader(), context, errorList, environment.isTrace(), false, false, log,
             environment.getContext().isSupportDynamicFieldName());
         if (result instanceof OperateData) {
             environment.push((OperateData)result);

@@ -5,12 +5,11 @@ import java.util.List;
 import com.ql.util.express.RunEnvironment;
 
 public class InstructionGoTo extends Instruction {
-
     /**
      * 跳转指令的偏移量
      */
-    int offset;
-    public String name;
+    private int offset;
+    private String name;
 
     public InstructionGoTo(int aOffset) {
         this.offset = aOffset;
@@ -40,5 +39,13 @@ public class InstructionGoTo extends Instruction {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -7,13 +7,12 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class InstructionGoToWithCondition extends Instruction {
-
     /**
      * 跳转指令的偏移量
      */
-    int offset;
-    boolean condition;
-    boolean isPopStackData;
+    private int offset;
+    private final boolean condition;
+    private final boolean isPopStackData;
 
     public InstructionGoToWithCondition(boolean aCondition, int aOffset, boolean aIsPopStackData) {
         this.offset = aOffset;
@@ -54,6 +53,10 @@ public class InstructionGoToWithCondition extends Instruction {
         }
     }
 
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
     @Override
     public String toString() {
         String result = "GoToIf[" + this.condition + ",isPop=" + this.isPopStackData + "] ";
@@ -62,29 +65,5 @@ public class InstructionGoToWithCondition extends Instruction {
         }
         result = result + this.offset;
         return result;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public boolean isCondition() {
-        return condition;
-    }
-
-    public void setCondition(boolean condition) {
-        this.condition = condition;
-    }
-
-    public boolean isPopStackData() {
-        return isPopStackData;
-    }
-
-    public void setPopStackData(boolean isPopStackData) {
-        this.isPopStackData = isPopStackData;
     }
 }

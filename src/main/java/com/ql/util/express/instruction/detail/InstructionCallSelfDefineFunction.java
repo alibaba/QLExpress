@@ -15,9 +15,8 @@ import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 import org.apache.commons.logging.Log;
 
 public class InstructionCallSelfDefineFunction extends Instruction {
-
-    final String functionName;
-    final int opDataNumber;
+    private final String functionName;
+    private final int opDataNumber;
 
     public InstructionCallSelfDefineFunction(String name, int aOpDataNumber) {
         this.functionName = name;
@@ -33,23 +32,20 @@ public class InstructionCallSelfDefineFunction extends Instruction {
     }
 
     @Override
-    public void execute(RunEnvironment environment, List<String> errorList)
-        throws Exception {
-        ArraySwap parameters = environment.popArray(
-            environment.getContext(), this.opDataNumber);
+    public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
+        ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
             StringBuilder str = new StringBuilder(this.functionName + "(");
-            OperateData p;
+            OperateData operateData;
             for (int i = 0; i < parameters.length; i++) {
-                p = parameters.get(i);
+                operateData = parameters.get(i);
                 if (i > 0) {
                     str.append(",");
                 }
-                if (p instanceof OperateDataAttr) {
-                    str.append(p).append(":").append(p.getObject(environment
-                        .getContext()));
+                if (operateData instanceof OperateDataAttr) {
+                    str.append(operateData).append(":").append(operateData.getObject(environment.getContext()));
                 } else {
-                    str.append(p);
+                    str.append(operateData);
                 }
             }
             str.append(")");
@@ -58,12 +54,11 @@ public class InstructionCallSelfDefineFunction extends Instruction {
 
         Object function = environment.getContext().getSymbol(functionName);
         if (!(function instanceof InstructionSet)) {
-            throw new QLException(getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到\"" + this.functionName + "\"的定义");
+            throw new QLException(getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到" + this.functionName + "的定义");
         }
         InstructionSet functionSet = (InstructionSet)function;
-        OperateData result = InstructionCallSelfDefineFunction
-            .executeSelfFunction(environment, functionSet, parameters,
-                errorList, log);
+        OperateData result = InstructionCallSelfDefineFunction.executeSelfFunction(environment, functionSet, parameters,
+            errorList, log);
         environment.push(result);
         environment.programPointAddOne();
     }
