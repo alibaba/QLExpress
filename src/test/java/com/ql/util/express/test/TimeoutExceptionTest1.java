@@ -9,7 +9,7 @@ import org.junit.Test;
  * @author tianqiao@taobao.com
  * @since 2019/6/18 10:52 AM
  */
-public class TimeOutExceptionTest {
+public class TimeoutExceptionTest1 {
 
     private static final String[] expressList = new String[] {
         "sum=0;for(i=0;i<1000000000;i++){sum=sum+i;}return sum;",
