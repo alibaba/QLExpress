@@ -9,8 +9,7 @@ import org.junit.Test;
  * @author tianqiao@taobao.com
  * @since 2019/6/18 10:52 AM
  */
-public class TimeoutExceptionTest1 {
-
+public class TimeoutExceptionTest {
     private static final String[] expressList = new String[] {
         "sum=0;for(i=0;i<1000000000;i++){sum=sum+i;}return sum;",
         "for(i=1;i<10;i++){System.out.println('loop time:'+i);Thread.sleep(300);}"
@@ -18,13 +17,11 @@ public class TimeoutExceptionTest1 {
 
     @Test
     public void test() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
 
         for (String express : expressList) {
             try {
-
                 Object r = runner.execute(express, context, null, true, false, 1000);
                 System.out.println(r);
                 throw new Exception("没有捕获到超时异常");
