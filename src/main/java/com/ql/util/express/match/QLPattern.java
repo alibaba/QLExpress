@@ -28,13 +28,13 @@ public class QLPattern {
         return new QLPatternNode(nodeTypeManager, name, pattern);
     }
 
-    public static QLMatchResult findMatchStatement(INodeTypeManager aManager, QLPatternNode pattern,
+    public static QLMatchResult findMatchStatement(INodeTypeManager iNodeTypeManager, QLPatternNode pattern,
         List<? extends IDataNode> nodes, int point) throws Exception {
         AtomicLong maxMatchPoint = new AtomicLong();
         AtomicLong maxDeep = new AtomicLong(1);
         QLMatchResultCache resultCache = new QLMatchResultCache(5);
         ArrayListCache<QLMatchResultTree> arrayListCache = new ArrayListCache<>(50);
-        MatchParamsPack staticParams = new MatchParamsPack(aManager, nodes, maxDeep, maxMatchPoint, resultCache,
+        MatchParamsPack staticParams = new MatchParamsPack(iNodeTypeManager, nodes, maxDeep, maxMatchPoint, resultCache,
             arrayListCache);
         QLMatchResult result = findMatchStatementWithAddRootOptimizeStack(staticParams, pattern, point, true, 1);
         if (printStackDepth) {
@@ -53,7 +53,7 @@ public class QLPattern {
     private static QLMatchResult findMatchStatementWithAddRootOptimizeStack(MatchParamsPack staticParams,
         QLPatternNode pattern, int point, boolean isRoot, int deep) throws Exception {
 
-        INodeTypeManager aManager = staticParams.aManager;
+        INodeTypeManager aManager = staticParams.iNodeTypeManager;
         List<? extends IDataNode> nodes = staticParams.nodes;
         AtomicLong maxMatchPoint = staticParams.maxMatchPoint;
         AtomicLong maxDeep = staticParams.maxDeep;
@@ -288,16 +288,16 @@ public class QLPattern {
     }
 
     public static class MatchParamsPack {
-        final INodeTypeManager aManager;
+        final INodeTypeManager iNodeTypeManager;
         final List<? extends IDataNode> nodes;
         final AtomicLong maxDeep;
         final AtomicLong maxMatchPoint;
         final QLMatchResultCache resultCache;
         final ArrayListCache arrayListCache;
 
-        public MatchParamsPack(INodeTypeManager aManager, List<? extends IDataNode> nodes, AtomicLong maxDeep,
+        public MatchParamsPack(INodeTypeManager iNodeTypeManager, List<? extends IDataNode> nodes, AtomicLong maxDeep,
             AtomicLong maxMatchPoint, QLMatchResultCache aResultCache, ArrayListCache aArrayListCache) {
-            this.aManager = aManager;
+            this.iNodeTypeManager = iNodeTypeManager;
             this.nodes = nodes;
             this.maxDeep = maxDeep;
             this.maxMatchPoint = maxMatchPoint;
