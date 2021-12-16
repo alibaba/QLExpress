@@ -313,8 +313,8 @@ public class ExpressParse {
      */
     public static void fetchSelfDefineClass(Word[] words, Map<String, String> selfDefineClass) {
         for (int i = 0; i < words.length - 1; i++) {
-            if ("class".equals(words[i].word)) {
-                selfDefineClass.put(words[i + 1].word, words[i + 1].word)
+            if ("class".equals(words[i].word))
+                selfDefineClass.put(words[i + 1].word, words[i + 1].word);
             }
         }
     }
