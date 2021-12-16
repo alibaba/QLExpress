@@ -78,14 +78,14 @@ public class ExpressParse {
     /**
      * 进行单词类型分析
      *
-     * @param aRootExpressPackage
+     * @param rootExpressPackage
      * @param wordObjects
      * @param selfClassDefine
      * @param dealJavaClass
      * @return
      * @throws Exception
      */
-    public List<ExpressNode> transferWord2ExpressNode(ExpressPackage aRootExpressPackage, Word[] wordObjects,
+    public List<ExpressNode> transferWord2ExpressNode(ExpressPackage rootExpressPackage, Word[] wordObjects,
         Map<String, String> selfClassDefine, boolean dealJavaClass) throws Exception {
         List<ExpressNode> result = new ArrayList<>();
         String tempWord;
@@ -93,7 +93,7 @@ public class ExpressParse {
         int point = 0;
         ExpressPackage tmpImportPackage = null;
         if (dealJavaClass) {
-            tmpImportPackage = new ExpressPackage(aRootExpressPackage);
+            tmpImportPackage = new ExpressPackage(rootExpressPackage);
             //先处理import，import必须放在文件的最开始，必须以;结束
             boolean isImport = false;
             StringBuilder importName = new StringBuilder();

@@ -156,10 +156,10 @@ public class NodeTypeManager implements INodeTypeManager {
         return result;
     }
 
-    public NodeType[] getNodeTypesByKind(NodeTypeKind aKind) {
+    public NodeType[] getNodeTypesByKind(NodeTypeKind nodeTypeKind) {
         List<NodeType> result = new ArrayList<>();
         for (NodeType item : this.nodeTypes.values()) {
-            if (item.getKind() == aKind) {
+            if (item.getKind() == nodeTypeKind) {
                 result.add(item);
             }
         }

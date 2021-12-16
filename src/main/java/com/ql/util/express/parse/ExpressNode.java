@@ -47,24 +47,24 @@ public class ExpressNode implements IDataNode {
         this(nodeType, value, null, null, null, -1, -1);
     }
 
-    public ExpressNode(NodeType nodeType, String value, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
-        int aLine, int aCol) throws Exception {
+    public ExpressNode(NodeType nodeType, String value, String originalValue, Object objectValue, NodeType treeType,
+        int line, int col) throws Exception {
         if (nodeType == null) {
             throw new QLCompileException(value + " 没有找到对应的节点类型");
         }
         this.nodeType = nodeType;
-        this.treeType = aTreeType;
+        this.treeType = treeType;
         if (value != null && value.length() > 0) {
             this.value = value;
         }
-        if (aOriginalValue != null && aOriginalValue.length() > 0) {
-            this.originalValue = aOriginalValue;
+        if (originalValue != null && originalValue.length() > 0) {
+            this.originalValue = originalValue;
         }
-        if (aObjectValue != null) {
-            this.objectValue = aObjectValue;
+        if (objectValue != null) {
+            this.objectValue = objectValue;
         }
-        this.line = aLine;
-        this.col = aCol;
+        this.line = line;
+        this.col = col;
     }
 
     public boolean isTypeEqualsOrChild(String parent) {
