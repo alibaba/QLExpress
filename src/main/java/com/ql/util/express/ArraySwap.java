@@ -1,8 +1,8 @@
 package com.ql.util.express;
 
 public final class ArraySwap {
-    OperateData[] arrays;
-    int start;
+    private OperateData[] arrays;
+    private int start;
     public int length;
 
     public void swap(OperateData[] aArrays, int aStart, int aLength) {
