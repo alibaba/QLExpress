@@ -10,19 +10,18 @@ public class DefaultExpressResourceLoader implements IExpressResourceLoader {
     @Override
     public String loadExpress(String expressName) throws Exception {
         expressName = expressName.replace('.', '/') + ".ql";
-        InputStream in = Thread.currentThread().getContextClassLoader()
-            .getResourceAsStream(expressName);
-        if (in == null) {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(expressName);
+        if (inputStream == null) {
             throw new QLException("不能找到表达式文件：" + expressName);
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        StringBuilder builder = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
         String tmpStr;
-        while ((tmpStr = reader.readLine()) != null) {
-            builder.append(tmpStr).append("\n");
+        while ((tmpStr = bufferedReader.readLine()) != null) {
+            stringBuilder.append(tmpStr).append("\n");
         }
-        reader.close();
-        in.close();
-        return builder.toString();
+        bufferedReader.close();
+        inputStream.close();
+        return stringBuilder.toString();
     }
 }
