@@ -24,7 +24,7 @@ public class AClassDefine {
 
         Object r = runner.executeByExpressName("ClassTest", context,
             null, false, false, null);
-        Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
+        Assert.assertFalse("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
     }
 
     @Test
