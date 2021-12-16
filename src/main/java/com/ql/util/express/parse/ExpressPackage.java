@@ -11,19 +11,19 @@ public class ExpressPackage {
     private final Class<?> S_NULL = NullClass.class;
     private final ExpressPackage parent;
 
-    public ExpressPackage(ExpressPackage aParent) {
-        this.parent = aParent;
+    public ExpressPackage(ExpressPackage parent) {
+        this.parent = parent;
     }
 
-    public void addPackage(String aPackageName) {
+    public void addPackage(String packageName) {
         if (this.packages == null) {
             this.packages = new ArrayList<>();
         }
-        int point = aPackageName.indexOf(".*");
+        int point = packageName.indexOf(".*");
         if (point >= 0) {
-            aPackageName = aPackageName.substring(0, point);
+            packageName = packageName.substring(0, point);
         }
-        this.packages.add(aPackageName);
+        this.packages.add(packageName);
     }
 
     public Class<?> getClass(String name) {

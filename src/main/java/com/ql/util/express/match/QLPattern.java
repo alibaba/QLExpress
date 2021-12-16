@@ -53,7 +53,7 @@ public class QLPattern {
     private static QLMatchResult findMatchStatementWithAddRootOptimizeStack(MatchParamsPack staticParams,
         QLPatternNode pattern, int point, boolean isRoot, int deep) throws Exception {
 
-        INodeTypeManager aManager = staticParams.iNodeTypeManager;
+        INodeTypeManager iNodeTypeManager = staticParams.iNodeTypeManager;
         List<? extends IDataNode> nodes = staticParams.nodes;
         AtomicLong maxMatchPoint = staticParams.maxMatchPoint;
         AtomicLong maxDeep = staticParams.maxDeep;
@@ -71,13 +71,13 @@ public class QLPattern {
         while (true) {
             QLMatchResult tempResult = null;
             if (pattern.matchMode == MatchMode.DETAIL) {
-                //tempResult = matchDetailOneTime(aManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
+                //tempResult = matchDetailOneTime(iNodeTypeManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
 
                 int pointDetail = lastPoint;
                 QLMatchResult resultDetail = null;
-                if (pattern.nodeType == aManager.findNodeType("EOF") && pointDetail == nodes.size()) {
+                if (pattern.nodeType == iNodeTypeManager.findNodeType("EOF") && pointDetail == nodes.size()) {
                     resultDetail = staticParams.resultCache.fetch().setMatchLastIndex(pointDetail + 1);
-                } else if (pattern.nodeType == aManager.findNodeType("EOF") && pointDetail < nodes.size() && "}".equals(
+                } else if (pattern.nodeType == iNodeTypeManager.findNodeType("EOF") && pointDetail < nodes.size() && "}".equals(
                     nodes.get(
                         pointDetail).getValue())) {
                     resultDetail = staticParams.resultCache.fetch().setMatchLastIndex(pointDetail);
@@ -131,7 +131,7 @@ public class QLPattern {
                 tempResult = resultDetail;
 
             } else if (pattern.matchMode == MatchMode.AND) {
-                //tempResult = matchAndOneTime(aManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
+                //tempResult = matchAndOneTime(iNodeTypeManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
 
                 int pointAnd = lastPoint;
 
@@ -200,7 +200,7 @@ public class QLPattern {
                     staticParams.arrayListCache.sendBack(tempListAnd);
                 }
             } else if (pattern.matchMode == MatchMode.OR) {
-                //tempResult = matchOrOneTime(aManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
+                //tempResult = matchOrOneTime(iNodeTypeManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
 
                 for (QLPatternNode item : pattern.getChildren()) {
                     tempResult = findMatchStatementWithAddRootOptimizeStack(staticParams, item, lastPoint, false, deep);

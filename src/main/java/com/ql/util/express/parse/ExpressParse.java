@@ -39,10 +39,11 @@ public class ExpressParse {
         this.ignoreConstChar = ignoreConstChar;
     }
 
-    public ExpressParse(NodeTypeManager aNodeTypeManager, IExpressResourceLoader aLoader, boolean aIsPrecise) {
-        this.nodeTypeManager = aNodeTypeManager;
-        this.expressResourceLoader = aLoader;
-        this.isPrecise = aIsPrecise;
+    public ExpressParse(NodeTypeManager nodeTypeManager, IExpressResourceLoader iExpressResourceLoader,
+        boolean isPrecise) {
+        this.nodeTypeManager = nodeTypeManager;
+        this.expressResourceLoader = iExpressResourceLoader;
+        this.isPrecise = isPrecise;
     }
 
     protected Word[] getExpressByName(String expressFileName) throws Exception {
