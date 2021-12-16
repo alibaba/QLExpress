@@ -6,7 +6,7 @@ import com.ql.util.express.IExpressContext;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ArrayMisType {
+public class ArrayMisTypeTest {
 
     public String test(Object object) {
         return "object class method";
@@ -34,8 +34,7 @@ public class ArrayMisType {
 
     @Test
     public void testFunction() throws Exception {
-
-        ArrayMisType instance = new ArrayMisType();
+        ArrayMisTypeTest instance = new ArrayMisTypeTest();
         String[] strings = {"123", "456"};
         Integer[] integers = {123, 456};
 
