@@ -23,9 +23,9 @@ public class NodeType implements INodeType {
      */
     private QLPatternNode qlPatternNode;
 
-    protected NodeType(NodeTypeManager aManager, String name, String aDefineStr) {
+    protected NodeType(NodeTypeManager aManager, String name, String defineStr) {
         this.manager = aManager;
-        this.defineStr = aDefineStr;
+        this.defineStr = defineStr;
         this.name = name;
     }
 

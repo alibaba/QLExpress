@@ -75,19 +75,19 @@ public class NodeTypeManager implements INodeTypeManager {
     /**
      * 创建节点类型，需要注意的是不能初始化，必须所有的类型都创建完成后才能调用初始化方法
      *
-     * @param aDefineStr
+     * @param defineStr
      * @return
      */
-    public NodeType createNodeType(String aDefineStr) {
+    public NodeType createNodeType(String defineStr) {
         //避免对操作符号":"的错误处理
-        int index = aDefineStr.indexOf(":", 1);
-        String name = aDefineStr.substring(0, index).trim();
+        int index = defineStr.indexOf(":", 1);
+        String name = defineStr.substring(0, index).trim();
         NodeType define = nodeTypes.get(name);
         if (define != null) {
-            log.warn("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + aDefineStr);
-            throw new RuntimeException("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + aDefineStr);
+            log.warn("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + defineStr);
+            throw new RuntimeException("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + defineStr);
         }
-        define = new NodeType(this, name, aDefineStr);
+        define = new NodeType(this, name, defineStr);
         nodeTypes.put(name, define);
         return define;
     }
