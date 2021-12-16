@@ -10,7 +10,7 @@ import org.junit.Test;
  * tianqiao
  * 2016-09-12
  */
-public class TestMethodParams {
+public class MethodParamsTest {
 
     @Test
     public void testMethodDynamicDemo() throws Exception {
@@ -19,12 +19,12 @@ public class TestMethodParams {
 
         //(1)默认的不定参数可以使用数组来代替
         Object r = runner.execute(
-            "a = new com.ql.util.express.test.TestMethodParams();a.getTemplate([11,'22',33L,true])", expressContext,
+            "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate([11,'22',33L,true])", expressContext,
             null, false, false);
         System.out.println(r);
         //(2)目前只支持只有Object[]一个参数的这种情况
         Object r2 = runner.execute(
-            "a = new com.ql.util.express.test.TestMethodParams();a.getTemplate(11,'22',33L,true)", expressContext, null,
+            "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate(11,'22',33L,true)", expressContext, null,
             false, false);
         System.out.println(r2);
     }
@@ -34,7 +34,7 @@ public class TestMethodParams {
         ExpressRunner runner = new ExpressRunner();
         IExpressContext<String, Object> expressContext = new DefaultContext<>();
         runner.addFunctionOfServiceMethod("getTemplate", this, "getTemplate", new Class[] {Object[].class}, null);
-        runner.addFunctionOfClassMethod("getTemplateStatic", TestMethodParams.class.getName(), "getTemplateStatic",
+        runner.addFunctionOfClassMethod("getTemplateStatic", MethodParamsTest.class.getName(), "getTemplateStatic",
             new Class[] {Object.class, String[].class}, null);
         //(1)默认的不定参数可以使用数组来代替
         Object r = runner.execute("getTemplate([11,'22',33L,true])", expressContext, null, false, false);

@@ -10,7 +10,7 @@ import com.ql.util.express.InstructionSet;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class TestSerializable {
+public class SerializableTest {
     @Test
     @Ignore // TODO：不在实现Serializable接口，因此不能序列化
     public void testSerializable() throws Exception {

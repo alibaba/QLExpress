@@ -7,8 +7,7 @@ import org.junit.Test;
 /**
  * Created by tianqiao on 16/9/13.
  */
-public class TestSet {
-
+public class SetTest {
     @Test
     public void testSet() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);

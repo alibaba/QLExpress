@@ -6,8 +6,7 @@ import com.ql.util.express.IExpressContext;
 import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
-public class TestStackOverFlowTest {
-
+public class StackOverFlowTest {
     @Test
     public void test() throws Exception {
 
