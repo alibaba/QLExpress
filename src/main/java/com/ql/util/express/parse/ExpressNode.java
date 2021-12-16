@@ -43,16 +43,16 @@ public class ExpressNode implements IDataNode {
      */
     private int col;
 
-    public ExpressNode(NodeType aType, String aValue) throws Exception {
-        this(aType, aValue, null, null, null, -1, -1);
+    public ExpressNode(NodeType nodeType, String aValue) throws Exception {
+        this(nodeType, aValue, null, null, null, -1, -1);
     }
 
-    public ExpressNode(NodeType aType, String aValue, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
+    public ExpressNode(NodeType nodeType, String aValue, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
         int aLine, int aCol) throws Exception {
-        if (aType == null) {
+        if (nodeType == null) {
             throw new QLCompileException(aValue + " 没有找到对应的节点类型");
         }
-        this.nodeType = aType;
+        this.nodeType = nodeType;
         this.treeType = aTreeType;
         if (aValue != null && aValue.length() > 0) {
             this.value = aValue;
@@ -80,8 +80,8 @@ public class ExpressNode implements IDataNode {
         return nodeType;
     }
 
-    public void setNodeType(NodeType type) {
-        this.nodeType = type;
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
     @Override
@@ -189,13 +189,13 @@ public class ExpressNode implements IDataNode {
     }
 
     @Override
-    public IDataNode createExpressNode(INodeType aType, String aValue) throws Exception {
-        return new ExpressNode((NodeType)aType, aValue);
+    public IDataNode createExpressNode(INodeType iNodeType, String value) throws Exception {
+        return new ExpressNode((NodeType)iNodeType, value);
     }
 
     @Override
-    public void setNodeType(INodeType type) {
-        this.setNodeType((NodeType)type);
+    public void setNodeType(INodeType iNodeType) {
+        this.setNodeType((NodeType)iNodeType);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class ExpressNode implements IDataNode {
     }
 
     @Override
-    public void setTreeType(INodeType aTreeType) {
-        this.setTreeType((NodeType)aTreeType);
+    public void setTreeType(INodeType iNodeType) {
+        this.setTreeType((NodeType)iNodeType);
     }
 }

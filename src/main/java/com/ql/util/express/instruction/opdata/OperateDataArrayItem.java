@@ -10,16 +10,16 @@ public class OperateDataArrayItem extends OperateDataAttr {
     private OperateData arrayObject;
     private int index;
 
-    public OperateDataArrayItem(OperateData arrayObject, int aIndex) {
-        super("array[" + arrayObject + "," + aIndex + "]", null);
+    public OperateDataArrayItem(OperateData arrayObject, int index) {
+        super("array[" + arrayObject + "," + index + "]", null);
         this.arrayObject = arrayObject;
-        this.index = aIndex;
+        this.index = index;
     }
 
-    public void initialDataArrayItem(OperateData arrayObject, int aIndex) {
-        super.initialDataAttr("array[" + arrayObject + "," + aIndex + "]", null);
+    public void initialDataArrayItem(OperateData arrayObject, int index) {
+        super.initialDataAttr("array[" + arrayObject + "," + index + "]", null);
         this.arrayObject = arrayObject;
-        this.index = aIndex;
+        this.index = index;
     }
 
     public void clearDataArrayItem() {

@@ -1,9 +1,9 @@
 package com.ql.util.express.match;
 
 public interface IDataNode {
-    void setNodeType(INodeType type);
+    void setNodeType(INodeType iNodeType);
 
-    void setTreeType(INodeType findNodeType);
+    void setTreeType(INodeType iNodeType);
 
     INodeType getNodeType();
 
@@ -11,7 +11,7 @@ public interface IDataNode {
 
     void addChild(IDataNode ref);
 
-    IDataNode createExpressNode(INodeType aType, String aValue) throws Exception;
+    IDataNode createExpressNode(INodeType iNodeType, String value) throws Exception;
 
     String getValue();
 
