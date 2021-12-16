@@ -10,7 +10,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class InInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         if (children[1].isTypeEqualsOrChild("CHILD_EXPRESS")) {
@@ -24,10 +24,10 @@ public class InInstructionFactory extends InstructionFactory {
         boolean returnVal = false;
         children = node.getChildrenArray();
         for (ExpressNode child : children) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
+            boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
-        OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
+        OperatorBase op = expressRunner.getOperatorFactory().newInstance(node);
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
         return returnVal;
     }

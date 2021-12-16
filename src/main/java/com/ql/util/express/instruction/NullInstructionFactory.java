@@ -8,7 +8,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class NullInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) {
         return false;
     }

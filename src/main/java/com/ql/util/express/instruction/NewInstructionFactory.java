@@ -11,9 +11,9 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class NewInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        OperatorBase op = aCompile.getOperatorFactory().newInstance("new");
+        OperatorBase op = expressRunner.getOperatorFactory().newInstance("new");
         ExpressNode[] children = node.getChildrenArray();
         if (node.isTypeEqualsOrChild("NEW_ARRAY")) {
             StringBuilder tempStr = new StringBuilder(children[0].getValue());
@@ -24,7 +24,7 @@ public class NewInstructionFactory extends InstructionFactory {
             children[0].setOriginalValue(tempStr.toString());
             children[0].setObjectValue(ExpressUtil.getJavaClass(tempStr.toString()));
         } else if (node.isTypeEqualsOrChild("anonymousNewArray")) {
-            op = aCompile.getOperatorFactory().newInstance("anonymousNewArray");
+            op = expressRunner.getOperatorFactory().newInstance("anonymousNewArray");
         }
 
         boolean returnVal = false;
@@ -32,7 +32,7 @@ public class NewInstructionFactory extends InstructionFactory {
         // 需要重新获取数据
         children = node.getChildrenArray();
         for (ExpressNode child : children) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
+            boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

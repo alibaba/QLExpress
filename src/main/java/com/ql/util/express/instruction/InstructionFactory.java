@@ -24,6 +24,6 @@ public abstract class InstructionFactory {
         }
     }
 
-    public abstract boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
+    public abstract boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception;
 }

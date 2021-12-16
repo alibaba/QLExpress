@@ -14,14 +14,14 @@ import com.ql.util.express.parse.ExpressNode;
 
 class OperatorInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
         ExpressNode[] children = node.getChildrenArray();
         int[] finishPoint = new int[children.length];
         for (int i = 0; i < children.length; i++) {
             ExpressNode tmpNode = children[i];
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
+            boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, tmpNode, false);
             returnVal = returnVal || tmpHas;
             finishPoint[i] = result.getCurrentPoint();
         }
@@ -29,14 +29,14 @@ class OperatorInstructionFactory extends InstructionFactory {
         if (node.isTypeEqualsOrChild("return")) {
             result.addInstruction(new InstructionReturn(children.length > 0).setLine(node.getLine()));
         } else {
-            OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
+            OperatorBase op = expressRunner.getOperatorFactory().newInstance(node);
             result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine())
                 .setLine(node.getLine()));
-            if (node.isTypeEqualsOrChild("&&") && aCompile.isShortCircuit()) {
+            if (node.isTypeEqualsOrChild("&&") && expressRunner.isShortCircuit()) {
                 result.insertInstruction(finishPoint[0] + 1,
                     new InstructionGoToWithCondition(false, result.getCurrentPoint() - finishPoint[0] + 1,
                         false).setLine(node.getLine()));
-            } else if (node.isTypeEqualsOrChild("||") && aCompile.isShortCircuit()) {
+            } else if (node.isTypeEqualsOrChild("||") && expressRunner.isShortCircuit()) {
                 result.insertInstruction(finishPoint[0] + 1,
                     new InstructionGoToWithCondition(true, result.getCurrentPoint() - finishPoint[0] + 1,
                         false).setLine(node.getLine()));

@@ -13,7 +13,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
     private static final String LAMBDA_NODE_NAME = "LAMBDA";
 
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         if (children.length != 2) {
@@ -37,7 +37,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
         }
 
         // lambda 逻辑体
-        ExpressNode lambdaBodyRoot = new ExpressNode(aCompile.getNodeTypeManager()
+        ExpressNode lambdaBodyRoot = new ExpressNode(expressRunner.getNodeTypeManager()
             .findNodeType("FUNCTION_DEFINE"), LAMBDA_NODE_NAME);
         if ("STAT_BLOCK".equals(node.getNodeType().getName())) {
             for (ExpressNode tempNode : children[1].getChildrenArray()) {
@@ -47,7 +47,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
             lambdaBodyRoot.addChild(children[1]);
         }
 
-        aCompile.createInstructionSet(lambdaBodyRoot, lambdaSet);
+        expressRunner.createInstructionSet(lambdaBodyRoot, lambdaSet);
         result.addInstruction(new InstructionLoadLambda(lambdaSet));
         return false;
     }

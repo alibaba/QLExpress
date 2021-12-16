@@ -12,7 +12,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 class DefineInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         int arrayDimeCount = 0;
@@ -41,9 +41,9 @@ class DefineInstructionFactory extends InstructionFactory {
 
         children = node.getChildrenArray();
         for (ExpressNode expressNode : children) {
-            aCompile.createInstructionSetPrivate(result, forStack, expressNode, false);
+            expressRunner.createInstructionSetPrivate(result, forStack, expressNode, false);
         }
-        OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
+        OperatorBase op = expressRunner.getOperatorFactory().newInstance(node);
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));
         return true;
     }

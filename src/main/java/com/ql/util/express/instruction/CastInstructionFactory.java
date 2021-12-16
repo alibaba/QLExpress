@@ -11,10 +11,10 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class CastInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
-        OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
+        OperatorBase op = expressRunner.getOperatorFactory().newInstance(node);
         ExpressNode[] children = node.getChildrenArray();
         if (children.length == 0) {
             throw new QLException("扩展类型不存在");
@@ -25,7 +25,7 @@ public class CastInstructionFactory extends InstructionFactory {
         }
 
         for (ExpressNode child : children) {
-            boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
+            boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
         }
         result.addInstruction(new InstructionOperator(op, children.length).setLine(node.getLine()));

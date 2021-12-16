@@ -192,7 +192,7 @@ public class InstructionSet {
         return OperateDataCacheManager.fetchCallResult(environment.getReturnValue(), environment.isExit());
     }
 
-    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList, Log aLog)
+    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList, Log log)
         throws Exception {
         Instruction instruction = null;
         try {
@@ -200,14 +200,14 @@ public class InstructionSet {
                 QLExpressTimer.assertTimeOut();
                 instruction = this.instructionList[environment.programPoint];
                 // 设置log
-                instruction.setLog(aLog);
+                instruction.setLog(log);
                 instruction.execute(environment, errorList);
             }
         } catch (Exception e) {
             if (PRINT_INSTRUCTION_ERROR) {
-                log.error("当前ProgramPoint = " + environment.programPoint);
-                log.error("当前指令" + instruction);
-                log.error(e);
+                InstructionSet.log.error("当前ProgramPoint = " + environment.programPoint);
+                InstructionSet.log.error("当前指令" + instruction);
+                InstructionSet.log.error(e);
             }
             throw e;
         }

@@ -10,7 +10,7 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class FunctionInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
         throws Exception {
         ExpressNode[] children = node.getChildrenArray();
@@ -40,12 +40,12 @@ public class FunctionInstructionFactory extends InstructionFactory {
             point = point + 1;
         }
 
-        ExpressNode functionRoot = new ExpressNode(aCompile.getNodeTypeManager().findNodeType("FUNCTION_DEFINE"),
+        ExpressNode functionRoot = new ExpressNode(expressRunner.getNodeTypeManager().findNodeType("FUNCTION_DEFINE"),
             "function-" + functionName);
         for (ExpressNode expressNode : children[2].getChildrenArray()) {
             functionRoot.addChild(expressNode);
         }
-        aCompile.createInstructionSet(functionRoot, functionSet);
+        expressRunner.createInstructionSet(functionRoot, functionSet);
         result.addMacroDefine(functionName, new FunctionInstructionSet(functionName, instructionSetType, functionSet));
         return false;
     }
