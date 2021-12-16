@@ -35,9 +35,9 @@ public class OperateDataVirClass extends OperateDataAttr {
     }
 
     public void initialInstance(InstructionSetContext parent, OperateData[] parameters, List<String> errorList,
-        boolean aIsTrace, Log aLog) throws Exception {
-        this.isTrace = aIsTrace;
-        this.log = aLog;
+        boolean isTrace, Log log) throws Exception {
+        this.isTrace = isTrace;
+        this.log = log;
         this.context = OperateDataCacheManager.fetchInstructionSetContext(false, parent.getExpressRunner(), parent,
             parent.getExpressLoader(), parent.isSupportDynamicFieldName());
         Object functionSet = parent.getSymbol(this.name);
@@ -54,7 +54,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             this.context.addSymbol(var.getName(), var);
             var.setObject(context, parameters[i].getObject(parent));
         }
-        InstructionSetRunner.execute(virClassInstructionSet, context, errorList, aIsTrace, false, false, log);
+        InstructionSetRunner.execute(virClassInstructionSet, context, errorList, isTrace, false, false, this.log);
     }
 
     public OperateData callSelfFunction(String functionName, OperateData[] parameters) throws Exception {
