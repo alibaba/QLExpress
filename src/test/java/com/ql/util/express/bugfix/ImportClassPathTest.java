@@ -9,11 +9,9 @@ import org.junit.Test;
 /**
  * Created by tianqiao on 17/6/23.
  */
-public class ImportClassPath {
-
+public class ImportClassPathTest {
     @Test
     public void test() {
-
         ExpressRunner runner = new ExpressRunner();
         String exp = "return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
@@ -33,7 +31,6 @@ public class ImportClassPath {
 
     @Test
     public void test2() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
         String exp = "return new java.text.SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
@@ -44,11 +41,9 @@ public class ImportClassPath {
 
     @Test
     public void test3() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
-        String exp
-            = "import java.text.SimpleDateFormat; return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new "
-            + "Date())";
+        String exp = "import java.text.SimpleDateFormat; "
+            + "return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
         Object result;
         result = runner.execute(exp, context, null, false, false);

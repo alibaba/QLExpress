@@ -9,7 +9,6 @@ import com.ql.util.express.Operator;
 import org.junit.Test;
 
 public class DemoShowTest {
-
     /**
      * 四则运算
      *
@@ -30,8 +29,7 @@ public class DemoShowTest {
     public void testForLoop() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.execute("sum=0;for(i=0;i<10;i=i+1){sum=sum+i;}", context, null,
-            true, true);
+        runner.execute("sum=0;for(i=0;i<10;i=i+1){sum=sum+i;}", context, null, true, true);
     }
 
     /**
@@ -43,9 +41,7 @@ public class DemoShowTest {
     public void testForLoop2() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.execute(
-            "sum=0;for(i=0;i<10;i=i+1){for(j=0;j<10;j++){sum=sum+i+j;}}",
-            context, null, false, true);
+        runner.execute("sum=0;for(i=0;i<10;i=i+1){for(j=0;j<10;j++){sum=sum+i+j;}}", context, null, false, true);
     }
 
     /**
@@ -56,9 +52,8 @@ public class DemoShowTest {
     @Test
     public void testHanoiMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        runner.addFunctionOfClassMethod("汉诺塔算法", DemoShowTest.class.getName(),
-            "hanoi", new Class[] {int.class, char.class, char.class,
-                char.class}, null);
+        runner.addFunctionOfClassMethod("汉诺塔算法", DemoShowTest.class.getName(), "hanoi",
+            new Class[] {int.class, char.class, char.class, char.class}, null);
         runner.execute("汉诺塔算法(3, '1', '2', '3')", null, null, false, false);
     }
 
@@ -71,8 +66,7 @@ public class DemoShowTest {
     public void testHanoiMethod2() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
         runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShowTest(), "hanoi",
-            new Class[] {int.class, char.class, char.class, char.class},
-            null);
+            new Class[] {int.class, char.class, char.class, char.class}, null);
         runner.execute("汉诺塔算法(3, '1', '2', '3')", null, null, false, false);
     }
 
@@ -85,8 +79,7 @@ public class DemoShowTest {
     public void testHanoiMethod3() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
         runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShowTest(), "hanoi",
-            new Class[] {int.class, char.class, char.class, char.class},
-            null);
+            new Class[] {int.class, char.class, char.class, char.class}, null);
         runner.addMacro("汉诺塔算法演示", "汉诺塔算法(3, '1', '2', '3')");
         runner.execute("汉诺塔算法演示", null, null, false, false);
     }
