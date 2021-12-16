@@ -5,8 +5,7 @@ import com.ql.util.express.ExpressRunner;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AClassDefine {
-
+public class AClassDefineTest {
     @Test
     public void testNewVClass() throws Exception {
         String express = "" +
@@ -24,7 +23,7 @@ public class AClassDefine {
 
         Object r = runner.executeByExpressName("ClassTest", context,
             null, false, false, null);
-        Assert.assertFalse("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
+        Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
     }
 
     @Test
