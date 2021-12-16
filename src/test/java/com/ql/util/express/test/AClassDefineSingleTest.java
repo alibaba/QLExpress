@@ -17,10 +17,11 @@ public class AClassDefineSingleTest {
             + " example.整数值 =100 + 100;"
             + " print(example.整数值);";
 
-        ExpressRunner runner = new ExpressRunner(false, true);
+        ExpressRunner expressRunner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
-        runner.loadMultiExpress("", expressDefine);
-        runner.loadMultiExpress("ClassTest", express);
-        Object r = runner.executeByExpressName("ClassTest", context, null, true, false, null);
+        expressRunner.loadMultiExpress("", expressDefine);
+        expressRunner.loadMultiExpress("ClassTest", express);
+        Object result = expressRunner.executeByExpressName("ClassTest", context, null, true, false, null);
+        System.out.println("result = " + result);
     }
 }
