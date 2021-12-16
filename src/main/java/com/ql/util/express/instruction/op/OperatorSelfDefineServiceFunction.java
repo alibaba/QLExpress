@@ -23,16 +23,16 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     private boolean isReturnVoid;
     private final boolean maybeDynamicParams;
 
-    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String functionName,
+        Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
         this.serviceObject = aServiceObject;
-        this.functionName = aFunctionName;
-        this.parameterClasses = aParameterClassTypes;
-        this.operateDataDesc = aParameterDesc;
-        this.operateDataAnnotation = aParameterAnnotation;
+        this.functionName = functionName;
+        this.parameterClasses = parameterClassTypes;
+        this.operateDataDesc = parameterDesc;
+        this.operateDataAnnotation = parameterAnnotation;
         this.parameterTypes = new String[this.parameterClasses.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
@@ -43,16 +43,16 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String aFunctionName,
-        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String functionName,
+        String[] aParameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
         this.serviceObject = aServiceObject;
-        this.functionName = aFunctionName;
+        this.functionName = functionName;
         this.parameterTypes = aParameterTypes;
-        this.operateDataDesc = aParameterDesc;
-        this.operateDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = parameterDesc;
+        this.operateDataAnnotation = parameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterClasses[i] = ExpressUtil.getJavaClass(this.parameterTypes[i]);

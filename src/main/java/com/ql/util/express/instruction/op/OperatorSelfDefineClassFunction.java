@@ -25,58 +25,58 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     private boolean isReturnVoid;
     private final boolean maybeDynamicParams;
 
-    public OperatorSelfDefineClassFunction(String operatorName, Class<?> aOperatorClass, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public OperatorSelfDefineClassFunction(String operatorName, Class<?> operatorClass, String functionName,
+        Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
-        this.functionName = aFunctionName;
-        this.parameterClasses = aParameterClassTypes;
-        this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operateDataDesc = aParameterDesc;
-        this.operateDataAnnotation = aParameterAnnotation;
+        this.functionName = functionName;
+        this.parameterClasses = parameterClassTypes;
+        this.parameterTypes = new String[parameterClassTypes.length];
+        this.operateDataDesc = parameterDesc;
+        this.operateDataAnnotation = parameterAnnotation;
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterTypes[i] = this.parameterClasses[i].getName();
         }
-        operatorClass = aOperatorClass;
+        this.operatorClass = operatorClass;
+        method = this.operatorClass.getMethod(functionName, parameterClasses);
+        this.isReturnVoid = method.getReturnType().equals(void.class);
+        this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
+    }
+
+    public OperatorSelfDefineClassFunction(String operatorName, String className, String functionName,
+        Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
+        throws Exception {
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
+        this.functionName = functionName;
+        this.parameterClasses = parameterClassTypes;
+        this.parameterTypes = new String[parameterClassTypes.length];
+        this.operateDataDesc = parameterDesc;
+        this.operateDataAnnotation = parameterAnnotation;
+        for (int i = 0; i < this.parameterClasses.length; i++) {
+            this.parameterTypes[i] = this.parameterClasses[i].getName();
+        }
+        operatorClass = ExpressUtil.getJavaClass(className);
         method = operatorClass.getMethod(functionName, parameterClasses);
         this.isReturnVoid = method.getReturnType().equals(void.class);
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineClassFunction(String operatorName, String aClassName, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public OperatorSelfDefineClassFunction(String operatorName, String className, String functionName,
+        String[] aParameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
-        this.functionName = aFunctionName;
-        this.parameterClasses = aParameterClassTypes;
-        this.parameterTypes = new String[aParameterClassTypes.length];
-        this.operateDataDesc = aParameterDesc;
-        this.operateDataAnnotation = aParameterAnnotation;
-        for (int i = 0; i < this.parameterClasses.length; i++) {
-            this.parameterTypes[i] = this.parameterClasses[i].getName();
-        }
-        operatorClass = ExpressUtil.getJavaClass(aClassName);
-        method = operatorClass.getMethod(functionName, parameterClasses);
-        this.isReturnVoid = method.getReturnType().equals(void.class);
-        this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
-    }
-
-    public OperatorSelfDefineClassFunction(String operatorName, String aClassName, String aFunctionName,
-        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
-        throws Exception {
-        this.name = operatorName;
-        this.errorInfo = errorInfo;
-        this.functionName = aFunctionName;
+        this.functionName = functionName;
         this.parameterTypes = aParameterTypes;
-        this.operateDataDesc = aParameterDesc;
-        this.operateDataAnnotation = aParameterAnnotation;
+        this.operateDataDesc = parameterDesc;
+        this.operateDataAnnotation = parameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
         for (int i = 0; i < this.parameterClasses.length; i++) {
             this.parameterClasses[i] = ExpressUtil.getJavaClass(this.parameterTypes[i]);
         }
-        operatorClass = ExpressUtil.getJavaClass(aClassName);
+        operatorClass = ExpressUtil.getJavaClass(className);
         method = operatorClass.getMethod(functionName, parameterClasses);
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
