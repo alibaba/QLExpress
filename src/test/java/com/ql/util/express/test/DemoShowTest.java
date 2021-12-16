@@ -8,7 +8,7 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.Operator;
 import org.junit.Test;
 
-public class DemoShow {
+public class DemoShowTest {
 
     /**
      * 四则运算
@@ -56,7 +56,7 @@ public class DemoShow {
     @Test
     public void testHanoiMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        runner.addFunctionOfClassMethod("汉诺塔算法", DemoShow.class.getName(),
+        runner.addFunctionOfClassMethod("汉诺塔算法", DemoShowTest.class.getName(),
             "hanoi", new Class[] {int.class, char.class, char.class,
                 char.class}, null);
         runner.execute("汉诺塔算法(3, '1', '2', '3')", null, null, false, false);
@@ -70,7 +70,7 @@ public class DemoShow {
     @Test
     public void testHanoiMethod2() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, false);
-        runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShow(), "hanoi",
+        runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShowTest(), "hanoi",
             new Class[] {int.class, char.class, char.class, char.class},
             null);
         runner.execute("汉诺塔算法(3, '1', '2', '3')", null, null, false, false);
@@ -84,7 +84,7 @@ public class DemoShow {
     @Test
     public void testHanoiMethod3() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
-        runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShow(), "hanoi",
+        runner.addFunctionOfServiceMethod("汉诺塔算法", new DemoShowTest(), "hanoi",
             new Class[] {int.class, char.class, char.class, char.class},
             null);
         runner.addMacro("汉诺塔算法演示", "汉诺塔算法(3, '1', '2', '3')");
