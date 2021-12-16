@@ -15,7 +15,6 @@ public class InstructionSetRunner {
         boolean isTrace, boolean isCatchException,
         Log aLog, boolean isSupportDynamicFieldName) throws Exception {
         try {
-
             //开始计时
             QLExpressTimer.startTimer();
 
@@ -44,19 +43,15 @@ public class InstructionSetRunner {
      * @throws Exception
      */
     public static Object execute(ExpressRunner runner, InstructionSet sets, ExpressLoader loader,
-        IExpressContext<String, Object> aContext, List<String> errorList,
-        boolean isTrace, boolean isCatchException,
-        boolean isReturnLastData, Log aLog, boolean isSupportDynamicFieldName)
-        throws Exception {
+        IExpressContext<String, Object> aContext, List<String> errorList, boolean isTrace, boolean isCatchException,
+        boolean isReturnLastData, Log aLog, boolean isSupportDynamicFieldName) throws Exception {
         InstructionSetContext context = OperateDataCacheManager.fetchInstructionSetContext(
             true, runner, aContext, loader, isSupportDynamicFieldName);
         return execute(sets, context, errorList, isTrace, isCatchException, isReturnLastData, aLog);
     }
 
-    public static Object execute(InstructionSet set,
-        InstructionSetContext context, List<String> errorList, boolean isTrace, boolean isCatchException,
-        boolean isReturnLastData, Log aLog) throws Exception {
-
+    public static Object execute(InstructionSet set, InstructionSetContext context, List<String> errorList,
+        boolean isTrace, boolean isCatchException, boolean isReturnLastData, Log aLog) throws Exception {
         RunEnvironment environment;
         Object result = null;
         environment = OperateDataCacheManager.fetRunEnvironment(set, context, isTrace);

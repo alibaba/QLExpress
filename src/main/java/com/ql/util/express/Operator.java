@@ -116,7 +116,9 @@ public abstract class Operator extends OperatorBase {
             }
         } else if ((op1 instanceof Date) && (op2 instanceof Date)) {
             compareResult = ((Date)op1).compareTo((Date)op2);
-        } else {throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");}
+        } else {
+            throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
+        }
         return compareResult;
     }
 }

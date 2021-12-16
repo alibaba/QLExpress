@@ -58,10 +58,12 @@ class OperateDataSubject extends OperateData {
         this.container = aContainer;
     }
 
+    @Override
     public Class<?> getDefineType() {
         return this.type;
     }
 
+    @Override
     public Object getObjectInner(InstructionSetContext context) {
         String key = this.userId + "-" + this.subjectId;
         SubjectValue subject = (SubjectValue)container.get(key);
@@ -72,6 +74,7 @@ class OperateDataSubject extends OperateData {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void setObject(InstructionSetContext parent, Object value) {
         String key = this.userId + "-" + this.subjectId;

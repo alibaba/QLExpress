@@ -14,6 +14,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
 
     private IExpressContext<String, Object> parent = null;
     private Map<String, Object> content;
+
     /**
      * 符号表
      */
@@ -23,11 +24,11 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
 
     private boolean isSupportDynamicFieldName = false;
 
+    private ExpressRunner runner;
+
     public ExpressRunner getRunner() {
         return runner;
     }
-
-    private ExpressRunner runner;
 
     public InstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,
         IExpressContext<String, Object> aParent, ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName) {

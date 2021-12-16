@@ -38,8 +38,7 @@ public class QLambda {
             var.setObject(context, params.length > i ? params[i] : null);
         }
 
-        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(),
-            false, true, log);
+        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false, true, log);
     }
 
     /**

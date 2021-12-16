@@ -24,8 +24,7 @@ interface NumberType {
 public class OperatorOfNumber {
     public static double round(double v, int scale) {
         if (scale < 0) {
-            throw new IllegalArgumentException(
-                "The scale must be a positive integer or zero");
+            throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
         BigDecimal bigDecimal = BigDecimal.valueOf(v);
         BigDecimal oneBigDecimal = new BigDecimal("1");
@@ -209,7 +208,6 @@ public class OperatorOfNumber {
 }
 
 class NormalNumberOperator {
-
     /**
      * 普通的加法运算
      *
@@ -356,7 +354,6 @@ class NormalNumberOperator {
  * @author xuannan
  */
 class PreciseNumberOperator {
-
     public static final int DIVIDE_PRECISION = 10;
 
     public static Number addPrecise(Number op1, Number op2) {
