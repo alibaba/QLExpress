@@ -20,60 +20,61 @@ public class OperateDataCacheManager {
     private static final ThreadLocal<RunnerDataCache> RUNNER_DATA_CACHE_THREAD_LOCAL = ThreadLocal.withInitial(
         RunnerDataCache::new);
 
-    public static void push(ExpressRunner aRunner) {
-        RUNNER_DATA_CACHE_THREAD_LOCAL.get().push(aRunner);
+    public static void push(ExpressRunner expressRunner) {
+        RUNNER_DATA_CACHE_THREAD_LOCAL.get().push(expressRunner);
     }
 
     public static IOperateDataCache getOperateDataCache() {
         return RUNNER_DATA_CACHE_THREAD_LOCAL.get().getCache();
     }
 
-    public static OperateData fetchOperateData(Object obj, Class<?> aType) {
-        return getOperateDataCache().fetchOperateData(obj, aType);
+    public static OperateData fetchOperateData(Object obj, Class<?> type) {
+        return getOperateDataCache().fetchOperateData(obj, type);
     }
 
-    public static OperateDataAttr fetchOperateDataAttr(String name, Class<?> aType) {
-        return getOperateDataCache().fetchOperateDataAttr(name, aType);
+    public static OperateDataAttr fetchOperateDataAttr(String name, Class<?> type) {
+        return getOperateDataCache().fetchOperateDataAttr(name, type);
     }
 
-    public static OperateDataLocalVar fetchOperateDataLocalVar(String name, Class<?> aType) {
-        return getOperateDataCache().fetchOperateDataLocalVar(name, aType);
+    public static OperateDataLocalVar fetchOperateDataLocalVar(String name, Class<?> type) {
+        return getOperateDataCache().fetchOperateDataLocalVar(name, type);
     }
 
-    public static OperateDataField fetchOperateDataField(Object aFieldObject, String aFieldName) {
-        return getOperateDataCache().fetchOperateDataField(aFieldObject, aFieldName);
+    public static OperateDataField fetchOperateDataField(Object fieldObject, String fieldName) {
+        return getOperateDataCache().fetchOperateDataField(fieldObject, fieldName);
     }
 
-    public static OperateDataArrayItem fetchOperateDataArrayItem(OperateData aArrayObject, int aIndex) {
-        return getOperateDataCache().fetchOperateDataArrayItem(aArrayObject, aIndex);
+    public static OperateDataArrayItem fetchOperateDataArrayItem(OperateData arrayObject, int index) {
+        return getOperateDataCache().fetchOperateDataArrayItem(arrayObject, index);
     }
 
-    public static OperateDataKeyValue fetchOperateDataKeyValue(OperateData aKey, OperateData aValue) {
-        return getOperateDataCache().fetchOperateDataKeyValue(aKey, aValue);
+    public static OperateDataKeyValue fetchOperateDataKeyValue(OperateData key, OperateData value) {
+        return getOperateDataCache().fetchOperateDataKeyValue(key, value);
     }
 
-    public static RunEnvironment fetRunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext,
-        boolean aIsTrace) {
-        return getOperateDataCache().fetRunEnvironment(aInstructionSet, aContext, aIsTrace);
+    public static RunEnvironment fetRunEnvironment(InstructionSet instructionSet,
+        InstructionSetContext instructionSetContext, boolean isTrace) {
+        return getOperateDataCache().fetRunEnvironment(instructionSet, instructionSetContext, isTrace);
     }
 
-    public static CallResult fetchCallResult(Object aReturnValue, boolean aIsExit) {
-        return getOperateDataCache().fetchCallResult(aReturnValue, aIsExit);
+    public static CallResult fetchCallResult(Object returnValue, boolean isExit) {
+        return getOperateDataCache().fetchCallResult(returnValue, isExit);
     }
 
-    public static InstructionSetContext fetchInstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,
-        IExpressContext<String, Object> aParent, ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName) {
-        return getOperateDataCache().fetchInstructionSetContext(aIsExpandToParent, aRunner, aParent, aExpressLoader,
-            aIsSupportDynamicFieldName);
+    public static InstructionSetContext fetchInstructionSetContext(boolean isExpandToParent,
+        ExpressRunner expressRunner, IExpressContext<String, Object> parent, ExpressLoader expressLoader,
+        boolean isSupportDynamicFieldName) {
+        return getOperateDataCache().fetchInstructionSetContext(isExpandToParent, expressRunner, parent, expressLoader,
+            isSupportDynamicFieldName);
     }
 
     public static long getFetchCount() {
         return getOperateDataCache().getFetchCount();
     }
 
-    public static void resetCache(ExpressRunner aRunner) {
+    public static void resetCache(ExpressRunner expressRunner) {
         getOperateDataCache().resetCache();
-        RUNNER_DATA_CACHE_THREAD_LOCAL.get().pop(aRunner);
+        RUNNER_DATA_CACHE_THREAD_LOCAL.get().pop(expressRunner);
     }
 }
 
@@ -82,9 +83,9 @@ class RunnerDataCache {
 
     private final Stack<ExpressRunner> stack = new Stack<>();
 
-    public void push(ExpressRunner aRunner) {
-        this.cache = aRunner.getOperateDataCache();
-        this.stack.push(aRunner);
+    public void push(ExpressRunner expressRunner) {
+        this.cache = expressRunner.getOperateDataCache();
+        this.stack.push(expressRunner);
     }
 
     public IOperateDataCache getOperateDataCache() {

@@ -15,24 +15,24 @@ import com.ql.util.express.instruction.opdata.OperateDataKeyValue;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 public interface IOperateDataCache {
-    OperateData fetchOperateData(Object obj, Class<?> aType);
+    OperateData fetchOperateData(Object obj, Class<?> type);
 
-    OperateDataAttr fetchOperateDataAttr(String name, Class<?> aType);
+    OperateDataAttr fetchOperateDataAttr(String name, Class<?> type);
 
-    OperateDataLocalVar fetchOperateDataLocalVar(String name, Class<?> aType);
+    OperateDataLocalVar fetchOperateDataLocalVar(String name, Class<?> type);
 
-    OperateDataField fetchOperateDataField(Object aFieldObject, String aFieldName);
+    OperateDataField fetchOperateDataField(Object fieldObject, String fieldName);
 
-    OperateDataArrayItem fetchOperateDataArrayItem(OperateData aArrayObject, int aIndex);
+    OperateDataArrayItem fetchOperateDataArrayItem(OperateData operateData, int index);
 
-    OperateDataKeyValue fetchOperateDataKeyValue(OperateData aKey, OperateData aValue);
+    OperateDataKeyValue fetchOperateDataKeyValue(OperateData key, OperateData value);
 
-    RunEnvironment fetRunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext, boolean aIsTrace);
+    RunEnvironment fetRunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext, boolean isTrace);
 
-    CallResult fetchCallResult(Object aReturnValue, boolean aIsExit);
+    CallResult fetchCallResult(Object returnValue, boolean isExit);
 
-    InstructionSetContext fetchInstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,
-        IExpressContext<String, Object> aParent, ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName);
+    InstructionSetContext fetchInstructionSetContext(boolean isExpandToParent, ExpressRunner expressRunner,
+        IExpressContext<String, Object> parent, ExpressLoader expressLoader, boolean isSupportDynamicFieldName);
 
     void resetCache();
 

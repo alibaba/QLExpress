@@ -10,9 +10,9 @@ public class FunctionInstructionSet {
     public final String type;
     public final InstructionSet instructionSet;
 
-    public FunctionInstructionSet(String aName, String aType, InstructionSet aInstructionSet) {
-        this.name = aName;
-        this.type = aType;
-        this.instructionSet = aInstructionSet;
+    public FunctionInstructionSet(String name, String type, InstructionSet instructionSet) {
+        this.name = name;
+        this.type = type;
+        this.instructionSet = instructionSet;
     }
 }
