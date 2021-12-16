@@ -26,12 +26,6 @@ public class ExpressPackage {
         this.packages.add(aPackageName);
     }
 
-    public void removePackage(String aPackageName) {
-        if (this.packages != null) {
-            this.packages.remove(aPackageName);
-        }
-    }
-
     public Class<?> getClass(String name) {
         Class<?> tempClass = null;
         if (this.parent != null) {
