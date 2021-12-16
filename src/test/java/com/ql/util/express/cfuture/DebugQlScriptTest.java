@@ -9,11 +9,9 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.op.OperatorBase;
 import org.junit.Test;
 
-public class DebugQlScript {
-
+public class DebugQlScriptTest {
     @Test
     public void testPrintContext() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
         runner.addFunction("printContext", new OperatorBase() {
             @Override
