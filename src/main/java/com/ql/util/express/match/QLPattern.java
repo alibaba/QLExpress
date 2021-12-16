@@ -296,13 +296,13 @@ public class QLPattern {
         final ArrayListCache arrayListCache;
 
         public MatchParamsPack(INodeTypeManager iNodeTypeManager, List<? extends IDataNode> nodes, AtomicLong maxDeep,
-            AtomicLong maxMatchPoint, QLMatchResultCache aResultCache, ArrayListCache aArrayListCache) {
+            AtomicLong maxMatchPoint, QLMatchResultCache qlMatchResultCache, ArrayListCache arrayListCache) {
             this.iNodeTypeManager = iNodeTypeManager;
             this.nodes = nodes;
             this.maxDeep = maxDeep;
             this.maxMatchPoint = maxMatchPoint;
-            this.resultCache = aResultCache;
-            this.arrayListCache = aArrayListCache;
+            this.resultCache = qlMatchResultCache;
+            this.arrayListCache = arrayListCache;
         }
     }
 
@@ -311,14 +311,14 @@ public class QLPattern {
         public int fetchCount = 0;
 
         private final QLMatchResult[] cache;
-        private final int len;
+        private final int length;
         private int point;
 
-        public QLMatchResultCache(int aLen) {
-            this.len = aLen;
-            this.point = this.len - 1;
-            cache = new QLMatchResult[this.len];
-            for (int i = 0; i < this.len; i++) {
+        public QLMatchResultCache(int length) {
+            this.length = length;
+            this.point = this.length - 1;
+            cache = new QLMatchResult[this.length];
+            for (int i = 0; i < this.length; i++) {
                 cache[i] = new QLMatchResult();
             }
         }
@@ -338,7 +338,7 @@ public class QLPattern {
         }
 
         public void sendBack(QLMatchResult result) {
-            if (this.point < this.len - 1) {
+            if (this.point < this.length - 1) {
                 this.point = this.point + 1;
                 cache[this.point] = result;
                 cache[this.point].clear();
