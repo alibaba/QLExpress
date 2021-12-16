@@ -260,7 +260,7 @@ public class ExpressParse {
                 }
             }
             result.add(new ExpressNode(tempType, tempWord, originalValue, objectValue, treeNodeType, tmpWordObject.line,
-                tmpWordObject.col, tmpWordObject.index));
+                tmpWordObject.col));
             treeNodeType = null;
             objectValue = null;
             originalValue = null;

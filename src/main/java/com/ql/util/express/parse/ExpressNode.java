@@ -43,17 +43,12 @@ public class ExpressNode implements IDataNode {
      */
     private int col;
 
-    /**
-     * word的序号
-     */
-    private final int wordIndex;
-
     public ExpressNode(NodeType aType, String aValue) throws Exception {
-        this(aType, aValue, null, null, null, -1, -1, -1);
+        this(aType, aValue, null, null, null, -1, -1);
     }
 
     public ExpressNode(NodeType aType, String aValue, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
-        int aLine, int aCol, int wordIndex) throws Exception {
+        int aLine, int aCol) throws Exception {
         if (aType == null) {
             throw new QLCompileException(aValue + " 没有找到对应的节点类型");
         }
@@ -70,7 +65,6 @@ public class ExpressNode implements IDataNode {
         }
         this.line = aLine;
         this.col = aCol;
-        this.wordIndex = wordIndex;
     }
 
     public boolean isTypeEqualsOrChild(String parent) {
