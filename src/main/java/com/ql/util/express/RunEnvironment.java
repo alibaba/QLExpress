@@ -128,11 +128,10 @@ public final class RunEnvironment {
     /**
      * 此方法是调用最频繁的，因此尽量精简代码，提高效率
      *
-     * @param context
      * @param len
      * @return
      */
-    public ArraySwap popArray(InstructionSetContext context, int len) {
+    public ArraySwap popArray(int len) {
         int start = point - len + 1;
         this.arraySwap.swap(this.dataContainer, start, len);
         point = point - len;

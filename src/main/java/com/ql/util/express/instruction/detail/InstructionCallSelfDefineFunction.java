@@ -33,7 +33,7 @@ public class InstructionCallSelfDefineFunction extends Instruction {
 
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
-        ArraySwap parameters = environment.popArray(environment.getContext(), this.opDataNumber);
+        ArraySwap parameters = environment.popArray(this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
             StringBuilder str = new StringBuilder(this.functionName + "(");
             OperateData operateData;

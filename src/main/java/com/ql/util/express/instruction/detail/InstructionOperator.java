@@ -27,7 +27,7 @@ public class InstructionOperator extends Instruction {
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         InstructionSetContext instructionSetContext = environment.getContext();
-        ArraySwap parameters = environment.popArray(instructionSetContext, this.opDataNumber);
+        ArraySwap parameters = environment.popArray(this.opDataNumber);
         if (environment.isTrace() && log.isDebugEnabled()) {
             StringBuilder stringBuilder = new StringBuilder(this.operator.toString() + "(");
             OperateData operateData;
