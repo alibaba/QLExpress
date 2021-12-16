@@ -8,7 +8,7 @@ import com.ql.util.express.InstructionSet;
 import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
-public class TestCompileMemory {
+public class CompileMemoryTest {
 
     @Test
     public void test() throws Exception {
