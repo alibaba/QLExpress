@@ -31,7 +31,7 @@ public class ExpressNode implements IDataNode {
      * 父节点
      */
     private ExpressNode parent;
-    private List<ExpressNode> leftChildren;
+    private List<ExpressNode> children = new ArrayList<>();
 
     /**
      * 行号
@@ -167,25 +167,18 @@ public class ExpressNode implements IDataNode {
     }
 
     public List<ExpressNode> getChildrenList() {
-        return leftChildren;
+        return children;
     }
 
     public void addChild(ExpressNode child) {
         if (child == null) {
             return;
         }
-        if (this.leftChildren == null) {
-            this.leftChildren = new ArrayList<>();
-        }
-        this.leftChildren.add(child);
+        this.children.add(child);
     }
 
     public ExpressNode[] getChildrenArray() {
-        List<ExpressNode> result = new ArrayList<>();
-        if (this.leftChildren != null && this.leftChildren.size() > 0) {
-            result.addAll(this.leftChildren);
-        }
-        return result.toArray(new ExpressNode[0]);
+        return this.children.toArray(new ExpressNode[0]);
     }
 
     @Override
