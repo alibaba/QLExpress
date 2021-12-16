@@ -19,9 +19,9 @@ public class OperatorDef extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
-        Object type = list.get(0).getObject(instructionSetContext);
-        String varName = (String)list.get(1).getObject(instructionSetContext);
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        Object type = list.get(0).getObject(parent);
+        String varName = (String)list.get(1).getObject(parent);
         Class<?> tmpClass;
         if (type instanceof Class) {
             tmpClass = (Class<?>)type;
@@ -29,7 +29,7 @@ public class OperatorDef extends OperatorBase {
             tmpClass = OperateDataVirClass.class;
         }
         OperateDataLocalVar result = OperateDataCacheManager.fetchOperateDataLocalVar(varName, tmpClass);
-        instructionSetContext.addSymbol(varName, result);
+        parent.addSymbol(varName, result);
         return result;
     }
 }

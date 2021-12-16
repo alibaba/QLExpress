@@ -17,7 +17,7 @@ public class OperatorKeyValue extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) {
         return OperateDataCacheManager.fetchOperateDataKeyValue(list.get(0), list.get(1));
     }
 }

@@ -18,11 +18,11 @@ public class OperatorMacro extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        String varName = (String)list.get(0).getObjectInner(context);
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        String varName = (String)list.get(0).getObjectInner(parent);
         OperateDataAttr realAttr = (OperateDataAttr)list.get(1);
         OperateDataAttr result = new OperateDataAlias(varName, realAttr);
-        context.addSymbol(varName, result);
+        parent.addSymbol(varName, result);
         return result;
     }
 }

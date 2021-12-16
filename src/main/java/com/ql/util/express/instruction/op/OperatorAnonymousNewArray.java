@@ -20,14 +20,14 @@ public class OperatorAnonymousNewArray extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
-        Class<?> type = this.findArrayClassType(instructionSetContext, list);
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        Class<?> type = this.findArrayClassType(parent, list);
         type = ExpressUtil.getSimpleDataType(type);
         int[] dims = new int[1];
         dims[0] = list.length;
         Object data = Array.newInstance(type, dims);
         for (int i = 0; i < list.length; i++) {
-            Array.set(data, i, list.get(i).getObject(instructionSetContext));
+            Array.set(data, i, list.get(i).getObject(parent));
         }
         return OperateDataCacheManager.fetchOperateData(data, data.getClass());
     }

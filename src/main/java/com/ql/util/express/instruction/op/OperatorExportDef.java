@@ -17,12 +17,12 @@ public class OperatorExportDef extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Class<?> tmpClass = (Class<?>)list.get(0).getObject(context);
-        String varName = (String)list.get(1).getObject(context);
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        Class<?> tmpClass = (Class<?>)list.get(0).getObject(parent);
+        String varName = (String)list.get(1).getObject(parent);
         //OperateDataLocalVar result = new OperateDataLocalVar(varName,tmpClass);
         //context.exportSymbol(varName, result);
-        OperateDataAttr result = (OperateDataAttr)context.getSymbol(varName);
+        OperateDataAttr result = (OperateDataAttr)parent.getSymbol(varName);
         result.setDefineType(tmpClass);
         return result;
     }

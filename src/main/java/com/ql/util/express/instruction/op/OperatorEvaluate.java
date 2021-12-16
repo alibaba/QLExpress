@@ -11,10 +11,10 @@ public class OperatorEvaluate extends OperatorBase {
         this.name = name;
     }
 
-    public OperatorEvaluate(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorEvaluate(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

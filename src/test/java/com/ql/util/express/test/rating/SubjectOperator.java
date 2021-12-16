@@ -25,16 +25,16 @@ class SubjectOperator extends Operator {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         if (list.length != 2) {
             throw new Exception("科目操作的参数必须包括：科目主体ID和科目名称");
         }
-        Object userId = list.get(0).getObject(context);
-        Object subjectId = list.get(1).getObject(context);
+        Object userId = list.get(0).getObject(parent);
+        Object subjectId = list.get(1).getObject(parent);
         if (userId == null || subjectId == null) {
             throw new Exception("科目主体ID和科目名称不能为null");
         }
-        return new OperateDataSubject((Map)context.get("费用科目"), userId, subjectId);
+        return new OperateDataSubject((Map)parent.get("费用科目"), userId, subjectId);
     }
 
     @Override

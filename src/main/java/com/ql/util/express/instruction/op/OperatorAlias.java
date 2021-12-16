@@ -18,11 +18,11 @@ public class OperatorAlias extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
-        String varName = (String)list.get(0).getObjectInner(instructionSetContext);
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        String varName = (String)list.get(0).getObjectInner(parent);
         OperateDataAttr realAttr = (OperateDataAttr)list.get(1);
         OperateDataAttr result = new OperateDataAlias(varName, realAttr);
-        instructionSetContext.addSymbol(varName, result);
+        parent.addSymbol(varName, result);
         return result;
     }
 }

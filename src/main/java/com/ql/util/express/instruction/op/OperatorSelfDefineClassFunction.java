@@ -88,8 +88,8 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Object[] parameters = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        Object[] parameters = DynamicParamsUtil.transferDynamicParams(parent, list, parameterClasses,
             this.maybeDynamicParams);
         Object obj;
         if (Modifier.isStatic(this.method.getModifiers())) {

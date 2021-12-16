@@ -21,11 +21,11 @@ public class OperatorAnonymousNewMap extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Map<Object, Object> result = new HashMap<>();
         for (int i = 0; i < list.length; i++) {
-            Object key = ((OperateDataKeyValue)list.get(i)).getKey().getObject(instructionSetContext);
-            Object value = ((OperateDataKeyValue)list.get(i)).getValue().getObject(instructionSetContext);
+            Object key = ((OperateDataKeyValue)list.get(i)).getKey().getObject(parent);
+            Object value = ((OperateDataKeyValue)list.get(i)).getValue().getObject(parent);
             result.put(key, value);
         }
         return OperateDataCacheManager.fetchOperateData(result, HashMap.class);

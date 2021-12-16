@@ -9,15 +9,14 @@ import static com.ql.util.express.config.QLExpressRunStrategy.isCompareNullLessM
  * 处理比较操作符号
  */
 public class OperatorEqualsLessMore extends Operator {
-    public OperatorEqualsLessMore(String aName) {
-        this.name = aName;
+    public OperatorEqualsLessMore(String name) {
+        this.name = name;
     }
 
-    public OperatorEqualsLessMore(String aAliasName, String aName,
-        String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorEqualsLessMore(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

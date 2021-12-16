@@ -14,13 +14,13 @@ import com.ql.util.express.instruction.op.OperatorBase;
  */
 public abstract class Operator extends OperatorBase {
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Object[] parameters = new Object[list.length];
         for (int i = 0; i < list.length; i++) {
             if (list.get(i) == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 parameters[i] = null;
             } else {
-                parameters[i] = list.get(i).getObject(context);
+                parameters[i] = list.get(i).getObject(parent);
             }
         }
         Object result = this.executeInner(parameters);

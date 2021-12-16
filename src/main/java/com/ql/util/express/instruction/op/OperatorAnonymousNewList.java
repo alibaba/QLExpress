@@ -20,10 +20,10 @@ public class OperatorAnonymousNewList extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         List<Object> result = new ArrayList<>();
         for (int i = 0; i < list.length; i++) {
-            result.add(list.get(i).getObject(instructionSetContext));
+            result.add(list.get(i).getObject(parent));
         }
         return OperateDataCacheManager.fetchOperateData(result, List.class);
     }

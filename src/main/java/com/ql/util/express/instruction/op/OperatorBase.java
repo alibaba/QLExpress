@@ -145,7 +145,7 @@ class OperatorFunction extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         throw new QLException("还没有实现");
     }
 }

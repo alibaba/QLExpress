@@ -20,16 +20,16 @@ public class OperatorArray extends OperatorBase {
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         OperateData firstOperateData = list.get(0);
-        if (firstOperateData == null || firstOperateData.getObject(instructionSetContext) == null) {
+        if (firstOperateData == null || firstOperateData.getObject(parent) == null) {
             throw new QLException("对象为null，不能执行数组相关操作");
         }
 
-        Object tmpObject = firstOperateData.getObject(instructionSetContext);
+        Object tmpObject = firstOperateData.getObject(parent);
 
         if (!tmpObject.getClass().isArray()) {
-            Object property = list.get(1).getObject(instructionSetContext);
+            Object property = list.get(1).getObject(parent);
             //支持data.get(index) ->data[index]
             if (tmpObject instanceof List && property instanceof Number) {
                 int index = ((Number)property).intValue();
@@ -41,7 +41,7 @@ public class OperatorArray extends OperatorBase {
             }
         }
         //支持原生Array：data[index]
-        int index = ((Number)list.get(1).getObject(instructionSetContext)).intValue();
+        int index = ((Number)list.get(1).getObject(parent)).intValue();
         return OperateDataCacheManager.fetchOperateDataArrayItem(firstOperateData, index);
     }
 }

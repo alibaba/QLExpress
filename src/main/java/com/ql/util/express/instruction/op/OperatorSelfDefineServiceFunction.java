@@ -69,8 +69,8 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Object[] parameters = DynamicParamsUtil.transferDynamicParams(context, list, parameterClasses,
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        Object[] parameters = DynamicParamsUtil.transferDynamicParams(parent, list, parameterClasses,
             this.maybeDynamicParams);
         Object obj = this.method.invoke(this.serviceObject, ExpressUtil.transferArray(parameters, parameterClasses));
         if (obj != null) {
