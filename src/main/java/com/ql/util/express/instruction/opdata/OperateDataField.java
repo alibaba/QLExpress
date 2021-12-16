@@ -9,26 +9,26 @@ public class OperateDataField extends OperateDataAttr {
     private Object fieldObject;
     private String originalFieldName;
 
-    public OperateDataField(Object aFieldObject, String aFieldName) {
+    public OperateDataField(Object fieldObject, String fieldName) {
         super(null, null);
-        if (aFieldObject == null) {
+        if (fieldObject == null) {
             this.name = "没有初始化的Field";
         } else {
-            this.name = aFieldObject.getClass().getName() + "." + aFieldName;
+            this.name = fieldObject.getClass().getName() + "." + fieldName;
         }
-        this.fieldObject = aFieldObject;
-        this.originalFieldName = aFieldName;
+        this.fieldObject = fieldObject;
+        this.originalFieldName = fieldName;
     }
 
-    public void initialDataField(Object aFieldObject, String aFieldName) {
+    public void initialDataField(Object fieldObject, String fieldName) {
         super.initialDataAttr(null, null);
-        if (aFieldObject == null) {
-            this.name = Void.class.getName() + "." + aFieldName;
+        if (fieldObject == null) {
+            this.name = Void.class.getName() + "." + fieldName;
         } else {
-            this.name = aFieldObject.getClass().getName() + "." + aFieldName;
+            this.name = fieldObject.getClass().getName() + "." + fieldName;
         }
-        this.fieldObject = aFieldObject;
-        this.originalFieldName = aFieldName;
+        this.fieldObject = fieldObject;
+        this.originalFieldName = fieldName;
     }
 
     public void clearDataField() {
