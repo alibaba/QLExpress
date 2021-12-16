@@ -44,9 +44,7 @@ public class ExpressCacheTest {
 
     @Test
     public void testLocalCacheMutualImpact() throws Exception {
-
-        //缓存在本地的脚本都是全局的，可以相互调用
-
+        // 缓存在本地的脚本都是全局的，可以相互调用
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
         runner.addMacro("是否优秀", "计算平均成绩>90");
         IExpressContext<String, Object> context = new DefaultContext<>();
