@@ -57,8 +57,8 @@ public class InstructionSet {
      */
     private final List<OperateDataLocalVar> parameterList = new ArrayList<>();
 
-    public InstructionSet(String aType) {
-        this.type = aType;
+    public InstructionSet(String type) {
+        this.type = type;
     }
 
     public String[] getOutFunctionNames() {
@@ -133,14 +133,14 @@ public class InstructionSet {
     /**
      * 插入数据
      *
-     * @param aPoint
+     * @param point
      * @param item
      */
-    private void insertArrayItem(int aPoint, Instruction item) {
+    private void insertArrayItem(int point, Instruction item) {
         Instruction[] newArray = new Instruction[this.instructionList.length + 1];
-        System.arraycopy(this.instructionList, 0, newArray, 0, aPoint);
-        System.arraycopy(this.instructionList, aPoint, newArray, aPoint + 1, this.instructionList.length - aPoint);
-        newArray[aPoint] = item;
+        System.arraycopy(this.instructionList, 0, newArray, 0, point);
+        System.arraycopy(this.instructionList, point, newArray, point + 1, this.instructionList.length - point);
+        newArray[point] = item;
         this.instructionList = newArray;
     }
 
@@ -149,14 +149,12 @@ public class InstructionSet {
      * @param context
      * @param errorList
      * @param isReturnLastData 是否最后的结果，主要是在执行宏定义的时候需要
-     * @param aLog
+     * @param log
      * @return
      * @throws Exception
      */
-    public CallResult execute(RunEnvironment environment, InstructionSetContext context,
-        List<String> errorList, boolean isReturnLastData, Log aLog)
-        throws Exception {
-
+    public CallResult execute(RunEnvironment environment, InstructionSetContext context, List<String> errorList,
+        boolean isReturnLastData, Log log) throws Exception {
         //将函数export到上下文中,这儿就是重入也没有关系，不需要考虑并发
         if (cacheFunctionSet == null) {
             Map<String, Object> tempMap = new HashMap<>();
@@ -168,7 +166,7 @@ public class InstructionSet {
 
         context.addSymbol(cacheFunctionSet);
 
-        this.executeInnerOriginalInstruction(environment, errorList, aLog);
+        this.executeInnerOriginalInstruction(environment, errorList, log);
         // 是在执行完所有的指令后结束的代码
         if (!environment.isExit()) {
             if (environment.getDataStackSize() > 0) {

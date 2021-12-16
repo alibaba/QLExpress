@@ -14,17 +14,17 @@ public final class RunEnvironment {
     private InstructionSet instructionSet;
     private InstructionSetContext context;
 
-    public RunEnvironment(InstructionSet aInstructionSet, InstructionSetContext aContext, boolean aIsTrace) {
+    public RunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext, boolean isTrace) {
         dataContainer = new OperateData[INIT_DATA_LENGTH];
-        this.instructionSet = aInstructionSet;
-        this.context = aContext;
-        this.isTrace = aIsTrace;
+        this.instructionSet = instructionSet;
+        this.context = instructionSetContext;
+        this.isTrace = isTrace;
     }
 
-    public void initial(InstructionSet aInstructionSet, InstructionSetContext aContext, boolean aIsTrace) {
-        this.instructionSet = aInstructionSet;
-        this.context = aContext;
-        this.isTrace = aIsTrace;
+    public void initial(InstructionSet instructionSet, InstructionSetContext instructionSetContext, boolean isTrace) {
+        this.instructionSet = instructionSet;
+        this.context = instructionSetContext;
+        this.isTrace = isTrace;
     }
 
     public void clear() {
@@ -47,8 +47,8 @@ public final class RunEnvironment {
         return this.context;
     }
 
-    public void setContext(InstructionSetContext aContext) {
-        this.context = aContext;
+    public void setContext(InstructionSetContext instructionSetContext) {
+        this.context = instructionSetContext;
     }
 
     public boolean isExit() {
@@ -63,9 +63,9 @@ public final class RunEnvironment {
         this.returnValue = value;
     }
 
-    public void quitExpress(Object aReturnValue) {
+    public void quitExpress(Object returnValue) {
         this.isExit = true;
-        this.returnValue = aReturnValue;
+        this.returnValue = returnValue;
     }
 
     public void quitExpress() {
@@ -121,8 +121,8 @@ public final class RunEnvironment {
         this.point = -1;
     }
 
-    public void gotoWithOffset(int aOffset) {
-        this.programPoint = this.programPoint + aOffset;
+    public void gotoWithOffset(int offset) {
+        this.programPoint = this.programPoint + offset;
     }
 
     /**

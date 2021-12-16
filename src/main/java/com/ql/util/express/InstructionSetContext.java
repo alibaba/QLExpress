@@ -30,18 +30,18 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         return runner;
     }
 
-    public InstructionSetContext(boolean aIsExpandToParent, ExpressRunner aRunner,
-        IExpressContext<String, Object> aParent, ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName) {
-        this.initial(aIsExpandToParent, aRunner, aParent, aExpressLoader, aIsSupportDynamicFieldName);
+    public InstructionSetContext(boolean isExpandToParent, ExpressRunner expressRunner,
+        IExpressContext<String, Object> parent, ExpressLoader expressLoader, boolean isSupportDynamicFieldName) {
+        this.initial(isExpandToParent, expressRunner, parent, expressLoader, isSupportDynamicFieldName);
     }
 
-    public void initial(boolean aIsExpandToParent, ExpressRunner aRunner, IExpressContext<String, Object> aParent,
-        ExpressLoader aExpressLoader, boolean aIsSupportDynamicFieldName) {
-        this.isExpandToParent = aIsExpandToParent;
-        this.runner = aRunner;
-        this.parent = aParent;
-        this.expressLoader = aExpressLoader;
-        this.isSupportDynamicFieldName = aIsSupportDynamicFieldName;
+    public void initial(boolean isExpandToParent, ExpressRunner expressRunner, IExpressContext<String, Object> parent,
+        ExpressLoader expressLoader, boolean isSupportDynamicFieldName) {
+        this.isExpandToParent = isExpandToParent;
+        this.runner = expressRunner;
+        this.parent = parent;
+        this.expressLoader = expressLoader;
+        this.isSupportDynamicFieldName = isSupportDynamicFieldName;
     }
 
     public void clear() {

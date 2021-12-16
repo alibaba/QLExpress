@@ -661,7 +661,7 @@ public class ExpressRunner {
         return executeReentrant(parseResult, context, errorList, isTrace, log);
     }
 
-    private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> aContext,
+    private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> iExpressContext,
         List<String> errorList, boolean isTrace, Log log) throws Exception {
         try {
             int reentrantCount = threadReentrantCount.get() + 1;
@@ -669,10 +669,10 @@ public class ExpressRunner {
 
             return reentrantCount > 1 ?
                 // 线程重入
-                InstructionSetRunner.execute(this, sets, this.loader, aContext, errorList, isTrace, false, true, log,
-                    false) :
-                InstructionSetRunner.executeOuter(this, sets, this.loader, aContext, errorList, isTrace, false, log,
-                    false);
+                InstructionSetRunner.execute(this, sets, this.loader, iExpressContext, errorList, isTrace, false, true,
+                    log, false) :
+                InstructionSetRunner.executeOuter(this, sets, this.loader, iExpressContext, errorList, isTrace, false,
+                    log, false);
         } finally {
             threadReentrantCount.set(threadReentrantCount.get() - 1);
         }

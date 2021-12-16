@@ -12,8 +12,8 @@ public class OperateData {
     protected Object dataObject;
     protected Class<?> type;
 
-    public OperateData(Object obj, Class<?> aType) {
-        this.type = aType;
+    public OperateData(Object obj, Class<?> type) {
+        this.type = type;
         this.dataObject = obj;
     }
 
@@ -21,10 +21,10 @@ public class OperateData {
      * 给对象缓存接口使用
      *
      * @param obj
-     * @param aType
+     * @param type
      */
-    public void initial(Object obj, Class<?> aType) {
-        this.type = aType;
+    public void initial(Object obj, Class<?> type) {
+        this.type = type;
         this.dataObject = obj;
     }
 

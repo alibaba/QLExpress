@@ -34,32 +34,32 @@ public class OperatorOfNumber {
     /**
      * 获取数据类型精度顺序
      *
-     * @param aClass
+     * @param clazz
      * @return
      */
-    public static int getSeq(Class<?> aClass) {
-        if (aClass == Byte.class || aClass == byte.class) {
+    public static int getSeq(Class<?> clazz) {
+        if (clazz == Byte.class || clazz == byte.class) {
             return NumberType.NUMBER_TYPE_BYTE;
         }
-        if (aClass == Short.class || aClass == short.class) {
+        if (clazz == Short.class || clazz == short.class) {
             return NumberType.NUMBER_TYPE_SHORT;
         }
-        if (aClass == Integer.class || aClass == int.class) {
+        if (clazz == Integer.class || clazz == int.class) {
             return NumberType.NUMBER_TYPE_INT;
         }
-        if (aClass == Long.class || aClass == long.class) {
+        if (clazz == Long.class || clazz == long.class) {
             return NumberType.NUMBER_TYPE_LONG;
         }
-        if (aClass == Float.class || aClass == float.class) {
+        if (clazz == Float.class || clazz == float.class) {
             return NumberType.NUMBER_TYPE_FLOAT;
         }
-        if (aClass == Double.class || aClass == double.class) {
+        if (clazz == Double.class || clazz == double.class) {
             return NumberType.NUMBER_TYPE_DOUBLE;
         }
-        if (aClass == BigDecimal.class) {
+        if (clazz == BigDecimal.class) {
             return NumberType.NUMBER_TYPE_BIG_DECIMAL;
         }
-        throw new RuntimeException("不能处理的数据类型：" + aClass.getName());
+        throw new RuntimeException("不能处理的数据类型：" + clazz.getName());
     }
 
     /**
