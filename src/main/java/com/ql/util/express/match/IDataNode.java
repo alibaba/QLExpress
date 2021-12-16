@@ -9,7 +9,7 @@ public interface IDataNode {
 
     INodeType getTreeType();
 
-    void addLeftChild(IDataNode ref);
+    void addChild(IDataNode ref);
 
     IDataNode createExpressNode(INodeType aType, String aValue) throws Exception;
 

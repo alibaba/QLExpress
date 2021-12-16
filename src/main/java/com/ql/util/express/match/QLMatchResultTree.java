@@ -65,13 +65,13 @@ public class QLMatchResultTree {
         }
         if (this.left != null) {
             for (QLMatchResultTree item : left) {
-                this.ref.addLeftChild(item.ref);
+                this.ref.addChild(item.ref);
                 item.buildExpressNodeTree();
             }
         }
         if (this.right != null) {
             for (QLMatchResultTree item : right) {
-                this.ref.addLeftChild(item.ref);
+                this.ref.addChild(item.ref);
                 item.buildExpressNodeTree();
             }
         }

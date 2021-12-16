@@ -199,7 +199,7 @@ public class ExpressNode implements IDataNode {
     }
 
     @Override
-    public void addLeftChild(IDataNode ref) {
+    public void addChild(IDataNode ref) {
         this.addChild((ExpressNode)ref);
     }
 
