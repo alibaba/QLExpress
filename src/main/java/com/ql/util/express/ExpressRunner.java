@@ -431,24 +431,24 @@ public class ExpressRunner {
      * 用于将一个用户自己定义的对象(例如Spring对象)方法转换为一个表达式计算的函数
      *
      * @param name
-     * @param aServiceObject
-     * @param aFunctionName
-     * @param aParameterTypes
+     * @param serviceObject
+     * @param functionName
+     * @param parameterTypes
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
-        String[] aParameterTypes, String errorInfo) throws Exception {
+    public void addFunctionOfServiceMethod(String name, Object serviceObject, String functionName,
+        String[] parameterTypes, String errorInfo) throws Exception {
         OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
-            name, aServiceObject, aFunctionName, aParameterTypes, null, null, errorInfo);
+            name, serviceObject, functionName, parameterTypes, null, null, errorInfo);
         this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
-        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public void addFunctionOfServiceMethod(String name, Object serviceObject, String functionName,
+        String[] parameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
-            name, aServiceObject, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+            name, serviceObject, functionName, parameterTypes, parameterDesc, parameterAnnotation, errorInfo);
         this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
