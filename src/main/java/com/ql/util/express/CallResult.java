@@ -4,13 +4,13 @@ public class CallResult {
     private Object returnValue;
     private boolean isExit;
 
-    public CallResult(Object aReturnValue, boolean aIsExit) {
-        this.initial(aReturnValue, aIsExit);
+    public CallResult(Object returnValue, boolean isExit) {
+        this.initial(returnValue, isExit);
     }
 
-    public void initial(Object aReturnValue, boolean aIsExit) {
-        this.returnValue = aReturnValue;
-        this.isExit = aIsExit;
+    public void initial(Object returnValue, boolean isExit) {
+        this.returnValue = returnValue;
+        this.isExit = isExit;
     }
 
     public void clear() {

@@ -14,14 +14,14 @@ import com.ql.util.express.instruction.FunctionInstructionSet;
  */
 public class ExpressLoader {
     private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache = new ConcurrentHashMap<>();
-    final ExpressRunner creator;
+    final ExpressRunner expressRunner;
 
-    public ExpressLoader(ExpressRunner aCreator) {
-        this.creator = aCreator;
+    public ExpressLoader(ExpressRunner expressRunner) {
+        this.expressRunner = expressRunner;
     }
 
     public InstructionSet loadExpress(String expressName) throws Exception {
-        return parseInstructionSet(expressName, this.creator.getExpressResourceLoader().loadExpress(expressName));
+        return parseInstructionSet(expressName, this.expressRunner.getExpressResourceLoader().loadExpress(expressName));
     }
 
     public void addInstructionSet(String expressName, InstructionSet set)
@@ -40,7 +40,7 @@ public class ExpressLoader {
             throw new QLException("表达式定义重复：" + expressName);
         }
         synchronized (expressInstructionSetCache) {
-            parseResult = this.creator.parseInstructionSet(expressString);
+            parseResult = this.expressRunner.parseInstructionSet(expressString);
             parseResult.setName(expressName);
             parseResult.setGlobeName(expressName);
             // 需要将函数和宏定义都提取出来

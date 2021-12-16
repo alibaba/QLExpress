@@ -115,31 +115,31 @@ public class ExpressRunner {
     }
 
     /**
-     * @param aIsPrecise 是否需要高精度计算支持
-     * @param aIsTrace   是否跟踪执行指令的过程
+     * @param isPrecise 是否需要高精度计算支持
+     * @param isTrace   是否跟踪执行指令的过程
      */
-    public ExpressRunner(boolean aIsPrecise, boolean aIsTrace) {
-        this(aIsPrecise, aIsTrace, new DefaultExpressResourceLoader(), null);
+    public ExpressRunner(boolean isPrecise, boolean isTrace) {
+        this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null);
     }
 
-    public ExpressRunner(boolean aIsPrecise, boolean aIsStrace, NodeTypeManager aManager) {
-        this(aIsPrecise, aIsStrace, new DefaultExpressResourceLoader(), aManager);
+    public ExpressRunner(boolean isPrecise, boolean isStrace, NodeTypeManager nodeTypeManager) {
+        this(isPrecise, isStrace, new DefaultExpressResourceLoader(), nodeTypeManager);
     }
 
     /**
-     * @param aIsPrecise             是否需要高精度计算支持
-     * @param aIsTrace               是否跟踪执行指令的过程
-     * @param aExpressResourceLoader 表达式的资源装载器
+     * @param isPrecise              是否需要高精度计算支持
+     * @param isTrace                是否跟踪执行指令的过程
+     * @param iExpressResourceLoader 表达式的资源装载器
      */
-    public ExpressRunner(boolean aIsPrecise, boolean aIsTrace, IExpressResourceLoader aExpressResourceLoader,
-        NodeTypeManager aManager) {
-        this.isTrace = aIsTrace;
-        this.isPrecise = aIsPrecise;
-        this.expressResourceLoader = aExpressResourceLoader;
-        if (aManager == null) {
+    public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
+        NodeTypeManager nodeTypeManager) {
+        this.isTrace = isTrace;
+        this.isPrecise = isPrecise;
+        this.expressResourceLoader = iExpressResourceLoader;
+        if (nodeTypeManager == null) {
             manager = new NodeTypeManager();
         } else {
-            manager = aManager;
+            manager = nodeTypeManager;
         }
         this.operatorManager = new OperatorFactory(this.isPrecise);
         this.loader = new ExpressLoader(this);
@@ -303,55 +303,52 @@ public class ExpressRunner {
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      *
-     * @param name                 函数名称
-     * @param aClassName           类名称
-     * @param aFunctionName        类中的方法名称
-     * @param aParameterClassTypes 方法的参数类型名称
-     * @param errorInfo            如果函数执行的结果是false，需要输出的错误信息
+     * @param name                函数名称
+     * @param className           类名称
+     * @param functionName        类中的方法名称
+     * @param parameterClassTypes 方法的参数类型名称
+     * @param errorInfo           如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, String aClassName,
-        String aFunctionName, Class<?>[] aParameterClassTypes,
-        String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-            aClassName, aFunctionName, aParameterClassTypes, null, null, errorInfo));
+    public void addFunctionOfClassMethod(String name, String className, String functionName,
+        Class<?>[] parameterClassTypes, String errorInfo) throws Exception {
+        this.addFunction(name, new OperatorSelfDefineClassFunction(name, className, functionName, parameterClassTypes,
+            null, null, errorInfo));
     }
 
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      *
-     * @param name                 函数名称
-     * @param aClass               类
-     * @param aFunctionName        类中的方法名称
-     * @param aParameterClassTypes 方法的参数类型名称
-     * @param errorInfo            如果函数执行的结果是false，需要输出的错误信息
+     * @param name                函数名称
+     * @param clazz               类
+     * @param functionName        类中的方法名称
+     * @param parameterClassTypes 方法的参数类型名称
+     * @param errorInfo           如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, Class<?> aClass,
-        String aFunctionName, Class<?>[] aParameterClassTypes,
-        String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-            aClass, aFunctionName, aParameterClassTypes, null, null, errorInfo));
+    public void addFunctionOfClassMethod(String name, Class<?> clazz, String functionName,
+        Class<?>[] parameterClassTypes, String errorInfo) throws Exception {
+        this.addFunction(name, new OperatorSelfDefineClassFunction(name, clazz, functionName, parameterClassTypes,
+            null, null, errorInfo));
     }
 
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      *
-     * @param name                 函数名称
-     * @param aClassName           类名称
-     * @param aFunctionName        类中的方法名称
-     * @param aParameterClassTypes 方法的参数类型名称
-     * @param aParameterDesc       方法的参数说明
-     * @param aParameterAnnotation 方法的参数注解
-     * @param errorInfo            如果函数执行的结果是false，需要输出的错误信息
+     * @param name                函数名称
+     * @param className           类名称
+     * @param functionName        类中的方法名称
+     * @param parameterClassTypes 方法的参数类型名称
+     * @param parameterDesc       方法的参数说明
+     * @param parameterAnnotation 方法的参数注解
+     * @param errorInfo           如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, String aClassName,
-        String aFunctionName, Class<?>[] aParameterClassTypes,
-        String[] aParameterDesc, String[] aParameterAnnotation,
-        String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name,
-            aClassName, aFunctionName, aParameterClassTypes, aParameterDesc, aParameterAnnotation, errorInfo));
+    public void addFunctionOfClassMethod(String name, String className, String functionName,
+        Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
+        throws Exception {
+        this.addFunction(name, new OperatorSelfDefineClassFunction(name, className, functionName, parameterClassTypes,
+            parameterDesc, parameterAnnotation, errorInfo));
     }
 
     /**

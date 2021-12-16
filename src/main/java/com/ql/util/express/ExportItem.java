@@ -23,18 +23,18 @@ public class ExportItem {
      */
     private String desc;
 
-    public ExportItem(String aName, String aType, String aDesc) {
-        this.globeName = aName;
-        this.name = aName;
-        this.type = aType;
-        this.desc = aDesc;
+    public ExportItem(String name, String type, String desc) {
+        this.globeName = name;
+        this.name = name;
+        this.type = type;
+        this.desc = desc;
     }
 
-    public ExportItem(String aGlobeName, String aName, String aType, String aDesc) {
-        this.globeName = aGlobeName;
-        this.name = aName;
-        this.type = aType;
-        this.desc = aDesc;
+    public ExportItem(String globeName, String name, String type, String desc) {
+        this.globeName = globeName;
+        this.name = name;
+        this.type = type;
+        this.desc = desc;
     }
 
     @Override
