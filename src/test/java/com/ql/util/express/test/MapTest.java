@@ -9,8 +9,7 @@ import com.ql.util.express.IExpressContext;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestMap {
-
+public class MapTest {
     @Test
     public void testInt2Object() throws Exception {
         String express = "Map a = new HashMap(); a.put(\"a\",100 - 10);return a.get(\"a\")";
