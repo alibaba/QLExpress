@@ -9,21 +9,21 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorAnonymousNewList extends OperatorBase {
-    public OperatorAnonymousNewList(String aName) {
-        this.name = aName;
+    public OperatorAnonymousNewList(String name) {
+        this.name = name;
     }
 
-    public OperatorAnonymousNewList(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorAnonymousNewList(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
         List<Object> result = new ArrayList<>();
         for (int i = 0; i < list.length; i++) {
-            result.add(list.get(i).getObject(context));
+            result.add(list.get(i).getObject(instructionSetContext));
         }
         return OperateDataCacheManager.fetchOperateData(result, List.class);
     }
