@@ -466,13 +466,13 @@ public class ExpressRunner {
     /**
      * 添加操作符号，此操作符号与给定的参照操作符号在优先级别和语法形式上一致
      *
-     * @param name             操作符号名称
-     * @param aRefOperatorName 参照的操作符号，例如 "+","--"等
+     * @param name            操作符号名称
+     * @param refOperatorName 参照的操作符号，例如 "+","--"等
      * @param operator
      * @throws Exception
      */
-    public void addOperator(String name, String aRefOperatorName, Operator operator) throws Exception {
-        this.manager.addOperatorWithLevelOfReference(name, aRefOperatorName);
+    public void addOperator(String name, String refOperatorName, Operator operator) throws Exception {
+        this.manager.addOperatorWithLevelOfReference(name, refOperatorName);
         this.operatorManager.addOperator(name, operator);
     }
 
@@ -542,14 +542,14 @@ public class ExpressRunner {
      * @param errorList
      * @param isTrace
      * @param isCatchException
-     * @param aLog
+     * @param log
      * @return
      * @throws Exception
      */
     public Object executeByExpressName(String name, IExpressContext<String, Object> context, List<String> errorList,
-        boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
+        boolean isTrace, boolean isCatchException, Log log) throws Exception {
         return InstructionSetRunner.executeOuter(this, this.loader.getInstructionSet(name), this.loader, context,
-            errorList, isTrace, isCatchException, aLog, false);
+            errorList, isTrace, isCatchException, log, false);
     }
 
     /**
@@ -561,15 +561,15 @@ public class ExpressRunner {
      * @param errorList
      * @param isTrace
      * @param isCatchException
-     * @param aLog
+     * @param log
      * @return
      * @throws Exception
      */
     @Deprecated
     public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
         return InstructionSetRunner.executeOuter(this, instructionSets[0], this.loader, context, errorList,
-            isTrace, isCatchException, aLog, false);
+            isTrace, isCatchException, log, false);
     }
 
     /**
@@ -580,14 +580,14 @@ public class ExpressRunner {
      * @param errorList
      * @param isTrace
      * @param isCatchException
-     * @param aLog
+     * @param log
      * @return
      * @throws Exception
      */
     public Object execute(InstructionSet instructionSets, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isTrace, boolean isCatchException, Log aLog) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
         return InstructionSetRunner.executeOuter(this, instructionSets, this.loader, context, errorList,
-            isTrace, isCatchException, aLog, false);
+            isTrace, isCatchException, log, false);
     }
 
     /**
@@ -637,12 +637,12 @@ public class ExpressRunner {
      * @param errorList     输出的错误信息List
      * @param isCache       是否使用Cache中的指令集
      * @param isTrace       是否输出详细的执行指令信息
-     * @param aLog          输出的log
+     * @param log           输出的log
      * @return
      * @throws Exception
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
-        boolean isCache, boolean isTrace, Log aLog) throws Exception {
+        boolean isCache, boolean isTrace, Log log) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
@@ -658,21 +658,21 @@ public class ExpressRunner {
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
-        return executeReentrant(parseResult, context, errorList, isTrace, aLog);
+        return executeReentrant(parseResult, context, errorList, isTrace, log);
     }
 
     private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> aContext,
-        List<String> errorList, boolean isTrace, Log aLog) throws Exception {
+        List<String> errorList, boolean isTrace, Log log) throws Exception {
         try {
             int reentrantCount = threadReentrantCount.get() + 1;
             threadReentrantCount.set(reentrantCount);
 
             return reentrantCount > 1 ?
                 // 线程重入
-                InstructionSetRunner.execute(this, sets, this.loader, aContext, errorList,
-                    isTrace, false, true, aLog, false) :
-                InstructionSetRunner.executeOuter(this, sets, this.loader, aContext, errorList,
-                    isTrace, false, aLog, false);
+                InstructionSetRunner.execute(this, sets, this.loader, aContext, errorList, isTrace, false, true, log,
+                    false) :
+                InstructionSetRunner.executeOuter(this, sets, this.loader, aContext, errorList, isTrace, false, log,
+                    false);
         } finally {
             threadReentrantCount.set(threadReentrantCount.get() - 1);
         }
