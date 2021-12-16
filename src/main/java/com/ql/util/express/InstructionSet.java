@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLException;
@@ -28,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class InstructionSet {
     private static final transient Log log = LogFactory.getLog(InstructionSet.class);
-    public static final AtomicInteger UNIQUE_INDEX = new AtomicInteger(1);
     public static final String TYPE_CLASS = "VClass";
     public static final String TYPE_FUNCTION = "function";
     public static final String TYPE_MARCO = "marco";
@@ -58,10 +56,6 @@ public class InstructionSet {
      * 函数参数定义
      */
     private final List<OperateDataLocalVar> parameterList = new ArrayList<>();
-
-    public static int getUniqClassIndex() {
-        return UNIQUE_INDEX.getAndIncrement();
-    }
 
     public InstructionSet(String aType) {
         this.type = aType;
@@ -325,8 +319,7 @@ public class InstructionSet {
             }
             for (int i = 0; i < this.instructionList.length; i++) {
                 appendSpace(buffer, level);
-                buffer.append(i + 1).append(":").append(this.instructionList[i])
-                    .append("\n");
+                buffer.append(i + 1).append(":").append(this.instructionList[i]).append("\n");
             }
             return buffer.toString();
         } catch (Exception e) {
@@ -334,5 +327,3 @@ public class InstructionSet {
         }
     }
 }
-
-	

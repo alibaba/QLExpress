@@ -40,6 +40,7 @@ public class QLExpressContext extends HashMap<String, Object> implements
         return result;
     }
 
+    @Override
     public Object put(String name, Object object) {
         return super.put(name, object);
     }
