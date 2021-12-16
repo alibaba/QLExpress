@@ -371,19 +371,19 @@ public class ExpressRunner {
     /**
      * 添加一个类的函数定义，例如：Math.abs(double) 映射为表达式中的 "取绝对值(-5.0)"
      *
-     * @param name                 函数名称
-     * @param aClassName           类名称
-     * @param aFunctionName        类中的方法名称
-     * @param aParameterTypes      方法的参数类型名称
-     * @param aParameterDesc       方法的参数说明
-     * @param aParameterAnnotation 方法的参数注解
-     * @param errorInfo            如果函数执行的结果是false，需要输出的错误信息
+     * @param name                函数名称
+     * @param className           类名称
+     * @param functionName        类中的方法名称
+     * @param parameterTypes      方法的参数类型名称
+     * @param parameterDesc       方法的参数说明
+     * @param parameterAnnotation 方法的参数注解
+     * @param errorInfo           如果函数执行的结果是false，需要输出的错误信息
      * @throws Exception
      */
-    public void addFunctionOfClassMethod(String name, String aClassName, String aFunctionName, String[] aParameterTypes,
-        String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo) throws Exception {
+    public void addFunctionOfClassMethod(String name, String className, String functionName, String[] parameterTypes,
+        String[] parameterDesc, String[] parameterAnnotation, String errorInfo) throws Exception {
         OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
-            aClassName, aFunctionName, aParameterTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+            className, functionName, parameterTypes, parameterDesc, parameterAnnotation, errorInfo);
         this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
