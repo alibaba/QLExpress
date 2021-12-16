@@ -27,8 +27,8 @@ public class AppendingClassFieldManager {
     }
 
     public Object invoke(AppendingField appendingField, Object aFieldObject) throws Exception {
-        Operator op = appendingField.op;
-        return op.executeInner(new Object[] {aFieldObject});
+        Operator operator = appendingField.operator;
+        return operator.executeInner(new Object[] {aFieldObject});
     }
 
     public static class AppendingField {
@@ -36,14 +36,14 @@ public class AppendingClassFieldManager {
 
         private final Class<?> bindingClass;
 
-        private final Operator op;
+        private final Operator operator;
 
         public final Class<?> returnType;
 
-        public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator op) {
+        public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator operator) {
             this.name = name;
             this.bindingClass = bindingClass;
-            this.op = op;
+            this.operator = operator;
             this.returnType = returnType;
         }
     }
