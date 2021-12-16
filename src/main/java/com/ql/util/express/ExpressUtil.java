@@ -18,9 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ql.util.express.annotation.QLAlias;
-import com.ql.util.express.util.QLAliasUtils;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
+import com.ql.util.express.util.QLAliasUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
@@ -72,6 +72,11 @@ public class ExpressUtil {
         {char.class, Character.class}, {Character.class, char.class},
         {boolean.class, Boolean.class}, {Boolean.class, boolean.class}
     };
+
+    /**
+     * 一个接口是否函数式接口的缓存
+     */
+    private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
 
     public static Class<?> getSimpleDataType(Class<?> aClass) {
         if (!aClass.isPrimitive()) {
@@ -703,12 +708,6 @@ public class ExpressUtil {
             return value;
         }
     }
-
-    /**
-     * 一个接口是否函数式接口的缓存
-     */
-    private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE
-        = new ConcurrentHashMap<>();
 
     /**
      * 是否函数式接口

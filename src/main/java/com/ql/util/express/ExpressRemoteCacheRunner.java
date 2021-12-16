@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
  * @author tianqiao
  */
 public abstract class ExpressRemoteCacheRunner {
-
     public void loadCache(String expressName, String text) {
         InstructionSet instructionSet;
         try {
