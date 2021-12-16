@@ -15,7 +15,7 @@ import org.junit.Test;
 /**
  * Created by tianqiao on 16/10/17.
  */
-public class TestAddMethodInvoke {
+public class AddMethodInvokeTest {
     @Test
     public void testStringMethod() throws Exception {
         ExpressRunner runner = new ExpressRunner();

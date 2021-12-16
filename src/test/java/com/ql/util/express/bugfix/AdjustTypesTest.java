@@ -55,8 +55,8 @@ public class AdjustTypesTest {
         IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("testAdjustTypes", instance);
         String exp
-            = "testAdjustTypes.test(1) + testAdjustTypes.test(1) + testAdjustTypes.test('aaaa')+ testAdjustTypes.test"
-            + "('aaaa','bbbbb')";
+            = "testAdjustTypes.test(1) + testAdjustTypes.test(1) + testAdjustTypes.test('aaaa') "
+            + "+ testAdjustTypes.test('aaaa','bbbbb')";
         Object result = runner.execute(exp, context, null, false, true);
         System.out.println(result);
     }
