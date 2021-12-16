@@ -43,19 +43,19 @@ public class ExpressNode implements IDataNode {
      */
     private int col;
 
-    public ExpressNode(NodeType nodeType, String aValue) throws Exception {
-        this(nodeType, aValue, null, null, null, -1, -1);
+    public ExpressNode(NodeType nodeType, String value) throws Exception {
+        this(nodeType, value, null, null, null, -1, -1);
     }
 
-    public ExpressNode(NodeType nodeType, String aValue, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
+    public ExpressNode(NodeType nodeType, String value, String aOriginalValue, Object aObjectValue, NodeType aTreeType,
         int aLine, int aCol) throws Exception {
         if (nodeType == null) {
-            throw new QLCompileException(aValue + " 没有找到对应的节点类型");
+            throw new QLCompileException(value + " 没有找到对应的节点类型");
         }
         this.nodeType = nodeType;
         this.treeType = aTreeType;
-        if (aValue != null && aValue.length() > 0) {
-            this.value = aValue;
+        if (value != null && value.length() > 0) {
+            this.value = value;
         }
         if (aOriginalValue != null && aOriginalValue.length() > 0) {
             this.originalValue = aOriginalValue;

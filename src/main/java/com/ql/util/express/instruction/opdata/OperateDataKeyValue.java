@@ -7,16 +7,16 @@ public class OperateDataKeyValue extends OperateData {
     private OperateData key;
     private OperateData value;
 
-    public OperateDataKeyValue(OperateData aKey, OperateData aValue) {
+    public OperateDataKeyValue(OperateData key, OperateData value) {
         super(null, null);
-        this.key = aKey;
-        this.value = aValue;
+        this.key = key;
+        this.value = value;
     }
 
-    public void initialDataKeyValue(OperateData aKey, OperateData aValue) {
+    public void initialDataKeyValue(OperateData key, OperateData value) {
         super.initial(null, null);
-        this.key = aKey;
-        this.value = aValue;
+        this.key = key;
+        this.value = value;
     }
 
     public void clearDataKeyValue() {
