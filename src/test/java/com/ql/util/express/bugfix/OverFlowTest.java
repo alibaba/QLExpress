@@ -2,7 +2,7 @@ package com.ql.util.express.bugfix;
 
 import org.junit.Test;
 
-public class TestOverFlow {
+public class OverFlowTest {
 
     public class Result {
         private int a = 0;
@@ -148,6 +148,6 @@ public class TestOverFlow {
 
     @Test
     public void testOverflow() {
-        new TestOverFlow().testOverFlow();
+        new OverFlowTest().testOverFlow();
     }
 }
