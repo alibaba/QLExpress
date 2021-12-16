@@ -44,13 +44,13 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     }
 
     public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String functionName,
-        String[] aParameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
+        String[] parameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
         this.serviceObject = aServiceObject;
         this.functionName = functionName;
-        this.parameterTypes = aParameterTypes;
+        this.parameterTypes = parameterTypes;
         this.operateDataDesc = parameterDesc;
         this.operateDataAnnotation = parameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];

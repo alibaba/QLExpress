@@ -64,12 +64,12 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     }
 
     public OperatorSelfDefineClassFunction(String operatorName, String className, String functionName,
-        String[] aParameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
+        String[] parameterTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         this.name = operatorName;
         this.errorInfo = errorInfo;
         this.functionName = functionName;
-        this.parameterTypes = aParameterTypes;
+        this.parameterTypes = parameterTypes;
         this.operateDataDesc = parameterDesc;
         this.operateDataAnnotation = parameterAnnotation;
         this.parameterClasses = new Class[this.parameterTypes.length];
