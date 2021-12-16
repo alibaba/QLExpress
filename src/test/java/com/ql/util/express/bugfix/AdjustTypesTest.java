@@ -9,9 +9,8 @@ import org.junit.Test;
  * 测试重载适配性的case
  * Created by tianqiao on 17/6/20.
  */
-public class AdjustTypes {
-
-    public static final AdjustTypes instance = new AdjustTypes();
+public class AdjustTypesTest {
+    public static final AdjustTypesTest instance = new AdjustTypesTest();
 
     public Integer test(Integer a) {
         System.out.println("invoke Integer");
