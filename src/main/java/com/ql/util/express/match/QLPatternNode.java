@@ -82,6 +82,11 @@ public class QLPatternNode {
      */
     protected boolean blame = false;
 
+    /**
+     * 子匹配模式
+     */
+    private final List<QLPatternNode> children = new ArrayList<>();
+
     public boolean canMergeDetail() {
         return QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && "ANONY_PATTERN".equals(this.name)
             && this.nodeType.getPatternNode() != null
@@ -92,11 +97,6 @@ public class QLPatternNode {
             && this.minMatchNum == 1
             && this.maxMatchNum == 1;
     }
-
-    /**
-     * 子匹配模式
-     */
-    final List<QLPatternNode> children = new ArrayList<>();
 
     protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent) throws Exception {
         this(aManager, aName, aOriginalContent, false, 1);

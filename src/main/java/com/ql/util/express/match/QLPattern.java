@@ -140,7 +140,7 @@ public class QLPattern {
                 int matchCount = 0;
                 List<QLMatchResultTree> tempListAnd = null;
                 boolean isBreak = false;
-                for (QLPatternNode item : pattern.children) {
+                for (QLPatternNode item : pattern.getChildren()) {
                     if (pointAnd > nodes.size()) {
                         isBreak = true;
                         break;
@@ -199,17 +199,15 @@ public class QLPattern {
                 if (tempListAnd != null) {
                     staticParams.arrayListCache.sendBack(tempListAnd);
                 }
-
             } else if (pattern.matchMode == MatchMode.OR) {
                 //tempResult = matchOrOneTime(aManager,pattern,nodes, lastPoint,maxMatchPoint,deep,maxDeep);
 
-                for (QLPatternNode item : pattern.children) {
+                for (QLPatternNode item : pattern.getChildren()) {
                     tempResult = findMatchStatementWithAddRootOptimizeStack(staticParams, item, lastPoint, false, deep);
                     if (tempResult != null) {
                         break;
                     }
                 }
-
             } else {
                 throw new QLCompileException("不正确的类型：" + pattern.matchMode.toString());
             }
