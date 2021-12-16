@@ -21,7 +21,7 @@ public class InstructionSetRunner {
             return execute(runner, instructionSet, loader, iExpressContext, errorList, isTrace, isCatchException, true,
                 log, isSupportDynamicFieldName);
         } finally {
-            OperateDataCacheManager.resetCache(runner);
+            OperateDataCacheManager.resetCache();
         }
     }
 

@@ -72,9 +72,9 @@ public class OperateDataCacheManager {
         return getOperateDataCache().getFetchCount();
     }
 
-    public static void resetCache(ExpressRunner expressRunner) {
+    public static void resetCache() {
         getOperateDataCache().resetCache();
-        RUNNER_DATA_CACHE_THREAD_LOCAL.get().pop(expressRunner);
+        RUNNER_DATA_CACHE_THREAD_LOCAL.get().pop();
     }
 }
 
@@ -88,11 +88,7 @@ class RunnerDataCache {
         this.stack.push(expressRunner);
     }
 
-    public IOperateDataCache getOperateDataCache() {
-        return this.cache;
-    }
-
-    public void pop(ExpressRunner aRunner) {
+    public void pop() {
         //原有的逻辑
         //this.cache = this.stack.pop().getOperateDataCache();
 
