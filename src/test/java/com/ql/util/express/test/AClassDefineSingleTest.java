@@ -4,7 +4,7 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import org.junit.Test;
 
-public class AClassDefineSingle {
+public class AClassDefineSingleTest {
     @Test
     public void testABC() throws Exception {
         String expressDefine =
