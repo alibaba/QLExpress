@@ -107,9 +107,8 @@ public class WordSplit {
         return result;
     }
 
-    public static String[] sortSplitWord(String[] splitWord) {
+    public static void sortSplitWord(String[] splitWord) {
         Arrays.sort(splitWord, (o1, o2) -> Integer.compare(o2.length(), o1.length()));
-        return splitWord;
     }
 
     protected static boolean isNumber(String str) {
