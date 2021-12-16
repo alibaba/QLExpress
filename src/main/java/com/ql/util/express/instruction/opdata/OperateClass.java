@@ -7,10 +7,10 @@ public class OperateClass extends OperateData {
     private final String name;
     private final Class<?> clazz;
 
-    public OperateClass(String name, Class<?> aClass) {
+    public OperateClass(String name, Class<?> clazz) {
         super(null, null);
         this.name = name;
-        this.clazz = aClass;
+        this.clazz = clazz;
     }
 
     @Override

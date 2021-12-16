@@ -5,9 +5,9 @@ import com.ql.util.express.InstructionSetContext;
 public class OperateDataAlias extends OperateDataAttr {
     private final OperateDataAttr realAttr;
 
-    public OperateDataAlias(String name, OperateDataAttr aRealAttr) {
+    public OperateDataAlias(String name, OperateDataAttr realAttr) {
         super(name, null);
-        this.realAttr = aRealAttr;
+        this.realAttr = realAttr;
     }
 
     @Override
