@@ -288,12 +288,6 @@ public class ExpressParse {
                 printTreeNode(builder, item, level + 1);
             }
         }
-        List<ExpressNode> rightChildren = node.getRightChildren();
-        if (rightChildren != null && rightChildren.size() > 0) {
-            for (ExpressNode item : rightChildren) {
-                printTreeNode(builder, item, level + 1);
-            }
-        }
     }
 
     public static void printTreeNode(ExpressNode node, int level) {
@@ -307,12 +301,6 @@ public class ExpressParse {
         List<ExpressNode> leftChildren = node.getLeftChildren();
         if (leftChildren != null && leftChildren.size() > 0) {
             for (ExpressNode item : leftChildren) {
-                resetParent(item, node);
-            }
-        }
-        List<ExpressNode> rightChildren = node.getRightChildren();
-        if (rightChildren != null && rightChildren.size() > 0) {
-            for (ExpressNode item : rightChildren) {
                 resetParent(item, node);
             }
         }
