@@ -312,8 +312,9 @@ public class ExpressRunner {
      */
     public void addFunctionOfClassMethod(String name, String className, String functionName,
         Class<?>[] parameterClassTypes, String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name, className, functionName, parameterClassTypes,
-            null, null, errorInfo));
+        OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
+            className, functionName, parameterClassTypes, null, null, errorInfo);
+        this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
     /**
@@ -328,8 +329,9 @@ public class ExpressRunner {
      */
     public void addFunctionOfClassMethod(String name, Class<?> clazz, String functionName,
         Class<?>[] parameterClassTypes, String errorInfo) throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name, clazz, functionName, parameterClassTypes,
-            null, null, errorInfo));
+        OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
+            clazz, functionName, parameterClassTypes, null, null, errorInfo);
+        this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
     /**
@@ -347,8 +349,9 @@ public class ExpressRunner {
     public void addFunctionOfClassMethod(String name, String className, String functionName,
         Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
-        this.addFunction(name, new OperatorSelfDefineClassFunction(name, className, functionName, parameterClassTypes,
-            parameterDesc, parameterAnnotation, errorInfo));
+        OperatorSelfDefineClassFunction operatorSelfDefineClassFunction = new OperatorSelfDefineClassFunction(name,
+            className, functionName, parameterClassTypes, parameterDesc, parameterAnnotation, errorInfo);
+        this.addFunction(name, operatorSelfDefineClassFunction);
     }
 
     /**
@@ -391,16 +394,16 @@ public class ExpressRunner {
      * 用于将一个用户自己定义的对象(例如Spring对象)方法转换为一个表达式计算的函数
      *
      * @param name
-     * @param aServiceObject
-     * @param aFunctionName
-     * @param aParameterClassTypes
+     * @param serviceObject
+     * @param functionName
+     * @param parameterClassTypes
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String errorInfo) throws Exception {
+    public void addFunctionOfServiceMethod(String name, Object serviceObject, String functionName,
+        Class<?>[] parameterClassTypes, String errorInfo) throws Exception {
         OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
-            name, aServiceObject, aFunctionName, aParameterClassTypes, null, null, errorInfo);
+            name, serviceObject, functionName, parameterClassTypes, null, null, errorInfo);
         this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
@@ -408,19 +411,19 @@ public class ExpressRunner {
      * 用于将一个用户自己定义的对象(例如Spring对象)方法转换为一个表达式计算的函数
      *
      * @param name
-     * @param aServiceObject
-     * @param aFunctionName
-     * @param aParameterClassTypes
-     * @param aParameterDesc       方法的参数说明
-     * @param aParameterAnnotation 方法的参数注解
+     * @param serviceObject
+     * @param functionName
+     * @param parameterClassTypes
+     * @param parameterDesc       方法的参数说明
+     * @param parameterAnnotation 方法的参数注解
      * @param errorInfo
      * @throws Exception
      */
-    public void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
+    public void addFunctionOfServiceMethod(String name, Object serviceObject, String functionName,
+        Class<?>[] parameterClassTypes, String[] parameterDesc, String[] parameterAnnotation, String errorInfo)
         throws Exception {
         OperatorSelfDefineServiceFunction operatorSelfDefineServiceFunction = new OperatorSelfDefineServiceFunction(
-            name, aServiceObject, aFunctionName, aParameterClassTypes, aParameterDesc, aParameterAnnotation, errorInfo);
+            name, serviceObject, functionName, parameterClassTypes, parameterDesc, parameterAnnotation, errorInfo);
         this.addFunction(name, operatorSelfDefineServiceFunction);
     }
 
