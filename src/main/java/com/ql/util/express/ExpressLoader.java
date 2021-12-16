@@ -67,13 +67,15 @@ public class ExpressLoader {
 
     public ExportItem[] getExportInfo() {
         Map<String, ExportItem> result = new TreeMap<>();
-        for (InstructionSet item : expressInstructionSetCache.values()) {
-            for (ExportItem var : item.getExportDef()) {
-                var.setGlobeName(item.getGlobeName() + "." + var.name);
-                result.put(var.getGlobeName(), var);
+        for (InstructionSet instructionSet : expressInstructionSetCache.values()) {
+            String globeName = instructionSet.getGlobeName();
+            for (ExportItem exportItem : instructionSet.getExportDef()) {
+                exportItem.setGlobeName(globeName + "." + exportItem.getName());
+                result.put(exportItem.getGlobeName(), exportItem);
             }
-            result.put(item.getGlobeName(),
-                new ExportItem(item.getGlobeName(), item.getName(), item.getType(), item.toString()));
+            String name = instructionSet.getName();
+            String type = instructionSet.getType();
+            result.put(globeName, new ExportItem(globeName, name, type, instructionSet.toString()));
         }
         return result.values().toArray(new ExportItem[0]);
     }

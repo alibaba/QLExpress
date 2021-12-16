@@ -10,18 +10,18 @@ public class ExportItem {
     public static final String TYPE_DEF = "def";
     public static String TYPE_FUNCTION = "function";
     public static String TYPE_MACRO = "macro";
-    String globeName;
+    private String globeName;
     String name;
 
     /**
      * def, alias
      */
-    String type;
+    private String type;
 
     /**
      * 类名或者别名
      */
-    String desc;
+    private String desc;
 
     public ExportItem(String aName, String aType, String aDesc) {
         this.globeName = aName;
@@ -64,13 +64,5 @@ public class ExportItem {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
     }
 }
