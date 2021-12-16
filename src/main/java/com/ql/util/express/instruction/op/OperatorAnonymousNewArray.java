@@ -9,33 +9,33 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorAnonymousNewArray extends OperatorBase {
-    public OperatorAnonymousNewArray(String aName) {
-        this.name = aName;
+    public OperatorAnonymousNewArray(String name) {
+        this.name = name;
     }
 
-    public OperatorAnonymousNewArray(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorAnonymousNewArray(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-        Class<?> type = this.findArrayClassType(context, list);
+    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
+        Class<?> type = this.findArrayClassType(instructionSetContext, list);
         type = ExpressUtil.getSimpleDataType(type);
         int[] dims = new int[1];
         dims[0] = list.length;
         Object data = Array.newInstance(type, dims);
         for (int i = 0; i < list.length; i++) {
-            Array.set(data, i, list.get(i).getObject(context));
+            Array.set(data, i, list.get(i).getObject(instructionSetContext));
         }
         return OperateDataCacheManager.fetchOperateData(data, data.getClass());
     }
 
-    private Class<?> findArrayClassType(InstructionSetContext context, ArraySwap list) throws Exception {
+    private Class<?> findArrayClassType(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
         Class<?> type = null;
         for (int i = 0; i < list.length; i++) {
-            Class<?> type1 = list.get(i).getType(context);
+            Class<?> type1 = list.get(i).getType(instructionSetContext);
             if (type1 == null) {
                 //doNothing
             } else if (type == null) {
