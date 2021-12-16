@@ -15,10 +15,10 @@ public class QLAliasUtils {
     public static final Map<String, Object> FIELD_CACHE = new ConcurrentHashMap<>();
 
     public static Class<?> getPropertyClass(Object bean, String name) {
-        Field f = findQLAliasFieldsWithCache(bean.getClass(), name);
-        if (f != null) {
-            f.setAccessible(true);
-            return f.getType();
+        Field field = findQLAliasFieldsWithCache(bean.getClass(), name);
+        if (field != null) {
+            field.setAccessible(true);
+            return field.getType();
         }
         try {
             return PropertyUtils.getPropertyDescriptor(bean, name).getPropertyType();
@@ -29,10 +29,10 @@ public class QLAliasUtils {
 
     public static Object getProperty(Object bean, String name) {
         try {
-            Field f = findQLAliasFieldsWithCache(bean.getClass(), name);
-            if (f != null) {
-                f.setAccessible(true);
-                return f.get(bean);
+            Field field = findQLAliasFieldsWithCache(bean.getClass(), name);
+            if (field != null) {
+                field.setAccessible(true);
+                return field.get(bean);
             }
             return PropertyUtils.getProperty(bean, name);
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class QLAliasUtils {
         }
     }
 
-    private static Field findQLAliasFieldsWithCache(Class baseClass, String propertyName) {
+    private static Field findQLAliasFieldsWithCache(Class<?> baseClass, String propertyName) {
         String key = baseClass + "#" + propertyName;
         Object result = FIELD_CACHE.get(key);
         if (result == null) {
@@ -56,7 +56,7 @@ public class QLAliasUtils {
         return (Field)result;
     }
 
-    public static Field findQLAliasFields(Class baseClass, String propertyName) {
+    public static Field findQLAliasFields(Class<?> baseClass, String propertyName) {
         Field[] fields = baseClass.getDeclaredFields();
         for (Field f : fields) {
             //优先使用本身的定义
@@ -65,13 +65,11 @@ public class QLAliasUtils {
             }
             //使用注解定义
             QLAlias[] qlAliases = f.getAnnotationsByType(QLAlias.class);
-            if (qlAliases != null) {
-                for (QLAlias alias : qlAliases) {
-                    if (alias.value().length > 0) {
-                        for (int i = 0; i < alias.value().length; i++) {
-                            if (propertyName.equals(alias.value()[i])) {
-                                return f;
-                            }
+            for (QLAlias alias : qlAliases) {
+                if (alias.value().length > 0) {
+                    for (int i = 0; i < alias.value().length; i++) {
+                        if (propertyName.equals(alias.value()[i])) {
+                            return f;
                         }
                     }
                 }
