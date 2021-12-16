@@ -19,3 +19,4 @@ target/*
 hs_err_pid*
 
 test.log
+test-push.sh
