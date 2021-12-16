@@ -416,14 +416,14 @@ public class ExpressParse {
     }
 
     public static String printInfo(List<ExpressNode> list, String splitOp) {
-        StringBuilder buffer = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             if (i > 0) {
-                buffer.append(splitOp);
+                stringBuilder.append(splitOp);
             }
-            buffer.append(list.get(i));
+            stringBuilder.append(list.get(i));
         }
-        return buffer.toString();
+        return stringBuilder.toString();
     }
 }
 
