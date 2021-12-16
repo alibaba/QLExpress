@@ -21,8 +21,8 @@ public class QLMatchResult {
         return this;
     }
 
-    public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> aList) {
-        this.matches.addAll(aList);
+    public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> qlMatchResultTreeList) {
+        this.matches.addAll(qlMatchResultTreeList);
         return this;
     }
 

@@ -11,14 +11,14 @@ public class QLMatchResultTree {
     private List<QLMatchResultTree> left;
     private List<QLMatchResultTree> right;
 
-    public QLMatchResultTree(INodeType aNodeType, IDataNode aRef, INodeType aTargetNodeType) {
-        this(aNodeType, aRef);
-        this.targetNodeType = aTargetNodeType;
+    public QLMatchResultTree(INodeType iNodeType, IDataNode ref, INodeType targetNodeType) {
+        this(iNodeType, ref);
+        this.targetNodeType = targetNodeType;
     }
 
-    public QLMatchResultTree(INodeType aNodeType, IDataNode aRef) {
-        this.matchNodeType = aNodeType;
-        this.ref = aRef;
+    public QLMatchResultTree(INodeType nodeType, IDataNode ref) {
+        this.matchNodeType = nodeType;
+        this.ref = ref;
     }
 
     public IDataNode getRef() {
