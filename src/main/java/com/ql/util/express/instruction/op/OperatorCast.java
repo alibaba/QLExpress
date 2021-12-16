@@ -7,8 +7,8 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorCast extends OperatorBase {
-    public OperatorCast(String aName) {
-        this.name = aName;
+    public OperatorCast(String name) {
+        this.name = name;
     }
 
     @Override
