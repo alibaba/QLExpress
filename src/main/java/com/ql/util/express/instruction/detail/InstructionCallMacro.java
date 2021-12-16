@@ -12,8 +12,8 @@ import com.ql.util.express.instruction.OperateDataCacheManager;
 public class InstructionCallMacro extends Instruction {
     private final String name;
 
-    public InstructionCallMacro(String aName) {
-        this.name = aName;
+    public InstructionCallMacro(String name) {
+        this.name = name;
     }
 
     @Override

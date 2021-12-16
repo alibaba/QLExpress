@@ -14,10 +14,10 @@ public class InstructionGoToWithCondition extends Instruction {
     private final boolean condition;
     private final boolean isPopStackData;
 
-    public InstructionGoToWithCondition(boolean aCondition, int aOffset, boolean aIsPopStackData) {
-        this.offset = aOffset;
-        this.condition = aCondition;
-        this.isPopStackData = aIsPopStackData;
+    public InstructionGoToWithCondition(boolean condition, int offset, boolean isPopStackData) {
+        this.offset = offset;
+        this.condition = condition;
+        this.isPopStackData = isPopStackData;
     }
 
     @Override

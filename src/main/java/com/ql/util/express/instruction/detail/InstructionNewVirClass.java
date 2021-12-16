@@ -12,9 +12,9 @@ public class InstructionNewVirClass extends Instruction {
     private final String className;
     private final int opDataNumber;
 
-    public InstructionNewVirClass(String name, int aOpDataNumber) {
+    public InstructionNewVirClass(String name, int opDataNumber) {
         this.className = name;
-        this.opDataNumber = aOpDataNumber;
+        this.opDataNumber = opDataNumber;
     }
 
     public String getClassName() {

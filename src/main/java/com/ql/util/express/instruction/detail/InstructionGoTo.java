@@ -11,8 +11,8 @@ public class InstructionGoTo extends Instruction {
     private int offset;
     private String name;
 
-    public InstructionGoTo(int aOffset) {
-        this.offset = aOffset;
+    public InstructionGoTo(int offset) {
+        this.offset = offset;
     }
 
     @Override

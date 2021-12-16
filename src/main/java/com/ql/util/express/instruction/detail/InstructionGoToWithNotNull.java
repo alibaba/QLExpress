@@ -11,9 +11,9 @@ public class InstructionGoToWithNotNull extends Instruction {
     private final int offset;
     private final boolean isPopStackData;
 
-    public InstructionGoToWithNotNull(int aOffset, boolean aIsPopStackData) {
-        this.offset = aOffset;
-        this.isPopStackData = aIsPopStackData;
+    public InstructionGoToWithNotNull(int offset, boolean isPopStackData) {
+        this.offset = offset;
+        this.isPopStackData = isPopStackData;
     }
 
     @Override

@@ -9,8 +9,8 @@ import com.ql.util.express.instruction.opdata.OperateDataAttr;
 public class InstructionLoadAttr extends Instruction {
     private final String attrName;
 
-    public InstructionLoadAttr(String aName) {
-        this.attrName = aName;
+    public InstructionLoadAttr(String name) {
+        this.attrName = name;
     }
 
     public String getAttrName() {

@@ -20,9 +20,9 @@ public abstract class Instruction {
         return line;
     }
 
-    public void setLog(Log aLog) {
-        if (aLog != null) {
-            log = aLog;
+    public void setLog(Log log) {
+        if (log != null) {
+            Instruction.log = log;
         }
     }
 

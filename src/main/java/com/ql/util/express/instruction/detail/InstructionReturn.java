@@ -7,8 +7,8 @@ import com.ql.util.express.RunEnvironment;
 public class InstructionReturn extends Instruction {
     private final boolean haveReturnValue;
 
-    public InstructionReturn(boolean aHaveReturnValue) {
-        this.haveReturnValue = aHaveReturnValue;
+    public InstructionReturn(boolean haveReturnValue) {
+        this.haveReturnValue = haveReturnValue;
     }
 
     @Override

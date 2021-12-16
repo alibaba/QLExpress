@@ -15,9 +15,9 @@ public class InstructionOperator extends Instruction {
     private final OperatorBase operator;
     private final int opDataNumber;
 
-    public InstructionOperator(OperatorBase aOperator, int aOpDataNumber) {
-        this.operator = aOperator;
-        this.opDataNumber = aOpDataNumber;
+    public InstructionOperator(OperatorBase operator, int opDataNumber) {
+        this.operator = operator;
+        this.opDataNumber = opDataNumber;
     }
 
     public OperatorBase getOperator() {

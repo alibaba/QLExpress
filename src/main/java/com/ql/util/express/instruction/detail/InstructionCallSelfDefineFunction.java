@@ -18,9 +18,9 @@ public class InstructionCallSelfDefineFunction extends Instruction {
     private final String functionName;
     private final int opDataNumber;
 
-    public InstructionCallSelfDefineFunction(String name, int aOpDataNumber) {
+    public InstructionCallSelfDefineFunction(String name, int opDataNumber) {
         this.functionName = name;
-        this.opDataNumber = aOpDataNumber;
+        this.opDataNumber = opDataNumber;
     }
 
     public String getFunctionName() {
