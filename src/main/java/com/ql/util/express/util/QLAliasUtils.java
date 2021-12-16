@@ -58,18 +58,18 @@ public class QLAliasUtils {
 
     public static Field findQLAliasFields(Class<?> baseClass, String propertyName) {
         Field[] fields = baseClass.getDeclaredFields();
-        for (Field f : fields) {
+        for (Field field : fields) {
             //优先使用本身的定义
-            if (propertyName.equals(f.getName())) {
-                return f;
+            if (propertyName.equals(field.getName())) {
+                return field;
             }
             //使用注解定义
-            QLAlias[] qlAliases = f.getAnnotationsByType(QLAlias.class);
+            QLAlias[] qlAliases = field.getAnnotationsByType(QLAlias.class);
             for (QLAlias alias : qlAliases) {
                 if (alias.value().length > 0) {
                     for (int i = 0; i < alias.value().length; i++) {
                         if (propertyName.equals(alias.value()[i])) {
-                            return f;
+                            return field;
                         }
                     }
                 }
