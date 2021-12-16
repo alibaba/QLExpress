@@ -9,10 +9,10 @@ public class OperatorLike extends Operator {
         this.name = name;
     }
 
-    public OperatorLike(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorLike(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

@@ -8,10 +8,10 @@ public class OperatorNot extends Operator {
         this.name = name;
     }
 
-    public OperatorNot(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorNot(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

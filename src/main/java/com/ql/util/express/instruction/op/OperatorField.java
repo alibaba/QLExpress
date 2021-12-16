@@ -13,9 +13,9 @@ public class OperatorField extends OperatorBase {
         this.name = "FieldCall";
     }
 
-    public OperatorField(String aFieldName) {
+    public OperatorField(String fieldName) {
         this.name = "FieldCall";
-        this.filedName = aFieldName;
+        this.filedName = fieldName;
     }
 
     @Override

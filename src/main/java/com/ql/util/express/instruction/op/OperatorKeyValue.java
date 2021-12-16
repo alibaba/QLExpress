@@ -6,14 +6,14 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorKeyValue extends OperatorBase {
-    public OperatorKeyValue(String aName) {
-        this.name = aName;
+    public OperatorKeyValue(String name) {
+        this.name = name;
     }
 
-    public OperatorKeyValue(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorKeyValue(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

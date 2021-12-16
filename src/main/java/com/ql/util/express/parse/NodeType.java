@@ -23,10 +23,10 @@ public class NodeType implements INodeType {
      */
     private QLPatternNode qlPatternNode;
 
-    protected NodeType(NodeTypeManager aManager, String aName, String aDefineStr) {
+    protected NodeType(NodeTypeManager aManager, String name, String aDefineStr) {
         this.manager = aManager;
         this.defineStr = aDefineStr;
-        this.name = aName;
+        this.name = name;
     }
 
     public static String[][] splitProperties(String str) {

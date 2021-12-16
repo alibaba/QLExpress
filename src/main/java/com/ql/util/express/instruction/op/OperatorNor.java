@@ -7,10 +7,10 @@ public class OperatorNor extends Operator {
         this.name = name;
     }
 
-    public OperatorNor(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorNor(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

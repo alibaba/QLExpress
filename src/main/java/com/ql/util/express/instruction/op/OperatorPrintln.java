@@ -8,10 +8,10 @@ public class OperatorPrintln extends Operator {
         this.name = name;
     }
 
-    public OperatorPrintln(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorPrintln(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

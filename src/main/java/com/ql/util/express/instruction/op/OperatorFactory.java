@@ -16,8 +16,8 @@ public class OperatorFactory {
 
     private final Map<String, OperatorBase> operatorMap = new HashMap<>();
 
-    public OperatorFactory(boolean aIsPrecise) {
-        this.isPrecise = aIsPrecise;
+    public OperatorFactory(boolean isPrecise) {
+        this.isPrecise = isPrecise;
         addOperator("new", new OperatorNew("new"));
         addOperator("anonymousNewArray", new OperatorAnonymousNewArray("anonymousNewArray"));
         addOperator("NewList", new OperatorAnonymousNewList("NewList"));
@@ -69,7 +69,8 @@ public class OperatorFactory {
     public void addOperator(String name, OperatorBase operatorBase) {
         OperatorBase existOperator = this.operatorMap.get(name);
         if (existOperator != null) {
-            throw new RuntimeException("重复定义操作符：" + name + "定义1：" + existOperator.getClass() + " 定义2：" + operatorBase.getClass());
+            throw new RuntimeException(
+                "重复定义操作符：" + name + "定义1：" + existOperator.getClass() + " 定义2：" + operatorBase.getClass());
         }
         operatorBase.setPrecise(this.isPrecise);
         operatorBase.setAliasName(name);
@@ -83,7 +84,7 @@ public class OperatorFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public void addOperatorWithAlias(String aAliasName, String name, String errorInfo) throws Exception {
+    public void addOperatorWithAlias(String aliasName, String name, String errorInfo) throws Exception {
         if (!this.operatorMap.containsKey(name)) {
             throw new QLException(name + " 不是系统级别的操作符号，不能设置别名");
         } else {
@@ -93,7 +94,7 @@ public class OperatorFactory {
             }
             OperatorBase destOperator;
             if (originalOperator instanceof CanClone) {
-                destOperator = ((CanClone)originalOperator).cloneMe(aAliasName, errorInfo);
+                destOperator = ((CanClone)originalOperator).cloneMe(aliasName, errorInfo);
             } else {
                 Class<OperatorBase> opClass = (Class<OperatorBase>)originalOperator.getClass();
                 Constructor<OperatorBase> constructor;
@@ -105,12 +106,12 @@ public class OperatorFactory {
                 if (constructor == null) {
                     throw new QLException(name + " 不能被设置别名");
                 }
-                destOperator = constructor.newInstance(aAliasName, name, errorInfo);
+                destOperator = constructor.newInstance(aliasName, name, errorInfo);
             }
-            if (this.operatorMap.containsKey(aAliasName)) {
-                throw new RuntimeException("操作符号：\"" + aAliasName + "\" 已经存在");
+            if (this.operatorMap.containsKey(aliasName)) {
+                throw new RuntimeException("操作符号：\"" + aliasName + "\" 已经存在");
             }
-            this.addOperator(aAliasName, destOperator);
+            this.addOperator(aliasName, destOperator);
         }
     }
 
@@ -118,8 +119,8 @@ public class OperatorFactory {
         return operatorMap.containsKey(operatorName);
     }
 
-    public OperatorBase getOperator(String aOperatorName) {
-        return this.operatorMap.get(aOperatorName);
+    public OperatorBase getOperator(String operatorName) {
+        return this.operatorMap.get(operatorName);
     }
 
     /**

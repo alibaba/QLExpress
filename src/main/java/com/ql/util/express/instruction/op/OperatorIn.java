@@ -8,14 +8,14 @@ import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 
 public class OperatorIn extends Operator {
-    public OperatorIn(String aName) {
-        this.name = aName;
+    public OperatorIn(String name) {
+        this.name = name;
     }
 
-    public OperatorIn(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorIn(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

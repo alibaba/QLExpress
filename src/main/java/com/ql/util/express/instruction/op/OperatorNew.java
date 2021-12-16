@@ -11,8 +11,8 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorNew extends OperatorBase {
-    public OperatorNew(String aName) {
-        this.name = aName;
+    public OperatorNew(String name) {
+        this.name = name;
     }
 
     @Override

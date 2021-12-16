@@ -98,18 +98,18 @@ public class QLPatternNode {
             && this.maxMatchNum == 1;
     }
 
-    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent) throws Exception {
-        this(aManager, aName, aOriginalContent, false, 1);
+    protected QLPatternNode(INodeTypeManager aManager, String name, String aOriginalContent) throws Exception {
+        this(aManager, name, aOriginalContent, false, 1);
         //if (this.toString().equals(aOriginalContent) == false) {
         //    throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString());
         //    log.error(("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString()));
         //}
     }
 
-    protected QLPatternNode(INodeTypeManager aManager, String aName, String aOriginalContent, boolean aIsChildMode,
+    protected QLPatternNode(INodeTypeManager aManager, String name, String aOriginalContent, boolean aIsChildMode,
         int aLevel) throws Exception {
         this.nodeTypeManager = aManager;
-        this.name = aName;
+        this.name = name;
         this.originalContent = aOriginalContent;
         this.isChildMode = aIsChildMode;
         this.level = aLevel;

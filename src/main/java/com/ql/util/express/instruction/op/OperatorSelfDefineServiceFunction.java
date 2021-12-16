@@ -23,11 +23,11 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     private boolean isReturnVoid;
     private final boolean maybeDynamicParams;
 
-    public OperatorSelfDefineServiceFunction(String aOperatorName, Object aServiceObject, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
+    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String aFunctionName,
+        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.name = aOperatorName;
-        this.errorInfo = aErrorInfo;
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
         this.serviceObject = aServiceObject;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
@@ -43,11 +43,11 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineServiceFunction(String aOperatorName, Object aServiceObject, String aFunctionName,
-        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
+    public OperatorSelfDefineServiceFunction(String operatorName, Object aServiceObject, String aFunctionName,
+        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.name = aOperatorName;
-        this.errorInfo = aErrorInfo;
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
         this.serviceObject = aServiceObject;
         this.functionName = aFunctionName;
         this.parameterTypes = aParameterTypes;

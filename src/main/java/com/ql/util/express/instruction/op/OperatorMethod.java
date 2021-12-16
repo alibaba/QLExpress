@@ -22,9 +22,9 @@ public class OperatorMethod extends OperatorBase {
         this.name = "MethodCall";
     }
 
-    public OperatorMethod(String aMethodName) {
+    public OperatorMethod(String methodName) {
         this.name = "MethodCall";
-        this.methodName = aMethodName;
+        this.methodName = methodName;
     }
 
     @Override

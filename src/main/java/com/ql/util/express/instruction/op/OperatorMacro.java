@@ -7,14 +7,14 @@ import com.ql.util.express.instruction.opdata.OperateDataAlias;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class OperatorMacro extends OperatorBase {
-    public OperatorMacro(String aName) {
-        this.name = aName;
+    public OperatorMacro(String name) {
+        this.name = name;
     }
 
-    public OperatorMacro(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorMacro(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

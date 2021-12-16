@@ -25,11 +25,11 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
     private boolean isReturnVoid;
     private final boolean maybeDynamicParams;
 
-    public OperatorSelfDefineClassFunction(String aOperatorName, Class<?> aOperatorClass, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
+    public OperatorSelfDefineClassFunction(String operatorName, Class<?> aOperatorClass, String aFunctionName,
+        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.name = aOperatorName;
-        this.errorInfo = aErrorInfo;
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
@@ -44,11 +44,11 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineClassFunction(String aOperatorName, String aClassName, String aFunctionName,
-        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
+    public OperatorSelfDefineClassFunction(String operatorName, String aClassName, String aFunctionName,
+        Class<?>[] aParameterClassTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.name = aOperatorName;
-        this.errorInfo = aErrorInfo;
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
         this.functionName = aFunctionName;
         this.parameterClasses = aParameterClassTypes;
         this.parameterTypes = new String[aParameterClassTypes.length];
@@ -63,11 +63,11 @@ public class OperatorSelfDefineClassFunction extends OperatorBase implements Can
         this.maybeDynamicParams = DynamicParamsUtil.maybeDynamicParams(parameterClasses);
     }
 
-    public OperatorSelfDefineClassFunction(String aOperatorName, String aClassName, String aFunctionName,
-        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String aErrorInfo)
+    public OperatorSelfDefineClassFunction(String operatorName, String aClassName, String aFunctionName,
+        String[] aParameterTypes, String[] aParameterDesc, String[] aParameterAnnotation, String errorInfo)
         throws Exception {
-        this.name = aOperatorName;
-        this.errorInfo = aErrorInfo;
+        this.name = operatorName;
+        this.errorInfo = errorInfo;
         this.functionName = aFunctionName;
         this.parameterTypes = aParameterTypes;
         this.operateDataDesc = aParameterDesc;

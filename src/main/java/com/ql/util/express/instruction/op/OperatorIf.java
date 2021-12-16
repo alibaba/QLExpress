@@ -6,14 +6,14 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.exception.QLException;
 
 public class OperatorIf extends OperatorBase {
-    public OperatorIf(String aName) {
-        this.name = aName;
+    public OperatorIf(String name) {
+        this.name = name;
     }
 
-    public OperatorIf(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorIf(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

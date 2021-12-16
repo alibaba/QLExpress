@@ -7,14 +7,14 @@ import com.ql.util.express.OperateData;
 public class OperateDataAttr extends OperateData {
     protected String name;
 
-    public OperateDataAttr(String aName, Class<?> aType) {
+    public OperateDataAttr(String name, Class<?> aType) {
         super(null, aType);
-        this.name = aName;
+        this.name = name;
     }
 
-    public void initialDataAttr(String aName, Class<?> aType) {
+    public void initialDataAttr(String name, Class<?> aType) {
         super.initial(null, aType);
-        this.name = aName;
+        this.name = name;
     }
 
     public void clearDataAttr() {

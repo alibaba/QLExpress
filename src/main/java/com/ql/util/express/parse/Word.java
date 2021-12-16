@@ -6,10 +6,10 @@ public class Word {
     public final int col;
     public int index;
 
-    public Word(String aWord, int aLine, int aCol) {
-        this.word = aWord;
-        this.line = aLine;
-        this.col = aCol;
+    public Word(String word, int line, int col) {
+        this.word = word;
+        this.line = line;
+        this.col = col;
     }
 
     @Override
