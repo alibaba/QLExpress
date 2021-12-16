@@ -98,7 +98,7 @@ public class OperateDataField extends OperateDataAttr {
             AppendingClassFieldManager.AppendingField appendingField
                 = appendingClassFieldManager.getAppendingClassField(this.fieldObject, this.originalFieldName);
             if (appendingField != null) {
-                return appendingField.returnType;
+                return appendingField.getReturnType();
             }
         }
         if (this.fieldObject instanceof OperateDataVirClass) {

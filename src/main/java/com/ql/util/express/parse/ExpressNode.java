@@ -14,6 +14,7 @@ public class ExpressNode implements IDataNode {
     private NodeType nodeType;
 
     private NodeType treeType;
+
     /**
      * 节点值
      */
@@ -25,6 +26,7 @@ public class ExpressNode implements IDataNode {
     private String originalValue;
 
     private Object objectValue;
+
     /**
      * 父节点
      */
@@ -37,18 +39,16 @@ public class ExpressNode implements IDataNode {
      * 行号
      */
     private int line;
+
     /**
      * 列号
      */
     private int col;
+
     /**
      * word的序号
      */
     private final int wordIndex;
-
-    public int getWordIndex() {
-        return wordIndex;
-    }
 
     public ExpressNode(NodeType aType, String aValue) throws Exception {
         this(aType, aValue, null, null, null, -1, -1, -1);
@@ -105,14 +105,6 @@ public class ExpressNode implements IDataNode {
         this.value = value;
     }
 
-    public boolean isSplitStatement() {
-        return isSplitStatement;
-    }
-
-    public void setSplitStatement(boolean isSplitStatement) {
-        this.isSplitStatement = isSplitStatement;
-    }
-
     public String getInstructionFactory() {
         if (this.nodeType.getInstructionFactory() != null) {
             return this.nodeType.getInstructionFactory();
@@ -120,9 +112,8 @@ public class ExpressNode implements IDataNode {
         if (this.treeType != null && this.treeType.getInstructionFactory() != null) {
             return this.treeType.getInstructionFactory();
         }
-        throw new RuntimeException(
-            "没有定义节点的指令InstructionFactory信息：" + this.nodeType.getName() + (this.treeType == null ? ""
-                : " 或者 " + this.treeType.getName()));
+        throw new RuntimeException("没有定义节点的指令InstructionFactory信息：" + this.nodeType.getName()
+            + (this.treeType == null ? "" : " 或者 " + this.treeType.getName()));
     }
 
     public String getOriginalValue() {
