@@ -3,10 +3,9 @@ package com.ql.util.express.example;
 import org.apache.commons.lang.StringUtils;
 
 public class CustBean {
-
-    long id;
-    String name;
-    int age;
+    private long id;
+    private String name;
+    private int age;
 
     public CustBean(long id) {
         this.id = id;

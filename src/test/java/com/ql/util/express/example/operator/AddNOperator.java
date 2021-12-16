@@ -9,8 +9,8 @@ public class AddNOperator extends Operator {
     @Override
     public Object executeInner(Object[] list) {
         int r = 0;
-        for (int i = 0; i < list.length; i++) {
-            r = r + (Integer)list[i];
+        for (Object item : list) {
+            r = r + (Integer)item;
         }
         return r;
     }
