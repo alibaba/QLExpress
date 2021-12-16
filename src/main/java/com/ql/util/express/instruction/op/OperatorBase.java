@@ -96,8 +96,8 @@ public abstract class OperatorBase {
         return this.operateDataAnnotation;
     }
 
-    public void setName(String aName) {
-        this.name = aName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -134,18 +134,18 @@ public abstract class OperatorBase {
 }
 
 class OperatorFunction extends OperatorBase {
-    public OperatorFunction(String aName) {
-        this.name = aName;
+    public OperatorFunction(String name) {
+        this.name = name;
     }
 
-    public OperatorFunction(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorFunction(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
         throw new QLException("还没有实现");
     }
 }
@@ -155,10 +155,10 @@ class OperatorReturn extends OperatorBase {
         this.name = name;
     }
 
-    public OperatorReturn(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorReturn(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
@@ -176,10 +176,10 @@ class OperatorBreak extends OperatorBase {
         this.name = name;
     }
 
-    public OperatorBreak(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorBreak(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
@@ -193,10 +193,10 @@ class OperatorContinue extends OperatorBase {
         this.name = name;
     }
 
-    public OperatorContinue(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorContinue(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

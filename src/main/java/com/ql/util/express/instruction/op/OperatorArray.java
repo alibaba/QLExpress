@@ -9,27 +9,27 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
 public class OperatorArray extends OperatorBase {
-    public OperatorArray(String aName) {
-        this.name = aName;
+    public OperatorArray(String name) {
+        this.name = name;
     }
 
-    public OperatorArray(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public OperatorArray(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext instructionSetContext, ArraySwap list) throws Exception {
         OperateData firstOperateData = list.get(0);
-        if (firstOperateData == null || firstOperateData.getObject(context) == null) {
+        if (firstOperateData == null || firstOperateData.getObject(instructionSetContext) == null) {
             throw new QLException("对象为null，不能执行数组相关操作");
         }
 
-        Object tmpObject = firstOperateData.getObject(context);
+        Object tmpObject = firstOperateData.getObject(instructionSetContext);
 
         if (!tmpObject.getClass().isArray()) {
-            Object property = list.get(1).getObject(context);
+            Object property = list.get(1).getObject(instructionSetContext);
             //支持data.get(index) ->data[index]
             if (tmpObject instanceof List && property instanceof Number) {
                 int index = ((Number)property).intValue();
@@ -41,7 +41,7 @@ public class OperatorArray extends OperatorBase {
             }
         }
         //支持原生Array：data[index]
-        int index = ((Number)list.get(1).getObject(context)).intValue();
+        int index = ((Number)list.get(1).getObject(instructionSetContext)).intValue();
         return OperateDataCacheManager.fetchOperateDataArrayItem(firstOperateData, index);
     }
 }
