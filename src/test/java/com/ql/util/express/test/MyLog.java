@@ -5,8 +5,8 @@ import org.apache.commons.logging.Log;
 public class MyLog implements Log {
     final String name;
 
-    public MyLog(String aName) {
-        this.name = aName;
+    public MyLog(String name) {
+        this.name = name;
     }
 
     public boolean isDebugEnabled() {

@@ -13,20 +13,19 @@ import com.ql.util.express.Operator;
  * @author xuannan
  */
 class SubjectOperator extends Operator {
-    public SubjectOperator(String aName) {
-        this.name = aName;
+    public SubjectOperator(String name) {
+        this.name = name;
     }
 
-    public SubjectOperator(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public SubjectOperator(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
     @SuppressWarnings("rawtypes")
-    public OperateData executeInner(InstructionSetContext context,
-        ArraySwap list) throws Exception {
+    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
         if (list.length != 2) {
             throw new Exception("科目操作的参数必须包括：科目主体ID和科目名称");
         }
@@ -51,11 +50,11 @@ class OperateDataSubject extends OperateData {
     final Object subjectId;
     final Map container;
 
-    public OperateDataSubject(Map aContainer, Object aUserId, Object aSubjectId) {
+    public OperateDataSubject(Map container, Object userId, Object subjectId) {
         super(null, Double.class);
-        this.userId = aUserId;
-        this.subjectId = aSubjectId;
-        this.container = aContainer;
+        this.userId = userId;
+        this.subjectId = subjectId;
+        this.container = container;
     }
 
     @Override

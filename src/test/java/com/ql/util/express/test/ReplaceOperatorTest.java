@@ -31,10 +31,10 @@ class ReplaceOperatorAddReduce extends Operator {
         this.name = name;
     }
 
-    public ReplaceOperatorAddReduce(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public ReplaceOperatorAddReduce(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override
@@ -53,10 +53,10 @@ class ReplaceOperatorAddReduce2 extends Operator {
         this.name = name;
     }
 
-    public ReplaceOperatorAddReduce2(String aAliasName, String aName, String aErrorInfo) {
-        this.name = aName;
-        this.aliasName = aAliasName;
-        this.errorInfo = aErrorInfo;
+    public ReplaceOperatorAddReduce2(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
     }
 
     @Override

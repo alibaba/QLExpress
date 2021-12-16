@@ -42,9 +42,9 @@ public class SubjectManager extends HashMap {
 class UserSubject extends HashMap {
     final Object userId;
 
-    public UserSubject(Object aUserId) {
+    public UserSubject(Object userId) {
         super();
-        this.userId = aUserId;
+        this.userId = userId;
     }
 
     public Double get(String subjectId) {

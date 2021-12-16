@@ -3,8 +3,8 @@ package com.ql.util.express.test;
 import com.ql.util.express.Operator;
 
 class LoveOperator extends Operator {
-    public LoveOperator(String aName) {
-        this.name = aName;
+    public LoveOperator(String name) {
+        this.name = name;
     }
 
     @Override

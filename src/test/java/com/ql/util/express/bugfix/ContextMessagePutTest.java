@@ -15,9 +15,8 @@ import org.junit.Test;
 public class ContextMessagePutTest {
 
     class OperatorContextPut extends OperatorBase {
-
-        public OperatorContextPut(String aName) {
-            this.name = aName;
+        public OperatorContextPut(String name) {
+            this.name = name;
         }
 
         @Override

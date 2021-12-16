@@ -8,12 +8,12 @@ import com.ql.util.express.instruction.op.OperatorEqualsLessMore;
 
 public class NullableOperatorEqualsLessMore extends OperatorEqualsLessMore {
 
-    public NullableOperatorEqualsLessMore(String aName) {
-        super(aName);
+    public NullableOperatorEqualsLessMore(String name) {
+        super(name);
     }
 
-    public NullableOperatorEqualsLessMore(String aAliasName, String aName, String aErrorInfo) {
-        super(aAliasName, aName, aErrorInfo);
+    public NullableOperatorEqualsLessMore(String aliasName, String name, String errorInfo) {
+        super(aliasName, name, errorInfo);
     }
 
     @Override

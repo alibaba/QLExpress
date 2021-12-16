@@ -78,35 +78,35 @@ public class ExpressUtil {
      */
     private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
 
-    public static Class<?> getSimpleDataType(Class<?> aClass) {
-        if (!aClass.isPrimitive()) {
-            return aClass;
+    public static Class<?> getSimpleDataType(Class<?> clazz) {
+        if (!clazz.isPrimitive()) {
+            return clazz;
         }
-        if (Integer.class.equals(aClass)) {
+        if (Integer.class.equals(clazz)) {
             return Integer.TYPE;
         }
-        if (Short.class.equals(aClass)) {
+        if (Short.class.equals(clazz)) {
             return Short.TYPE;
         }
-        if (Long.class.equals(aClass)) {
+        if (Long.class.equals(clazz)) {
             return Long.TYPE;
         }
-        if (Double.class.equals(aClass)) {
+        if (Double.class.equals(clazz)) {
             return Double.TYPE;
         }
-        if (Float.class.equals(aClass)) {
+        if (Float.class.equals(clazz)) {
             return Float.TYPE;
         }
-        if (Byte.class.equals(aClass)) {
+        if (Byte.class.equals(clazz)) {
             return Byte.TYPE;
         }
-        if (Character.class.equals(aClass)) {
+        if (Character.class.equals(clazz)) {
             return Character.TYPE;
         }
-        if (Boolean.class.equals(aClass)) {
+        if (Boolean.class.equals(clazz)) {
             return Boolean.TYPE;
         }
-        return aClass;
+        return clazz;
     }
 
     public static boolean isAssignable(Class<?> target, Class<?> source) {
@@ -263,22 +263,22 @@ public class ExpressUtil {
         }
     }
 
-    public static String createCacheKey(Class<?> aBaseClass, String aMethodName, Class<?>[] aTypes, boolean aPublicOnly,
-        boolean aIsStatic) {
+    public static String createCacheKey(Class<?> baseClass, String methodName, Class<?>[] types, boolean publicOnly,
+        boolean isStatic) {
         StringBuilder builder = new StringBuilder();
-        //builder.append(aPublicOnly).append("-").append(aIsStatic).append("-");
-        builder.append(aBaseClass.getName()).append(".").append(aMethodName).append(".");
-        if (aTypes == null) {
+        //builder.append(publicOnly).append("-").append(isStatic).append("-");
+        builder.append(baseClass.getName()).append(".").append(methodName).append(".");
+        if (types == null) {
             builder.append("null");
         } else {
-            for (int i = 0; i < aTypes.length; i++) {
+            for (int i = 0; i < types.length; i++) {
                 if (i > 0) {
                     builder.append(",");
                 }
-                if (aTypes[i] == null) {
+                if (types[i] == null) {
                     builder.append("null");
                 } else {
-                    builder.append(aTypes[i].getName());
+                    builder.append(types[i].getName());
                 }
             }
         }

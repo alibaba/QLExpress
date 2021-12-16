@@ -59,8 +59,8 @@ public class QlExpressUtil implements ApplicationContextAware {
         isInitialRunner = true;
     }
 
-    public void setApplicationContext(ApplicationContext aContext)
+    public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
-        applicationContext = aContext;
+        this.applicationContext = applicationContext;
     }
 }

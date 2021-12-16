@@ -4,9 +4,9 @@ public class ObjectBean {
     int amount;
     int volume;
 
-    public ObjectBean(int aAmount, int aVolume) {
-        this.amount = aAmount;
-        this.volume = aVolume;
+    public ObjectBean(int amount, int volume) {
+        this.amount = amount;
+        this.volume = volume;
     }
 
     public int getAmount() {

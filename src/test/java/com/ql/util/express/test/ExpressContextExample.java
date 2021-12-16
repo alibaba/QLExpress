@@ -9,15 +9,15 @@ import org.springframework.context.ApplicationContext;
 @SuppressWarnings("serial")
 public class ExpressContextExample extends HashMap<String, Object> implements IExpressContext<String, Object> {
 
-    private final ApplicationContext context;
+    private final ApplicationContext applicationContext;
 
-    public ExpressContextExample(ApplicationContext aContext) {
-        this.context = aContext;
+    public ExpressContextExample(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
-    public ExpressContextExample(Map<String, Object> aProperties, ApplicationContext aContext) {
-        super(aProperties);
-        this.context = aContext;
+    public ExpressContextExample(Map<String, Object> properties, ApplicationContext applicationContext) {
+        super(properties);
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -34,9 +34,9 @@ public class ExpressContextExample extends HashMap<String, Object> implements IE
             result = super.get(name);
         }
         try {
-            if (result == null && this.context != null && this.context.containsBean((String)name)) {
+            if (result == null && this.applicationContext != null && this.applicationContext.containsBean((String)name)) {
                 //如果在Spring容器中包含bean，则返回String的Bean
-                result = this.context.getBean((String)name);
+                result = this.applicationContext.getBean((String)name);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

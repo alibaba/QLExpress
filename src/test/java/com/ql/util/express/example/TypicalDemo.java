@@ -92,10 +92,10 @@ class UserInfo {
     final long tag;
     final String name;
 
-    public UserInfo(long aId, String aName, long aUserTag) {
-        this.id = aId;
-        this.tag = aUserTag;
-        this.name = aName;
+    public UserInfo(long id, String name, long userTag) {
+        this.id = id;
+        this.tag = userTag;
+        this.name = name;
     }
 
     public String getName() {

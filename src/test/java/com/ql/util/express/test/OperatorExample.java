@@ -4,8 +4,8 @@ import com.ql.util.express.Operator;
 import com.ql.util.express.OperatorOfNumber;
 
 class GroupOperator extends Operator {
-    public GroupOperator(String aName) {
-        this.name = aName;
+    public GroupOperator(String name) {
+        this.name = name;
     }
 
     @Override

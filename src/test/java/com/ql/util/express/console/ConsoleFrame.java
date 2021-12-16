@@ -217,8 +217,8 @@ class StringBufferOutputStream extends OutputStream {
     protected final ByteArrayOutputStream buffer;
     final JTextArea jTextArea;
 
-    public StringBufferOutputStream(JTextArea aJTextAreaResult) {
-        jTextArea = aJTextAreaResult;
+    public StringBufferOutputStream(JTextArea jTextArea) {
+        this.jTextArea = jTextArea;
         buffer = new ByteArrayOutputStream();
     }
 

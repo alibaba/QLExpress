@@ -59,8 +59,8 @@ public class BeanExample {
         return this.name;
     }
 
-    public BeanExample(String aName) {
-        name = aName;
+    public BeanExample(String name) {
+        this.name = name;
     }
 
     public String testLongObject(Long i) {

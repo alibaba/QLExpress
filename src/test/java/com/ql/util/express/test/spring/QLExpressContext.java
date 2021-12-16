@@ -10,16 +10,15 @@ import org.springframework.context.ApplicationContext;
 public class QLExpressContext extends HashMap<String, Object> implements
     IExpressContext<String, Object> {
 
-    private final ApplicationContext context;
+    private final ApplicationContext applicationContext;
 
-    public QLExpressContext(ApplicationContext aContext) {
-        this.context = aContext;
+    public QLExpressContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
-    public QLExpressContext(Map<String, Object> aProperties,
-        ApplicationContext aContext) {
-        super(aProperties);
-        this.context = aContext;
+    public QLExpressContext(Map<String, Object> properties, ApplicationContext applicationContext) {
+        super(properties);
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -30,9 +29,9 @@ public class QLExpressContext extends HashMap<String, Object> implements
         Object result;
         result = super.get(name);
         try {
-            if (result == null && this.context != null && this.context.containsBean((String)name)) {
+            if (result == null && this.applicationContext != null && this.applicationContext.containsBean((String)name)) {
                 // 如果在Spring容器中包含bean，则返回String的Bean
-                result = this.context.getBean((String)name);
+                result = this.applicationContext.getBean((String)name);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -4,9 +4,9 @@ public class ExampleDefine {
     private final String script;
     private final String context;
 
-    public ExampleDefine(String aScript, String aContext) {
-        this.script = aScript;
-        this.context = aContext;
+    public ExampleDefine(String script, String context) {
+        this.script = script;
+        this.context = context;
     }
 
     public String getScript() {
