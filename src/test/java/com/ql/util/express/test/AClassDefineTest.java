@@ -21,9 +21,8 @@ public class AClassDefineTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMultiExpress("ClassTest", express);
 
-        Object r = runner.executeByExpressName("ClassTest", context,
-            null, false, false, null);
-        Assert.assertFalse("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
+        Object r = runner.executeByExpressName("ClassTest", context, null, false, false, null);
+        Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("300"));
     }
 
     @Test
