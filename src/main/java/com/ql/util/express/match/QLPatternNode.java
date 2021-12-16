@@ -98,21 +98,21 @@ public class QLPatternNode {
             && this.maxMatchNum == 1;
     }
 
-    protected QLPatternNode(INodeTypeManager aManager, String name, String aOriginalContent) throws Exception {
-        this(aManager, name, aOriginalContent, false, 1);
-        //if (this.toString().equals(aOriginalContent) == false) {
-        //    throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString());
-        //    log.error(("语法定义解析后的结果与原始值不一致，原始值:" + aOriginalContent + " 解析结果:" + this.toString()));
+    protected QLPatternNode(INodeTypeManager iNodeTypeManager, String name, String originalContent) throws Exception {
+        this(iNodeTypeManager, name, originalContent, false, 1);
+        //if (this.toString().equals(originalContent) == false) {
+        //    throw new QLCompileException("语法定义解析后的结果与原始值不一致，原始值:" + originalContent + " 解析结果:" + this.toString());
+        //    log.error(("语法定义解析后的结果与原始值不一致，原始值:" + originalContent + " 解析结果:" + this.toString()));
         //}
     }
 
-    protected QLPatternNode(INodeTypeManager aManager, String name, String aOriginalContent, boolean aIsChildMode,
-        int aLevel) throws Exception {
-        this.nodeTypeManager = aManager;
+    protected QLPatternNode(INodeTypeManager iNodeTypeManager, String name, String originalContent, boolean isChildMode,
+        int level) throws Exception {
+        this.nodeTypeManager = iNodeTypeManager;
         this.name = name;
-        this.originalContent = aOriginalContent;
-        this.isChildMode = aIsChildMode;
-        this.level = aLevel;
+        this.originalContent = originalContent;
+        this.isChildMode = isChildMode;
+        this.level = level;
         this.splitChild();
         for (int i = 0; i < children.size(); i++) {
             QLPatternNode t = children.get(i);

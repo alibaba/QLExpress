@@ -355,8 +355,8 @@ public class QLPattern {
         private final int len;
         private int point;
 
-        public ArrayListCache(int aLen) {
-            this.len = aLen;
+        public ArrayListCache(int length) {
+            this.len = length;
             this.point = this.len - 1;
             cache = new List[this.len];
             for (int i = 0; i < this.len; i++) {
