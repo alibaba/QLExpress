@@ -282,7 +282,7 @@ public class ExpressParse {
         }
         builder.append("\t").append(node.getTreeType().getName()).append("\n");
 
-        List<ExpressNode> leftChildren = node.getLeftChildren();
+        List<ExpressNode> leftChildren = node.getChildrenList();
         if (leftChildren != null && leftChildren.size() > 0) {
             for (ExpressNode item : leftChildren) {
                 printTreeNode(builder, item, level + 1);
@@ -298,7 +298,7 @@ public class ExpressParse {
 
     public static void resetParent(ExpressNode node, ExpressNode parent) {
         node.setParent(parent);
-        List<ExpressNode> leftChildren = node.getLeftChildren();
+        List<ExpressNode> leftChildren = node.getChildrenList();
         if (leftChildren != null && leftChildren.size() > 0) {
             for (ExpressNode item : leftChildren) {
                 resetParent(item, node);

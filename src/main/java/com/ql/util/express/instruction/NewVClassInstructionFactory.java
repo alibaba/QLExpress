@@ -11,7 +11,7 @@ public class NewVClassInstructionFactory extends InstructionFactory {
     @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         boolean returnVal = false;
         String virClassName = children[0].getValue();
         for (int i = 1; i < children.length; i++) {

@@ -14,7 +14,7 @@ class KeyValueInstructionFactory extends InstructionFactory {
         ExpressNode node, boolean isRoot)
         throws Exception {
         boolean returnVal = false;
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (node.getParent() != null && node.getParent().isTypeEqualsOrChild("STATEMENT")) {
             children[0].setNodeType(aCompile.getNodeTypeManager().findNodeType("CONST_STRING"));
             children[0].setTreeType(aCompile.getNodeTypeManager().findNodeType("CONST"));

@@ -17,7 +17,7 @@ class OperatorInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         int[] finishPoint = new int[children.length];
         for (int i = 0; i < children.length; i++) {
             ExpressNode tmpNode = children[i];

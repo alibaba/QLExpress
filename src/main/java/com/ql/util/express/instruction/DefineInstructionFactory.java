@@ -14,32 +14,32 @@ class DefineInstructionFactory extends InstructionFactory {
     @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         int arrayDimeCount = 0;
         String tempStr = "";
         for (int i = children.length - 2; i > 0; i--) {
             ExpressNode tmpNode = children[i];
             if (tmpNode.isTypeEqualsOrChild("[]")) {
                 arrayDimeCount = arrayDimeCount + 1;
-                node.getLeftChildren().remove(i);
+                node.getChildrenList().remove(i);
                 tempStr = tempStr + "[]";
             } else {
                 throw new QLCompileException("不正确的类型定义");
             }
         }
         if (arrayDimeCount > 0) {
-            node.getLeftChildren().get(0).setValue(node.getLeftChildren().get(0).getValue() + tempStr);
-            node.getLeftChildren().get(0).setOriginalValue(node.getLeftChildren().get(0).getOriginalValue() + tempStr);
-            Object objValue = node.getLeftChildren().get(0).getObjectValue();
+            node.getChildrenList().get(0).setValue(node.getChildrenList().get(0).getValue() + tempStr);
+            node.getChildrenList().get(0).setOriginalValue(node.getChildrenList().get(0).getOriginalValue() + tempStr);
+            Object objValue = node.getChildrenList().get(0).getObjectValue();
             if (objValue instanceof Class) {
                 Class<?> tmpClass = ExpressUtil.getJavaClass(ExpressUtil.getClassName((Class<?>)objValue) + tempStr);
-                node.getLeftChildren().get(0).setObjectValue(tmpClass);
+                node.getChildrenList().get(0).setObjectValue(tmpClass);
             } else {
-                node.getLeftChildren().get(0).setObjectValue(node.getLeftChildren().get(0).getObjectValue() + tempStr);
+                node.getChildrenList().get(0).setObjectValue(node.getChildrenList().get(0).getObjectValue() + tempStr);
             }
         }
 
-        children = node.getChildren();
+        children = node.getChildrenArray();
         for (ExpressNode expressNode : children) {
             aCompile.createInstructionSetPrivate(result, forStack, expressNode, false);
         }

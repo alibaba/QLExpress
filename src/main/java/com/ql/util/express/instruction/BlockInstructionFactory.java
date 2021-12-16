@@ -21,7 +21,7 @@ public class BlockInstructionFactory extends InstructionFactory {
         int tmpPoint = result.getCurrentPoint() + 1;
         boolean returnVal;
         boolean hasDef = false;
-        for (ExpressNode tmpNode : node.getChildren()) {
+        for (ExpressNode tmpNode : node.getChildrenArray()) {
             boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, tmpNode, false);
             hasDef = hasDef || tmpHas;
         }

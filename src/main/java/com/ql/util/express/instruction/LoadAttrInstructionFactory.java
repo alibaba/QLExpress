@@ -20,7 +20,7 @@ public class LoadAttrInstructionFactory extends InstructionFactory {
                 node.getLine()).setLine(node.getLine()));
         } else {
             result.addInstruction(new InstructionLoadAttr(node.getValue()).setLine(node.getLine()));
-            if (node.getChildren().length > 0) {
+            if (node.getChildrenArray().length > 0) {
                 throw new QLException("表达式设置错误");
             }
         }

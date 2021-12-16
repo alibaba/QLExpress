@@ -13,12 +13,12 @@ public class FunctionInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result,
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot)
         throws Exception {
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (children.length != 3) {
             throw new QLException("function 操作符需要3个操作数 ");
         }
         String functionName = children[0].getValue();
-        ExpressNode[] varDefines = children[1].getChildren();
+        ExpressNode[] varDefines = children[1].getChildrenArray();
         int point = 0;
 
         String instructionSetType;
@@ -33,8 +33,8 @@ public class FunctionInstructionFactory extends InstructionFactory {
             if (!varDefines[point].isTypeEqualsOrChild("def")) {
                 throw new QLException("function的参数定义错误," + varDefines[point] + "不是一个Class");
             }
-            Class<?> varClass = (Class<?>)varDefines[point].getChildren()[0].getObjectValue();
-            String varName = varDefines[point].getChildren()[1].getValue();
+            Class<?> varClass = (Class<?>)varDefines[point].getChildrenArray()[0].getObjectValue();
+            String varName = varDefines[point].getChildrenArray()[1].getValue();
             OperateDataLocalVar tmpVar = new OperateDataLocalVar(varName, varClass);
             functionSet.addParameter(tmpVar);
             point = point + 1;
@@ -42,8 +42,8 @@ public class FunctionInstructionFactory extends InstructionFactory {
 
         ExpressNode functionRoot = new ExpressNode(aCompile.getNodeTypeManager().findNodeType("FUNCTION_DEFINE"),
             "function-" + functionName);
-        for (ExpressNode expressNode : children[2].getChildren()) {
-            functionRoot.addLeftChild(expressNode);
+        for (ExpressNode expressNode : children[2].getChildrenArray()) {
+            functionRoot.addChild(expressNode);
         }
         aCompile.createInstructionSet(functionRoot, functionSet);
         result.addMacroDefine(functionName, new FunctionInstructionSet(functionName, instructionSetType, functionSet));

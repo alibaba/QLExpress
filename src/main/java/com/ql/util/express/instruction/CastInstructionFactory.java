@@ -15,7 +15,7 @@ public class CastInstructionFactory extends InstructionFactory {
         ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
         OperatorBase op = aCompile.getOperatorFactory().newInstance(node);
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (children.length == 0) {
             throw new QLException("扩展类型不存在");
         } else if (children.length > 2) {

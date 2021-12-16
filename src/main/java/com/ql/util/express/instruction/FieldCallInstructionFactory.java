@@ -15,7 +15,7 @@ public class FieldCallInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
 
         //处理对象
         boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, children[0], false);

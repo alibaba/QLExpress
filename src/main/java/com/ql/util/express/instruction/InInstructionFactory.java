@@ -12,17 +12,17 @@ public class InInstructionFactory extends InstructionFactory {
     @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (children[1].isTypeEqualsOrChild("CHILD_EXPRESS")) {
-            node.getLeftChildren().remove(1);
-            ExpressNode[] parameterList = children[1].getChildren();
+            node.getChildrenList().remove(1);
+            ExpressNode[] parameterList = children[1].getChildrenArray();
             for (ExpressNode expressNode : parameterList) {
-                node.getLeftChildren().add(expressNode);
+                node.getChildrenList().add(expressNode);
             }
         }
 
         boolean returnVal = false;
-        children = node.getChildren();
+        children = node.getChildrenArray();
         for (ExpressNode child : children) {
             boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;

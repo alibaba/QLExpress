@@ -15,7 +15,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
     @Override
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (children.length != 2) {
             throw new QLException("lambda 操作符需要2个操作数");
 
@@ -27,7 +27,7 @@ public class LambdaInstructionFactory extends InstructionFactory {
         ExpressNode lambdaVarDefine = children[0];
         if ("CHILD_EXPRESS".equals(lambdaVarDefine.getNodeType().getName())) {
             // 带括号的参数写法
-            for (ExpressNode varDefine : lambdaVarDefine.getChildren()) {
+            for (ExpressNode varDefine : lambdaVarDefine.getChildrenArray()) {
                 OperateDataLocalVar tmpVar = new OperateDataLocalVar(varDefine.getValue(), null);
                 lambdaSet.addParameter(tmpVar);
             }
@@ -40,11 +40,11 @@ public class LambdaInstructionFactory extends InstructionFactory {
         ExpressNode lambdaBodyRoot = new ExpressNode(aCompile.getNodeTypeManager()
             .findNodeType("FUNCTION_DEFINE"), LAMBDA_NODE_NAME);
         if ("STAT_BLOCK".equals(node.getNodeType().getName())) {
-            for (ExpressNode tempNode : children[1].getChildren()) {
-                lambdaBodyRoot.addLeftChild(tempNode);
+            for (ExpressNode tempNode : children[1].getChildrenArray()) {
+                lambdaBodyRoot.addChild(tempNode);
             }
         } else {
-            lambdaBodyRoot.addLeftChild(children[1]);
+            lambdaBodyRoot.addChild(children[1]);
         }
 
         aCompile.createInstructionSet(lambdaBodyRoot, lambdaSet);

@@ -166,21 +166,21 @@ public class ExpressNode implements IDataNode {
         this.treeType = treeType;
     }
 
-    public List<ExpressNode> getLeftChildren() {
+    public List<ExpressNode> getChildrenList() {
         return leftChildren;
     }
 
-    public void addLeftChild(ExpressNode leftChild) {
-        if (leftChild == null) {
+    public void addChild(ExpressNode child) {
+        if (child == null) {
             return;
         }
         if (this.leftChildren == null) {
             this.leftChildren = new ArrayList<>();
         }
-        this.leftChildren.add(leftChild);
+        this.leftChildren.add(child);
     }
 
-    public ExpressNode[] getChildren() {
+    public ExpressNode[] getChildrenArray() {
         List<ExpressNode> result = new ArrayList<>();
         if (this.leftChildren != null && this.leftChildren.size() > 0) {
             result.addAll(this.leftChildren);
@@ -207,7 +207,7 @@ public class ExpressNode implements IDataNode {
 
     @Override
     public void addLeftChild(IDataNode ref) {
-        this.addLeftChild((ExpressNode)ref);
+        this.addChild((ExpressNode)ref);
     }
 
     @Override

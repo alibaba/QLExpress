@@ -14,7 +14,7 @@ public class NewInstructionFactory extends InstructionFactory {
     public boolean createInstruction(ExpressRunner aCompile, InstructionSet result, Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
         OperatorBase op = aCompile.getOperatorFactory().newInstance("new");
-        ExpressNode[] children = node.getChildren();
+        ExpressNode[] children = node.getChildrenArray();
         if (node.isTypeEqualsOrChild("NEW_ARRAY")) {
             StringBuilder tempStr = new StringBuilder(children[0].getValue());
             for (int i = 0; i < children.length - 1; i++) {
@@ -30,7 +30,7 @@ public class NewInstructionFactory extends InstructionFactory {
         boolean returnVal = false;
 
         // 需要重新获取数据
-        children = node.getChildren();
+        children = node.getChildrenArray();
         for (ExpressNode child : children) {
             boolean tmpHas = aCompile.createInstructionSetPrivate(result, forStack, child, false);
             returnVal = returnVal || tmpHas;
