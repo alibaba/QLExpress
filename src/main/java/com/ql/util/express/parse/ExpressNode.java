@@ -32,8 +32,6 @@ public class ExpressNode implements IDataNode {
      */
     private ExpressNode parent;
     private List<ExpressNode> leftChildren;
-    private List<ExpressNode> rightChildren;
-    private boolean isSplitStatement = false;
 
     /**
      * 行号
@@ -178,18 +176,6 @@ public class ExpressNode implements IDataNode {
         return leftChildren;
     }
 
-    public void setLeftChildren(List<ExpressNode> leftChildren) {
-        this.leftChildren = leftChildren;
-    }
-
-    public List<ExpressNode> getRightChildren() {
-        return rightChildren;
-    }
-
-    public void setRightChildren(List<ExpressNode> rightChildren) {
-        this.rightChildren = rightChildren;
-    }
-
     public void addLeftChild(ExpressNode leftChild) {
         if (leftChild == null) {
             return;
@@ -200,23 +186,10 @@ public class ExpressNode implements IDataNode {
         this.leftChildren.add(leftChild);
     }
 
-    public void addRightChild(ExpressNode rightChild) {
-        if (rightChild == null) {
-            return;
-        }
-        if (this.leftChildren == null) {
-            this.leftChildren = new ArrayList<>();
-        }
-        this.leftChildren.add(rightChild);
-    }
-
     public ExpressNode[] getChildren() {
         List<ExpressNode> result = new ArrayList<>();
         if (this.leftChildren != null && this.leftChildren.size() > 0) {
             result.addAll(this.leftChildren);
-        }
-        if (this.rightChildren != null && this.rightChildren.size() > 0) {
-            result.addAll(this.rightChildren);
         }
         return result.toArray(new ExpressNode[0]);
     }
@@ -225,8 +198,7 @@ public class ExpressNode implements IDataNode {
     public String toString() {
         // return str + "[" + this.line +"," + this.col +"]";
         return (this.originalValue == null ? this.getValue() : this.originalValue) + (this.nodeType.getName() == null
-            ? ""
-            : (":" + this.nodeType.getName()));
+            ? "" : (":" + this.nodeType.getName()));
     }
 
     @Override

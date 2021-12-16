@@ -818,7 +818,7 @@ public class ExpressRunner {
                     selfDefineClass.put(item.getName(), item.getName());
                 }
             }
-            Word[] words = this.parse.splitWords(rootExpressPackage, text, isTrace, selfDefineClass);
+            Word[] words = this.parse.splitWords(text, isTrace, selfDefineClass);
             ExpressNode root = this.parse.parse(this.rootExpressPackage, words, text, isTrace, selfDefineClass,
                 mockRemoteJavaClass);
             InstructionSet result = createInstructionSet(root, "main");

@@ -333,12 +333,11 @@ public class ExpressParse {
 
     public ExpressNode parse(ExpressPackage rootExpressPackage, String express, boolean isTrace,
         Map<String, String> selfDefineClass) throws Exception {
-        Word[] words = splitWords(rootExpressPackage, express, isTrace, selfDefineClass);
+        Word[] words = splitWords(express, isTrace, selfDefineClass);
         return parse(rootExpressPackage, words, express, isTrace, selfDefineClass);
     }
 
-    public Word[] splitWords(ExpressPackage rootExpressPackage, String express, boolean isTrace,
-        Map<String, String> selfDefineClass) throws Exception {
+    public Word[] splitWords(String express, boolean isTrace, Map<String, String> selfDefineClass) throws Exception {
         Word[] words = WordSplit.parse(this.nodeTypeManager.splitWord, express);
         if (isTrace && log.isDebugEnabled()) {
             log.debug("执行的表达式:" + express);
