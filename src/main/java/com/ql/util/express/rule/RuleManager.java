@@ -295,7 +295,7 @@ public class RuleManager {
         }
         if(min<0) min = 0;
         if(max>=words.length) max = words.length-1;
-        StringBuilder result = new StringBuilder();
+        List<String> result = new ArrayList<>();
         int balance = 0;//小括号的相互匹配数量
         for(int i=min;i<=max;i++)
         {
@@ -308,12 +308,12 @@ public class RuleManager {
                 balance++;//当前字符不合并，恢复成0，用于最终的判断
                 break;
             }
-            result.append(words[i].word);
+            result.add(words[i].word);
         }
         if(balance!=0){
             throw new RuntimeException("括号匹配异常");
         }
-        return result.toString();
+        return String.join(" ", result);
     }
 
     private static int getMinNode(ExpressNode express)
