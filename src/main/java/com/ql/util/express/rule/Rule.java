@@ -47,7 +47,7 @@ public class Rule extends Node{
                 sb.append(this.ruleCaseToScript("ql",oneCase));
                 first = false;
             }else{
-                sb.append("else ").append(this.ruleCaseToScript("ql",oneCase));
+                sb.append(" else ").append(this.ruleCaseToScript("ql", oneCase));
             }
         }
         return sb.toString();
@@ -113,7 +113,11 @@ public class Rule extends Node{
             for(Action action : ruleCase.getActions()){
                 sb.append(action.getText()).append(";\n");
             }
-            return String.format("if(%s)\n{\n%s}", ruleCase.getCondition().toString(), sb);
+            if (ruleCase.getCondition() instanceof EmptyCondition) {
+                return String.format("{\n%s}", sb);
+            } else {
+                return String.format("if(%s)\n{\n%s}", ruleCase.getCondition().toString(), sb);
+            }
         }else if(scriptType.equals("skylight")){
             for(Action action : ruleCase.getActions()){
                 sb.append(action.getText()).append("\n");
