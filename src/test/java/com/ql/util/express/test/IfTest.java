@@ -1,5 +1,6 @@
 package com.ql.util.express.test;
 
+import com.ql.util.express.match.QLPattern;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,5 +39,18 @@ public class IfTest {
 			System.out.println("环境结果：" + expressContext);		
 			Assert.assertTrue("表达式执行错误:" + expresses[i][0] + " 期望值：" + expresses[i][1] +" 运算结果：" + result ,expresses[i][1].equals(result == null?"null":result.toString()));
 		}
-	}	
+	}
+
+	@Test
+	public void complexIf() {
+		QLPattern.printStackDepth = true;
+		String express = "if (secondProd in (\"xxx\", \"dddd\")\n" +
+				"        && (((tradeProduct == \"standard\" || tradeProduct == \"phase_standard\") && (bizIdentity == \"taaa1111\" || bizIdentity == \"ffff\"))\n" +
+				"            || (deliveryProductCode == \"fpaap\" && bizIdentity == \"tttaaa1\")\n" +
+				"            || (deliveryProductCode == \"faaa_auth\" && bizIdentity == \"rrrr11010101\"))) {\n" +
+				"            return \"amttttt\";\n" +
+				"    }";
+		ExpressRunner runner = new ExpressRunner(false,true);
+		runner.checkSyntax(express);
+	}
 }
