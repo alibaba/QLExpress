@@ -9,8 +9,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class ContinueInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) {
         InstructionGoTo continueInstruction = new InstructionGoTo(result.getCurrentPoint() + 1);
         continueInstruction.setName("continue");
         forStack.peek().continueList.add(continueInstruction);

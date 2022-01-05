@@ -11,8 +11,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class CallFunctionInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         String functionName = children[0].getValue();
         boolean returnVal = false;

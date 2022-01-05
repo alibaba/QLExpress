@@ -13,8 +13,8 @@ public class LambdaInstructionFactory extends InstructionFactory {
     private static final String LAMBDA_NODE_NAME = "LAMBDA";
 
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         if (children.length != 2) {
             throw new QLException("lambda 操作符需要2个操作数");

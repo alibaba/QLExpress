@@ -13,14 +13,15 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class ForInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         if (node.getChildrenArray().length < 2) {
             throw new QLCompileException("for 操作符至少需要2个操作数 ");
         } else if (node.getChildrenArray().length > 2) {
             throw new QLCompileException("for 操作符最多只有2个操作数 ");
         }
-        if (node.getChildrenArray()[0].getChildrenArray() != null && node.getChildrenArray()[0].getChildrenArray().length > 3) {
+        if (node.getChildrenArray()[0].getChildrenArray() != null
+            && node.getChildrenArray()[0].getChildrenArray().length > 3) {
             throw new QLCompileException("循环语句的设置不合适:" + node.getChildrenArray()[0]);
         }
         //生成作用域开始指令
@@ -48,7 +49,8 @@ public class ForInstructionFactory extends InstructionFactory {
             || conditionNode.getChildrenArray().length == 2
             || conditionNode.getChildrenArray().length == 3)
         ) {
-            expressRunner.createInstructionSetPrivate(result, forStack, conditionNode.getChildrenArray()[nodePoint], false);
+            expressRunner.createInstructionSetPrivate(result, forStack, conditionNode.getChildrenArray()[nodePoint],
+                false);
             //跳转的位置需要根据后续的指令情况决定
             conditionInstruction = new InstructionGoToWithCondition(false, -1, true);
             result.insertInstruction(result.getCurrentPoint() + 1, conditionInstruction.setLine(node.getLine()));
@@ -63,7 +65,8 @@ public class ForInstructionFactory extends InstructionFactory {
         if (conditionNode.getChildrenArray() != null && (
             conditionNode.getChildrenArray().length == 2 || conditionNode.getChildrenArray().length == 3
         )) {
-            expressRunner.createInstructionSetPrivate(result, forStack, conditionNode.getChildrenArray()[nodePoint], false);
+            expressRunner.createInstructionSetPrivate(result, forStack, conditionNode.getChildrenArray()[nodePoint],
+                false);
         }
         //增加一个无条件跳转
         InstructionGoTo reStartGoto = new InstructionGoTo(loopStartPoint - (result.getCurrentPoint() + 1));

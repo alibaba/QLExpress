@@ -11,8 +11,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class LoadAttrInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         FunctionInstructionSet functionSet = result.getMacroDefine(node.getValue());
         if (functionSet != null) {
             //是宏定义

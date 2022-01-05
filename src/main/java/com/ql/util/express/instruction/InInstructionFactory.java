@@ -10,8 +10,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class InInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         if (children[1].isTypeEqualsOrChild("CHILD_EXPRESS")) {
             node.getChildrenList().remove(1);

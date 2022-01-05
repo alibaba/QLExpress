@@ -8,8 +8,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class MacroInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         String macroName = children[0].getValue();
         ExpressNode macroRoot = new ExpressNode(expressRunner.getNodeTypeManager().findNodeType("FUNCTION_DEFINE"),

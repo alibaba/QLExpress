@@ -14,8 +14,8 @@ import com.ql.util.express.parse.ExpressNode;
 
 class OperatorInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
         ExpressNode[] children = node.getChildrenArray();
         int[] finishPoint = new int[children.length];
