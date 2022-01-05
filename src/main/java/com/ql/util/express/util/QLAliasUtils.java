@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.annotation.QLAlias;
 import org.apache.commons.beanutils.PropertyUtils;
 
@@ -21,8 +22,7 @@ public class QLAliasUtils {
     public static Class<?> getPropertyClass(Object bean, String name) {
         Field field = findQLAliasFieldsWithCache(bean.getClass(), name);
         if (field != null) {
-            field.setAccessible(true);
-            return field.getType();
+            name = field.getName();
         }
         try {
             return PropertyUtils.getPropertyDescriptor(bean, name).getPropertyType();
@@ -35,12 +35,23 @@ public class QLAliasUtils {
         try {
             Field field = findQLAliasFieldsWithCache(bean.getClass(), name);
             if (field != null) {
-                field.setAccessible(true);
-                return field.get(bean);
+                name = field.getName();
             }
             return PropertyUtils.getProperty(bean, name);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public static void setProperty(Object bean, Object name, Object value) {
+        try {
+            Field field = findQLAliasFieldsWithCache(bean.getClass(), name.toString());
+            if (field != null) {
+                name = field.getName();
+            }
+            Class<?> filedClass = PropertyUtils.getPropertyType(bean, name.toString());
+            PropertyUtils.setProperty(bean, name.toString(), ExpressUtil.castObject(value, filedClass, false));
+        } catch (Exception ignore) {
         }
     }
 

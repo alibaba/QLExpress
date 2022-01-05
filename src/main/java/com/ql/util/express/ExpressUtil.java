@@ -21,7 +21,6 @@ import com.ql.util.express.annotation.QLAlias;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.util.QLAliasUtils;
-import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * 表达式工具类
@@ -654,7 +653,7 @@ public class ExpressUtil {
             } else if (bean instanceof Map) {
                 ((Map<Object, Object>)bean).put(name, value);
             } else {
-				QLAliasUtils.setProperty(bean,name.toString(),value);
+                QLAliasUtils.setProperty(bean, name.toString(), value);
             }
         } catch (Exception e) {
             throw new RuntimeException("不能访问" + bean + "的property:" + name, e);
