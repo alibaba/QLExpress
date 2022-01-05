@@ -552,31 +552,31 @@ public class ExpressRunner {
             errorList, isTrace, isCatchException, log, false);
     }
 
-    /**
-     * 执行指令集(兼容老接口,请不要自己管理指令缓存，直接使用execute(InstructionSet instructionSets,....... )
-     * 清理缓存可以使用clearExpressCache()函数
-     *
-     * @param instructionSets
-     * @param context
-     * @param errorList
-     * @param isTrace
-     * @param isCatchException
-     * @param log
-     * @return
-     * @throws Exception
-     * @deprecated
-     */
-    @Deprecated
-    public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
-        return InstructionSetRunner.executeOuter(this, instructionSets[0], this.loader, context, errorList,
-            isTrace, isCatchException, log, false);
-    }
+    ///**
+    // * 执行指令集(兼容老接口,请不要自己管理指令缓存，直接使用execute(InstructionSet instructionSet,....... )
+    // * 清理缓存可以使用clearExpressCache()函数
+    // *
+    // * @param instructionSets
+    // * @param context
+    // * @param errorList
+    // * @param isTrace
+    // * @param isCatchException
+    // * @param log
+    // * @return
+    // * @throws Exception
+    // * @deprecated
+    // */
+    //@Deprecated
+    //public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
+    //    List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
+    //    return InstructionSetRunner.executeOuter(this, instructionSets[0], this.loader, context, errorList,
+    //        isTrace, isCatchException, log, false);
+    //}
 
     /**
      * 执行指令集
      *
-     * @param instructionSets
+     * @param instructionSet
      * @param context
      * @param errorList
      * @param isTrace
@@ -585,9 +585,9 @@ public class ExpressRunner {
      * @return
      * @throws Exception
      */
-    public Object execute(InstructionSet instructionSets, IExpressContext<String, Object> context,
+    public Object execute(InstructionSet instructionSet, IExpressContext<String, Object> context,
         List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
-        return InstructionSetRunner.executeOuter(this, instructionSets, this.loader, context, errorList,
+        return InstructionSetRunner.executeOuter(this, instructionSet, this.loader, context, errorList,
             isTrace, isCatchException, log, false);
     }
 
