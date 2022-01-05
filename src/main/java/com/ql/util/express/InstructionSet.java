@@ -285,9 +285,9 @@ public class InstructionSet {
         return type;
     }
 
-    public void appendSpace(StringBuffer buffer, int level) {
+    public void appendSpace(StringBuilder stringBuilder, int level) {
         for (int i = 0; i < level; i++) {
-            buffer.append("    ");
+            stringBuilder.append("    ");
         }
     }
 
@@ -298,28 +298,29 @@ public class InstructionSet {
 
     public String toString(int level) {
         try {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             // 输出宏定义
             for (FunctionInstructionSet set : this.functionDefine.values()) {
-                appendSpace(buffer, level);
-                buffer.append(set.type).append(":").append(set.name).append("(");
+                appendSpace(stringBuilder, level);
+                stringBuilder.append(set.type).append(":").append(set.name).append("(");
                 for (int i = 0; i < set.instructionSet.parameterList.size(); i++) {
-                    OperateDataLocalVar var = set.instructionSet.parameterList.get(i);
+                    OperateDataLocalVar operateDataLocalVar = set.instructionSet.parameterList.get(i);
                     if (i > 0) {
-                        buffer.append(",");
+                        stringBuilder.append(",");
                     }
-                    buffer.append(var.getType(null).getName()).append(" ").append(var.getName());
+                    stringBuilder.append(operateDataLocalVar.getType(null).getName()).append(" ")
+                        .append(operateDataLocalVar.getName());
                 }
-                buffer.append("){\n");
-                buffer.append(set.instructionSet.toString(level + 1));
-                appendSpace(buffer, level);
-                buffer.append("}\n");
+                stringBuilder.append("){\n");
+                stringBuilder.append(set.instructionSet.toString(level + 1));
+                appendSpace(stringBuilder, level);
+                stringBuilder.append("}\n");
             }
             for (int i = 0; i < this.instructionList.length; i++) {
-                appendSpace(buffer, level);
-                buffer.append(i + 1).append(":").append(this.instructionList[i]).append("\n");
+                appendSpace(stringBuilder, level);
+                stringBuilder.append(i + 1).append(":").append(this.instructionList[i]).append("\n");
             }
-            return buffer.toString();
+            return stringBuilder.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

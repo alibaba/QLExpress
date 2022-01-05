@@ -8,8 +8,8 @@ package com.ql.util.express;
 public class ExportItem {
     public static final String TYPE_ALIAS = "alias";
     public static final String TYPE_DEF = "def";
-    public static String TYPE_FUNCTION = "function";
-    public static String TYPE_MACRO = "macro";
+    public static final String TYPE_FUNCTION = "function";
+    public static final String TYPE_MACRO = "macro";
     private String globeName;
     String name;
 

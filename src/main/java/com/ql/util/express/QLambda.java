@@ -32,10 +32,11 @@ public class QLambda {
             environment.getContext().getExpressLoader(), environment.getContext().isSupportDynamicFieldName());
         OperateDataLocalVar[] vars = functionSet.getParameters();
         for (int i = 0; i < vars.length; i++) {
-            OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
+            OperateDataLocalVar operateDataLocalVar = OperateDataCacheManager.fetchOperateDataLocalVar(
+                vars[i].getName(),
                 params.length <= i ? Object.class : params[i] == null ? Object.class : params[i].getClass());
-            context.addSymbol(var.getName(), var);
-            var.setObject(context, params.length > i ? params[i] : null);
+            context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
+            operateDataLocalVar.setObject(context, params.length > i ? params[i] : null);
         }
 
         return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false, true, log);

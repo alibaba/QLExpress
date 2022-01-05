@@ -22,6 +22,10 @@ interface NumberType {
 }
 
 public class OperatorOfNumber {
+    private OperatorOfNumber() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static double round(double v, int scale) {
         if (scale < 0) {
             throw new IllegalArgumentException("The scale must be a positive integer or zero");
@@ -208,6 +212,10 @@ public class OperatorOfNumber {
 }
 
 class NormalNumberOperator {
+    private NormalNumberOperator() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * 普通的加法运算
      *
@@ -355,6 +363,10 @@ class NormalNumberOperator {
  */
 class PreciseNumberOperator {
     public static final int DIVIDE_PRECISION = 10;
+
+    private PreciseNumberOperator() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Number addPrecise(Number op1, Number op2) {
         BigDecimal result;

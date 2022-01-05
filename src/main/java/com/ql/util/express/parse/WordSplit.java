@@ -12,8 +12,11 @@ import com.ql.util.express.exception.QLCompileException;
  *
  * @author xuannan
  */
-
 public class WordSplit {
+    private WordSplit() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * 文本分析函数，“.”作为操作符号处理
      *

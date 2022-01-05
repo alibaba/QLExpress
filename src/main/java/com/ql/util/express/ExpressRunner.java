@@ -87,7 +87,7 @@ public class ExpressRunner {
     final ExpressPackage rootExpressPackage = new ExpressPackage(null);
 
     /**
-     * 线程冲入次数
+     * 线程重入次数
      */
     private final ThreadLocal<Integer> threadReentrantCount = ThreadLocal.withInitial(() -> 0);
 
@@ -564,6 +564,7 @@ public class ExpressRunner {
      * @param log
      * @return
      * @throws Exception
+     * @deprecated
      */
     @Deprecated
     public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
@@ -746,7 +747,7 @@ public class ExpressRunner {
     public void createInstructionSet(ExpressNode root, InstructionSet result) throws Exception {
         Stack<ForRelBreakContinue> forStack = new Stack<>();
         createInstructionSetPrivate(result, forStack, root, true);
-        if (forStack.size() > 0) {
+        if (!forStack.isEmpty()) {
             throw new QLCompileException("For处理错误");
         }
     }

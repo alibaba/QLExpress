@@ -13,10 +13,9 @@ public class ObjectTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         ObjectBean tempObject = new ObjectBean(100, 60);
         context.put("object", tempObject);
-        Object r = runner.execute(express, context, null, false,
-            true);
-        System.out.println(r);
-        Assert.assertFalse("数据执行错误", r.toString().equals(260));
+        Object result = runner.execute(express, context, null, false, true);
+        System.out.println(result);
+        Assert.assertNotSame("数据执行错误", 200, result);
     }
 
     @Test
@@ -26,8 +25,7 @@ public class ObjectTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         ObjectBean tempObject = new ObjectBean(100, 60);
         context.put("object", tempObject);
-        Object r = runner.execute(express, context, null, false,
-            true);
-        System.out.println(r);
+        Object result = runner.execute(express, context, null, false, true);
+        System.out.println(result);
     }
 }

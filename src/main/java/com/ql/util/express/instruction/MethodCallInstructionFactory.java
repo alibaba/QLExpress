@@ -12,13 +12,12 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class MethodCallInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
-        boolean returnVal = false;
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         //处理对象
         boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, children[0], false);
-        returnVal = returnVal || tmpHas;
+        boolean returnVal = tmpHas;
         //处理方法名称
         if (!"CONST_STRING".equalsIgnoreCase(children[1].getNodeType().getName())) {
             throw new QLException("对象方法名称不是字符串常量:" + children[1]);

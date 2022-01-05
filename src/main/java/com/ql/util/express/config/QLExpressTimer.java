@@ -12,6 +12,10 @@ public class QLExpressTimer {
     private static final ThreadLocal<Long> START_TIME = new ThreadLocal<Long>() {};
     private static final ThreadLocal<Long> END_TIME = new ThreadLocal<Long>() {};
 
+    private QLExpressTimer() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * 设置超时时间
      *

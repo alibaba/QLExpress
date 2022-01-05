@@ -12,21 +12,22 @@ import com.ql.util.express.parse.ExpressNode;
 
 class DefineInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
-        ExpressNode node, boolean isRoot) throws Exception {
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         ExpressNode[] children = node.getChildrenArray();
         int arrayDimeCount = 0;
-        String tempStr = "";
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = children.length - 2; i > 0; i--) {
             ExpressNode tmpNode = children[i];
             if (tmpNode.isTypeEqualsOrChild("[]")) {
                 arrayDimeCount = arrayDimeCount + 1;
                 node.getChildrenList().remove(i);
-                tempStr = tempStr + "[]";
+                stringBuilder.append("[]");
             } else {
                 throw new QLCompileException("不正确的类型定义");
             }
         }
+        String tempStr = stringBuilder.toString();
         if (arrayDimeCount > 0) {
             node.getChildrenList().get(0).setValue(node.getChildrenList().get(0).getValue() + tempStr);
             node.getChildrenList().get(0).setOriginalValue(node.getChildrenList().get(0).getOriginalValue() + tempStr);

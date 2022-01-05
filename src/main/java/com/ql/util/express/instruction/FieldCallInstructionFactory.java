@@ -12,14 +12,13 @@ import com.ql.util.express.parse.ExpressNode;
 
 public class FieldCallInstructionFactory extends InstructionFactory {
     @Override
-    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result, Stack<ForRelBreakContinue> forStack,
+    public boolean createInstruction(ExpressRunner expressRunner, InstructionSet result,
+        Stack<ForRelBreakContinue> forStack,
         ExpressNode node, boolean isRoot) throws Exception {
-        boolean returnVal = false;
         ExpressNode[] children = node.getChildrenArray();
 
         //处理对象
-        boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, children[0], false);
-        returnVal = returnVal || tmpHas;
+        boolean returnValue = expressRunner.createInstructionSetPrivate(result, forStack, children[0], false);
 
         //处理属性名称
         if (!"CONST_STRING".equalsIgnoreCase(children[1].getNodeType().getName())) {
@@ -30,6 +29,6 @@ public class FieldCallInstructionFactory extends InstructionFactory {
 
         OperatorBase op = new OperatorField(fieldName);
         result.addInstruction(new InstructionOperator(op, 1).setLine(node.getLine()));
-        return returnVal;
+        return returnValue;
     }
 }

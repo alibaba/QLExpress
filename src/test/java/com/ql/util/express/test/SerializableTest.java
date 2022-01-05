@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class SerializableTest {
     @Test
-    @Ignore // TODO：不在实现Serializable接口，因此不能序列化
+    @Ignore("不在实现Serializable接口，因此不能序列化")
     public void testSerializable() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         InstructionSet staff = runner.parseInstructionSet("1+1");

@@ -49,10 +49,10 @@ public class OperateDataVirClass extends OperateDataAttr {
         OperateDataLocalVar[] vars = virClassInstructionSet.getParameters();
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
-            OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOriginalType());
-            this.context.addSymbol(var.getName(), var);
-            var.setObject(context, parameters[i].getObject(parent));
+            OperateDataLocalVar operateDataLocalVar = OperateDataCacheManager.fetchOperateDataLocalVar(
+                vars[i].getName(), vars[i].getOriginalType());
+            this.context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
+            operateDataLocalVar.setObject(context, parameters[i].getObject(parent));
         }
         InstructionSetRunner.execute(virClassInstructionSet, context, errorList, isTrace, false, false, this.log);
     }
@@ -70,10 +70,10 @@ public class OperateDataVirClass extends OperateDataAttr {
         OperateDataLocalVar[] vars = functionSet.getParameters();
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
-            OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOriginalType());
-            tempContext.addSymbol(var.getName(), var);
-            var.setObject(tempContext, parameters[i].getObject(this.context));
+            OperateDataLocalVar operateDataLocalVar = OperateDataCacheManager.fetchOperateDataLocalVar(
+                vars[i].getName(), vars[i].getOriginalType());
+            tempContext.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
+            operateDataLocalVar.setObject(tempContext, parameters[i].getObject(this.context));
         }
         Object result = InstructionSetRunner.execute(functionSet, tempContext, null, this.isTrace, false, true,
             this.log);

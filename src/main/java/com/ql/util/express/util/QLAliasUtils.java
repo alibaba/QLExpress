@@ -12,7 +12,11 @@ import org.apache.commons.beanutils.PropertyUtils;
  * 2021-11-15 6:31 下午
  */
 public class QLAliasUtils {
-    public static final Map<String, Object> FIELD_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Object> FIELD_CACHE = new ConcurrentHashMap<>();
+
+    private QLAliasUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Class<?> getPropertyClass(Object bean, String name) {
         Field field = findQLAliasFieldsWithCache(bean.getClass(), name);

@@ -71,10 +71,10 @@ public class InstructionCallSelfDefineFunction extends Instruction {
         OperateDataLocalVar[] vars = functionSet.getParameters();
         for (int i = 0; i < vars.length; i++) {
             //注意此处必须new 一个新的对象，否则就会在多次调用的时候导致数据冲突
-            OperateDataLocalVar var = OperateDataCacheManager.fetchOperateDataLocalVar(vars[i].getName(),
-                vars[i].getOriginalType());
-            context.addSymbol(var.getName(), var);
-            var.setObject(context, parameters.get(i).getObject(environment.getContext()));
+            OperateDataLocalVar operateDataLocalVar = OperateDataCacheManager.fetchOperateDataLocalVar(
+                vars[i].getName(), vars[i].getOriginalType());
+            context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
+            operateDataLocalVar.setObject(context, parameters.get(i).getObject(environment.getContext()));
         }
         Object result = InstructionSetRunner.execute(functionSet,
             context, errorList, environment.isTrace(), false, true, log);

@@ -10,6 +10,10 @@ import org.apache.commons.logging.LogFactory;
 public class InstructionSetRunner {
     private static final Log log = LogFactory.getLog(InstructionSetRunner.class);
 
+    private InstructionSetRunner() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static Object executeOuter(ExpressRunner runner, InstructionSet instructionSet, ExpressLoader loader,
         IExpressContext<String, Object> iExpressContext, List<String> errorList, boolean isTrace,
         boolean isCatchException, Log log, boolean isSupportDynamicFieldName) throws Exception {

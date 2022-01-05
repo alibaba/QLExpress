@@ -55,7 +55,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     }
 
     public void exportSymbol(String varName, Object aliasNameObject) throws Exception {
-        if (this.parent != null && this.parent instanceof InstructionSetContext) {
+        if (this.parent instanceof InstructionSetContext) {
             ((InstructionSetContext)this.parent).exportSymbol(varName, aliasNameObject);
         } else {
             this.addSymbol(varName, aliasNameObject);
@@ -88,7 +88,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
     public Object findAliasOrDefSymbol(String varName) {
         Object result = this.symbolTable.get(varName);
         if (result == null) {
-            if (this.parent != null && this.parent instanceof InstructionSetContext) {
+            if (this.parent instanceof InstructionSetContext) {
                 result = ((InstructionSetContext)this.parent).findAliasOrDefSymbol(varName);
             }
         }

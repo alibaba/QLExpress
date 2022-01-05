@@ -182,9 +182,9 @@ public class QLPatternNode {
             throw new QLCompileException("不正确的模式串,(没有找到对应的):" + originalStr);
         }
 
-        if (this.children.size() > 0) {
-            children.add(new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN",
-                tempStr.toString(), false, this.level + 1));
+        if (!this.children.isEmpty()) {
+            children.add(
+                new QLPatternNode(this.nodeTypeManager, "ANONY_PATTERN", tempStr.toString(), false, this.level + 1));
             tempStr = new StringBuilder();
         }
 

@@ -34,14 +34,14 @@ public class NodeType implements INodeType {
         List<String[]> list = new ArrayList<>();
         int endIndex = 0;
         while (matcher.find()) {
-            if (list.size() > 0) {
+            if (!list.isEmpty()) {
                 list.get(list.size() - 1)[1] = str.substring(endIndex, matcher.start()).trim();
             }
             list.add(new String[2]);
             list.get(list.size() - 1)[0] = str.substring(matcher.start() + 1, matcher.end() - 1).trim();
             endIndex = matcher.end();
         }
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             list.get(list.size() - 1)[1] = str.substring(endIndex).trim();
         }
         return list.toArray(new String[0][2]);
@@ -85,7 +85,7 @@ public class NodeType implements INodeType {
             return ((NodeType)this.qlPatternNode.getNodeType()).isContainerChild(child);
         }
         // 是and类型，不能增加子节点或进行判断
-        if (this.qlPatternNode.isAndMode() && this.qlPatternNode.getChildren().size() > 0) {
+        if (this.qlPatternNode.isAndMode() && !this.qlPatternNode.getChildren().isEmpty()) {
             return false;
         }
         for (QLPatternNode node : this.qlPatternNode.getChildren()) {

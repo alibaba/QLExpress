@@ -8,14 +8,17 @@ import com.ql.util.express.exception.QLException;
  * Created by tianqiao on 16/9/12.
  */
 public class DynamicParamsUtil {
-
     public static boolean supportDynamicParams = false;
+
+    private DynamicParamsUtil() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Object[] transferDynamicParams(InstructionSetContext context, ArraySwap list,
         Class<?>[] declaredParamsClasses, boolean maybeDynamicParams) throws Exception {
 
         Object[] params;
-        //参数定义不符合动态参数形式 || 用户自定义不支持 || 用户传入的参数不符合
+        // 参数定义不符合动态参数形式 || 用户自定义不支持 || 用户传入的参数不符合
         if (!maybeDynamicParams || !supportDynamicParams || !maybeDynamicParams(context, list, declaredParamsClasses)) {
             if (declaredParamsClasses.length != list.length) {
                 throw new QLException("定义的参数长度与运行期传入的参数长度不一致");

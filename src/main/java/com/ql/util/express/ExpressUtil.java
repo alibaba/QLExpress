@@ -55,7 +55,7 @@ public class ExpressUtil {
     public static final String DT_char = "char";
     public static final String DT_boolean = "boolean";
 
-    public static final Map<String, Object> METHOD_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Object> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private static final Class<?>[][] CLASS_MATCHES = new Class[][] {
         //原始数据类型
@@ -77,6 +77,10 @@ public class ExpressUtil {
      * 一个接口是否函数式接口的缓存
      */
     private static final Map<Class<?>, Boolean> IS_FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
+
+    private ExpressUtil() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Class<?> getSimpleDataType(Class<?> clazz) {
         if (!clazz.isPrimitive()) {
@@ -645,8 +649,8 @@ public class ExpressUtil {
     public static void setProperty(Object bean, Object name, Object value) {
         try {
             if (bean instanceof Class) {
-                Field f = ((Class<?>)bean).getDeclaredField(name.toString());
-                f.set(null, value);
+                Field field = ((Class<?>)bean).getDeclaredField(name.toString());
+                field.set(null, value);
             } else if (bean instanceof Map) {
                 ((Map<Object, Object>)bean).put(name, value);
             } else {

@@ -20,6 +20,10 @@ public class OperateDataCacheManager {
     private static final ThreadLocal<RunnerDataCache> RUNNER_DATA_CACHE_THREAD_LOCAL = ThreadLocal.withInitial(
         RunnerDataCache::new);
 
+    private OperateDataCacheManager() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void push(ExpressRunner expressRunner) {
         RUNNER_DATA_CACHE_THREAD_LOCAL.get().push(expressRunner);
     }

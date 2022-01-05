@@ -24,7 +24,7 @@ public class CrashTest {
      * 版本3.0.9以下存在多线程初始化问题，这个类作为一个样例
      */
     @Test
-    @Ignore
+    @Ignore("ignore")
     public void test_crash() throws InterruptedException, BrokenBarrierException {
         System.out.println(Arrays.asList(splitWord));
         for (int j = 0; j < 1000; j++) {

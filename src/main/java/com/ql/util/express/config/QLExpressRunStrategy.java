@@ -28,11 +28,15 @@ public class QLExpressRunStrategy {
     private static final List<String> SECURITY_RISK_METHOD_LIST = new ArrayList<>();
 
     static {
-        //系统退出
+        // 系统退出
         SECURITY_RISK_METHOD_LIST.add(System.class.getName() + "." + "exit");
 
-        //运行脚本命令
+        // 运行脚本命令
         SECURITY_RISK_METHOD_LIST.add(Runtime.getRuntime().getClass().getName() + ".exec");
+    }
+
+    private QLExpressRunStrategy() {
+        throw new IllegalStateException("Utility class");
     }
 
     public static boolean isCompareNullLessMoreAsFalse() {

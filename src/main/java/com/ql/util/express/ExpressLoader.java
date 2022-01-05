@@ -24,8 +24,7 @@ public class ExpressLoader {
         return parseInstructionSet(expressName, this.expressRunner.getExpressResourceLoader().loadExpress(expressName));
     }
 
-    public void addInstructionSet(String expressName, InstructionSet set)
-        throws Exception {
+    public void addInstructionSet(String expressName, InstructionSet set) throws Exception {
         synchronized (expressInstructionSetCache) {
             if (expressInstructionSetCache.containsKey(expressName)) {
                 throw new QLException("表达式定义重复：" + expressName);

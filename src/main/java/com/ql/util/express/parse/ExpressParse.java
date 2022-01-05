@@ -124,7 +124,7 @@ public class ExpressParse {
             char firstChar = tempWord.charAt(0);
             char lastChar = tempWord.substring(tempWord.length() - 1).toLowerCase().charAt(0);
             if (firstChar >= '0' && firstChar <= '9') {
-                if (result.size() > 0) {
+                if (!result.isEmpty()) {
                     // 对负号进行特殊处理
                     if ("-".equals(result.get(result.size() - 1).getValue())) {
                         if (result.size() == 1
@@ -284,7 +284,7 @@ public class ExpressParse {
         builder.append("\t").append(node.getTreeType().getName()).append("\n");
 
         List<ExpressNode> childrenList = node.getChildrenList();
-        if (childrenList != null && childrenList.size() > 0) {
+        if (childrenList != null && !childrenList.isEmpty()) {
             for (ExpressNode item : childrenList) {
                 printTreeNode(builder, item, level + 1);
             }
@@ -300,7 +300,7 @@ public class ExpressParse {
     public static void resetParent(ExpressNode node, ExpressNode parent) {
         node.setParent(parent);
         List<ExpressNode> childrenList = node.getChildrenList();
-        if (childrenList != null && childrenList.size() > 0) {
+        if (childrenList != null && !childrenList.isEmpty()) {
             for (ExpressNode item : childrenList) {
                 resetParent(item, node);
             }
