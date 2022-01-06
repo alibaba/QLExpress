@@ -379,10 +379,10 @@ public abstract Object executeInner(Object[] list) throws Exception;
 ```
 
 比如我们几行代码就可以实现一个功能超级强大、非常好用的join操作符:
-
+```
 _list = 1 join 2 join 3;_         -> [1,2,3]
 _list = join(list, 4, 5, 6);_     -> [1,2,3,4,5,6]
-
+```
 ```java
 import java.util.ArrayList;
 import java.util.List;
