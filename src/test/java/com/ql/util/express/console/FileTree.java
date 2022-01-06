@@ -75,26 +75,20 @@ public class FileTree extends JTree {
         private final Icon folder_close = new ImageIcon("com/ql/util/console/closeFile.png");
         private final Icon file = new ImageIcon("com/ql/util/console/help.png");
 
-        public Component getTreeCellRendererComponent(JTree tree, Object value,
-            boolean selected, boolean expanded, boolean leaf, int row,
-            boolean hasFocus) {
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
+            boolean leaf, int row, boolean hasFocus) {
             JLabel label = null;
             if (value != null) {
                 if (value instanceof PathNode) {
                     PathNode pathNode = (PathNode)value;
                     if (pathNode.isFolder()) {
                         if (expanded) {
-                            label = new JLabel(pathNode.getUserObject().
-                                toString(),
-                                folder_open, JLabel.RIGHT);
+                            label = new JLabel(pathNode.getUserObject().toString(), folder_open, JLabel.RIGHT);
                         } else {// if(!expanded||leaf) {
-                            label = new JLabel(pathNode.getUserObject().
-                                toString(),
-                                folder_close, JLabel.RIGHT);
+                            label = new JLabel(pathNode.getUserObject().toString(), folder_close, JLabel.RIGHT);
                         }
                     } else {
-                        label = new JLabel(pathNode.getUserObject().toString(),
-                            file, JLabel.RIGHT);
+                        label = new JLabel(pathNode.getUserObject().toString(), file, JLabel.RIGHT);
                     }
                     return label;
                 }
