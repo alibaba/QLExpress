@@ -87,10 +87,8 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
 
     public Object findAliasOrDefSymbol(String varName) {
         Object result = this.symbolTable.get(varName);
-        if (result == null) {
-            if (this.parent instanceof InstructionSetContext) {
-                result = ((InstructionSetContext)this.parent).findAliasOrDefSymbol(varName);
-            }
+        if (result == null && this.parent instanceof InstructionSetContext) {
+            result = ((InstructionSetContext)this.parent).findAliasOrDefSymbol(varName);
         }
         return result;
     }
@@ -103,8 +101,7 @@ public class InstructionSetContext implements IExpressContext<String, Object> {
         if (result == null) {
             if (this.isExpandToParent && this.parent != null
                 && this.parent instanceof InstructionSetContext) {
-                result = ((InstructionSetContext)this.parent)
-                    .getSymbol(varName);
+                result = ((InstructionSetContext)this.parent).getSymbol(varName);
             } else {
                 result = OperateDataCacheManager.fetchOperateDataAttr(varName, null);
                 this.addSymbol(varName, result);

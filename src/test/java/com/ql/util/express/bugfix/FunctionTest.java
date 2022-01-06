@@ -36,12 +36,12 @@ public class FunctionTest {
     @Test
     public void testFunction3() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String funExp =
-            "function FAILFUN(Integer errorCode,String message){\n" +
-                "System.out.println(errorCode+\" \"+message);\n" +
-                "return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n" +
-                "}\n";
-        runner.loadMultiExpress("", funExp);
+        String funExpress = ""
+            + "function FAILFUN(Integer errorCode,String message){\n"
+            + "    System.out.println(errorCode+\" \"+message);\n"
+            + "    return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n"
+            + "}";
+        runner.loadMultiExpress("", funExpress);
 
         String exp = "FAILFUN(-1,'error')";
         IExpressContext<String, Object> context = new DefaultContext<>();
@@ -51,6 +51,6 @@ public class FunctionTest {
         String exp2 = "FAILFUN(-12,'error')";
         IExpressContext<String, Object> context2 = new DefaultContext<>();
         Object result2 = runner.execute(exp2, context2, null, false, false);
-        System.out.println(result);
+        System.out.println(result2);
     }
 }

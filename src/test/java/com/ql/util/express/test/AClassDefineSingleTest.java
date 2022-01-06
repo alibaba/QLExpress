@@ -14,8 +14,8 @@ public class AClassDefineSingleTest {
 
         String express = ""
             + "ABC example = new ABC(new com.ql.util.express.test.BeanExample(), 'xuannan');"
-            + " example.整数值 =100 + 100;"
-            + " print(example.整数值);";
+            + "example.整数值 =100 + 100;"
+            + "print(example.整数值);";
 
         ExpressRunner expressRunner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();

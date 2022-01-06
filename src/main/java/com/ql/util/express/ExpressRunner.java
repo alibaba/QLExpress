@@ -42,6 +42,7 @@ public class ExpressRunner {
     private static final Log log = LogFactory.getLog(ExpressRunner.class);
 
     private static final String GLOBAL_DEFINE_NAME = "全局定义";
+
     /**
      * 是否输出所有的跟踪信息，同时还需要log级别是DEBUG级别
      */
@@ -192,10 +193,11 @@ public class ExpressRunner {
     }
 
     /**
-     * 添加宏定义 例如： macro 玄难 { abc(userinfo.userId);}
+     * 添加宏定义
+     * 例如： macro 宏名称 { abc(userInfo.userId);}
      *
-     * @param macroName：玄难
-     * @param express      ：abc(userinfo.userId);
+     * @param macroName 宏名称
+     * @param express   表达式，示例：abc(userInfo.userId);
      * @throws Exception
      */
     public void addMacro(String macroName, String express) throws Exception {
