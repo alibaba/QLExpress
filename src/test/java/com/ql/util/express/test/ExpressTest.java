@@ -50,12 +50,12 @@ public class ExpressTest {
             null);
         String[][] expressTest = new String[][] {
             {"isVIP(\"qh\") ; isVIP(\"xuannan\"); return isVIP(\"qh\") ;", "false"},
-            {"如果  三星卖家  则  'a' love 'b'  否则   'b' love 'd' ", "b{a}b"},
-            {"when  三星卖家  then  'a' love 'b'  否则   'b' love 'd' ", "b{a}b"},
+            {"如果 三星卖家 则 'a' love 'b' 否则 'b' love 'd'", "b{a}b"},
+            {"when 三星卖家 then 'a' love 'b' 否则 'b' love 'd'", "b{a}b"},
             {"int defVar = 100; defVar = defVar + 100;", "200"},
-            {"int a=0; if false then a = 5 else  a=10+1 ; return a ", "11"},
-            {" 3+ (1==2?4:3) +8", "14"},
-            {" 如果  (true) 则 {2+2;} 否则 {20 + 20;} ", "4"},
+            {"int a = 0; if false then a = 5; else a = 10 + 1; return a;", "11"},
+            {"3+ (1==2?4:3) +8", "14"},
+            {"如果 (true) 则 {2 + 2;} 否则 {20 + 20;}", "4"},
             {"'AAAAAAA' +'-' + \"\" +'' + \"B\"", "AAAAAAA-B"},
             {"System.out.println(\"ss\")", "null"},
             {"unionName = new com.ql.util.express.test.BeanExample(\"张三\").unionName(\"李四\")",
@@ -72,7 +72,7 @@ public class ExpressTest {
             {"new String(\"12345\").length()", "5"},
             {"'a' love 'b' love 'c' love 'd'", "d{c{b{a}b}c}d"},
             {"10 * (10 + 1) + 2 * (3 + 5) * 2", "142"},
-            {"( 2  属于 (4,3,5)) or isVIP(\"qhlhl2010@gmail.com\") or  isVIP(\"qhlhl2010@gmail.com\")", "false"},
+            {"(2 属于 (4,3,5)) or isVIP(\"qhlhl2010@gmail.com\") or isVIP(\"qhlhl2010@gmail.com\")", "false"},
             {" 1!=1 and isVIP(\"qhlhl2010@gmail.com\")", "false"},
             {" 1==1 or isVIP(\"qhlhl2010@gmail.com\") ", "true"},
             {"abc == 1", "true"},
@@ -113,7 +113,7 @@ public class ExpressTest {
                 throw new Exception(
                     "处理错误，计算结果与预期的不匹配，" + expressStr + " = " + result + "，但是期望值是：" + expressTest[point][1]);
             }
-            System.out.println("Example " + point + " : " + expressStr + " =  " + result);
+            System.out.println("Example " + point + " : " + expressStr + " = " + result);
         }
         System.out.println(expressContext);
     }

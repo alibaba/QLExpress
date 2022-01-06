@@ -32,7 +32,7 @@ public class VarAreaTest {
     public void testVarArea2() throws Exception {
         String express = ""
             + "qh = 1;"
-            + "如果 ( false)  则 {"
+            + "如果 ( false) 则 {"
             + "    3 + (3) + (4 + 1);"
             + "} 否则 {"
             + "    int qh = 3;"

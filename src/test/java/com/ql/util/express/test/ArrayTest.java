@@ -35,7 +35,7 @@ public class ArrayTest {
             {"Object[] abc = [];return abc.length", "0"},
             {"Map abc = NewMap(1:1,2:2); return abc.get(1) + abc.get(2)", "3"},
             {"Map abc = NewMap(\"a\":1,\"b\":2); return abc.a + abc.b", "3"},
-            {"int o1 =10; int o2=20;String k1 =\"a\";String k2 =\"b\";  Map abc = NewMap(k1:o1,k2:o2); return abc.a +"
+            {"int o1 =10; int o2=20;String k1 =\"a\";String k2 =\"b\"; Map abc = NewMap(k1:o1,k2:o2); return abc.a +"
                 + " abc.b", "30"},
             {"Map abc = NewMap(1:\"xuannan\",2:\"qianghui\"); return abc.get(1) +\"-\"+ abc.get(2)",
                 "xuannan-qianghui"},
