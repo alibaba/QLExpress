@@ -63,7 +63,7 @@ public class ArrayTest {
             System.out.println("Example " + point + " : " + expressStr + " =  "
                 + result);
             if (errorList.size() > 0) {
-                System.out.println("\t\t系统输出的错误提示信息:" + errorList);
+                System.out.println("系统输出的错误提示信息:" + errorList);
             }
         }
         System.out.println(expressContext);
