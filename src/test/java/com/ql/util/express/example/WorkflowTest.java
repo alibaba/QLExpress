@@ -11,7 +11,6 @@ import org.junit.Test;
  * 用于展示如何定义表达式，方法，并使用上下文变量
  */
 public class WorkflowTest {
-
     public void print(String s) {
         System.out.print(s);
     }
@@ -55,7 +54,6 @@ public class WorkflowTest {
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("否则", "else", null);
         runner.addOperatorWithAlias("大于", ">", null);
-        //
         runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println", new String[] {"String"}, null);
         //定义方法
         runner.addFunction("审批通过", new ApproveOperator(1));
@@ -84,7 +82,6 @@ public class WorkflowTest {
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("否则", "else", null);
         runner.addOperatorWithAlias("大于", ">", null);
-        //
         runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println", new String[] {"String"}, null);
         //定义方法
         runner.addFunction("审批通过", new ApproveOperator(1));
@@ -117,7 +114,6 @@ public class WorkflowTest {
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("否则", "else", null);
         runner.addOperatorWithAlias("大于", ">", null);
-        //
         runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println", new String[] {"String"}, null);
         //加载文件
         runner.loadExpress("example/approve");
@@ -144,7 +140,6 @@ public class WorkflowTest {
         runner.addOperatorWithAlias("如果", "if", null);
         runner.addOperatorWithAlias("否则", "else", null);
         runner.addOperatorWithAlias("大于", ">", null);
-        //
         runner.addFunctionOfServiceMethod("打印", new WorkflowTest(), "println", new String[] {"String"}, null);
 
         //加载文件

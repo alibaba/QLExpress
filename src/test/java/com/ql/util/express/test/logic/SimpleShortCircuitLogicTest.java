@@ -14,7 +14,6 @@ import org.junit.Test;
  * @author tianqiao
  */
 public class SimpleShortCircuitLogicTest {
-
     private final ExpressRunner runner = new ExpressRunner();
 
     public void initial() {
@@ -24,8 +23,7 @@ public class SimpleShortCircuitLogicTest {
 
     public boolean calculateLogicTest(String expression, IExpressContext<String, Object> expressContext,
         List<String> errorInfo) throws Exception {
-        Boolean result = (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
-        return result;
+        return (Boolean)runner.execute(expression, expressContext, errorInfo, true, false);
     }
 
     /**

@@ -7,7 +7,6 @@ import com.ql.util.express.DefaultContext;
  * 2021-11-15 8:28 下午
  */
 public class QLAliasContext extends DefaultContext {
-
     public void putAutoParams(Object... values) {
         for (Object value : values) {
             if (value.getClass().isAnnotationPresent(QLAlias.class)) {

@@ -10,7 +10,6 @@ import org.junit.Test;
  * Created by tianqiao on 17/6/15.
  */
 public class InOperatorTest {
-
     @Test
     public void testAllByFunction() throws Exception {
         ExpressRunner runner = new ExpressRunner();
@@ -23,6 +22,7 @@ public class InOperatorTest {
                 return super.executeInner(list);
             }
         });
+
         //注意可以使用 data in (2,3,4) ，但无法使用data widelyin (2,3,4)，因为默认addOperator的是二元操作符，
         // com.ql.util.express.instruction.InInstructionFactory对语法树做了特殊处理
         String exp = "data widelyin [2,3,4]";

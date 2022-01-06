@@ -70,13 +70,12 @@ public class AddMethodInvokeTest {
                 return sb.substring(0, sb.length() - 1);
             }
         });
-        Object result = runner.execute(
-            "list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.join(' , ');", context, null, false,
-            false);
+        String express = "list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.join(' , ');";
+        Object result = runner.execute(express, context, null, false, false);
         System.out.println(result);
-        result = runner.execute(
-            "list=new HashMap();list.put('a',1);list.put('b',2);list.put('c',3);return list.join(' , ');", context,
-            null, false, false);
+
+        express = "list=new HashMap();list.put('a',1);list.put('b',2);list.put('c',3);return list.join(' , ');";
+        result = runner.execute(express, context, null, false, false);
         System.out.println(result);
     }
 
@@ -102,16 +101,17 @@ public class AddMethodInvokeTest {
                 return arrayList.size();
             }
         });
-        Object result = runner.execute("list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.size();",
-            context, null, false, false);
+        String express = "list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.size();";
+        Object result = runner.execute(express, context, null, false, false);
         System.out.println(result);
-        result = runner.execute("list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.长度;", context,
-            null, false, false);
+
+        express = "list=new ArrayList();list.add(1);list.add(2);list.add(3);return list.长度;";
+        result = runner.execute(express, context, null, false, false);
         System.out.println(result);
 
         //bugfix 没有return 的时候可能会多次调用getType，并且返回错误
-        Object result2 = runner.execute("list=new ArrayList();list.add(1);list.add(2);list.add(3);list.长度;", context,
-            null, false, false);
+        express = "list=new ArrayList();list.add(1);list.add(2);list.add(3);list.长度;";
+        Object result2 = runner.execute(express, context, null, false, false);
         System.out.println(result2);
     }
 }

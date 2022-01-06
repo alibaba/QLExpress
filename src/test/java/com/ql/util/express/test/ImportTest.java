@@ -8,10 +8,11 @@ import org.junit.Test;
 public class ImportTest {
     @Test
     public void testImport() throws Exception {
-        String express = "import java.math.*;" +
-            "import com.ql.util.express.test.BeanExample;" +
-            "abc = new BeanExample(\"张三\").unionName(\"李四\") ;" +
-            "return new BigInteger(\"1000\");";
+        String express = ""
+            + "import java.math.*;"
+            + "import com.ql.util.express.test.BeanExample;"
+            + "abc = new BeanExample(\"张三\").unionName(\"李四\") ;"
+            + "return new BigInteger(\"1000\");";
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);

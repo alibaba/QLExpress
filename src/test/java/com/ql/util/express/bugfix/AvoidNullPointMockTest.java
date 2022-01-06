@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AvoidNullPointMockTest {
-
     public class DemoObject {
         private String code;
         private DemoObject parent;
@@ -42,7 +41,6 @@ public class AvoidNullPointMockTest {
 
     @Test
     public void testNullPoint() throws Exception {
-
         ExpressRunner runner = new ExpressRunner(false, true);
         String[] expressionList = new String[] {
             "x in(1,2,3)",

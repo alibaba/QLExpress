@@ -17,7 +17,6 @@ public class DateFormatTest {
         ExpressRunner runner = new ExpressRunner();
 
         runner.addFunction("DateFormat", new Operator() {
-
             private final Map<String, Date> cache = new HashMap<>();
 
             @Override
@@ -42,8 +41,8 @@ public class DateFormatTest {
         testTimeCost(runner, sb2, context);
 
         String sb3
-            = "nowStr > DateFormat('2018-02-22') and nowStr < DateFormat('2018-02-24') and  nowStr == DateFormat"
-            + "('2018-02-23')";
+            = "nowStr > DateFormat('2018-02-22') and nowStr < DateFormat('2018-02-24') "
+            + "and nowStr == DateFormat('2018-02-23')";
         testTimeCost(runner, sb3, context);
     }
 
@@ -51,14 +50,14 @@ public class DateFormatTest {
         throws Exception {
         //预热编译
         Object r = runner.execute(sb, context, null, true, false);
-        System.out.println(sb + "   运行结果:" + r);
+        System.out.println(sb + " 运行结果:" + r);
 
         long start = System.currentTimeMillis();
-        int count = 100000;//运行10W次
+        int count = 100000;
         while (count-- > 0) {
             runner.execute(sb, context, null, true, false);
         }
         long cost = System.currentTimeMillis() - start;
-        System.out.println(sb + "   运行10万次，耗时:" + cost + "ms");
+        System.out.println(sb + " 运行" + count + "万次，耗时:" + cost + "ms");
     }
 }

@@ -12,7 +12,7 @@ import org.junit.Test;
 public class MapTest {
     @Test
     public void testInt2Object() throws Exception {
-        String express = "Map a = new HashMap(); a.put(\"a\",100 - 10);return a.get(\"a\")";
+        String express = "Map a = new HashMap(); a.put(\"a\", 100 - 10); return a.get(\"a\")";
         ExpressRunner runner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(express, context, null, false, true);

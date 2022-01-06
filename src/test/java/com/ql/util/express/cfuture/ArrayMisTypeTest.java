@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ArrayMisTypeTest {
-
     public String test(Object object) {
         return "object class method";
     }

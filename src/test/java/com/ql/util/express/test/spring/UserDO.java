@@ -6,7 +6,6 @@ import java.util.Date;
  * Created by tianqiao on 17/3/8.
  */
 public class UserDO {
-
     private String nick;
 
     private Long userId;

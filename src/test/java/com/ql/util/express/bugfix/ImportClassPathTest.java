@@ -21,10 +21,8 @@ public class ImportClassPathTest {
             System.out.println(result);
         } catch (Exception e) {
             System.out.println("SimpleDateFormat 没有定义，此处应该报错");
-            //e.printStackTrace();
             Assert.assertTrue(true);
             return;
-
         }
         Assert.fail();
     }
@@ -42,7 +40,8 @@ public class ImportClassPathTest {
     @Test
     public void test3() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String exp = "import java.text.SimpleDateFormat; "
+        String exp = ""
+            + "import java.text.SimpleDateFormat; "
             + "return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
         Object result;

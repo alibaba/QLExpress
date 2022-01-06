@@ -8,7 +8,7 @@ import org.junit.Test;
 public class ReplaceOperatorTest {
     @Test
     public void testReplaceOperatorTest() throws Exception {
-        String express = " 3 + 4";
+        String express = "3 + 4";
         ExpressRunner runner = new ExpressRunner();
         Object r = runner.execute(express, null, null, false, false);
         System.out.println(r);
@@ -42,8 +42,7 @@ class ReplaceOperatorAddReduce extends Operator {
         return executeInner(list[0], list[1]);
     }
 
-    public Object executeInner(Object op1,
-        Object op2) {
+    public Object executeInner(Object op1, Object op2) {
         return "(" + op1 + "*" + op2 + ")";
     }
 }
@@ -64,8 +63,7 @@ class ReplaceOperatorAddReduce2 extends Operator {
         return executeInner(list[0], list[1]);
     }
 
-    public Object executeInner(Object op1,
-        Object op2) {
+    public Object executeInner(Object op1, Object op2) {
         return "(" + op1 + "****" + op2 + ")";
     }
 }

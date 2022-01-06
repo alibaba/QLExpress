@@ -25,8 +25,7 @@ public class ExpressTest {
         for (int i = 0; i < num; i++) {
             runner.execute(express, null, null, true, false);
         }
-        System.out.println("执行" + num + "次\"" + express + "\" 耗时："
-            + (System.currentTimeMillis() - start));
+        System.out.println("执行" + num + "次\"" + express + "\" 耗时：" + (System.currentTimeMillis() - start));
     }
 
     @Test
@@ -42,16 +41,13 @@ public class ExpressTest {
         runner.addOperatorWithAlias("myand", "and", "用户$1不在允许的范围");
         runner.addFunction("累加", new GroupOperator("累加"));
         runner.addFunction("group", new GroupOperator("group"));
-        runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(),
-            "isVIP", new String[] {"String"}, "$1不是VIP用户");
-        runner.addFunctionOfClassMethod("取绝对值", Math.class.getName(), "abs",
-            new String[] {"double"}, null);
-        runner.addFunctionOfClassMethod("取绝对值TWO", Math.class.getName(), "abs",
-            new Class[] {double.class}, null);
-        runner.addFunctionOfClassMethod("转换为大写", BeanExample.class.getName(),
-            "upper", new String[] {"String"}, null);
-        runner.addFunctionOfClassMethod("testLong", BeanExample.class.getName(),
-            "testLong", new String[] {"long"}, null);
+        runner.addFunctionOfClassMethod("isVIP", BeanExample.class.getName(), "isVIP", new String[] {"String"},
+            "$1不是VIP用户");
+        runner.addFunctionOfClassMethod("取绝对值", Math.class.getName(), "abs", new String[] {"double"}, null);
+        runner.addFunctionOfClassMethod("取绝对值TWO", Math.class.getName(), "abs", new Class[] {double.class}, null);
+        runner.addFunctionOfClassMethod("转换为大写", BeanExample.class.getName(), "upper", new String[] {"String"}, null);
+        runner.addFunctionOfClassMethod("testLong", BeanExample.class.getName(), "testLong", new String[] {"long"},
+            null);
         String[][] expressTest = new String[][] {
             {"isVIP(\"qh\") ; isVIP(\"xuannan\"); return isVIP(\"qh\") ;", "false"},
             {"如果  三星卖家  则  'a' love 'b'  否则   'b' love 'd' ", "b{a}b"},

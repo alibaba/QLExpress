@@ -1,8 +1,8 @@
 package com.ql.util.express.test;
 
 public class ObjectBean {
-    int amount;
-    int volume;
+    private int amount;
+    private int volume;
 
     public ObjectBean(int amount, int volume) {
         this.amount = amount;

@@ -9,7 +9,6 @@ import org.junit.Test;
 public class StackOverFlowTest {
     @Test
     public void test() throws Exception {
-
         String[] expressList = new String[] {
             "1",
             "1+2",

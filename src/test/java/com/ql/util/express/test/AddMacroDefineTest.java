@@ -8,8 +8,7 @@ public class AddMacroDefineTest {
     @Test
     public void test2Java() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
-        runner.addFunctionOfClassMethod("abc", BeanExample.class.getName(),
-            "testLong", new String[] {"long"}, null);
+        runner.addFunctionOfClassMethod("abc", BeanExample.class.getName(), "testLong", new String[] {"long"}, null);
         runner.addMacro("玄难", "abc(100);");
         String express = "玄难 + \" - Test\";";
         DefaultContext<String, Object> context = new DefaultContext<>();

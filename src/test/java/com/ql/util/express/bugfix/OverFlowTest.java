@@ -3,7 +3,6 @@ package com.ql.util.express.bugfix;
 import org.junit.Test;
 
 public class OverFlowTest {
-
     public class Result {
         private int a = 0;
         private String b = "我是一个长长的字符串";
@@ -91,7 +90,6 @@ public class OverFlowTest {
             this.count = 0;
             fun_a(1);
         } catch (Throwable e) {
-
             System.out.println("fun_a() 最大栈深度:" + count);
         }
     }
@@ -102,7 +100,6 @@ public class OverFlowTest {
             this.count = 0;
             funReturn();
         } catch (Throwable e) {
-
             System.out.println("funReturn() 最大栈深度:" + count);
         }
 
@@ -110,7 +107,6 @@ public class OverFlowTest {
             this.count = 0;
             funBigReturn();
         } catch (Throwable e) {
-
             System.out.println("funBigReturn() 最大栈深度:" + count);
         }
     }
@@ -121,7 +117,6 @@ public class OverFlowTest {
             this.count = 0;
             fun_abc(1, 1, 1);
         } catch (Throwable e) {
-
             System.out.println("fun_abc() 最大栈深度:" + count);
         }
     }
@@ -132,7 +127,6 @@ public class OverFlowTest {
             this.count = 0;
             fun_abc2(1, 1, 1);
         } catch (Throwable e) {
-
             System.out.println("fun_abc2() 最大栈深度:" + count);
         }
     }

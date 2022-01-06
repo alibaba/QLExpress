@@ -8,18 +8,20 @@ import org.junit.Test;
 public class ExportDefineTest {
     @Test
     public void testABC() throws Exception {
-        String express =
-            "function initial(){" +
-                "   exportAlias qh example.child ; exportDef int abc = 100;" +
-                "}; " +
-                "initial();" +
-                "abc = abc + 10000;" +
-                "System.out.println(abc);" +
-                "{" +
-                "   alias qh example.child.a;"
-                + " qh =qh + \"-ssss\";"
-                + "};"
-                + " qh.a = qh.a +\"-qh\";" + " return example.child.a ";
+        String express = ""
+            + "function initial() {"
+            + "    exportAlias qh example.child;"
+            + "    exportDef int abc = 100;"
+            + "}; "
+            + "initial();"
+            + "abc = abc + 10000;"
+            + "System.out.println(abc);"
+            + "{"
+            + "    alias qh example.child.a;"
+            + "    qh =qh + \"-ssss\";"
+            + "};"
+            + "qh.a = qh.a +\"-qh\";"
+            + "return example.child.a;";
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("example", new BeanExample());

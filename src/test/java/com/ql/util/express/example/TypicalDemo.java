@@ -13,7 +13,6 @@ import com.ql.util.express.IExpressContext;
  * @author xuannan
  */
 public class TypicalDemo {
-
     private final ExpressRunner runner = new ExpressRunner();
 
     /**

@@ -12,7 +12,6 @@ import org.junit.Test;
  * 本例用于展示如何自定义操作符和方法
  */
 public class OperatorTest {
-
     /**
      * 定义一个简单的二元操作符
      *
@@ -25,7 +24,6 @@ public class OperatorTest {
         ExpressRunner runner = new ExpressRunner();
         //定义操作符addT，其实现为AddTwiceOperator
         runner.addOperator("addT", new AddTwiceOperator());
-        //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
         Assert.assertEquals("操作符执行错误", 49, r);
@@ -43,7 +41,6 @@ public class OperatorTest {
         ExpressRunner runner = new ExpressRunner();
         //定义操作符addN，其实现为AddNOperator，语法格式与in一致
         runner.addOperator("addN", "in", new AddNOperator());
-        //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
         Assert.assertEquals("操作符执行错误", 10, r);
@@ -61,7 +58,6 @@ public class OperatorTest {
         ExpressRunner runner = new ExpressRunner();
         //定义方法addN，其实现为AddNOperator
         runner.addFunction("addN", new AddNOperator());
-        //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, null, null, false, false);
         System.out.println(r);
         Assert.assertEquals("操作符执行错误", 10, r);
@@ -83,7 +79,6 @@ public class OperatorTest {
         ExpressRunner runner = new ExpressRunner();
         //定义操作符addT，其实现为AddTwiceOperator
         runner.addOperator("addT", new AddTwiceOperator());
-        //执行表达式，并将结果赋给r
         int r = (Integer)runner.execute(exp, expressContext, null, false, false);
         System.out.println(r);
         Assert.assertEquals("操作符执行错误", 49, r);

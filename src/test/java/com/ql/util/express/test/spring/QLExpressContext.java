@@ -7,9 +7,7 @@ import com.ql.util.express.IExpressContext;
 import org.springframework.context.ApplicationContext;
 
 @SuppressWarnings("serial")
-public class QLExpressContext extends HashMap<String, Object> implements
-    IExpressContext<String, Object> {
-
+public class QLExpressContext extends HashMap<String, Object> implements IExpressContext<String, Object> {
     private final ApplicationContext applicationContext;
 
     public QLExpressContext(ApplicationContext applicationContext) {

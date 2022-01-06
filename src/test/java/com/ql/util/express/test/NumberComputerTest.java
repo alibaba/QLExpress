@@ -22,7 +22,7 @@ public class NumberComputerTest {
         ExpressRunner runner = new ExpressRunner(true, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
         Object r = runner.execute(expressString, context, null, false, false);
-        System.out.println(r); //0.58
+        System.out.println(r); // 0.58
         Assert.assertEquals("精度计算错误", "0.58", r.toString());
     }
 
@@ -39,10 +39,11 @@ public class NumberComputerTest {
 
     @Test
     public void testBigDecimal() throws Exception {
-        String expressString = "bean.intValue = 10;" +
-            "bean.longValue = 10000;" +
-            "bean.doubleValue = bean.intValue + 100.01;" +
-            "return bean.doubleValue + 10;";
+        String expressString = ""
+            + "bean.intValue = 10;"
+            + "bean.longValue = 10000;"
+            + "bean.doubleValue = bean.intValue + 100.01;"
+            + "return bean.doubleValue + 10;";
         ExpressRunner runner = new ExpressRunner(false, false);
         BeanExample bean = new BeanExample();
         DefaultContext<String, Object> context = new DefaultContext<>();

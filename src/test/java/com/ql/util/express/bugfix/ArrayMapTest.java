@@ -9,7 +9,6 @@ import org.junit.Test;
  * Created by tianqiao on 17/6/20.
  */
 public class ArrayMapTest {
-
     @Test
     public void testMinus() throws Exception {
         ExpressRunner runner = new ExpressRunner();

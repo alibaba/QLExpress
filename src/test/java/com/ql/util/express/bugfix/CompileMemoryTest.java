@@ -9,12 +9,9 @@ import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
 public class CompileMemoryTest {
-
     @Test
     public void test() throws Exception {
-
         QLPattern.printStackDepth = true;
-
         List<String> expressList = new ArrayList<>();
 
         String demo = "fieldList = formDO.getFieldList();\n" +

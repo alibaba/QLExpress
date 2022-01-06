@@ -5,9 +5,7 @@ import com.ql.util.express.instruction.op.OperatorEqualsLessMore;
 /**
  * Created by tianqiao on 18/4/3.
  */
-
 public class NullableOperatorEqualsLessMore extends OperatorEqualsLessMore {
-
     public NullableOperatorEqualsLessMore(String name) {
         super(name);
     }
@@ -21,8 +19,7 @@ public class NullableOperatorEqualsLessMore extends OperatorEqualsLessMore {
         return executeInner(this.name, op1, op2);
     }
 
-    public static boolean executeInner(String opStr, Object obj1, Object obj2)
-        throws Exception {
+    public static boolean executeInner(String opStr, Object obj1, Object obj2) throws Exception {
         if (obj1 == null || obj2 == null) {
             return false;
         }

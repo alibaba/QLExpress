@@ -8,7 +8,7 @@ import org.junit.Test;
 public class ObjectTest {
     @Test
     public void testABC() throws Exception {
-        String express = "object.amount*2+object.volume";
+        String express = "object.amount * 2 + object.volume";
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();
         ObjectBean tempObject = new ObjectBean(100, 60);

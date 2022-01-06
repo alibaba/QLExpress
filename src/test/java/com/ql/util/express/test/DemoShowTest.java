@@ -161,8 +161,7 @@ public class DemoShowTest {
         context.put("假冒扣分", 11);
         context.put("待整改卖家", false);
         context.put("宝贝相符DSR", 4.0);
-        String expression =
-            "A类违规天数90天内 ==false and (虚假交易扣分<48 or 假冒扣分<12) and 待整改卖家 ==false and 宝贝相符DSR>4.6";
+        String expression = "A类违规天数90天内 == false and (虚假交易扣分 < 48 or 假冒扣分 < 12) and 待整改卖家 == false and 宝贝相符DSR > 4.6";
         expression = initial(runner, expression);
         List<String> errorInfo = new ArrayList<>();
         boolean result = (Boolean)runner.execute(expression, context, errorInfo, true, false);

@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
  * 2021-11-15 5:51 下午
  */
 public class QLAliasTest {
-
     @Test
     public void testQLAlias() throws Exception {
         ExpressRunner runner = new ExpressRunner();

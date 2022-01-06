@@ -15,7 +15,6 @@ import org.springframework.context.ApplicationContextAware;
  * （3）在runner初始化的时候，使用了代码映射功能：addMacro
  */
 public class QlExpressUtil implements ApplicationContextAware {
-
     private static final ExpressRunner runner;
 
     static {
@@ -31,11 +30,9 @@ public class QlExpressUtil implements ApplicationContextAware {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public Object execute(String statement, Map<String, Object> context)
-        throws Exception {
+    public Object execute(String statement, Map<String, Object> context) throws Exception {
         initRunner(runner);
-        IExpressContext expressContext = new QLExpressContext(context,
-            applicationContext);
+        IExpressContext expressContext = new QLExpressContext(context, applicationContext);
         return runner.execute(statement, expressContext, null, true, false);
     }
 
@@ -59,8 +56,8 @@ public class QlExpressUtil implements ApplicationContextAware {
         isInitialRunner = true;
     }
 
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 }

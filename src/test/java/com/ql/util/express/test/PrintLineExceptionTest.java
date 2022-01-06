@@ -24,25 +24,23 @@ public class PrintLineExceptionTest {
             Object obj = runner.execute(script, context, null, true, false);
             System.out.println(obj);
         } catch (Exception e) {
-            //e.printStackTrace();
             Assert.assertTrue(e.toString().contains("at line 7"));
         }
     }
 
     public static String getResourceAsStream(String path) throws Exception {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-            .getResourceAsStream(path);
-        if (in == null) {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        if (inputStream == null) {
             throw new Exception("classLoader中找不到资源文件:" + path);
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        StringBuilder builder = new StringBuilder();
-        String tmpStr;
-        while ((tmpStr = reader.readLine()) != null) {
-            builder.append(tmpStr).append("\n");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            stringBuilder.append(line).append("\n");
         }
-        reader.close();
-        in.close();
-        return builder.toString();
+        bufferedReader.close();
+        inputStream.close();
+        return stringBuilder.toString();
     }
 }

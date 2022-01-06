@@ -17,10 +17,11 @@ public class DynamicFieldTest {
 
     @Test
     public void testField() throws Exception {
-        String express = "String 用户 = \"张三\";" +
-            "费用.用户  = 100;" +
-            "用户 = \"李四\";" +
-            "费用.用户  = 200;";
+        String express = ""
+            + "String 用户 = \"张三\";"
+            + "费用.用户 = 100;"
+            + "用户 = \"李四\";"
+            + "费用.用户 = 200;";
 
         ExpressRunner runner = new ExpressRunner(false, true);
         DefaultContext<String, Object> context = new DefaultContext<>();

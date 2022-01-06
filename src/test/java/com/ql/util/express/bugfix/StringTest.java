@@ -9,10 +9,8 @@ import org.junit.Test;
  * Created by tianqiao on 17/7/5.
  */
 public class StringTest {
-
     @Test
     public void testFunction() throws Exception {
-
         ExpressRunner runner = new ExpressRunner();
         String exp = "a = \"11111,2222\";p = a.split(\",\");";
         System.out.println(exp);

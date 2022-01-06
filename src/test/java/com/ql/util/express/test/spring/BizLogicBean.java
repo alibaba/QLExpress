@@ -6,7 +6,6 @@ import java.util.Date;
  * Created by tianqiao on 17/3/8.
  */
 public class BizLogicBean {
-
     public UserDO getUserInfo(String nick) {
         if (nick.equals("小王")) {
             UserDO userDO = new UserDO();

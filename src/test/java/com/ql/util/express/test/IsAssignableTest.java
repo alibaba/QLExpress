@@ -9,19 +9,20 @@ import com.ql.util.express.ExpressUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class IsAssignableTest {
     @Test
     public void testABC() throws Exception {
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(boolean.class, Boolean.class));
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(char.class, Character.class));
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(long.class, int.class));
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(Long.class, int.class));
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(Long.class, Integer.class));
-        Assert.assertEquals("数据类型转换判断错误", true, ExpressUtil.isAssignable(List.class, AbstractList.class));
-        Assert.assertEquals("数据类型转换判断错误", ExpressUtil.isAssignable(List.class, AbstractList.class),
-            ExpressUtil.isAssignableOld(
-                List.class, AbstractList.class));
-        Assert.assertEquals("数据类型转换判断错误", ExpressUtil.isAssignable(long.class, int.class),
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(boolean.class, Boolean.class));
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(char.class, Character.class));
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(long.class, int.class));
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(Long.class, int.class));
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(Long.class, Integer.class));
+        Assert.assertTrue("数据类型转换判断错误", ExpressUtil.isAssignable(List.class, AbstractList.class));
+        assertEquals("数据类型转换判断错误", ExpressUtil.isAssignable(List.class, AbstractList.class),
+            ExpressUtil.isAssignableOld(List.class, AbstractList.class));
+        assertEquals("数据类型转换判断错误", ExpressUtil.isAssignable(long.class, int.class),
             ExpressUtil.isAssignableOld(long.class, int.class));
 
         int index = ExpressUtil.findMostSpecificSignature(new Class[] {Integer.class},

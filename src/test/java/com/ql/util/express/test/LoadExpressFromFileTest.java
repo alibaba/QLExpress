@@ -18,14 +18,12 @@ public class LoadExpressFromFileTest {
         }
         DefaultContext<String, Object> context = new DefaultContext<>();
         Log log = new MyLog("玄难测试");
-        Object r = runner.executeByExpressName("main", context, null,
-            false, false, log);
+        Object r = runner.executeByExpressName("main", context, null, false, false, log);
         System.out.println("运行结果" + r);
         System.out.println("context:" + context);
 
         context = new DefaultContext<>();
-        r = runner.execute("initial;累加;累加;return qh;",
-            context, null, true, false, log);
+        r = runner.execute("initial;累加;累加;return qh;", context, null, true, false, log);
 
         System.out.println("运行结果" + r);
         System.out.println("context:" + context);

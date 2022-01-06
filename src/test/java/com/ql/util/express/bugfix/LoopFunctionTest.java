@@ -14,7 +14,6 @@ import org.junit.Test;
  * Created by tianqiao on 18/2/8.
  */
 public class LoopFunctionTest {
-
     @Test
     public void test() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);

@@ -10,12 +10,10 @@ import org.junit.Test;
  * Created by tianqiao on 17/3/2.
  */
 public class RecursivelyTest {
-
-    static final ExpressRunner runner = new ExpressRunner();
-    static final ExpressRunner runnerInner = new ExpressRunner();
+    private static final ExpressRunner runner = new ExpressRunner();
+    private static final ExpressRunner runnerInner = new ExpressRunner();
 
     static {
-
         Operator exeOperator = new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
@@ -33,7 +31,6 @@ public class RecursivelyTest {
 
     @Test
     public void testAllByFunction() throws Exception {
-
         String exp = "r_exeAll(1,2,3)";
         IExpressContext<String, Object> context = new DefaultContext<>();
         runner.execute(exp, context, null, false, true);

@@ -32,9 +32,9 @@ public class CheckSyntaxTest {
     public void testCheckSyntax() {
         ExpressRunner runner = new ExpressRunner(false, true);
         String[] expList = new String[] {
-            "import com.taobao.ABC;a = new ABC();",
-            "import com.taobao.*;a = new ABC();",
-            "import com.taobao.ABC;a = new com.taobao.ABC();",
+            "import com.taobao.ABC; a = new ABC();",
+            "import com.taobao.*; a = new ABC();",
+            "import com.taobao.ABC; a = new com.taobao.ABC();",
             "a = new com.taobao.ABC();if('new'.equals(op)){System.out.println('ok');}"
         };
 

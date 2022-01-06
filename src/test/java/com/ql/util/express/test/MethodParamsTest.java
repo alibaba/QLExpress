@@ -18,14 +18,13 @@ public class MethodParamsTest {
         IExpressContext<String, Object> expressContext = new DefaultContext<>();
 
         //(1)默认的不定参数可以使用数组来代替
-        Object r = runner.execute(
-            "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate([11,'22',33L,true])", expressContext,
-            null, false, false);
+        String express = "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate([11,'22',33L,true])";
+        Object r = runner.execute(express, expressContext, null, false, false);
         System.out.println(r);
+
         //(2)目前只支持只有Object[]一个参数的这种情况
-        Object r2 = runner.execute(
-            "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate(11,'22',33L,true)", expressContext, null,
-            false, false);
+        express = "a = new com.ql.util.express.test.MethodParamsTest();a.getTemplate(11,'22',33L,true)";
+        Object r2 = runner.execute(express, expressContext, null, false, false);
         System.out.println(r2);
     }
 
@@ -106,7 +105,6 @@ public class MethodParamsTest {
 
     @Test
     public void testMethodArrayParamType() throws Exception {
-
         Class<?> longClass = Long.class;
         Class<?> numberClass = Number.class;
         Class<?> stringClass = String.class;
@@ -146,7 +144,6 @@ public class MethodParamsTest {
 
     @Test
     public void testDynamicParams() throws Exception {
-
         DynamicParamsUtil.supportDynamicParams = true;
 
         ExpressRunner runner = new ExpressRunner();
@@ -164,6 +161,7 @@ public class MethodParamsTest {
         testInvoke("integerArrayInvoke(null)", "0", runner, expressContext);
         testInvoke("integerArrayInvoke(1)", "1", runner, expressContext);
         testInvoke("integerArrayInvoke(1,2,3,4)", "10", runner, expressContext);
+
         //null测试
         testInvoke("integerArrayInvoke(null,1,2,3,null,4)", "10", runner, expressContext);
         testInvoke("integerArrayInvoke(null,null)", "0", runner, expressContext);
@@ -183,7 +181,6 @@ public class MethodParamsTest {
 
     void testInvoke(String text, String expert, ExpressRunner runner, IExpressContext<String, Object> expressContext)
         throws Exception {
-
         Object r = runner.execute(text, expressContext, null, false, false);
         assert (r.toString().equals(expert));
     }

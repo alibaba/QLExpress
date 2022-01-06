@@ -11,8 +11,7 @@ import org.junit.Test;
  * 可重入性单元测试
  */
 public class RecursivelyRunnerTest {
-
-    static final ExpressRunner runner = new ExpressRunner();
+    private static final ExpressRunner runner = new ExpressRunner();
 
     @Test
     public void testEvalOperator() throws Exception {

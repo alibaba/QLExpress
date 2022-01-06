@@ -5,11 +5,12 @@ package com.ql.util.express.annotation;
  * 2021-11-15 5:52 下午
  */
 public class Person {
-
     @QLAlias({"出生年月", "生日"})
     private String birth;
+
     @QLAlias("姓名")
     private String name;
+
     @QLAlias("性别")
     private String sex;
 

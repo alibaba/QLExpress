@@ -8,16 +8,21 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class GetExpressFunctionNamesTest {
-
     public Object fun3(Object a, Object b) {
         return "" + a + b;
     }
 
     @Test
     public void testFunctionDefine() throws Exception {
-        String express
-            = "function fun1(){return null;} function fun2(int a,int b,int c){return a*b+c;} a =fun1();b=fun2(1,2,3)"
-            + "+fun3(1,2);";
+        String express = ""
+            + "function fun1() {"
+            + "    return null;"
+            + "}"
+            + "function fun2(int a, int b, int c) {"
+            + "    return a * b + c;"
+            + "}"
+            + "a = fun1();"
+            + "b = fun2(1, 2, 3) + fun3(1, 2);";
         ExpressRunner runner = new ExpressRunner(false, true);
 
         String[] names = runner.getOutFunctionNames(express);

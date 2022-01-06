@@ -9,16 +9,15 @@ public class CompareObjectTest {
 
     @Test
     public void test() throws Exception {
-
         System.out.println('a' < 98);
         ExpressRunner runner = new ExpressRunner();
         String[] expList = new String[] {
-            "'a'<'b'",
-            "'a'<='b'",
-            "'a'=='a'",
-            "test=='a'",
-            "test<='a'",
-            "'a'>=test",
+            "'a' < 'b'",
+            "'a' <= 'b'",
+            "'a' == 'a'",
+            "test == 'a'",
+            "test <= 'a'",
+            "'a' >= test",
         };
         IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("test", 'a' + 0);

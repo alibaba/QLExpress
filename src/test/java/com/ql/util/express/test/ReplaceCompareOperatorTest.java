@@ -27,7 +27,6 @@ public class ReplaceCompareOperatorTest {
     public class NullableOperatorLike extends OperatorLike {
         public NullableOperatorLike(String name) {
             super(name);
-
         }
 
         @Override

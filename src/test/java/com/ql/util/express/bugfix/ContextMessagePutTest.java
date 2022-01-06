@@ -13,7 +13,6 @@ import org.junit.Test;
  * @骆凡 Created by tianqiao on 17/7/5.
  */
 public class ContextMessagePutTest {
-
     class OperatorContextPut extends OperatorBase {
         public OperatorContextPut(String name) {
             this.name = name;
