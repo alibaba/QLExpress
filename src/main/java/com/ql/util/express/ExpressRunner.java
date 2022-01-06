@@ -208,15 +208,15 @@ public class ExpressRunner {
     /**
      * 装载表达式，但不执行，例如一些宏定义，或者自定义函数
      *
-     * @param groupName
+     * @param expressName
      * @param express
      * @throws Exception
      */
-    public void loadMultiExpress(String groupName, String express) throws Exception {
-        if (groupName == null || groupName.trim().length() == 0) {
-            groupName = GLOBAL_DEFINE_NAME;
+    public void loadMultiExpress(String expressName, String express) throws Exception {
+        if (expressName == null || expressName.trim().length() == 0) {
+            expressName = GLOBAL_DEFINE_NAME;
         }
-        this.loader.parseInstructionSet(groupName, express);
+        this.loader.parseInstructionSet(expressName, express);
     }
 
     /**

@@ -192,12 +192,12 @@ public class DemoShowTest {
     @Test
     public void testVirtualClass() throws Exception {
         ExpressRunner runner = new ExpressRunner(false, true);
-        runner.loadMultiExpress("类初始化", "class People(){sex;height;money;skin};");
-        runner.loadMultiExpress("创建小强", "a = new People();a.sex='male';a.height=185;a.money=10000000;");
-        runner.loadMultiExpress("体检", "if(a.sex=='male' && a.height>180 && a.money>5000000) return '高富帅，鉴定完毕'");
-        DefaultContext<String, Object> context = new DefaultContext<>();
+        runner.loadMultiExpress("类初始化", "class People(){sex; height; money; skin};");
+        runner.loadMultiExpress("创建小强", "a = new People(); a.sex = 'male'; a.height = 185; a.money = 10000000;");
+        runner.loadMultiExpress("体检", "if(a.sex == 'male' && a.height > 180 && a.money > 5000000) return '高富帅，鉴定完毕';");
 
-        Object r = runner.execute("类初始化;创建小强;体检", context, null, false, false);
-        System.out.println(r);
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute("类初始化;创建小强;体检", context, null, false, false);
+        System.out.println(result);
     }
 }
