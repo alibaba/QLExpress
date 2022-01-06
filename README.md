@@ -147,7 +147,9 @@ runner.execute(exp, context, null, false, false, null);
 import java.util.ArrayList;
 import java.util.List;
 
-//定义一个继承自com.ql.util.express.Operator的操作符
+/**
+ * 定义一个继承自com.ql.util.express.Operator的操作符
+ */
 public class JoinOperator extends Operator {
     public Object executeInner(Object[] list) throws Exception {
         Object opdata1 = list[0];
