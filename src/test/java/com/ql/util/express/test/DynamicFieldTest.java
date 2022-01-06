@@ -38,11 +38,11 @@ public class DynamicFieldTest {
     @Test
     public void testLoadFromFile() throws Exception {
         ExpressRunner runner = new ExpressRunner(true, true);
-        runner.loadExpress("TestFunctionParameterType");
+        runner.loadExpress("testFunctionParameterType");
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("auctionUtil", new BeanExample());
         context.put("log", log);
-        Object r = runner.executeByExpressName("TestFunctionParameterType", context, null, false, false, null);
+        Object r = runner.executeByExpressName("testFunctionParameterType", context, null, false, false, null);
         System.out.println(r);
         System.out.println(context);
     }
