@@ -11,6 +11,7 @@ public class InstructionGoTo extends Instruction{
 	 */
     int offset;
 	public String name;
+	int moveTimes;
 
     public InstructionGoTo(int aOffset){
     	this.offset = aOffset;
@@ -39,4 +40,11 @@ public class InstructionGoTo extends Instruction{
 		this.offset = offset;
 	}
 
+	public int getMoveTimes() {
+		return moveTimes;
+	}
+
+	public void setMoveTimes(int moveTimes) {
+		this.moveTimes = moveTimes;
+	}
 }

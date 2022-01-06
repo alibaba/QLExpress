@@ -28,6 +28,7 @@ public class BlockInstructionFactory extends InstructionFactory {
 		if (hasDef == true&& isRoot == false
 				&& node.getTreeType().isEqualsOrChild("STAT_BLOCK")){
 			result.insertInstruction(tmpPoint,new InstructionOpenNewArea().setLine(node.getLine()));
+			forStack.peek().sign();
 			result.insertInstruction(result.getCurrentPoint() + 1,new InstructionCloseNewArea().setLine(node.getLine()));
 			returnVal = false;
 		}else{

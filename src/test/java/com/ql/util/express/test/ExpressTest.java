@@ -3,6 +3,7 @@ package com.ql.util.express.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ql.util.express.DefaultContext;
 import org.junit.Assert;
 
 import com.ql.util.express.ExpressRunner;
@@ -17,6 +18,22 @@ public class ExpressTest {
 		Object r = runner.execute(express,null, null, false,false);
 		Assert.assertTrue("表达式计算", r.toString().equalsIgnoreCase("117"));
 		System.out.println("表达式计算：" + express + " = " + r);
+	}
+
+	@org.junit.Test
+	public void testDemo1() throws Exception{
+		String express = "arr = [3,2,1,4,5,1,2];for(i = 0; i < arr.length; i++){boolean flag = false;for(j = 0; j < arr.length-i-1; j++){if(arr[j] > arr[j+1]){temp = arr[j];arr[j] = arr[j+1];arr[j+1] = temp;flag = true;}}if(!flag){break;}}";
+		ExpressRunner runner = new ExpressRunner();
+		DefaultContext context = new DefaultContext();
+		Object r = runner.execute(express,context, null, false,true);
+	}
+
+	@org.junit.Test
+	public void testDemo2() throws Exception{
+		String express = "for(i = 0; i < 10; i++){break;}";
+		ExpressRunner runner = new ExpressRunner();
+		DefaultContext context = new DefaultContext();
+		Object r = runner.execute(express,context, null, false,true);
 	}
 
 	@org.junit.Test
