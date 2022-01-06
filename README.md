@@ -129,16 +129,16 @@ return add(a, 4) + sub(a, 9);
 ```
 
 ## 3、扩展操作符：Operator
-### 替换if then else 等关键字
+### 替换 if then else 等关键字
 
 ```java
 runner.addOperatorWithAlias("如果", "if", null);
 runner.addOperatorWithAlias("则", "then", null);
 runner.addOperatorWithAlias("否则", "else", null);
 
-exp = "如果 (语文 + 数学 + 英语 > 270) 则 {return 1;} 否则 {return 0;}";
+express = "如果 (语文 + 数学 + 英语 > 270) 则 {return 1;} 否则 {return 0;}";
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-runner.execute(exp, context, null, false, false, null);
+runner.execute(express, context, null, false, false, null);
 ```
 
 ### 如何自定义Operator
@@ -175,24 +175,21 @@ ExpressRunner runner = new ExpressRunner();
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
 runner.addOperator("join", new JoinOperator());
 Object r = runner.execute("1 join 2 join 3", context, null, false, false);
-System.out.println(r);
-//返回结果  [1, 2, 3]
+System.out.println(r); // 返回结果 [1, 2, 3]
 
 //(2)replaceOperator
 ExpressRunner runner = new ExpressRunner();
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
 runner.replaceOperator("+", new JoinOperator());
 Object r = runner.execute("1 + 2 + 3", context, null, false, false);
-System.out.println(r);
-//返回结果  [1, 2, 3]
+System.out.println(r); // 返回结果 [1, 2, 3]
 
 //(3)addFunction
 ExpressRunner runner = new ExpressRunner();
 DefaultContext<String, Object> context = new DefaultContext<String, Object>();
 runner.addFunction("join", new JoinOperator());
 Object r = runner.execute("join(1, 2, 3)", context, null, false, false);
-System.out.println(r);
-//返回结果  [1, 2, 3]
+System.out.println(r); // 返回结果 [1, 2, 3]
 ```
 ## 4、绑定java类或者对象的method
 addFunctionOfClassMethod + addFunctionOfServiceMethod
@@ -218,8 +215,8 @@ runner.addFunctionOfClassMethod("转换为大写", BeanExample.class.getName(), 
 runner.addFunctionOfServiceMethod("打印", System.out, "println", new String[] { "String" }, null);
 runner.addFunctionOfServiceMethod("contains", new BeanExample(), "anyContains", new Class[] {String.class, String.class}, null);
 
-String exp = "取绝对值(-100); 转换为大写(\"hello world\"); 打印(\"你好吗？\"); contains("helloworld",\"aeiou\")";
-runner.execute(exp, context, null, false, false);
+String express = "取绝对值(-100); 转换为大写(\"hello world\"); 打印(\"你好吗？\"); contains("helloworld",\"aeiou\")";
+runner.execute(express, context, null, false, false);
 ```
 
  ## 5、macro 宏定义
@@ -590,10 +587,10 @@ public class ContextMessagePutTest {
         ExpressRunner runner = new ExpressRunner();
         OperatorBase op = new OperatorContextPut("contextPut");
         runner.addFunction("contextPut", op);
-        String exp = "contextPut('success', 'false'); contextPut('error', '错误信息'); contextPut('warning', '提醒信息')";
+        String express = "contextPut('success', 'false'); contextPut('error', '错误信息'); contextPut('warning', '提醒信息')";
         IExpressContext<String, Object> context = new DefaultContext<String, Object>();
         context.put("success", "true");
-        Object result = runner.execute(exp, context, null, false, true);
+        Object result = runner.execute(express, context, null, false, true);
         System.out.println(result);
         System.out.println(context);
     }
