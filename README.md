@@ -414,14 +414,16 @@ OperatorBase getFunciton(String name);
 
 //通过自定义的Operator来实现类似：fun(a, b, c)
 void addFunction(String name, OperatorBase op);
+
 //fun(a, b, c) 绑定 object.function(a, b, c)对象方法
 void addFunctionOfServiceMethod(String name, Object aServiceObject, String aFunctionName, Class<?>[] aParameterClassTypes, String errorInfo);
+
 //fun(a, b, c) 绑定 Class.function(a, b, c)类方法
 void addFunctionOfClassMethod(String name, String aClassName, String aFunctionName, Class<?>[] aParameterClassTypes, String errorInfo);
+
 //给Class增加或者替换method，同时支持 a.fun(b), fun(a, b) 两种方法调用
 //比如扩展String.class的isBlank方法:"abc".isBlank()和isBlank("abc")都可以调用
-void addFunctionAndClassMethod(String name, Class<?>bindingClass, OperatorBase op);
-
+void addFunctionAndClassMethod(String name, Class<?> bindingClass, OperatorBase op);
 ```
 
 ### （2）Operator相关API
