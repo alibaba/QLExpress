@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
@@ -17,9 +16,7 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.console.FileTree.PathNode;
 
-public class ConsoleFrame2
-    extends JFrame {
-
+public class ConsoleFrame2 extends JFrame {
     JPanel contentPane;
     final BorderLayout borderLayout1 = new BorderLayout();
     final JMenuBar jMenuBar1 = new JMenuBar();
@@ -27,8 +24,7 @@ public class ConsoleFrame2
     final JMenuItem jMenuFileExit = new JMenuItem();
     final JToolBar jToolBar = new JToolBar();
     final JButton jButton1 = new JButton();
-    final ImageIcon image1 = new ImageIcon(ConsoleFrame2.class.
-        getResource("run.png"));
+    final ImageIcon image1 = new ImageIcon(ConsoleFrame2.class.getResource("run.png"));
     final JLabel statusBar = new JLabel();
     final JSplitPane jSplitPaneMain = new JSplitPane();
     final FileTree jTreeFileSelect = new FileTree(System.getProperty("user.dir"));
@@ -82,10 +78,8 @@ public class ConsoleFrame2
         statusBar.setText(" ");
         jMenuFile.setText("File");
         jMenuFileExit.setText("Exit");
-        jMenuFileExit.addActionListener(new
-            ConsoleFrame_jMenuFileExit_ActionAdapter2(this));
-        jTreeFileSelect.addMouseListener(new
-            ConsoleFrame_jTreeFileSelect_mouseAdapter2(this));
+        jMenuFileExit.addActionListener(new ConsoleFrame_jMenuFileExit_ActionAdapter2(this));
+        jTreeFileSelect.addMouseListener(new ConsoleFrame_jTreeFileSelect_mouseAdapter2(this));
         jSplitPaneMain.add(jScrollPaneTree, JSplitPane.LEFT);
         jSplitPaneMain.add(jTabbedPaneContent, JSplitPane.RIGHT);
         jSplitPaneMain.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -182,7 +176,6 @@ public class ConsoleFrame2
                 + "\nQL>");
         } catch (Exception e1) {
             e1.printStackTrace(new PrintWriter(writer));
-
         }
         //System.out.println(writer.toString());
         jTextAreaResult.setText(writer.toString());
@@ -203,8 +196,7 @@ public class ConsoleFrame2
     }
 }
 
-class ConsoleFrame_jTreeFileSelect_mouseAdapter2
-    extends MouseAdapter {
+class ConsoleFrame_jTreeFileSelect_mouseAdapter2 extends MouseAdapter {
     private final ConsoleFrame2 adaptee;
 
     ConsoleFrame_jTreeFileSelect_mouseAdapter2(ConsoleFrame2 adaptee) {
@@ -216,8 +208,7 @@ class ConsoleFrame_jTreeFileSelect_mouseAdapter2
     }
 }
 
-class ConsoleFrame_jButton1_actionAdapter2
-    implements ActionListener {
+class ConsoleFrame_jButton1_actionAdapter2 implements ActionListener {
     private final ConsoleFrame2 adaptee;
 
     ConsoleFrame_jButton1_actionAdapter2(ConsoleFrame2 adaptee) {
@@ -233,8 +224,7 @@ class ConsoleFrame_jButton1_actionAdapter2
     }
 }
 
-class ConsoleFrame_jMenuFileExit_ActionAdapter2
-    implements ActionListener {
+class ConsoleFrame_jMenuFileExit_ActionAdapter2 implements ActionListener {
     final ConsoleFrame2 adaptee;
 
     ConsoleFrame_jMenuFileExit_ActionAdapter2(ConsoleFrame2 adaptee) {

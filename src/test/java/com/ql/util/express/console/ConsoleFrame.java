@@ -18,9 +18,7 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.console.FileTree.PathNode;
 
-public class ConsoleFrame
-    extends JFrame {
-
+public class ConsoleFrame extends JFrame {
     JPanel contentPane;
     final BorderLayout borderLayout1 = new BorderLayout();
     final JMenuBar jMenuBar1 = new JMenuBar();
@@ -28,8 +26,7 @@ public class ConsoleFrame
     final JMenuItem jMenuFileExit = new JMenuItem();
     final JToolBar jToolBar = new JToolBar();
     final JButton jButton1 = new JButton();
-    final ImageIcon image1 = new ImageIcon(ConsoleFrame.class.
-        getResource("run.png"));
+    final ImageIcon image1 = new ImageIcon(ConsoleFrame.class.getResource("run.png"));
     final JLabel statusBar = new JLabel();
     final JTabbedPane jTabbedPaneContent = new JTabbedPane();
     final JPanel jPaneRunner = new JPanel();
@@ -76,8 +73,7 @@ public class ConsoleFrame
         statusBar.setText(" ");
         jMenuFile.setText("File");
         jMenuFileExit.setText("Exit");
-        jMenuFileExit.addActionListener(new
-            ConsoleFrame_jMenuFileExit_ActionAdapter(this));
+        jMenuFileExit.addActionListener(new ConsoleFrame_jMenuFileExit_ActionAdapter(this));
         jSplitPaneRun.setOrientation(JSplitPane.VERTICAL_SPLIT);
         jSplitPaneRun.setDividerSize(2);
         jPaneRunner.setLayout(borderLayout2);
@@ -200,8 +196,7 @@ class ConsoleFrame_jButton1_actionAdapter implements ActionListener {
     }
 }
 
-class ConsoleFrame_jMenuFileExit_ActionAdapter
-    implements ActionListener {
+class ConsoleFrame_jMenuFileExit_ActionAdapter implements ActionListener {
     final ConsoleFrame adaptee;
 
     ConsoleFrame_jMenuFileExit_ActionAdapter(ConsoleFrame adaptee) {
