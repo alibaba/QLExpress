@@ -1,13 +1,3 @@
-/**
- * <p>Title:Operator </p>
- * <p>Description:表达式计算的运算符号 </p>
- * <p>Copyright: Copyright (c) 2001</p>
- * <p>Company: </p>
- *
- * @author 墙辉
- * @version 1.0
- */
-
 package com.ql.util.express.instruction.op;
 
 import java.util.List;
