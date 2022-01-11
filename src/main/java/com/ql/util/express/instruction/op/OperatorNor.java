@@ -3,26 +3,26 @@ package com.ql.util.express.instruction.op;
 import com.ql.util.express.Operator;
 
 public class OperatorNor extends Operator {
-	public OperatorNor(String name) {
-		this.name = name;
-	}
+    public OperatorNor(String name) {
+        this.name = name;
+    }
 
-	public OperatorNor(String aAliasName, String aName, String aErrorInfo) {
-		this.name = aName;
-		this.aliasName = aAliasName;
-		this.errorInfo = aErrorInfo;
-	}
+    public OperatorNor(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
+    }
 
-	public Object executeInner(Object[] list) throws Exception {
-		return executeInner(list[0], list[1]);
-	}
+    @Override
+    public Object executeInner(Object[] list) throws Exception {
+        return executeInner(list[0], list[1]);
+    }
 
-	public Object executeInner(Object op1, Object op2) throws Exception {
-
-		if (op1 != null) {
-			return op1;
-		} else {
-			return op2;
-		}
-	}
+    public Object executeInner(Object op1, Object op2) {
+        if (op1 != null) {
+            return op1;
+        } else {
+            return op2;
+        }
+    }
 }

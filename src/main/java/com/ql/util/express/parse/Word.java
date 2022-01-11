@@ -1,17 +1,19 @@
 package com.ql.util.express.parse;
 
-
 public class Word {
-   public String word;
-   public int line;
-   public int col;
-   public int index;
-   public Word(String aWord,int aLine,int aCol){
-	   this.word = aWord;
-	   this.line = aLine;
-	   this.col = aCol;
-   }
-  public String toString(){
-	  return this.word;// + "[" + this.line + "," + this.col + "]";
-  }
+    public final String word;
+    public final int line;
+    public final int col;
+    public int index;
+
+    public Word(String word, int line, int col) {
+        this.word = word;
+        this.line = line;
+        this.col = col;
+    }
+
+    @Override
+    public String toString() {
+        return this.word;// + "[" + this.line + "," + this.col + "]";
+    }
 }

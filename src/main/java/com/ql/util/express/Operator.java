@@ -1,11 +1,11 @@
 package com.ql.util.express;
 
+import java.util.Date;
+
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.op.OperatorBase;
-
-import java.util.Date;
 
 /**
  * 操作符的基类
@@ -13,14 +13,14 @@ import java.util.Date;
  * @author xuannan
  */
 public abstract class Operator extends OperatorBase {
-    
-    public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
+    @Override
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Object[] parameters = new Object[list.length];
         for (int i = 0; i < list.length; i++) {
-            if(list.get(i)==null && QLExpressRunStrategy.isAvoidNullPointer()){
+            if (list.get(i) == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 parameters[i] = null;
-            }else {
-                parameters[i] = list.get(i).getObject(context);
+            } else {
+                parameters[i] = list.get(i).getObject(parent);
             }
         }
         Object result = this.executeInner(parameters);
@@ -35,46 +35,47 @@ public abstract class Operator extends OperatorBase {
             return OperateDataCacheManager.fetchOperateData(result, ExpressUtil.getSimpleDataType(result.getClass()));
         }
     }
-    
+
     public abstract Object executeInner(Object[] list) throws Exception;
-    
+
     /**
      * 进行对象是否相等的比较
+     *
      * @param op1
      * @param op2
      * @return
-     * @throws Exception
      */
-    public static boolean objectEquals(Object op1, Object op2) throws Exception{
+    public static boolean objectEquals(Object op1, Object op2) {
         if (op1 == null && op2 == null) {
             return true;
         }
         if (op1 == null || op2 == null) {
             return false;
         }
-        
+
         //Character的值比较
-        if(op1 instanceof Character || op2 instanceof Character){
-            int compareResult = 0;
+        if (op1 instanceof Character || op2 instanceof Character) {
+            int compareResult;
             if (op1 instanceof Character && op2 instanceof Character) {
-                return ((Character) op1).equals((Character) op2);
-            }else if (op1 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((Number) op1, (int) ((Character) op2).charValue());
-                return compareResult==0;
+                return op1.equals(op2);
+            } else if (op1 instanceof Number) {
+                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)(Character)op2);
+                return compareResult == 0;
             } else if (op2 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((int) ((Character) op1).charValue(), (Number) op2);
-                return compareResult==0;
+                compareResult = OperatorOfNumber.compareNumber((int)(Character)op1, (Number)op2);
+                return compareResult == 0;
             }
         }
         //数值的值比较
         if (op1 instanceof Number && op2 instanceof Number) {
             //数字比较
-            int compareResult = OperatorOfNumber.compareNumber((Number) op1, (Number) op2);
-            return compareResult==0;
+            int compareResult = OperatorOfNumber.compareNumber((Number)op1, (Number)op2);
+            return compareResult == 0;
         }
         //调用原始Object的比较
         return op1.equals(op2);
     }
+
     /**
      * 进行对象比较
      *
@@ -84,40 +85,40 @@ public abstract class Operator extends OperatorBase {
      * @throws Exception
      */
     public static int compareData(Object op1, Object op2) throws Exception {
-        
-        if(op1 == op2){
+        if (op1 == op2) {
             return 0;
         }
-        
-        int compareResult = -1;
-        
+
+        int compareResult;
+
         if (op1 instanceof String) {
-            compareResult = ((String) op1).compareTo(op2.toString());
+            compareResult = ((String)op1).compareTo(op2.toString());
         } else if (op2 instanceof String) {
-            compareResult = op1.toString().compareTo((String) op2);
+            compareResult = op1.toString().compareTo((String)op2);
         } else if (op1 instanceof Character || op2 instanceof Character) {
             if (op1 instanceof Character && op2 instanceof Character) {
-                compareResult = ((Character) op1).compareTo((Character) op2);
+                compareResult = ((Character)op1).compareTo((Character)op2);
             } else if (op1 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((Number) op1, (int) ((Character) op2).charValue());
+                compareResult = OperatorOfNumber.compareNumber((Number)op1, (int)(Character)op2);
             } else if (op2 instanceof Number) {
-                compareResult = OperatorOfNumber.compareNumber((int) ((Character) op1).charValue(), (Number) op2);
+                compareResult = OperatorOfNumber.compareNumber((int)(Character)op1, (Number)op2);
             } else {
                 throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
             }
         } else if (op1 instanceof Number && op2 instanceof Number) {
             //数字比较
-            compareResult = OperatorOfNumber.compareNumber((Number) op1, (Number) op2);
+            compareResult = OperatorOfNumber.compareNumber((Number)op1, (Number)op2);
         } else if ((op1 instanceof Boolean) && (op2 instanceof Boolean)) {
-            if (((Boolean) op1).booleanValue() == ((Boolean) op2).booleanValue())
+            if (((Boolean)op1).booleanValue() == ((Boolean)op2).booleanValue()) {
                 compareResult = 0;
-            else
+            } else {
                 compareResult = -1;
+            }
         } else if ((op1 instanceof Date) && (op2 instanceof Date)) {
-            compareResult = ((Date) op1).compareTo((Date) op2);
-        } else
+            compareResult = ((Date)op1).compareTo((Date)op2);
+        } else {
             throw new QLException(op1 + "和" + op2 + "不能执行compare 操作");
+        }
         return compareResult;
     }
-    
 }

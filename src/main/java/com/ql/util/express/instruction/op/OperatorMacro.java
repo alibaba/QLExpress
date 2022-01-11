@@ -7,20 +7,22 @@ import com.ql.util.express.instruction.opdata.OperateDataAlias;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 
 public class OperatorMacro extends OperatorBase {
-	public OperatorMacro(String aName) {
-		this.name = aName;
-	}
-	public OperatorMacro(String aAliasName, String aName, String aErrorInfo) {
-		this.name = aName;
-		this.aliasName = aAliasName;
-		this.errorInfo = aErrorInfo;
-	}
+    public OperatorMacro(String name) {
+        this.name = name;
+    }
 
-	public OperateData executeInner(InstructionSetContext context, ArraySwap list) throws Exception {
-		String varName = (String)list.get(0).getObjectInner(context);	
-		OperateDataAttr realAttr = (OperateDataAttr)list.get(1);
-		OperateDataAttr result = new OperateDataAlias(varName,realAttr);
-		context.addSymbol(varName, result);
-		return result;
-	}
+    public OperatorMacro(String aliasName, String name, String errorInfo) {
+        this.name = name;
+        this.aliasName = aliasName;
+        this.errorInfo = errorInfo;
+    }
+
+    @Override
+    public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
+        String varName = (String)list.get(0).getObjectInner(parent);
+        OperateDataAttr realAttr = (OperateDataAttr)list.get(1);
+        OperateDataAttr result = new OperateDataAlias(varName, realAttr);
+        parent.addSymbol(varName, result);
+        return result;
+    }
 }

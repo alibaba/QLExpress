@@ -9,15 +9,13 @@ import org.junit.Test;
  * Created by tianqiao on 17/7/5.
  */
 public class StringTest {
-    
     @Test
-    public void testFunction() throws Exception{
-        
+    public void testFunction() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         String exp = "a = \"11111,2222\";p = a.split(\",\");";
         System.out.println(exp);
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        Object result = runner.execute(exp,context,null,false,false);
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
 }

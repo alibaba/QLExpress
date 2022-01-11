@@ -9,19 +9,18 @@ import org.junit.Test;
  * Created by tianqiao on 17/9/19.
  */
 public class InstanceOfTest {
-    
     @Test
-    public void test() throws Exception{
-        ExpressRunner runner = new ExpressRunner(false,true);
-        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-        String express ="s='';return s  instanceof String";
-        Object r = runner.execute(express,context, null, false,true);
-        Assert.assertTrue("InstanceOfTest 出错",r.toString().equals("true"));
+    public void test() throws Exception {
+        ExpressRunner runner = new ExpressRunner(false, true);
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        String express = "s = ''; return s instanceof String;";
+        Object r = runner.execute(express, context, null, false, true);
+        Assert.assertEquals("InstanceOfTest 出错", "true", r.toString());
         System.out.println(r);
-    
-        express ="s='';return s  instanceof Object";
-        r = runner.execute(express,context, null, false,true);
-        Assert.assertTrue("InstanceOfTest 出错",r.toString().equals("true"));
+
+        express = "s = ''; return s instanceof Object;";
+        r = runner.execute(express, context, null, false, true);
+        Assert.assertEquals("InstanceOfTest 出错", "true", r.toString());
         System.out.println(r);
     }
 }

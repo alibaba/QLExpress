@@ -1,47 +1,38 @@
 package com.ql.util.express;
 
-import java.io.Serializable;
-
 /**
  * 简单的缓存对象
- * @author tianqiao
  *
+ * @author tianqiao
  */
-public class CacheObject implements Serializable{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -145121001676214513L;
+public class CacheObject {
+    private String expressName;
 
-	private String expressName;
-	
-	private String text;
-	
-	private InstructionSet instructionSet;
+    private String text;
 
-	public String getExpressName() {
-		return expressName;
-	}
+    private InstructionSet instructionSet;
 
-	public void setExpressName(String name) {
-		this.expressName = name;
-	}
+    public String getExpressName() {
+        return expressName;
+    }
 
-	public String getText() {
-		return text;
-	}
+    public void setExpressName(String name) {
+        this.expressName = name;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public InstructionSet getInstructionSet() {
-		return instructionSet;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
 
-	public void setInstructionSet(InstructionSet instructionSet) {
-		this.instructionSet = instructionSet;
-	}
+    public InstructionSet getInstructionSet() {
+        return instructionSet;
+    }
 
+    public void setInstructionSet(InstructionSet instructionSet) {
+        this.instructionSet = instructionSet;
+    }
 }

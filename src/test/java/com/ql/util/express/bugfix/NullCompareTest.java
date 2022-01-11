@@ -2,7 +2,6 @@ package com.ql.util.express.bugfix;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
-import com.ql.util.express.IExpressContext;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import org.junit.After;
 import org.junit.Assert;
@@ -10,46 +9,45 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NullCompareTest {
-    
+
     @Before
-    public void before()        
-    {
+    public void before() {
         QLExpressRunStrategy.setCompareNullLessMoreAsFalse(true);
     }
+
     @After
-    public void after()
-    {
+    public void after() {
         QLExpressRunStrategy.setCompareNullLessMoreAsFalse(false);
     }
+
     @Test
-    public void testNullCompar() throws Exception{
-        
+    public void testNullCompare() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String[] explist = new String[]{
-                "x < 1",
-                "y > 1",
-                "x != 2",
+        String[] expressionArray = new String[] {
+            "x < 1",
+            "y > 1",
+            "x != 2",
         };
-        for(String exp:explist) {
-            IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-            System.out.println(exp);
-            ((DefaultContext<String, Object>) context).put("x",2);
-            Object result = runner.execute(exp, context, null, true, false);
-            Assert.assertTrue((Boolean)result==false);
+        for (String expression : expressionArray) {
+            DefaultContext<String, Object> context = new DefaultContext<>();
+            System.out.println(expression);
+            context.put("x", 2);
+            Object result = runner.execute(expression, context, null, true, false);
+            Assert.assertEquals(false, result);
             System.out.println(result);
         }
 
-        explist = new String[]{
-                "x > 1",
-                "y == null",
-                "x == 2",
+        expressionArray = new String[] {
+            "x > 1",
+            "y == null",
+            "x == 2",
         };
-        for(String exp:explist) {
-            IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+        for (String exp : expressionArray) {
+            DefaultContext<String, Object> context = new DefaultContext<>();
             System.out.println(exp);
-            ((DefaultContext<String, Object>) context).put("x",2);
+            context.put("x", 2);
             Object result = runner.execute(exp, context, null, true, false);
-            Assert.assertTrue((Boolean)result==true);
+            Assert.assertEquals(true, result);
             System.out.println(result);
         }
     }

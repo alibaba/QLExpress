@@ -9,51 +9,51 @@ import org.junit.Test;
  * Created by tianqiao on 17/6/20.
  */
 public class FunctionTest {
-    
     @Test
-    public void testFunction() throws Exception{
-        ExpressRunner runner = new ExpressRunner(false,true);
-        String exp = "function abc(int a,int b){ return a + b;} return abc(1+100,2*100)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        Object result = runner.execute(exp,context,null,false,false);
+    public void testFunction() throws Exception {
+        ExpressRunner runner = new ExpressRunner(false, true);
+        String exp = ""
+            + "function abc(int a, int b) {"
+            + "    return a + b;"
+            + "}"
+            + "return abc(1 + 100, 2 * 100)";
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
-    
+
     @Test
-    public void testFunction2() throws Exception{
+    public void testFunction2() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String exp = 
-                "function FAILFUN(Integer errorCode,String message){\n" +
-                    "System.out.println(errorCode+\" \"+message);\n" +
-                    "return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n" +
-                "}\n" +
-                "FAILFUN(-1,'error')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        Object result = runner.execute(exp,context,null,false,false);
+        String exp = ""
+            + "function FAILFUN(Integer errorCode,String message){"
+            + "    System.out.println(errorCode+\" \"+message);"
+            + "    return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);"
+            + "}"
+            + "FAILFUN(-1, 'error')";
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
     }
-    
+
     @Test
-    public void testFunction3() throws Exception{
+    public void testFunction3() throws Exception {
         ExpressRunner runner = new ExpressRunner();
-        String funExp =
-                "function FAILFUN(Integer errorCode,String message){\n" +
-                        "System.out.println(errorCode+\" \"+message);\n" +
-                        "return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);\n" +
-                        "}\n";
-        runner.loadMutilExpress("",funExp);
-        
+        String funExpress = ""
+            + "function FAILFUN(Integer errorCode,String message) {"
+            + "    System.out.println(errorCode+\" \"+message);"
+            + "    return NewMap(\"message\":message,\"errorCode\":errorCode,\"success\":false);"
+            + "}";
+        runner.loadMultiExpress("", funExpress);
+
         String exp = "FAILFUN(-1,'error')";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        Object result = runner.execute(exp,context,null,false,false);
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
-    
+
         String exp2 = "FAILFUN(-12,'error')";
-        IExpressContext<String, Object> context2 = new DefaultContext<String, Object>();
-        Object result2 = runner.execute(exp2,context2,null,false,false);
-        System.out.println(result);
+        IExpressContext<String, Object> context2 = new DefaultContext<>();
+        Object result2 = runner.execute(exp2, context2, null, false, false);
+        System.out.println(result2);
     }
-    
-    
-    
 }

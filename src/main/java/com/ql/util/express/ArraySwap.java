@@ -1,17 +1,17 @@
 package com.ql.util.express;
 
 public final class ArraySwap {
-	OperateData[] arrays;
-	int start;
-	public int length;
-	
-	public void swap(OperateData[] aArrays,int aStart ,int aLength){
-		this.arrays = aArrays;
-		this.start = aStart;
-		this.length = aLength;
-	}
-	public OperateData get(int i){
-		return this.arrays[i+start];
-	}
+    private OperateData[] operateDataArray;
+    private int start;
+    public int length;
 
+    public void swap(OperateData[] operateDataArray, int start, int length) {
+        this.operateDataArray = operateDataArray;
+        this.start = start;
+        this.length = length;
+    }
+
+    public OperateData get(int i) {
+        return this.operateDataArray[i + start];
+    }
 }

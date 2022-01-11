@@ -4,43 +4,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLMatchResult {
-		private List<QLMatchResultTree> matchs = new ArrayList<QLMatchResultTree>();
-		private int matchLastIndex;
+    private final List<QLMatchResultTree> matches = new ArrayList<>();
+    private int matchLastIndex;
 
+    public void clear() {
+        this.matchLastIndex = 0;
+        this.matches.clear();
+    }
 
-		public void clear(){
-			this.matchLastIndex =0;
-			this.matchs.clear();
-		}
+    public List<QLMatchResultTree> getMatches() {
+        return matches;
+    }
 
-		public String toString(){
-			StringBuilder builder = new StringBuilder();
-			for(QLMatchResultTree item:matchs){
-			   item.printNode(builder,1);
-			}
-			return builder.toString();
-		}
-		public List<QLMatchResultTree> getMatchs() {
-			return matchs;
-		}
+    public QLMatchResult addQLMatchResultTree(QLMatchResultTree tree) {
+        this.matches.add(tree);
+        return this;
+    }
 
-		public QLMatchResult addQLMatchResultTree(QLMatchResultTree tree){
-			this.matchs.add(tree);
-			return this;
-		}
-	public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> aList){
-		this.matchs.addAll(aList);
-		return this;
-	}
+    public QLMatchResult addQLMatchResultTreeList(List<QLMatchResultTree> qlMatchResultTreeList) {
+        this.matches.addAll(qlMatchResultTreeList);
+        return this;
+    }
 
-	public int getMatchSize(){
-		return this.matchs.size();
-	}
-		public int getMatchLastIndex() {
-			return matchLastIndex;
-		}
-	public QLMatchResult setMatchLastIndex(int index){
-		this.matchLastIndex = index;
-		return this;
-	}
+    public int getMatchSize() {
+        return this.matches.size();
+    }
+
+    public int getMatchLastIndex() {
+        return matchLastIndex;
+    }
+
+    public QLMatchResult setMatchLastIndex(int index) {
+        this.matchLastIndex = index;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (QLMatchResultTree item : matches) {
+            item.printNode(builder, 1);
+        }
+        return builder.toString();
+    }
 }

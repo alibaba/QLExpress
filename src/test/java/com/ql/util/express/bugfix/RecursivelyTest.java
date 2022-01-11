@@ -10,33 +10,29 @@ import org.junit.Test;
  * Created by tianqiao on 17/3/2.
  */
 public class RecursivelyTest {
-    
-    static ExpressRunner runner = new ExpressRunner();
-    static ExpressRunner runnerInner = new ExpressRunner();
-    
-    static{
-    
+    private static final ExpressRunner runner = new ExpressRunner();
+    private static final ExpressRunner runnerInner = new ExpressRunner();
+
+    static {
         Operator exeOperator = new Operator() {
             @Override
             public Object executeInner(Object[] list) throws Exception {
                 System.out.println("executeInner:r_exeAll");
-                IExpressContext<String, Object> context = new DefaultContext<String, Object>();
+                IExpressContext<String, Object> context = new DefaultContext<>();
                 runnerInner.execute("1+2", context, null, false, true);
                 System.out.println(list[0]);
                 return null;
             }
         };
-    
-    
-        runner.addFunction("r_exeAll",exeOperator );
-        runnerInner.addFunction("r_exeAll",exeOperator);
+
+        runner.addFunction("r_exeAll", exeOperator);
+        runnerInner.addFunction("r_exeAll", exeOperator);
     }
-    
+
     @Test
-    public void testAllByFunction() throws Exception{
-        
+    public void testAllByFunction() throws Exception {
         String exp = "r_exeAll(1,2,3)";
-        IExpressContext<String, Object> context = new DefaultContext<String, Object>();
-        runner.execute(exp,context,null,false,true);
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        runner.execute(exp, context, null, false, true);
     }
 }

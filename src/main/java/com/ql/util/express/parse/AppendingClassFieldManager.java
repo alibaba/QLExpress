@@ -1,58 +1,54 @@
 package com.ql.util.express.parse;
 
-import com.ql.util.express.*;
-import com.ql.util.express.instruction.OperateDataCacheManager;
-import com.ql.util.express.instruction.op.OperatorBase;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ql.util.express.Operator;
 
 /**
  * Created by tianqiao on 16/10/16.
  */
 public class AppendingClassFieldManager {
+    private final List<AppendingField> appendingFields = new ArrayList<>();
 
-    public class AppendingField {
-        public String name;
-
-        public Class<?> bindingClass;
-
-        public Operator op;
-
-        public Class<?> returnType;
-
-        public AppendingField(String name, Class<?> bindingClass,Class<?> returnType, Operator op) {
-            this.name = name;
-            this.bindingClass = bindingClass;
-            this.op = op;
-            this.returnType = returnType;
-        }
+    public void addAppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator operator) {
+        appendingFields.add(new AppendingField(name, bindingClass, returnType, operator));
     }
 
-    private List<AppendingField> Fields = new ArrayList<AppendingField>();
-
-    public void addAppendingField(String name,Class<?> bindingClass,Class<?> returnType, Operator op)
-    {
-        Fields.add(new AppendingField(name,bindingClass,returnType,op));
-    }
-
-    public AppendingField getAppendingClassField(Object object, String FieldName)
-    {
-        for(AppendingField Field : Fields){
+    public AppendingField getAppendingClassField(Object object, String fieldName) {
+        for (AppendingField appendingField : appendingFields) {
             //object是定义类型的子类
-            if(FieldName.equals(Field.name) && (object.getClass()==Field.bindingClass || Field.bindingClass.isAssignableFrom(object.getClass()))){
-                return Field;
+            if (fieldName.equals(appendingField.name) && (object.getClass() == appendingField.bindingClass
+                || appendingField.bindingClass.isAssignableFrom(object.getClass()))) {
+                return appendingField;
             }
         }
         return null;
-
     }
 
-    public Object invoke(AppendingField Field, InstructionSetContext context, Object aFieldObject, List<String> errorList) throws Exception {
-        Operator op = Field.op;
-        Object result =  op.executeInner(new Object[]{aFieldObject});
-        return result;
+    public Object invoke(AppendingField appendingField, Object fieldObject) throws Exception {
+        Operator operator = appendingField.operator;
+        return operator.executeInner(new Object[] {fieldObject});
     }
 
+    public static class AppendingField {
+        private final String name;
 
+        private final Class<?> bindingClass;
+
+        private final Operator operator;
+
+        private final Class<?> returnType;
+
+        public AppendingField(String name, Class<?> bindingClass, Class<?> returnType, Operator operator) {
+            this.name = name;
+            this.bindingClass = bindingClass;
+            this.operator = operator;
+            this.returnType = returnType;
+        }
+
+        public Class<?> getReturnType() {
+            return returnType;
+        }
+    }
 }

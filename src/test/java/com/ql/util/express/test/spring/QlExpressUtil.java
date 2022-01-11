@@ -1,12 +1,12 @@
 package com.ql.util.express.test.spring;
 
+import java.util.Map;
+
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
-import java.util.Map;
 
 /**
  * （1）打通了spring容器，通过扩展IExpressContext->QLExpressContext
@@ -15,53 +15,49 @@ import java.util.Map;
  * （3）在runner初始化的时候，使用了代码映射功能：addMacro
  */
 public class QlExpressUtil implements ApplicationContextAware {
+    private static final ExpressRunner runner;
 
-	private static ExpressRunner runner;
-	static {
-		runner = new ExpressRunner();
-	}
-	private static boolean isInitialRunner = false;
-	private ApplicationContext applicationContext;// spring上下文
+    static {
+        runner = new ExpressRunner();
+    }
 
-	/**
-	 * 
-	 * @param statement
-	 *            执行语句
-	 * @param context
-	 *            上下文
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unchecked")
-	public Object execute(String statement, Map<String, Object> context)
-			throws Exception {
-		initRunner(runner);
-		IExpressContext expressContext = new QLExpressContext(context,
-				applicationContext);
-		return runner.execute(statement, expressContext, null, true, false);
-	}
+    private static boolean isInitialRunner = false;
+    private ApplicationContext applicationContext;// spring上下文
 
-	private void initRunner(ExpressRunner runner) {
-		if (isInitialRunner == true) {
-			return;
-		}
-		synchronized (runner) {
-			if (isInitialRunner == true) {
-				return;
-			}
-			try {
-				runner.addFunctionOfServiceMethod("读取用户信息",applicationContext.getBean("bizLogicBean"), "getUserInfo", new Class[] {String.class}, null); 
-                runner.addMacro("判定用户是否vip","userDO.salary>200000");
-				
-			} catch (Exception e) {
-				throw new RuntimeException("初始化失败表达式", e);
-			}
-		}
-		isInitialRunner = true;
-	}
+    /**
+     * @param statement 执行语句
+     * @param context   上下文
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public Object execute(String statement, Map<String, Object> context) throws Exception {
+        initRunner(runner);
+        IExpressContext expressContext = new QLExpressContext(context, applicationContext);
+        return runner.execute(statement, expressContext, null, true, false);
+    }
 
-	public void setApplicationContext(ApplicationContext aContext)
-			throws BeansException {
-		applicationContext = aContext;
-	}
+    private void initRunner(ExpressRunner runner) {
+        if (isInitialRunner) {
+            return;
+        }
+        synchronized (runner) {
+            if (isInitialRunner) {
+                return;
+            }
+            try {
+                runner.addFunctionOfServiceMethod("读取用户信息", applicationContext.getBean("bizLogicBean"), "getUserInfo",
+                    new Class[] {String.class}, null);
+                runner.addMacro("判定用户是否vip", "userDO.salary>200000");
 
+            } catch (Exception e) {
+                throw new RuntimeException("初始化失败表达式", e);
+            }
+        }
+        isInitialRunner = true;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

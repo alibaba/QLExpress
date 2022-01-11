@@ -13,8 +13,8 @@ public class QLambdaInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return Modifier.isAbstract(method.getModifiers())? qLambda.call(args):
-                // 为了应对 toString 方法
-                method.getReturnType() == String.class? "QLambdaProxy": null;
+        return Modifier.isAbstract(method.getModifiers()) ? qLambda.call(args) :
+            // 为了应对 toString 方法
+            method.getReturnType() == String.class ? "QLambdaProxy" : null;
     }
 }
