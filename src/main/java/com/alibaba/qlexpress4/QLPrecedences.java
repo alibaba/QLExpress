@@ -1,5 +1,8 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.parser.KeyWordsSet;
+import com.alibaba.qlexpress4.parser.Token;
+
 /**
  * Comment By 冰够 Precedence > Priority ?
  *
@@ -59,4 +62,76 @@ public class QLPrecedences {
     // ()
     public static final int GROUP = 15;
 
+    public static Integer getMiddlePrecedence(Token token) {
+        switch (token.getType()) {
+            case OR:
+                return OR;
+            case AND:
+                return AND;
+            case BITOR:
+                return BIT_OR;
+            case CARET:
+                return XOR;
+            case BITAND:
+                return BIT_AND;
+            case EQUAL:
+            case NOTEQUAL:
+                return EQUAL;
+            case LT:
+            case LE:
+            case GT:
+            case GE:
+                return COMPARE;
+            case LSHIFT:
+            case RSHIFT:
+            case URSHIFT:
+                return BIT_MOVE;
+            case ADD:
+            case SUB:
+                return ADD;
+            case MUL:
+            case DIV:
+            case MOD:
+                return MULTI;
+            case INC:
+            case DEC:
+                // suffix operator
+                return UNARY_SUFFIX;
+            case DOT:
+                // field call
+            case LPAREN:
+                // method call
+                return GROUP;
+            case KEY_WORD:
+                if (KeyWordsSet.OR.equals(token.getLexeme())) {
+                    return OR;
+                } else if (KeyWordsSet.AND.equals(token.getLexeme())) {
+                    return AND;
+                } else if (KeyWordsSet.INSTANCEOF.equals(token.getLexeme())) {
+                    return COMPARE;
+                } else if (KeyWordsSet.IN.equals(token.getLexeme()) ||
+                        // TODO: like 的运行时性能优化
+                        KeyWordsSet.LIKE.equals(token.getLexeme())) {
+                    return IN_LIKE;
+                }
+            default:
+                return null;
+        }
+    }
+
+    public static Integer getPrefixPrecedence(Token token) {
+        switch (token.getType()) {
+            case ADD:
+            case SUB:
+            case BANG:
+            case INC:
+            case DEC:
+            case TILDE:
+                return UNARY;
+            case LPAREN:
+                return GROUP;
+            default:
+                return null;
+        }
+    }
 }
