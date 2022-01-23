@@ -6,7 +6,7 @@ package com.alibaba.qlexpress4;
  */
 public class QLPrecedences {
 
-    // = += -= &= |= *= %=
+    // = += -= &= |= *= /= %= <<= >>=
     // 0;
 
     // ?:
@@ -36,16 +36,22 @@ public class QLPrecedences {
     // << >> >>>
     public static final int BIT_MOVE = 9;
 
+    // in like
+    public static final int IN_LIKE = 10;
+
     // + -
-    public static final int ADD = 10;
+    public static final int ADD = 11;
 
     // * / %
-    public static final int MULTI = 11;
+    public static final int MULTI = 12;
 
     // ! ++ -- ~ + -
-    public static final int UNARY = 12;
+    public static final int UNARY = 13;
+
+    // ++ -- in suffix, like i++
+    public static final int UNARY_SUFFIX = 14;
 
     // ()
-    public static final int GROUP = 13;
+    public static final int GROUP = 15;
 
 }
