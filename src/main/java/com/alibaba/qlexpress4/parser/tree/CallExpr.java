@@ -4,20 +4,20 @@ import com.alibaba.qlexpress4.parser.Token;
 
 import java.util.List;
 
-public class MethodCallExpr extends Expr {
+public class CallExpr extends Expr {
 
-    private final Expr objectExpr;
+    private final Expr target;
 
     private final List<Expr> arguments;
 
-    public MethodCallExpr(Token keyToken, Expr objectExpr, List<Expr> arguments) {
+    public CallExpr(Token keyToken, Expr target, List<Expr> arguments) {
         super(keyToken);
-        this.objectExpr = objectExpr;
+        this.target = target;
         this.arguments = arguments;
     }
 
-    public Expr getObjectExpr() {
-        return objectExpr;
+    public Expr getTarget() {
+        return target;
     }
 
     public List<Expr> getArguments() {

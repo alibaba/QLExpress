@@ -7,20 +7,20 @@ import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.Break;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.Continue;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
 import com.alibaba.qlexpress4.parser.tree.ForStmt;
+import com.alibaba.qlexpress4.parser.tree.CallExpr;
 import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
+import com.alibaba.qlexpress4.parser.tree.GroupExpr;
 import com.alibaba.qlexpress4.parser.tree.IdExpr;
 import com.alibaba.qlexpress4.parser.tree.Identifier;
 import com.alibaba.qlexpress4.parser.tree.IfStmt;
 import com.alibaba.qlexpress4.parser.tree.ImportStmt;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
 import com.alibaba.qlexpress4.parser.tree.MacroStmt;
-import com.alibaba.qlexpress4.parser.tree.MethodCallExpr;
 import com.alibaba.qlexpress4.parser.tree.NewExpr;
 import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
@@ -28,25 +28,34 @@ import com.alibaba.qlexpress4.parser.tree.Return;
 import com.alibaba.qlexpress4.parser.tree.Stmt;
 import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
+import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 import com.alibaba.qlexpress4.parser.tree.VarDeclareStmt;
 import com.alibaba.qlexpress4.parser.tree.WhileStmt;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class QLParser {
+
+    /*
+     * left parent Token position -> token just after right parent token , Optional.empty() when without next token
+     */
+    private final Map<Integer, Optional<Token>> parenNextToken = new HashMap<>();
 
     private final Map<String, Integer> userDefineOperatorsPrecedence;
 
     private final Scanner scanner;
 
-    private Token pre;
+    protected Token pre;
 
-    private Token cur;
+    protected Token cur;
 
     public QLParser(Map<String, Integer> userDefineOperatorsPrecedence, Scanner scanner) {
         this.userDefineOperatorsPrecedence = userDefineOperatorsPrecedence;
@@ -61,6 +70,10 @@ public class QLParser {
         }
 
         return new Program(stmtList);
+    }
+
+    public String getScript() {
+        return scanner.getScript();
     }
 
     private Stmt statement() {
@@ -216,7 +229,7 @@ public class QLParser {
         return new FunctionStmt(functionName.getKeyToken(), functionName, paramList, block);
     }
 
-    private List<VarDecl> parameterList() {
+    protected List<VarDecl> parameterList() {
         Token lParen = pre;
         List<VarDecl> parameterList = new ArrayList<>();
         while (!isEnd()) {
@@ -267,7 +280,7 @@ public class QLParser {
         return parameterList;
     }
 
-    private Block block() {
+    protected Block block() {
         Token keyToken = pre;
         List<Stmt> stmtList = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RBRACE) && !isEnd()) {
@@ -327,15 +340,15 @@ public class QLParser {
         return new ForStmt(keyToken, forInit, condition, forUpdate, body);
     }
 
-    private boolean isEnd() {
+    protected boolean isEnd() {
         return cur == null;
     }
 
-    private boolean matchTypeAndAdvance(TokenType expectType) {
+    protected boolean matchTypeAndAdvance(TokenType expectType) {
         return matchAndAdvance(cur -> Objects.equals(expectType, cur.getType()));
     }
 
-    private boolean matchAndAdvance(Predicate<Token> predicate) {
+    protected boolean matchAndAdvance(Predicate<Token> predicate) {
         if (isEnd()) {
             return false;
         }
@@ -355,24 +368,24 @@ public class QLParser {
         return id;
     }
 
-    private void advanceOrReportError(TokenType expectType, String reason) {
+    protected void advanceOrReportError(TokenType expectType, String reason) {
         if (isEnd() || !Objects.equals(cur.getType(), expectType)) {
             throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre, reason));
         }
         advance();
     }
 
-    private boolean matchKeyWordAndAdvance(String keyword) {
+    protected boolean matchKeyWordAndAdvance(String keyword) {
         return matchAndAdvance(cur ->
                 Objects.equals(TokenType.KEY_WORD, cur.getType()) && Objects.equals(keyword, cur.getLexeme()));
     }
 
-    private void advance() {
+    protected void advance() {
         pre = cur;
         cur = scanner.next();
     }
 
-    private Expr expr() {
+    protected Expr expr() {
         Expr leftExpr = exprInner();
         if (matchAndAdvance(this::isAssignOperator)) {
             // assign operator is right associative
@@ -406,54 +419,58 @@ public class QLParser {
 
     enum GroupType {GROUP, LAMBDA, CAST}
 
-    private GroupType lookAheadRParenNextToken() {
-        Token lParenToken = pre;
-        final byte maybeCast = 1;
-        final byte waitRParen = 2;
-        final byte afterRParen = 3;
-
-        if (isEnd()) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
-                    "can not find ')' to match"));
-        }
-        byte state = cur.getType() == TokenType.TYPE? maybeCast: waitRParen;
-        while (true) {
-            Token ahead = scanner.lookAhead();
-            switch (state) {
-                case maybeCast:
-                    if (ahead == null) {
-                        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
-                                "can not find ')' to match"));
-                    }
-                    if (ahead.getType() == TokenType.RPAREN) {
-                        scanner.back();
-                        return GroupType.CAST;
-                    }
-                    state = waitRParen;
-                    break;
-                case waitRParen:
-                    if (ahead == null) {
-                        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
-                                "can not find ')' to match"));
-                    }
-                    if (ahead.getType() == TokenType.RPAREN) {
-                        state = afterRParen;
-                    }
-                    break;
-                case afterRParen:
+    protected GroupType lookAheadGroupType() {
+        Token rParenNextToken = lookAheadRParenNextToken(true);
+        if (rParenNextToken == null || rParenNextToken.getType() == TokenType.ADD ||
+                rParenNextToken.getType() == TokenType.SUB ||
+                rParenNextToken.getType() == TokenType.INC ||
+                rParenNextToken.getType() == TokenType.DEC) {
+            // + - is prefix and middle operator in same time
+            // so we need to handle expression like `(int) -1`
+            if (cur != null && cur.getType() == TokenType.TYPE) {
+                Token expectRParen = scanner.lookAhead();
+                if (expectRParen != null && expectRParen.getType() == TokenType.RPAREN) {
                     scanner.back();
-                    if (ahead == null || ahead.getType() == TokenType.SEMI || getMiddleOpPrecedence(ahead) != null) {
-                        return GroupType.GROUP;
-                    } else if (ahead.getType() == TokenType.ARROW) {
-                        return GroupType.LAMBDA;
-                    } else {
-                        return GroupType.CAST;
-                    }
-                default:
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
-                            "invalid state, maybe a bug"));
+                    return GroupType.CAST;
+                }
             }
+            scanner.back();
         }
+
+        return rParenNextToken != null && rParenNextToken.getType() == TokenType.ARROW?
+                GroupType.LAMBDA: GroupType.GROUP;
+    }
+
+    private Token lookAheadRParenNextToken(boolean preLParen) {
+        Token lParen = preLParen? pre: cur;
+        if (parenNextToken.containsKey(lParen.getPos())) {
+            // get next token from cache
+            return parenNextToken.get(lParen.getPos()).orElse(null);
+        }
+
+        Token token = lookAheadRParenNextTokenInner(preLParen, lParen);
+        scanner.back();
+        return token;
+    }
+
+    private Token lookAheadRParenNextTokenInner(boolean fromCur, Token lParenToken) {
+        Token ahead = fromCur? cur: scanner.lookAhead();
+        while (true) {
+            if (ahead == null) {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
+                        "can not find ')' to match"));
+            }
+            if (ahead.getType() == TokenType.RPAREN) {
+                break;
+            }
+            ahead = ahead.getType() == TokenType.LPAREN?
+                    lookAheadRParenNextTokenInner(false, ahead):
+                    scanner.lookAhead();
+        }
+
+        Token nextToken = scanner.lookAhead();
+        parenNextToken.put(lParenToken.getPos(), Optional.ofNullable(nextToken));
+        return nextToken;
     }
 
     private LambdaExpr lambdaExpr() {
@@ -471,20 +488,39 @@ public class QLParser {
         return new LambdaExpr(keyToken, params, blockBody, exprBody);
     }
 
-    private Expr parsePrecedence(int precedence) {
-        Expr left = parsePrefixAndAdvance();
+    protected Expr parsePrecedence(int precedence) {
+        Expr left = ParseRuleRegister.parsePrefixAndAdvance(this);
 
-        while (gePrecedenceAndAdvance(precedence)) {
-            left = parseMiddleAndAdvance(left);
+        while (true) {
+            if (gePrecedenceAndAdvance(precedence)) {
+                left = parseMiddleAndAdvance(left);
+            } else if (!isEnd() && left instanceof GroupExpr && ParseRuleRegister.isPrefixToken(cur)) {
+                // force cast
+                Expr nextUnary = parsePrecedence(QLPrecedences.UNARY);
+                left = new CallExpr(left.getKeyToken(), left, Collections.singletonList(nextUnary));
+            } else {
+                break;
+            }
         }
         return left;
     }
 
     private Expr parseMiddleAndAdvance(Expr left) {
         if (pre.getType() == TokenType.LPAREN) {
+            Token lookAheadToken = lookAheadRParenNextToken(true);
+            if (lookAheadToken != null && lookAheadToken.getType() == TokenType.ARROW) {
+                if (!(left instanceof GroupExpr)) {
+                    // only with a force cast, group expr allow in middle
+                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
+                            "invalid expression"));
+                }
+                // lambda expression
+                LambdaExpr lambdaExpr = lambdaExpr();
+                return new CallExpr(left.getKeyToken(), left, Collections.singletonList(lambdaExpr));
+            }
             Token keyToken = pre;
             List<Expr> arguments = argumentList();
-            return new MethodCallExpr(keyToken, left, arguments);
+            return new CallExpr(keyToken, left, arguments);
         } else if (pre.getType() == TokenType.DOT) {
             // field call
             if (matchTypeAndAdvance(TokenType.ID)) {
@@ -500,6 +536,23 @@ public class QLParser {
         } else {
             throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
                     pre, "unknown middle operator"));
+        }
+    }
+
+    private boolean canForceCast(Token token) {
+        switch (token.getType()) {
+            case ID:
+            case LPAREN:
+            case NUMBER:
+            case STRING:
+                return true;
+            case KEY_WORD:
+                return KeyWordsSet.NULL.equals(token.getLexeme()) ||
+                        KeyWordsSet.TRUE.equals(token.getLexeme()) ||
+                        KeyWordsSet.FALSE.equals(token.getLexeme()) ||
+                        KeyWordsSet.NEW.equals(token.getLexeme());
+            default:
+                return false;
         }
     }
 
@@ -530,61 +583,26 @@ public class QLParser {
         return opPrecedence;
     }
 
-    private Expr parsePrefixAndAdvance() {
-        if (matchTypeAndAdvance(TokenType.LPAREN)) {
-            // group / lambda / type cast
-            GroupType groupType = lookAheadRParenNextToken();
-            switch (groupType) {
-                case GROUP:
-                    return groupExpr();
-                case LAMBDA:
-                    return lambdaExpr();
-                case CAST:
-                    return castExpr();
-                default:
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
-                            "unknown group type, maybe a bug"));
-            }
-        } else if (matchKeyWordAndAdvance(KeyWordsSet.NEW)) {
-            // new object
-            return newExpr();
-        } else if (matchTypeAndAdvance(TokenType.NUMBER) || matchTypeAndAdvance(TokenType.STRING)) {
-            return new ConstExpr(pre, pre.getLiteral());
-        } else if (matchKeyWordAndAdvance(KeyWordsSet.NULL)) {
-            return new ConstExpr(pre, null);
-        } else if (matchTypeAndAdvance(TokenType.ID)) {
-            return new IdExpr(pre);
-        } else if (matchTypeAndAdvance(TokenType.LBRACK)) {
-            // list literal
-            return null;
-        } else if (matchAndAdvance(cur -> QLPrecedences.getPrefixPrecedence(cur) != null)) {
-            int tokenPrecedence = QLPrecedences.getPrefixPrecedence(pre);
-            return new PrefixUnaryOpExpr(pre, parsePrecedence(tokenPrecedence + 1));
-        } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    isEnd()? pre: cur, "invalid expression"));
-        }
-    }
-
     private Expr castExpr() {
-        Token keyToken = pre;
-        Identifier castTargetClz;
-        if (matchTypeAndAdvance(TokenType.TYPE) || matchTypeAndAdvance(TokenType.ID)) {
-            castTargetClz = new Identifier(pre);
+        Token castTypeToken;
+        if (matchTypeAndAdvance(TokenType.TYPE)) {
+            castTypeToken = pre;
         } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
                     "invalid type cast"));
         }
 
         advanceOrReportError(TokenType.RPAREN, "expect ')'");
         // cast precedence just below unary
-        return new CastExpr(keyToken, castTargetClz, parsePrecedence(QLPrecedences.UNARY));
+        return new CallExpr(castTypeToken, new TypeExpr(castTypeToken),
+                Collections.singletonList(parsePrecedence(QLPrecedences.UNARY)));
     }
 
     private Expr groupExpr() {
+        Token keyToken = pre;
         Expr groupExpr = expr();
         advanceOrReportError(TokenType.RPAREN, "invalid expression, expect ')'");
-        return groupExpr;
+        return new GroupExpr(keyToken, groupExpr);
     }
 
     private Expr newExpr() {
@@ -596,7 +614,7 @@ public class QLParser {
         return new NewExpr(newToken, new Identifier(clazzToken), argumentList());
     }
 
-    private List<Expr> argumentList() {
+    protected List<Expr> argumentList() {
         Token lParen = pre;
         List<Expr> arguments = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RPAREN)) {

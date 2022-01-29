@@ -3,19 +3,21 @@ package com.alibaba.qlexpress4.parser;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
+import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
+import com.alibaba.qlexpress4.parser.tree.CallExpr;
 import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
+import com.alibaba.qlexpress4.parser.tree.GroupExpr;
 import com.alibaba.qlexpress4.parser.tree.IdExpr;
 import com.alibaba.qlexpress4.parser.tree.Identifier;
 import com.alibaba.qlexpress4.parser.tree.ImportStmt;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.MethodCallExpr;
 import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.parser.tree.Stmt;
 import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
+import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 import org.junit.Test;
 
@@ -75,7 +77,7 @@ public class QLParserTest {
         assertEquals("java.lang.Boolean", param1.getType().getKeyToken().getLiteral());
         assertEquals("b", param1.getVariable().getKeyToken().getLexeme());
         VarDecl param2 = params.get(2);
-        assertEquals("MyClz", param2.getType().getKeyToken().getLiteral());
+        assertEquals("MyClz", param2.getType().getKeyToken().getLexeme());
         assertEquals("myC", param2.getVariable().getKeyToken().getLexeme());
     }
 
@@ -88,7 +90,7 @@ public class QLParserTest {
         BinaryOpExpr right = (BinaryOpExpr) binaryOpExpr.getRight();
         assertEquals(TokenType.MUL, right.getKeyToken().getType());
         assertEquals("2", right.getLeft().getKeyToken().getLexeme());
-        BinaryOpExpr group = (BinaryOpExpr) right.getRight();
+        BinaryOpExpr group = (BinaryOpExpr) ((GroupExpr) right.getRight()).getExpr();
         assertEquals(TokenType.ADD, group.getKeyToken().getType());
         assertEquals("4", group.getLeft().getKeyToken().getLexeme());
         assertEquals("5", group.getRight().getKeyToken().getLexeme());
@@ -123,15 +125,26 @@ public class QLParserTest {
     @Test
     public void typeCastTest() {
         Program program = parse("(int)-4");
-        CastExpr castExpr = (CastExpr) program.getStmtList().get(0);
-        assertEquals("java.lang.Integer", castExpr.getCastTarget().getKeyToken().getLiteral());
-        PrefixUnaryOpExpr prefixUnaryOpExpr = (PrefixUnaryOpExpr) castExpr.getExpr();
+        CallExpr castExpr = (CallExpr) program.getStmtList().get(0);
+        assertTrue(castExpr.getTarget() instanceof TypeExpr);
+        assertEquals("java.lang.Integer", castExpr.getTarget().getKeyToken().getLiteral());
+        PrefixUnaryOpExpr prefixUnaryOpExpr = (PrefixUnaryOpExpr) castExpr.getArguments().get(0);
         assertEquals(TokenType.SUB, prefixUnaryOpExpr.getKeyToken().getType());
         assertEquals("4", prefixUnaryOpExpr.getExpr().getKeyToken().getLexeme());
 
         Program program1 = parse("(Integer)-4");
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program1.getStmtList().get(0);
-        assertEquals("Integer", binaryOpExpr.getLeft().getKeyToken().getLexeme());
+        assertEquals("Integer", ((GroupExpr) binaryOpExpr.getLeft()).getExpr().getKeyToken().getLexeme());
+
+        Program program2 = parse("(int)i+++(long)++i");
+        System.out.println(program2);
+        BinaryOpExpr binaryOpExpr2 = (BinaryOpExpr) program2.getStmtList().get(0);
+        CallExpr leftCast = (CallExpr) binaryOpExpr2.getLeft();
+        assertTrue(((GroupExpr) leftCast.getTarget()).getExpr() instanceof TypeExpr);
+        assertTrue(leftCast.getArguments().get(0) instanceof SuffixUnaryOpExpr);
+        CallExpr rightCast = (CallExpr) binaryOpExpr2.getRight();
+        assertTrue(((GroupExpr) leftCast.getTarget()).getExpr() instanceof TypeExpr);
+        assertTrue(rightCast.getArguments().get(0) instanceof PrefixUnaryOpExpr);
     }
 
     @Test
@@ -145,6 +158,21 @@ public class QLParserTest {
                 .map(Identifier::getKeyToken)
                 .map(Token::getLexeme)
                 .collect(Collectors.toList()));
+
+        assertErrReport("cc (a, b, c) -> c+d", "[Error: invalid expression]\n" +
+                "[Near: cc (a, b, c) -]\n" +
+                "          ^\n" +
+                "[Line: 1, Column: 4]");
+    }
+
+    @Test
+    public void lambdaForceTest() {
+        Program program = parse("1+((Function) (a, b, c) -> c+d).apply(1)+2");
+        System.out.println(program);
+        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
+        assertTrue(binaryOpExpr.getLeft() instanceof BinaryOpExpr);
+        BinaryOpExpr left = (BinaryOpExpr) binaryOpExpr.getLeft();
+        assertTrue(left.getLeft() instanceof ConstExpr);
     }
 
     @Test
@@ -167,13 +195,13 @@ public class QLParserTest {
     public void methodCallTest() {
         Program program = parse("a.c()+d.m(1,2)");
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
-        MethodCallExpr left = (MethodCallExpr) binaryOpExpr.getLeft();
+        CallExpr left = (CallExpr) binaryOpExpr.getLeft();
         assertTrue(left.getArguments().isEmpty());
-        FieldCallExpr objectExpr = (FieldCallExpr) left.getObjectExpr();
+        FieldCallExpr objectExpr = (FieldCallExpr) left.getTarget();
         assertEquals("a", objectExpr.getExpr().getKeyToken().getLexeme());
         assertEquals("c", objectExpr.getAttribute().getKeyToken().getLexeme());
-        MethodCallExpr right = (MethodCallExpr) binaryOpExpr.getRight();
-        assertTrue(right.getObjectExpr() instanceof FieldCallExpr);
+        CallExpr right = (CallExpr) binaryOpExpr.getRight();
+        assertTrue(right.getTarget() instanceof FieldCallExpr);
         assertEquals(Arrays.asList("1", "2"), right.getArguments().stream()
                 .map(Expr::getKeyToken)
                 .map(Token::getLexeme)

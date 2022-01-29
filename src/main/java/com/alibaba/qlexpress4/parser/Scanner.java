@@ -25,9 +25,9 @@ public class Scanner {
 
     private int pos;
 
-    private Queue<Token> lookAheadQueue = new LinkedList<>();
+    private LinkedList<Token> lookAheadQueue = new LinkedList<>();
 
-    private Queue<Token> backQueue = new LinkedList<>();
+    private LinkedList<Token> backQueue = new LinkedList<>();
 
     public Scanner(String script, QLOptions qlOptions) {
         this.script = script;
@@ -195,7 +195,7 @@ public class Scanner {
      */
     public void back() {
         while (!lookAheadQueue.isEmpty()) {
-            backQueue.add(lookAheadQueue.remove());
+            backQueue.addFirst(lookAheadQueue.removeLast());
         }
     }
 
@@ -219,10 +219,18 @@ public class Scanner {
         String typeLiteral = BuiltInTypesSet.getLiteral(tokenCharSeq);
         if (typeLiteral != null) {
             return newTokenWithLiteral(TokenType.TYPE, tokenCharSeq, typeLiteral);
+        } else
+        // key word with literal
+        if (KeyWordsSet.TRUE.equals(tokenCharSeq)) {
+            return newTokenWithLiteral(TokenType.KEY_WORD, tokenCharSeq, true);
+        } else if (KeyWordsSet.FALSE.equals(tokenCharSeq)) {
+            return newTokenWithLiteral(TokenType.KEY_WORD, tokenCharSeq, false);
+        } else if (KeyWordsSet.NULL.equals(tokenCharSeq)) {
+            return newTokenWithLiteral(TokenType.KEY_WORD, tokenCharSeq, null);
+        } else {
+            // normal key word without literal
+            return newToken(KeyWordsSet.isKeyWord(tokenCharSeq)? TokenType.KEY_WORD: TokenType.ID, tokenCharSeq);
         }
-
-        return newTokenWithLiteral(KeyWordsSet.isKeyWord(tokenCharSeq)? TokenType.KEY_WORD: TokenType.ID,
-                tokenCharSeq, tokenCharSeq);
     }
 
     private boolean isDigit(char c) {
