@@ -136,14 +136,26 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program1.getStmtList().get(0);
         assertEquals("Integer", ((GroupExpr) binaryOpExpr.getLeft()).getExpr().getKeyToken().getLexeme());
 
+        assertErrReport("(int)i+++(Long)++i", "[Error: invalid expression]\n" +
+                "[Near: ++(Long)++i]\n" +
+                "                 ^\n" +
+                "[Line: 1, Column: 18]");
+
+        Program program2 = parse("+(int)3L");
+        PrefixUnaryOpExpr unaryOpExpr = (PrefixUnaryOpExpr) program2.getStmtList().get(0);
+        assertEquals(TokenType.ADD, unaryOpExpr.getKeyToken().getType());
+        assertEquals("3L", ((CallExpr) unaryOpExpr.getExpr()).getArguments().get(0).getKeyToken().getLexeme());
+    }
+
+    @Test
+    public void typeCastGroupTest() {
         Program program2 = parse("(int)i+++(long)++i");
-        System.out.println(program2);
         BinaryOpExpr binaryOpExpr2 = (BinaryOpExpr) program2.getStmtList().get(0);
         CallExpr leftCast = (CallExpr) binaryOpExpr2.getLeft();
         assertTrue(((GroupExpr) leftCast.getTarget()).getExpr() instanceof TypeExpr);
         assertTrue(leftCast.getArguments().get(0) instanceof SuffixUnaryOpExpr);
         CallExpr rightCast = (CallExpr) binaryOpExpr2.getRight();
-        assertTrue(((GroupExpr) leftCast.getTarget()).getExpr() instanceof TypeExpr);
+        assertTrue(rightCast.getTarget() instanceof TypeExpr);
         assertTrue(rightCast.getArguments().get(0) instanceof PrefixUnaryOpExpr);
     }
 
@@ -168,11 +180,15 @@ public class QLParserTest {
     @Test
     public void lambdaForceTest() {
         Program program = parse("1+((Function) (a, b, c) -> c+d).apply(1)+2");
-        System.out.println(program);
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         assertTrue(binaryOpExpr.getLeft() instanceof BinaryOpExpr);
         BinaryOpExpr left = (BinaryOpExpr) binaryOpExpr.getLeft();
         assertTrue(left.getLeft() instanceof ConstExpr);
+        CallExpr leftRight = (CallExpr) left.getRight();
+        FieldCallExpr fieldCallExpr = (FieldCallExpr) leftRight.getTarget();
+        CallExpr castExpr = (CallExpr) ((GroupExpr) fieldCallExpr.getExpr()).getExpr();
+        assertEquals("Function", ((GroupExpr) castExpr.getTarget()).getExpr().getKeyToken().getLexeme());
+        assertTrue(castExpr.getArguments().get(0) instanceof LambdaExpr);
     }
 
     @Test
@@ -206,6 +222,18 @@ public class QLParserTest {
                 .map(Expr::getKeyToken)
                 .map(Token::getLexeme)
                 .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void nestCallTest() {
+        Program program = parse("fun(1)(2)(3)");
+        CallExpr call3 = (CallExpr) program.getStmtList().get(0);
+        assertEquals("3", call3.getArguments().get(0).getKeyToken().getLexeme());
+        CallExpr call2 = (CallExpr) call3.getTarget();
+        assertEquals("2", call2.getArguments().get(0).getKeyToken().getLexeme());
+        CallExpr call1 = (CallExpr) call2.getTarget();
+        assertEquals("1", call1.getArguments().get(0).getKeyToken().getLexeme());
+        assertEquals("fun", call1.getTarget().getKeyToken().getLexeme());
     }
 
     private void assertErrReport(String script, String expectReport) {

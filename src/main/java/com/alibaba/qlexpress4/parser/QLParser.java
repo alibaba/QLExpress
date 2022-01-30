@@ -7,7 +7,6 @@ import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.Break;
-import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.Continue;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
@@ -21,14 +20,11 @@ import com.alibaba.qlexpress4.parser.tree.IfStmt;
 import com.alibaba.qlexpress4.parser.tree.ImportStmt;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
 import com.alibaba.qlexpress4.parser.tree.MacroStmt;
-import com.alibaba.qlexpress4.parser.tree.NewExpr;
-import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.parser.tree.Return;
 import com.alibaba.qlexpress4.parser.tree.Stmt;
 import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
-import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 import com.alibaba.qlexpress4.parser.tree.VarDeclareStmt;
 import com.alibaba.qlexpress4.parser.tree.WhileStmt;
@@ -492,14 +488,23 @@ public class QLParser {
         Expr left = ParseRuleRegister.parsePrefixAndAdvance(this);
 
         while (true) {
-            if (gePrecedenceAndAdvance(precedence)) {
+            Integer curOpPrecedence = getCurOpPrecedence();
+            if (curOpPrecedence != null && curOpPrecedence >= precedence) {
+                advance();
                 left = parseMiddleAndAdvance(left);
+            } else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
+                    cur.getType() == TokenType.RPAREN || cur.getType() == TokenType.RBRACE ||
+                    // expression in argument list, list literal etc.
+                    cur.getType() == TokenType.COMMA) {
+                break;
             } else if (!isEnd() && left instanceof GroupExpr && ParseRuleRegister.isPrefixToken(cur)) {
                 // force cast
                 Expr nextUnary = parsePrecedence(QLPrecedences.UNARY);
                 left = new CallExpr(left.getKeyToken(), left, Collections.singletonList(nextUnary));
             } else {
-                break;
+                throw new QLSyntaxException(ReportTemplate.report(
+                        scanner.getScript(), isEnd()? pre: cur, "invalid expression"
+                ));
             }
         }
         return left;
@@ -539,23 +544,6 @@ public class QLParser {
         }
     }
 
-    private boolean canForceCast(Token token) {
-        switch (token.getType()) {
-            case ID:
-            case LPAREN:
-            case NUMBER:
-            case STRING:
-                return true;
-            case KEY_WORD:
-                return KeyWordsSet.NULL.equals(token.getLexeme()) ||
-                        KeyWordsSet.TRUE.equals(token.getLexeme()) ||
-                        KeyWordsSet.FALSE.equals(token.getLexeme()) ||
-                        KeyWordsSet.NEW.equals(token.getLexeme());
-            default:
-                return false;
-        }
-    }
-
     private boolean isAssignOperator(Token opToken) {
         switch (opToken.getType()) {
             case ASSIGN:
@@ -583,37 +571,6 @@ public class QLParser {
         return opPrecedence;
     }
 
-    private Expr castExpr() {
-        Token castTypeToken;
-        if (matchTypeAndAdvance(TokenType.TYPE)) {
-            castTypeToken = pre;
-        } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
-                    "invalid type cast"));
-        }
-
-        advanceOrReportError(TokenType.RPAREN, "expect ')'");
-        // cast precedence just below unary
-        return new CallExpr(castTypeToken, new TypeExpr(castTypeToken),
-                Collections.singletonList(parsePrecedence(QLPrecedences.UNARY)));
-    }
-
-    private Expr groupExpr() {
-        Token keyToken = pre;
-        Expr groupExpr = expr();
-        advanceOrReportError(TokenType.RPAREN, "invalid expression, expect ')'");
-        return new GroupExpr(keyToken, groupExpr);
-    }
-
-    private Expr newExpr() {
-        Token newToken = pre;
-        advanceOrReportError(TokenType.ID, "invalid class name");
-        Token clazzToken = pre;
-        advanceOrReportError(TokenType.LPAREN, "expect '(' for arguments");
-
-        return new NewExpr(newToken, new Identifier(clazzToken), argumentList());
-    }
-
     protected List<Expr> argumentList() {
         Token lParen = pre;
         List<Expr> arguments = new ArrayList<>();
@@ -630,18 +587,10 @@ public class QLParser {
         return arguments;
     }
 
-    private boolean gePrecedenceAndAdvance(int precedence) {
+    public Integer getCurOpPrecedence() {
         if (isEnd()) {
-            return false;
+            return null;
         }
-        Integer opPrecedence = getMiddleOpPrecedence(cur);
-        if (opPrecedence == null) {
-            return false;
-        }
-        boolean geAdvance = opPrecedence >= precedence;
-        if (geAdvance) {
-            advance();
-        }
-        return geAdvance;
+        return getMiddleOpPrecedence(cur);
     }
 }

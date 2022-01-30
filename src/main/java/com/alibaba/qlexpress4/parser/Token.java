@@ -62,7 +62,7 @@ public class Token {
     }
 
     public String toString() {
-        return pos + ":Line " + line + ":Col " + col + " " + type + " " + lexeme + " " +
+        return pos + ":Line " + line + ":Col " + (col - 1) + " " + type + " " + lexeme + " " +
                 (literal == null? "": literal);
     }
 

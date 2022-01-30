@@ -331,6 +331,7 @@ public class Scanner {
         final byte end = 3;
 
         byte state = init;
+        StringBuilder lexemeBuilder = new StringBuilder().append(previous());
         StringBuilder numberBuilder = new StringBuilder().append(previous());
         char numType = 0;
         while (!isEnd() && state != end) {
@@ -338,9 +339,11 @@ public class Scanner {
             switch (state) {
                 case init:
                     if (isDigit(cur)) {
+                        lexemeBuilder.append(cur);
                         numberBuilder.append(cur);
                         advance();
                     } else if (cur == '.') {
+                        lexemeBuilder.append('.');
                         numberBuilder.append('.');
                         advance();
                         numType = 'd';
@@ -348,67 +351,69 @@ public class Scanner {
                     } else if (isInVisible(cur) || SplitCharsSet.isSplitChar(cur)) {
                         state = end;
                     } else if (isNumberTypeFlag(cur)) {
-                        numberBuilder.append(cur);
+                        lexemeBuilder.append(cur);
                         advance();
                         numType = cur;
                         state = numTypePart;
                     } else {
-                        numberBuilder.append(cur);
+                        lexemeBuilder.append(cur);
                         advance();
                         throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                numberBuilder.toString(), "invalid number"));
+                                lexemeBuilder.toString(), "invalid number"));
                     }
                     continue;
                 case decimalPart:
                     if (isDigit(cur)) {
+                        lexemeBuilder.append(cur);
                         numberBuilder.append(cur);
                         advance();
                     } else if (isInVisible(cur) || SplitCharsSet.isSplitChar(cur)) {
                         state = end;
                     } else if (isNumberTypeFlag(cur)) {
-                        numberBuilder.append(cur);
+                        lexemeBuilder.append(cur);
                         advance();
                         numType = cur;
                         state = numTypePart;
                     } else {
-                        numberBuilder.append(cur);
+                        lexemeBuilder.append(cur);
                         advance();
                         throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                numberBuilder.toString(), "invalid number"));
+                                lexemeBuilder.toString(), "invalid number"));
                     }
                     continue;
                 case numTypePart:
                     if (isInVisible(cur)) {
                         state = end;
                     } else {
-                        numberBuilder.append(cur);
+                        lexemeBuilder.append(cur);
                         advance();
                         throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                numberBuilder.toString(), "invalid number"));
+                                lexemeBuilder.toString(), "invalid number"));
                     }
                     continue;
             }
         }
 
-        String lexeme = numberBuilder.toString();
+        String lexeme = lexemeBuilder.toString();
+        String numberStr = numberBuilder.toString();
         Number literal;
         if (qlOptions.isPrecise()) {
-            literal = new BigDecimal(lexeme);
+            literal = new BigDecimal(numberStr);
         } else if (numType == 0) {
-            literal = Integer.parseInt(lexeme);
+            literal = Integer.parseInt(numberStr);
         } else {
             switch (numType) {
                 case 'f':
                 case 'F':
-                    literal = Float.parseFloat(lexeme);
+                    literal = Float.parseFloat(numberStr);
                     break;
                 case 'd':
                 case 'D':
-                    literal = Double.parseDouble(lexeme);
+                    literal = Double.parseDouble(numberStr);
                     break;
                 case 'l':
                 case 'L':
-                    literal = Long.parseLong(lexeme);
+                    literal = Long.parseLong(numberStr);
                     break;
                 default:
                     throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
