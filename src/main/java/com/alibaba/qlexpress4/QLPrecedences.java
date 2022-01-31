@@ -7,10 +7,10 @@ package com.alibaba.qlexpress4;
 public class QLPrecedences {
 
     // = += -= &= |= *= /= %= <<= >>=
-    // 0;
+    public static final int ASSIGN = 0;
 
     // ?:
-    // 1;
+    public static final int TERNARY = 1;
 
     // || or
     public static final int OR = 2;
