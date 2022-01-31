@@ -102,6 +102,21 @@ public class QLPrecedences {
             case LPAREN:
                 // method call
                 return GROUP;
+                // assign operators
+            case ASSIGN:
+            case ADD_ASSIGN:
+            case SUB_ASSIGN:
+            case AND_ASSIGN:
+            case OR_ASSIGN:
+            case MUL_ASSIGN:
+            case MOD_ASSIGN:
+            case LSHIFT_ASSIGN:
+            case RSHIFT_ASSIGN:
+            case URSHIFT_ASSIGN:
+            case DIV_ASSIGN:
+                return ASSIGN;
+            case QUESTION:
+                return TERNARY;
             case KEY_WORD:
                 if (KeyWordsSet.OR.equals(token.getLexeme())) {
                     return OR;

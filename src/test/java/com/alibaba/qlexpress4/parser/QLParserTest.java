@@ -1,7 +1,9 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.Expr;
@@ -17,6 +19,7 @@ import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.parser.tree.Stmt;
 import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
+import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
 import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 import org.junit.Test;
@@ -24,11 +27,61 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class QLParserTest {
+
+    @Test
+    public void assignTest() {
+        // assign is right-associative
+        Program p0 = parse("a = b += 10");
+        AssignExpr assignExpr = (AssignExpr) p0.getStmtList().get(0);
+        assertEquals("a", assignExpr.getLeft().getKeyToken().getLexeme());
+        assertEquals(TokenType.ASSIGN, assignExpr.getKeyToken().getType());
+        AssignExpr nestAssign = (AssignExpr) assignExpr.getRight();
+        assertEquals(TokenType.ADD_ASSIGN, nestAssign.getKeyToken().getType());
+        assertEquals("b", nestAssign.getLeft().getKeyToken().getLexeme());
+        assertEquals("10", nestAssign.getRight().getKeyToken().getLexeme());
+    }
+
+    @Test
+    public void ternaryTest() {
+        Program p0 = parse("10>9? 99: 8");
+        TernaryExpr ternaryExpr = (TernaryExpr) p0.getStmtList().get(0);
+        BinaryOpExpr condition = (BinaryOpExpr) ternaryExpr.getCondition();
+        assertEquals("10", condition.getLeft().getKeyToken().getLexeme());
+        assertEquals("9", condition.getRight().getKeyToken().getLexeme());
+        assertEquals("99", ternaryExpr.getThenExpr().getKeyToken().getLexeme());
+        assertEquals("8", ternaryExpr.getElseExpr().getKeyToken().getLexeme());
+
+        Program p1 = parse("a = 10>9? 999: 88");
+        AssignExpr assignExpr = (AssignExpr) p1.getStmtList().get(0);
+        assertEquals("a", assignExpr.getLeft().getKeyToken().getLexeme());
+        TernaryExpr rightExpr = (TernaryExpr) assignExpr.getRight();
+        assertTrue(rightExpr.getCondition() instanceof BinaryOpExpr);
+        assertEquals("999", rightExpr.getThenExpr().getKeyToken().getLexeme());
+        assertEquals("88", rightExpr.getElseExpr().getKeyToken().getLexeme());
+
+        Program p2 = parse("10>9? 3>=2? 22: 33: 88");
+        TernaryExpr thenNestParentTernary = (TernaryExpr) p2.getStmtList().get(0);
+        assertTrue(thenNestParentTernary.getThenExpr() instanceof TernaryExpr);
+        assertTrue(thenNestParentTernary.getElseExpr() instanceof ConstExpr);
+
+        Program p3 = parse("10>9? 88: 3>2? 19: 23");
+        TernaryExpr elseNestParentTernary = (TernaryExpr) p3.getStmtList().get(0);
+        assertTrue(elseNestParentTernary.getThenExpr() instanceof ConstExpr);
+        assertTrue(elseNestParentTernary.getElseExpr() instanceof TernaryExpr);
+
+        // ?: take precedence over assign, so equals to `(10>9? a)=(10: b)=99`, which can not find match `:` to `?`
+        // this expression is also invalid in Java
+        assertErrReport("10>9? a=10: b=99", "[Error: can not find ':' to match '?']\n" +
+                "[Near: 10>9? a=10: b=9]\n" +
+                "           ^\n" +
+                "[Line: 1, Column: 5]");
+    }
 
     @Test
     public void invalidImportTest() {
@@ -171,6 +224,11 @@ public class QLParserTest {
                 .map(Token::getLexeme)
                 .collect(Collectors.toList()));
 
+        Program programLambdaOperand = parse("c testOp (a, b, c) -> c+d");
+        BinaryOpExpr testOp = (BinaryOpExpr) programLambdaOperand.getStmtList().get(0);
+        assertTrue(testOp.getLeft() instanceof IdExpr);
+        assertTrue(testOp.getRight() instanceof LambdaExpr);
+
         assertErrReport("cc (a, b, c) -> c+d", "[Error: invalid expression]\n" +
                 "[Near: cc (a, b, c) -]\n" +
                 "          ^\n" +
@@ -245,6 +303,8 @@ public class QLParserTest {
     }
 
     private Program parse(String script) {
-        return new QLParser(new HashMap<>(), new Scanner(script, QLOptions.DEFAULT_OPTIONS)).parse();
+        Map<String, Integer> mockUserOperator = new HashMap<>();
+        mockUserOperator.put("testOp", QLPrecedences.MULTI);
+        return new QLParser(mockUserOperator, new Scanner(script, QLOptions.DEFAULT_OPTIONS)).parse();
     }
 }

@@ -16,4 +16,16 @@ public class TernaryExpr extends Expr {
         this.thenExpr = thenExpr;
         this.elseExpr = elseExpr;
     }
+
+    public Expr getCondition() {
+        return condition;
+    }
+
+    public Expr getThenExpr() {
+        return thenExpr;
+    }
+
+    public Expr getElseExpr() {
+        return elseExpr;
+    }
 }

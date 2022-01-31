@@ -365,8 +365,12 @@ public class QLParser {
     }
 
     protected void advanceOrReportError(TokenType expectType, String reason) {
+        advanceOrReportErrorWithToken(expectType, reason, pre);
+    }
+
+    private void advanceOrReportErrorWithToken(TokenType expectType, String reason, Token reportToken) {
         if (isEnd() || !Objects.equals(cur.getType(), expectType)) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre, reason));
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), reportToken, reason));
         }
         advance();
     }
@@ -382,35 +386,11 @@ public class QLParser {
     }
 
     protected Expr expr() {
-        Expr leftExpr = exprInner();
-        if (matchAndAdvance(this::isAssignOperator)) {
-            // assign operator is right associative
-            // xx = (yyy)
-            Token keyToken = pre;
-            if (!canAssign(leftExpr)) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        keyToken, "invalid assign"));
-            }
-            Expr rightExpr = expr();
-            return new AssignExpr(keyToken, leftExpr, rightExpr);
-        } else if (matchTypeAndAdvance(TokenType.QUESTION)) {
-            // ?:
-            Token keyToken = pre;
-            Expr thenExpr = exprInner();
-            advanceOrReportError(TokenType.COLON, "can not find ':' to match '?'");
-            Expr elseExpr = expr();
-            return new TernaryExpr(keyToken, leftExpr, thenExpr, elseExpr);
-        }
-
-        return leftExpr;
+        return parsePrecedence(QLPrecedences.ASSIGN);
     }
 
     private boolean canAssign(Expr leftExpr) {
         return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr);
-    }
-
-    private Expr exprInner() {
-        return parsePrecedence(QLPrecedences.OR);
     }
 
     enum GroupType {GROUP, LAMBDA, CAST}
@@ -495,7 +475,9 @@ public class QLParser {
             } else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
                     cur.getType() == TokenType.RPAREN || cur.getType() == TokenType.RBRACE ||
                     // expression in argument list, list literal etc.
-                    cur.getType() == TokenType.COMMA) {
+                    cur.getType() == TokenType.COMMA ||
+                    // ?:
+                    cur.getType() == TokenType.COLON) {
                 break;
             } else if (!isEnd() && left instanceof GroupExpr && ParseRuleRegister.isPrefixToken(cur)) {
                 // force cast
@@ -536,6 +518,22 @@ public class QLParser {
         } else if (pre.getType() == TokenType.INC || pre.getType() == TokenType.DEC) {
             // suffix operator
             return new SuffixUnaryOpExpr(pre, left);
+        } else if (isAssignOperator(pre)) {
+            // assign operator is right-associative
+            Token keyToken = pre;
+            if (!canAssign(left)) {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                        keyToken, "invalid assign target"));
+            }
+            Expr rightExpr = parsePrecedence(QLPrecedences.ASSIGN);
+            return new AssignExpr(keyToken, left, rightExpr);
+        } else if (pre.getType() == TokenType.QUESTION) {
+            // ?:
+            Token keyToken = pre;
+            Expr thenExpr = parsePrecedence(QLPrecedences.TERNARY);
+            advanceOrReportErrorWithToken(TokenType.COLON, "can not find ':' to match '?'", keyToken);
+            Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY);
+            return new TernaryExpr(keyToken, left, thenExpr, elseExpr);
         } else if (getMiddleOpPrecedence(pre) != null) {
             return new BinaryOpExpr(pre, left, parsePrecedence(getMiddleOpPrecedence(pre) + 1));
         } else {

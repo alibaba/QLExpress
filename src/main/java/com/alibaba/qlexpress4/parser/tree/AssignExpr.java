@@ -13,4 +13,12 @@ public class AssignExpr extends Expr {
         this.left = left;
         this.right = right;
     }
+
+    public Expr getLeft() {
+        return left;
+    }
+
+    public Expr getRight() {
+        return right;
+    }
 }
