@@ -5,16 +5,21 @@ import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
+import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
 import com.alibaba.qlexpress4.parser.tree.CallExpr;
+import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
+import com.alibaba.qlexpress4.parser.tree.ForStmt;
 import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
 import com.alibaba.qlexpress4.parser.tree.GroupExpr;
 import com.alibaba.qlexpress4.parser.tree.IdExpr;
 import com.alibaba.qlexpress4.parser.tree.Identifier;
 import com.alibaba.qlexpress4.parser.tree.ImportStmt;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
+import com.alibaba.qlexpress4.parser.tree.ListExpr;
+import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
 import com.alibaba.qlexpress4.parser.tree.NewExpr;
 import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
@@ -29,7 +34,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -164,6 +168,9 @@ public class QLParserTest {
         assertEquals(TokenType.DEC, binaryOpExpr.getRight().getKeyToken().getType());
         SuffixUnaryOpExpr right = (SuffixUnaryOpExpr) binaryOpExpr.getRight();
         assertEquals("5", right.getExpr().getKeyToken().getLexeme());
+
+        Program program1 = parse("i--");
+        assertTrue(program1.getStmtList().get(0) instanceof SuffixUnaryOpExpr);
     }
 
     @Test
@@ -323,7 +330,53 @@ public class QLParserTest {
 
     @Test
     public void listLiteralTest() {
-        Program program = parse("[1+2,3*4,new Integer(12),(a)->a+1] testOp m -> m-1");
+        Program program = parse("[1+2,3*4,new Integer(12),a->a+1] testOp m -> m-1");
+        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
+        assertTrue(binaryOpExpr.getRight() instanceof LambdaExpr);
+        assertTrue(binaryOpExpr.getLeft() instanceof ListExpr);
+        ListExpr listExpr = (ListExpr) binaryOpExpr.getLeft();
+        assertEquals(Arrays.asList(BinaryOpExpr.class, BinaryOpExpr.class, NewExpr.class, LambdaExpr.class),
+                listExpr.getElements().stream()
+                        .map(Object::getClass).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void forTest() {
+        Program program = parse("for (i = 0; i < 3; i++) a+=1");
+        ForStmt forStmt = (ForStmt) program.getStmtList().get(0);
+        assertTrue(forStmt.getForInit() instanceof AssignExpr);
+        assertTrue(forStmt.getCondition() instanceof BinaryOpExpr);
+        assertTrue(forStmt.getForUpdate() instanceof SuffixUnaryOpExpr);
+        assertTrue(forStmt.getBody() instanceof AssignExpr);
+
+        Program program1 = parse("int a=0;" +
+                "for (ii : [12,3,4,4]) {" +
+                "   a+=ii" +
+                "}");
+        assertTrue(program1.getStmtList().get(0) instanceof LocalVarDeclareStmt);
+        ForEachStmt forEachStmt = (ForEachStmt) program1.getStmtList().get(1);
+        VarDecl itVar = forEachStmt.getItVar();
+        assertNull(itVar.getType());
+        assertEquals("ii", itVar.getVariable().getKeyToken().getLexeme());
+        assertTrue(forEachStmt.getTarget() instanceof ListExpr);
+        assertTrue(forEachStmt.getBody() instanceof Block);
+
+        Program program2 = parse("for (int iid : a.b.test()) {" +
+                "   a+=iid" +
+                "}");
+        ForEachStmt forEachStmt2 = (ForEachStmt) program2.getStmtList().get(0);
+        VarDecl itVar2 = forEachStmt2.getItVar();
+        assertEquals("int", itVar2.getType().getKeyToken().getLexeme());
+        assertEquals("iid", itVar2.getVariable().getKeyToken().getLexeme());
+
+        Program program3 = parse("for (int i = 0; i < 3; i++) a+=1");
+        ForStmt forStmt3 = (ForStmt) program3.getStmtList().get(0);
+        assertTrue(forStmt3.getForInit() instanceof LocalVarDeclareStmt);
+        LocalVarDeclareStmt initStmt = (LocalVarDeclareStmt) forStmt3.getForInit();
+        assertTrue(initStmt.getInitializer() instanceof ConstExpr);
+        assertEquals("int", initStmt.getVarDecl().getType().getKeyToken().getLexeme());
+        assertEquals("i", initStmt.getVarDecl().getVariable().getKeyToken().getLexeme());
+        assertEquals("0", initStmt.getInitializer().getKeyToken().getLexeme());
     }
 
     private void assertErrReport(String script, String expectReport) {

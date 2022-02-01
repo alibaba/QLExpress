@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.parser.tree.Break;
 import com.alibaba.qlexpress4.parser.tree.Continue;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
+import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
 import com.alibaba.qlexpress4.parser.tree.ForStmt;
 import com.alibaba.qlexpress4.parser.tree.CallExpr;
 import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
@@ -26,7 +27,7 @@ import com.alibaba.qlexpress4.parser.tree.Stmt;
 import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
-import com.alibaba.qlexpress4.parser.tree.VarDeclareStmt;
+import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
 import com.alibaba.qlexpress4.parser.tree.WhileStmt;
 
 import java.util.ArrayList;
@@ -100,16 +101,16 @@ public class QLParser {
             return singleTokenStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.RETURN)) {
             return returnStmt();
-        } else if (isVarDeclStatement()) {
+        } else if (isLocalVarDeclStatement()) {
             // var declare statement
-            return varDeclareStmt();
-        } else  {
+            return localVarDeclareStmt();
+        } else {
             // expression(primary, assignment, ternary,....)
             return expr();
         }
     }
 
-    private boolean isVarDeclStatement() {
+    private boolean isLocalVarDeclStatement() {
         if (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE) {
             Token ahead1 = scanner.lookAhead();
             if (ahead1 != null && ahead1.getType() == TokenType.ID) {
@@ -124,7 +125,7 @@ public class QLParser {
         return false;
     }
 
-    private VarDeclareStmt varDeclareStmt() {
+    private LocalVarDeclareStmt localVarDeclareStmt() {
         // first three token has been determined
         Token keyToken = cur;
         Identifier type = new Identifier(cur);
@@ -133,10 +134,11 @@ public class QLParser {
         advance();
 
         if (matchTypeAndAdvance(TokenType.SEMI)) {
-            return new VarDeclareStmt(keyToken, type, varName, null);
+            return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
         } else if (matchTypeAndAdvance(TokenType.ASSIGN)) {
             Expr expr = expr();
-            return new VarDeclareStmt(keyToken, type, varName, expr);
+            advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+            return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), expr);
         }
         throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
                 "invalid variable declaration statement"));
@@ -312,13 +314,47 @@ public class QLParser {
         return new WhileStmt(keyToken, condition, body);
     }
 
-    private ForStmt forStmt() {
-        Token keyToken = pre;
+    private Stmt forStmt() {
+        Token forToken = pre;
         advanceOrReportError(TokenType.LPAREN, "expect '(' in for statement");
-        Expr forInit = null;
+        return isForEach()? forEachStmt(forToken): traditionalForStmt(forToken);
+    }
+
+    private ForEachStmt forEachStmt(Token forToken) {
+        VarDecl itVar;
+        if (matchTypeAndAdvance(TokenType.TYPE) || matchTypeAndAdvance(TokenType.ID)) {
+            Token maybeType = pre;
+            if (matchTypeAndAdvance(TokenType.COLON)) {
+                itVar = new VarDecl(null, new Identifier(maybeType));
+            } else if (matchTypeAndAdvance(TokenType.ID)) {
+                itVar = new VarDecl(new Identifier(maybeType), new Identifier(pre));
+                advanceOrReportError(TokenType.COLON, "expect ':' in for-each statement");
+            } else {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                        lastToken(), "invalid for each variable declare"));
+            }
+        } else {
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                    lastToken(), "invalid for each variable declare"));
+        }
+
+        Expr target = expr();
+
+        advanceOrReportError(TokenType.RPAREN, "expect ')' in for-each statement");
+
+        Stmt body = statement();
+        return new ForEachStmt(forToken, itVar, target, body);
+    }
+
+    private ForStmt traditionalForStmt(Token forToken) {
+        Stmt forInit = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
-            forInit = expr();
-            advanceOrReportError(TokenType.SEMI, "expect ';' in for statement");
+            if (isLocalVarDeclStatement()) {
+                forInit = localVarDeclareStmt();
+            } else {
+                forInit = expr();
+                advanceOrReportError(TokenType.SEMI, "expect ';' in for statement");
+            }
         }
         Expr condition = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
@@ -328,12 +364,27 @@ public class QLParser {
         Expr forUpdate = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
             forUpdate = expr();
-            advanceOrReportError(TokenType.SEMI, "expect ';' in for statement");
         }
         advanceOrReportError(TokenType.RPAREN, "expect ')' in for statement");
 
         Stmt body = statement();
-        return new ForStmt(keyToken, forInit, condition, forUpdate, body);
+        return new ForStmt(forToken, forInit, condition, forUpdate, body);
+    }
+
+    private boolean isForEach() {
+        boolean result = false;
+        for (int i = 0; i < 3; i++) {
+            Token l1 = scanner.lookAhead();
+            if (l1 == null) {
+                break;
+            }
+            if (l1.getType() == TokenType.COLON) {
+                result = true;
+                break;
+            }
+        }
+        scanner.back();
+        return result;
     }
 
     protected boolean isEnd() {
@@ -591,10 +642,14 @@ public class QLParser {
         return arguments;
     }
 
-    public Integer getCurOpPrecedence() {
+    private Integer getCurOpPrecedence() {
         if (isEnd()) {
             return null;
         }
         return getMiddleOpPrecedence(cur);
+    }
+
+    private Token lastToken() {
+        return isEnd()? pre: cur;
     }
 }
