@@ -11,11 +11,13 @@ import com.alibaba.qlexpress4.parser.tree.GroupExpr;
 import com.alibaba.qlexpress4.parser.tree.IdExpr;
 import com.alibaba.qlexpress4.parser.tree.Identifier;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
+import com.alibaba.qlexpress4.parser.tree.ListExpr;
 import com.alibaba.qlexpress4.parser.tree.NewExpr;
 import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -151,7 +153,25 @@ class IdRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return new IdExpr(parser.pre);
+        Token idToken = parser.pre;
+        if (parser.matchTypeAndAdvance(TokenType.ARROW)) {
+            // single param lambda expression
+            Token lambdaKeyToken = parser.pre;
+            if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
+                return new LambdaExpr(lambdaKeyToken,
+                        Collections.singletonList(
+                                new VarDecl(null, new Identifier(idToken))
+                        ),
+                        parser.block(), null);
+            } else {
+                return new LambdaExpr(lambdaKeyToken,
+                        Collections.singletonList(
+                                new VarDecl(null, new Identifier(idToken))
+                        ),
+                        null, parser.expr());
+            }
+        }
+        return new IdExpr(idToken);
     }
 }
 
@@ -175,12 +195,24 @@ class LBrackRule extends OperatorParseRule {
 
     @Override
     public boolean prefixCondition(Token cur) {
-        return false;
+        return cur.getType() == TokenType.LBRACK;
     }
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return null;
+        Token keyToken = parser.pre;
+        List<Expr> elements = new ArrayList<>();
+        while (!parser.matchTypeAndAdvance(TokenType.RBRACK)) {
+            if (parser.isEnd()) {
+                throw new QLSyntaxException(ReportTemplate.report(parser.getScript(),
+                        keyToken, "can not find ']' to match"));
+            }
+            if (!elements.isEmpty()) {
+                parser.advanceOrReportError(TokenType.COMMA, "expect ',' between elements");
+            }
+            elements.add(parser.expr());
+        }
+        return new ListExpr(keyToken, elements);
     }
 }
 

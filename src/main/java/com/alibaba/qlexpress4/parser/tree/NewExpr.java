@@ -15,4 +15,12 @@ public class NewExpr extends Expr {
         this.clazz = clazz;
         this.arguments = arguments;
     }
+
+    public Identifier getClazz() {
+        return clazz;
+    }
+
+    public List<Expr> getArguments() {
+        return arguments;
+    }
 }

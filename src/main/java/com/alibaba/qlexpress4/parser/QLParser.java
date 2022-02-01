@@ -474,6 +474,8 @@ public class QLParser {
                 left = parseMiddleAndAdvance(left);
             } else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
                     cur.getType() == TokenType.RPAREN || cur.getType() == TokenType.RBRACE ||
+                    // list literal
+                    cur.getType() == TokenType.RBRACK ||
                     // expression in argument list, list literal etc.
                     cur.getType() == TokenType.COMMA ||
                     // ?:
@@ -573,6 +575,10 @@ public class QLParser {
         Token lParen = pre;
         List<Expr> arguments = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RPAREN)) {
+            if (isEnd()) {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParen,
+                        "can not find ')' to match"));
+            }
             if (!arguments.isEmpty()) {
                 advanceOrReportError(TokenType.COMMA, "expect ',' between arguments");
             }

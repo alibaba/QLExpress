@@ -15,6 +15,7 @@ import com.alibaba.qlexpress4.parser.tree.IdExpr;
 import com.alibaba.qlexpress4.parser.tree.Identifier;
 import com.alibaba.qlexpress4.parser.tree.ImportStmt;
 import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
+import com.alibaba.qlexpress4.parser.tree.NewExpr;
 import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.parser.tree.Stmt;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -229,6 +231,11 @@ public class QLParserTest {
         assertTrue(testOp.getLeft() instanceof IdExpr);
         assertTrue(testOp.getRight() instanceof LambdaExpr);
 
+        Program singleParamLambda = parse("a -> a+1");
+        LambdaExpr singleParamLambdaExpr = (LambdaExpr) singleParamLambda.getStmtList().get(0);
+        assertEquals(1, singleParamLambdaExpr.getParameters().size());
+        assertEquals("a", singleParamLambdaExpr.getParameters().get(0).getVariable().getKeyToken().getLexeme());
+
         assertErrReport("cc (a, b, c) -> c+d", "[Error: invalid expression]\n" +
                 "[Near: cc (a, b, c) -]\n" +
                 "          ^\n" +
@@ -247,6 +254,13 @@ public class QLParserTest {
         CallExpr castExpr = (CallExpr) ((GroupExpr) fieldCallExpr.getExpr()).getExpr();
         assertEquals("Function", ((GroupExpr) castExpr.getTarget()).getExpr().getKeyToken().getLexeme());
         assertTrue(castExpr.getArguments().get(0) instanceof LambdaExpr);
+
+        Program program1 = parse("(Function) x -> x+2");
+        System.out.println(program1);
+        CallExpr cast1 = (CallExpr) program1.getStmtList().get(0);
+        GroupExpr target1 = (GroupExpr) cast1.getTarget();
+        assertEquals("Function", target1.getExpr().getKeyToken().getLexeme());
+        assertTrue(cast1.getArguments().get(0) instanceof LambdaExpr);
     }
 
     @Test
@@ -292,6 +306,24 @@ public class QLParserTest {
         CallExpr call1 = (CallExpr) call2.getTarget();
         assertEquals("1", call1.getArguments().get(0).getKeyToken().getLexeme());
         assertEquals("fun", call1.getTarget().getKeyToken().getLexeme());
+    }
+
+    @Test
+    public void newTest() {
+        Program program = parse("new Integer(1,2,3) + 1");
+        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
+        NewExpr newExpr = (NewExpr) binaryOpExpr.getLeft();
+        assertEquals(3, newExpr.getArguments().size());
+
+        assertErrReport("new Ttt(1*9-0", "[Error: can not find ')' to match]\n" +
+                "[Near: new Ttt(1*9-0]\n" +
+                "              ^\n" +
+                "[Line: 1, Column: 8]");
+    }
+
+    @Test
+    public void listLiteralTest() {
+        Program program = parse("[1+2,3*4,new Integer(12),(a)->a+1] testOp m -> m-1");
     }
 
     private void assertErrReport(String script, String expectReport) {
