@@ -494,6 +494,12 @@ public class QLParserTest {
         assertEquals("int", builtInTypeArgs.get(0).getType().getType().getKeyToken().getLexeme());
         assertEquals(TokenType.TYPE, builtInTypeArgs.get(1).getType().getType().getKeyToken().getType());
         assertEquals("long", builtInTypeArgs.get(1).getType().getType().getKeyToken().getLexeme());
+
+        Program program1 = parse("(List<?>)");
+        GroupExpr groupExpr = (GroupExpr) program1.getStmtList().get(0);
+        TypeExpr typeExpr = (TypeExpr) groupExpr.getExpr();
+        DeclType questionType = typeExpr.getDeclType().getTypeArguments().get(0).getType();
+        assertEquals(TokenType.QUESTION, questionType.getType().getKeyToken().getType());
     }
 
     @Test

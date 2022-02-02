@@ -272,8 +272,8 @@ public class QLParser {
                             lastToken(), "invalid bound type in type argument"));
                 }
             } else {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        lastToken(), "invalid type argument bound, try 'extends' or 'super'"));
+                return new DeclTypeArgument(new DeclType(new Identifier(pre), Collections.emptyList()),
+                        DeclTypeArgument.Bound.NONE);
             }
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
             return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);
