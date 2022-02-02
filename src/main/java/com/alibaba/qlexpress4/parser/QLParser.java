@@ -316,6 +316,7 @@ public class QLParser {
 
     private ImportStmt importStmt() {
         Token importToken = pre;
+        boolean staticImport = matchKeyWordAndAdvance(KeyWordsSet.STATIC);
         Token prePackToken = null;
         StringBuilder path = new StringBuilder();
 
@@ -327,7 +328,7 @@ public class QLParser {
                             scanner.getScript(), importToken, "invalid import"
                     ));
                 }
-                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path.toString());
+                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path.toString(), staticImport);
             } else if (matchTypeAndAdvance(TokenType.ID)) {
                 if (prePackToken != null) {
                     path.append('.');
@@ -335,15 +336,15 @@ public class QLParser {
                 prePackToken = pre;
                 path.append(prePackToken.getLexeme());
                 if (matchTypeAndAdvance(TokenType.SEMI)) {
-                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path.toString());
+                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path.toString(), staticImport);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
                     throw new QLSyntaxException(ReportTemplate.report(
-                            scanner.getScript(), pre, "import must end with ';'"
+                            scanner.getScript(), lastToken(), "expect '.' between package"
                     ));
                 }
             } else {
                 throw new QLSyntaxException(ReportTemplate.report(
-                        scanner.getScript(), cur, "import must end with ';'"
+                        scanner.getScript(), lastToken(), "invalid package to import"
                 ));
             }
         }

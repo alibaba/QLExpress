@@ -23,14 +23,21 @@ public class ImportStmt extends Stmt {
     private final String path;
 
     /**
+     * import static
+     */
+    private final boolean staticImport;
+
+    /**
      * @param keyToken last import package symbol, for example, java.util.function.Function,  is `Function`
      * @param importType
      * @param path
+     * @param staticImport
      */
-    public ImportStmt(Token keyToken, ImportType importType, String path) {
+    public ImportStmt(Token keyToken, ImportType importType, String path, boolean staticImport) {
         super(keyToken);
         this.importType = importType;
         this.path = path;
+        this.staticImport = staticImport;
     }
 
     public ImportType getImportType() {
@@ -39,5 +46,9 @@ public class ImportStmt extends Stmt {
 
     public String getPath() {
         return path;
+    }
+
+    public boolean isStaticImport() {
+        return staticImport;
     }
 }

@@ -92,13 +92,7 @@ public class QLParserTest {
     }
 
     @Test
-    public void invalidImportTest() {
-        String script = "import a.b.cc int d";
-        assertErrReport(script, "[Error: import must end with ';']\n" +
-                "[Near: mport a.b.cc int d]\n" +
-                "                 ^^\n" +
-                "[Line: 1, Column: 12]");
-
+    public void importTest() {
         Program p0 = parse("import a.b.Cc;");
         List<Stmt> stmtList = p0.getStmtList();
         ImportStmt importStmt = (ImportStmt) stmtList.get(0);
@@ -112,6 +106,21 @@ public class QLParserTest {
         assertEquals(ImportStmt.ImportType.PREFIX, importStmt1.getImportType());
         assertEquals("ab.bb", importStmt1.getPath());
         assertEquals("bb", importStmt1.getKeyToken().getLexeme());
+        assertFalse(importStmt1.isStaticImport());
+
+        Program p2 = parse("import static ab.Assert.*;");
+        List<Stmt> stmtList2 = p2.getStmtList();
+        ImportStmt importStmt2 = (ImportStmt) stmtList2.get(0);
+        assertTrue(importStmt2.isStaticImport());
+
+        assertErrReport("import a.b.cc int d", "[Error: expect '.' between package]\n" +
+                "[Near: rt a.b.cc int d]\n" +
+                "                 ^^^\n" +
+                "[Line: 1, Column: 15]");
+        assertErrReport("import;", "[Error: invalid package to import]\n" +
+                "[Near: import;]\n" +
+                "             ^\n" +
+                "[Line: 1, Column: 7]");
     }
 
     @Test

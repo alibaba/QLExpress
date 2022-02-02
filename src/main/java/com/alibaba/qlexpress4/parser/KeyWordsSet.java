@@ -26,6 +26,8 @@ public class KeyWordsSet {
 
     public static final String IMPORT = "import";
 
+    public static final String STATIC = "static";
+
     // embed unboxed data type
     public static final String BYTE = "byte";
 
@@ -80,6 +82,7 @@ public class KeyWordsSet {
             case FUNCTION:
             case MACRO:
             case IMPORT:
+            case STATIC:
             case BYTE:
             case SHORT:
             case INT:
