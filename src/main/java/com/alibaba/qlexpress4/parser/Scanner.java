@@ -122,28 +122,39 @@ public class Scanner {
                     return matchAndAdvance('=')? newToken(TokenType.NOTEQUAL, "!="):
                             newToken(TokenType.BANG, "!");
                 case '<':
+                    Token ltToken = newToken(TokenType.LT, "<");
                     if (matchAndAdvance('=')) {
                         return newToken(TokenType.LE, "<=");
                     } else if (matchAndAdvance('<')) {
-                        return matchAndAdvance('=')?
-                                newToken(TokenType.LSHIFT_ASSIGN, "<<="):
-                                newToken(TokenType.LSHIFT, "<<");
+                        if (matchAndAdvance('=')) {
+                            return newToken(TokenType.LSHIFT_ASSIGN, "<<=");
+                        } else {
+                            backQueue.addLast(newToken(TokenType.LT, "<"));
+                            return ltToken;
+                        }
                     } else {
                         return newToken(TokenType.LT, "<");
                     }
                 case '>':
+                    Token gtToken = newToken(TokenType.GT, ">");
                     if (matchAndAdvance('=')) {
                         return newToken(TokenType.GE, ">=");
                     } else if (matchAndAdvance('>')) {
+                        Token gtGtToken = newToken(TokenType.GT, ">");
                         if (matchAndAdvance('=')) {
                             return newToken(TokenType.RSHIFT_ASSIGN, ">>=");
                         } else if (matchAndAdvance('>')) {
                             // >>>
-                            return matchAndAdvance('=')?
-                                    newToken(TokenType.URSHIFT_ASSIGN, ">>>="):
-                                    newToken(TokenType.URSHIFT, ">>>");
+                            if (matchAndAdvance('=')) {
+                                return newToken(TokenType.URSHIFT_ASSIGN, ">>>=");
+                            } else {
+                                backQueue.addLast(gtGtToken);
+                                backQueue.addLast(newToken(TokenType.GT, ">"));
+                                return gtToken;
+                            }
                         } else {
-                            return newToken(TokenType.RSHIFT, ">>");
+                            backQueue.addLast(gtGtToken);
+                            return gtToken;
                         }
                     } else {
                         return newToken(TokenType.GT, ">");

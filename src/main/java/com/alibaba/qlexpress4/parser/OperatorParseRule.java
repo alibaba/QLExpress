@@ -6,6 +6,8 @@ import com.alibaba.qlexpress4.exception.ReportTemplate;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.CallExpr;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
+import com.alibaba.qlexpress4.parser.tree.DeclType;
+import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.GroupExpr;
 import com.alibaba.qlexpress4.parser.tree.IdExpr;
@@ -106,7 +108,9 @@ class LParenRule extends OperatorParseRule {
 
         parser.advanceOrReportError(TokenType.RPAREN, "expect ')'");
         // cast precedence just below unary
-        return new CallExpr(castTypeToken, new TypeExpr(castTypeToken),
+        return new CallExpr(castTypeToken,
+                new TypeExpr(castTypeToken,
+                        new DeclType(new Identifier(castTypeToken), Collections.emptyList())),
                 Collections.singletonList(parser.parsePrecedence(QLPrecedences.UNARY)));
     }
 }
@@ -170,6 +174,14 @@ class IdRule extends OperatorParseRule {
                         ),
                         null, parser.expr());
             }
+        } else if (!parser.isEnd() && parser.cur.getType() == TokenType.LT) {
+            Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur);
+            if (gtNextToken != null && gtNextToken.getType() == TokenType.RPAREN) {
+                // generic type argument
+                parser.advance();
+                List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
+                return new TypeExpr(idToken, new DeclType(new Identifier(idToken), typeArguments));
+            }
         }
         return new IdExpr(idToken);
     }
@@ -184,7 +196,7 @@ class TypeRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return new TypeExpr(parser.pre);
+        return new TypeExpr(parser.pre, new DeclType(new Identifier(parser.pre), Collections.emptyList()));
     }
 }
 

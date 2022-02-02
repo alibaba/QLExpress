@@ -25,8 +25,8 @@ class ParseRuleRegister {
                 return rule.prefixParse(parser);
             }
         }
-        throw new QLSyntaxException(ReportTemplate.report(parser.getScript(),
-                parser.isEnd()? parser.pre: parser.cur, "invalid expression"));
+        throw new QLSyntaxException(ReportTemplate.report(parser.getScript(), parser.lastToken(),
+                "invalid expression"));
     }
 
     protected static boolean isPrefixToken(Token token) {

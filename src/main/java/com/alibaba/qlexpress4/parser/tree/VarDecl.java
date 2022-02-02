@@ -2,16 +2,16 @@ package com.alibaba.qlexpress4.parser.tree;
 
 public class VarDecl {
 
-    private final Identifier type;
+    private final DeclType type;
 
     private final Identifier variable;
 
-    public VarDecl(Identifier type, Identifier variable) {
+    public VarDecl(DeclType type, Identifier variable) {
         this.type = type;
         this.variable = variable;
     }
 
-    public Identifier getType() {
+    public DeclType getType() {
         return type;
     }
 

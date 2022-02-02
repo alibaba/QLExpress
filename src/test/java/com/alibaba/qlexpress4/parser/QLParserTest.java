@@ -7,6 +7,8 @@ import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
+import com.alibaba.qlexpress4.parser.tree.DeclType;
+import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
 import com.alibaba.qlexpress4.parser.tree.CallExpr;
@@ -55,7 +57,7 @@ public class QLParserTest {
 
     @Test
     public void ternaryTest() {
-        Program p0 = parse("10>9? 99: 8");
+        Program p0 = parse("10<9? 99: 8");
         TernaryExpr ternaryExpr = (TernaryExpr) p0.getStmtList().get(0);
         BinaryOpExpr condition = (BinaryOpExpr) ternaryExpr.getCondition();
         assertEquals("10", condition.getLeft().getKeyToken().getLexeme());
@@ -115,12 +117,12 @@ public class QLParserTest {
     @Test
     public void functionStmtTest() {
         assertErrReport("function test(weew",
-                "[Error: incomplete parameter list, miss ')']\n" +
+                "[Error: can not find ')' to match it]\n" +
                         "[Near: ction test(weew]\n" +
                         "                 ^\n" +
                         "[Line: 1, Column: 14]");
         assertErrReport("function ttt(int if)",
-                "[Error: invalid parameter name]\n" +
+                "[Error: invalid variable name]\n" +
                         "[Near: n ttt(int if)]\n" +
                         "                 ^^\n" +
                         "[Line: 1, Column: 18]");
@@ -130,13 +132,13 @@ public class QLParserTest {
         assertEquals("myTest", functionStmt.getName().getKeyToken().getLexeme());
         List<VarDecl> params = functionStmt.getParams();
         VarDecl param0 = params.get(0);
-        assertEquals("java.lang.Integer", param0.getType().getKeyToken().getLiteral());
+        assertEquals("java.lang.Integer", param0.getType().getType().getKeyToken().getLiteral());
         assertEquals("a", param0.getVariable().getKeyToken().getLexeme());
         VarDecl param1 = params.get(1);
-        assertEquals("java.lang.Boolean", param1.getType().getKeyToken().getLiteral());
+        assertEquals("java.lang.Boolean", param1.getType().getType().getKeyToken().getLiteral());
         assertEquals("b", param1.getVariable().getKeyToken().getLexeme());
         VarDecl param2 = params.get(2);
-        assertEquals("MyClz", param2.getType().getKeyToken().getLexeme());
+        assertEquals("MyClz", param2.getType().getType().getKeyToken().getLexeme());
         assertEquals("myC", param2.getVariable().getKeyToken().getLexeme());
     }
 
@@ -153,6 +155,45 @@ public class QLParserTest {
         assertEquals(TokenType.ADD, group.getKeyToken().getType());
         assertEquals("4", group.getLeft().getKeyToken().getLexeme());
         assertEquals("5", group.getRight().getKeyToken().getLexeme());
+
+        Program program1 = parse("a<2 && b>3");
+        assertTrue(program1.getStmtList().get(0) instanceof BinaryOpExpr);
+    }
+
+    @Test
+    public void bitMoveTest() {
+        Program lShift = parse("a << 2");
+        BinaryOpExpr lShiftExpr = (BinaryOpExpr) lShift.getStmtList().get(0);
+        assertEquals(TokenType.LSHIFT, lShiftExpr.getKeyToken().getType());
+
+        Program rShift = parse("a >> 2");
+        BinaryOpExpr rShiftExpr = (BinaryOpExpr) rShift.getStmtList().get(0);
+        assertEquals(TokenType.RSHIFT, rShiftExpr.getKeyToken().getType());
+
+        Program urShift = parse("a >>> 2");
+        BinaryOpExpr urShiftExpr = (BinaryOpExpr) urShift.getStmtList().get(0);
+        assertEquals(TokenType.URSHIFT, urShiftExpr.getKeyToken().getType());
+
+        assertErrReport("a < <", "[Error: invalid expression]\n" +
+                "[Near: a < <]\n" +
+                "           ^\n" +
+                "[Line: 1, Column: 5]");
+        assertErrReport("a <<", "[Error: invalid expression]\n" +
+                "[Near: a <<]\n" +
+                "         ^^\n" +
+                "[Line: 1, Column: 3]");
+        assertErrReport("a >>", "[Error: invalid expression]\n" +
+                "[Near: a >>]\n" +
+                "         ^^\n" +
+                "[Line: 1, Column: 3]");
+        assertErrReport("a >>>", "[Error: invalid expression]\n" +
+                "[Near: a >>>]\n" +
+                "         ^^^\n" +
+                "[Line: 1, Column: 3]");
+        assertErrReport("a >> > 1", "[Error: invalid expression]\n" +
+                "[Near: a >> > 1]\n" +
+                "            ^\n" +
+                "[Line: 1, Column: 6]");
     }
 
     @Test
@@ -207,6 +248,11 @@ public class QLParserTest {
         PrefixUnaryOpExpr unaryOpExpr = (PrefixUnaryOpExpr) program2.getStmtList().get(0);
         assertEquals(TokenType.ADD, unaryOpExpr.getKeyToken().getType());
         assertEquals("3L", ((CallExpr) unaryOpExpr.getExpr()).getArguments().get(0).getKeyToken().getLexeme());
+
+        Program program3 = parse("(Integer) a.test");
+        CallExpr castFieldCallExpr = (CallExpr) program3.getStmtList().get(0);
+        assertTrue(((GroupExpr) castFieldCallExpr.getTarget()).getExpr() instanceof IdExpr);
+        assertTrue(castFieldCallExpr.getArguments().get(0) instanceof FieldCallExpr);
     }
 
     @Test
@@ -233,7 +279,7 @@ public class QLParserTest {
                 .map(Token::getLexeme)
                 .collect(Collectors.toList()));
 
-        Program programLambdaOperand = parse("c testOp (a, b, c) -> c+d");
+        Program programLambdaOperand = parse("c testOp (a, b, String c) -> c+d");
         BinaryOpExpr testOp = (BinaryOpExpr) programLambdaOperand.getStmtList().get(0);
         assertTrue(testOp.getLeft() instanceof IdExpr);
         assertTrue(testOp.getRight() instanceof LambdaExpr);
@@ -241,7 +287,13 @@ public class QLParserTest {
         Program singleParamLambda = parse("a -> a+1");
         LambdaExpr singleParamLambdaExpr = (LambdaExpr) singleParamLambda.getStmtList().get(0);
         assertEquals(1, singleParamLambdaExpr.getParameters().size());
-        assertEquals("a", singleParamLambdaExpr.getParameters().get(0).getVariable().getKeyToken().getLexeme());
+        assertEquals("a", singleParamLambdaExpr.getParameters().get(0).getVariable()
+                .getKeyToken().getLexeme());
+
+        Program genericLambda = parse("(List<String> l) -> l.get(0)");
+        LambdaExpr genericLambdaExpr = (LambdaExpr) genericLambda.getStmtList().get(0);
+        VarDecl varDecl = genericLambdaExpr.getParameters().get(0);
+        assertEquals(1, varDecl.getType().getTypeArguments().size());
 
         assertErrReport("cc (a, b, c) -> c+d", "[Error: invalid expression]\n" +
                 "[Near: cc (a, b, c) -]\n" +
@@ -263,11 +315,23 @@ public class QLParserTest {
         assertTrue(castExpr.getArguments().get(0) instanceof LambdaExpr);
 
         Program program1 = parse("(Function) x -> x+2");
-        System.out.println(program1);
         CallExpr cast1 = (CallExpr) program1.getStmtList().get(0);
         GroupExpr target1 = (GroupExpr) cast1.getTarget();
         assertEquals("Function", target1.getExpr().getKeyToken().getLexeme());
         assertTrue(cast1.getArguments().get(0) instanceof LambdaExpr);
+
+        Program program2 = parse("(Function<Integer, Long>) x -> x+2");
+        CallExpr callExpr = (CallExpr) program2.getStmtList().get(0);
+        assertTrue(callExpr.getArguments().get(0) instanceof LambdaExpr);
+        TypeExpr typeExpr = (TypeExpr) ((GroupExpr) callExpr.getTarget()).getExpr();
+        DeclType declType = typeExpr.getDeclType();
+        assertEquals("Function", declType.getType().getKeyToken().getLexeme());
+        assertEquals(Arrays.asList("Integer", "Long"), declType.getTypeArguments().stream()
+                .map(DeclTypeArgument::getType)
+                .map(DeclType::getType)
+                .map(Identifier::getKeyToken)
+                .map(Token::getLexeme)
+                .collect(Collectors.toList()));
     }
 
     @Test
@@ -366,7 +430,7 @@ public class QLParserTest {
                 "}");
         ForEachStmt forEachStmt2 = (ForEachStmt) program2.getStmtList().get(0);
         VarDecl itVar2 = forEachStmt2.getItVar();
-        assertEquals("int", itVar2.getType().getKeyToken().getLexeme());
+        assertEquals("int", itVar2.getType().getType().getKeyToken().getLexeme());
         assertEquals("iid", itVar2.getVariable().getKeyToken().getLexeme());
 
         Program program3 = parse("for (int i = 0; i < 3; i++) a+=1");
@@ -374,9 +438,61 @@ public class QLParserTest {
         assertTrue(forStmt3.getForInit() instanceof LocalVarDeclareStmt);
         LocalVarDeclareStmt initStmt = (LocalVarDeclareStmt) forStmt3.getForInit();
         assertTrue(initStmt.getInitializer() instanceof ConstExpr);
-        assertEquals("int", initStmt.getVarDecl().getType().getKeyToken().getLexeme());
+        assertEquals("int", initStmt.getVarDecl().getType().getType().getKeyToken().getLexeme());
         assertEquals("i", initStmt.getVarDecl().getVariable().getKeyToken().getLexeme());
         assertEquals("0", initStmt.getInitializer().getKeyToken().getLexeme());
+
+        Program program4 = parse("for (Entry<int, Test> iid : []);");
+        ForEachStmt forEachStmtGeneric = (ForEachStmt) program4.getStmtList().get(0);
+        VarDecl itVarWithGeneric = forEachStmtGeneric.getItVar();
+        assertEquals(2, itVarWithGeneric.getType().getTypeArguments().size());
+    }
+
+    @Test
+    public void genericTest() {
+        Program program = parse("Map<String, Map<? extends Test, ? super Test2>> m;");
+        LocalVarDeclareStmt localVarDeclareStmt = (LocalVarDeclareStmt) program.getStmtList().get(0);
+        assertNull(localVarDeclareStmt.getInitializer());
+        VarDecl varDecl = localVarDeclareStmt.getVarDecl();
+        assertEquals("m", varDecl.getVariable().getKeyToken().getLexeme());
+        DeclType declType = varDecl.getType();
+        assertEquals("Map", declType.getType().getKeyToken().getLexeme());
+        List<DeclTypeArgument> typeArguments = declType.getTypeArguments();
+        assertEquals(2, typeArguments.size());
+        DeclTypeArgument declTypeArgument = typeArguments.get(0);
+        assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument.getBound());
+        assertEquals("String", declTypeArgument.getType().getType().getKeyToken().getLexeme());
+        DeclTypeArgument declTypeArgument1 = typeArguments.get(1);
+        assertEquals("Map", declTypeArgument1.getType().getType().getKeyToken().getLexeme());
+        assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument1.getBound());
+
+        List<DeclTypeArgument> nestTypeArguments = declTypeArgument1.getType().getTypeArguments();
+        DeclTypeArgument extendsArgument = nestTypeArguments.get(0);
+        assertEquals(DeclTypeArgument.Bound.EXTENDS, extendsArgument.getBound());
+        assertEquals("Test", extendsArgument.getType().getType().getKeyToken().getLexeme());
+
+        DeclTypeArgument superArgument = nestTypeArguments.get(1);
+        assertEquals(DeclTypeArgument.Bound.SUPER, superArgument.getBound());
+        assertEquals("Test2", superArgument.getType().getType().getKeyToken().getLexeme());
+
+        // built-in type argument
+        Program program0 = parse("Map<int, long> m;");
+        VarDecl builtInTypeGenericVarDecl = ((LocalVarDeclareStmt) (program0.getStmtList().get(0))).getVarDecl();
+        DeclType builtInTypeGenericDeclType = builtInTypeGenericVarDecl.getType();
+        assertEquals("Map", builtInTypeGenericDeclType.getType().getKeyToken().getLexeme());
+        List<DeclTypeArgument> builtInTypeArgs = builtInTypeGenericDeclType.getTypeArguments();
+        assertEquals(TokenType.TYPE, builtInTypeArgs.get(0).getType().getType().getKeyToken().getType());
+        assertEquals("int", builtInTypeArgs.get(0).getType().getType().getKeyToken().getLexeme());
+        assertEquals(TokenType.TYPE, builtInTypeArgs.get(1).getType().getType().getKeyToken().getType());
+        assertEquals("long", builtInTypeArgs.get(1).getType().getType().getKeyToken().getLexeme());
+    }
+
+    @Test
+    public void localVarDeclTest() {
+        assertErrReport("int if;", "[Error: invalid variable name]\n" +
+                "[Near: int if;]\n" +
+                "           ^^\n" +
+                "[Line: 1, Column: 5]");
     }
 
     private void assertErrReport(String script, String expectReport) {

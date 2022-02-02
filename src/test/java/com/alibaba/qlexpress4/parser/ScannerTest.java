@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.parser.tree.Program;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -152,6 +153,22 @@ public class ScannerTest {
         assertEquals(14, tokens.get(2).getCol());
     }
 
+    @Test
+    public void genericTest() {
+        Scanner scanner = new Scanner("Map<<S, Map<C>>>",
+                QLOptions.DEFAULT_OPTIONS);
+        List<Token> tokens = scanner2List(scanner);
+        List<String> tokenLexemeList = tokens
+                .stream().map(Token::getLexeme).collect(Collectors.toList());
+        assertEquals(Arrays.asList("Map", "<", "<", "S", ",", "Map", "<", "C", ">", ">", ">"), tokenLexemeList);
+        assertEquals(Arrays.asList(4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 17), tokens.stream().map(Token::getCol)
+                .collect(Collectors.toList()));
+
+        Scanner scanner1 = new Scanner("a < <",
+                QLOptions.DEFAULT_OPTIONS);
+        assertEquals(Arrays.asList("a", "<", "<"), scanner2Strings(scanner1));
+    }
+
     private List<Token> scanner2List(Scanner scanner) {
         Token t;
         List<Token> res = new ArrayList<>();
@@ -159,6 +176,12 @@ public class ScannerTest {
             res.add(t);
         }
         return res;
+    }
+
+    private List<String> scanner2Strings(Scanner scanner) {
+        return scanner2List(scanner).stream()
+                .map(Token::getLexeme)
+                .collect(Collectors.toList());
     }
 
     private void assertErrReport(String script, String expectReport) {

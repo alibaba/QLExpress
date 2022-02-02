@@ -8,6 +8,9 @@ import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.Break;
 import com.alibaba.qlexpress4.parser.tree.Continue;
+import com.alibaba.qlexpress4.parser.tree.DeclType;
+import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
+import com.alibaba.qlexpress4.parser.tree.EmptyStmt;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
 import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
@@ -46,6 +49,12 @@ public class QLParser {
      */
     private final Map<Integer, Optional<Token>> parenNextToken = new HashMap<>();
 
+    /**
+     * for generic type arguments
+     * lt(`<`) Token position -> token just after `>` , Optional.empty() when without next token
+     */
+    private final Map<Integer, Optional<Token>> gtNextToken = new HashMap<>();
+
     private final Map<String, Integer> userDefineOperatorsPrecedence;
 
     private final Scanner scanner;
@@ -74,7 +83,9 @@ public class QLParser {
     }
 
     private Stmt statement() {
-        if (matchTypeAndAdvance(TokenType.LBRACE)) {
+        if (matchTypeAndAdvance(TokenType.SEMI)) {
+            return new EmptyStmt(pre);
+        } else if (matchTypeAndAdvance(TokenType.LBRACE)) {
             // block
             return block();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.IF)) {
@@ -111,27 +122,74 @@ public class QLParser {
     }
 
     private boolean isLocalVarDeclStatement() {
-        if (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE) {
-            Token ahead1 = scanner.lookAhead();
-            if (ahead1 != null && ahead1.getType() == TokenType.ID) {
-                Token ahead2 = scanner.lookAhead();
-                if (ahead2.getType() == TokenType.SEMI || ahead2.getType() == TokenType.ASSIGN) {
-                    scanner.back();
-                    return true;
-                }
-            }
+        Token typeDeclNextToken = lookAheadTypeDeclNextToken();
+        if (typeDeclNextToken == null) {
+            scanner.back();
+            return false;
         }
+        Token expectAssignOrSemi = scanner.lookAhead();
+        boolean res = isTokenType(expectAssignOrSemi, TokenType.ASSIGN) ||
+                isTokenType(expectAssignOrSemi, TokenType.SEMI);
         scanner.back();
-        return false;
+        return res;
+    }
+
+    private Token lookAheadTypeDeclNextToken() {
+        if (cur.getType() == TokenType.ID) {
+            Token maybeVarToken = scanner.lookAhead();
+            if (isTokenType(maybeVarToken, TokenType.LT)) {
+                return lookAheadGtNextToken(maybeVarToken);
+            } else {
+                return maybeVarToken;
+            }
+        } else if (cur.getType() == TokenType.TYPE) {
+            return scanner.lookAhead();
+        } else {
+            return null;
+        }
+    }
+
+    public Token lookAheadGtNextTokenWithCache(Token ltToken) {
+        if (gtNextToken.containsKey(ltToken.getPos())) {
+            return gtNextToken.get(ltToken.getPos()).orElse(null);
+        }
+
+        Token res = lookAheadGtNextToken(ltToken);
+        scanner.back();
+        return res;
+    }
+
+    private Token lookAheadGtNextToken(Token ltToken) {
+        Token ahead = scanner.lookAhead();
+        while (true) {
+            if (ahead == null || ahead.getType() == TokenType.SEMI) {
+                gtNextToken.put(ltToken.getPos(), Optional.empty());
+                return null;
+            }
+            if (ahead.getType() == TokenType.GT) {
+                break;
+            }
+            ahead = ahead.getType() == TokenType.LT?
+                    lookAheadGtNextToken(ahead):
+                    scanner.lookAhead();
+        }
+
+        Token nextToken = scanner.lookAhead();
+        gtNextToken.put(ltToken.getPos(), Optional.ofNullable(nextToken));
+        return nextToken;
     }
 
     private LocalVarDeclareStmt localVarDeclareStmt() {
         // first three token has been determined
         Token keyToken = cur;
-        Identifier type = new Identifier(cur);
-        advance();
-        Identifier varName = new Identifier(cur);
-        advance();
+        DeclType type = declType();
+        Identifier varName;
+        if (matchTypeAndAdvance(TokenType.ID)) {
+            varName = new Identifier(pre);
+        } else {
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
+                    "invalid variable name"));
+        }
 
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
@@ -142,6 +200,78 @@ public class QLParser {
         }
         throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
                 "invalid variable declaration statement"));
+    }
+
+    private VarDecl varDecl() {
+        DeclType maybeType = declType();
+        if (isEnd() || cur.getType() == TokenType.COMMA ||
+                cur.getType() == TokenType.RPAREN ||
+                cur.getType() == TokenType.COLON) {
+            // var without type
+            return new VarDecl(null, maybeType.getType());
+        }
+
+        if (matchTypeAndAdvance(TokenType.ID)) {
+            return new VarDecl(maybeType, new Identifier(pre));
+        } else {
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
+                    "invalid variable name"));
+        }
+    }
+
+    protected DeclType declType() {
+        if (matchTypeAndAdvance(TokenType.TYPE)) {
+            return new DeclType(new Identifier(pre), Collections.emptyList());
+        } else if (matchTypeAndAdvance(TokenType.ID)) {
+            Token typeToken = pre;
+            if (matchTypeAndAdvance(TokenType.LT)) {
+                // generic type arguments
+                return new DeclType(new Identifier(typeToken), typeArgumentList());
+            } else {
+                return new DeclType(new Identifier(typeToken), Collections.emptyList());
+            }
+        }
+        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                lastToken(), "invalid type declare"));
+    }
+
+    protected List<DeclTypeArgument> typeArgumentList() {
+        Token ltToken = pre;
+        List<DeclTypeArgument> typeArguments = new ArrayList<>();
+        while (!matchTypeAndAdvance(TokenType.GT)) {
+            if (isEnd()) {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), ltToken,
+                        "can not find '>' to match"));
+            }
+            if (!typeArguments.isEmpty()) {
+                advanceOrReportError(TokenType.COMMA, "expect ',' between type argument");
+            }
+            typeArguments.add(typeArgument());
+        }
+        return typeArguments;
+    }
+
+    private DeclTypeArgument typeArgument() {
+        if (matchTypeAndAdvance(TokenType.QUESTION)) {
+            // wildcard
+            if (matchKeyWordAndAdvance(KeyWordsSet.EXTENDS) || matchKeyWordAndAdvance(KeyWordsSet.SUPER)) {
+                DeclTypeArgument.Bound bound = KeyWordsSet.EXTENDS.equals(pre.getLexeme())?
+                        DeclTypeArgument.Bound.EXTENDS: DeclTypeArgument.Bound.SUPER;
+                if (!isEnd() && cur.getType() == TokenType.ID) {
+                    return new DeclTypeArgument(declType(), bound);
+                } else {
+                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                            lastToken(), "invalid bound type in type argument"));
+                }
+            } else {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                        lastToken(), "invalid type argument bound, try 'extends' or 'super'"));
+            }
+        } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
+            return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);
+        }
+        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
+                lastToken(), "invalid type declare"));
     }
 
     private Stmt returnStmt() {
@@ -230,49 +360,15 @@ public class QLParser {
     protected List<VarDecl> parameterList() {
         Token lParen = pre;
         List<VarDecl> parameterList = new ArrayList<>();
-        while (!isEnd()) {
-            Identifier maybeType;
-            if (matchTypeAndAdvance(TokenType.TYPE) || matchTypeAndAdvance(TokenType.ID)) {
-                maybeType = new Identifier(pre);
-            } else {
+        while (!matchTypeAndAdvance(TokenType.RPAREN)) {
+            if (isEnd()) {
                 throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        cur, "invalid function param type declaration"));
+                        lParen, "can not find ')' to match it"));
             }
-
-            if (matchTypeAndAdvance(TokenType.COMMA) || matchTypeAndAdvance(TokenType.RPAREN)) {
-                // parameter without type
-                if (maybeType.getKeyToken().getType() == TokenType.TYPE) {
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                            maybeType.getKeyToken(), "invalid parameter name"));
-                }
-                parameterList.add(new VarDecl(null, maybeType));
-                if (pre.getType() == TokenType.RPAREN) {
-                    break;
-                }
+            if (!parameterList.isEmpty()) {
+                advanceOrReportError(TokenType.COMMA, "expect ',' between parameters");
             }
-
-            Identifier paramName;
-            if (matchTypeAndAdvance(TokenType.ID)) {
-                paramName = new Identifier(pre);
-            } else if (isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        lParen, "incomplete parameter list, miss ')'"));
-            } else {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        cur, "invalid parameter name"));
-            }
-
-            if (matchTypeAndAdvance(TokenType.COMMA) || matchTypeAndAdvance(TokenType.RPAREN)) {
-                parameterList.add(new VarDecl(maybeType, paramName));
-                if (pre.getType() == TokenType.RPAREN) {
-                    break;
-                }
-            }
-        }
-
-        if (isEnd()) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    lParen, "can not find ')' to match it"));
+            parameterList.add(varDecl());
         }
 
         return parameterList;
@@ -282,7 +378,11 @@ public class QLParser {
         Token keyToken = pre;
         List<Stmt> stmtList = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RBRACE) && !isEnd()) {
-            stmtList.add(statement());
+            Stmt statement = statement();
+            if (statement instanceof Expr) {
+
+            }
+            stmtList.add(statement);
         }
         return new Block(keyToken, stmtList);
     }
@@ -322,24 +422,10 @@ public class QLParser {
 
     private ForEachStmt forEachStmt(Token forToken) {
         VarDecl itVar;
-        if (matchTypeAndAdvance(TokenType.TYPE) || matchTypeAndAdvance(TokenType.ID)) {
-            Token maybeType = pre;
-            if (matchTypeAndAdvance(TokenType.COLON)) {
-                itVar = new VarDecl(null, new Identifier(maybeType));
-            } else if (matchTypeAndAdvance(TokenType.ID)) {
-                itVar = new VarDecl(new Identifier(maybeType), new Identifier(pre));
-                advanceOrReportError(TokenType.COLON, "expect ':' in for-each statement");
-            } else {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        lastToken(), "invalid for each variable declare"));
-            }
-        } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    lastToken(), "invalid for each variable declare"));
-        }
+        itVar = varDecl();
+        advanceOrReportError(TokenType.COLON, "expect ':' in for-each statement");
 
         Expr target = expr();
-
         advanceOrReportError(TokenType.RPAREN, "expect ')' in for-each statement");
 
         Stmt body = statement();
@@ -372,19 +458,21 @@ public class QLParser {
     }
 
     private boolean isForEach() {
-        boolean result = false;
-        for (int i = 0; i < 3; i++) {
-            Token l1 = scanner.lookAhead();
-            if (l1 == null) {
-                break;
-            }
-            if (l1.getType() == TokenType.COLON) {
-                result = true;
-                break;
-            }
-        }
+        boolean result = isForEachInner();
         scanner.back();
         return result;
+    }
+
+    private boolean isForEachInner() {
+        Token mayBeVarNameToken = lookAheadTypeDeclNextToken();
+        if (mayBeVarNameToken == null) {
+            return false;
+        }
+        if (mayBeVarNameToken.getType() == TokenType.COLON) {
+            return true;
+        }
+        Token expectColon = scanner.lookAhead();
+        return isTokenType(expectColon, TokenType.COLON);
     }
 
     protected boolean isEnd() {
@@ -416,7 +504,7 @@ public class QLParser {
     }
 
     protected void advanceOrReportError(TokenType expectType, String reason) {
-        advanceOrReportErrorWithToken(expectType, reason, pre);
+        advanceOrReportErrorWithToken(expectType, reason, lastToken());
     }
 
     private void advanceOrReportErrorWithToken(TokenType expectType, String reason, Token reportToken) {
@@ -519,6 +607,8 @@ public class QLParser {
         Expr left = ParseRuleRegister.parsePrefixAndAdvance(this);
 
         while (true) {
+            // union bit move op
+            unionOp();
             Integer curOpPrecedence = getCurOpPrecedence();
             if (curOpPrecedence != null && curOpPrecedence >= precedence) {
                 advance();
@@ -538,11 +628,42 @@ public class QLParser {
                 left = new CallExpr(left.getKeyToken(), left, Collections.singletonList(nextUnary));
             } else {
                 throw new QLSyntaxException(ReportTemplate.report(
-                        scanner.getScript(), isEnd()? pre: cur, "invalid expression"
+                        scanner.getScript(), lastToken(), "invalid expression"
                 ));
             }
         }
         return left;
+    }
+
+    private void unionOp() {
+        if (cur == null) {
+            return;
+        }
+        if (cur.getType() == TokenType.LT) {
+            Token ltLt = scanner.lookAhead();
+            scanner.back();
+            if (isTokenType(ltLt, TokenType.LT) && ltLt.getPos() == cur.getPos() + 1) {
+                scanner.next();
+                cur = new Token(TokenType.LSHIFT, "<<", ltLt.getPos(), ltLt.getLine(), ltLt.getCol());
+            }
+        } else if (cur.getType() == TokenType.GT) {
+            Token gtGt = scanner.lookAhead();
+            if (isTokenType(gtGt, TokenType.GT) && gtGt.getPos() == cur.getPos() + 1) {
+                Token gtGtGt = scanner.lookAhead();
+                scanner.back();
+                if (isTokenType(gtGtGt, TokenType.GT) && gtGtGt.getPos() == gtGt.getPos() + 1) {
+                    scanner.next();
+                    scanner.next();
+                    cur = new Token(TokenType.URSHIFT, ">>>", gtGtGt.getPos(), gtGtGt.getLine(),
+                            gtGtGt.getCol());
+                } else {
+                    scanner.next();
+                    cur = new Token(TokenType.RSHIFT, ">>", gtGt.getPos(), gtGt.getLine(), gtGt.getCol());
+                }
+            } else {
+                scanner.back();
+            }
+        }
     }
 
     private Expr parseMiddleAndAdvance(Expr left) {
@@ -649,7 +770,11 @@ public class QLParser {
         return getMiddleOpPrecedence(cur);
     }
 
-    private Token lastToken() {
+    protected Token lastToken() {
         return isEnd()? pre: cur;
+    }
+
+    private boolean isTokenType(Token token, TokenType type) {
+        return token != null && token.getType() == type;
     }
 }

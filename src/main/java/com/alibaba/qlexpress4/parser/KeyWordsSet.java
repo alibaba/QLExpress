@@ -56,6 +56,11 @@ public class KeyWordsSet {
 
     public static final String FALSE = "false";
 
+    // generic
+    public static final String EXTENDS = "extends";
+
+    public static final String SUPER = "super";
+
     // unuseful now, but reserve them for future
     public static final String CLASS = "class";
     public static final String NEW = "new";
@@ -92,6 +97,8 @@ public class KeyWordsSet {
             case CLASS:
             case NEW:
             case THIS:
+            case EXTENDS:
+            case SUPER:
                 return true;
             default:
                 return false;
