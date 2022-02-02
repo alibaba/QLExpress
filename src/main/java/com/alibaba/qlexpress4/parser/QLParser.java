@@ -71,8 +71,16 @@ public class QLParser {
 
     public Program parse() {
         List<Stmt> stmtList = new ArrayList<>();
+        Stmt statement = null;
         while (!isEnd()) {
-            stmtList.add(statement());
+            if (statement instanceof Expr) {
+                advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+                if (isEnd()) {
+                    break;
+                }
+            }
+            statement = statement();
+            stmtList.add(statement);
         }
 
         return new Program(stmtList);
@@ -135,14 +143,14 @@ public class QLParser {
     }
 
     private Token lookAheadTypeDeclNextToken() {
-        if (cur.getType() == TokenType.ID) {
+        if (isTokenType(cur, TokenType.ID)) {
             Token maybeVarToken = scanner.lookAhead();
             if (isTokenType(maybeVarToken, TokenType.LT)) {
                 return lookAheadGtNextToken(maybeVarToken);
             } else {
                 return maybeVarToken;
             }
-        } else if (cur.getType() == TokenType.TYPE) {
+        } else if (isTokenType(cur, TokenType.TYPE)) {
             return scanner.lookAhead();
         } else {
             return null;
@@ -377,13 +385,22 @@ public class QLParser {
     protected Block block() {
         Token keyToken = pre;
         List<Stmt> stmtList = new ArrayList<>();
-        while (!matchTypeAndAdvance(TokenType.RBRACE) && !isEnd()) {
-            Stmt statement = statement();
-            if (statement instanceof Expr) {
-
+        Stmt statement = null;
+        // block end
+        while (!matchTypeAndAdvance(TokenType.RBRACE)) {
+            if (isEnd()) {
+                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
+                        "can not find '}' to match"));
             }
+            if (statement instanceof Expr) {
+                advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+                statement = null;
+                continue;
+            }
+            statement = statement();
             stmtList.add(statement);
         }
+
         return new Block(keyToken, stmtList);
     }
 

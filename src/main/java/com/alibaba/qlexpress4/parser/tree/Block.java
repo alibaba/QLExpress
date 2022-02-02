@@ -12,4 +12,8 @@ public class Block extends Stmt {
         super(keyToken);
         this.stmtList = stmtList;
     }
+
+    public List<Stmt> getStmtList() {
+        return stmtList;
+    }
 }

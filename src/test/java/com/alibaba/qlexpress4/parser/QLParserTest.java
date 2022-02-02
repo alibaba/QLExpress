@@ -495,6 +495,61 @@ public class QLParserTest {
                 "[Line: 1, Column: 5]");
     }
 
+    @Test
+    public void programTest() {
+        Program program = parse("a=2+3;a*9+2");
+        assertEquals(2, program.getStmtList().size());
+        assertTrue(program.getStmtList().get(0) instanceof AssignExpr);
+        assertTrue(program.getStmtList().get(1) instanceof BinaryOpExpr);
+
+        Program program1 = parse("a=2+3;a*9+2;");
+        assertEquals(2, program1.getStmtList().size());
+        assertTrue(program1.getStmtList().get(0) instanceof AssignExpr);
+        assertTrue(program1.getStmtList().get(1) instanceof BinaryOpExpr);
+
+        assertErrReport("1+1)", "[Error: expect ';' in the end of statement]\n" +
+                "[Near: 1+1)]\n" +
+                "          ^\n" +
+                "[Line: 1, Column: 4]");
+        assertErrReport("int a = 2", "[Error: expect ';' in the end of statement]\n" +
+                "[Near: int a = 2]\n" +
+                "               ^\n" +
+                "[Line: 1, Column: 9]");
+    }
+
+    @Test
+    public void blockTest() {
+        Program program = parse("{23}");
+        Block block = (Block) program.getStmtList().get(0);
+        assertTrue(block.getStmtList().get(0) instanceof ConstExpr);
+
+        Program program0 = parse("1;{a=2+3;a*9+2};3");
+        Block block0 = (Block) program0.getStmtList().get(1);
+        assertTrue(block0.getStmtList().get(0) instanceof AssignExpr);
+        assertTrue(block0.getStmtList().get(1) instanceof BinaryOpExpr);
+
+        Program program1 = parse("{23;}");
+        Block block1 = (Block) program1.getStmtList().get(0);
+        assertTrue(block1.getStmtList().get(0) instanceof ConstExpr);
+
+        Program program2 = parse("{23;" +
+                "{" +
+                "  a = 10;" +
+                "  b = 100;" +
+                "}" +
+                "c=1000+1+b" +
+                "}");
+        Block block2 = (Block) program2.getStmtList().get(0);
+        assertTrue(block2.getStmtList().get(0) instanceof ConstExpr);
+        assertTrue(block2.getStmtList().get(1) instanceof Block);
+        assertTrue(block2.getStmtList().get(2) instanceof AssignExpr);
+
+        assertErrReport("{a=123+34", "[Error: can not find '}' to match]\n" +
+                "[Near: {a=123+34]\n" +
+                "       ^\n" +
+                "[Line: 1, Column: 1]");
+    }
+
     private void assertErrReport(String script, String expectReport) {
         try {
             new QLParser(new HashMap<>(), new Scanner(script, QLOptions.DEFAULT_OPTIONS)).parse();
