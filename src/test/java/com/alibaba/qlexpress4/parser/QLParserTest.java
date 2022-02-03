@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.parser;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.parser.tree.ArrayCallExpr;
 import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
@@ -563,6 +564,19 @@ public class QLParserTest {
                 "[Near: {a=123+34]\n" +
                 "       ^\n" +
                 "[Line: 1, Column: 1]");
+    }
+
+    @Test
+    public void arrayCallTest() {
+        Program program = parse("a[12]");
+        ArrayCallExpr arrayCallExpr = (ArrayCallExpr) program.getStmtList().get(0);
+        assertTrue(arrayCallExpr.getTarget() instanceof IdExpr);
+        assertTrue(arrayCallExpr.getIndex() instanceof ConstExpr);
+
+        assertErrReport("a.b[1+34", "[Error: can not find ']' to match]\n" +
+                "[Near: a.b[1+34]\n" +
+                "          ^\n" +
+                "[Line: 1, Column: 4]");
     }
 
     private void assertErrReport(String script, String expectReport) {

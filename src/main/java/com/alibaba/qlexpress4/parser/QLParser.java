@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.parser;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.ReportTemplate;
+import com.alibaba.qlexpress4.parser.tree.ArrayCallExpr;
 import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
 import com.alibaba.qlexpress4.parser.tree.Block;
@@ -44,7 +45,7 @@ import java.util.function.Predicate;
 
 public class QLParser {
 
-    /*
+    /**
      * left parent Token position -> token just after right parent token , Optional.empty() when without next token
      */
     private final Map<Integer, Optional<Token>> parenNextToken = new HashMap<>();
@@ -700,6 +701,11 @@ public class QLParser {
             Token keyToken = pre;
             List<Expr> arguments = argumentList();
             return new CallExpr(keyToken, left, arguments);
+        } else if (pre.getType() == TokenType.LBRACK) {
+            Token keyToken = pre;
+            Expr indexExpr = expr();
+            advanceOrReportErrorWithToken(TokenType.RBRACK, "can not find ']' to match", keyToken);
+            return new ArrayCallExpr(keyToken, left, indexExpr);
         } else if (pre.getType() == TokenType.DOT) {
             // field call
             if (matchTypeAndAdvance(TokenType.ID)) {

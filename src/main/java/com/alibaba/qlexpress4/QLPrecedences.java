@@ -99,6 +99,8 @@ public class QLPrecedences {
                 return UNARY_SUFFIX;
             case DOT:
                 // field call
+            case LBRACK:
+                // array index call
             case LPAREN:
                 // method call
                 return GROUP;
