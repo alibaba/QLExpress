@@ -341,7 +341,8 @@ public class QLParser {
                     return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path.toString(), staticImport);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
                     throw new QLSyntaxException(ReportTemplate.report(
-                            scanner.getScript(), lastToken(), "expect '.' between package"
+                            scanner.getScript(), lastToken(),
+                            "import statement must end with ';'"
                     ));
                 }
             } else {
@@ -779,10 +780,6 @@ public class QLParser {
                 advanceOrReportError(TokenType.COMMA, "expect ',' between arguments");
             }
             arguments.add(expr());
-        }
-        if (pre.getType() != TokenType.RPAREN) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    lParen, "can not find ')' to match"));
         }
         return arguments;
     }

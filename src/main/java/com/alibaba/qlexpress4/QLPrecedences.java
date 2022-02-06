@@ -59,7 +59,7 @@ public class QLPrecedences {
     // ++ -- in suffix, like i++
     public static final int UNARY_SUFFIX = 14;
 
-    // ()
+    // () . []
     public static final int GROUP = 15;
 
     public static Integer getMiddlePrecedence(Token token) {

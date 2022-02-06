@@ -122,9 +122,17 @@ class NewRule extends OperatorParseRule {
         Token newToken = parser.pre;
         parser.advanceOrReportError(TokenType.ID, "invalid class name");
         Token clazzToken = parser.pre;
+
+        // ignore generic type arguments if exist
+        List<DeclTypeArgument> typeArguments = Collections.emptyList();
+        if (parser.matchTypeAndAdvance(TokenType.LT)) {
+            typeArguments = parser.typeArgumentList();
+        }
+
         parser.advanceOrReportError(TokenType.LPAREN, "expect '(' for arguments");
 
-        return new NewExpr(newToken, new Identifier(clazzToken), parser.argumentList());
+        return new NewExpr(newToken, new DeclType(new Identifier(clazzToken), typeArguments),
+                parser.argumentList());
     }
 }
 

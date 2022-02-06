@@ -123,6 +123,10 @@ public class ScannerTest {
                 "[Near: 5.1a]\n" +
                 "       ^^^^\n" +
                 "[Line: 1, Column: 1]");
+
+        Scanner scanner3 = new Scanner("3.", QLOptions.builder().precise(false).build());
+        Token doubleToken3 = scanner3.next();
+        assertEquals(3.0, doubleToken3.getLiteral());
     }
 
     @Test

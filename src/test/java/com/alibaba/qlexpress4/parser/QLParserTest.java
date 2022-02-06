@@ -115,14 +115,23 @@ public class QLParserTest {
         ImportStmt importStmt2 = (ImportStmt) stmtList2.get(0);
         assertTrue(importStmt2.isStaticImport());
 
-        assertErrReport("import a.b.cc int d", "[Error: expect '.' between package]\n" +
-                "[Near: rt a.b.cc int d]\n" +
+        assertErrReport("import a.b.cc\n" +
+                "int d;", "[Error: import statement must end with ';']\n" +
+                "[Near: rt a.b.cc int d;]\n" +
                 "                 ^^^\n" +
-                "[Line: 1, Column: 15]");
+                "[Line: 2, Column: 1]");
         assertErrReport("import;", "[Error: invalid package to import]\n" +
                 "[Near: import;]\n" +
                 "             ^\n" +
                 "[Line: 1, Column: 7]");
+        assertErrReport("import a.b.c", "[Error: import statement must end with ';']\n" +
+                "[Near: mport a.b.c]\n" +
+                "                 ^\n" +
+                "[Line: 1, Column: 12]");
+        assertErrReport("import *;", "[Error: invalid import]\n" +
+                "[Near: import *;]\n" +
+                "       ^^^^^^\n" +
+                "[Line: 1, Column: 1]");
     }
 
     @Test
@@ -419,6 +428,20 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         NewExpr newExpr = (NewExpr) binaryOpExpr.getLeft();
         assertEquals(3, newExpr.getArguments().size());
+        assertEquals("Integer", newExpr.getClazz().getType().getKeyToken().getLexeme());
+
+        Program program1 = parse("List<Integer> l = new ArrayList<>();");
+        LocalVarDeclareStmt varDeclareStmt = (LocalVarDeclareStmt) program1.getStmtList().get(0);
+        NewExpr rightExpr = (NewExpr) varDeclareStmt.getInitializer();
+        assertEquals("ArrayList", rightExpr.getClazz().getType().getKeyToken().getLexeme());
+        assertEquals(0, rightExpr.getClazz().getTypeArguments().size());
+
+        Program program2 = parse("Mist<long> l = new Mist<long>();");
+        LocalVarDeclareStmt varDeclareStmt2 = (LocalVarDeclareStmt) program2.getStmtList().get(0);
+        NewExpr rightExpr2 = (NewExpr) varDeclareStmt2.getInitializer();
+        assertEquals("Mist", rightExpr2.getClazz().getType().getKeyToken().getLexeme());
+        assertEquals(1, rightExpr2.getClazz().getTypeArguments().size());
+
 
         assertErrReport("new Ttt(1*9-0", "[Error: can not find ')' to match]\n" +
                 "[Near: new Ttt(1*9-0]\n" +
@@ -436,6 +459,11 @@ public class QLParserTest {
         assertEquals(Arrays.asList(BinaryOpExpr.class, BinaryOpExpr.class, NewExpr.class, LambdaExpr.class),
                 listExpr.getElements().stream()
                         .map(Object::getClass).collect(Collectors.toList()));
+
+        assertErrReport("[1,2,3", "[Error: can not find ']' to match]\n" +
+                "[Near: [1,2,3]\n" +
+                "       ^\n" +
+                "[Line: 1, Column: 1]");
     }
 
     @Test
@@ -606,6 +634,14 @@ public class QLParserTest {
                 "[Near: a.b[1+34]\n" +
                 "          ^\n" +
                 "[Line: 1, Column: 4]");
+    }
+
+    @Test
+    public void numberTest() {
+        assertErrReport("int a = .5", "[Error: invalid expression]\n" +
+                "[Near: int a = .5]\n" +
+                "               ^\n" +
+                "[Line: 1, Column: 9]");
     }
 
     private void assertErrReport(String script, String expectReport) {

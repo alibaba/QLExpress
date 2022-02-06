@@ -6,17 +6,17 @@ import java.util.List;
 
 public class NewExpr extends Expr {
 
-    private final Identifier clazz;
+    private final DeclType clazz;
 
     private final List<Expr> arguments;
 
-    public NewExpr(Token keyToken, Identifier clazz, List<Expr> arguments) {
+    public NewExpr(Token keyToken, DeclType clazz, List<Expr> arguments) {
         super(keyToken);
         this.clazz = clazz;
         this.arguments = arguments;
     }
 
-    public Identifier getClazz() {
+    public DeclType getClazz() {
         return clazz;
     }
 
