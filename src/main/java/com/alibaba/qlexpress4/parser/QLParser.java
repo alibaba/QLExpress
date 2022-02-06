@@ -75,6 +75,7 @@ public class QLParser {
         Stmt statement = null;
         while (!isEnd()) {
             if (statement instanceof Expr) {
+                // expr statement must end with `;` if not last line
                 advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
                 if (isEnd()) {
                     break;
@@ -548,7 +549,8 @@ public class QLParser {
     }
 
     private boolean canAssign(Expr leftExpr) {
-        return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr);
+        return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr) ||
+                (leftExpr instanceof ArrayCallExpr);
     }
 
     enum GroupType {GROUP, LAMBDA, CAST}
@@ -559,7 +561,7 @@ public class QLParser {
                 rParenNextToken.getType() == TokenType.SUB ||
                 rParenNextToken.getType() == TokenType.INC ||
                 rParenNextToken.getType() == TokenType.DEC) {
-            // + - is prefix and middle operator in same time
+            // + - ++ -- ( is prefix and middle operator in same time
             // so we need to handle expression like `(int) -1`
             if (cur != null && cur.getType() == TokenType.TYPE) {
                 Token expectRParen = scanner.lookAhead();
@@ -569,6 +571,8 @@ public class QLParser {
                 }
             }
             scanner.back();
+        } else if (ParseRuleRegister.isPrefixToken(rParenNextToken)) {
+            return GroupType.CAST;
         }
 
         return rParenNextToken != null && rParenNextToken.getType() == TokenType.ARROW?
@@ -641,10 +645,6 @@ public class QLParser {
                     // ?:
                     cur.getType() == TokenType.COLON) {
                 break;
-            } else if (!isEnd() && left instanceof GroupExpr && ParseRuleRegister.isPrefixToken(cur)) {
-                // force cast
-                Expr nextUnary = parsePrecedence(QLPrecedences.UNARY);
-                left = new CallExpr(left.getKeyToken(), left, Collections.singletonList(nextUnary));
             } else {
                 throw new QLSyntaxException(ReportTemplate.report(
                         scanner.getScript(), lastToken(), "invalid expression"

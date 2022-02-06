@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.ReportTemplate;
 import com.alibaba.qlexpress4.parser.tree.Block;
 import com.alibaba.qlexpress4.parser.tree.CallExpr;
+import com.alibaba.qlexpress4.parser.tree.CastExpr;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.DeclType;
 import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
@@ -98,20 +99,14 @@ class LParenRule extends OperatorParseRule {
     }
 
     private Expr castExpr(QLParser parser) {
-        Token castTypeToken;
-        if (parser.matchTypeAndAdvance(TokenType.TYPE)) {
-            castTypeToken = parser.pre;
-        } else {
-            throw new QLSyntaxException(ReportTemplate.report(parser.getScript(), parser.pre,
-                    "invalid type cast"));
-        }
+        Token keyToken = parser.pre;
+        Expr typeExpr = parser.expr();
+        parser.advanceOrReportError(TokenType.RPAREN, "invalid expression, expect ')'");
 
-        parser.advanceOrReportError(TokenType.RPAREN, "expect ')'");
+        Expr target = parser.parsePrecedence(QLPrecedences.UNARY);
+
         // cast precedence just below unary
-        return new CallExpr(castTypeToken,
-                new TypeExpr(castTypeToken,
-                        new DeclType(new Identifier(castTypeToken), Collections.emptyList())),
-                Collections.singletonList(parser.parsePrecedence(QLPrecedences.UNARY)));
+        return new CastExpr(keyToken, typeExpr, target);
     }
 }
 
