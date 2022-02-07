@@ -683,6 +683,15 @@ public class QLParser {
             } else {
                 scanner.back();
             }
+        } else if (cur.getType() == TokenType.COLON) {
+            Token colonColon = scanner.lookAhead();
+            scanner.back();
+            if (isTokenType(colonColon, TokenType.COLON) && colonColon.getPos() == cur.getPos() + 1) {
+                // method reference
+                scanner.next();
+                cur = new Token(TokenType.METHOD_REF, "::", colonColon.getPos(),
+                        colonColon.getLine(), colonColon.getCol());
+            }
         }
     }
 
@@ -707,13 +716,13 @@ public class QLParser {
             Expr indexExpr = expr();
             advanceOrReportErrorWithToken(TokenType.RBRACK, "can not find ']' to match", keyToken);
             return new ArrayCallExpr(keyToken, left, indexExpr);
-        } else if (pre.getType() == TokenType.DOT) {
+        } else if (pre.getType() == TokenType.DOT || pre.getType() == TokenType.METHOD_REF) {
             // field call
             if (matchTypeAndAdvance(TokenType.ID)) {
                 return new FieldCallExpr(pre, left, new Identifier(pre));
             }
             throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    pre, "invalid field call"));
+                    lastToken(), "invalid field"));
         } else if (pre.getType() == TokenType.INC || pre.getType() == TokenType.DEC) {
             // suffix operator
             return new SuffixUnaryOpExpr(pre, left);

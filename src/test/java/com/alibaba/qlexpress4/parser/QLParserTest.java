@@ -387,10 +387,10 @@ public class QLParserTest {
         assertEquals("a", fieldCallExpr.getExpr().getKeyToken().getLexeme());
         assertEquals("c", fieldCallExpr.getAttribute().getKeyToken().getLexeme());
 
-        assertErrReport("a.(1+2)", "[Error: invalid field call]\n" +
+        assertErrReport("a.(1+2)", "[Error: invalid field]\n" +
                 "[Near: a.(1+2)]\n" +
-                "        ^\n" +
-                "[Line: 1, Column: 2]");
+                "         ^\n" +
+                "[Line: 1, Column: 3]");
     }
 
     @Test
@@ -642,6 +642,21 @@ public class QLParserTest {
                 "[Near: int a = .5]\n" +
                 "               ^\n" +
                 "[Line: 1, Column: 9]");
+    }
+
+    @Test
+    public void methodRefTest() {
+        Program program = parse("Math::abs testOp s::charAt");
+        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
+        assertTrue(binaryOpExpr.getLeft() instanceof FieldCallExpr);
+        assertTrue(binaryOpExpr.getRight() instanceof FieldCallExpr);
+        FieldCallExpr leftFieldCall = (FieldCallExpr) binaryOpExpr.getLeft();
+        assertEquals("abs", leftFieldCall.getAttribute().getKeyToken().getLexeme());
+        assertEquals("Math", leftFieldCall.getExpr().getKeyToken().getLexeme());
+
+        FieldCallExpr rightFieldCall = (FieldCallExpr) binaryOpExpr.getRight();
+        assertEquals("charAt", rightFieldCall.getAttribute().getKeyToken().getLexeme());
+        assertEquals("s", rightFieldCall.getExpr().getKeyToken().getLexeme());
     }
 
     private void assertErrReport(String script, String expectReport) {

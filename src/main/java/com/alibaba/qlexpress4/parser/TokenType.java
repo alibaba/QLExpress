@@ -102,6 +102,8 @@ public enum TokenType {
     COMMA,
     // .
     DOT,
+    // ::
+    METHOD_REF,
 
     NUMBER,
     STRING,
