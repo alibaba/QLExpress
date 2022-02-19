@@ -9,7 +9,9 @@ import java.util.Map;
 
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.IExpressResourceLoader;
+import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLCompileException;
+import com.ql.util.express.exception.QLSecurityRiskException;
 import com.ql.util.express.match.QLMatchResult;
 import com.ql.util.express.match.QLPattern;
 import org.apache.commons.logging.Log;
@@ -230,6 +232,12 @@ public class ExpressParse {
                             if (tmpClass != null) {
                                 point = j + 1;
                                 isClass = true;
+                                // 编译期类型白名单校验
+                                if (!tmpClass.isPrimitive() &&
+                                        !QLExpressRunStrategy.checkWhiteClassList(tmpClass)) {
+                                    throw new QLSecurityRiskException("脚本中引用了不安全的类： " +
+                                            tmpClass.getCanonicalName());
+                                }
                                 break;
                             }
                             if (j < wordObjects.length - 1 && ".".equals(wordObjects[j + 1].word)) {
@@ -356,7 +364,8 @@ public class ExpressParse {
     public ExpressNode parse(ExpressPackage rootExpressPackage, Word[] words, String express, boolean isTrace,
         Map<String, String> selfDefineClass, boolean mockRemoteJavaClass) throws Exception {
 
-        List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage, words, selfDefineClass, true);
+        List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage, words, selfDefineClass,
+                !QLExpressRunStrategy.isSandboxMode());
         if (isTrace && log.isDebugEnabled()) {
             log.debug("单词分析结果:" + printInfo(tempList, ","));
         }
