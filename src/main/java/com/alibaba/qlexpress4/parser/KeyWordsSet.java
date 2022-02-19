@@ -28,6 +28,8 @@ public class KeyWordsSet {
 
     public static final String STATIC = "static";
 
+    public static final String NEW = "new";
+
     // embed unboxed data type
     public static final String BYTE = "byte";
 
@@ -65,7 +67,6 @@ public class KeyWordsSet {
 
     // unuseful now, but reserve them for future
     public static final String CLASS = "class";
-    public static final String NEW = "new";
     public static final String THIS = "this";
 
     public static boolean isKeyWord(String word) {

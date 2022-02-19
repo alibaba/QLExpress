@@ -178,6 +178,14 @@ public class QLParserTest {
 
         Program program1 = parse("a<2 && b>3");
         assertTrue(program1.getStmtList().get(0) instanceof BinaryOpExpr);
+
+        Program program2 = parse("true && false + null");
+        BinaryOpExpr andOp = (BinaryOpExpr) program2.getStmtList().get(0);
+        assertTrue((Boolean) andOp.getLeft().getKeyToken().getLiteral());
+        BinaryOpExpr addOp = (BinaryOpExpr) andOp.getRight();
+        assertNull(addOp.getRight().getKeyToken().getLiteral());
+        assertFalse((Boolean) addOp.getLeft().getKeyToken().getLiteral());
+
     }
 
     @Test
