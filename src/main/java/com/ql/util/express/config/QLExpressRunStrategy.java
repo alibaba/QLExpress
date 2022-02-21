@@ -61,6 +61,8 @@ public class QLExpressRunStrategy {
         SECURITY_RISK_METHOD_LIST.add(Class.class.getName() + ".forName");
         SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".loadClass");
         SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".findClass");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".defineClass");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".getSystemClassLoader");
     }
 
     private QLExpressRunStrategy() {
