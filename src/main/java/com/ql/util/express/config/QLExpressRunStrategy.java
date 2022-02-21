@@ -21,7 +21,7 @@ public class QLExpressRunStrategy {
      * null 表示不进行校验
      * 如果编译时发现引用了白名单之外的类, 就会抛出异常
      */
-    private static List<WhiteChecker> compileWhiteClassList = null;
+    private static List<WhiteChecker> compileWhiteCheckerList = null;
 
     /**
      * 预防空指针
@@ -143,10 +143,10 @@ public class QLExpressRunStrategy {
      * @return true 表示位于白名单中, false 表示不在白名单中
      */
     public static boolean checkWhiteClassList(Class<?> clazz) {
-        if (compileWhiteClassList == null) {
+        if (compileWhiteCheckerList == null) {
             return true;
         }
-        for (WhiteChecker whiteChecker : compileWhiteClassList) {
+        for (WhiteChecker whiteChecker : compileWhiteCheckerList) {
             if (whiteChecker.check(clazz)) {
                 return true;
             }
@@ -154,7 +154,7 @@ public class QLExpressRunStrategy {
         return false;
     }
 
-    public static void setCompileWhiteClassList(List<WhiteChecker> compileWhiteClassList) {
-        QLExpressRunStrategy.compileWhiteClassList = compileWhiteClassList;
+    public static void setCompileWhiteCheckerList(List<WhiteChecker> compileWhiteCheckerList) {
+        QLExpressRunStrategy.compileWhiteCheckerList = compileWhiteCheckerList;
     }
 }

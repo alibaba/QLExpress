@@ -75,7 +75,7 @@ public class MultiLevelSecurityTest {
     public void compileWhiteListTest() throws Exception {
         try {
             // 设置编译期白名单
-            QLExpressRunStrategy.setCompileWhiteClassList(Arrays.asList(
+            QLExpressRunStrategy.setCompileWhiteCheckerList(Arrays.asList(
                     // 精确设置
                     CheckerFactory.must(Date.class),
                     // 子类设置
@@ -101,7 +101,7 @@ public class MultiLevelSecurityTest {
             // 对于不满足编译期类型白名单的脚本无需运行, 即可通过 checkSyntax 检测出
             assertFalse(expressRunner.checkSyntax("Math.abs(-1)"));
         } finally {
-            QLExpressRunStrategy.setCompileWhiteClassList(null);
+            QLExpressRunStrategy.setCompileWhiteCheckerList(null);
         }
     }
 
