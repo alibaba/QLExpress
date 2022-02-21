@@ -125,7 +125,7 @@ public class QLExpressRunStrategy {
         }
 
         String fullMethodName = method.getDeclaringClass().getName() + "." + method.getName();
-        if (!SECURE_METHOD_LIST.isEmpty()) {
+        if (SECURE_METHOD_LIST != null && !SECURE_METHOD_LIST.isEmpty()) {
             // 有白名单配置时则黑名单失效
             if (!SECURE_METHOD_LIST.contains(fullMethodName)) {
                 throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
