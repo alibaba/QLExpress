@@ -719,11 +719,11 @@ try {
     assertTrue(e.getCause() instanceof QLSecurityRiskException);
 }
 
-// setSecureMethod 设置方式
+// setSecureMethods 设置方式
 Set<String> secureMethods = new HashSet<>();
 secureMethods.add("java.lang.String.length");
 secureMethods.add("java.lang.Integer.valueOf");
-QLExpressRunStrategy.setSecurityRiskMethod(secureMethods);
+QLExpressRunStrategy.setSecureMethods(secureMethods);
 // 白名单中的方法, 允许正常调用
 Object res = expressRunner.execute("Integer.valueOf('abcd'.length())", context,
                                    null, true, false);
@@ -741,7 +741,7 @@ try {
 从上图中可以看出白名单有两种设置方式：
 
 - 添加：`QLExpressRunStrategy.addSecureMethod`
-- 置换：`QLExpressRunStrategy.setSecurityRiskMethod`
+- 置换：`QLExpressRunStrategy.setSecureMethods`
 
 在应用中使用的时，推荐将白名单配置在诸如 `etcd`,`configServer` 等配置服务中，根据需求随时调整。
 

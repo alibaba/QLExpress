@@ -111,7 +111,7 @@ public class QLExpressRunStrategy {
         QLExpressRunStrategy.SECURITY_RISK_METHOD_LIST.add(clazz.getName() + "." + methodName);
     }
 
-    public static void setSecurityRiskMethod(Set<String> securityRiskMethod) {
+    public static void setSecureMethods(Set<String> securityRiskMethod) {
         SECURE_METHOD_LIST = securityRiskMethod;
     }
 

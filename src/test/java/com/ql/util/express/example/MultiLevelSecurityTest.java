@@ -53,7 +53,7 @@ public class MultiLevelSecurityTest {
             Set<String> secureMethods = new HashSet<>();
             secureMethods.add("java.lang.String.length");
             secureMethods.add("java.lang.Integer.valueOf");
-            QLExpressRunStrategy.setSecurityRiskMethod(secureMethods);
+            QLExpressRunStrategy.setSecureMethods(secureMethods);
             // 白名单中的方法, 允许正常调用
             Object res = expressRunner.execute("Integer.valueOf('abcd'.length())", context,
                     null, true, false);
