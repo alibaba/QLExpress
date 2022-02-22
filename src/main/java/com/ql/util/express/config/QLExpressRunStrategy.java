@@ -63,6 +63,11 @@ public class QLExpressRunStrategy {
         SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".findClass");
         SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".defineClass");
         SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".getSystemClassLoader");
+
+        // jndi 相关
+        SECURITY_RISK_METHOD_LIST.add("javax.naming.InitialContext.lookup");
+        SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setDataSourceName");
+        SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setAutoCommit");
     }
 
     private QLExpressRunStrategy() {
