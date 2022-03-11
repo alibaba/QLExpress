@@ -13,6 +13,7 @@ import com.ql.util.express.exception.QLCompileException;
  * @author xuannan
  */
 public class WordSplit {
+    private static ThreadLocal<Integer> skip = ThreadLocal.withInitial(() -> 0);
     private WordSplit() {
         throw new IllegalStateException("Utility class");
     }
@@ -37,6 +38,38 @@ public class WordSplit {
         int currentLineOffset = 0;
         while (i < str.length()) {
             c = str.charAt(i);
+            if (c == '/' && i + 1 < str.length()) {
+                char nc = str.charAt(i + 1);
+                if (nc == '/') {
+                    // 1 代表单行注释跳过
+                    skip.set(1);
+                    i += 2;
+                    point = i;
+                    continue;
+                }
+                if (nc == '*') {
+                    // 2 代表多行注释跳过
+                    skip.set(2);
+                    i += 2;
+                    point = i;
+                    continue;
+                }
+            }
+
+            if (skip.get() > 0) {
+                if (skip.get() == 1 && c == '\n') {
+                    skip.set(0);
+                    point = ++i;
+                    continue;
+                } else if (c == '*' && i + 1 < str.length() && str.charAt(i + 1) == '/') {
+                    skip.set(0);
+                    i += 2;
+                    point = i;
+                    continue;
+                }
+                point = ++i;
+                continue;
+            }
             //字符串处理
             if (c == '"' || c == '\'') {
                 int index = str.indexOf(c, i + 1);
