@@ -111,7 +111,7 @@ public class NodeTypeManager implements INodeTypeManager {
     }
 
     /**
-     * 增加关键字，但是用实际的类型代替，例如 :"如果" -》"if"
+     * 增加关键字，但是用实际的类型代替，例如 :"如果" -> "if"
      *
      * @param keyWordName
      * @param realName

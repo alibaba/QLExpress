@@ -114,7 +114,7 @@ public class QLPattern {
                         }
                     }
 
-                    //取返处理
+                    //取反处理
                     if (pattern.blame) {
                         if (resultDetail == null) {
                             resultDetail = staticParams.resultCache.fetch();
