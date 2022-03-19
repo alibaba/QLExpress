@@ -383,16 +383,7 @@ class PreciseNumberOperator {
                 result = new BigDecimal(op1.toString()).add(new BigDecimal(op2.toString()));
             }
         }
-        if (result.scale() == 0) {
-            long tempLong = result.longValue();
-            if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
-                return (int)tempLong;
-            } else {
-                return tempLong;
-            }
-        } else {
-            return result;
-        }
+        return basicNumberFormatTransfer(result);
     }
 
     public static Number subtractPrecise(Number op1, Number op2) {
@@ -410,16 +401,7 @@ class PreciseNumberOperator {
                 result = new BigDecimal(op1.toString()).subtract(new BigDecimal(op2.toString()));
             }
         }
-        if (result.scale() == 0) {
-            long tempLong = result.longValue();
-            if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
-                return (int)tempLong;
-            } else {
-                return tempLong;
-            }
-        } else {
-            return result;
-        }
+        return basicNumberFormatTransfer(result);
     }
 
     public static Number multiplyPrecise(Number op1, Number op2) {
@@ -437,16 +419,7 @@ class PreciseNumberOperator {
                 result = new BigDecimal(op1.toString()).multiply(new BigDecimal(op2.toString()));
             }
         }
-        if (result.scale() == 0) {
-            long tempLong = result.longValue();
-            if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
-                return (int)tempLong;
-            } else {
-                return tempLong;
-            }
-        } else {
-            return result;
-        }
+        return basicNumberFormatTransfer(result);
     }
 
     public static Number dividePrecise(Number op1, Number op2) {
@@ -467,15 +440,25 @@ class PreciseNumberOperator {
                     RoundingMode.HALF_UP);
             }
         }
-        if (result.scale() == 0) {
-            long tempLong = result.longValue();
-            if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
-                return (int)tempLong;
-            } else {
-                return tempLong;
+        return basicNumberFormatTransfer(result);
+    }
+
+    /**
+     * 格式转化通用
+     * @param number
+     * @return
+     */
+    protected static Number basicNumberFormatTransfer(BigDecimal number){
+        if (number.scale() == 0) {
+            if(number.compareTo(new BigDecimal(Integer.MAX_VALUE)) < 1 && number.compareTo(new BigDecimal(Integer.MIN_VALUE)) > -1){
+                return number.intValue();
+            }else if(number.compareTo(new BigDecimal(Long.MAX_VALUE)) < 1 && number.compareTo(new BigDecimal(Long.MIN_VALUE)) > -1){
+                return number.longValue();
+            }else {
+                return number;
             }
         } else {
-            return result;
+            return number;
         }
     }
 }
