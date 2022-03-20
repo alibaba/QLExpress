@@ -22,6 +22,17 @@ interface NumberType {
 }
 
 public class OperatorOfNumber {
+    public static final BigDecimal BIG_DECIMAL_LONG_MAX = new BigDecimal(Long.MAX_VALUE);
+    public static final BigDecimal BIG_DECIMAL_LONG_MIN = new BigDecimal(Long.MIN_VALUE);
+    public static final BigDecimal BIG_DECIMAL_INTEGER_MAX = new BigDecimal(Integer.MAX_VALUE);
+    public static final BigDecimal BIG_DECIMAL_INTEGER_MIN = new BigDecimal(Integer.MIN_VALUE);
+
+    //BIG_DECIMAL_COMPARE_LESS
+    public static final Integer LESS = -1;
+    //BIG_DECIMAL_COMPARE_MORE
+    public static final Integer MORE = 1;
+
+
     private OperatorOfNumber() {
         throw new IllegalStateException("Utility class");
     }
@@ -450,15 +461,14 @@ class PreciseNumberOperator {
      */
     protected static Number basicNumberFormatTransfer(BigDecimal number){
         if (number.scale() == 0) {
-            if(number.compareTo(new BigDecimal(Integer.MAX_VALUE)) < 1 && number.compareTo(new BigDecimal(Integer.MIN_VALUE)) > -1){
+            if(number.compareTo(OperatorOfNumber.BIG_DECIMAL_INTEGER_MAX) < OperatorOfNumber.MORE
+                        && number.compareTo(OperatorOfNumber.BIG_DECIMAL_INTEGER_MIN) > OperatorOfNumber.LESS){
                 return number.intValue();
-            }else if(number.compareTo(new BigDecimal(Long.MAX_VALUE)) < 1 && number.compareTo(new BigDecimal(Long.MIN_VALUE)) > -1){
+            }else if(number.compareTo(OperatorOfNumber.BIG_DECIMAL_LONG_MAX) < OperatorOfNumber.MORE
+                            && number.compareTo(OperatorOfNumber.BIG_DECIMAL_LONG_MIN) > OperatorOfNumber.LESS){
                 return number.longValue();
-            }else {
-                return number;
             }
-        } else {
-            return number;
         }
+        return number;
     }
 }
