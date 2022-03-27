@@ -4,16 +4,20 @@ import java.util.List;
 
 public class DeclType {
 
-    private final Identifier type;
+    /**
+     * a.b.c.d
+     * not empty
+     */
+    private final List<Identifier> type;
 
     private final List<DeclTypeArgument> typeArguments;
 
-    public DeclType(Identifier type, List<DeclTypeArgument> typeArguments) {
+    public DeclType(List<Identifier> type, List<DeclTypeArgument> typeArguments) {
         this.type = type;
         this.typeArguments = typeArguments;
     }
 
-    public Identifier getType() {
+    public List<Identifier> getType() {
         return type;
     }
 

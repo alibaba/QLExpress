@@ -120,19 +120,11 @@ class NewRule extends OperatorParseRule {
     @Override
     public Expr prefixParse(QLParser parser) {
         Token newToken = parser.pre;
-        parser.advanceOrReportError(TokenType.ID, "invalid class name");
-        Token clazzToken = parser.pre;
-
-        // ignore generic type arguments if exist
-        List<DeclTypeArgument> typeArguments = Collections.emptyList();
-        if (parser.matchTypeAndAdvance(TokenType.LT)) {
-            typeArguments = parser.typeArgumentList();
-        }
+        DeclType newType = parser.declType();
 
         parser.advanceOrReportError(TokenType.LPAREN, "expect '(' for arguments");
 
-        return new NewExpr(newToken, new DeclType(new Identifier(clazzToken), typeArguments),
-                parser.argumentList());
+        return new NewExpr(newToken, newType, parser.argumentList());
     }
 }
 
@@ -178,12 +170,14 @@ class IdRule extends OperatorParseRule {
                         null, parser.expr());
             }
         } else if (!parser.isEnd() && parser.cur.getType() == TokenType.LT) {
+            // generic type
             Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur);
             if (gtNextToken != null && gtNextToken.getType() == TokenType.RPAREN) {
                 // generic type argument
                 parser.advance();
                 List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
-                return new TypeExpr(idToken, new DeclType(new Identifier(idToken), typeArguments));
+                return new TypeExpr(idToken, new DeclType(Collections.singletonList(new Identifier(idToken)),
+                        typeArguments));
             }
         }
         return new IdExpr(idToken);
@@ -199,7 +193,8 @@ class TypeRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return new TypeExpr(parser.pre, new DeclType(new Identifier(parser.pre), Collections.emptyList()));
+        return new TypeExpr(parser.pre, new DeclType(Collections.singletonList(new Identifier(parser.pre)),
+                Collections.emptyList()));
     }
 }
 

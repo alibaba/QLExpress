@@ -72,6 +72,12 @@ public class QLParser {
 
     public Program parse() {
         List<Stmt> stmtList = new ArrayList<>();
+
+        while (!isEnd() && matchKeyWordAndAdvance(KeyWordsSet.IMPORT)) {
+            // import must at first
+           stmtList.add(importStmt());
+        }
+
         Stmt statement = null;
         while (!isEnd()) {
             if (statement instanceof Expr) {
@@ -109,7 +115,8 @@ public class QLParser {
             return forStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.IMPORT)) {
             // import
-            return importStmt();
+            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
+                    "import statement must at the beginning of script"));
         } else if (matchKeyWordAndAdvance(KeyWordsSet.FUNCTION)) {
             // function
             return functionStmt();
@@ -146,7 +153,14 @@ public class QLParser {
 
     private Token lookAheadTypeDeclNextToken() {
         if (isTokenType(cur, TokenType.ID)) {
-            Token maybeVarToken = scanner.lookAhead();
+            Token maybeVarToken;
+            while (isTokenType(maybeVarToken = scanner.lookAhead(), TokenType.DOT)) {
+                if (!isTokenType(scanner.lookAhead(), TokenType.ID)) {
+                    // invalid type declare
+                    return null;
+                }
+            }
+
             if (isTokenType(maybeVarToken, TokenType.LT)) {
                 return lookAheadGtNextToken(maybeVarToken);
             } else {
@@ -218,7 +232,7 @@ public class QLParser {
                 cur.getType() == TokenType.RPAREN ||
                 cur.getType() == TokenType.COLON) {
             // var without type
-            return new VarDecl(null, maybeType.getType());
+            return new VarDecl(null, maybeType.getType().get(0));
         }
 
         if (matchTypeAndAdvance(TokenType.ID)) {
@@ -231,14 +245,24 @@ public class QLParser {
 
     protected DeclType declType() {
         if (matchTypeAndAdvance(TokenType.TYPE)) {
-            return new DeclType(new Identifier(pre), Collections.emptyList());
+            return new DeclType(Collections.singletonList(new Identifier(pre)), Collections.emptyList());
         } else if (matchTypeAndAdvance(TokenType.ID)) {
-            Token typeToken = pre;
+            List<Identifier> typeReference = new ArrayList<>();
+            typeReference.add(new Identifier(pre));
+            while (matchTypeAndAdvance(TokenType.DOT)) {
+                if (matchTypeAndAdvance(TokenType.ID)) {
+                    typeReference.add(new Identifier(pre));
+                } else {
+                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
+                            "invalid type declare"));
+                }
+            }
+
             if (matchTypeAndAdvance(TokenType.LT)) {
                 // generic type arguments
-                return new DeclType(new Identifier(typeToken), typeArgumentList());
+                return new DeclType(typeReference, typeArgumentList());
             } else {
-                return new DeclType(new Identifier(typeToken), Collections.emptyList());
+                return new DeclType(typeReference, Collections.emptyList());
             }
         }
         throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
@@ -274,8 +298,8 @@ public class QLParser {
                             lastToken(), "invalid bound type in type argument"));
                 }
             } else {
-                return new DeclTypeArgument(new DeclType(new Identifier(pre), Collections.emptyList()),
-                        DeclTypeArgument.Bound.NONE);
+                return new DeclTypeArgument(new DeclType(Collections.singletonList(new Identifier(pre)),
+                        Collections.emptyList()), DeclTypeArgument.Bound.NONE);
             }
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
             return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);
