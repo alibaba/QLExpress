@@ -15,6 +15,6 @@ public abstract class QLInstruction {
     }
 
     public void execute() {
-        throw errorReporter.report("type error");
+        throw errorReporter.report("SOME_CODE", "type error");
     }
 }
