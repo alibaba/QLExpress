@@ -1,10 +1,8 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLPrecedences;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.exception.ReportTemplate;
+import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.CallExpr;
 import com.alibaba.qlexpress4.parser.tree.CastExpr;
 import com.alibaba.qlexpress4.parser.tree.ConstExpr;
 import com.alibaba.qlexpress4.parser.tree.DeclType;
@@ -71,15 +69,16 @@ class LParenRule extends OperatorParseRule {
             case CAST:
                 return castExpr(parser);
             default:
-                throw new QLSyntaxException(ReportTemplate.report(parser.getScript(), parser.pre,
-                        "unknown group type, maybe a bug"));
+                throw QLException.reportParserErr(parser.getScript(), parser.pre,
+                        "UNKNOWN_GROUP_TYPE", "unknown group type, maybe a bug");
         }
     }
 
     private Expr groupExpr(QLParser parser) {
         Token keyToken = parser.pre;
         Expr groupExpr = parser.expr();
-        parser.advanceOrReportError(TokenType.RPAREN, "invalid expression, expect ')'");
+        parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_GROUP_EXPRESSION",
+                "invalid expression, expect ')' after group expression");
         return new GroupExpr(keyToken, groupExpr);
     }
 
@@ -101,7 +100,8 @@ class LParenRule extends OperatorParseRule {
     private Expr castExpr(QLParser parser) {
         Token keyToken = parser.pre;
         Expr typeExpr = parser.expr();
-        parser.advanceOrReportError(TokenType.RPAREN, "invalid expression, expect ')'");
+        parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_TYPE_CAST",
+                "expect ')' after type cast");
 
         Expr target = parser.parsePrecedence(QLPrecedences.UNARY);
 
@@ -122,7 +122,8 @@ class NewRule extends OperatorParseRule {
         Token newToken = parser.pre;
         DeclType newType = parser.declType();
 
-        parser.advanceOrReportError(TokenType.LPAREN, "expect '(' for arguments");
+        parser.advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_ARGUMENTS",
+                "expect '(' before arguments");
 
         return new NewExpr(newToken, newType, parser.argumentList());
     }
@@ -214,11 +215,12 @@ class LBrackRule extends OperatorParseRule {
         List<Expr> elements = new ArrayList<>();
         while (!parser.matchTypeAndAdvance(TokenType.RBRACK)) {
             if (parser.isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(parser.getScript(),
-                        keyToken, "can not find ']' to match"));
+                throw QLException.reportParserErr(parser.getScript(),
+                        keyToken, "CAN_NOT_FIND_RBRACK_TO_MATCH", "can not find ']' to match");
             }
             if (!elements.isEmpty()) {
-                parser.advanceOrReportError(TokenType.COMMA, "expect ',' between elements");
+                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ELEMENTS",
+                        "expect ',' between elements");
             }
             elements.add(parser.expr());
         }

@@ -1,9 +1,7 @@
 package com.alibaba.qlexpress4.exception;
 
 public class QLSyntaxException extends QLException {
-
-    public QLSyntaxException(String message) {
-        super(message);
+    protected QLSyntaxException(String message, int lineNo, int colNo, String errLexeme, String reason, String errorCode, String snippet) {
+        super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
     }
-
 }

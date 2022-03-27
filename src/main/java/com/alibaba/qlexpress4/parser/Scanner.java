@@ -1,12 +1,10 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLOptions;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.exception.ReportTemplate;
+import com.alibaba.qlexpress4.exception.QLException;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class Scanner {
 
@@ -263,15 +261,16 @@ public class Scanner {
                         literalBuilder.toString());
             } else if (cur == '\n') {
                 // not support line break in raw string
-                throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine-1,
-                        preCol, lexemeBuilder.toString(), "''(raw string) line break"));
+                throw QLException.reportScannerErr(script, pos, currentLine-1,
+                        preCol, lexemeBuilder.toString(), "RAW_STRING_LINE_BREAK",
+                        "''(raw string) line break");
             } else {
                 literalBuilder.append(cur);
             }
         }
 
-        throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                lexemeBuilder.toString(), "''(raw string) not close"));
+        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                lexemeBuilder.toString(), "RAW_STRING_NOT_CLOSE", "''(raw string) not close");
     }
 
     private Token string() {
@@ -296,9 +295,10 @@ public class Scanner {
                         state = escape;
                     } else if (cur == '\n') {
                         // not support line break
-                        throw new QLSyntaxException(ReportTemplate.report(script, pos,
+                        throw QLException.reportScannerErr(script, pos,
                                 currentLine - 1, preCol,
-                                lexemeBuilder.toString(), "\"\"(string) line break"));
+                                lexemeBuilder.toString(), "STRING_LINE_BREAK",
+                                "\"\"(string) line break");
                     } else {
                         literalBuilder.append(cur);
                     }
@@ -331,8 +331,8 @@ public class Scanner {
                     }
             }
         }
-        throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                lexemeBuilder.toString(), "\"\"(string) not close"));
+        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                lexemeBuilder.toString(), "STRING_NOT_CLOSE", "\"\"(string) not close");
     }
 
     private Token number() {
@@ -369,8 +369,8 @@ public class Scanner {
                     } else {
                         lexemeBuilder.append(cur);
                         advance();
-                        throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                lexemeBuilder.toString(), "invalid number"));
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                     }
                     continue;
                 case decimalPart:
@@ -388,8 +388,8 @@ public class Scanner {
                     } else {
                         lexemeBuilder.append(cur);
                         advance();
-                        throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                lexemeBuilder.toString(), "invalid number"));
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                     }
                     continue;
                 case numTypePart:
@@ -398,8 +398,8 @@ public class Scanner {
                     } else {
                         lexemeBuilder.append(cur);
                         advance();
-                        throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                                lexemeBuilder.toString(), "invalid number"));
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                     }
                     continue;
             }
@@ -427,8 +427,8 @@ public class Scanner {
                     literal = Long.parseLong(numberStr);
                     break;
                 default:
-                    throw new QLSyntaxException(ReportTemplate.report(script, pos, currentLine, currentCol,
-                            lexeme, "invalid number"));
+                    throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                            lexeme, "INVALID_NUMBER", "invalid number");
             }
         }
 
@@ -473,10 +473,10 @@ public class Scanner {
         }
         if (state != end) {
             // multiline comment not close error
-            throw new QLSyntaxException(ReportTemplate.report(script, startPos, startLine,
+            throw QLException.reportScannerErr(script, startPos, startLine,
                     startCol, "/*",
-                    "multiline comment not close, please close it by /* ... */")
-            );
+                    "MULTILINE_COMMENT_NOT_CLOSE",
+                    "multiline comment not close, please close it by /* ... */");
         }
     }
 

@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.parser;
 
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.exception.ReportTemplate;
+import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.Expr;
 
 import java.util.Arrays;
@@ -25,8 +24,8 @@ class ParseRuleRegister {
                 return rule.prefixParse(parser);
             }
         }
-        throw new QLSyntaxException(ReportTemplate.report(parser.getScript(), parser.lastToken(),
-                "invalid expression"));
+        throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                "INVALID_EXPRESSION", "invalid expression");
     }
 
     protected static boolean isPrefixToken(Token token) {

@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLPrecedences;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.exception.ReportTemplate;
+import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.ArrayCallExpr;
 import com.alibaba.qlexpress4.parser.tree.AssignExpr;
 import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
@@ -82,7 +81,8 @@ public class QLParser {
         while (!isEnd()) {
             if (statement instanceof Expr) {
                 // expr statement must end with `;` if not last line
-                advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                        "statement must end with ';'");
                 if (isEnd()) {
                     break;
                 }
@@ -115,8 +115,8 @@ public class QLParser {
             return forStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.IMPORT)) {
             // import
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
-                    "import statement must at the beginning of script"));
+            throw QLException.reportParserErr(scanner.getScript(), pre, "IMPORT_STATEMENT_MUST_AT_BEGINNING",
+                    "import statement must at the beginning of script");
         } else if (matchKeyWordAndAdvance(KeyWordsSet.FUNCTION)) {
             // function
             return functionStmt();
@@ -211,19 +211,20 @@ public class QLParser {
         if (matchTypeAndAdvance(TokenType.ID)) {
             varName = new Identifier(pre);
         } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
-                    "invalid variable name"));
+            throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_VARIABLE_NAME",
+                    "invalid variable name");
         }
 
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
         } else if (matchTypeAndAdvance(TokenType.ASSIGN)) {
             Expr expr = expr();
-            advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+            advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                    "statement must end with ';'");
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), expr);
         }
-        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
-                "invalid variable declaration statement"));
+        throw QLException.reportParserErr(scanner.getScript(), keyToken, "INVALID_VARIABLE_DECLARE",
+                "invalid variable declaration statement");
     }
 
     private VarDecl varDecl() {
@@ -238,8 +239,8 @@ public class QLParser {
         if (matchTypeAndAdvance(TokenType.ID)) {
             return new VarDecl(maybeType, new Identifier(pre));
         } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
-                    "invalid variable name"));
+            throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                    "INVALID_VARIABLE_NAME", "invalid variable name");
         }
     }
 
@@ -253,8 +254,8 @@ public class QLParser {
                 if (matchTypeAndAdvance(TokenType.ID)) {
                     typeReference.add(new Identifier(pre));
                 } else {
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lastToken(),
-                            "invalid type declare"));
+                    throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                            "INVALID_TYPE_DECLARE", "invalid type declare");
                 }
             }
 
@@ -265,8 +266,8 @@ public class QLParser {
                 return new DeclType(typeReference, Collections.emptyList());
             }
         }
-        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                lastToken(), "invalid type declare"));
+        throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                "INVALID_TYPE_DECLARE", "invalid type declare");
     }
 
     protected List<DeclTypeArgument> typeArgumentList() {
@@ -274,11 +275,12 @@ public class QLParser {
         List<DeclTypeArgument> typeArguments = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.GT)) {
             if (isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), ltToken,
-                        "can not find '>' to match"));
+                throw QLException.reportParserErr(scanner.getScript(), ltToken,
+                        "CAN_NOT_FIND_GT_TO_MATCH", "can not find '>' to match");
             }
             if (!typeArguments.isEmpty()) {
-                advanceOrReportError(TokenType.COMMA, "expect ',' between type argument");
+                advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_TYPE_ARGUMENT",
+                        "expect ',' between type argument");
             }
             typeArguments.add(typeArgument());
         }
@@ -294,8 +296,9 @@ public class QLParser {
                 if (!isEnd() && cur.getType() == TokenType.ID) {
                     return new DeclTypeArgument(declType(), bound);
                 } else {
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                            lastToken(), "invalid bound type in type argument"));
+                    throw QLException.reportParserErr(scanner.getScript(),
+                            lastToken(), "INVALID_TYPE_BOUND",
+                            "invalid type bound");
                 }
             } else {
                 return new DeclTypeArgument(new DeclType(Collections.singletonList(new Identifier(pre)),
@@ -304,8 +307,8 @@ public class QLParser {
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
             return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);
         }
-        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                lastToken(), "invalid type declare"));
+        throw QLException.reportParserErr(scanner.getScript(),
+                lastToken(), "INVALID_TYPE_ARGUMENT", "invalid type argument");
     }
 
     private Stmt returnStmt() {
@@ -315,13 +318,15 @@ public class QLParser {
         }
 
         Expr expr = expr();
-        advanceOrReportError(TokenType.SEMI, "return statement must end with ';'");
+        advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                "statement must end with ';'");
         return new Return(keyToken, expr);
     }
 
     private Stmt singleTokenStmt() {
         Token keyToken = pre;
-        advanceOrReportError(TokenType.SEMI, "statement must end with ';'");
+        advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                "statement must end with ';'");
         switch (keyToken.getLexeme()) {
             case KeyWordsSet.BREAK:
                 return new Break(keyToken);
@@ -329,13 +334,14 @@ public class QLParser {
                 return new Continue(keyToken);
         }
         // never should run there
-        throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
-                "unknown statement"));
+        throw QLException.reportParserErr(scanner.getScript(), keyToken, "UNKNOWN_STATEMENT",
+                "unknown statement");
     }
 
     private MacroStmt macroStmt() {
-        Identifier macroName = idOrReportError("invalid macro name");
-        advanceOrReportError(TokenType.LBRACE, "expect '{' in macro declaration");
+        Identifier macroName = idOrReportError("INVALID_MACRO_NAME", "invalid macro name");
+        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_MACRO_DECLARE",
+                "expect '{' in macro declaration");
         Block body = block();
         return new MacroStmt(macroName.getKeyToken(), macroName, body);
     }
@@ -348,11 +354,11 @@ public class QLParser {
 
         while (!isEnd()) {
             if (matchTypeAndAdvance(TokenType.MUL)) {
-                advanceOrReportError(TokenType.SEMI, "import statement must end with ';'");
+                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                        "statement must end with ';'");
                 if (prePackToken == null) {
-                    throw new QLSyntaxException(ReportTemplate.report(
-                            scanner.getScript(), importToken, "invalid import"
-                    ));
+                    throw QLException.reportParserErr(scanner.getScript(), importToken,
+                            "INVALID_IMPORT_STATEMENT", "invalid import statement");
                 }
                 return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path.toString(), staticImport);
             } else if (matchTypeAndAdvance(TokenType.ID)) {
@@ -364,30 +370,29 @@ public class QLParser {
                 if (matchTypeAndAdvance(TokenType.SEMI)) {
                     return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path.toString(), staticImport);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
-                    throw new QLSyntaxException(ReportTemplate.report(
-                            scanner.getScript(), lastToken(),
-                            "import statement must end with ';'"
-                    ));
+                    throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                            "STATEMENT_MUST_END_WITH_SEMI",
+                            "statement must end with ';'");
                 }
             } else {
-                throw new QLSyntaxException(ReportTemplate.report(
-                        scanner.getScript(), lastToken(), "invalid package to import"
-                ));
+                throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_IMPORT_PACKAGE",
+                        "invalid import package");
             }
         }
 
-        throw new QLSyntaxException(ReportTemplate.report(
-                scanner.getScript(), importToken, "invalid import"
-        ));
+        throw QLException.reportParserErr(scanner.getScript(), importToken,
+                "INVALID_IMPORT_STATEMENT", "invalid import statement");
     }
 
     private FunctionStmt functionStmt() {
-        Identifier functionName = idOrReportError("invalid function name");
+        Identifier functionName = idOrReportError("INVALID_FUNCTION_NAME", "invalid function name");
 
-        advanceOrReportError(TokenType.LPAREN, "expect '(' in parameter list");
+        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_PARAMETER_LIST",
+                "expect '(' before parameter list");
         List<VarDecl> paramList = parameterList();
 
-        advanceOrReportError(TokenType.LBRACE, "expect '{' in function declaration");
+        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_BEFORE_FUNCTION_BODY",
+                "expect '{' before function body");
         Block block = block();
 
         return new FunctionStmt(functionName.getKeyToken(), functionName, paramList, block);
@@ -398,11 +403,12 @@ public class QLParser {
         List<VarDecl> parameterList = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RPAREN)) {
             if (isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        lParen, "can not find ')' to match it"));
+                throw QLException.reportParserErr(scanner.getScript(),
+                        lParen, "CAN_NOT_FIND_RPAREN_TO_MATCH", "can not find ')' to match it");
             }
             if (!parameterList.isEmpty()) {
-                advanceOrReportError(TokenType.COMMA, "expect ',' between parameters");
+                advanceOrReportError(TokenType.COMMA, "EXPRECT_COMMA_BETWEEN_PARAMETERS",
+                        "expect ',' between parameters");
             }
             parameterList.add(varDecl());
         }
@@ -417,11 +423,12 @@ public class QLParser {
         // block end
         while (!matchTypeAndAdvance(TokenType.RBRACE)) {
             if (isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), keyToken,
-                        "can not find '}' to match"));
+                throw QLException.reportParserErr(scanner.getScript(), keyToken,
+                        "CAN_NOT_FIND_RBRACE_TO_MATCH", "can not find '}' to match");
             }
             if (statement instanceof Expr) {
-                advanceOrReportError(TokenType.SEMI, "expect ';' in the end of statement");
+                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                        "statement must end with ';'");
                 statement = null;
                 continue;
             }
@@ -434,9 +441,11 @@ public class QLParser {
 
     private IfStmt ifStmt() {
         Token keyToken = pre;
-        advanceOrReportError(TokenType.LPAREN, "expect '(' in if statement");
+        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_IF_CONDITION",
+                "expect '(' before if condition");
         Expr condition = expr();
-        advanceOrReportError(TokenType.RPAREN, "expect ')' in if statement");
+        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
+                "expect ')' after if condition");
 
         Stmt thenBranch = statement();
 
@@ -451,9 +460,11 @@ public class QLParser {
     private WhileStmt whileStmt() {
         Token keyToken = pre;
 
-        advanceOrReportError(TokenType.LPAREN, "expect '(' in while statement");
+        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_WHILE_CONDITION",
+                "expect '(' before while condition");
         Expr condition = expr();
-        advanceOrReportError(TokenType.RPAREN, "expect ')' in while statement");
+        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_WHILE_CONDITION",
+                "expect ')' after while statement");
 
         Stmt body = statement();
         return new WhileStmt(keyToken, condition, body);
@@ -461,17 +472,19 @@ public class QLParser {
 
     private Stmt forStmt() {
         Token forToken = pre;
-        advanceOrReportError(TokenType.LPAREN, "expect '(' in for statement");
+        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_AFTER_FOR", "expect '(' after 'for'");
         return isForEach()? forEachStmt(forToken): traditionalForStmt(forToken);
     }
 
     private ForEachStmt forEachStmt(Token forToken) {
         VarDecl itVar;
         itVar = varDecl();
-        advanceOrReportError(TokenType.COLON, "expect ':' in for-each statement");
+        advanceOrReportError(TokenType.COLON, "EXPECT_COLON_AFTER_FOR_EACH_VARIABLE_DECLARE",
+                "expect ':' after for-each variable declare");
 
         Expr target = expr();
-        advanceOrReportError(TokenType.RPAREN, "expect ')' in for-each statement");
+        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_FOR_EACH_EXPRESSION",
+                "expect ')' after for-each expression");
 
         Stmt body = statement();
         return new ForEachStmt(forToken, itVar, target, body);
@@ -484,19 +497,22 @@ public class QLParser {
                 forInit = localVarDeclareStmt();
             } else {
                 forInit = expr();
-                advanceOrReportError(TokenType.SEMI, "expect ';' in for statement");
+                advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_INIT",
+                        "expect ';' after 'for' init expression");
             }
         }
         Expr condition = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
             condition = expr();
-            advanceOrReportError(TokenType.SEMI, "expect ';' in for statement");
+            advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_CONDITION",
+                    "expect ';' after 'for' condition expression");
         }
         Expr forUpdate = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
             forUpdate = expr();
         }
-        advanceOrReportError(TokenType.RPAREN, "expect ')' in for statement");
+        advanceOrReportError(TokenType.RPAREN, "EXPECT_SEMI_AFTER_FOR_UPDATE",
+                "expect ')' after 'for' update expression");
 
         Stmt body = statement();
         return new ForStmt(forToken, forInit, condition, forUpdate, body);
@@ -539,22 +555,22 @@ public class QLParser {
         return false;
     }
 
-    private Identifier idOrReportError(String reason) {
+    private Identifier idOrReportError(String errorCode, String reason) {
         if (cur.getType() != TokenType.ID) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), cur, reason));
+            throw QLException.reportParserErr(scanner.getScript(), cur, errorCode, reason);
         }
         Identifier id = new Identifier(cur);
         advance();
         return id;
     }
 
-    protected void advanceOrReportError(TokenType expectType, String reason) {
-        advanceOrReportErrorWithToken(expectType, reason, lastToken());
+    protected void advanceOrReportError(TokenType expectType, String errorCode, String reason) {
+        advanceOrReportErrorWithToken(expectType, errorCode, reason, lastToken());
     }
 
-    private void advanceOrReportErrorWithToken(TokenType expectType, String reason, Token reportToken) {
+    private void advanceOrReportErrorWithToken(TokenType expectType, String errorCode, String reason, Token reportToken) {
         if (isEnd() || !Objects.equals(cur.getType(), expectType)) {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), reportToken, reason));
+            throw  QLException.reportParserErr(scanner.getScript(), reportToken, errorCode, reason);
         }
         advance();
     }
@@ -620,8 +636,9 @@ public class QLParser {
         Token ahead = fromCur? cur: scanner.lookAhead();
         while (true) {
             if (ahead == null) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParenToken,
-                        "can not find ')' to match"));
+                throw QLException.reportParserErr(scanner.getScript(), lParenToken,
+                        "CAN_NOT_FIND_RPAREN_TO_MATCH",
+                        "can not find ')' to match it");
             }
             if (ahead.getType() == TokenType.RPAREN) {
                 break;
@@ -671,9 +688,8 @@ public class QLParser {
                     cur.getType() == TokenType.COLON) {
                 break;
             } else {
-                throw new QLSyntaxException(ReportTemplate.report(
-                        scanner.getScript(), lastToken(), "invalid expression"
-                ));
+                throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_EXPRESSION",
+                        "invalid expression");
             }
         }
         return left;
@@ -725,8 +741,8 @@ public class QLParser {
             if (lookAheadToken != null && lookAheadToken.getType() == TokenType.ARROW) {
                 if (!(left instanceof GroupExpr)) {
                     // only with a force cast, group expr allow in middle
-                    throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), pre,
-                            "invalid expression"));
+                    throw QLException.reportParserErr(scanner.getScript(), pre,
+                            "INVALID_EXPRESSION", "invalid expression");
                 }
                 // lambda expression
                 LambdaExpr lambdaExpr = lambdaExpr();
@@ -738,15 +754,16 @@ public class QLParser {
         } else if (pre.getType() == TokenType.LBRACK) {
             Token keyToken = pre;
             Expr indexExpr = expr();
-            advanceOrReportErrorWithToken(TokenType.RBRACK, "can not find ']' to match", keyToken);
+            advanceOrReportErrorWithToken(TokenType.RBRACK, "CAN_NOT_FIND_RBRACK_TO_MATCH",
+                    "can not find ']' to match", keyToken);
             return new ArrayCallExpr(keyToken, left, indexExpr);
         } else if (pre.getType() == TokenType.DOT || pre.getType() == TokenType.METHOD_REF) {
             // field call
             if (matchTypeAndAdvance(TokenType.ID)) {
                 return new FieldCallExpr(pre, left, new Identifier(pre));
             }
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    lastToken(), "invalid field"));
+            throw QLException.reportParserErr(scanner.getScript(),
+                    lastToken(), "INVALID_FIELD", "invalid field");
         } else if (pre.getType() == TokenType.INC || pre.getType() == TokenType.DEC) {
             // suffix operator
             return new SuffixUnaryOpExpr(pre, left);
@@ -754,8 +771,8 @@ public class QLParser {
             // assign operator is right-associative
             Token keyToken = pre;
             if (!canAssign(left)) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                        keyToken, "invalid assign target"));
+                throw QLException.reportParserErr(scanner.getScript(),
+                        keyToken, "INVALID_ASSIGN_TARGET", "invalid assign target");
             }
             Expr rightExpr = parsePrecedence(QLPrecedences.ASSIGN);
             return new AssignExpr(keyToken, left, rightExpr);
@@ -763,14 +780,15 @@ public class QLParser {
             // ?:
             Token keyToken = pre;
             Expr thenExpr = parsePrecedence(QLPrecedences.TERNARY);
-            advanceOrReportErrorWithToken(TokenType.COLON, "can not find ':' to match '?'", keyToken);
+            advanceOrReportErrorWithToken(TokenType.COLON, "CAN_NOT_FIND_COLON_TO_MATCH_QUESTION",
+                    "can not find ':' to match '?'", keyToken);
             Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY);
             return new TernaryExpr(keyToken, left, thenExpr, elseExpr);
         } else if (getMiddleOpPrecedence(pre) != null) {
             return new BinaryOpExpr(pre, left, parsePrecedence(getMiddleOpPrecedence(pre) + 1));
         } else {
-            throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(),
-                    pre, "unknown middle operator"));
+            throw QLException.reportParserErr(scanner.getScript(),
+                    pre, "UNKNOWN_MIDDLE_OPERATOR", "unknown middle operator");
         }
     }
 
@@ -806,11 +824,12 @@ public class QLParser {
         List<Expr> arguments = new ArrayList<>();
         while (!matchTypeAndAdvance(TokenType.RPAREN)) {
             if (isEnd()) {
-                throw new QLSyntaxException(ReportTemplate.report(scanner.getScript(), lParen,
-                        "can not find ')' to match"));
+                throw QLException.reportParserErr(scanner.getScript(), lParen,
+                        "CAN_NOT_FIND_RPAREN_TO_MATCH", "can not find ')' to match it");
             }
             if (!arguments.isEmpty()) {
-                advanceOrReportError(TokenType.COMMA, "expect ',' between arguments");
+                advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ARGUMENTS",
+                        "expect ',' between arguments");
             }
             arguments.add(expr());
         }

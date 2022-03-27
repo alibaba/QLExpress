@@ -116,19 +116,19 @@ public class QLParserTest {
         assertTrue(importStmt2.isStaticImport());
 
         assertErrReport("import a.b.cc\n" +
-                "int d;", "[Error: import statement must end with ';']\n" +
+                "int d;", "[Error: statement must end with ';']\n" +
                 "[Near: rt a.b.cc int d;]\n" +
                 "                 ^^^\n" +
                 "[Line: 2, Column: 1]");
-        assertErrReport("import;", "[Error: invalid package to import]\n" +
+        assertErrReport("import;", "[Error: invalid import package]\n" +
                 "[Near: import;]\n" +
                 "             ^\n" +
                 "[Line: 1, Column: 7]");
-        assertErrReport("import a.b.c", "[Error: import statement must end with ';']\n" +
+        assertErrReport("import a.b.c", "[Error: statement must end with ';']\n" +
                 "[Near: mport a.b.c]\n" +
                 "                 ^\n" +
                 "[Line: 1, Column: 12]");
-        assertErrReport("import *;", "[Error: invalid import]\n" +
+        assertErrReport("import *;", "[Error: invalid import statement]\n" +
                 "[Near: import *;]\n" +
                 "       ^^^^^^\n" +
                 "[Line: 1, Column: 1]");
@@ -468,7 +468,7 @@ public class QLParserTest {
                 .map(Identifier::getKeyToken)
                 .map(Token::getLexeme).collect(Collectors.toList()));
 
-        assertErrReport("new Ttt(1*9-0", "[Error: can not find ')' to match]\n" +
+        assertErrReport("new Ttt(1*9-0", "[Error: can not find ')' to match it]\n" +
                 "[Near: new Ttt(1*9-0]\n" +
                 "              ^\n" +
                 "[Line: 1, Column: 8]");
@@ -600,11 +600,11 @@ public class QLParserTest {
         assertTrue(program1.getStmtList().get(0) instanceof AssignExpr);
         assertTrue(program1.getStmtList().get(1) instanceof BinaryOpExpr);
 
-        assertErrReport("1+1)", "[Error: expect ';' in the end of statement]\n" +
+        assertErrReport("1+1)", "[Error: statement must end with ';']\n" +
                 "[Near: 1+1)]\n" +
                 "          ^\n" +
                 "[Line: 1, Column: 4]");
-        assertErrReport("int a = 2", "[Error: expect ';' in the end of statement]\n" +
+        assertErrReport("int a = 2", "[Error: statement must end with ';']\n" +
                 "[Near: int a = 2]\n" +
                 "               ^\n" +
                 "[Line: 1, Column: 9]");
