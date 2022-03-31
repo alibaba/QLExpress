@@ -1,0 +1,35 @@
+# 相当于脚本用途的一个声明
+name: Maven Central Repo Deployment
+# 触发脚本的事件  这里为发布release之后触发
+on:
+  release:
+    types: [released]
+# 定义一个发行任务
+jobs:
+  publish:
+# 任务运行的环境
+    runs-on: ubuntu-latest
+# 任务的步骤
+    steps:
+# 1. 声明 checkout 仓库代码到工作区
+      - name: Checkout Git Repo
+        uses: actions/checkout@v2
+# 2. 安装Java 环境 这里会用到的参数就是 Git Action secrets中配置的，
+#    取值要在key前面加  secrets.
+      - name: Set up Maven Central Repo
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          server-id: sonatype-nexus-staging
+          server-username: ${{ secrets.OSSRH_USER }}
+          server-password: ${{ secrets.OSSRH_PASSWORD }}
+          gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
+# 3. 发布到Maven中央仓库
+      - name: Publish to Maven Central Repo
+# 这里用到了其他人写的action脚本，详细可以去看他的文档。
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          gpg_private_key: ${{ secrets.GPG_SECRET }}
+          gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
+          nexus_username: ${{ secrets.OSSRH_USER }}
+          nexus_password: ${{ secrets.OSSRH_PASSWORD }}
