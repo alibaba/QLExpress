@@ -104,7 +104,6 @@ public class PropertiesUtils {
      * @return
      */
     public static List<Method> getClzMethod(Class<?> clazz, String name){
-        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null,
-        true, true,null);
+        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null, true, true, null);
     }
 }
