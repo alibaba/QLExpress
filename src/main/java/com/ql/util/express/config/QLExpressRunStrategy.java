@@ -1,15 +1,28 @@
 package com.ql.util.express.config;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.ql.util.express.config.whitelist.WhiteChecker;
 import com.ql.util.express.exception.QLSecurityRiskException;
 
 /**
  * ExpressRunner设置全局生效的配置，直接使用静态方法控制
  */
 public class QLExpressRunStrategy {
+    /**
+     * 沙箱模式开关
+     */
+    private static boolean sandboxMode = false;
+    /**
+     * 编译期类型白名单
+     * null 表示不进行校验
+     * 如果编译时发现引用了白名单之外的类, 就会抛出异常
+     */
+    private static List<WhiteChecker> compileWhiteCheckerList = null;
+
     /**
      * 预防空指针
      */
@@ -25,7 +38,15 @@ public class QLExpressRunStrategy {
      */
     private static boolean forbidInvokeSecurityRiskMethods = false;
 
-    private static final List<String> SECURITY_RISK_METHOD_LIST = new ArrayList<>();
+    /**
+     * 黑名单控制
+     */
+    private static final Set<String> SECURITY_RISK_METHOD_LIST = new HashSet<>();
+
+    /**
+     * 白名单控制
+     */
+    private static Set<String> SECURE_METHOD_LIST = new HashSet<>();
 
     static {
         // 系统退出
@@ -33,10 +54,32 @@ public class QLExpressRunStrategy {
 
         // 运行脚本命令
         SECURITY_RISK_METHOD_LIST.add(Runtime.getRuntime().getClass().getName() + ".exec");
+        SECURITY_RISK_METHOD_LIST.add(ProcessBuilder.class.getName() + ".start");
+
+        // 反射相关
+        SECURITY_RISK_METHOD_LIST.add(Method.class.getName() + ".invoke");
+        SECURITY_RISK_METHOD_LIST.add(Class.class.getName() + ".forName");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".loadClass");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".findClass");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".defineClass");
+        SECURITY_RISK_METHOD_LIST.add(ClassLoader.class.getName() + ".getSystemClassLoader");
+
+        // jndi 相关
+        SECURITY_RISK_METHOD_LIST.add("javax.naming.InitialContext.lookup");
+        SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setDataSourceName");
+        SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setAutoCommit");
     }
 
     private QLExpressRunStrategy() {
         throw new IllegalStateException("Utility class");
+    }
+
+    public static void setSandBoxMode(boolean sandboxMode) {
+        QLExpressRunStrategy.sandboxMode = sandboxMode;
+    }
+
+    public static boolean isSandboxMode() {
+        return sandboxMode;
     }
 
     public static boolean isCompareNullLessMoreAsFalse() {
@@ -73,14 +116,50 @@ public class QLExpressRunStrategy {
         QLExpressRunStrategy.SECURITY_RISK_METHOD_LIST.add(clazz.getName() + "." + methodName);
     }
 
+    public static void setSecureMethods(Set<String> secureMethods) {
+        SECURE_METHOD_LIST = secureMethods;
+    }
+
+    public static void addSecureMethod(Class<?> clazz, String methodName) {
+        SECURE_METHOD_LIST.add(clazz.getName() + "." + methodName);
+    }
+
     public static void assertSecurityRiskMethod(Method method) throws QLSecurityRiskException {
         if (!forbidInvokeSecurityRiskMethods || method == null) {
             return;
         }
 
         String fullMethodName = method.getDeclaringClass().getName() + "." + method.getName();
+        if (SECURE_METHOD_LIST != null && !SECURE_METHOD_LIST.isEmpty()) {
+            // 有白名单配置时则黑名单失效
+            if (!SECURE_METHOD_LIST.contains(fullMethodName)) {
+                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
+            }
+            return;
+        }
+
         if (SECURITY_RISK_METHOD_LIST.contains(fullMethodName)) {
             throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
         }
+    }
+
+    /**
+     * @param clazz
+     * @return true 表示位于白名单中, false 表示不在白名单中
+     */
+    public static boolean checkWhiteClassList(Class<?> clazz) {
+        if (compileWhiteCheckerList == null) {
+            return true;
+        }
+        for (WhiteChecker whiteChecker : compileWhiteCheckerList) {
+            if (whiteChecker.check(clazz)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void setCompileWhiteCheckerList(List<WhiteChecker> compileWhiteCheckerList) {
+        QLExpressRunStrategy.compileWhiteCheckerList = compileWhiteCheckerList;
     }
 }

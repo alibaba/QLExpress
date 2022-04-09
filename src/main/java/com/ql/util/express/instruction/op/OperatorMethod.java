@@ -71,6 +71,9 @@ public class OperatorMethod extends OperatorBase {
                     return appendingClassMethodManager.invoke(appendingClassMethod, parent, list, null);
                 }
             }
+            if (QLExpressRunStrategy.isSandboxMode()) {
+                throw new QLException("没有找到方法:" + this.methodName);
+            }
             Method method = null;
             // 调用静态方法
             if (p0 instanceof OperateClass) {

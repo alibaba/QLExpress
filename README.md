@@ -34,7 +34,10 @@ String express = "a + b * c";
 Object r = runner.execute(express, context, null, true, false);
 System.out.println(r);
 ```
+如果应用有让终端用户输入与执行 QLExpress 的功能，务必关注 [多级别安全控制](#4-多级别安全控制)，将 QLExpress 的安全级别配置在 2 或以上。
+
 # 三、语法介绍
+
 ## 1、操作符和java对象操作
 ### 普通java语法
 ```java
@@ -52,7 +55,7 @@ return sum;
 a = 1;
 b = 2;
 maxnum = a > b ? a : b;
-``` 
+```
 
 ### 和java语法相比，要避免的一些ql写法错误
 - 不支持try{}catch{}
@@ -249,7 +252,7 @@ var : 数学
 var : 综合考试
 var : 英语
 var : 语文
-``` 
+```
 
 ## 7、关于不定参数的使用
 
@@ -277,7 +280,7 @@ public Object getTemplate(Object... params) throws Exception{
     }
     return result;
 }
- ```
+```
 
 ## 8、关于集合的快捷写法
 ```java
@@ -295,7 +298,7 @@ public void testSet() throws Exception {
     r = runner.execute(express, context, null, false, false);
     System.out.println(r);
 }
-``` 
+```
 
 ## 9、集合的遍历
 其实类似java的语法，只是ql不支持for(obj:list){}的语法，只能通过下标访问。
@@ -507,6 +510,9 @@ try {
 }
 ```
 #### 7.1 防止调用不安全的系统api
+
+更加详细多级安全控制见 [多级别安全控制](#4-多级别安全控制)
+
 ```java
 ExpressRunner runner = new ExpressRunner();
 QLExpressRunStrategy.setForbiddenInvokeSecurityRiskMethods(true);
@@ -597,6 +603,210 @@ public class ContextMessagePutTest {
         System.out.println(context);
     }
 }
+```
+## 4. 多级别安全控制
+
+QLExpress 与本地 JVM 交互的方式有：
+
+ - 应用中的自定义函数/操作符/宏: 该部分不在 QLExpress 运行时的管控范围，属于应用开放给脚本的业务功能，不受安全控制，应用需要自行确保这部分是安全的
+ - 在 QLExpress 运行时中发生的交互: 安全控制可以对这一部分进行管理, QLExpress 会开放相关的配置给应用
+   - 通过 `.` 操作符获取 Java 对象的属性或者调用 Java 对象中的方法
+   - 通过 `import` 可以导入 JVM 中存在的任何类并且使用, 默认情况下会导入 `java.lang`, `java.util` 以及 `java.util.stream`
+
+在不同的场景下，应用可以配置不同的安全级别，安全级别由低到高：
+
+1. 黑名单控制：QLExpress 默认会阻断一些高危的系统 API, 用户也可以自行添加, 但是开放对 JVM 中其他所有类与方法的访问, 最灵活, 但是很容易被反射工具类绕过，只适用于脚本安全性有其他严格控制的场景，禁止直接运行终端用户输入
+2. 白名单控制：QLExpress 支持编译时白名单和运行时白名单机制, 编译时白名单设置到类级别, 能够在语法检查阶段就暴露出不安全类的使用, 但是无法阻断运行时动态生成的类(比如通过反射), 运行时白名单能够确保运行时只可以直接调用有限的 Java 方法, 必须设置了运行时白名单, 才算是达到了这个级别
+
+3. 沙箱模式：QLExpress 作为一个语言沙箱, 只允许通过自定义函数/操作符/宏与应用交互, 不允许与 JVM 中的类产生交互
+
+### （1） 黑名单控制
+
+
+
+QLExpess 目前默认添加的黑名单有：
+
+- `java.lang.System.exit`
+- `java.lang.Runtime.exec`
+- `java.lang.ProcessBuilder.start`
+- `java.lang.reflect.Method.invoke`
+- `java.lang.reflect.Class.forName`
+- `java.lang.reflect.ClassLoader.loadClass`
+- `java.lang.reflect.ClassLoader.findClass`
+
+同时支持通过 `QLExpressRunStrategy.addSecurityRiskMethod` 额外添加
+
+`com.ql.util.express.example.MultiLevelSecurityTest#blockWhiteListControlTest`
+
+```java
+// 必须将该选项设置为 true
+QLExpressRunStrategy.setForbidInvokeSecurityRiskMethods(true);
+// 这里不区分静态方法与成员方法, 写法一致
+// 不支持重载, riskMethod 的所有重载方法都会被禁止
+QLExpressRunStrategy.addSecurityRiskMethod(RiskBean.class, "riskMethod");
+ExpressRunner expressRunner = new ExpressRunner();
+DefaultContext<String, Object> context = new DefaultContext<>();
+try {
+    expressRunner.execute("import com.ql.util.express.example.RiskBean;" +
+                          "RiskBean.riskMethod()", context, null, true, false);
+    fail("没有捕获到不安全的方法");
+} catch (Exception e) {
+    assertTrue(e.getCause() instanceof QLSecurityRiskException);
+}
+```
+
+
+
+### （2）白名单控制
+
+**编译期白名单：**
+
+编译期白名单是类维度的，脚本中只允许显式引用符合白名单条件的类，支持两种设置方式，精确设置某个类，以及设置某个类的全部子类。
+
+`com.ql.util.express.example.MultiLevelSecurityTest#compileWhiteListTest`
+
+```java
+// 设置编译期白名单
+QLExpressRunStrategy.setCompileWhiteClassList(Arrays.asList(
+    // 精确设置
+    CheckerFactory.must(Date.class),
+    // 子类设置
+    CheckerFactory.assignable(List.class)
+));
+ExpressRunner expressRunner = new ExpressRunner();
+// Date 在编译期白名单中, 可以显示引用
+expressRunner.execute("new Date()", new DefaultContext<>(), null,
+                      false, true);
+// LinkedList 是 List 的子类, 符合白名单要求
+expressRunner.execute("LinkedList ll = new LinkedList; ll.add(1); ll.add(2); ll",
+                      new DefaultContext<>(), null, false, true);
+try {
+    // String 不在白名单中, 不可以显示引用
+    // 但是隐式引用, a = 'mmm', 或者定义字符串常量 'mmm' 都是可以的
+    expressRunner.execute("String a = 'mmm'", new DefaultContext<>(), null,
+                          false, true);
+} catch (Exception e) {
+    assertTrue(e.getCause() instanceof QLSecurityRiskException);
+}
+
+// Math 不在白名单中
+// 对于不满足编译期类型白名单的脚本无需运行, 即可通过 checkSyntax 检测出
+assertFalse(expressRunner.checkSyntax("Math.abs(-1)"));
+```
+
+编译期白名单只能检测出脚本编译时能够确认的类型，任何运行时出现的类型都是无法检测的，诸如各种反射`Class.forName`, `ClassLoader.loadClass`，或者没有声明类型的变量等等，因为编译期白名单只能增加黑客的作案成本，是容易被绕过。因此建议编译期白名单只用来帮助脚本校验，如果需要接收终端用户输入，运行期白名单是务必要配置的。
+
+**运行期白名单：**
+
+如果有白名单设置，所有的黑名单设置就都会无效，以白名单为准。默认没有白名单设置。
+
+`com.ql.util.express.example.MultiLevelSecurityTest#blockWhiteListControlTest`
+
+```java
+// 必须将该选项设置为 true
+QLExpressRunStrategy.setForbidInvokeSecurityRiskMethods(true);
+// 有白名单设置时, 则黑名单失效
+QLExpressRunStrategy.addSecureMethod(RiskBean.class, "secureMethod");
+// 白名单中的方法, 允许正常调用
+expressRunner.execute("import com.ql.util.express.example.RiskBean;" +
+                      "RiskBean.secureMethod()", context, null, true, false);
+try {
+    // java.lang.String.length 不在白名单中, 不允许调用
+    expressRunner.execute("'abcd'.length()", context,
+                          null, true, false);
+    fail("没有捕获到不安全的方法");
+} catch (Exception e) {
+    assertTrue(e.getCause() instanceof QLSecurityRiskException);
+}
+
+// setSecureMethods 设置方式
+Set<String> secureMethods = new HashSet<>();
+secureMethods.add("java.lang.String.length");
+secureMethods.add("java.lang.Integer.valueOf");
+QLExpressRunStrategy.setSecureMethods(secureMethods);
+// 白名单中的方法, 允许正常调用
+Object res = expressRunner.execute("Integer.valueOf('abcd'.length())", context,
+                                   null, true, false);
+assertEquals(4, res);
+try {
+    // java.lang.Long.valueOf 不在白名单中, 不允许调用
+    expressRunner.execute("Long.valueOf('abcd'.length())", context,
+                          null, true, false);
+    fail("没有捕获到不安全的方法");
+} catch (Exception e) {
+    assertTrue(e.getCause() instanceof QLSecurityRiskException);
+}
+```
+
+从上图中可以看出白名单有两种设置方式：
+
+- 添加：`QLExpressRunStrategy.addSecureMethod`
+- 置换：`QLExpressRunStrategy.setSecureMethods`
+
+在应用中使用的时，推荐将白名单配置在诸如 `etcd`,`configServer` 等配置服务中，根据需求随时调整。
+
+### （3）沙箱模式
+
+如果你厌烦上述复杂的配置，只是想完全关闭 QLExpress 和 Java 应用的自由交互，那么推荐使用沙箱模式。
+
+在沙箱模式中，脚本**不可以**：
+
+- import Java 类
+- 显式引用 Java 类，比如 `String a = 'mmm'`
+- 取 Java 类中的字段：`a = new Integer(11); a.value`
+- 调用 Java 类中的方法：`Math.abs(12)`
+
+脚本**可以**：
+
+- 使用 QLExpress 的自定义操作符/宏/函数，以此实现与应用的受控交互
+- 使用 `.` 操作符获取 `Map` 的 `key` 对应的 `value`，比如 `a` 在应用传入的表达式中是一个 `Map`，那么可以通过 `a.b` 获取
+- 所有不涉及应用 Java 类的操作
+
+`com.ql.util.express.example.MultiLevelSecurityTest#sandboxModeTest`
+
+```java
+// 开启沙箱模式
+QLExpressRunStrategy.setSandBoxMode(true);
+ExpressRunner expressRunner = new ExpressRunner();
+// 沙箱模式下不支持 import 语句
+assertFalse(expressRunner.checkSyntax("import com.ql.util.express.example.RiskBean;"));
+// 沙箱模式下不支持显式的类型引用
+assertFalse(expressRunner.checkSyntax("String a = 'abc'"));
+assertTrue(expressRunner.checkSyntax("a = 'abc'"));
+// 无法用 . 获取 Java 类属性或者 Java 类方法
+try {
+    expressRunner.execute("'abc'.length()", new DefaultContext<>(),
+                          null, false, true);
+    fail();
+} catch (QLException e) {
+    // 没有找到方法:length
+}
+try {
+    DefaultContext<String, Object> context = new DefaultContext<>();
+    context.put("test", new CustBean(12));
+    expressRunner.execute("test.id", context,
+                          null, false, true);
+    fail();
+} catch (RuntimeException e) {
+    // 无法获取属性:id
+}
+
+// 沙箱模式下可以使用 自定义操作符/宏/函数 和应用进行交互
+expressRunner.addFunction("add", new Operator() {
+    @Override
+    public Object executeInner(Object[] list) throws Exception {
+        return (Integer) list[0] + (Integer) list[1];
+    }
+});
+assertEquals(3, expressRunner.execute("add(1,2)", new DefaultContext<>(),
+                                      null, false, true));
+// 可以用 . 获取 map 的属性
+DefaultContext<String, Object> context = new DefaultContext<>();
+HashMap<Object, Object> testMap = new HashMap<>();
+testMap.put("a", "t");
+context.put("test", testMap);
+assertEquals("t", expressRunner.execute("test.a", context,
+                                        null, false, true));
 ```
 
 附录：
