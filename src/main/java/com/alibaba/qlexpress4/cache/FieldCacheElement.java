@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.cache;
 
+import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.utils.QLAliasUtils;
 
 import java.lang.reflect.Field;
@@ -40,20 +41,6 @@ public class FieldCacheElement implements ICacheElement{
 
     @Override
     public Member getElement(Class<?> baseClass, String propertyName, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-        Field[] fields = baseClass.getDeclaredFields();
-        for (Field field : fields) {
-            if (propertyName.equals(field.getName())) {
-                return field;
-            }
-            if(QLAliasUtils.findQLAliasFields(field,propertyName)){
-                return field;
-            }
-        }
-        Class<?> superclass = baseClass.getSuperclass();
-        if (superclass != null) {
-            return getElement(superclass, propertyName, types, publicOnly,isStatic);
-        }
-        return null;
-
+        return FieldHandler.Preferred.gatherFieldRecursive(baseClass, propertyName, types, publicOnly, isStatic);
     }
 }

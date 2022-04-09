@@ -1,12 +1,11 @@
 package com.alibaba.qlexpress4.cache;
 
-import com.alibaba.qlexpress4.member.MemberHandler;
+import com.alibaba.qlexpress4.member.ConstructorHandler;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
-import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * @Author TaoKan
@@ -53,17 +52,8 @@ public class ConstructorCacheElement implements ICacheElement {
 
 
     @Override
-    public Constructor<?> getElement(Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-            List<Constructor<?>> constructorList = new ArrayList();
-            List<Class<?>[]> listClass = new ArrayList();
-            for (Constructor<?> constructor : baseClass.getConstructors()) {
-                if (constructor.getParameterTypes().length == types.length) {
-                    listClass.add(constructor.getParameterTypes());
-                    constructorList.add(constructor);
-                }
-            }
-            int match = MemberHandler.Preferred.findMostSpecificSignature(types, listClass.toArray(new Class[0][]));
-            return match == -1 ? null : constructorList.get(match);
+    public Member getElement(Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
+        return ConstructorHandler.Preferred.findConstructorMostSpecificSignature(baseClass, name, types, publicOnly, isStatic);
     }
 
 }
