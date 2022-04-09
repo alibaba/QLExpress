@@ -11,28 +11,18 @@ import java.lang.reflect.Member;
  */
 public class FieldHandler extends MemberHandler{
     public static class Access{
-        public static void setAccessFieldValue(Member accessMember, Object bean, String name, Object value){
+        public static void setAccessFieldValue(Member accessMember, Object bean, Object value) throws IllegalAccessException{
             Field accessField = ((Field) accessMember);
-            if (value != null && !accessField.getType().isAssignableFrom(value.getClass())) {
-                throw new QLRuntimeException("cannot setPropertyValue: " + value.getClass() + " to " + accessField.getType()+ " about:"+name);
-            }
-            else {
-                try {
-                    if(accessField.isAccessible()){
+            if(accessField.isAccessible()){
+                accessField.set(bean,value);
+            }else {
+                synchronized (accessField) {
+                    try {
+                        accessField.setAccessible(true);
                         accessField.set(bean,value);
-                    }else {
-                        synchronized (accessField) {
-                            try {
-                                accessField.setAccessible(true);
-                                accessField.set(bean,value);
-                            }finally {
-                                accessField.setAccessible(false);
-                            }
-                        }
+                    }finally {
+                        accessField.setAccessible(false);
                     }
-                } catch (IllegalAccessException e) {
-                    throw new QLRuntimeException("setPropertyValue accessFieldException key："+
-                            name + " (" + accessMember.toString() + ") with:" + e.getMessage());
                 }
             }
         }
@@ -43,24 +33,19 @@ public class FieldHandler extends MemberHandler{
             return accessField.getType();
         }
 
-        public static Object accessFieldValue(Member accessMember,Object bean, String name){
+        public static Object accessFieldValue(Member accessMember,Object bean) throws IllegalAccessException{
             Field accessField = ((Field) accessMember);
-            try {
-                if(accessField.isAccessible()){
-                    return accessField.get(bean);
-                }else {
-                    synchronized (accessField) {
-                        try {
-                            accessField.setAccessible(true);
-                            return accessField.get(bean);
-                        }finally {
-                            accessField.setAccessible(false);
-                        }
+            if(accessField.isAccessible()){
+                return accessField.get(bean);
+            }else {
+                synchronized (accessField) {
+                    try {
+                        accessField.setAccessible(true);
+                        return accessField.get(bean);
+                    }finally {
+                        accessField.setAccessible(false);
                     }
                 }
-            } catch (IllegalAccessException e) {
-                throw new QLRuntimeException("getPropertyValue accessFieldException key："+
-                        name + " (" + accessMember.toString() + ") with:" + e.getMessage());
             }
         }
     }

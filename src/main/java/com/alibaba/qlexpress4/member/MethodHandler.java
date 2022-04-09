@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.QLAliasUtils;
 
@@ -33,13 +32,7 @@ public class MethodHandler extends MemberHandler{
         }
 
 
-        /**
-         *
-         * @param baseClass
-         * @param methodName
-         * @param candidates
-         * @return
-         */
+
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, List<Method> candidates) {
             return gatherMethodsRecursive(baseClass,methodName,false,null,false,false,candidates);
         }
@@ -64,8 +57,13 @@ public class MethodHandler extends MemberHandler{
 
 
         private static boolean candidateCheck(Method method, boolean argCheck, Integer numArgs, boolean publicOnly, boolean isStatic){
-            return (!argCheck && method.getParameterTypes().length == numArgs) && (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
+            if(argCheck && method.getParameterTypes().length == numArgs){
+                return (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
+            }else {
+                return (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
+            }
         }
+
 
         public static List<Method> addCandidatesMethod(Method[] methods, String methodName, boolean argCheck,
                               Integer numArgs, boolean publicOnly, boolean isStatic, List<Method> candidates) {
@@ -89,9 +87,9 @@ public class MethodHandler extends MemberHandler{
             Method accessMethod = ((Method) accessMember);
             return accessMethod.getReturnType();
         }
-        public static Object accessMethodValue(Member accessMember,Object bean, String name, Object[] params){
+        public static Object accessMethodValue(Member accessMember,Object bean, Object[] params) throws
+                IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-            try{
                 if(accessMethod.isAccessible()){
                     return accessMethod.invoke(bean,params);
                 }else {
@@ -104,64 +102,28 @@ public class MethodHandler extends MemberHandler{
                         }
                     }
                 }
-            }catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e){
-                if (accessMember.getDeclaringClass().equals(bean)) {
-                    try {
-                        Class c = Class.forName(accessMember.getDeclaringClass().getName() + "$" + name);
-                        throw new QLRuntimeException("Collision In className: " + c.getCanonicalName() + "; key:"
-                                + name + " (" + accessMember.toString() + ")");
-                    }
-                    catch (ClassNotFoundException e2) {
-                        throw new QLRuntimeException("ClassNotFound key:"+ name +
-                                " (" + accessMember.toString() + ") with:" + e.getMessage());
-                    }
-                }
-                throw new QLRuntimeException("getPropertyValue accessMethodException key："+
-                        name + " (" + accessMember.toString() + ") with:" + e.getMessage());
-            }
         }
 
-        public static void setAccessMethodValue(Member accessMember, Object bean, String name, Object value){
+        public static void setAccessMethodValue(Member accessMember, Object bean, Object value)
+                throws IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-            Class[] parameterTypes = accessMethod.getParameterTypes();
-
-            if (value != null && !parameterTypes[0].isAssignableFrom(value.getClass())) {
-                throw new QLRuntimeException("cannot setPropertyValue: " + value.getClass() + " to " + parameterTypes[0]+ " about:"+name);
-            }
-            else {
-                try{
-                    if(accessMethod.isAccessible()){
+            if(accessMethod.isAccessible()){
+                accessMethod.invoke(bean,value);
+            }else {
+                synchronized (accessMethod) {
+                    try {
+                        accessMethod.setAccessible(true);
                         accessMethod.invoke(bean,value);
-                    }else {
-                        synchronized (accessMethod) {
-                            try {
-                                accessMethod.setAccessible(true);
-                                accessMethod.invoke(bean,value);
-                            }finally {
-                                accessMethod.setAccessible(false);
-                            }
-                        }
+                    }finally {
+                        accessMethod.setAccessible(false);
                     }
-                }catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e){
-                    if (accessMember.getDeclaringClass().equals(bean)) {
-                        try {
-                            Class c = Class.forName(accessMember.getDeclaringClass().getName() + "$" + name);
-                            throw new QLRuntimeException("Collision In className: " + c.getCanonicalName() + "; key:"
-                                    + name + " (" + accessMember.toString() + ")");
-                        }
-                        catch (ClassNotFoundException e2) {
-                            throw new QLRuntimeException("ClassNotFound key:"+ name +
-                                    " (" + accessMember.toString() + ") with:" + e.getMessage());
-                        }
-                    }
-                    throw new QLRuntimeException("accessMethodException key："+
-                            name + " (" + accessMember.toString() + ") with:" + e.getMessage());
                 }
             }
+
         }
     }
 
-    public static Method getGetter(Class clazz, String property) {
+    public static Method getGetter(Class clazz, String property, boolean isStaticCheck) {
         String isGet = BasicUtils.getIsGetter(property);
         String simpleIsGet = IS_SIGN + property;
         String getter = BasicUtils.getGetter(property);
@@ -186,7 +148,6 @@ public class MethodHandler extends MemberHandler{
 
         for (Method method : clazz.getMethods()) {
             if (BasicUtils.isPublic(method)
-                    && !BasicUtils.isStatic(method)
                     && method.getParameterTypes().length == 0
                     && (getter.equals(method.getName())
                     || property.equals(method.getName())
@@ -194,7 +155,11 @@ public class MethodHandler extends MemberHandler{
                     && method.getReturnType() == boolean.class)
                     || simple.equals(method.getName()))) {
                 if (mGetCandidate == null || BasicUtils.isPreferredGetter(mGetCandidate, method, map)) {
-                    mGetCandidate = method;
+                    if( isStaticCheck && !BasicUtils.isStatic(method)){
+                        mGetCandidate = method;
+                    }else {
+                        mGetCandidate = method;
+                    }
                 }
             }
         }

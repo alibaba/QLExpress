@@ -23,17 +23,19 @@ public class ExpressUtil {
     public static final MethodCacheElement methodCacheElement = new MethodCacheElement();
     public static final FunctionCacheElement functionCacheElement = new FunctionCacheElement();
 
+
     public static Field getFieldCacheElement(Class<?> baseClass, String propertyName){
         String key = (String)fieldCacheElement.buildCacheKey(baseClass ,propertyName, null);
         return (Field) fieldCacheElement.getCacheElement(key, baseClass, propertyName, null, false, false);
     }
 
+
     public static Method getMethodWithCache(Class<?> baseClass, String methodName,
                                              Class<?>[] types, boolean publicOnly, boolean isStatic) {
         String key = (String)methodCacheElement.buildCacheKey(baseClass ,methodName, types);
-
         return (Method) methodCacheElement.getCacheElement(key, baseClass, methodName, types, publicOnly, isStatic);
     }
+
 
     public static Constructor<?> getConstructorWithCache(Class<?> baseClass, Class<?>[] types) {
         String key = (String)constructorCacheElement.buildCacheKey(baseClass ,BasicUtils.NEW, types);

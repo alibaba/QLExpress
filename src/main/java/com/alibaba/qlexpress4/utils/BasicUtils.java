@@ -124,7 +124,7 @@ public class BasicUtils {
     }
 
 
-    public static Class<?> getJavaClass(String type) {
+    public static Class<?> getJavaClass(String type) throws ClassNotFoundException{
         int index = type.indexOf("[]");
         if (index < 0) {
             return getJavaClassInner(type);
@@ -138,33 +138,29 @@ public class BasicUtils {
         }
         Class<?> baseClass = getJavaClassInner(baseType);
 
-        try {
-            String baseName = "";
-            if (!baseClass.isPrimitive()) {
-                return loadClass(arrayString + "L"
-                        + baseClass.getName() + ";");
-            } else {
-                if (baseClass.equals(boolean.class)) {
-                    baseName = "Z";
-                } else if (baseClass.equals(byte.class)) {
-                    baseName = "B";
-                } else if (baseClass.equals(char.class)) {
-                    baseName = "C";
-                } else if (baseClass.equals(double.class)) {
-                    baseName = "D";
-                } else if (baseClass.equals(float.class)) {
-                    baseName = "F";
-                } else if (baseClass.equals(int.class)) {
-                    baseName = "I";
-                } else if (baseClass.equals(long.class)) {
-                    baseName = "J";
-                } else if (baseClass.equals(short.class)) {
-                    baseName = "S";
-                }
-                return loadClass(arrayString + baseName);
+        String baseName = "";
+        if (!baseClass.isPrimitive()) {
+            return loadClass(arrayString + "L"
+                    + baseClass.getName() + ";");
+        } else {
+            if (baseClass.equals(boolean.class)) {
+                baseName = "Z";
+            } else if (baseClass.equals(byte.class)) {
+                baseName = "B";
+            } else if (baseClass.equals(char.class)) {
+                baseName = "C";
+            } else if (baseClass.equals(double.class)) {
+                baseName = "D";
+            } else if (baseClass.equals(float.class)) {
+                baseName = "F";
+            } else if (baseClass.equals(int.class)) {
+                baseName = "I";
+            } else if (baseClass.equals(long.class)) {
+                baseName = "J";
+            } else if (baseClass.equals(short.class)) {
+                baseName = "S";
             }
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
+            return loadClass(arrayString + baseName);
         }
     }
 

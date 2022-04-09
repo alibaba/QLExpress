@@ -18,16 +18,17 @@ public class MemberHandler {
     public static final String GET_SIGN = "get";
 
     public static class Access{
-        public static Member getAccessMember(Class clazz, String property, AccessMode propertyMode) {
+        public static Member getAccessMember(Class clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
             Field f = null;
             try {
                 f = clazz.getField(property);
                 return f;
             } catch (NoSuchFieldException e) {
+
             }
             //from Method
             if(AccessMode.READ.equals(propertyMode)){
-                return MethodHandler.getGetter(clazz, property);
+                return MethodHandler.getGetter(clazz, property, isStaticCheck);
             }else {
                 return MethodHandler.getSetter(clazz, property);
             }

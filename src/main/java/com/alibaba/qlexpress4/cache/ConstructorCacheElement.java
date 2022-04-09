@@ -54,10 +54,9 @@ public class ConstructorCacheElement implements ICacheElement {
 
     @Override
     public Constructor<?> getElement(Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-            Constructor<?>[] constructors = baseClass.getConstructors();
-            List<Constructor<?>> constructorList = new ArrayList<>();
-            List<Class<?>[]> listClass = new ArrayList<>();
-            for (Constructor<?> constructor : constructors) {
+            List<Constructor<?>> constructorList = new ArrayList();
+            List<Class<?>[]> listClass = new ArrayList();
+            for (Constructor<?> constructor : baseClass.getConstructors()) {
                 if (constructor.getParameterTypes().length == types.length) {
                     listClass.add(constructor.getParameterTypes());
                     constructorList.add(constructor);

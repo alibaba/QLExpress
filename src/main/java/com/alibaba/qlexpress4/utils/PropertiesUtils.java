@@ -17,79 +17,75 @@ public class PropertiesUtils {
 
 
     /**
-     * object.name || object.getName()
+     * get instance field classType (accessField and getMethod)
      * @param bean
      * @param name
      * @return class.type
      */
     public static Class<?> getPropertyType(Object bean, String name){
-        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ);
-        if(Objects.isNull(accessMember)){
-            throw new QLRuntimeException("No Access Member From getPropertyType:"+ bean.getClass().getCanonicalName()+ " key:"+name);
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
+        if(Objects.nonNull(accessMember)){
+            if (accessMember instanceof Method) {
+                return MethodHandler.Access.accessMethodType(accessMember);
+            }else if(accessMember instanceof Field){
+                return FieldHandler.Access.accessFieldType(accessMember);
+            }
         }
-        if (accessMember instanceof Method) {
-            return MethodHandler.Access.accessMethodType(accessMember);
-        }else if(accessMember instanceof Field){
-            return FieldHandler.Access.accessFieldType(accessMember);
-        }
-        throw new QLRuntimeException("IllegalException From getPropertyType:"+ bean.getClass().getCanonicalName()+ " key:"+name);
+        return null;
     }
 
     /**
-     * object.name || object.getName()
+     * get instance field Value (accessField and getMethod)
      * @param bean
      * @param name
      * @return Object
      */
-    public static Object getPropertyValue(Object bean, String name) {
-        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ);
-        if(Objects.isNull(accessMember)){
-            throw new QLRuntimeException("No Access Member From getPropertyValue:"+ bean.getClass().getCanonicalName()+ " key:"+name);
+    public static Object getPropertyValue(Object bean, String name) throws InvocationTargetException, IllegalAccessException {
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
+        if(Objects.nonNull(accessMember)){
+            if (accessMember instanceof Method) {
+                return MethodHandler.Access.accessMethodValue(accessMember,bean,null);
+            }else if(accessMember instanceof Field){
+                return FieldHandler.Access.accessFieldValue(accessMember,bean);
+            }
         }
-        if (accessMember instanceof Method) {
-            return MethodHandler.Access.accessMethodValue(accessMember,bean,name,null);
-        }else if(accessMember instanceof Field){
-            return FieldHandler.Access.accessFieldValue(accessMember,bean,name);
-        }
-        throw new QLRuntimeException("IllegalException From getPropertyValue:"+ bean.getClass().getCanonicalName()+ " key:"+name);
+        return null;
     }
 
     /**
-     * object.name = "ex"
+     * set instance field (accessField and getMethod)
      * @param bean
      * @param name
      * @param value
      */
-    public static void setPropertyValue(Object bean, String name, Object value){
-        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.WRITE);
-        if(Objects.isNull(accessMember)){
-            throw new QLRuntimeException("No Access Member From setPropertyValue:"+ bean.getClass().getCanonicalName()+ " key:"+name);
-        }
+    public static void setPropertyValue(Object bean, String name, Object value) throws InvocationTargetException, IllegalAccessException {
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.WRITE,true);
         if (accessMember instanceof Method) {
-            MethodHandler.Access.setAccessMethodValue(accessMember,bean,name,value);
+            MethodHandler.Access.setAccessMethodValue(accessMember,bean,value);
             return;
         }else if(accessMember instanceof Field){
-            FieldHandler.Access.setAccessFieldValue(accessMember,bean,name,value);
+            FieldHandler.Access.setAccessFieldValue(accessMember,bean,value);
             return;
         }
-        throw new QLRuntimeException("IllegalException From setPropertyValue:"+ bean.getClass().getCanonicalName()+ " key:"+name);
     }
 
 
     /**
-     *
+     * Static.field
      * @param clazz
      * @param name
      * @return
      */
-    public static Field getClzField(Class<?> clazz, String name){
-        Field f = null;
-        try {
-            f = clazz.getField(name);
-            return f;
-        } catch (NoSuchFieldException e) {
-            throw new QLRuntimeException("IllegalException From getClzProperty:"+ clazz.getCanonicalName()+ " key:"+name);
+    public static Object getClzField(Class<?> clazz, String name) throws InvocationTargetException, IllegalAccessException {
+        Member accessMember = MemberHandler.Access.getAccessMember(clazz,name,AccessMode.READ,false);
+        if(Objects.nonNull(accessMember)){
+            if (accessMember instanceof Method) {
+                return MethodHandler.Access.accessMethodValue(accessMember,null,null);
+            }else if(accessMember instanceof Field){
+                return FieldHandler.Access.accessFieldValue(accessMember,null);
+            }
         }
+        return null;
     }
     /**
      * getMethod List
@@ -109,6 +105,7 @@ public class PropertiesUtils {
      * @return
      */
     public static List<Method> getClzMethod(Class<?> clazz, String name){
-        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, null);
+        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null,
+        true, true,null);
     }
 }
