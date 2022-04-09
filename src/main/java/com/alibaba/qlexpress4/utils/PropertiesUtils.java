@@ -1,13 +1,12 @@
 package com.alibaba.qlexpress4.utils;
 
 import com.alibaba.qlexpress4.enums.AccessMode;
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MemberHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
 
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * @Author TaoKan
@@ -24,7 +23,7 @@ public class PropertiesUtils {
      */
     public static Class<?> getPropertyType(Object bean, String name){
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
-        if(Objects.nonNull(accessMember)){
+        if(accessMember == null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodType(accessMember);
             }else if(accessMember instanceof Field){
@@ -42,7 +41,7 @@ public class PropertiesUtils {
      */
     public static Object getPropertyValue(Object bean, String name) throws InvocationTargetException, IllegalAccessException {
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
-        if(Objects.nonNull(accessMember)){
+        if(accessMember == null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember,bean,null);
             }else if(accessMember instanceof Field){
@@ -78,7 +77,7 @@ public class PropertiesUtils {
      */
     public static Object getClzField(Class<?> clazz, String name) throws InvocationTargetException, IllegalAccessException {
         Member accessMember = MemberHandler.Access.getAccessMember(clazz,name,AccessMode.READ,false);
-        if(Objects.nonNull(accessMember)){
+        if(accessMember == null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember,null,null);
             }else if(accessMember instanceof Field){

@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.cache;
 
-import com.alibaba.qlexpress4.utils.PropertiesUtils;
 import com.alibaba.qlexpress4.utils.QLAliasUtils;
 
 import java.lang.reflect.Field;

@@ -48,6 +48,7 @@ public class TestPropertyUtils {
         Child c = new Child();
         c.setAge(35);
         Assert.assertTrue((int)PropertiesUtils.getPropertyValue(c,"age") == 35);
+        Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"sex").equals("man"));
         Assert.assertTrue(PropertiesUtils.getPropertyType(c,"age") == int.class);
         List<Method> method3 = PropertiesUtils.getMethod(c,"getWork");
         Assert.assertTrue(method3.size() == 2);

@@ -5,10 +5,7 @@ import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.ql.util.express.config.QLExpressRunStrategy;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.Map;
 
 /**
@@ -51,32 +48,27 @@ public class ExpressUtil {
     }
 
 
-    public static Object getProperty(Object bean, Object name) {
-        try {
-            if (bean == null && QLExpressRunStrategy.isAvoidNullPointer()) {
-                return null;
-            }
-            if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(name)) {
-                return Array.getLength(bean);
-            } else if (bean instanceof Class) {
-                if (BasicUtils.CLASS.equals(name)) {
-                    return bean;
-                } else {
-                    Field f = ((Class<?>)bean).getDeclaredField(name.toString());
-                    return f.get(null);
-                }
-            } else if (bean instanceof Map) {
-                return ((Map<?, ?>)bean).get(name);
+    public static Object getProperty(Object bean, Object name) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        if (bean == null && QLExpressRunStrategy.isAvoidNullPointer()) {
+            return null;
+        }
+        if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(name)) {
+            return Array.getLength(bean);
+        } else if (bean instanceof Class) {
+            if (BasicUtils.CLASS.equals(name)) {
+                return bean;
             } else {
-                return PropertiesUtils.getPropertyValue(bean, name.toString());
+                Field f = ((Class<?>)bean).getDeclaredField(name.toString());
+                return f.get(null);
             }
-        } catch (Exception e) {
-            throw new QLRuntimeException(e.getMessage());
+        } else if (bean instanceof Map) {
+            return ((Map<?, ?>)bean).get(name);
+        } else {
+            return PropertiesUtils.getPropertyValue(bean, name.toString());
         }
     }
 
-    public static Class<?> getPropertyClass(Object bean, Object name) {
-        try {
+    public static Class<?> getPropertyClass(Object bean, Object name) throws NoSuchFieldException {
             if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(name)) {
                 return int.class;
             } else if (bean instanceof Class) {
@@ -96,23 +88,16 @@ public class ExpressUtil {
             } else {
                 return PropertiesUtils.getPropertyType(bean, name.toString());
             }
-        } catch (Exception e) {
-            throw new QLRuntimeException(e.getMessage());
-        }
     }
 
-    public static void setProperty(Object bean, Object name, Object value) {
-        try {
-            if (bean instanceof Class) {
-                Field field = ((Class<?>)bean).getDeclaredField(name.toString());
-                field.set(null, value);
-            } else if (bean instanceof Map) {
-                ((Map<Object, Object>)bean).put(name, value);
-            } else {
-                PropertiesUtils.setPropertyValue(bean, name.toString(), value);
-            }
-        } catch (Exception e) {
-            throw new QLRuntimeException(e.getMessage());
+    public static void setProperty(Object bean, Object name, Object value) throws NoSuchFieldException, InvocationTargetException, IllegalAccessException {
+        if (bean instanceof Class) {
+            Field field = ((Class<?>)bean).getDeclaredField(name.toString());
+            field.set(null, value);
+        } else if (bean instanceof Map) {
+            ((Map<Object, Object>)bean).put(name, value);
+        } else {
+            PropertiesUtils.setPropertyValue(bean, name.toString(), value);
         }
     }
 

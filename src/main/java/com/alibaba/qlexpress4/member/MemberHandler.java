@@ -43,7 +43,6 @@ public class MemberHandler {
             Class<?>[] bestMatch = null;
             int bestMatchIndex = -1;
 
-            // 先从基类开始查找
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
                 if (isSignatureAssignable(idealMatch, targetMatch) && ((bestMatch == null)
@@ -88,7 +87,6 @@ public class MemberHandler {
                 return false;
             }
 
-            //null转换
             if (source == null) {
                 return !target.isPrimitive();
             }
@@ -130,12 +128,11 @@ public class MemberHandler {
                     source = double.class;
                 }
             }
-            // 转换后需要在判断一下
+
             if (target == source) {
                 return true;
             }
 
-            // QLambda 与函数式接口之间允许互转
             if (source == QLambda.class && ExpressUtil.isFunctionInterface(target)) {
                 return true;
             }
