@@ -16,6 +16,8 @@ jobs:
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
           gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
+      - name: show gpg version
+        run: gpg --version
       - name: Publish to Maven Central Repo
         uses: samuelmeuli/action-maven-publish@v1
         with:
