@@ -137,5 +137,6 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 ## 3.2.7版本[2021-12-10]
 (1)QLAliasTest 添加set方法
 
-## 3.3.0版本[2022-02-22]
-多级别安全控制与沙箱模式
+## 3.3.0版本[2022-04-10]
+高精度计算下的溢出问题修复 com.ql.util.express.test.NumberOperatorCalculatorTest
+多级别安全控制与沙箱模式 com.ql.util.express.example.MultiLevelSecurityTest
