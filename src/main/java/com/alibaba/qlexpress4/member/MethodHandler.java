@@ -125,35 +125,21 @@ public class MethodHandler extends MemberHandler{
 
     public static Method getGetter(Class<?> clazz, String property, boolean isStaticCheck) {
         String isGet = BasicUtils.getIsGetter(property);
-        String simpleIsGet = IS_SIGN + property;
         String getter = BasicUtils.getGetter(property);
-        String simple = GET_SIGN + property;
 
         Map<String, Integer> map = new HashMap<>();
-        map.put(isGet, 4);
-        map.put(simpleIsGet, 3);
-        map.put(getter, 2);
-        map.put(simple, 1);
+        map.put(isGet, 2);
+        map.put(getter, 1);
         map.put(property, 0);
 
         Method mGetCandidate = null;
-
-        if (Collection.class.isAssignableFrom(clazz) && IS_EMPTY.equals(isGet)) {
-            try {
-                return Collection.class.getMethod(IS_EMPTY);
-            } catch (NoSuchMethodException ignore) {
-
-            }
-        }
 
         for (Method method : clazz.getMethods()) {
             if (BasicUtils.isPublic(method)
                     && method.getParameterTypes().length == 0
                     && (getter.equals(method.getName())
                     || property.equals(method.getName())
-                    || ((isGet.equals(method.getName()) || simpleIsGet.equals(method.getName()))
-                    && method.getReturnType() == boolean.class)
-                    || simple.equals(method.getName()))) {
+                    || ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class))) {
                 if (mGetCandidate == null || BasicUtils.isPreferredGetter(mGetCandidate, method, map)) {
                     if( isStaticCheck && !BasicUtils.isStatic(method)){
                         mGetCandidate = method;

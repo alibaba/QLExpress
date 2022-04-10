@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.Character.toUpperCase;
-import static java.lang.System.arraycopy;
 
 /**
  * @Author TaoKan
@@ -91,36 +90,15 @@ public class BasicUtils {
 
 
     public static String getGetter(String s) {
-        char[] c = s.toCharArray();
-        char[] chars = new char[c.length + 3];
-        chars[0] = 'g';
-        chars[1] = 'e';
-        chars[2] = 't';
-        chars[3] = toUpperCase(c[0]);
-        arraycopy(c, 1, chars, 4, c.length - 1);
-        return new String(chars);
+        return new StringBuilder().append("get").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
     }
 
     public static String getSetter(String s) {
-        char[] chars = new char[s.length() + 3];
-        chars[0] = 's';
-        chars[1] = 'e';
-        chars[2] = 't';
-        chars[3] = toUpperCase(s.charAt(0));
-        for (int i = s.length() - 1; i != 0; i--) {
-            chars[i + 3] = s.charAt(i);
-        }
-        return new String(chars);
+        return new StringBuilder().append("set").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
     }
 
     public static String getIsGetter(String s) {
-        char[] c = s.toCharArray();
-        char[] chars = new char[c.length + 2];
-        chars[0] = 'i';
-        chars[1] = 's';
-        chars[2] = toUpperCase(c[0]);
-        arraycopy(c, 1, chars, 3, c.length - 1);
-        return new String(chars);
+        return new StringBuilder().append("is").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
     }
 
 

@@ -2,7 +2,6 @@ package com.alibaba.qlexpress4.utils;
 
 
 import com.alibaba.qlexpress4.cache.*;
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.ql.util.express.config.QLExpressRunStrategy;
 
 import java.lang.reflect.*;
