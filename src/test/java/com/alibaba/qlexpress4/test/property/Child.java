@@ -10,4 +10,14 @@ public class Child extends Parent{
     }
 
     public String work = "childWork";
+
+    public Boolean getBooValue() {
+        return true;
+    }
+
+    public void setBooValue(Boolean booValue) {
+        this.booValue = booValue;
+    }
+
+    private Boolean booValue = false;
 }

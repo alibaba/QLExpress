@@ -73,5 +73,7 @@ public class TestPropertyUtils {
         Assert.assertTrue(PropertiesUtils.getPropertyValue(aa,"length").equals(1));
         Assert.assertTrue(PropertiesUtils.getPropertyType(aa,"length").equals(int.class));
 
+        Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"booValue").equals(true));
+
     }
 }
