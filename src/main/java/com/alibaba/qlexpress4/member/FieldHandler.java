@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.utils.QLAliasUtils;
 
 import java.lang.reflect.Field;

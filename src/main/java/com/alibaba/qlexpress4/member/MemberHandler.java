@@ -7,33 +7,36 @@ import com.ql.util.express.QLambda;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 
 /**
  * @Author TaoKan
  * @Date 2022/4/7 下午6:05
  */
 public class MemberHandler {
-    public static final String IS_EMPTY = "isEmpty";
-    public static final String IS_SIGN = "is";
-    public static final String GET_SIGN = "get";
 
     public static class Access{
         public static Member getAccessMember(Class clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
-            Field f = null;
-            try {
-                f = clazz.getField(property);
-                return f;
-            } catch (NoSuchFieldException e) {
-
-            }
             //from Method
             if(AccessMode.READ.equals(propertyMode)){
-                return MethodHandler.getGetter(clazz, property, isStaticCheck);
+                Method method = MethodHandler.getGetter(clazz, property, isStaticCheck);
+                if(method == null){
+                    //from field
+                    Field f = null;
+                    try {
+                        f = clazz.getField(property);
+                        return f;
+                    } catch (NoSuchFieldException e) {
+
+                    }
+                }else {
+                    return method;
+                }
             }else {
                 return MethodHandler.getSetter(clazz, property);
             }
+            return null;
         }
-
     }
 
     public static class Preferred{

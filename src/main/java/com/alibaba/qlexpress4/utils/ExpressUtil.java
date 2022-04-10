@@ -1,8 +1,6 @@
 package com.alibaba.qlexpress4.utils;
 
-
 import com.alibaba.qlexpress4.cache.*;
-import com.ql.util.express.config.QLExpressRunStrategy;
 
 import java.lang.reflect.*;
 import java.util.Map;
@@ -48,7 +46,7 @@ public class ExpressUtil {
 
 
     public static Object getProperty(Object bean, Object name) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        if (bean == null && QLExpressRunStrategy.isAvoidNullPointer()) {
+        if (bean == null) {
             return null;
         }
         if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(name)) {

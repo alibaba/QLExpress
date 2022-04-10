@@ -14,7 +14,7 @@ import java.util.List;
 
 
 public class TestPropertyUtils {
-    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
+    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Parent parent = new Parent();
         parent.setAge(35);
         // getPropertyValue private field - non get
