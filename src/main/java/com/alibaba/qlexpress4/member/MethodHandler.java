@@ -123,7 +123,7 @@ public class MethodHandler extends MemberHandler{
         }
     }
 
-    public static Method getGetter(Class clazz, String property, boolean isStaticCheck) {
+    public static Method getGetter(Class<?> clazz, String property, boolean isStaticCheck) {
         String isGet = BasicUtils.getIsGetter(property);
         String simpleIsGet = IS_SIGN + property;
         String getter = BasicUtils.getGetter(property);
@@ -167,7 +167,7 @@ public class MethodHandler extends MemberHandler{
     }
 
 
-    public static Method getSetter(Class clazz, String property) {
+    public static Method getSetter(Class<?> clazz, String property) {
         property = BasicUtils.getSetter(property);
 
         for (Method method : clazz.getMethods()) {

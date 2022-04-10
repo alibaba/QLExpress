@@ -17,13 +17,14 @@ public class PropertiesUtils {
 
     /**
      * get instance field classType (accessField and getMethod)
+     * return null means notFound
      * @param bean
      * @param name
      * @return class.type
      */
     public static Class<?> getPropertyType(Object bean, String name){
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
-        if(accessMember == null){
+        if(accessMember != null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodType(accessMember);
             }else if(accessMember instanceof Field){
@@ -35,13 +36,14 @@ public class PropertiesUtils {
 
     /**
      * get instance field Value (accessField and getMethod)
+     * return null means notFound
      * @param bean
      * @param name
      * @return Object
      */
     public static Object getPropertyValue(Object bean, String name) throws InvocationTargetException, IllegalAccessException {
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
-        if(accessMember == null){
+        if(accessMember != null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember,bean,null);
             }else if(accessMember instanceof Field){
@@ -71,13 +73,14 @@ public class PropertiesUtils {
 
     /**
      * Static.field
+     * return null means notFound
      * @param clazz
      * @param name
      * @return
      */
     public static Object getClzField(Class<?> clazz, String name) throws InvocationTargetException, IllegalAccessException {
         Member accessMember = MemberHandler.Access.getAccessMember(clazz,name,AccessMode.READ,false);
-        if(accessMember == null){
+        if(accessMember != null){
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember,null,null);
             }else if(accessMember instanceof Field){
@@ -88,6 +91,7 @@ public class PropertiesUtils {
     }
     /**
      * getMethod List
+     * return null means notFound
      * @param bean
      * @param name
      * @return
@@ -99,6 +103,7 @@ public class PropertiesUtils {
 
     /**
      * getClzMethod
+     * return null means notFound
      * @param clazz
      * @param name
      * @return
