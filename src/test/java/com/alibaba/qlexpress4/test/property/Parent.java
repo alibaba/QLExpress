@@ -21,6 +21,8 @@ public class Parent {
 
     public static final String staticPublic = "staticPublic";
 
+    public static String staticSet = "staticSet";
+
     private static final String staticPrivate = "staticPrivate";
 
     public static String getStaticGet() {

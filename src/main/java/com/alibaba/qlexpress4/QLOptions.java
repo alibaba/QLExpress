@@ -22,6 +22,12 @@ public class QLOptions {
      */
     private final boolean allowAccessPrivateMethod;
 
+    /**
+     * useCacheClear default false
+     */
+    private final boolean useCacheClear;
+
+
     private final ClassLoader classLoader;
 
     /**
@@ -29,15 +35,21 @@ public class QLOptions {
      */
     private final List<String> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, List<String> defaultImport, boolean allowAccessPrivateMethod) {
+    private QLOptions(boolean precise, ClassLoader classLoader, List<String> defaultImport, boolean allowAccessPrivateMethod, boolean useCacheClear) {
         this.precise = precise;
         this.classLoader = classLoader;
         this.defaultImport = defaultImport;
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
+        this.useCacheClear = useCacheClear;
     }
 
     public boolean isPrecise() {
         return precise;
+    }
+
+
+    public boolean isUseCacheClear() {
+        return useCacheClear;
     }
 
     public boolean isAllowAccessPrivateMethod() {
@@ -62,6 +74,8 @@ public class QLOptions {
 
         private boolean allowAccessPrivateMethod;
 
+        private boolean useCacheClear;
+
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
         private List<String> defaultImport = Arrays.asList(
@@ -78,6 +92,12 @@ public class QLOptions {
             return this;
         }
 
+        public Builder useCacheClear(boolean useCacheClear) {
+            this.useCacheClear = useCacheClear;
+            return this;
+        }
+
+
         public Builder classLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
             return this;
@@ -89,7 +109,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, defaultImport, allowAccessPrivateMethod);
+            return new QLOptions(precise, classLoader, defaultImport, allowAccessPrivateMethod,useCacheClear);
         }
     }
 

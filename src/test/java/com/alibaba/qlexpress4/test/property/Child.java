@@ -8,4 +8,6 @@ public class Child extends Parent{
     public String getWork(){
         return "child";
     }
+
+    public String work = "childWork";
 }

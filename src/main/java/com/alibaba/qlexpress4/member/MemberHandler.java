@@ -18,22 +18,22 @@ public class MemberHandler {
     public static class Access{
         public static Member getAccessMember(Class clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
             //from Method
+            Method method = null;
             if(AccessMode.READ.equals(propertyMode)){
-                Method method = MethodHandler.getGetter(clazz, property, isStaticCheck);
-                if(method == null){
-                    //from field
-                    Field f = null;
-                    try {
-                        f = clazz.getField(property);
-                        return f;
-                    } catch (NoSuchFieldException e) {
-
-                    }
-                }else {
-                    return method;
-                }
+                method = MethodHandler.getGetter(clazz, property, isStaticCheck);
             }else {
-                return MethodHandler.getSetter(clazz, property);
+                method =  MethodHandler.getSetter(clazz, property);
+            }
+            if(method != null){
+                return method;
+            }
+            //from field
+            Field f = null;
+            try {
+                f = clazz.getField(property);
+                return f;
+            } catch (NoSuchFieldException e) {
+
             }
             return null;
         }
