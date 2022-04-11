@@ -11,9 +11,9 @@ import java.lang.reflect.Member;
  */
 public class FieldHandler extends MemberHandler {
     public static class Access {
-        public static void setAccessFieldValue(Member accessMember, Object bean, Object value) throws IllegalAccessException {
+        public static void setAccessFieldValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivate) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
-            if (accessField.isAccessible()) {
+            if (allowAccessPrivate || accessField.isAccessible()) {
                 accessField.set(bean, value);
             } else {
                 synchronized (accessField) {
@@ -33,9 +33,9 @@ public class FieldHandler extends MemberHandler {
             return accessField.getType();
         }
 
-        public static Object accessFieldValue(Member accessMember, Object bean) throws IllegalAccessException {
+        public static Object accessFieldValue(Member accessMember, Object bean, boolean allowAccessPrivate) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
-            if (accessField.isAccessible()) {
+            if (allowAccessPrivate || accessField.isAccessible()) {
                 return accessField.get(bean);
             } else {
                 synchronized (accessField) {

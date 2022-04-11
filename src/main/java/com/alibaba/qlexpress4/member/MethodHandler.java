@@ -87,10 +87,10 @@ public class MethodHandler extends MemberHandler{
             Method accessMethod = ((Method) accessMember);
             return accessMethod.getReturnType();
         }
-        public static Object accessMethodValue(Member accessMember,Object bean, Object[] params) throws
+        public static Object accessMethodValue(Member accessMember,Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-                if(accessMethod.isAccessible()){
+                if(allowAccessPrivateMethod || accessMethod.isAccessible()){
                     return accessMethod.invoke(bean,params);
                 }else {
                     synchronized (accessMethod) {
@@ -104,10 +104,10 @@ public class MethodHandler extends MemberHandler{
                 }
         }
 
-        public static void setAccessMethodValue(Member accessMember, Object bean, Object value)
+        public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)
                 throws IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-            if(accessMethod.isAccessible()){
+            if(allowAccessPrivateMethod || accessMethod.isAccessible()){
                 accessMethod.invoke(bean,value);
             }else {
                 synchronized (accessMethod) {
