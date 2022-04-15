@@ -3,7 +3,6 @@ package com.alibaba.qlexpress4.utils;
 import com.alibaba.qlexpress4.cache.*;
 
 import java.lang.reflect.*;
-import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -16,6 +15,14 @@ public class ExpressUtil {
     public static final ConstructorCacheElement constructorCacheElement = new ConstructorCacheElement();
     public static final MethodCacheElement methodCacheElement = new MethodCacheElement();
     public static final FunctionCacheElement functionCacheElement = new FunctionCacheElement();
+
+
+    public static void initCache(int size,boolean isUseCacheClear){
+        fieldCacheElement.initCache(size, isUseCacheClear);
+        constructorCacheElement.initCache(size, isUseCacheClear);
+        functionCacheElement.initCache(size, isUseCacheClear);
+        methodCacheElement.initCache(size, isUseCacheClear);
+    }
 
 
     public static Field getFieldCacheElement(Class<?> baseClass, String propertyName){

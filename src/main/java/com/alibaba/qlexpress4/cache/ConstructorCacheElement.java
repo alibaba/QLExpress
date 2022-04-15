@@ -12,8 +12,13 @@ import java.lang.reflect.Member;
  * @Date 2022/4/7 下午5:20
  */
 public class ConstructorCacheElement implements ICacheElement {
-    private static final ICache<String, Object> CONSTR_CACHE = CacheFactory.cacheBuilder(128);
+    private ICache<String, Object> CONSTR_CACHE = null;
 
+
+    @Override
+    public void initCache(int size, boolean isUseCacheClear) {
+        CONSTR_CACHE = CacheFactory.cacheBuilder(size,isUseCacheClear);
+    }
 
     @Override
     public Object buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {

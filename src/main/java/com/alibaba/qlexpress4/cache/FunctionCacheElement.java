@@ -9,7 +9,12 @@ import java.lang.reflect.Member;
  * @Date 2022/4/7 下午7:58
  */
 public class FunctionCacheElement implements ICacheElement {
-    private static final ICache<Object, Boolean> FUNCTION_CACHE = CacheFactory.cacheBuilder(128);
+    private ICache<Object, Boolean> FUNCTION_CACHE = null;
+
+    @Override
+    public void initCache(int size, boolean isUseCacheClear) {
+        FUNCTION_CACHE = CacheFactory.cacheBuilder(size,isUseCacheClear);
+    }
 
     @Override
     public Object buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
