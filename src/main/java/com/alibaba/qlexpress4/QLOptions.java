@@ -20,13 +20,20 @@ public class QLOptions {
     private final ClassLoader classLoader;
 
     /**
+     * script timeout millisecond, default is -1, namely time unlimited
+     * <= 0, time unlimited
+     */
+    private final long timeoutMillis;
+
+    /**
      * default import java packages for script
      */
     private final List<String> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, List<String> defaultImport) {
+    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport) {
         this.precise = precise;
         this.classLoader = classLoader;
+        this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
     }
 
@@ -36,6 +43,10 @@ public class QLOptions {
 
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public long getTimeoutMillis() {
+        return timeoutMillis;
     }
 
     public List<String> getDefaultImport() {
@@ -51,6 +62,8 @@ public class QLOptions {
         private boolean precise = true;
 
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
+
+        private long timeoutMillis = -1;
 
         private List<String> defaultImport = Arrays.asList(
                 "java.lang", "java.util", "java.util.stream"
@@ -71,8 +84,13 @@ public class QLOptions {
             return this;
         }
 
+        public Builder timeoutMillis(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            return this;
+        }
+
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, defaultImport);
+            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport);
         }
     }
 

@@ -3,8 +3,10 @@ package com.alibaba.qlexpress4.runtime;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class QLambda {
+public class QLambda implements Runnable, Predicate<Object>, Function<Object, Object> {
 
     private final String name;
 
@@ -18,7 +20,22 @@ public class QLambda {
         this.paramsType = paramsType;
     }
 
-    public Object call(Object... params) {
+    public QResult call(Object... params) {
         return null;
+    }
+
+    @Override
+    public void run() {
+        call();
+    }
+
+    @Override
+    public boolean test(Object o) {
+        return (boolean) call(o).getResult().get();
+    }
+
+    @Override
+    public Object apply(Object o) {
+        return call(o).getResult().get();
     }
 }

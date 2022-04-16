@@ -1,6 +1,9 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
  * @Operation: new a class
@@ -19,5 +22,10 @@ public class NewInstruction extends QLInstruction {
         super(errorReporter);
         this.newClz = newClz;
         this.argNum = argNum;
+    }
+
+    @Override
+    public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
+
     }
 }
