@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
  * Instruction Specification:
@@ -13,13 +15,11 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
  */
 public abstract class QLInstruction {
 
-    private final ErrorReporter errorReporter;
+    protected final ErrorReporter errorReporter;
 
     public QLInstruction(ErrorReporter errorReporter) {
         this.errorReporter = errorReporter;
     }
 
-    public void execute(QLOptions qlOptions) {
-        throw errorReporter.report("SOME_CODE", "type error");
-    }
+    public abstract void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions);
 }
