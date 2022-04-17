@@ -6,6 +6,9 @@ package com.alibaba.qlexpress4;
  */
 public class QLPrecedences {
 
+    /**
+     * Comment By 冰够，注释使用块注释
+     */
     // = += -= &= |= *= /= %= <<= >>=
     public static final int ASSIGN = 0;
 
