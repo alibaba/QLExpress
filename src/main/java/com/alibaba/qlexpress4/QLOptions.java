@@ -31,13 +31,20 @@ public class QLOptions {
     private final ClassLoader classLoader;
 
     /**
+     * script timeout millisecond, default is -1, namely time unlimited
+     * <= 0, time unlimited
+     */
+    private final long timeoutMillis;
+
+    /**
      * default import java packages for script
      */
     private final List<String> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, List<String> defaultImport, boolean allowAccessPrivateMethod, boolean useCacheClear) {
+    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport, boolean allowAccessPrivateMethod, boolean useCacheClear) {
         this.precise = precise;
         this.classLoader = classLoader;
+        this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
         this.useCacheClear = useCacheClear;
@@ -60,6 +67,10 @@ public class QLOptions {
         return classLoader;
     }
 
+    public long getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
     public List<String> getDefaultImport() {
         return defaultImport;
     }
@@ -77,6 +88,8 @@ public class QLOptions {
         private boolean useCacheClear;
 
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
+
+        private long timeoutMillis = -1;
 
         private List<String> defaultImport = Arrays.asList(
                 "java.lang", "java.util", "java.util.stream"
@@ -108,8 +121,13 @@ public class QLOptions {
             return this;
         }
 
+        public Builder timeoutMillis(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            return this;
+        }
+
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, defaultImport, allowAccessPrivateMethod,useCacheClear);
+            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport,allowAccessPrivateMethod,useCacheClear);
         }
     }
 

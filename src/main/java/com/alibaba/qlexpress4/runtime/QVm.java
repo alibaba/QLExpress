@@ -12,6 +12,6 @@ import java.util.List;
  */
 public interface QVm {
 
-    Object execute(List<QLInstruction> instructions, QLOptions qlOptions);
+    QResult execute(List<QLInstruction> instructions, QLOptions qlOptions);
 
 }
