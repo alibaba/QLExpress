@@ -1,9 +1,9 @@
 package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.enums.AccessMode;
+import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.utils.BasicUtils;
-import com.alibaba.qlexpress4.utils.ExpressUtil;
-import com.ql.util.express.QLambda;
+import com.alibaba.qlexpress4.utils.CacheUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 public class MemberHandler {
 
     public static class Access{
-        public static Member getAccessMember(Class clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
+        public static Member getAccessMember(Class<?> clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
             //from Method
             Method method = null;
             if(AccessMode.READ.equals(propertyMode)){
@@ -33,9 +33,9 @@ public class MemberHandler {
                 f = clazz.getField(property);
                 return f;
             } catch (NoSuchFieldException e) {
-
             }
-            return null;
+            //from QLAlias
+            return FieldHandler.Preferred.gatherFieldRecursive(clazz,property);
         }
     }
 
@@ -136,7 +136,7 @@ public class MemberHandler {
                 return true;
             }
 
-            if (source == QLambda.class && ExpressUtil.isFunctionInterface(target)) {
+            if (source == QLambda.class && CacheUtils.isFunctionInterface(target)) {
                 return true;
             }
 

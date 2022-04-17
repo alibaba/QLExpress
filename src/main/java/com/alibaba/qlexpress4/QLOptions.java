@@ -127,7 +127,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport,allowAccessPrivateMethod,useCacheClear);
+            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod, useCacheClear);
         }
     }
 

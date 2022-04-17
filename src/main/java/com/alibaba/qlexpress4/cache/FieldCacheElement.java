@@ -1,9 +1,5 @@
 package com.alibaba.qlexpress4.cache;
 
-import com.alibaba.qlexpress4.member.FieldHandler;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 
 /**
  * @Author TaoKan
@@ -24,28 +20,18 @@ public class FieldCacheElement implements ICacheElement{
         builder.append(baseClass.getName())
                 .append("#")
                 .append(propertyName)
-                .append(".");
+                .append(";");
         return builder.toString();
     }
 
     @Override
-    public Member getCacheElement(String key, Class<?> baseClass, String propertyName, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-        Object result = FIELD_CACHE.get(key);
-        if (result == null) {
-            result = getElement(baseClass, propertyName, types, publicOnly , isStatic);
-            if (result == null) {
-                FIELD_CACHE.put(key, void.class);
-            } else {
-                FIELD_CACHE.put(key, result);
-            }
-        } else if (result == void.class) {
-            result = null;
-        }
-        return (Field)result;
+    public Object getCacheElement(String key) {
+        return FIELD_CACHE.get(key);
     }
 
     @Override
-    public Member getElement(Class<?> baseClass, String propertyName, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-        return FieldHandler.Preferred.gatherFieldRecursive(baseClass, propertyName, types, publicOnly, isStatic);
+    public void setCacheElement(String key, Object value) {
+        FIELD_CACHE.put(key,value);
     }
+
 }

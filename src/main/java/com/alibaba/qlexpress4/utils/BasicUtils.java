@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,4 +77,18 @@ public class BasicUtils {
         return new StringBuilder().append("is").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
     }
 
+    public static Class<?>[] getTypeOfObject(Object[] objects){
+        if(objects == null){
+            return null;
+        }
+        Class<?>[] classes = new Class<?>[objects.length];
+        for(int i = 0; i < objects.length; i++){
+            if(objects[i] == null){
+                classes[i] = null;
+            }else {
+                classes[i] = objects[i].getClass();
+            }
+        }
+        return classes;
+    }
 }

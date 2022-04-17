@@ -35,7 +35,7 @@ public class FieldHandler extends MemberHandler {
 
         public static Object accessFieldValue(Member accessMember, Object bean, boolean allowAccessPrivate) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
-            if (allowAccessPrivate || accessField.isAccessible()) {
+            if (!allowAccessPrivate || accessField.isAccessible()) {
                 return accessField.get(bean);
             } else {
                 synchronized (accessField) {
@@ -52,19 +52,16 @@ public class FieldHandler extends MemberHandler {
 
     public static class Preferred {
 
-        public static Field gatherFieldRecursive(Class<?> baseClass, String propertyName, Class<?>[] types, boolean publicOnly, boolean isStatic) {
+        public static Field gatherFieldRecursive(Class<?> baseClass, String propertyName) {
             Field[] fields = baseClass.getDeclaredFields();
             for (Field field : fields) {
-                if (propertyName.equals(field.getName())) {
-                    return field;
-                }
                 if(QLAliasUtils.findQLAliasFields(field,propertyName)){
                     return field;
                 }
             }
             Class<?> superclass = baseClass.getSuperclass();
             if (superclass != null) {
-                return gatherFieldRecursive(superclass, propertyName, types, publicOnly,isStatic);
+                return gatherFieldRecursive(superclass, propertyName);
             }
             return null;
 

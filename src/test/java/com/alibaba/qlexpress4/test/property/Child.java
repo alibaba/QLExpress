@@ -20,4 +20,8 @@ public class Child extends Parent{
     }
 
     private Boolean booValue = false;
+
+    private String getMethod1(int a, int b){
+        return "c";
+    }
 }

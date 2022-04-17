@@ -60,27 +60,12 @@ public class PropertiesUtils {
      * @return Object
      */
     public static Object getPropertyValue(Object bean, String name, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        if (bean == null) {
-            return null;
-        }
-        if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(name)) {
-            return Array.getLength(bean);
-        } else if (bean instanceof Class) {
-            if (BasicUtils.CLASS.equals(name)) {
-                return bean;
-            } else {
-                return getClzField((Class<?>)bean,name,allowAccessPrivate);
-            }
-        } else if (bean instanceof Map) {
-            return ((Map<?, ?>)bean).get(name);
-        } else {
-            Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
-            if(accessMember != null){
-                if (accessMember instanceof Method) {
-                    return MethodHandler.Access.accessMethodValue(accessMember,bean,null,allowAccessPrivate);
-                }else if(accessMember instanceof Field){
-                    return FieldHandler.Access.accessFieldValue(accessMember,bean,allowAccessPrivate);
-                }
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.READ,true);
+        if(accessMember != null){
+            if (accessMember instanceof Method) {
+                return MethodHandler.Access.accessMethodValue(accessMember,bean,null,allowAccessPrivate);
+            }else if(accessMember instanceof Field){
+                return FieldHandler.Access.accessFieldValue(accessMember,bean,allowAccessPrivate);
             }
         }
         return null;
@@ -93,21 +78,25 @@ public class PropertiesUtils {
      * @param value
      */
     public static void setPropertyValue(Object bean, String name, Object value, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        if (bean instanceof Class) {
-            Member accessMember = MemberHandler.Access.getAccessMember((Class<?>)bean,name,AccessMode.WRITE,false);
-            FieldHandler.Access.setAccessFieldValue(accessMember,null,value,allowAccessPrivate);
-        } else if (bean instanceof Map) {
-            ((Map<Object, Object>)bean).put(name, value);
-        } else {
-            Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.WRITE,true);
-            if (accessMember instanceof Method) {
-                MethodHandler.Access.setAccessMethodValue(accessMember,bean,value,allowAccessPrivate);
-                return;
-            }else if(accessMember instanceof Field){
-                FieldHandler.Access.setAccessFieldValue(accessMember,bean,value,allowAccessPrivate);
-                return;
-            }
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(),name,AccessMode.WRITE,true);
+        if (accessMember instanceof Method) {
+            MethodHandler.Access.setAccessMethodValue(accessMember,bean,value,allowAccessPrivate);
+            return;
+        }else if(accessMember instanceof Field){
+            FieldHandler.Access.setAccessFieldValue(accessMember,bean,value,allowAccessPrivate);
+            return;
         }
+    }
+
+    /**
+     * set static field (accessField and getMethod)
+     * @param bean
+     * @param name
+     * @param value
+     */
+    public static void setClzPropertyValue(Object bean, String name, Object value, boolean allowAccessPrivate) throws IllegalAccessException {
+        Member accessMember = MemberHandler.Access.getAccessMember((Class<?>)bean,name,AccessMode.WRITE,false);
+        FieldHandler.Access.setAccessFieldValue(accessMember,null,value,allowAccessPrivate);
     }
 
 
@@ -136,8 +125,16 @@ public class PropertiesUtils {
      * @param name
      * @return
      */
-    public static List<Method> getMethod(Object bean, String name){
-        return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, null);
+    public static List<Method> getMethod(Object bean, String name, boolean isAllowAccessPrivate){
+        return getMethod(bean, name, null, isAllowAccessPrivate);
+    }
+
+
+    public static List<Method> getMethod(Object bean, String name, Object[] params, boolean isAllowAccessPrivate){
+        if(params == null){
+            return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate, null);
+        }
+        return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate, params,null);
     }
 
 
@@ -149,6 +146,25 @@ public class PropertiesUtils {
      * @return
      */
     public static List<Method> getClzMethod(Class<?> clazz, String name){
-        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null, true, true, null);
+        return getClzMethod(clazz, name, null, false);
+    }
+
+    /**
+     * getClzMethod
+     * return null means notFound
+     * @param clazz
+     * @param name
+     * @return
+     */
+    public static List<Method> getClzMethod(Class<?> clazz, String name, boolean isAllowAccessPrivate){
+        return getClzMethod(clazz, name, null, isAllowAccessPrivate);
+    }
+
+
+    public static List<Method> getClzMethod(Class<?> clazz, String name, Object[] params, boolean isAllowAccessPrivate){
+        if(params == null){
+            return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null, !isAllowAccessPrivate, true, null);
+        }
+        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, true, params.length,  !isAllowAccessPrivate, true, null);
     }
 }

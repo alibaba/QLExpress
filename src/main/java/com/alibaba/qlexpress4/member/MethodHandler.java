@@ -33,8 +33,12 @@ public class MethodHandler extends MemberHandler{
 
 
 
-        public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, List<Method> candidates) {
-            return gatherMethodsRecursive(baseClass,methodName,false,null,false,false,candidates);
+        public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName,boolean isAllowAccessPrivate, List<Method> candidates) {
+            return gatherMethodsRecursive(baseClass,methodName,false,null,!isAllowAccessPrivate,false,candidates);
+        }
+
+        public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate, Object[] args, List<Method> candidates) {
+            return gatherMethodsRecursive(baseClass,methodName,true,args.length,!isAllowAccessPrivate,false,candidates);
         }
 
 
@@ -57,8 +61,12 @@ public class MethodHandler extends MemberHandler{
 
 
         private static boolean candidateCheck(Method method, boolean argCheck, Integer numArgs, boolean publicOnly, boolean isStatic){
-            if(argCheck && method.getParameterTypes().length == numArgs){
-                return (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
+            if(argCheck){
+                if(method.getParameterTypes().length == numArgs){
+                    return (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
+                }else {
+                    return false;
+                }
             }else {
                 return (!publicOnly || BasicUtils.isPublic(method) && (!isStatic || BasicUtils.isStatic(method)));
             }
@@ -90,7 +98,7 @@ public class MethodHandler extends MemberHandler{
         public static Object accessMethodValue(Member accessMember,Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-                if(allowAccessPrivateMethod || accessMethod.isAccessible()){
+                if(!allowAccessPrivateMethod || accessMethod.isAccessible()){
                     return accessMethod.invoke(bean,params);
                 }else {
                     synchronized (accessMethod) {
@@ -107,7 +115,7 @@ public class MethodHandler extends MemberHandler{
         public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)
                 throws IllegalArgumentException,InvocationTargetException,IllegalAccessException{
             Method accessMethod = ((Method) accessMember);
-            if(allowAccessPrivateMethod || accessMethod.isAccessible()){
+            if(!allowAccessPrivateMethod || accessMethod.isAccessible()){
                 accessMethod.invoke(bean,value);
             }else {
                 synchronized (accessMethod) {

@@ -22,13 +22,12 @@ public class FunctionCacheElement implements ICacheElement {
     }
 
     @Override
-    public Member getCacheElement(String key, Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
+    public Object getCacheElement(String key) {
         return null;
     }
 
     @Override
-    public Member getElement(Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
-        return null;
+    public void setCacheElement(String key, Object value) {
     }
 
 

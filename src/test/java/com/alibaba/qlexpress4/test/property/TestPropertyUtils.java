@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.test.property;
 
+import com.alibaba.qlexpress4.utils.CacheUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtils;
 import org.junit.Assert;
 
@@ -17,13 +18,15 @@ import java.util.Map;
 
 public class TestPropertyUtils {
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException {
+        CacheUtils.initCache(128,false);
+
         Parent parent = new Parent();
         parent.setAge(35);
         // getPropertyValue private field - non get
         Assert.assertNull(PropertiesUtils.getPropertyValue(parent,"name",false));
         Assert.assertNull(PropertiesUtils.getPropertyType(parent,"name"));
         Assert.assertNull(PropertiesUtils.getClzField(Parent.class,"name",false));
-        Assert.assertTrue(PropertiesUtils.getPropertyValue(Parent.class,"staticPublic",false).equals("staticPublic"));
+        Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticPublic",false).equals("staticPublic"));
         Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticPublic",false).equals("staticPublic"));
         Assert.assertNull(PropertiesUtils.getClzField(Parent.class,"staticPrivate",false));
         Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticGet",false).equals("staticGet"));
@@ -32,20 +35,23 @@ public class TestPropertyUtils {
         Assert.assertTrue(PropertiesUtils.getPropertyType(parent,"age") == int.class);
         // getPropertyValue public field
         Assert.assertTrue(PropertiesUtils.getPropertyValue(parent,"sex",false).equals("man"));
+        Assert.assertTrue(PropertiesUtils.getPropertyValue(parent,"生日",false).equals("2022-01-01"));
+
         Assert.assertTrue(PropertiesUtils.getPropertyType(parent,"sex").equals(String.class));
         Assert.assertTrue(PropertiesUtils.getPropertyType(Parent.class,"staticPublic").equals(java.lang.String.class));
         PropertiesUtils.setPropertyValue(parent,"age",15,false);
         Assert.assertTrue((int)PropertiesUtils.getPropertyValue(parent,"age",false) == 15);
 
-        List<Method> method1 = PropertiesUtils.getMethod(parent,"getWork");
+        List<Method> method1 = PropertiesUtils.getMethod(parent,"getWork", false);
         Assert.assertTrue(method1.size() == 1);
 
         Parent pc = new Child();
         pc.setAge(35);
         Assert.assertTrue((int)PropertiesUtils.getPropertyValue(pc,"age",false) == 35);
         Assert.assertTrue(PropertiesUtils.getPropertyType(pc,"age") == int.class);
-        List<Method> method2 = PropertiesUtils.getMethod(pc,"getWork");
+        List<Method> method2 = PropertiesUtils.getMethod(pc,"getWork", false);
         Assert.assertTrue(method2.size() == 2);
+        Assert.assertTrue(CacheUtils.getMethodCacheElement(pc,"getMethod1",new Object[]{1,2}, true).equals("c"));
 
 
         Child c = new Child();
@@ -54,26 +60,28 @@ public class TestPropertyUtils {
         Assert.assertTrue((int)PropertiesUtils.getPropertyValue(c,"age",false) == 35);
         Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"sex",false).equals("man"));
         Assert.assertTrue(PropertiesUtils.getPropertyType(c,"age") == int.class);
-        List<Method> method3 = PropertiesUtils.getMethod(c,"getWork");
+        List<Method> method3 = PropertiesUtils.getMethod(c,"getWork",false);
         Assert.assertTrue(method3.size() == 2);
 
         List<Method> method4 = PropertiesUtils.getClzMethod(Child.class,"findStatic");
         Assert.assertTrue(method4.size() == 1 && method4.get(0).getDeclaringClass().equals(com.alibaba.qlexpress4.test.property.Parent.class));
 
-        PropertiesUtils.setPropertyValue(Parent.class,"staticSet","st1",false);
+        PropertiesUtils.setClzPropertyValue(Parent.class,"staticSet","st1",false);
         Assert.assertTrue(Parent.staticSet.equals("st1"));
 
+        Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"booValue",false).equals(true));
 
         Map<String,String> map = new HashMap<>();
-        PropertiesUtils.setPropertyValue(map,"key","value",false);
-        Assert.assertTrue(PropertiesUtils.getPropertyValue(map,"key",false).equals("value"));
+        CacheUtils.setFieldCacheElement(map, "key","value",false);
+
+        Assert.assertTrue(CacheUtils.getFieldCacheElement(map,"key",false).equals("value"));
         Assert.assertTrue(PropertiesUtils.getPropertyType(map,"key").equals(java.lang.String.class));
 
         String[] aa = {"11"};
-        Assert.assertTrue(PropertiesUtils.getPropertyValue(aa,"length",false).equals(1));
+        Assert.assertTrue(CacheUtils.getFieldCacheElement(aa,"length",false).equals(1));
         Assert.assertTrue(PropertiesUtils.getPropertyType(aa,"length").equals(int.class));
 
-        Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"booValue",false).equals(true));
+
 
     }
 }
