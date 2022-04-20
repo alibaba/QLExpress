@@ -77,7 +77,7 @@ public class CacheUtils {
     }
 
 
-    public static Method getMethodWithCache(Object bean, String methodName, Object[] args, boolean isAllowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
+    public static List<Method> getMethodWithCache(Object bean, String methodName, Object[] args, boolean isAllowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
         Object cacheElement = null;
         Class<?>[] type = BasicUtils.getTypeOfObject(args);
         if (bean instanceof Class) {
@@ -99,7 +99,7 @@ public class CacheUtils {
                 }
             }
         }
-        return (Method)cacheElement;
+        return (List<Method>)cacheElement;
     }
 
     public static Object getMethodCacheElement(Object bean, String methodName, Object[] args, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
@@ -143,26 +143,26 @@ public class CacheUtils {
         return functionCacheElement.cacheFunctionInterface(clazz);
     }
 
-    private static Method getStaticCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        List<Method> candidates = PropertiesUtils.getClzMethod((Class<?>)bean ,methodName, allowAccessPrivate);
-        return MethodHandler.Preferred.findMostSpecificMethod(type, candidates.toArray(new Method[0]));
+    private static List<Method> getStaticCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
+        return PropertiesUtils.getClzMethod((Class<?>)bean ,methodName, allowAccessPrivate);
     }
 
     private static Object getStaticCacheMethodValueFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        Method method = getStaticCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
+        List<Method> methods = getStaticCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
+        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
         if(method == null){
             return null;
         }
         return MethodHandler.Access.accessMethodValue(method,bean,args,allowAccessPrivate);
     }
 
-    private static Method getCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        List<Method> candidates = PropertiesUtils.getMethod(bean, methodName,allowAccessPrivate);
-        return MethodHandler.Preferred.findMostSpecificMethod(type, candidates.toArray(new Method[0]));
+    private static List<Method> getCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
+        return PropertiesUtils.getMethod(bean, methodName,allowAccessPrivate);
     }
 
     private static Object getCacheMethodValueFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        Method method = getCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
+        List<Method> methods = getCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
+        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
         if(method == null){
             return null;
         }

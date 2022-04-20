@@ -34,6 +34,10 @@ public class Parent {
         return staticGet;
     }
 
+    public static String getStaticGetParam(Integer a) {
+        return staticGet;
+    }
+
     private static final String staticGet =  "staticGet";
 
     public String getWork(){

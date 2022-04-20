@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.DataField;
@@ -33,7 +34,7 @@ public class GetFieldInstruction extends QLInstruction {
         }
 
         Object fieldValue = null;
-        DataField dataField = new DataField();
+        LeftValue dataField = new DataField();
         try {
             fieldValue = CacheUtils.getFieldCacheElement(bean, this.fieldName, qlOptions.isAllowAccessPrivateMethod());
             dataField.set(fieldValue);
@@ -43,7 +44,7 @@ public class GetFieldInstruction extends QLInstruction {
         } catch (IllegalAccessException e) {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR","IllegalAccessException: "+e.getMessage());
         } catch (Exception e){
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR","unExpected exception: "+e.getMessage());
+            throw errorReporter.report("GET_FIELD_VALUE_ERROR","UnExpectedException: "+e.getMessage());
         }
 
     }

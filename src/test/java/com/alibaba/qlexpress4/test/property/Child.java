@@ -24,4 +24,8 @@ public class Child extends Parent{
     private String getMethod1(int a, int b){
         return "c";
     }
+
+    public static String getStaticGetParam(Integer a, Integer b) {
+        return "5";
+    }
 }
