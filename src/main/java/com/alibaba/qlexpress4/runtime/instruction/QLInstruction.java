@@ -2,7 +2,6 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
@@ -21,5 +20,5 @@ public abstract class QLInstruction {
         this.errorReporter = errorReporter;
     }
 
-    public abstract void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions);
+    public abstract void execute(QRuntime qRuntime, QLOptions qlOptions);
 }
