@@ -7,7 +7,6 @@ import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.DataMethod;
-import com.alibaba.qlexpress4.runtime.data.DataMethodInvoke;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +32,7 @@ public class GetMethodInstruction extends QLInstruction {
 
     @Override
     public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = parameters.get(0).get();
+        Object bean = qRuntime.pop(0).get(0).get();
         if(bean == null){
             throw errorReporter.report("GET_METHOD_INPUT_BEAN_NULL","input parameters is null");
         }

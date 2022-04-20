@@ -35,7 +35,7 @@ public class MethodInvokeInstruction extends QLInstruction {
 
     @Override
     public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = parameters.get(0).get();
+        Object bean = qRuntime.pop(0).get(0).get();
 
         if(bean == null){
             throw errorReporter.report("GET_METHOD_INVOKE_INPUT_BEAN_NULL","input parameters is null");
