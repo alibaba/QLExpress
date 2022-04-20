@@ -3,7 +3,7 @@ package com.alibaba.qlexpress4;
 /**
  * Comment By 冰够 Precedence > Priority ?
  *
- * @author 悬衡
+ * Author: DQinYuan
  * date 2022/1/12 2:31 下午
  */
 public class QLPrecedences {
