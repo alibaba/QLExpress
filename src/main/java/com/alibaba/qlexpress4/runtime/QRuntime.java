@@ -43,6 +43,12 @@ public interface QRuntime {
     Parameters pop(int number);
 
     /**
+     * pop one element on top of stack
+     * @return popped element
+     */
+    Value pop();
+
+    /**
      * exit and return specified value
      * @param returnValue
      */
