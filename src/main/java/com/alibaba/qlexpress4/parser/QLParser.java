@@ -108,6 +108,8 @@ public class QLParser {
             return singleTokenStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.RETURN)) {
             return returnStmt();
+        } else if (matchKeyWordAndAdvance(KeyWordsSet.TRY)) {
+            return tryCatchStmt();
         } else if (isLocalVarDeclStatement()) {
             // var declare statement
             return localVarDeclareStmt();
@@ -115,6 +117,48 @@ public class QLParser {
             // expression(primary, assignment, ternary,....)
             return expr();
         }
+    }
+
+    private TryCatchStmt tryCatchStmt() {
+        Token tryToken = pre;
+        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_DECLARE",
+                "expect '{' in try declaration");
+        Block body = block();
+        if (!matchKeyWordAndAdvance(KeyWordsSet.CATCH)) {
+            throw QLException.reportParserErr(scanner.getScript(), tryToken,
+                    "CAN_NOT_FIND_CATCH_TO_MATCH", "can not find 'catch' to match");
+        }
+        List<TryCatchStmt.CatchClause> catchClauses = new ArrayList<>(3);
+        catchClauses.add(catchClause());
+        while (matchKeyWordAndAdvance(KeyWordsSet.CATCH)) {
+            catchClauses.add(catchClause());
+        }
+
+        if (matchKeyWordAndAdvance(KeyWordsSet.FINAL)) {
+            advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_FINAL_DECLARE",
+                    "expect '{' in try...final... declaration");
+            return new TryCatchStmt(tryToken, body, block(), catchClauses);
+        } else {
+            return new TryCatchStmt(tryToken, body, null, catchClauses);
+        }
+    }
+
+    private TryCatchStmt.CatchClause catchClause() {
+        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_CATCH_EXCEPTION",
+                "expect '(' before catch exception");
+        List<DeclType> exceptions = new ArrayList<>(3);
+        exceptions.add(declType());
+        while (matchTypeAndAdvance(TokenType.BITOR)) {
+            exceptions.add(declType());
+        }
+        Identifier variable = idOrReportError("INVALID_CATCH_VARIABLE_NAME",
+                "invalid catch variable name");
+        advanceOrReportError(TokenType.RPAREN, "EXPECT_LPAREN_AFTER_CATCH_EXCEPTION",
+                "expect ')' after catch exception");
+        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_CATCH_DECLARE",
+                "expect '{' in catch declaration");
+        Block body = block();
+        return new TryCatchStmt.CatchClause(exceptions, variable, body);
     }
 
     private boolean isLocalVarDeclStatement() {

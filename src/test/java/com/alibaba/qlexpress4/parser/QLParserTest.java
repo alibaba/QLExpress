@@ -4,35 +4,7 @@ import com.alibaba.qlexpress4.DefaultClassSupplier;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.parser.tree.ArrayCallExpr;
-import com.alibaba.qlexpress4.parser.tree.AssignExpr;
-import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
-import com.alibaba.qlexpress4.parser.tree.ConstExpr;
-import com.alibaba.qlexpress4.parser.tree.DeclType;
-import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
-import com.alibaba.qlexpress4.parser.tree.Expr;
-import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
-import com.alibaba.qlexpress4.parser.tree.CallExpr;
-import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
-import com.alibaba.qlexpress4.parser.tree.ForStmt;
-import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
-import com.alibaba.qlexpress4.parser.tree.GroupExpr;
-import com.alibaba.qlexpress4.parser.tree.IdExpr;
-import com.alibaba.qlexpress4.parser.tree.Identifier;
-import com.alibaba.qlexpress4.parser.tree.ImportStmt;
-import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.ListExpr;
-import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
-import com.alibaba.qlexpress4.parser.tree.NewExpr;
-import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.parser.tree.Stmt;
-import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
-import com.alibaba.qlexpress4.parser.tree.TypeExpr;
-import com.alibaba.qlexpress4.parser.tree.VarDecl;
+import com.alibaba.qlexpress4.parser.tree.*;
 import org.junit.Test;
 
 import java.util.*;
@@ -684,6 +656,23 @@ public class QLParserTest {
                 "[Near: BiConsumer bi;]\n" +
                 "       ^^^^^^^^^^\n" +
                 "[Line: 1, Column: 1]");
+    }
+
+    @Test
+    public void tryCatchStmtTest() {
+        Program program = parse("try {" +
+                "    100" +
+                "} catch (IllegalStateException | IndexOutOfBoundsException e) {" +
+                "} final {" +
+                "}");
+        TryCatchStmt tryCatchStmt = (TryCatchStmt) program.getStmtList().get(0);
+        assertEquals(1, tryCatchStmt.getBody().getStmtList().size());
+        assertEquals(Arrays.asList(IllegalStateException.class, IndexOutOfBoundsException.class),
+                tryCatchStmt.getTryCatch().get(0)
+                .getExceptions().stream()
+                .map(DeclType::getType)
+                .map(ConstExpr::getConstValue).collect(Collectors.toList()));
+        assertEquals(0, tryCatchStmt.getTryFinal().getStmtList().size());
     }
 
     private void assertErrReport(String script, String expectReport) {

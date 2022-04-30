@@ -65,6 +65,13 @@ public class KeyWordsSet {
 
     public static final String SUPER = "super";
 
+    // try catch
+    public static final String TRY = "try";
+
+    public static final String CATCH = "catch";
+
+    public static final String FINAL = "final";
+
     // unuseful now, but reserve them for future
     public static final String CLASS = "class";
     public static final String THIS = "this";
@@ -103,6 +110,9 @@ public class KeyWordsSet {
             case THIS:
             case EXTENDS:
             case SUPER:
+            case TRY:
+            case CATCH:
+            case FINAL:
                 return true;
             default:
                 return false;
