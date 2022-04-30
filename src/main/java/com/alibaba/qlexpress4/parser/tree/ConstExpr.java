@@ -13,4 +13,8 @@ public class ConstExpr extends Expr {
         super(keyToken);
         this.constValue = constValue;
     }
+
+    public Object getConstValue() {
+        return constValue;
+    }
 }

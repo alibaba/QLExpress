@@ -2,21 +2,7 @@ package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
-import com.alibaba.qlexpress4.parser.tree.ConstExpr;
-import com.alibaba.qlexpress4.parser.tree.DeclType;
-import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
-import com.alibaba.qlexpress4.parser.tree.Expr;
-import com.alibaba.qlexpress4.parser.tree.GroupExpr;
-import com.alibaba.qlexpress4.parser.tree.IdExpr;
-import com.alibaba.qlexpress4.parser.tree.Identifier;
-import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.ListExpr;
-import com.alibaba.qlexpress4.parser.tree.NewExpr;
-import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.TypeExpr;
-import com.alibaba.qlexpress4.parser.tree.VarDecl;
+import com.alibaba.qlexpress4.parser.tree.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,7 +133,31 @@ class ConstRule extends OperatorParseRule {
 class IdRule extends OperatorParseRule {
 
     @Override
+    protected boolean matchAndAdvance(QLParser parser) {
+        if (!parser.isEnd() &&
+                parser.cur.getType() == TokenType.ID
+                && (parser.pre != null && parser.pre.getType() == TokenType.DOT)) {
+            parser.advance();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean prefixCondition(Token cur) {
+        return cur.getType() == TokenType.ID;
+    }
+
+    @Override
+    public Expr prefixParse(QLParser parser) {
+        return new IdExpr(parser.pre);
+    }
+}
+
+class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
+
+    @Override
+    boolean prefixCondition(Token cur) {
         return cur.getType() == TokenType.ID;
     }
 
@@ -170,18 +180,20 @@ class IdRule extends OperatorParseRule {
                         ),
                         null, parser.expr());
             }
-        } else if (!parser.isEnd() && parser.cur.getType() == TokenType.LT) {
+        }
+
+        Expr idExpr = parser.parseIdOrQualifiedCls();
+        if (idExpr instanceof ConstExpr && !parser.isEnd() && parser.cur.getType() == TokenType.LT) {
             // generic type
             Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur);
             if (gtNextToken != null && gtNextToken.getType() == TokenType.RPAREN) {
                 // generic type argument
                 parser.advance();
                 List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
-                return new TypeExpr(idToken, new DeclType(Collections.singletonList(new Identifier(idToken)),
-                        typeArguments));
+                return new TypeExpr(idToken, new DeclType((ConstExpr) idExpr, typeArguments));
             }
         }
-        return new IdExpr(idToken);
+        return idExpr;
     }
 }
 
@@ -194,7 +206,7 @@ class TypeRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return new TypeExpr(parser.pre, new DeclType(Collections.singletonList(new Identifier(parser.pre)),
+        return new TypeExpr(parser.pre, new DeclType(new ConstExpr(parser.pre, parser.pre.getLiteral()),
                 Collections.emptyList()));
     }
 }

@@ -8,16 +8,16 @@ public class DeclType {
      * a.b.c.d
      * not empty
      */
-    private final List<Identifier> type;
+    private final ConstExpr type;
 
     private final List<DeclTypeArgument> typeArguments;
 
-    public DeclType(List<Identifier> type, List<DeclTypeArgument> typeArguments) {
+    public DeclType(ConstExpr type, List<DeclTypeArgument> typeArguments) {
         this.type = type;
         this.typeArguments = typeArguments;
     }
 
-    public List<Identifier> getType() {
+    public ConstExpr getType() {
         return type;
     }
 

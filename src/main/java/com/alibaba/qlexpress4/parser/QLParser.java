@@ -1,37 +1,9 @@
 package com.alibaba.qlexpress4.parser;
 
+import com.alibaba.qlexpress4.ClassSupplier;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.parser.tree.ArrayCallExpr;
-import com.alibaba.qlexpress4.parser.tree.AssignExpr;
-import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.Break;
-import com.alibaba.qlexpress4.parser.tree.Continue;
-import com.alibaba.qlexpress4.parser.tree.DeclType;
-import com.alibaba.qlexpress4.parser.tree.DeclTypeArgument;
-import com.alibaba.qlexpress4.parser.tree.EmptyStmt;
-import com.alibaba.qlexpress4.parser.tree.Expr;
-import com.alibaba.qlexpress4.parser.tree.FieldCallExpr;
-import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
-import com.alibaba.qlexpress4.parser.tree.ForStmt;
-import com.alibaba.qlexpress4.parser.tree.CallExpr;
-import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
-import com.alibaba.qlexpress4.parser.tree.GroupExpr;
-import com.alibaba.qlexpress4.parser.tree.IdExpr;
-import com.alibaba.qlexpress4.parser.tree.Identifier;
-import com.alibaba.qlexpress4.parser.tree.IfStmt;
-import com.alibaba.qlexpress4.parser.tree.ImportStmt;
-import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.MacroStmt;
-import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.parser.tree.Return;
-import com.alibaba.qlexpress4.parser.tree.Stmt;
-import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
-import com.alibaba.qlexpress4.parser.tree.VarDecl;
-import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
-import com.alibaba.qlexpress4.parser.tree.WhileStmt;
+import com.alibaba.qlexpress4.parser.tree.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,14 +31,21 @@ public class QLParser {
 
     private final Scanner scanner;
 
+    private final ImportManager importManager;
+
+    private final ClassSupplier classSupplier;
+
     protected Token pre;
 
     protected Token cur;
 
-    public QLParser(Map<String, Integer> userDefineOperatorsPrecedence, Scanner scanner) {
+    public QLParser(Map<String, Integer> userDefineOperatorsPrecedence, Scanner scanner,
+                    ImportManager importManager, ClassSupplier classSupplier) {
         this.userDefineOperatorsPrecedence = userDefineOperatorsPrecedence;
         this.scanner = scanner;
         cur = scanner.next();
+        this.importManager = importManager;
+        this.classSupplier = classSupplier;
     }
 
     public Program parse() {
@@ -140,7 +119,7 @@ public class QLParser {
 
     private boolean isLocalVarDeclStatement() {
         Token typeDeclNextToken = lookAheadTypeDeclNextToken();
-        if (typeDeclNextToken == null) {
+        if (!isTokenType(typeDeclNextToken, TokenType.ID)) {
             scanner.back();
             return false;
         }
@@ -203,6 +182,39 @@ public class QLParser {
         return nextToken;
     }
 
+    public Expr parseIdOrQualifiedCls() {
+        Class<?> cls = importManager.loadFromImport(pre.getLexeme(), classSupplier);
+        if (cls != null) {
+            return new ConstExpr(pre, cls);
+        }
+
+        StringBuilder pathBuilder = new StringBuilder(pre.getLexeme());
+        Token splitDot = cur;
+        while (isTokenType(splitDot, TokenType.DOT)) {
+            Token partPath = scanner.lookAhead();
+            if (isTokenType(partPath, TokenType.ID)) {
+                pathBuilder.append('.').append(partPath.getLexeme());
+                cls = classSupplier.loadCls(pathBuilder.toString());
+                if (cls != null) {
+                    int lookAheadNum = scanner.lookAheadNum();
+                    scanner.back();
+                    // consume all lookAhead token
+                    for (int i = 0; i < lookAheadNum + 1; i++) {
+                        advance();
+                    }
+                    return new ConstExpr(partPath, cls);
+                }
+                splitDot = scanner.lookAhead();
+            } else {
+                scanner.back();
+                return new IdExpr(pre);
+            }
+        }
+
+        scanner.back();
+        return new IdExpr(pre);
+    }
+
     private LocalVarDeclareStmt localVarDeclareStmt() {
         // first three token has been determined
         Token keyToken = cur;
@@ -228,46 +240,67 @@ public class QLParser {
     }
 
     private VarDecl varDecl() {
-        DeclType maybeType = declType();
-        if (isEnd() || cur.getType() == TokenType.COMMA ||
-                cur.getType() == TokenType.RPAREN ||
-                cur.getType() == TokenType.COLON) {
-            // var without type
-            return new VarDecl(null, maybeType.getType().get(0));
-        }
-
-        if (matchTypeAndAdvance(TokenType.ID)) {
-            return new VarDecl(maybeType, new Identifier(pre));
+        Token typeDeclNextToken = lookAheadTypeDeclNextToken();
+        scanner.back();
+        if (isTokenType(typeDeclNextToken, TokenType.ID)) {
+            // variable with type declare
+            DeclType declType = declType();
+            Token variable = cur;
+            advance();
+            return new VarDecl(declType, new Identifier(variable));
         } else {
-            throw QLException.reportParserErr(scanner.getScript(), lastToken(),
-                    "INVALID_VARIABLE_NAME", "invalid variable name");
+            Token variable = cur;
+            advance();
+            return new VarDecl(null, new Identifier(variable));
         }
     }
 
     protected DeclType declType() {
         if (matchTypeAndAdvance(TokenType.TYPE)) {
-            return new DeclType(Collections.singletonList(new Identifier(pre)), Collections.emptyList());
+            return new DeclType(new ConstExpr(pre, mustLoadQualifiedCls((String) pre.getLiteral(), pre)),
+                    Collections.emptyList());
         } else if (matchTypeAndAdvance(TokenType.ID)) {
-            List<Identifier> typeReference = new ArrayList<>();
-            typeReference.add(new Identifier(pre));
+            List<String> clsPartName = new ArrayList<>(5);
+            clsPartName.add(pre.getLexeme());
             while (matchTypeAndAdvance(TokenType.DOT)) {
                 if (matchTypeAndAdvance(TokenType.ID)) {
-                    typeReference.add(new Identifier(pre));
+                    clsPartName.add(pre.getLexeme());
                 } else {
                     throw QLException.reportParserErr(scanner.getScript(), lastToken(),
                             "INVALID_TYPE_DECLARE", "invalid type declare");
                 }
             }
+            ConstExpr clsConst = new ConstExpr(pre, clsPartName.size() == 1?
+                    mustLoadSimpleCls(pre):
+                    mustLoadQualifiedCls(String.join(".", clsPartName), pre));
 
             if (matchTypeAndAdvance(TokenType.LT)) {
                 // generic type arguments
-                return new DeclType(typeReference, typeArgumentList());
+                return new DeclType(clsConst, typeArgumentList());
             } else {
-                return new DeclType(typeReference, Collections.emptyList());
+                return new DeclType(clsConst, Collections.emptyList());
             }
         }
         throw QLException.reportParserErr(scanner.getScript(), lastToken(),
                 "INVALID_TYPE_DECLARE", "invalid type declare");
+    }
+
+    private Class<?> mustLoadSimpleCls(Token simpleNameToken) {
+        Class<?> cls = importManager.loadFromImport(simpleNameToken.getLexeme(), classSupplier);
+        if (cls == null) {
+            throw QLException.reportParserErr(scanner.getScript(), simpleNameToken,
+                    "CLASS_NOT_FOUND", "can not find class: " + simpleNameToken.getLexeme());
+        }
+        return cls;
+    }
+
+    private Class<?> mustLoadQualifiedCls(String clsQualifiedName, Token reportToken) {
+        Class<?> cls = classSupplier.loadCls(clsQualifiedName);
+        if (cls == null) {
+            throw QLException.reportParserErr(scanner.getScript(), reportToken,
+                    "CLASS_NOT_FOUND", "can not find class: " + clsQualifiedName);
+        }
+        return cls;
     }
 
     protected List<DeclTypeArgument> typeArgumentList() {
@@ -301,7 +334,7 @@ public class QLParser {
                             "invalid type bound");
                 }
             } else {
-                return new DeclTypeArgument(new DeclType(Collections.singletonList(new Identifier(pre)),
+                return new DeclTypeArgument(new DeclType(new ConstExpr(pre, Object.class),
                         Collections.emptyList()), DeclTypeArgument.Bound.NONE);
             }
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
@@ -350,7 +383,7 @@ public class QLParser {
         Token importToken = pre;
         boolean staticImport = matchKeyWordAndAdvance(KeyWordsSet.STATIC);
         Token prePackToken = null;
-        StringBuilder path = new StringBuilder();
+        StringBuilder pathBuilder = new StringBuilder();
 
         while (!isEnd()) {
             if (matchTypeAndAdvance(TokenType.MUL)) {
@@ -360,15 +393,20 @@ public class QLParser {
                     throw QLException.reportParserErr(scanner.getScript(), importToken,
                             "INVALID_IMPORT_STATEMENT", "invalid import statement");
                 }
-                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path.toString(), staticImport);
-            } else if (matchTypeAndAdvance(TokenType.ID)) {
+
+                String path = pathBuilder.toString();
+                importManager.addImport(ImportManager.importPack(path));
+                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path, staticImport);
+            } else if (matchTypeAndAdvance(TokenType.ID) || matchTypeAndAdvance(TokenType.KEY_WORD)) {
                 if (prePackToken != null) {
-                    path.append('.');
+                    pathBuilder.append('.');
                 }
                 prePackToken = pre;
-                path.append(prePackToken.getLexeme());
+                pathBuilder.append(prePackToken.getLexeme());
                 if (matchTypeAndAdvance(TokenType.SEMI)) {
-                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path.toString(), staticImport);
+                    String path = pathBuilder.toString();
+                    importManager.addImport(ImportManager.importCls(path));
+                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path, staticImport);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
                     throw QLException.reportParserErr(scanner.getScript(), lastToken(),
                             "STATEMENT_MUST_END_WITH_SEMI",

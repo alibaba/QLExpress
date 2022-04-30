@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.parser;
 
+import com.alibaba.qlexpress4.DefaultClassSupplier;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
@@ -34,10 +35,8 @@ import com.alibaba.qlexpress4.parser.tree.TypeExpr;
 import com.alibaba.qlexpress4.parser.tree.VarDecl;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -148,23 +147,23 @@ public class QLParserTest {
                         "                 ^\n" +
                         "[Line: 1, Column: 14]");
         assertErrReport("function ttt(int if)",
-                "[Error: invalid variable name]\n" +
+                "[Error: expect ',' between parameters]\n" +
                         "[Near: n ttt(int if)]\n" +
                         "                 ^^\n" +
                         "[Line: 1, Column: 18]");
 
-        Program program = parse("function myTest(int a, boolean b, MyClz myC) {}");
+        Program program = parse("function myTest(int a, boolean b, String myC) {}");
         FunctionStmt functionStmt = (FunctionStmt) program.getStmtList().get(0);
         assertEquals("myTest", functionStmt.getName().getKeyToken().getLexeme());
         List<VarDecl> params = functionStmt.getParams();
         VarDecl param0 = params.get(0);
-        assertEquals("java.lang.Integer", param0.getType().getType().get(0).getKeyToken().getLiteral());
+        assertEquals(Integer.class, param0.getType().getType().getConstValue());
         assertEquals("a", param0.getVariable().getKeyToken().getLexeme());
         VarDecl param1 = params.get(1);
-        assertEquals("java.lang.Boolean", param1.getType().getType().get(0).getKeyToken().getLiteral());
+        assertEquals(Boolean.class, param1.getType().getType().getConstValue());
         assertEquals("b", param1.getVariable().getKeyToken().getLexeme());
         VarDecl param2 = params.get(2);
-        assertEquals("MyClz", param2.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(String.class, param2.getType().getType().getConstValue());
         assertEquals("myC", param2.getVariable().getKeyToken().getLexeme());
     }
 
@@ -293,7 +292,7 @@ public class QLParserTest {
 
         Program program3 = parse("(Integer) a.test");
         CastExpr castFieldCallExpr = (CastExpr) program3.getStmtList().get(0);
-        assertTrue(castFieldCallExpr.getTypeExpr() instanceof IdExpr);
+        assertTrue(castFieldCallExpr.getTypeExpr() instanceof ConstExpr);
         assertTrue(castFieldCallExpr.getTarget() instanceof FieldCallExpr);
     }
 
@@ -382,13 +381,11 @@ public class QLParserTest {
         assertTrue(castExpr2.getTarget() instanceof LambdaExpr);
         TypeExpr typeExpr = (TypeExpr) castExpr2.getTypeExpr();
         DeclType declType = typeExpr.getDeclType();
-        assertEquals("Function", declType.getType().get(0).getKeyToken().getLexeme());
-        assertEquals(Arrays.asList("Integer", "Long"), declType.getTypeArguments().stream()
+        assertEquals(Function.class, declType.getType().getConstValue());
+        assertEquals(Arrays.asList(Integer.class, Long.class), declType.getTypeArguments().stream()
                 .map(DeclTypeArgument::getType)
                 .map(DeclType::getType)
-                .map(l -> l.get(0))
-                .map(Identifier::getKeyToken)
-                .map(Token::getLexeme)
+                .map(ConstExpr::getConstValue)
                 .collect(Collectors.toList()));
     }
 
@@ -443,35 +440,31 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         NewExpr newExpr = (NewExpr) binaryOpExpr.getLeft();
         assertEquals(3, newExpr.getArguments().size());
-        assertEquals("Integer", newExpr.getClazz().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Integer.class, newExpr.getClazz().getType().getConstValue());
 
         Program program1 = parse("List<Integer> l = new ArrayList<>();");
         LocalVarDeclareStmt varDeclareStmt = (LocalVarDeclareStmt) program1.getStmtList().get(0);
         NewExpr rightExpr = (NewExpr) varDeclareStmt.getInitializer();
-        assertEquals("ArrayList", rightExpr.getClazz().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(ArrayList.class, rightExpr.getClazz().getType().getConstValue());
         assertEquals(0, rightExpr.getClazz().getTypeArguments().size());
 
-        Program program2 = parse("Mist<long> l = new Mist<long>();");
+        Program program2 = parse("Map<long> l = new Map<long>();");
         LocalVarDeclareStmt varDeclareStmt2 = (LocalVarDeclareStmt) program2.getStmtList().get(0);
         NewExpr rightExpr2 = (NewExpr) varDeclareStmt2.getInitializer();
-        assertEquals("Mist", rightExpr2.getClazz().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Map.class, rightExpr2.getClazz().getType().getConstValue());
         assertEquals(1, rightExpr2.getClazz().getTypeArguments().size());
 
-        Program program3 = parse("java.lang.Mist<long> l = new java.lang.Mist<long>();");
+        Program program3 = parse("java.lang.String<long> l = new java.lang.String<long>();");
         LocalVarDeclareStmt varDeclareStmt3 = (LocalVarDeclareStmt) program3.getStmtList().get(0);
-        assertEquals(Arrays.asList("java", "lang", "Mist"), varDeclareStmt3.getVarDecl().getType().getType().stream()
-                .map(Identifier::getKeyToken)
-                .map(Token::getLexeme)
-                .collect(Collectors.toList()));
+        assertEquals(String.class,
+                varDeclareStmt3.getVarDecl().getType().getType().getConstValue());
         NewExpr rightExpr3 = (NewExpr) varDeclareStmt3.getInitializer();
-        assertEquals(Arrays.asList("java", "lang", "Mist"), rightExpr3.getClazz().getType().stream()
-                .map(Identifier::getKeyToken)
-                .map(Token::getLexeme).collect(Collectors.toList()));
+        assertEquals(String.class, rightExpr3.getClazz().getType().getConstValue());
 
-        assertErrReport("new Ttt(1*9-0", "[Error: can not find ')' to match it]\n" +
+        assertErrReport("new Ttt(1*9-0", "[Error: can not find class: Ttt]\n" +
                 "[Near: new Ttt(1*9-0]\n" +
-                "              ^\n" +
-                "[Line: 1, Column: 8]");
+                "           ^^^\n" +
+                "[Line: 1, Column: 5]");
     }
 
     @Test
@@ -517,7 +510,7 @@ public class QLParserTest {
                 "}");
         ForEachStmt forEachStmt2 = (ForEachStmt) program2.getStmtList().get(0);
         VarDecl itVar2 = forEachStmt2.getItVar();
-        assertEquals("int", itVar2.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Integer.class, itVar2.getType().getType().getConstValue());
         assertEquals("iid", itVar2.getVariable().getKeyToken().getLexeme());
 
         Program program3 = parse("for (int i = 0; i < 3; i++) a+=1");
@@ -525,67 +518,57 @@ public class QLParserTest {
         assertTrue(forStmt3.getForInit() instanceof LocalVarDeclareStmt);
         LocalVarDeclareStmt initStmt = (LocalVarDeclareStmt) forStmt3.getForInit();
         assertTrue(initStmt.getInitializer() instanceof ConstExpr);
-        assertEquals("int", initStmt.getVarDecl().getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Integer.class, initStmt.getVarDecl().getType().getType().getConstValue());
         assertEquals("i", initStmt.getVarDecl().getVariable().getKeyToken().getLexeme());
         assertEquals("0", initStmt.getInitializer().getKeyToken().getLexeme());
 
-        Program program4 = parse("for (Entry<int, Test> iid : []);");
-        ForEachStmt forEachStmtGeneric = (ForEachStmt) program4.getStmtList().get(0);
+        Program program4 = parse("import java.util.function.Consumer;for (Consumer<long, int> iid : []);");
+        ForEachStmt forEachStmtGeneric = (ForEachStmt) program4.getStmtList().get(1);
         VarDecl itVarWithGeneric = forEachStmtGeneric.getItVar();
         assertEquals(2, itVarWithGeneric.getType().getTypeArguments().size());
     }
 
     @Test
     public void genericTest() {
-        Program program = parse("Map<String, Map<? extends Test, ? super Test2>> m;");
+        Program program = parse("Map<String, Map<? extends String, ? super Number>> m;");
         LocalVarDeclareStmt localVarDeclareStmt = (LocalVarDeclareStmt) program.getStmtList().get(0);
         assertNull(localVarDeclareStmt.getInitializer());
         VarDecl varDecl = localVarDeclareStmt.getVarDecl();
         assertEquals("m", varDecl.getVariable().getKeyToken().getLexeme());
         DeclType declType = varDecl.getType();
-        assertEquals("Map", declType.getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Map.class, declType.getType().getConstValue());
         List<DeclTypeArgument> typeArguments = declType.getTypeArguments();
         assertEquals(2, typeArguments.size());
         DeclTypeArgument declTypeArgument = typeArguments.get(0);
         assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument.getBound());
-        assertEquals("String", declTypeArgument.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(String.class, declTypeArgument.getType().getType().getConstValue());
         DeclTypeArgument declTypeArgument1 = typeArguments.get(1);
-        assertEquals("Map", declTypeArgument1.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Map.class, declTypeArgument1.getType().getType().getConstValue());
         assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument1.getBound());
 
         List<DeclTypeArgument> nestTypeArguments = declTypeArgument1.getType().getTypeArguments();
         DeclTypeArgument extendsArgument = nestTypeArguments.get(0);
         assertEquals(DeclTypeArgument.Bound.EXTENDS, extendsArgument.getBound());
-        assertEquals("Test", extendsArgument.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(String.class, extendsArgument.getType().getType().getConstValue());
 
         DeclTypeArgument superArgument = nestTypeArguments.get(1);
         assertEquals(DeclTypeArgument.Bound.SUPER, superArgument.getBound());
-        assertEquals("Test2", superArgument.getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Number.class, superArgument.getType().getType().getConstValue());
 
         // built-in type argument
         Program program0 = parse("Map<int, long> m;");
         VarDecl builtInTypeGenericVarDecl = ((LocalVarDeclareStmt) (program0.getStmtList().get(0))).getVarDecl();
         DeclType builtInTypeGenericDeclType = builtInTypeGenericVarDecl.getType();
-        assertEquals("Map", builtInTypeGenericDeclType.getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Map.class, builtInTypeGenericDeclType.getType().getConstValue());
         List<DeclTypeArgument> builtInTypeArgs = builtInTypeGenericDeclType.getTypeArguments();
-        assertEquals(TokenType.TYPE, builtInTypeArgs.get(0).getType().getType().get(0).getKeyToken().getType());
-        assertEquals("int", builtInTypeArgs.get(0).getType().getType().get(0).getKeyToken().getLexeme());
-        assertEquals(TokenType.TYPE, builtInTypeArgs.get(1).getType().getType().get(0).getKeyToken().getType());
-        assertEquals("long", builtInTypeArgs.get(1).getType().getType().get(0).getKeyToken().getLexeme());
+        assertEquals(Integer.class, builtInTypeArgs.get(0).getType().getType().getConstValue());
+        assertEquals(Long.class, builtInTypeArgs.get(1).getType().getType().getConstValue());
 
         Program program1 = parse("(List<?>)");
         GroupExpr groupExpr = (GroupExpr) program1.getStmtList().get(0);
         TypeExpr typeExpr = (TypeExpr) groupExpr.getExpr();
         DeclType questionType = typeExpr.getDeclType().getTypeArguments().get(0).getType();
-        assertEquals(TokenType.QUESTION, questionType.getType().get(0).getKeyToken().getType());
-    }
-
-    @Test
-    public void localVarDeclTest() {
-        assertErrReport("int if;", "[Error: invalid variable name]\n" +
-                "[Near: int if;]\n" +
-                "           ^^\n" +
-                "[Line: 1, Column: 5]");
+        assertEquals(TokenType.QUESTION, questionType.getType().getKeyToken().getType());
     }
 
     @Test
@@ -684,9 +667,33 @@ public class QLParserTest {
         assertEquals("s", rightFieldCall.getExpr().getKeyToken().getLexeme());
     }
 
+    @Test
+    public void parseClsQualifiedNameTest() {
+        Program programClsFirst = parse("int java = 10;java.util.ArrayList");
+        assertEquals(ArrayList.class, ((ConstExpr) programClsFirst.getStmtList().get(1)).getConstValue());
+
+        assertErrReport("Map<java.cc.String, Integer> m;", "[Error: can not find class: java.cc.String]\n" +
+                "[Near: p<java.cc.String, Integer>]\n" +
+                "                 ^^^^^^\n" +
+                "[Line: 1, Column: 13]");
+        assertErrReport("com.util.ArrayList l;", "[Error: can not find class: com.util.ArrayList]\n" +
+                "[Near: com.util.ArrayList l;]\n" +
+                "                ^^^^^^^^^\n" +
+                "[Line: 1, Column: 10]");
+        assertErrReport("BiConsumer bi;", "[Error: can not find class: BiConsumer]\n" +
+                "[Near: BiConsumer bi;]\n" +
+                "       ^^^^^^^^^^\n" +
+                "[Line: 1, Column: 1]");
+    }
+
     private void assertErrReport(String script, String expectReport) {
         try {
-            new QLParser(new HashMap<>(), new Scanner(script, QLOptions.DEFAULT_OPTIONS)).parse();
+            new QLParser(new HashMap<>(), new Scanner(script, QLOptions.DEFAULT_OPTIONS),
+                    ImportManager.buildGlobalImportManager(Arrays.asList(
+                            ImportManager.importPack("java.lang"),
+                            ImportManager.importPack("java.util"),
+                            ImportManager.importCls("java.util.function.Function")
+                    )), DefaultClassSupplier.INSTANCE).parse();
         } catch (QLSyntaxException e) {
             assertEquals(expectReport, e.getMessage());
         }
@@ -695,6 +702,11 @@ public class QLParserTest {
     private Program parse(String script) {
         Map<String, Integer> mockUserOperator = new HashMap<>();
         mockUserOperator.put("testOp", QLPrecedences.MULTI);
-        return new QLParser(mockUserOperator, new Scanner(script, QLOptions.DEFAULT_OPTIONS)).parse();
+        return new QLParser(mockUserOperator, new Scanner(script, QLOptions.DEFAULT_OPTIONS),
+                ImportManager.buildGlobalImportManager(Arrays.asList(
+                        ImportManager.importPack("java.lang"),
+                        ImportManager.importPack("java.util"),
+                        ImportManager.importCls("java.util.function.Function")
+                )), DefaultClassSupplier.INSTANCE).parse();
     }
 }

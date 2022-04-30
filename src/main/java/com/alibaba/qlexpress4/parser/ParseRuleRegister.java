@@ -13,6 +13,7 @@ class ParseRuleRegister {
             new NewRule(),
             new ConstRule(),
             new IdRule(),
+            new IdOrLambdaOrQualifiedClsRule(),
             new TypeRule(),
             new LBrackRule(),
             new UnaryRule()

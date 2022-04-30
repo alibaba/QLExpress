@@ -208,6 +208,10 @@ public class Scanner {
         }
     }
 
+    public int lookAheadNum() {
+        return lookAheadQueue.size();
+    }
+
     public String getScript() {
         return script;
     }
