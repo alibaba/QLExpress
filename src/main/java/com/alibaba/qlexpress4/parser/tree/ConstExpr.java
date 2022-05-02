@@ -17,4 +17,9 @@ public class ConstExpr extends Expr {
     public Object getConstValue() {
         return constValue;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

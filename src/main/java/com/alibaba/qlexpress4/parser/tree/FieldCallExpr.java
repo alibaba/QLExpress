@@ -21,4 +21,9 @@ public class FieldCallExpr extends Expr {
     public Identifier getAttribute() {
         return attribute;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

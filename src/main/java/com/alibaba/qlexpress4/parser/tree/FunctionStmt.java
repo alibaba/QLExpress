@@ -30,4 +30,9 @@ public class FunctionStmt extends Stmt {
     public Block getBody() {
         return body;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

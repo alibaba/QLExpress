@@ -21,4 +21,9 @@ public class BinaryOpExpr extends Expr {
     public Expr getRight() {
         return right;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

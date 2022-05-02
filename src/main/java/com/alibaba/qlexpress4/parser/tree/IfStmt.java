@@ -16,4 +16,9 @@ public class IfStmt extends Stmt {
         this.thenBranch = thenBranch;
         this.elseBranch = elseBranch;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

@@ -28,4 +28,9 @@ public class TernaryExpr extends Expr {
     public Expr getElseExpr() {
         return elseExpr;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

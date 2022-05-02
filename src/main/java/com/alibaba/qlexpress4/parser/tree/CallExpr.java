@@ -23,4 +23,9 @@ public class CallExpr extends Expr {
     public List<Expr> getArguments() {
         return arguments;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

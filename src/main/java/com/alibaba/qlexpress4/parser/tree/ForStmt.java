@@ -38,4 +38,9 @@ public class ForStmt extends Stmt {
     public Stmt getBody() {
         return body;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

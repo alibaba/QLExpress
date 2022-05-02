@@ -13,4 +13,8 @@ public class Program {
     public List<Stmt> getStmtList() {
         return stmtList;
     }
+
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

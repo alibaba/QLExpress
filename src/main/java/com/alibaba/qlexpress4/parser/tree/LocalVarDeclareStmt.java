@@ -24,4 +24,9 @@ public class LocalVarDeclareStmt extends Stmt {
     public Expr getInitializer() {
         return initializer;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

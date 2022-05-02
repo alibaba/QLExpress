@@ -24,4 +24,9 @@ public class CastExpr extends Expr {
     public Expr getTarget() {
         return target;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

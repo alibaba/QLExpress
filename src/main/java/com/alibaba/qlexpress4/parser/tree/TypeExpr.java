@@ -14,4 +14,9 @@ public class TypeExpr extends Expr {
     public DeclType getDeclType() {
         return declType;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

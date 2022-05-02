@@ -60,4 +60,9 @@ public class TryCatchStmt extends Stmt {
             return body;
         }
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

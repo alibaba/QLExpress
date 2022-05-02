@@ -13,4 +13,9 @@ public class MacroStmt extends Stmt {
         this.name = name;
         this.body = body;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

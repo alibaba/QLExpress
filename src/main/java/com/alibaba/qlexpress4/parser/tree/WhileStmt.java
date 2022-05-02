@@ -13,4 +13,9 @@ public class WhileStmt extends Stmt {
         this.condition = condition;
         this.body = body;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

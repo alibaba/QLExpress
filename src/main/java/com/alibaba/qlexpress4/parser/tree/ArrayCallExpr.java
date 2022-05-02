@@ -21,4 +21,9 @@ public class ArrayCallExpr extends Expr {
     public Expr getIndex() {
         return index;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

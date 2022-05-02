@@ -6,4 +6,9 @@ public class IdExpr extends Expr {
     public IdExpr(Token keyToken) {
         super(keyToken);
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

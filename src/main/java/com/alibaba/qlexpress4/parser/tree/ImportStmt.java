@@ -51,4 +51,9 @@ public class ImportStmt extends Stmt {
     public boolean isStaticImport() {
         return staticImport;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

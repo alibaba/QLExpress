@@ -19,4 +19,9 @@ public class ListExpr extends Expr {
     public List<Expr> getElements() {
         return elements;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

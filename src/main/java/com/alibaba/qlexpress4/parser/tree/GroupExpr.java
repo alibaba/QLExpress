@@ -14,4 +14,9 @@ public class GroupExpr extends Expr {
     public Expr getExpr() {
         return expr;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

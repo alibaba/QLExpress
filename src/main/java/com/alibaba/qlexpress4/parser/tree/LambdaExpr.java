@@ -31,4 +31,9 @@ public class LambdaExpr extends Expr {
         return exprBody;
     }
 
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
+
 }

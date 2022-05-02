@@ -16,4 +16,9 @@ public class Block extends Stmt {
     public List<Stmt> getStmtList() {
         return stmtList;
     }
+
+    @Override
+    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
+        return visitor.visit(this);
+    }
 }

@@ -391,13 +391,13 @@ public class QLParser {
     private Stmt returnStmt() {
         Token keyToken = pre;
         if (matchTypeAndAdvance(TokenType.SEMI)) {
-            return new Return(keyToken, null);
+            return new ReturnStmt(keyToken, null);
         }
 
         Expr expr = expr();
         advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
                 "statement must end with ';'");
-        return new Return(keyToken, expr);
+        return new ReturnStmt(keyToken, expr);
     }
 
     private Stmt singleTokenStmt() {
