@@ -51,10 +51,6 @@ public class TestPropertyUtils {
         pc.setAge(35);
         Assert.assertTrue((int)PropertiesUtils.getPropertyValue(pc,"age",false) == 35);
         Assert.assertTrue(PropertiesUtils.getPropertyType(pc,"age") == int.class);
-        List<Method> method2 = PropertiesUtils.getMethod(pc,"getWork", false);
-        Assert.assertTrue(method2.size() == 2);
-        Assert.assertTrue(CacheUtils.getMethodCacheElement(pc,"getMethod1",new Object[]{1,2}, true).equals("c"));
-
 
         Child c = new Child();
         c.setAge(35);
@@ -72,19 +68,5 @@ public class TestPropertyUtils {
         Assert.assertTrue(Parent.staticSet.equals("st1"));
 
         Assert.assertTrue(PropertiesUtils.getPropertyValue(c,"booValue",false).equals(true));
-
-        Map<String,String> map = new HashMap<>();
-        CacheUtils.setFieldCacheElement(map, "key","value",false);
-
-        Assert.assertTrue(CacheUtils.getFieldCacheElement(map,"key",false).equals("value"));
-        Assert.assertTrue(PropertiesUtils.getPropertyType(map,"key").equals(java.lang.String.class));
-
-        String[] aa = {"11"};
-        Assert.assertTrue(CacheUtils.getFieldCacheElement(aa,"length",false).equals(1));
-        Assert.assertTrue(PropertiesUtils.getPropertyType(aa,"length").equals(int.class));
-
-
-
-
     }
 }

@@ -2,15 +2,16 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.data.DataField;
-import com.alibaba.qlexpress4.runtime.data.DataMethod;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataMethodInvoke;
+import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
-
-import java.lang.reflect.InvocationTargetException;
+import com.alibaba.qlexpress4.utils.PropertiesUtils;
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @Operation: invoke specified method of object on the top of stack
@@ -35,30 +36,38 @@ public class MethodInvokeInstruction extends QLInstruction {
 
     @Override
     public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = qRuntime.pop(0).get(0).get();
-
-        if(bean == null){
-            throw errorReporter.report("GET_METHOD_INVOKE_INPUT_BEAN_NULL","input parameters is null");
-        }
-
+        Object bean = parameters.get(0).get();
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for(int i = 0; i < this.argNum; i++){
             params[i] = parameters.get(i+1).get();
         }
 
-        Object methodValue = null;
-        LeftValue dataMethodInvoke = new DataMethodInvoke();
+        if(bean == null){
+            throw errorReporter.report("GET_METHOD_INVOKE_INPUT_BEAN_NULL","input parameters is null");
+        }
         try {
-            methodValue = CacheUtils.getMethodCacheElement(bean, this.methodName, params, qlOptions.isAllowAccessPrivateMethod());
-            dataMethodInvoke.set(methodValue);
-            qRuntime.push(dataMethodInvoke);
-        } catch (InvocationTargetException e) {
-            throw errorReporter.report("GET_METHOD_INVOKE_VALUE_ERROR","InvocationTargetException: "+e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw errorReporter.report("GET_METHOD_INVOKE_VALUE_ERROR","IllegalAccessException: "+e.getMessage());
+            Class<?>[] type = BasicUtils.getTypeOfObject(params);
+            Object cacheElement = CacheUtils.getMethodCacheElement(bean,this.methodName,type);
+            if(cacheElement == null){
+                List<Method> methods;
+                if (bean instanceof Class) {
+                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,methodName, qlOptions.isAllowAccessPrivateMethod());
+                }else {
+                    methods = PropertiesUtils.getMethod(bean, methodName, qlOptions.isAllowAccessPrivateMethod());
+                }
+                Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+                Value dataMethodInvoke = new DataMethodInvoke(method,bean,params,qlOptions.isAllowAccessPrivateMethod());
+                qRuntime.push(dataMethodInvoke);
+                if(cacheElement!=null){
+                    CacheUtils.setMethodCacheElement(bean,this.methodName,dataMethodInvoke,type);
+                }
+            }else {
+                qRuntime.push((Value) cacheElement);
+            }
         } catch (Exception e){
-            throw errorReporter.report("GET_METHOD_INVOKE_VALUE_ERROR","UnExpectedException: "+e.getMessage());
+            throw errorReporter.report("GET_METHOD_INVOKE_VALUE_ERROR","UnExpected exception: "+e.getMessage());
         }
 
     }
+
 }

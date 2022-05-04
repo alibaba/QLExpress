@@ -22,7 +22,7 @@ public class MemberHandler {
             if(AccessMode.READ.equals(propertyMode)){
                 method = MethodHandler.getGetter(clazz, property, isStaticCheck);
             }else {
-                method =  MethodHandler.getSetter(clazz, property);
+                method = MethodHandler.getSetter(clazz, property);
             }
             if(method != null){
                 return method;
