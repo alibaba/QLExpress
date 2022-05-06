@@ -3,7 +3,12 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.data.DataMethod;
+import com.alibaba.qlexpress4.utils.CacheUtils;
+import com.alibaba.qlexpress4.utils.PropertiesUtils;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -24,20 +29,20 @@ public class GetMethodInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = parameters.get(0).get();
+        Object bean = qRuntime.pop(0).get(0).get();
         if(bean == null){
-            throw errorReporter.report("GET_METHOD_INPUT_BEAN_NULL","input parameters is null");
+            throw errorReporter.report("GET_METHOD_ERROR","can not get method from null");
         }
         try {
             Object cacheElement = CacheUtils.getMethodCacheElement(bean,this.methodName);
             if(cacheElement == null){
                 List<Method> methods;
                 if (bean instanceof Class) {
-                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,methodName, qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getClzMethod((Class<?>)bean, methodName, qlOptions.isAllowAccessPrivateMethod());
                 }else {
                     methods = PropertiesUtils.getMethod(bean, methodName, qlOptions.isAllowAccessPrivateMethod());
                 }
-                Value dataMethod = new DataMethod(methods, this.methodName, bean ,qlOptions.isAllowAccessPrivateMethod());
+                Value dataMethod = new DataMethod(methods, bean, qlOptions.isAllowAccessPrivateMethod());
                 qRuntime.push(dataMethod);
                 if(cacheElement!=null){
                     CacheUtils.setMethodCacheElement(bean,this.methodName,dataMethod);
@@ -46,7 +51,7 @@ public class GetMethodInstruction extends QLInstruction {
                 qRuntime.push((Value) cacheElement);
             }
         } catch (Exception e){
-            throw errorReporter.report("GET_METHOD_INPUT_BEAN_NULL","UnExpected exception: "+e.getMessage());
+            throw errorReporter.report("GET_METHOD_ERROR","can not get method: "+e.getMessage());
         }
     }
 }

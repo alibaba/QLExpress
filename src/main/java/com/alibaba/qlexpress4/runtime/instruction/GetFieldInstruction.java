@@ -2,6 +2,9 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.member.FieldHandler;
+import com.alibaba.qlexpress4.member.MethodHandler;
+import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataArray;
@@ -33,9 +36,9 @@ public class GetFieldInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = parameters.get(0).get();
+        Object bean = qRuntime.pop(0).get(0).get();
         if(bean == null){
-            throw errorReporter.report("GET_FIELD_INPUT_BEAN_NULL","input parameters is null");
+            throw errorReporter.report("GET_FIELD_VALUE_ERROR","can not get field from null");
         }
         try {
             if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(this.fieldName)) {
@@ -55,7 +58,7 @@ public class GetFieldInstruction extends QLInstruction {
                 getCacheFieldValue(qlOptions,bean.getClass(), bean, qRuntime);
             }
         }  catch (Exception e){
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR","UnExpectedException: "+e.getMessage());
+            throw errorReporter.report("GET_FIELD_VALUE_ERROR","can not get field: "+e.getMessage());
         }
     }
 

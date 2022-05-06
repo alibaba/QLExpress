@@ -74,8 +74,6 @@ public class QLOptions {
 
         private boolean allowAccessPrivateMethod;
 
-        private boolean useCacheClear;
-
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
         private long timeoutMillis = -1;

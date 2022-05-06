@@ -29,7 +29,7 @@ public class DataMethodInvoke implements Value {
             if(this.method == null){
                 return null;
             }
-            if(!allowAccessPrivate || this.method.isAccessible()){
+            if(!this.allowAccessPrivate || this.method.isAccessible()){
                 return this.method.invoke(this.bean,this.args);
             }else {
                 synchronized (this.method) {
