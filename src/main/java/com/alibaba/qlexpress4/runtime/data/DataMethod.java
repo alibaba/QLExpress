@@ -2,7 +2,6 @@ package com.alibaba.qlexpress4.runtime.data;
 
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.utils.CacheUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
