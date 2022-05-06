@@ -2,16 +2,12 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.member.FieldHandler;
-import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.LeftValue;
-import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataArray;
 import com.alibaba.qlexpress4.runtime.data.DataClazz;
-import com.alibaba.qlexpress4.runtime.data.DataMap;
 import com.alibaba.qlexpress4.runtime.data.DataField;
+import com.alibaba.qlexpress4.runtime.data.DataMap;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 
@@ -36,7 +32,7 @@ public class GetFieldInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
+    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object bean = parameters.get(0).get();
         if(bean == null){
             throw errorReporter.report("GET_FIELD_INPUT_BEAN_NULL","input parameters is null");
@@ -63,7 +59,6 @@ public class GetFieldInstruction extends QLInstruction {
         }
     }
 
-
     /**
      * getValue from cache, if value not exist getInstance
      * @param qlOptions
@@ -81,7 +76,7 @@ public class GetFieldInstruction extends QLInstruction {
                 qRuntime.push(Value.NULL_VALUE);
             }else {
                 LeftValue dataField = new DataField(field,getMethod,setMethod,clazz,bean,
-                                this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+                        this.fieldName,qlOptions.isAllowAccessPrivateMethod());
                 qRuntime.push(dataField);
             }
 

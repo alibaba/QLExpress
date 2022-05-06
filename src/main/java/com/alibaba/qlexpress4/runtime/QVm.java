@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * QLExpress Virtual Machine
- * @author 悬衡
+ * Author: DQinYuan
  * date 2022/1/12 2:28 下午
  */
 public interface QVm {

@@ -3,13 +3,13 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataMethodInvoke;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtils;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(Parameters parameters, QRuntime qRuntime, QLOptions qlOptions) {
+    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object bean = parameters.get(0).get();
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for(int i = 0; i < this.argNum; i++){
@@ -67,7 +67,5 @@ public class MethodInvokeInstruction extends QLInstruction {
         } catch (Exception e){
             throw errorReporter.report("GET_METHOD_INVOKE_VALUE_ERROR","UnExpected exception: "+e.getMessage());
         }
-
     }
-
 }

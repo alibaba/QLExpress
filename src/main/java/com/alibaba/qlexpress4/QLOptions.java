@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author 悬衡
+ * Author: DQinYuan
  * date 2022/1/12 2:35 下午
  */
 public class QLOptions {
