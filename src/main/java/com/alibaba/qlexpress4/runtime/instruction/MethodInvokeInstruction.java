@@ -6,7 +6,7 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
  * @Operation: invoke specified method of object on the top of stack
- * @Input: 1
+ * @Input: ${argNum} + 1
  * @Output: 1, method return value, null for void method
  *
  * equivalent to GetMethodInstruction + CallInstruction
