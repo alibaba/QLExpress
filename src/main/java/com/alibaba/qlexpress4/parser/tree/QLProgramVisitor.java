@@ -5,6 +5,8 @@ package com.alibaba.qlexpress4.parser.tree;
  */
 public interface QLProgramVisitor<R, C> {
 
+    R visit(Program program, C context);
+
     R visit(ArrayCallExpr arrayCallExpr, C context);
 
     R visit(AssignExpr assignExpr, C context);
@@ -54,8 +56,6 @@ public interface QLProgramVisitor<R, C> {
     R visit(NewExpr newExpr, C context);
 
     R visit(PrefixUnaryOpExpr prefixUnaryOpExpr, C context);
-
-    R visit(Program program, C context);
 
     R visit(ReturnStmt aReturnStmt, C context);
 

@@ -45,6 +45,10 @@ public abstract class QLException extends RuntimeException {
                 QLSyntaxException::new);
     }
 
+    public static QLRuntimeException reportRuntimeErr(String script, Token token, String errorCode, String reason) {
+        return reportErrWithToken(script, token, errorCode, reason, QLRuntimeException::new);
+    }
+
     private static <T extends QLException> T reportErrWithToken(String script, Token token, String errCode,
                                                                 String reason, ExceptionFactory<T> exceptionFactory) {
         return reportErr(script, token.getPos(), token.getLine(), token.getCol(), token.getLexeme(), errCode, reason,
