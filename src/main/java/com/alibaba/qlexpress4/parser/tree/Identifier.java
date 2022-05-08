@@ -8,7 +8,7 @@ public class Identifier extends SyntaxNode {
     }
 
     @Override
-    public <R> R accept(QLProgramVisitor<R, ?> visitor) {
-        return visitor.visit(this);
+    public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
+        return visitor.visit(this, context);
     }
 }

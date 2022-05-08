@@ -3,69 +3,69 @@ package com.alibaba.qlexpress4.parser.tree;
 /**
  * Author: DQinYuan
  */
-public interface QLProgramVisitor<R, S> {
+public interface QLProgramVisitor<R, C> {
 
-    R visit(ArrayCallExpr arrayCallExpr);
+    R visit(ArrayCallExpr arrayCallExpr, C context);
 
-    R visit(AssignExpr assignExpr);
+    R visit(AssignExpr assignExpr, C context);
 
-    R visit(BinaryOpExpr binaryOpExpr);
+    R visit(BinaryOpExpr binaryOpExpr, C context);
 
-    R visit(Block block);
+    R visit(Block block, C context);
 
-    R visit(Break aBreak);
+    R visit(Break aBreak, C context);
 
-    R visit(CallExpr callExpr);
+    R visit(CallExpr callExpr, C context);
 
-    R visit(CastExpr castExpr);
+    R visit(CastExpr castExpr, C context);
 
-    R visit(ConstExpr constExpr);
+    R visit(ConstExpr constExpr, C context);
 
-    R visit(Continue aContinue);
+    R visit(Continue aContinue, C context);
 
-    R visit(EmptyStmt emptyStmt);
+    R visit(EmptyStmt emptyStmt, C context);
 
-    R visit(FieldCallExpr fieldCallExpr);
+    R visit(FieldCallExpr fieldCallExpr, C context);
 
-    R visit(ForEachStmt forEachStmt);
+    R visit(ForEachStmt forEachStmt, C context);
 
-    R visit(ForStmt forStmt);
+    R visit(ForStmt forStmt, C context);
 
-    R visit(FunctionStmt functionStmt);
+    R visit(FunctionStmt functionStmt, C context);
 
-    R visit(GroupExpr groupExpr);
+    R visit(GroupExpr groupExpr, C context);
 
-    R visit(Identifier identifier);
+    R visit(Identifier identifier, C context);
 
-    R visit(IdExpr idExpr);
+    R visit(IdExpr idExpr, C context);
 
-    R visit(IfStmt ifStmt);
+    R visit(IfStmt ifStmt, C context);
 
-    R visit(ImportStmt importStmt);
+    R visit(ImportStmt importStmt, C context);
 
-    R visit(LambdaExpr lambdaExpr);
+    R visit(LambdaExpr lambdaExpr, C context);
 
-    R visit(ListExpr listExpr);
+    R visit(ListExpr listExpr, C context);
 
-    R visit(LocalVarDeclareStmt localVarDeclareStmt);
+    R visit(LocalVarDeclareStmt localVarDeclareStmt, C context);
 
-    R visit(MacroStmt macroStmt);
+    R visit(MacroStmt macroStmt, C context);
 
-    R visit(NewExpr newExpr);
+    R visit(NewExpr newExpr, C context);
 
-    R visit(PrefixUnaryOpExpr prefixUnaryOpExpr);
+    R visit(PrefixUnaryOpExpr prefixUnaryOpExpr, C context);
 
-    R visit(Program program);
+    R visit(Program program, C context);
 
-    R visit(ReturnStmt aReturnStmt);
+    R visit(ReturnStmt aReturnStmt, C context);
 
-    R visit(SuffixUnaryOpExpr suffixUnaryOpExpr);
+    R visit(SuffixUnaryOpExpr suffixUnaryOpExpr, C context);
 
-    R visit(TernaryExpr ternaryExpr);
+    R visit(TernaryExpr ternaryExpr, C context);
 
-    R visit(TryCatchStmt tryCatchStmt);
+    R visit(TryCatchStmt tryCatchStmt, C context);
 
-    R visit(TypeExpr typeExpr);
+    R visit(TypeExpr typeExpr, C context);
 
-    R visit(WhileStmt whileStmt);
+    R visit(WhileStmt whileStmt, C context);
 }

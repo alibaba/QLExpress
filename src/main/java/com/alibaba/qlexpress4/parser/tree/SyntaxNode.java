@@ -17,5 +17,5 @@ public abstract class SyntaxNode {
         return keyToken;
     }
 
-    public abstract  <R> R accept(QLProgramVisitor<R, ?> visitor);
+    public abstract <R, C> R accept(QLProgramVisitor<R, C> visitor, C context);
 }
