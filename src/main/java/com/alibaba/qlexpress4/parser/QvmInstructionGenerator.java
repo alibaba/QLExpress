@@ -1,23 +1,32 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
+import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.parser.tree.*;
-import com.alibaba.qlexpress4.runtime.instruction.IndexInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.QLambdaInner;
+import com.alibaba.qlexpress4.runtime.QVm;
+import com.alibaba.qlexpress4.runtime.instruction.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: DQinYuan
  */
 public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
 
+    private static final String BLOCK_LAMBDA_NAME_PREFIX = "BLOCK_";
+
+    private final QVm qVm;
+
     private final String script;
 
-    private final List<QLInstruction> instructions = new ArrayList<>();
+    private final List<QLInstruction> instructionList = new ArrayList<>();
 
-    public QvmInstructionGenerator(String script) {
+    private int blockCounter = 0;
+
+    public QvmInstructionGenerator(QVm qVm, String script) {
+        this.qVm = qVm;
         this.script = script;
     }
 
@@ -29,31 +38,50 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
 
     @Override
     public Void visit(ArrayCallExpr arrayCallExpr, Void context) {
+        arrayCallExpr.getTarget().accept(this, context);
+        arrayCallExpr.getIndex().accept(this, context);
+        instructionList.add(new IndexInstruction(newReporterByKeyToken(arrayCallExpr)));
         return null;
     }
 
     @Override
     public Void visit(AssignExpr assignExpr, Void context) {
+        assignExpr.getLeft().accept(this, context);
+        assignExpr.getRight().accept(this, context);
+        // TODO: assignInstruction or '=' operator
         return null;
     }
 
     @Override
     public Void visit(BinaryOpExpr binaryOpExpr, Void context) {
+        // TODO: operator framework
         return null;
     }
 
     @Override
     public Void visit(Block block, Void context) {
+        QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(qVm, script);
+        qvmInstructionGenerator.visit(block, context);
+        List<QLInstruction> instructions = qvmInstructionGenerator.getInstructionList();
+
+        QLambda blockLambda = new QLambdaInner(qVm, blockLambdaName(),
+                instructions, Collections.emptyList());
+        instructionList.add(new CallLambdaInstruction(newReporterByKeyToken(block), blockLambda));
         return null;
     }
 
     @Override
     public Void visit(Break aBreak, Void context) {
+        instructionList.add(new BreakInstruction(newReporterByKeyToken(aBreak)));
         return null;
     }
 
     @Override
     public Void visit(CallExpr callExpr, Void context) {
+        callExpr.getTarget().accept(this, context);
+        callExpr.getArguments().forEach(arg -> arg.accept(this, context));
+        instructionList.add(new CallInstruction(newReporterByKeyToken(callExpr),
+                callExpr.getArguments().size()));
         return null;
     }
 
@@ -182,5 +210,16 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
         return null;
     }
 
+    public List<QLInstruction> getInstructionList() {
+        return instructionList;
+    }
+
+    private String blockLambdaName() {
+        return BLOCK_LAMBDA_NAME_PREFIX + blockCounter++;
+    }
+
+    private ErrorReporter newReporterByKeyToken(SyntaxNode syntaxNode) {
+        return new DefaultErrorReporter(script, syntaxNode.getKeyToken());
+    }
 
 }
