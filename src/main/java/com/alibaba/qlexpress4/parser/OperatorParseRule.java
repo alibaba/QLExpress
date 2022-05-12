@@ -190,7 +190,9 @@ class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
                 // generic type argument
                 parser.advance();
                 List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
-                return new TypeExpr(idToken, new DeclType((ConstExpr) idExpr, typeArguments));
+                ConstExpr typeConstExpr = (ConstExpr) idExpr;
+                return new TypeExpr(idToken, new DeclType(typeConstExpr.getKeyToken(),
+                        (Class<?>) typeConstExpr.getConstValue(), typeArguments));
             }
         }
         return idExpr;
@@ -206,7 +208,8 @@ class TypeRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser) {
-        return new TypeExpr(parser.pre, new DeclType(new ConstExpr(parser.pre, parser.pre.getLiteral()),
+        return new TypeExpr(parser.pre, new DeclType(parser.pre,
+                parser.mustLoadQualifiedCls((String) parser.pre.getLiteral(), parser.pre),
                 Collections.emptyList()));
     }
 }

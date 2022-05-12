@@ -14,6 +14,14 @@ public class WhileStmt extends Stmt {
         this.body = body;
     }
 
+    public Expr getCondition() {
+        return condition;
+    }
+
+    public Stmt getBody() {
+        return body;
+    }
+
     @Override
     public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
         return visitor.visit(this, context);

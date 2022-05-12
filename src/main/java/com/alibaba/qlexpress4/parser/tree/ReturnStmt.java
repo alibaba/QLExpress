@@ -11,6 +11,10 @@ public class ReturnStmt extends Stmt {
         this.expr = expr;
     }
 
+    public Expr getExpr() {
+        return expr;
+    }
+
     @Override
     public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
         return visitor.visit(this, context);

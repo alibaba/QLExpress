@@ -129,13 +129,13 @@ public class QLParserTest {
         assertEquals("myTest", functionStmt.getName().getKeyToken().getLexeme());
         List<VarDecl> params = functionStmt.getParams();
         VarDecl param0 = params.get(0);
-        assertEquals(Integer.class, param0.getType().getType().getConstValue());
+        assertEquals(Integer.class, param0.getType().getClz());
         assertEquals("a", param0.getVariable().getKeyToken().getLexeme());
         VarDecl param1 = params.get(1);
-        assertEquals(Boolean.class, param1.getType().getType().getConstValue());
+        assertEquals(Boolean.class, param1.getType().getClz());
         assertEquals("b", param1.getVariable().getKeyToken().getLexeme());
         VarDecl param2 = params.get(2);
-        assertEquals(String.class, param2.getType().getType().getConstValue());
+        assertEquals(String.class, param2.getType().getClz());
         assertEquals("myC", param2.getVariable().getKeyToken().getLexeme());
     }
 
@@ -353,11 +353,10 @@ public class QLParserTest {
         assertTrue(castExpr2.getTarget() instanceof LambdaExpr);
         TypeExpr typeExpr = (TypeExpr) castExpr2.getTypeExpr();
         DeclType declType = typeExpr.getDeclType();
-        assertEquals(Function.class, declType.getType().getConstValue());
+        assertEquals(Function.class, declType.getClz());
         assertEquals(Arrays.asList(Integer.class, Long.class), declType.getTypeArguments().stream()
                 .map(DeclTypeArgument::getType)
-                .map(DeclType::getType)
-                .map(ConstExpr::getConstValue)
+                .map(DeclType::getClz)
                 .collect(Collectors.toList()));
     }
 
@@ -412,26 +411,26 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         NewExpr newExpr = (NewExpr) binaryOpExpr.getLeft();
         assertEquals(3, newExpr.getArguments().size());
-        assertEquals(Integer.class, newExpr.getClazz().getType().getConstValue());
+        assertEquals(Integer.class, newExpr.getClazz().getClz());
 
         Program program1 = parse("List<Integer> l = new ArrayList<>();");
         LocalVarDeclareStmt varDeclareStmt = (LocalVarDeclareStmt) program1.getStmtList().get(0);
         NewExpr rightExpr = (NewExpr) varDeclareStmt.getInitializer();
-        assertEquals(ArrayList.class, rightExpr.getClazz().getType().getConstValue());
+        assertEquals(ArrayList.class, rightExpr.getClazz().getClz());
         assertEquals(0, rightExpr.getClazz().getTypeArguments().size());
 
         Program program2 = parse("Map<long> l = new Map<long>();");
         LocalVarDeclareStmt varDeclareStmt2 = (LocalVarDeclareStmt) program2.getStmtList().get(0);
         NewExpr rightExpr2 = (NewExpr) varDeclareStmt2.getInitializer();
-        assertEquals(Map.class, rightExpr2.getClazz().getType().getConstValue());
+        assertEquals(Map.class, rightExpr2.getClazz().getClz());
         assertEquals(1, rightExpr2.getClazz().getTypeArguments().size());
 
         Program program3 = parse("java.lang.String<long> l = new java.lang.String<long>();");
         LocalVarDeclareStmt varDeclareStmt3 = (LocalVarDeclareStmt) program3.getStmtList().get(0);
         assertEquals(String.class,
-                varDeclareStmt3.getVarDecl().getType().getType().getConstValue());
+                varDeclareStmt3.getVarDecl().getType().getClz());
         NewExpr rightExpr3 = (NewExpr) varDeclareStmt3.getInitializer();
-        assertEquals(String.class, rightExpr3.getClazz().getType().getConstValue());
+        assertEquals(String.class, rightExpr3.getClazz().getClz());
 
         assertErrReport("new Ttt(1*9-0", "[Error: can not find class: Ttt]\n" +
                 "[Near: new Ttt(1*9-0]\n" +
@@ -482,7 +481,7 @@ public class QLParserTest {
                 "}");
         ForEachStmt forEachStmt2 = (ForEachStmt) program2.getStmtList().get(0);
         VarDecl itVar2 = forEachStmt2.getItVar();
-        assertEquals(Integer.class, itVar2.getType().getType().getConstValue());
+        assertEquals(Integer.class, itVar2.getType().getClz());
         assertEquals("iid", itVar2.getVariable().getKeyToken().getLexeme());
 
         Program program3 = parse("for (int i = 0; i < 3; i++) a+=1");
@@ -490,7 +489,7 @@ public class QLParserTest {
         assertTrue(forStmt3.getForInit() instanceof LocalVarDeclareStmt);
         LocalVarDeclareStmt initStmt = (LocalVarDeclareStmt) forStmt3.getForInit();
         assertTrue(initStmt.getInitializer() instanceof ConstExpr);
-        assertEquals(Integer.class, initStmt.getVarDecl().getType().getType().getConstValue());
+        assertEquals(Integer.class, initStmt.getVarDecl().getType().getClz());
         assertEquals("i", initStmt.getVarDecl().getVariable().getKeyToken().getLexeme());
         assertEquals("0", initStmt.getInitializer().getKeyToken().getLexeme());
 
@@ -508,39 +507,39 @@ public class QLParserTest {
         VarDecl varDecl = localVarDeclareStmt.getVarDecl();
         assertEquals("m", varDecl.getVariable().getKeyToken().getLexeme());
         DeclType declType = varDecl.getType();
-        assertEquals(Map.class, declType.getType().getConstValue());
+        assertEquals(Map.class, declType.getClz());
         List<DeclTypeArgument> typeArguments = declType.getTypeArguments();
         assertEquals(2, typeArguments.size());
         DeclTypeArgument declTypeArgument = typeArguments.get(0);
         assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument.getBound());
-        assertEquals(String.class, declTypeArgument.getType().getType().getConstValue());
+        assertEquals(String.class, declTypeArgument.getType().getClz());
         DeclTypeArgument declTypeArgument1 = typeArguments.get(1);
-        assertEquals(Map.class, declTypeArgument1.getType().getType().getConstValue());
+        assertEquals(Map.class, declTypeArgument1.getType().getClz());
         assertEquals(DeclTypeArgument.Bound.NONE, declTypeArgument1.getBound());
 
         List<DeclTypeArgument> nestTypeArguments = declTypeArgument1.getType().getTypeArguments();
         DeclTypeArgument extendsArgument = nestTypeArguments.get(0);
         assertEquals(DeclTypeArgument.Bound.EXTENDS, extendsArgument.getBound());
-        assertEquals(String.class, extendsArgument.getType().getType().getConstValue());
+        assertEquals(String.class, extendsArgument.getType().getClz());
 
         DeclTypeArgument superArgument = nestTypeArguments.get(1);
         assertEquals(DeclTypeArgument.Bound.SUPER, superArgument.getBound());
-        assertEquals(Number.class, superArgument.getType().getType().getConstValue());
+        assertEquals(Number.class, superArgument.getType().getClz());
 
         // built-in type argument
         Program program0 = parse("Map<int, long> m;");
         VarDecl builtInTypeGenericVarDecl = ((LocalVarDeclareStmt) (program0.getStmtList().get(0))).getVarDecl();
         DeclType builtInTypeGenericDeclType = builtInTypeGenericVarDecl.getType();
-        assertEquals(Map.class, builtInTypeGenericDeclType.getType().getConstValue());
+        assertEquals(Map.class, builtInTypeGenericDeclType.getClz());
         List<DeclTypeArgument> builtInTypeArgs = builtInTypeGenericDeclType.getTypeArguments();
-        assertEquals(Integer.class, builtInTypeArgs.get(0).getType().getType().getConstValue());
-        assertEquals(Long.class, builtInTypeArgs.get(1).getType().getType().getConstValue());
+        assertEquals(Integer.class, builtInTypeArgs.get(0).getType().getClz());
+        assertEquals(Long.class, builtInTypeArgs.get(1).getType().getClz());
 
         Program program1 = parse("(List<?>)");
         GroupExpr groupExpr = (GroupExpr) program1.getStmtList().get(0);
         TypeExpr typeExpr = (TypeExpr) groupExpr.getExpr();
         DeclType questionType = typeExpr.getDeclType().getTypeArguments().get(0).getType();
-        assertEquals(TokenType.QUESTION, questionType.getType().getKeyToken().getType());
+        assertEquals(TokenType.QUESTION, questionType.getKeyToken().getType());
     }
 
     @Test
@@ -670,8 +669,8 @@ public class QLParserTest {
         assertEquals(Arrays.asList(IllegalStateException.class, IndexOutOfBoundsException.class),
                 tryCatchStmt.getTryCatch().get(0)
                 .getExceptions().stream()
-                .map(DeclType::getType)
-                .map(ConstExpr::getConstValue).collect(Collectors.toList()));
+                .map(DeclType::getClz)
+                .collect(Collectors.toList()));
         assertEquals(0, tryCatchStmt.getTryFinal().getStmtList().size());
     }
 

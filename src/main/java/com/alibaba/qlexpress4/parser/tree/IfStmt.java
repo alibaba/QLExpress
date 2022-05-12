@@ -21,4 +21,16 @@ public class IfStmt extends Stmt {
     public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
         return visitor.visit(this, context);
     }
+
+    public Expr getCondition() {
+        return condition;
+    }
+
+    public Stmt getThenBranch() {
+        return thenBranch;
+    }
+
+    public Stmt getElseBranch() {
+        return elseBranch;
+    }
 }

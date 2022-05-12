@@ -301,8 +301,7 @@ public class QLParser {
 
     protected DeclType declType() {
         if (matchTypeAndAdvance(TokenType.TYPE)) {
-            return new DeclType(new ConstExpr(pre, mustLoadQualifiedCls((String) pre.getLiteral(), pre)),
-                    Collections.emptyList());
+            return new DeclType(pre, mustLoadQualifiedCls((String) pre.getLiteral(), pre), Collections.emptyList());
         } else if (matchTypeAndAdvance(TokenType.ID)) {
             List<String> clsPartName = new ArrayList<>(5);
             clsPartName.add(pre.getLexeme());
@@ -314,15 +313,16 @@ public class QLParser {
                             "INVALID_TYPE_DECLARE", "invalid type declare");
                 }
             }
-            ConstExpr clsConst = new ConstExpr(pre, clsPartName.size() == 1?
+            Token typeKeyToken = pre;
+            Class<?> clz = clsPartName.size() == 1?
                     mustLoadSimpleCls(pre):
-                    mustLoadQualifiedCls(String.join(".", clsPartName), pre));
+                    mustLoadQualifiedCls(String.join(".", clsPartName), pre);
 
             if (matchTypeAndAdvance(TokenType.LT)) {
                 // generic type arguments
-                return new DeclType(clsConst, typeArgumentList());
+                return new DeclType(typeKeyToken, clz, typeArgumentList());
             } else {
-                return new DeclType(clsConst, Collections.emptyList());
+                return new DeclType(typeKeyToken, clz, Collections.emptyList());
             }
         }
         throw QLException.reportParserErr(scanner.getScript(), lastToken(),
@@ -338,7 +338,7 @@ public class QLParser {
         return cls;
     }
 
-    private Class<?> mustLoadQualifiedCls(String clsQualifiedName, Token reportToken) {
+    public Class<?> mustLoadQualifiedCls(String clsQualifiedName, Token reportToken) {
         Class<?> cls = classSupplier.loadCls(clsQualifiedName);
         if (cls == null) {
             throw QLException.reportParserErr(scanner.getScript(), reportToken,
@@ -378,8 +378,8 @@ public class QLParser {
                             "invalid type bound");
                 }
             } else {
-                return new DeclTypeArgument(new DeclType(new ConstExpr(pre, Object.class),
-                        Collections.emptyList()), DeclTypeArgument.Bound.NONE);
+                return new DeclTypeArgument(new DeclType(pre, Object.class, Collections.emptyList()),
+                        DeclTypeArgument.Bound.NONE);
             }
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
             return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);

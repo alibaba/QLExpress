@@ -20,10 +20,14 @@ public class TryCatchInstruction extends QLInstruction {
 
     private final Map<Class<?>, QLambda> exceptionTable;
 
-    public TryCatchInstruction(ErrorReporter errorReporter, QLambda body, Map<Class<?>, QLambda> exceptionTable) {
+    private final QLambda finalBody;
+
+    public TryCatchInstruction(ErrorReporter errorReporter, QLambda body, Map<Class<?>, QLambda> exceptionTable,
+                               QLambda finalBody) {
         super(errorReporter);
         this.body = body;
         this.exceptionTable = exceptionTable;
+        this.finalBody = finalBody;
     }
 
     @Override
