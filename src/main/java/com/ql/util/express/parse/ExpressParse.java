@@ -172,7 +172,12 @@ public class ExpressParse {
                     tempWord = tempWord.substring(0, tempWord.length() - 1);
                     objectValue = Long.valueOf(tempWord);
                 } else {
-                    long tempLong = Long.parseLong(tempWord);
+                    long tempLong;
+                    if (tempWord.indexOf("e") >=0 || tempWord.indexOf("E") >=0) {
+                        tempLong = Double.valueOf(tempWord).longValue();
+                    } else {
+                        tempLong = Long.parseLong(tempWord);
+                    }
                     if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
                         tempType = nodeTypeManager.findNodeType("CONST_INTEGER");
                         objectValue = (int)tempLong;
