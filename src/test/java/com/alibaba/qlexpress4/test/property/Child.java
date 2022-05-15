@@ -1,10 +1,12 @@
 package com.alibaba.qlexpress4.test.property;
 
+import com.alibaba.qlexpress4.runtime.Value;
+
 /**
  * @Author TaoKan
  * @Date 2022/4/9 上午10:55
  */
-public class Child extends Parent{
+public class Child extends Parent implements Value {
     public String getWork(){
         return "child";
     }
@@ -27,5 +29,10 @@ public class Child extends Parent{
 
     public static String getStaticGetParam(Integer a, Integer b) {
         return "5";
+    }
+
+    @Override
+    public Object get() {
+        return this;
     }
 }

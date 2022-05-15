@@ -76,13 +76,15 @@ public class GetFieldInstruction extends QLInstruction {
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz,this.fieldName);
             if(field == null){
-                qRuntime.push(Value.NULL_VALUE);
+                Value nullValue = Value.NULL_VALUE;
+                CacheUtils.setFieldCacheElement(clazz, this.fieldName, nullValue);
+                qRuntime.push(nullValue);
             }else {
                 LeftValue dataField = new DataField(field,getMethod,setMethod,clazz,bean,
                         this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+                CacheUtils.setFieldCacheElement(clazz, this.fieldName, dataField);
                 qRuntime.push(dataField);
             }
-
         }else {
             qRuntime.push((LeftValue)cacheElement);
         }

@@ -1,12 +1,13 @@
 package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.annotation.QLAlias;
+import com.alibaba.qlexpress4.runtime.Value;
 
 /**
  * @Author TaoKan
  * @Date 2022/4/9 上午10:55
  */
-public class Parent {
+public class Parent implements Value {
     public int getAge() {
         return age;
     }
@@ -50,5 +51,10 @@ public class Parent {
 
     private String getMethod1(int a, int b){
         return "a";
+    }
+
+    @Override
+    public Object get() {
+        return this;
     }
 }

@@ -55,6 +55,10 @@ public class FieldHandler extends MemberHandler {
         public static Field gatherFieldRecursive(Class<?> baseClass, String propertyName) {
             Field[] fields = baseClass.getDeclaredFields();
             for (Field field : fields) {
+                //优先使用本身的定义
+                if (propertyName.equals(field.getName())) {
+                    return field;
+                }
                 if(QLAliasUtils.findQLAliasFields(field,propertyName)){
                     return field;
                 }

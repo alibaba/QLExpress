@@ -29,7 +29,6 @@ public class TestPropertyUtils {
         Assert.assertNull(PropertiesUtils.getPropertyType(parent,"name"));
         Assert.assertNull(PropertiesUtils.getClzField(Parent.class,"name",false));
         Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticPublic",false).equals("staticPublic"));
-        Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticPublic",false).equals("staticPublic"));
         Assert.assertNull(PropertiesUtils.getClzField(Parent.class,"staticPrivate",false));
         Assert.assertTrue(PropertiesUtils.getClzField(Parent.class,"staticGet",false).equals("staticGet"));
         // getPropertyValue private field - public get

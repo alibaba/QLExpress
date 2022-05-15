@@ -44,11 +44,9 @@ public class DataField implements LeftValue {
         if(rs == null){
             rs = fieldGet();
             if(rs != null){
-                CacheUtils.setFieldCacheElement(this.clazz,this.fieldName,rs);
                 return rs;
             }
         }else {
-            CacheUtils.setFieldCacheElement(this.clazz,this.fieldName,rs);
             return rs;
         }
         return null;
