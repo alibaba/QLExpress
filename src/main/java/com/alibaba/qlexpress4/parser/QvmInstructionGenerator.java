@@ -147,8 +147,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
         VarDecl itVar = forEachStmt.getItVar();
         QLambda bodyLambda = generateLambda(FOR_LAMBDA_NAME_PREFIX + forCount(), forEachStmt.getBody(), context,
                 Collections.singletonList(
-                        new QLambdaInner.Param(itVar.getVariable().getId(), itVar.getType().getClz())),
-                Collections.emptyList());
+                        new QLambdaInner.Param(itVar.getVariable().getId(), itVar.getType().getClz())));
         instructionList.add(new ForEachInstruction(forEachErrReporter, bodyLambda));
         return null;
     }
@@ -224,7 +223,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
                         varDecl.getType().getClz()))
                 .collect(Collectors.toList());
         QLambda qLambda = generateLambda(lambdaName(), lambdaExpr.getExprBody() == null ? lambdaExpr.getBlockBody() :
-                        lambdaExpr.getExprBody(), context, paramClzes, Collections.emptyList());
+                        lambdaExpr.getExprBody(), context, paramClzes);
         instructionList.add(new ConstInstruction(newReporterByNode(lambdaExpr), qLambda));
         return null;
     }
@@ -364,6 +363,11 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Void> {
 
     private QLambda generateLambda(String name, SyntaxNode targetNode, Void context) {
         return generateLambda(name, targetNode, context, Collections.emptyList(), Collections.emptyList());
+    }
+
+    private QLambda generateLambda(String name, SyntaxNode targetNode, Void context,
+                                   List<QLambdaInner.Param> paramsType) {
+        return generateLambda(name, targetNode, context, paramsType, Collections.emptyList());
     }
 
     private QLambda generateLambda(String name, SyntaxNode targetNode, Void context,
