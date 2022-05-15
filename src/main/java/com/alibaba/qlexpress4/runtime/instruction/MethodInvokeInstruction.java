@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataMethodInvoke;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtils;
@@ -53,15 +54,16 @@ public class MethodInvokeInstruction extends QLInstruction {
             if(cacheElement == null){
                 List<Method> methods;
                 if (bean instanceof Class) {
-                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,methodName, qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,this.methodName,qlOptions.isAllowAccessPrivateMethod());
                 }else {
-                    methods = PropertiesUtils.getMethod(bean, methodName, qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getMethod(bean,this.methodName,qlOptions.isAllowAccessPrivateMethod());
                 }
                 Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
                 Value dataMethodInvoke = new DataMethodInvoke(method,bean,params,qlOptions.isAllowAccessPrivateMethod());
-                qRuntime.push(dataMethodInvoke);
+                Value dataValue = new DataValue(dataMethodInvoke.get());
+                qRuntime.push(dataValue);
                 if(cacheElement!=null){
-                    CacheUtils.setMethodCacheElement(bean,this.methodName,dataMethodInvoke,type);
+                    CacheUtils.setMethodCacheElement(bean,this.methodName,dataValue,type);
                 }
             }else {
                 qRuntime.push((Value) cacheElement);

@@ -133,9 +133,9 @@ public class PropertiesUtils {
 
     public static List<Method> getMethod(Object bean, String name, Object[] params, boolean isAllowAccessPrivate){
         if(params == null){
-            return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate, null);
+            return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate);
         }
-        return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate, params,null);
+        return MethodHandler.Preferred.gatherMethodsRecursive(bean.getClass(), name, isAllowAccessPrivate, params);
     }
 
 

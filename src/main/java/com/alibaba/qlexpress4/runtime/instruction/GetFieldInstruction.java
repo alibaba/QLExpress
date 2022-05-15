@@ -11,6 +11,7 @@ import com.alibaba.qlexpress4.runtime.data.DataArray;
 import com.alibaba.qlexpress4.runtime.data.DataClazz;
 import com.alibaba.qlexpress4.runtime.data.DataField;
 import com.alibaba.qlexpress4.runtime.data.DataMap;
+import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 
@@ -75,18 +76,19 @@ public class GetFieldInstruction extends QLInstruction {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName, true);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz,this.fieldName);
-            if(field == null){
-                Value nullValue = Value.NULL_VALUE;
-                CacheUtils.setFieldCacheElement(clazz, this.fieldName, nullValue);
-                qRuntime.push(nullValue);
-            }else {
-                LeftValue dataField = new DataField(field,getMethod,setMethod,clazz,bean,
-                        this.fieldName,qlOptions.isAllowAccessPrivateMethod());
-                CacheUtils.setFieldCacheElement(clazz, this.fieldName, dataField);
-                qRuntime.push(dataField);
+            LeftValue dataField = new DataField(field,getMethod,setMethod,clazz,bean,
+                    this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+            qRuntime.push(dataField);
+            if(cacheElement!=null){
+                CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod,setMethod,field);
+                CacheUtils.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
             }
         }else {
-            qRuntime.push((LeftValue)cacheElement);
+            CacheFieldValue cacheFieldValue = (CacheFieldValue) cacheElement;
+            LeftValue dataField = new DataField(cacheFieldValue.getField(),cacheFieldValue.getGetMethod(),
+                    cacheFieldValue.getSetMethod(),clazz,bean,
+                    this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+            qRuntime.push(dataField);
         }
     }
 }
