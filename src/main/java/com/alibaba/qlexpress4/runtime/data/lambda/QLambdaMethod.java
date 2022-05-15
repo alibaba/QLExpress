@@ -1,8 +1,9 @@
-package com.alibaba.qlexpress4.runtime.data;
+package com.alibaba.qlexpress4.runtime.data.lambda;
 
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 
 import java.lang.reflect.Method;
@@ -10,11 +11,11 @@ import java.util.List;
 
 /**
  * @Author TaoKan
- * @Date 2022/5/6 下午6:13
+ * @Date 2022/5/15 下午8:23
  */
-public class DataMethodLambda implements QLambda {
+public class QLambdaMethod implements QLambda {
 
-    public DataMethodLambda(List<Method> methods, Object obj, boolean allowAccessPrivate){
+    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate){
         this.methods = methods;
         this.bean = obj;
         this.allowAccessPrivate = allowAccessPrivate;
