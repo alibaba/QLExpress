@@ -14,8 +14,9 @@ public class ScriptCacheElement implements ICacheElement {
     }
 
     @Override
+    @Deprecated
     public Object buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
-        return null;
+        return name;
     }
 
     @Override
