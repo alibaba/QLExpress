@@ -5,19 +5,15 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
- * @Operation: load variable with local scope, create when not exist
+ * @Operation: load variable from local to global scope, create when not exist
  * @Input: 0
  * @Output: 1 left value of local variable
  *
  * Author: DQinYuan
  */
-public class LoadLocalInstruction extends QLInstruction {
-
-    private final String variableName;
-
-    public LoadLocalInstruction(ErrorReporter errorReporter, String variableName) {
+public class LoadGlobalInstruction extends QLInstruction {
+    public LoadGlobalInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
-        this.variableName = variableName;
     }
 
     @Override
