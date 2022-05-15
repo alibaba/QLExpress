@@ -1,9 +1,6 @@
 package com.alibaba.qlexpress4.utils;
 
-import com.alibaba.qlexpress4.cache.ConstructorCacheElement;
-import com.alibaba.qlexpress4.cache.FieldCacheElement;
-import com.alibaba.qlexpress4.cache.FunctionCacheElement;
-import com.alibaba.qlexpress4.cache.MethodCacheElement;
+import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.member.ConstructorHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
 
@@ -20,13 +17,15 @@ public class CacheUtils {
     public static final ConstructorCacheElement constructorCacheElement = new ConstructorCacheElement();
     public static final MethodCacheElement methodCacheElement = new MethodCacheElement();
     public static final FunctionCacheElement functionCacheElement = new FunctionCacheElement();
+    public static final ScriptCacheElement ScriptCacheElement = new ScriptCacheElement();
 
 
     public static void initCache(int size,boolean isUseCacheClear){
-        fieldCacheElement.initCache(size, isUseCacheClear);
-        constructorCacheElement.initCache(size, isUseCacheClear);
-        functionCacheElement.initCache(size, isUseCacheClear);
-        methodCacheElement.initCache(size, isUseCacheClear);
+        fieldCacheElement.initCache(size, false);
+        constructorCacheElement.initCache(size, false);
+        functionCacheElement.initCache(size, false);
+        methodCacheElement.initCache(size, false);
+        ScriptCacheElement.initCache(size,isUseCacheClear);
     }
 
 
