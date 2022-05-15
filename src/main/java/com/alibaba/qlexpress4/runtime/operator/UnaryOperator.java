@@ -5,12 +5,9 @@ import com.alibaba.qlexpress4.runtime.Value;
 
 /**
  * Author: DQinYuan
- * date 2022/1/12 2:34 下午
  */
-public interface Operator {
+public interface UnaryOperator {
 
-    Object execute(Value left, Value right, ErrorReporter errorReporter);
-
-    int getPrecedence();
+    Object execute(Value value, ErrorReporter errorReporter);
 
 }
