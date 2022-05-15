@@ -9,7 +9,21 @@ public class OperatorFactory {
         return null;
     }
 
-    public static UnaryOperator getUnaryOperator(String operatorLexeme) {
+    /**
+     * like --1 ++1 !true ~1 ^1
+     * @param operatorLexeme
+     * @return
+     */
+    public static UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {
+        return null;
+    }
+
+    /**
+     * like 1-- 1++
+     * @param operatorLexem
+     * @return
+     */
+    public static UnaryOperator getSuffixUnaryOperator(String operatorLexem) {
         return null;
     }
 }
