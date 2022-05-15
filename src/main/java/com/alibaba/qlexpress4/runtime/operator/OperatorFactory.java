@@ -5,11 +5,11 @@ package com.alibaba.qlexpress4.runtime.operator;
  */
 public class OperatorFactory {
 
-    public Operator getOperator(String operatorLexeme) {
+    public static Operator getOperator(String operatorLexeme) {
         return null;
     }
 
-    public UnaryOperator getUnaryOperator(String operatorLexeme) {
+    public static UnaryOperator getUnaryOperator(String operatorLexeme) {
         return null;
     }
 }
