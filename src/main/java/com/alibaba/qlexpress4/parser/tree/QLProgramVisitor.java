@@ -57,7 +57,7 @@ public interface QLProgramVisitor<R, C> {
 
     R visit(PrefixUnaryOpExpr prefixUnaryOpExpr, C context);
 
-    R visit(ReturnStmt aReturnStmt, C context);
+    R visit(ReturnStmt returnStmt, C context);
 
     R visit(SuffixUnaryOpExpr suffixUnaryOpExpr, C context);
 

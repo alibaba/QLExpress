@@ -7,6 +7,10 @@ public class Identifier extends SyntaxNode {
         super(keyToken);
     }
 
+    public String getId() {
+        return getKeyToken().getLexeme();
+    }
+
     @Override
     public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
         return visitor.visit(this, context);
