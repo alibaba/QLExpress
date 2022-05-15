@@ -5,17 +5,17 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
- * @Operation: load variable with local scope, create when not exist
- * @Input: 0
- * @Output: 1 left value of local variable
+ * @Operation: define a symbol in local scope
+ * @Input: 1 symbol init value
+ * @Output: 0
  *
  * Author: DQinYuan
  */
-public class LoadLocalInstruction extends QLInstruction {
+public class DefineLocalInstruction extends QLInstruction {
 
     private final String variableName;
 
-    public LoadLocalInstruction(ErrorReporter errorReporter, String variableName) {
+    public DefineLocalInstruction(ErrorReporter errorReporter, String variableName) {
         super(errorReporter);
         this.variableName = variableName;
     }

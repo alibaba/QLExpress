@@ -11,8 +11,8 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  *
  * Author: DQinYuan
  */
-public class LoadGlobalInstruction extends QLInstruction {
-    public LoadGlobalInstruction(ErrorReporter errorReporter) {
+public class LoadInstruction extends QLInstruction {
+    public LoadInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
     }
 
