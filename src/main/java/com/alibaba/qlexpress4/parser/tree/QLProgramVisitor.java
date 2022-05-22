@@ -7,7 +7,7 @@ public interface QLProgramVisitor<R, C> {
 
     R visit(Program program, C context);
 
-    R visit(ArrayCallExpr arrayCallExpr, C context);
+    R visit(IndexCallExpr indexCallExpr, C context);
 
     R visit(AssignExpr assignExpr, C context);
 

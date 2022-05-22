@@ -673,7 +673,7 @@ public class QLParser {
 
     private boolean canAssign(Expr leftExpr) {
         return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr) ||
-                (leftExpr instanceof ArrayCallExpr);
+                (leftExpr instanceof IndexCallExpr);
     }
 
     enum GroupType {GROUP, LAMBDA, CAST}
@@ -838,7 +838,7 @@ public class QLParser {
             Expr indexExpr = expr();
             advanceOrReportErrorWithToken(TokenType.RBRACK, "CAN_NOT_FIND_RBRACK_TO_MATCH",
                     "can not find ']' to match", keyToken);
-            return new ArrayCallExpr(keyToken, left, indexExpr);
+            return new IndexCallExpr(keyToken, left, indexExpr);
         } else if (pre.getType() == TokenType.DOT || pre.getType() == TokenType.METHOD_REF) {
             // field call
             if (matchTypeAndAdvance(TokenType.ID)) {

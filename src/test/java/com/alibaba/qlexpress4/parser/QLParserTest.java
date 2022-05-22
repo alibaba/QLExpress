@@ -600,13 +600,13 @@ public class QLParserTest {
     @Test
     public void arrayCallTest() {
         Program program = parse("a[12]");
-        ArrayCallExpr arrayCallExpr = (ArrayCallExpr) program.getStmtList().get(0);
-        assertTrue(arrayCallExpr.getTarget() instanceof IdExpr);
-        assertTrue(arrayCallExpr.getIndex() instanceof ConstExpr);
+        IndexCallExpr indexCallExpr = (IndexCallExpr) program.getStmtList().get(0);
+        assertTrue(indexCallExpr.getTarget() instanceof IdExpr);
+        assertTrue(indexCallExpr.getIndex() instanceof ConstExpr);
 
         Program program1 = parse("a[12] = 123");
         AssignExpr assignExpr = (AssignExpr) program1.getStmtList().get(0);
-        assertTrue(assignExpr.getLeft() instanceof ArrayCallExpr);
+        assertTrue(assignExpr.getLeft() instanceof IndexCallExpr);
         assertTrue(assignExpr.getRight() instanceof ConstExpr);
 
         assertErrReport("a.b[1+34", "[Error: can not find ']' to match]\n" +

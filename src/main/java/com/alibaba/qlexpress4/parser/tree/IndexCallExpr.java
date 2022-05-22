@@ -2,13 +2,16 @@ package com.alibaba.qlexpress4.parser.tree;
 
 import com.alibaba.qlexpress4.parser.Token;
 
-public class ArrayCallExpr extends Expr {
+/**
+ * m[1], m['a'] etc.
+ */
+public class IndexCallExpr extends Expr {
 
     private final Expr target;
 
     private final Expr index;
 
-    public ArrayCallExpr(Token keyToken, Expr target, Expr index) {
+    public IndexCallExpr(Token keyToken, Expr target, Expr index) {
         super(keyToken);
         this.target = target;
         this.index = index;
