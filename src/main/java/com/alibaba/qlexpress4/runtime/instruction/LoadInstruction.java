@@ -12,8 +12,12 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * Author: DQinYuan
  */
 public class LoadInstruction extends QLInstruction {
-    public LoadInstruction(ErrorReporter errorReporter) {
+
+    private final String name;
+
+    public LoadInstruction(ErrorReporter errorReporter, String name) {
         super(errorReporter);
+        this.name = name;
     }
 
     @Override
