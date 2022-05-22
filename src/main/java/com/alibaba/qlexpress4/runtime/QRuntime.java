@@ -63,11 +63,6 @@ public interface QRuntime {
     void exitAndReturn(QResult returnValue);
 
     /**
-     * duplicate top element of stack
-     */
-    void dup();
-
-    /**
      * get script start time
      * @return start time
      */

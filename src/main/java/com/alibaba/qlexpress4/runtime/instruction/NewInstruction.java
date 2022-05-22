@@ -5,7 +5,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
- * @Operation: new a class
+ * @Operation: new an object of specified class
  * @Input: ${argNum} + 1
  * @Output: 1
  *
