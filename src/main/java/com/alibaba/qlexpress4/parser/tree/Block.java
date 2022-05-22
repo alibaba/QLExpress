@@ -6,14 +6,14 @@ import java.util.List;
 
 public class Block extends Stmt {
 
-    private final List<Stmt> stmtList;
+    private final StmtList stmtList;
 
-    public Block(Token keyToken, List<Stmt> stmtList) {
+    public Block(Token keyToken, StmtList stmtList) {
         super(keyToken);
         this.stmtList = stmtList;
     }
 
-    public List<Stmt> getStmtList() {
+    public StmtList getStmtList() {
         return stmtList;
     }
 

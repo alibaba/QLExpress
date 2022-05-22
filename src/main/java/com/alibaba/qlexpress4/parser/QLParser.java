@@ -70,7 +70,7 @@ public class QLParser {
             stmtList.add(statement);
         }
 
-        return new Program(stmtList);
+        return new Program(new StmtList(pre, stmtList));
     }
 
     public String getScript() {
@@ -518,7 +518,7 @@ public class QLParser {
             stmtList.add(statement);
         }
 
-        return new Block(keyToken, stmtList);
+        return new Block(keyToken, new StmtList(pre, stmtList));
     }
 
     private IfStmt ifStmt() {

@@ -4,13 +4,13 @@ import java.util.List;
 
 public class Program {
 
-    private final List<Stmt> stmtList;
+    private final StmtList stmtList;
 
-    public Program(List<Stmt> stmtList) {
+    public Program(StmtList stmtList) {
         this.stmtList = stmtList;
     }
 
-    public List<Stmt> getStmtList() {
+    public StmtList getStmtList() {
         return stmtList;
     }
 
