@@ -8,11 +8,21 @@ public interface Value {
 
     Object get();
 
-    default String getValueType() {
+    default Class getType() {
         Object value = get();
         if (value == null) {
             return null;
         }
+
+        return value.getClass();
+    }
+
+    default String getTypeName() {
+        Object value = get();
+        if (value == null) {
+            return null;
+        }
+
         return value.getClass().getName();
     }
 }
