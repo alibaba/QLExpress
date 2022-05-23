@@ -108,6 +108,10 @@ public abstract class NumberMath {
         return getMath(left).unaryPlusImpl(left);
     }
 
+    public static boolean isNumber(Object value) {
+        return value instanceof Number;
+    }
+
     public static boolean isFloatingPoint(Number number) {
         return number instanceof Double || number instanceof Float;
     }
