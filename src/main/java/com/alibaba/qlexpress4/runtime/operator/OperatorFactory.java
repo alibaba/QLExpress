@@ -11,6 +11,7 @@ public class OperatorFactory {
 
     /**
      * like --1 ++1 !true ~1 ^1
+     *
      * @param operatorLexeme
      * @return
      */
@@ -20,10 +21,11 @@ public class OperatorFactory {
 
     /**
      * like 1-- 1++
-     * @param operatorLexem
+     *
+     * @param operatorLexeme
      * @return
      */
-    public static UnaryOperator getSuffixUnaryOperator(String operatorLexem) {
+    public static UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
         return null;
     }
 }

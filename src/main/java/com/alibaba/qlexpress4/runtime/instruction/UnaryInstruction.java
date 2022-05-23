@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.UnaryOperator;
 
 /**
@@ -23,6 +24,9 @@ public class UnaryInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+        Value value = qRuntime.pop();
+        Object result = unaryOperator.execute(value, errorReporter);
+        // push
+        //qRuntime.push();
     }
 }
