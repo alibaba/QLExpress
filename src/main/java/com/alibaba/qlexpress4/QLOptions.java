@@ -48,7 +48,7 @@ public class QLOptions {
         return precise;
     }
 
-    public boolean isAllowAccessPrivateMethod() {
+    public boolean enableAllowAccessPrivateMethod() {
         return allowAccessPrivateMethod;
     }
 

@@ -2,9 +2,11 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.data.DataMethod;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.utils.CacheUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtils;
 
@@ -29,7 +31,7 @@ public class GetMethodInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = qRuntime.pop(0).get(0).get();
+        Object bean = qRuntime.pop().get();
         if(bean == null){
             throw this.errorReporter.report("GET_METHOD_ERROR","can not get method from null");
         }
@@ -38,17 +40,19 @@ public class GetMethodInstruction extends QLInstruction {
             if(cacheElement == null){
                 List<Method> methods;
                 if (bean instanceof Class) {
-                    methods = PropertiesUtils.getClzMethod((Class<?>)bean, this.methodName, qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getClzMethod((Class<?>)bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
                 }else {
-                    methods = PropertiesUtils.getMethod(bean, this.methodName, qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
                 }
-                Value dataMethod = new DataMethod(methods, bean, qlOptions.isAllowAccessPrivateMethod());
+                QLambda qLambda = new QLambdaMethod(methods, bean, qlOptions.enableAllowAccessPrivateMethod(),this.errorReporter);
+                Value dataMethod = new DataValue(qLambda);
                 qRuntime.push(dataMethod);
                 if(cacheElement != null){
                     CacheUtils.setMethodCacheElement(bean,this.methodName,methods);
                 }
             }else {
-                Value dataMethod = new DataMethod((List<Method>) cacheElement, bean, qlOptions.isAllowAccessPrivateMethod());
+                QLambda qLambda = new QLambdaMethod((List<Method>) cacheElement, bean, qlOptions.enableAllowAccessPrivateMethod(),this.errorReporter);
+                Value dataMethod = new DataValue(qLambda);
                 qRuntime.push(dataMethod);
             }
         } catch (Exception e){

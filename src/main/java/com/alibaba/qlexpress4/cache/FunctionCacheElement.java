@@ -12,12 +12,12 @@ public class FunctionCacheElement implements ICacheElement {
     private ICache<Object, Boolean> FUNCTION_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean isUseCacheClear) {
-        FUNCTION_CACHE = CacheFactory.cacheBuilder(size,isUseCacheClear);
+    public void initCache(int size, boolean enableUseCacheClear) {
+        FUNCTION_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
     }
 
     @Override
-    public Object buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
+    public String buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
         return null;
     }
 

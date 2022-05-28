@@ -9,13 +9,13 @@ import java.util.Map;
  */
 public class DataMap implements LeftValue {
 
+    private String fieldName;
+    private Map map;
+
     public DataMap(Map map, String fieldName){
         this.map = map;
         this.fieldName = fieldName;
     }
-
-    private String fieldName;
-    private Map map;
 
     @Override
     public void set(Object newValue) {

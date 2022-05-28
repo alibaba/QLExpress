@@ -20,17 +20,17 @@ public class CacheUtils {
     public static final ScriptCacheElement ScriptCacheElement = new ScriptCacheElement();
 
 
-    public static void initCache(int size,boolean isUseCacheClear){
+    public static void initCache(int size,boolean enableUseCacheClear){
         fieldCacheElement.initCache(size, false);
         constructorCacheElement.initCache(size, false);
         functionCacheElement.initCache(size, false);
         methodCacheElement.initCache(size, false);
-        ScriptCacheElement.initCache(size,isUseCacheClear);
+        ScriptCacheElement.initCache(size,enableUseCacheClear);
     }
 
 
     public static Object getFieldCacheElement(Class<?> bean, String name){
-        String key = (String)CacheUtils.fieldCacheElement.buildCacheKey(bean ,name, null);
+        String key = CacheUtils.fieldCacheElement.buildCacheKey(bean ,name, null);
         return CacheUtils.fieldCacheElement.getCacheElement(key);
     }
 

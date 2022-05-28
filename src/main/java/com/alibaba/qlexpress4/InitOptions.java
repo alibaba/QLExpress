@@ -9,15 +9,15 @@ public class InitOptions {
 
     public static InitOptions DEFAULT_OPTIONS = InitOptions.builder().build();
 
+    private final boolean useCacheClear;
+
     private InitOptions(boolean useCacheClear) {
         this.useCacheClear = useCacheClear;
     }
 
-    public boolean isUseCacheClear() {
+    public boolean enableUseCacheClear() {
         return useCacheClear;
     }
-
-    private final boolean useCacheClear;
 
     public static InitOptions.Builder builder() {
         return new Builder();

@@ -9,13 +9,13 @@ public class ScriptCacheElement implements ICacheElement {
     private ICache<String, Object> SCRIPT_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean isUseCacheClear) {
-        SCRIPT_CACHE = CacheFactory.cacheBuilder(size, isUseCacheClear);
+    public void initCache(int size, boolean enableUseCacheClear) {
+        SCRIPT_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
     }
 
     @Override
     @Deprecated
-    public Object buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
+    public String buildCacheKey(Class<?> baseClass, String name, Class<?>[] types) {
         return name;
     }
 

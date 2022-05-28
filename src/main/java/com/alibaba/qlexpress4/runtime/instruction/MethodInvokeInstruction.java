@@ -54,12 +54,12 @@ public class MethodInvokeInstruction extends QLInstruction {
             if(cacheElement == null){
                 List<Method> methods;
                 if (bean instanceof Class) {
-                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,this.methodName,qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getClzMethod((Class<?>)bean,this.methodName,qlOptions.enableAllowAccessPrivateMethod());
                 }else {
-                    methods = PropertiesUtils.getMethod(bean,this.methodName,qlOptions.isAllowAccessPrivateMethod());
+                    methods = PropertiesUtils.getMethod(bean,this.methodName,qlOptions.enableAllowAccessPrivateMethod());
                 }
                 Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-                Value dataMethodInvoke = new DataMethodInvoke(method,bean,params,qlOptions.isAllowAccessPrivateMethod());
+                Value dataMethodInvoke = new DataMethodInvoke(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(dataMethodInvoke.get());
                 qRuntime.push(dataValue);
                 if(cacheElement!=null){

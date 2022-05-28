@@ -8,11 +8,11 @@ import com.alibaba.qlexpress4.runtime.Value;
  */
 public class DataValue implements Value {
 
+    private Object value;
+
     public DataValue(Object value){
         this.value = value;
     }
-
-    private Object value;
 
     @Override
     public Object get() {

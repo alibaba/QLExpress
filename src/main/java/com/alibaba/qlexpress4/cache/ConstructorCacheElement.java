@@ -12,19 +12,19 @@ public class ConstructorCacheElement implements ICacheElement {
 
 
     @Override
-    public void initCache(int size, boolean isUseCacheClear) {
-        CONSTR_CACHE = CacheFactory.cacheBuilder(size,isUseCacheClear);
+    public void initCache(int size, boolean enableUseCacheClear) {
+        CONSTR_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
     }
 
     @Override
-    public Object buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {
+    public String buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {
         StringBuilder builder = new StringBuilder();
         builder.append(baseClass.getName())
                 .append("#")
                 .append(propertyName)
                 .append(";");
 
-        if(types == null){
+        if(types == null || types.length == 0){
             return builder.toString();
         }
 

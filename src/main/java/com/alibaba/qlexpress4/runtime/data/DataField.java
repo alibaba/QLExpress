@@ -12,6 +12,15 @@ import java.lang.reflect.Method;
  */
 public class DataField implements LeftValue {
 
+    private Field field;
+    private Method getMethod;
+    private Method setMethod;
+    private Object bean;
+    private boolean allowAccessPrivate;
+    private String fieldName;
+    private Class<?> clazz;
+
+
     public DataField(Field field, Method getMethod, Method setMethod, Class<?> clazz, Object obj,
                      String fieldName, boolean allowAccessPrivate){
         this.field = field;
@@ -22,14 +31,6 @@ public class DataField implements LeftValue {
         this.fieldName = fieldName;
         this.allowAccessPrivate = allowAccessPrivate;
     }
-
-    private Field field;
-    private Method getMethod;
-    private Method setMethod;
-    private String fieldName;
-    private Class<?> clazz;
-    private Object bean;
-    private boolean allowAccessPrivate;
 
     @Override
     public void set(Object newValue) {

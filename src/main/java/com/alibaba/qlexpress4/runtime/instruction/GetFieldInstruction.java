@@ -7,10 +7,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.data.DataArray;
-import com.alibaba.qlexpress4.runtime.data.DataClazz;
-import com.alibaba.qlexpress4.runtime.data.DataField;
-import com.alibaba.qlexpress4.runtime.data.DataMap;
+import com.alibaba.qlexpress4.runtime.data.*;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 import com.alibaba.qlexpress4.utils.BasicUtils;
 import com.alibaba.qlexpress4.utils.CacheUtils;
@@ -37,17 +34,17 @@ public class GetFieldInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = qRuntime.pop(0).get(0).get();
+        Object bean = qRuntime.pop().get();
         if(bean == null){
             throw errorReporter.report("GET_FIELD_VALUE_ERROR","can not get field from null");
         }
         try {
             if (bean.getClass().isArray() && BasicUtils.LENGTH.equals(this.fieldName)) {
-                Value dataArray = new DataArray((Object[]) bean);
+                Value dataArray = new DataValue(((Object[]) bean).length);
                 qRuntime.push(dataArray);
             } else if (bean instanceof Class) {
                 if(BasicUtils.CLASS.equals(this.fieldName)) {
-                    Value dataClazz = new DataClazz((Class<?>) bean);
+                    Value dataClazz = new DataValue(bean);
                     qRuntime.push(dataClazz);
                 }else {
                     getCacheFieldValue(qlOptions,(Class<?>) bean, bean, qRuntime);
@@ -77,7 +74,7 @@ public class GetFieldInstruction extends QLInstruction {
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz,this.fieldName);
             LeftValue dataField = new DataField(field,getMethod,setMethod,clazz,bean,
-                    this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+                    this.fieldName,qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
             if(cacheElement!=null){
                 CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod,setMethod,field);
@@ -87,7 +84,7 @@ public class GetFieldInstruction extends QLInstruction {
             CacheFieldValue cacheFieldValue = (CacheFieldValue) cacheElement;
             LeftValue dataField = new DataField(cacheFieldValue.getField(),cacheFieldValue.getGetMethod(),
                     cacheFieldValue.getSetMethod(),clazz,bean,
-                    this.fieldName,qlOptions.isAllowAccessPrivateMethod());
+                    this.fieldName,qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
         }
     }

@@ -9,13 +9,13 @@ public class FieldCacheElement implements ICacheElement{
     private ICache<String, Object> FIELD_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean isUseCacheClear) {
-        FIELD_CACHE = CacheFactory.cacheBuilder(size,isUseCacheClear);
+    public void initCache(int size, boolean enableUseCacheClear) {
+        FIELD_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
     }
 
 
     @Override
-    public Object buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {
+    public String buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {
         StringBuilder builder = new StringBuilder();
         builder.append(baseClass.getName())
                 .append("#")

@@ -8,6 +8,11 @@ import java.lang.reflect.Method;
  * @Date 2022/5/15 下午8:08
  */
 public class CacheFieldValue {
+
+    private Method getMethod;
+    private Method setMethod;
+    private Field field;
+
     public CacheFieldValue(Method getMethod,Method setMethod,Field field){
         this.getMethod = getMethod;
         this.setMethod = setMethod;
@@ -25,8 +30,4 @@ public class CacheFieldValue {
     public Field getField() {
         return field;
     }
-
-    private Method getMethod;
-    private Method setMethod;
-    private Field field;
 }

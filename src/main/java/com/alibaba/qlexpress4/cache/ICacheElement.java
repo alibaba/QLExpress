@@ -8,9 +8,9 @@ package com.alibaba.qlexpress4.cache;
  */
 public interface ICacheElement {
 
-    void initCache(int size, boolean isUseCacheClear);
+    void initCache(int size, boolean enableUseCacheClear);
 
-    Object buildCacheKey(Class<?> baseClass, String name, Class<?>[] types);
+    String buildCacheKey(Class<?> baseClass, String name, Class<?>[] types);
 
     Object getCacheElement(String key);
 

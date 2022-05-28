@@ -10,18 +10,18 @@ import java.lang.reflect.Method;
  */
 public class DataMethodInvoke implements Value {
 
+    private Method method;
+    private Object[] args;
+    private Object bean;
+    private boolean allowAccessPrivate;
+
+
     public DataMethodInvoke(Method method, Object obj, Object[] args, boolean allowAccessPrivate){
         this.method = method;
         this.bean = obj;
         this.args = args;
         this.allowAccessPrivate = allowAccessPrivate;
     }
-
-    private Method method;
-    private Object[] args;
-    private Object bean;
-    private boolean allowAccessPrivate;
-
 
     @Override
     public Object get() {
