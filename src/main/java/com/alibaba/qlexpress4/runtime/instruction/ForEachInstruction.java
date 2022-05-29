@@ -2,22 +2,27 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
- * @Operation: duplicate top element at the top of stack
- * @Input: 0
- * @Output: 1, duplication of top element
- * <p>
+ * @Operation: process each element in iterable object on top of stack,
+ * @Input: 1
+ * @Output: 0
+ *
  * Author: DQinYuan
  */
-public class DupInstruction extends QLInstruction {
-    public DupInstruction(ErrorReporter errorReporter) {
+public class ForEachInstruction extends QLInstruction {
+
+    private final QLambda body;
+
+    public ForEachInstruction(ErrorReporter errorReporter, QLambda body) {
         super(errorReporter);
+        this.body = body;
     }
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        qRuntime.dup();
+
     }
 }

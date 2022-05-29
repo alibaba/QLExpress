@@ -12,7 +12,7 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import java.lang.reflect.Constructor;
 
 /**
- * @Operation: new a class
+ * @Operation: new an object of specified class
  * @Input: ${argNum} + 1
  * @Output: 1
  * <p>

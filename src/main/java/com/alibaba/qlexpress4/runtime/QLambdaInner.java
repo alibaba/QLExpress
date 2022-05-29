@@ -18,9 +18,9 @@ public class QLambdaInner implements QLambda {
 
     private final List<QLInstruction> instructionList;
 
-    private final List<Class<?>> paramsType;
+    private final List<Param> paramsType;
 
-    public QLambdaInner(QVm qVm, String name, List<QLInstruction> instructionList, List<Class<?>> paramsType) {
+    public QLambdaInner(QVm qVm, String name, List<QLInstruction> instructionList, List<Param> paramsType) {
         this.qVm = qVm;
         this.name = name;
         this.instructionList = instructionList;
@@ -31,4 +31,21 @@ public class QLambdaInner implements QLambda {
         return null;
     }
 
+    public static class Param {
+        private final String name;
+        private final Class<?> clazz;
+
+        public Param(String name, Class<?> clazz) {
+            this.name = name;
+            this.clazz = clazz;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Class<?> getClazz() {
+            return clazz;
+        }
+    }
 }

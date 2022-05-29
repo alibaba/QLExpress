@@ -3,6 +3,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.operator.Operator;
 
 /**
  * @Operation: do middle operator +=,>>,>>>,<<,.
@@ -13,15 +15,19 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  */
 public class OperatorInstruction extends QLInstruction {
 
-    private final String operator;
+    private final Operator operator;
 
-    public OperatorInstruction(ErrorReporter errorReporter, String operator) {
+    public OperatorInstruction(ErrorReporter errorReporter, Operator operator) {
         super(errorReporter);
         this.operator = operator;
     }
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+        Value leftValue = qRuntime.pop();
+        Value rightValue = qRuntime.pop();
+        Object result = operator.execute(leftValue, rightValue, errorReporter);
+        // TODO bingo 应该push吧？
+        //qRuntime.push();
     }
 }

@@ -6,18 +6,15 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
  * @Operation: extract value with index, like a[0], m['a']
- * @Input: 1
+ * @Input: 2, indexable object and index
  * @Output: 1
  * <p>
  * Author: DQinYuan
  */
 public class IndexInstruction extends QLInstruction {
 
-    private final Object index;
-
-    public IndexInstruction(ErrorReporter errorReporter, Object index) {
+    public IndexInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
-        this.index = index;
     }
 
     @Override

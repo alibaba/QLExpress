@@ -5,15 +5,19 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
- * @Operation: get Iterator from Iterable top of stack
- * @Input: 1
- * @Output: 1
- * <p>
+ * @Operation: load variable from local to global scope, create when not exist
+ * @Input: 0
+ * @Output: 1 left value of local variable
+ *
  * Author: DQinYuan
  */
-public class IteratorInstruction extends QLInstruction {
-    public IteratorInstruction(ErrorReporter errorReporter) {
+public class LoadInstruction extends QLInstruction {
+
+    private final String name;
+
+    public LoadInstruction(ErrorReporter errorReporter, String name) {
         super(errorReporter);
+        this.name = name;
     }
 
     @Override

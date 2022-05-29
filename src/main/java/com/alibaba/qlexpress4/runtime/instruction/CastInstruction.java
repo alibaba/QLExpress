@@ -9,18 +9,15 @@ import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
  * @Operation: force cast value to specified type
- * @Input: 1
- * @Output: 1
- * <p>
+ * @Input: 2 targetCls and value
+ * @Output: 1 casted value
+ *
  * Author: DQinYuan
  */
 public class CastInstruction extends QLInstruction {
 
-    private final Class<?> targetClz;
-
-    public CastInstruction(ErrorReporter errorReporter, Class<?> targetClz) {
+    public CastInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
-        this.targetClz = targetClz;
     }
 
     @Override

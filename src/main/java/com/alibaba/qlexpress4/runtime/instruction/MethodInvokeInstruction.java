@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * @Operation: invoke specified method of object on the top of stack
- * @Input: 1
+ * @Input: ${argNum} + 1
  * @Output: 1, method return value, null for void method
  * <p>
  * equivalent to GetMethodInstruction + CallInstruction
