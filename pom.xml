@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba</groupId>
@@ -8,7 +8,8 @@
     <packaging>jar</packaging>
     <version>3.3.0-SNAPSHOT</version>
     <name>QLExpress</name>
-    <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving developers’ productivity in different business scenes.
+    <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving
+        developers’ productivity in different business scenes.
     </description>
     <url>https://github.com/alibaba/QLExpress</url>
     <inceptionYear>2012</inceptionYear>
@@ -99,6 +100,11 @@
             <artifactId>spring</artifactId>
             <version>2.5.6</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.6</version>
         </dependency>
     </dependencies>
 

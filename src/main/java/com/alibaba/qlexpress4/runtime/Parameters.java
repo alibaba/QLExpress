@@ -7,6 +7,7 @@ public interface Parameters {
 
     /**
      * get parameters in i position
+     *
      * @param i index
      * @return value in index
      */

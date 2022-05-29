@@ -2,8 +2,6 @@ package com.alibaba.qlexpress4.cache;
 
 import com.alibaba.qlexpress4.member.MethodHandler;
 
-import java.lang.reflect.Member;
-
 /**
  * @Author TaoKan
  * @Date 2022/4/7 下午7:58
@@ -13,7 +11,7 @@ public class FunctionCacheElement implements ICacheElement {
 
     @Override
     public void initCache(int size, boolean enableUseCacheClear) {
-        FUNCTION_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
+        FUNCTION_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
     }
 
     @Override
@@ -31,7 +29,7 @@ public class FunctionCacheElement implements ICacheElement {
     }
 
 
-    public boolean cacheFunctionInterface(Class<?> clazz){
+    public boolean cacheFunctionInterface(Class<?> clazz) {
         Boolean cacheRes = FUNCTION_CACHE.get(clazz);
         if (cacheRes != null) {
             return cacheRes;

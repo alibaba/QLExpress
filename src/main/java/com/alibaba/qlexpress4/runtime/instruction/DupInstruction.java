@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * @Operation: duplicate top element at the top of stack
  * @Input: 0
  * @Output: 1, duplication of top element
- *
+ * <p>
  * Author: DQinYuan
  */
 public class DupInstruction extends QLInstruction {

@@ -15,12 +15,12 @@ public class InitOptions {
         this.useCacheClear = useCacheClear;
     }
 
-    public boolean enableUseCacheClear() {
-        return useCacheClear;
-    }
-
     public static InitOptions.Builder builder() {
         return new Builder();
+    }
+
+    public boolean enableUseCacheClear() {
+        return useCacheClear;
     }
 
     public static class Builder {

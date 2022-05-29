@@ -13,7 +13,7 @@ public class CacheFieldValue {
     private Method setMethod;
     private Field field;
 
-    public CacheFieldValue(Method getMethod,Method setMethod,Field field){
+    public CacheFieldValue(Method getMethod, Method setMethod, Field field) {
         this.getMethod = getMethod;
         this.setMethod = setMethod;
         this.field = field;

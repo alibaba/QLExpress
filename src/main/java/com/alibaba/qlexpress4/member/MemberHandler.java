@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.enums.AccessMode;
 import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.utils.BasicUtils;
-import com.alibaba.qlexpress4.utils.CacheUtils;
+import com.alibaba.qlexpress4.utils.BasicUtil;
+import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -15,16 +15,16 @@ import java.lang.reflect.Method;
  */
 public class MemberHandler {
 
-    public static class Access{
+    public static class Access {
         public static Member getAccessMember(Class<?> clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
             //from Method
             Method method = null;
-            if(AccessMode.READ.equals(propertyMode)){
+            if (AccessMode.READ.equals(propertyMode)) {
                 method = MethodHandler.getGetter(clazz, property, isStaticCheck);
-            }else {
+            } else {
                 method = MethodHandler.getSetter(clazz, property);
             }
-            if(method != null){
+            if (method != null) {
                 return method;
             }
             //from field
@@ -35,14 +35,14 @@ public class MemberHandler {
             } catch (NoSuchFieldException e) {
             }
             //from QLAlias
-            return FieldHandler.Preferred.gatherFieldRecursive(clazz,property);
+            return FieldHandler.Preferred.gatherFieldRecursive(clazz, property);
         }
     }
 
-    public static class Preferred{
+    public static class Preferred {
 
 
-        public static int findMostSpecificSignature(Class<?>[] idealMatch,Class<?>[][] candidates) {
+        public static int findMostSpecificSignature(Class<?>[] idealMatch, Class<?>[][] candidates) {
             Class<?>[] bestMatch = null;
             int bestMatchIndex = -1;
 
@@ -136,11 +136,12 @@ public class MemberHandler {
                 return true;
             }
 
-            if (source == QLambda.class && CacheUtils.isFunctionInterface(target)) {
+            if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
+                    && CacheUtil.isFunctionInterface(target)) {
                 return true;
             }
 
-            for (Class<?>[] classMatch : BasicUtils.CLASS_MATCHES) {
+            for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES) {
                 if (target == classMatch[0] && source == classMatch[1]) {
                     return true;
                 }

@@ -7,6 +7,7 @@ public interface QRuntime {
 
     /**
      * get assignable symbol variable by name
+     *
      * @param varName variable name
      * @return assignable value
      */
@@ -14,6 +15,7 @@ public interface QRuntime {
 
     /**
      * get immutable symbol variable value by name
+     *
      * @param varName variable name
      * @return immutable value
      */
@@ -22,21 +24,24 @@ public interface QRuntime {
     /**
      * define a symbol
      * for example, `Number a = 10`
-     *              define("a", Number.class, new Value(10))
+     * define("a", Number.class, new Value(10))
+     *
      * @param varName symbol name
-     * @param varClz symbol clz, declare clz, not real clz
-     * @param value symbol init value
+     * @param varClz  symbol clz, declare clz, not real clz
+     * @param value   symbol init value
      */
     void defineSymbol(String varName, Class<?> varClz, Value value);
 
     /**
      * push value on the top of stack
+     *
      * @param value pushed element
      */
     void push(Value value);
 
     /**
      * pop number elements on top of stack
+     *
      * @param number pop elements' number
      * @return popped elements
      */
@@ -44,12 +49,14 @@ public interface QRuntime {
 
     /**
      * pop one element on top of stack
+     *
      * @return popped element
      */
     Value pop();
 
     /**
      * exit and return specified value
+     *
      * @param returnValue
      */
     void exitAndReturn(QResult returnValue);
@@ -61,6 +68,7 @@ public interface QRuntime {
 
     /**
      * get script start time
+     *
      * @return start time
      */
     long scriptStartTimeStamp();

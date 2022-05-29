@@ -16,7 +16,7 @@ public class DataMethodInvoke implements Value {
     private boolean allowAccessPrivate;
 
 
-    public DataMethodInvoke(Method method, Object obj, Object[] args, boolean allowAccessPrivate){
+    public DataMethodInvoke(Method method, Object obj, Object[] args, boolean allowAccessPrivate) {
         this.method = method;
         this.bean = obj;
         this.args = args;
@@ -26,22 +26,22 @@ public class DataMethodInvoke implements Value {
     @Override
     public Object get() {
         try {
-            if(this.method == null){
+            if (this.method == null) {
                 return null;
             }
-            if(!this.allowAccessPrivate || this.method.isAccessible()){
-                return this.method.invoke(this.bean,this.args);
-            }else {
+            if (!this.allowAccessPrivate || this.method.isAccessible()) {
+                return this.method.invoke(this.bean, this.args);
+            } else {
                 synchronized (this.method) {
                     try {
                         this.method.setAccessible(true);
-                        return this.method.invoke(this.bean,this.args);
-                    }finally {
+                        return this.method.invoke(this.bean, this.args);
+                    } finally {
                         this.method.setAccessible(false);
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

@@ -7,17 +7,16 @@ import com.alibaba.qlexpress4.runtime.*;
  * @Date 2022/5/15 上午11:03
  */
 public class TestQRuntimeParent implements QRuntime {
+    private Value value;
+    private Parameters parameters;
+
     public Value getValue() {
         return value;
     }
 
-    private Value value;
-
     public void setParameters(Parameters parameters) {
         this.parameters = parameters;
     }
-
-    private Parameters parameters;
 
     @Override
     public LeftValue getSymbol(String varName) {

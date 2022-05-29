@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * @Operation: extract value with index, like a[0], m['a']
  * @Input: 1
  * @Output: 1
- *
+ * <p>
  * Author: DQinYuan
  */
 public class IndexInstruction extends QLInstruction {

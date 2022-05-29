@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.cache;
 
-import com.alibaba.qlexpress4.utils.BasicUtils;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 
 
 /**
@@ -12,7 +12,7 @@ public class MethodCacheElement implements ICacheElement {
 
     @Override
     public void initCache(int size, boolean enableUseCacheClear) {
-        METHOD_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
+        METHOD_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
     }
 
     @Override
@@ -23,13 +23,13 @@ public class MethodCacheElement implements ICacheElement {
                 .append(propertyName)
                 .append(";");
 
-        if(types == null || types.length == 0){
+        if (types == null || types.length == 0) {
             return builder.toString();
         }
 
-        for(Class clazz: types){
+        for (Class clazz : types) {
             if (clazz == null) {
-                builder.append(BasicUtils.NULL_SIGN);
+                builder.append(BasicUtil.NULL_SIGN);
             } else {
                 builder.append(clazz.getName());
             }
@@ -37,7 +37,7 @@ public class MethodCacheElement implements ICacheElement {
         }
 
         String result = builder.toString();
-        return result.substring(0,result.length()-1);
+        return result.substring(0, result.length() - 1);
     }
 
     @Override

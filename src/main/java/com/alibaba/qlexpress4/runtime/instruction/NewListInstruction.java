@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * @Operation: new a List with top ${initLength} stack element
  * @Input: ${initLength}
  * @Output: 1
- *
+ * <p>
  * Author: DQinYuan
  */
 public class NewListInstruction extends QLInstruction {

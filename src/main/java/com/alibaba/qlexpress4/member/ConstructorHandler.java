@@ -9,8 +9,8 @@ import java.util.List;
  * @Date 2022/4/7 下午6:06
  */
 public class ConstructorHandler extends MemberHandler {
-    public static class Preferred{
-        public static Constructor<?> findConstructorMostSpecificSignature(Class<?> baseClass, String name, Class<?>[] types, boolean publicOnly, boolean isStatic) {
+    public static class Preferred {
+        public static Constructor<?> findConstructorMostSpecificSignature(Class<?> baseClass, Class<?>[] types) {
             List<Constructor<?>> constructorList = new ArrayList();
             List<Class<?>[]> listClass = new ArrayList();
             for (Constructor<?> constructor : baseClass.getConstructors()) {

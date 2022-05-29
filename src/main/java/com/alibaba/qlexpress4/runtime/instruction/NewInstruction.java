@@ -2,13 +2,20 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.member.ConstructorHandler;
+import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.utils.CacheUtil;
+
+import java.lang.reflect.Constructor;
 
 /**
  * @Operation: new a class
  * @Input: ${argNum} + 1
  * @Output: 1
- *
+ * <p>
  * Author: DQinYuan
  */
 public class NewInstruction extends QLInstruction {
@@ -25,6 +32,31 @@ public class NewInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+        Parameters parameters = qRuntime.pop(0);
+        Class<?>[] paramTypes = this.argNum > 0 ? new Class[this.argNum] : null;
+        Object[] objs = this.argNum > 0 ? new Object[this.argNum] : null;
+        Object tmpObj;
+        for (int i = 0; i < this.argNum; i++) {
+            tmpObj = parameters.get(i).get();
+            paramTypes[i] = tmpObj.getClass();
+            objs[i] = tmpObj;
+        }
+        try {
+            Object cacheElement = CacheUtil.getConstructorCacheElement(this.newClz, paramTypes);
+            if (cacheElement == null) {
+                Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
+                Value dataInstruction = new DataValue(constructor.newInstance(objs));
+                qRuntime.push(dataInstruction);
+                if (cacheElement != null) {
+                    CacheUtil.setConstructorCacheElement(this.newClz, paramTypes, constructor);
+                }
+            } else {
+                Constructor<?> constructor = (Constructor<?>) cacheElement;
+                Value dataInstruction = new DataValue(constructor.newInstance(objs));
+                qRuntime.push(dataInstruction);
+            }
+        } catch (Exception e) {
+            throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object: " + e.getMessage());
+        }
     }
 }

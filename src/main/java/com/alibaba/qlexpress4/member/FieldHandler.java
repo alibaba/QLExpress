@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.utils.QLAliasUtils;
+import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -59,7 +59,7 @@ public class FieldHandler extends MemberHandler {
                 if (propertyName.equals(field.getName())) {
                     return field;
                 }
-                if(QLAliasUtils.findQLAliasFields(field,propertyName)){
+                if (QLAliasUtil.findQLAliasFields(field, propertyName)) {
                     return field;
                 }
             }

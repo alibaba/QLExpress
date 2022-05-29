@@ -5,12 +5,12 @@ package com.alibaba.qlexpress4.cache;
  * @Author TaoKan
  * @Date 2022/4/7 下午5:20
  */
-public class FieldCacheElement implements ICacheElement{
+public class FieldCacheElement implements ICacheElement {
     private ICache<String, Object> FIELD_CACHE = null;
 
     @Override
     public void initCache(int size, boolean enableUseCacheClear) {
-        FIELD_CACHE = CacheFactory.cacheBuilder(size,enableUseCacheClear);
+        FIELD_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
     }
 
 
@@ -31,7 +31,7 @@ public class FieldCacheElement implements ICacheElement{
 
     @Override
     public void setCacheElement(String key, Object value) {
-        FIELD_CACHE.put(key,value);
+        FIELD_CACHE.put(key, value);
     }
 
 }

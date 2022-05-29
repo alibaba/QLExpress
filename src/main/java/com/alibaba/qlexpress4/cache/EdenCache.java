@@ -8,12 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author TaoKan
  * @Date 2022/4/7 下午3:12
  */
-public class EdenCache<K,V> implements ICache<K,V> {
+public class EdenCache<K, V> implements ICache<K, V> {
     private int size;
-    private Map<K,V> eden;
-    private Map<K,V> longTerm;
+    private Map<K, V> eden;
+    private Map<K, V> longTerm;
 
-    public EdenCache(int size){
+    public EdenCache(int size) {
         init(size);
     }
 

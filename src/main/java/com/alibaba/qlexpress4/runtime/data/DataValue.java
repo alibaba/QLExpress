@@ -10,7 +10,7 @@ public class DataValue implements Value {
 
     private Object value;
 
-    public DataValue(Object value){
+    public DataValue(Object value) {
         this.value = value;
     }
 

@@ -44,6 +44,10 @@ public class QLOptions {
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public boolean isPrecise() {
         return precise;
     }
@@ -62,10 +66,6 @@ public class QLOptions {
 
     public List<String> getDefaultImport() {
         return defaultImport;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static class Builder {

@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * @Operation: do middle operator +=,>>,>>>,<<,.
  * @Input: 2
  * @Output: 1, operator result
- *
+ * <p>
  * Author: DQinYuan
  */
 public class OperatorInstruction extends QLInstruction {

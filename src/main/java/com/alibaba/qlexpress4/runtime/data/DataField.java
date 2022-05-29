@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data;
 
 import com.alibaba.qlexpress4.runtime.LeftValue;
-import com.alibaba.qlexpress4.utils.CacheUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,7 +21,7 @@ public class DataField implements LeftValue {
 
 
     public DataField(Field field, Method getMethod, Method setMethod, Class<?> clazz, Object obj,
-                     String fieldName, boolean allowAccessPrivate){
+                     String fieldName, boolean allowAccessPrivate) {
         this.field = field;
         this.getMethod = getMethod;
         this.setMethod = setMethod;
@@ -34,7 +33,7 @@ public class DataField implements LeftValue {
 
     @Override
     public void set(Object newValue) {
-        if(!methodSet(newValue)){
+        if (!methodSet(newValue)) {
             fieldSet(newValue);
         }
     }
@@ -42,37 +41,37 @@ public class DataField implements LeftValue {
     @Override
     public Object get() {
         Object rs = methodGet();
-        if(rs == null){
+        if (rs == null) {
             rs = fieldGet();
-            if(rs != null){
+            if (rs != null) {
                 return rs;
             }
-        }else {
+        } else {
             return rs;
         }
         return null;
     }
 
-    private Object methodGet(){
+    private Object methodGet() {
         try {
-            if(!this.allowAccessPrivate || this.getMethod.isAccessible()){
+            if (!this.allowAccessPrivate || this.getMethod.isAccessible()) {
                 return this.getMethod.invoke(this.bean);
-            }else {
+            } else {
                 synchronized (this.getMethod) {
                     try {
                         this.getMethod.setAccessible(true);
                         return this.getMethod.invoke(this.bean);
-                    }finally {
+                    } finally {
                         this.getMethod.setAccessible(false);
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
-    private Object fieldGet(){
+    private Object fieldGet() {
         try {
             if (!this.allowAccessPrivate || this.field.isAccessible()) {
                 return this.field.get(this.bean);
@@ -86,36 +85,36 @@ public class DataField implements LeftValue {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
-    private boolean methodSet(Object newValue){
+    private boolean methodSet(Object newValue) {
         try {
-            if(this.setMethod == null){
+            if (this.setMethod == null) {
                 return false;
             }
-            if(!this.allowAccessPrivate || this.setMethod.isAccessible()){
-                this.setMethod.invoke(bean,newValue);
+            if (!this.allowAccessPrivate || this.setMethod.isAccessible()) {
+                this.setMethod.invoke(bean, newValue);
                 return true;
-            }else {
+            } else {
                 synchronized (this.setMethod) {
                     try {
                         this.setMethod.setAccessible(true);
-                        this.setMethod.invoke(bean,newValue);
+                        this.setMethod.invoke(bean, newValue);
                         return true;
-                    }finally {
+                    } finally {
                         this.setMethod.setAccessible(false);
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         return false;
     }
 
-    private void fieldSet(Object newValue){
+    private void fieldSet(Object newValue) {
         try {
             if (this.allowAccessPrivate || this.field.isAccessible()) {
                 this.field.set(this.bean, newValue);
@@ -129,7 +128,7 @@ public class DataField implements LeftValue {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 }

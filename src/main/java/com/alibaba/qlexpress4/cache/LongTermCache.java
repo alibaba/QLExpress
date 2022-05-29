@@ -7,11 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author TaoKan
  * @Date 2022/4/7 下午3:12
  */
-public class LongTermCache<K,V> implements ICache<K,V> {
+public class LongTermCache<K, V> implements ICache<K, V> {
     private int size;
-    private Map<K,V> longTerm;
+    private Map<K, V> longTerm;
 
-    public LongTermCache(int size){
+    public LongTermCache(int size) {
         init(size);
     }
 
@@ -28,6 +28,6 @@ public class LongTermCache<K,V> implements ICache<K,V> {
 
     @Override
     public void put(K k, V v) {
-        this.longTerm.put(k,v);
+        this.longTerm.put(k, v);
     }
 }
