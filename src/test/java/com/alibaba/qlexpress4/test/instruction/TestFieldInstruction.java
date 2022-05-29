@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import org.junit.Assert;
@@ -12,9 +13,16 @@ import org.junit.Assert;
  */
 public class TestFieldInstruction {
     public static void main(String[] args) {
-        ErrorReporter errorReporter = (errorCode, reason) -> {
-            System.out.println(errorCode + reason);
-            return null;
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
         };
         CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");

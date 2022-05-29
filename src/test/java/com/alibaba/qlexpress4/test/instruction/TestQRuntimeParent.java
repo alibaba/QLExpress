@@ -34,6 +34,11 @@ public class TestQRuntimeParent implements QRuntime {
     }
 
     @Override
+    public void defineLocalSymbol(String varName, Class<?> varClz, Value value) {
+
+    }
+
+    @Override
     public void push(Value value) {
         this.value = value;
     }
@@ -50,11 +55,6 @@ public class TestQRuntimeParent implements QRuntime {
 
     @Override
     public void exitAndReturn(QResult returnValue) {
-
-    }
-
-    @Override
-    public void dup() {
 
     }
 
