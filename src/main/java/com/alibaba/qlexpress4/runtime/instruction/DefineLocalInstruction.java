@@ -15,9 +15,12 @@ public class DefineLocalInstruction extends QLInstruction {
 
     private final String variableName;
 
-    public DefineLocalInstruction(ErrorReporter errorReporter, String variableName) {
+    private final Class<?> defineClz;
+
+    public DefineLocalInstruction(ErrorReporter errorReporter, String variableName, Class<?> defineClz) {
         super(errorReporter);
         this.variableName = variableName;
+        this.defineClz = defineClz;
     }
 
     @Override
