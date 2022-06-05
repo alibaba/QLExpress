@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.Value;
  */
 public class DataValue implements Value {
 
-    private Object value;
+    private final Object value;
 
     public DataValue(Object value) {
         this.value = value;

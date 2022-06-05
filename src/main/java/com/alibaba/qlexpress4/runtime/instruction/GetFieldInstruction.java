@@ -71,7 +71,7 @@ public class GetFieldInstruction extends QLInstruction {
      * @param qRuntime
      */
     private void getCacheFieldValue(QLOptions qlOptions, Class<?> clazz, Object bean, QRuntime qRuntime) {
-        Object cacheElement = CacheUtil.getFieldCacheElement(clazz, this.fieldName);
+        CacheFieldValue cacheElement = CacheUtil.getFieldCacheElement(clazz, this.fieldName);
         if (cacheElement == null) {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName, true);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
@@ -79,12 +79,11 @@ public class GetFieldInstruction extends QLInstruction {
             LeftValue dataField = new DataField(field, getMethod, setMethod, clazz, bean,
                     this.fieldName, qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
-            if (cacheElement != null) {
-                CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
-                CacheUtil.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
-            }
+            CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
+            CacheUtil.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
+
         } else {
-            CacheFieldValue cacheFieldValue = (CacheFieldValue) cacheElement;
+            CacheFieldValue cacheFieldValue = cacheElement;
             LeftValue dataField = new DataField(cacheFieldValue.getField(), cacheFieldValue.getGetMethod(),
                     cacheFieldValue.getSetMethod(), clazz, bean,
                     this.fieldName, qlOptions.enableAllowAccessPrivateMethod());

@@ -50,7 +50,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         }
         try {
             Class<?>[] type = BasicUtil.getTypeOfObject(params);
-            Object cacheElement = CacheUtil.getMethodCacheElement(bean, this.methodName, type);
+            Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean, this.methodName, type);
             if (cacheElement == null) {
                 List<Method> methods;
                 if (bean instanceof Class) {
@@ -62,11 +62,13 @@ public class MethodInvokeInstruction extends QLInstruction {
                 Value dataMethodInvoke = new DataMethodInvoke(method, bean, params, qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(dataMethodInvoke.get());
                 qRuntime.push(dataValue);
-                if (cacheElement != null) {
-                    CacheUtil.setMethodCacheElement(bean, this.methodName, dataValue, type);
+                if(method != null){
+                    CacheUtil.setMethodInvokeCacheElement(bean, this.methodName, method, type);
                 }
             } else {
-                qRuntime.push((Value) cacheElement);
+                Value dataMethodInvoke = new DataMethodInvoke(cacheElement, bean, params, qlOptions.enableAllowAccessPrivateMethod());
+                Value dataValue = new DataValue(dataMethodInvoke.get());
+                qRuntime.push(dataValue);
             }
         } catch (Exception e) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value: " + e.getMessage());

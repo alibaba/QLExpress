@@ -6,13 +6,15 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @Author TaoKan
  * @Date 2022/5/4 上午8:36
  */
 public class TestFieldInstruction {
-    public static void main(String[] args) {
+    @Test
+    public void testField() throws Exception{
         ErrorReporter errorReporter = new ErrorReporter() {
             @Override
             public QLRuntimeException report(String errorCode, String reason) {

@@ -42,7 +42,7 @@ public class NewInstruction extends QLInstruction {
             objs[i] = tmpObj;
         }
         try {
-            Object cacheElement = CacheUtil.getConstructorCacheElement(this.newClz, paramTypes);
+            Constructor<?> cacheElement = CacheUtil.getConstructorCacheElement(this.newClz, paramTypes);
             if (cacheElement == null) {
                 Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));
@@ -51,7 +51,7 @@ public class NewInstruction extends QLInstruction {
                     CacheUtil.setConstructorCacheElement(this.newClz, paramTypes, constructor);
                 }
             } else {
-                Constructor<?> constructor = (Constructor<?>) cacheElement;
+                Constructor<?> constructor = cacheElement;
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));
                 qRuntime.push(dataInstruction);
             }

@@ -32,9 +32,7 @@ public class MethodHandler extends MemberHandler {
         for (Method method : clazz.getMethods()) {
             if (BasicUtil.isPublic(method)
                     && method.getParameterTypes().length == 0
-                    && (getter.equals(method.getName())
-                    || property.equals(method.getName())
-                    || ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class))) {
+                    && (getter.equals(method.getName()) || ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class))) {
                 if (mGetCandidate == null || BasicUtil.isPreferredGetter(mGetCandidate, method, map)) {
                     if (isStaticCheck && !BasicUtil.isStatic(method)) {
                         mGetCandidate = method;

@@ -2,13 +2,18 @@ package com.alibaba.qlexpress4.cache;
 
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 /**
  * @Author TaoKan
  * @Date 2022/4/7 下午5:20
  */
-public class MethodCacheElement implements ICacheElement {
-    private ICache<String, Object> METHOD_CACHE = null;
+public class MethodCacheElement implements ICacheElement<List<Method>> {
+    private ICache<String, List<Method>> METHOD_CACHE = null;
 
     @Override
     public void initCache(int size, boolean enableUseCacheClear) {
@@ -16,37 +21,12 @@ public class MethodCacheElement implements ICacheElement {
     }
 
     @Override
-    public String buildCacheKey(Class<?> baseClass, String propertyName, Class<?>[] types) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(baseClass.getName())
-                .append("#")
-                .append(propertyName)
-                .append(";");
-
-        if (types == null || types.length == 0) {
-            return builder.toString();
-        }
-
-        for (Class clazz : types) {
-            if (clazz == null) {
-                builder.append(BasicUtil.NULL_SIGN);
-            } else {
-                builder.append(clazz.getName());
-            }
-            builder.append(",");
-        }
-
-        String result = builder.toString();
-        return result.substring(0, result.length() - 1);
-    }
-
-    @Override
-    public Object getCacheElement(String key) {
+    public List<Method> getCacheElement(String key) {
         return METHOD_CACHE.get(key);
     }
 
     @Override
-    public void setCacheElement(String key, Object value) {
+    public void setCacheElement(String key, List<Method> value) {
         METHOD_CACHE.put(key, value);
     }
 

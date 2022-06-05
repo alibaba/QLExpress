@@ -50,7 +50,7 @@ public class TestQRuntimeParent implements QRuntime {
 
     @Override
     public Value pop() {
-        return null;
+        return this.value;
     }
 
     @Override

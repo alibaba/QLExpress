@@ -19,13 +19,11 @@ public class QLambdaMethod implements QLambda {
     private List<Method> methods;
     private Object bean;
     private boolean allowAccessPrivate;
-    private ErrorReporter errorReporter;
 
-    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate, ErrorReporter errorReporter) {
+    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate) {
         this.methods = methods;
         this.bean = obj;
         this.allowAccessPrivate = allowAccessPrivate;
-        this.errorReporter = errorReporter;
     }
 
     @Override
@@ -56,7 +54,7 @@ public class QLambdaMethod implements QLambda {
                 }
             }
         } catch (Exception e) {
-            throw this.errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value: " + e.getMessage());
+           return null;
         }
     }
 }

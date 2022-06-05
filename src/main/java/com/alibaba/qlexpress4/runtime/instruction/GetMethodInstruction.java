@@ -36,7 +36,7 @@ public class GetMethodInstruction extends QLInstruction {
             throw this.errorReporter.report("GET_METHOD_ERROR", "can not get method from null");
         }
         try {
-            Object cacheElement = CacheUtil.getMethodCacheElement(bean, this.methodName);
+            List<Method> cacheElement = CacheUtil.getMethodCacheElement(bean, this.methodName);
             if (cacheElement == null) {
                 List<Method> methods;
                 if (bean instanceof Class) {
@@ -44,14 +44,14 @@ public class GetMethodInstruction extends QLInstruction {
                 } else {
                     methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
                 }
-                QLambda qLambda = new QLambdaMethod(methods, bean, qlOptions.enableAllowAccessPrivateMethod(), this.errorReporter);
+                QLambda qLambda = new QLambdaMethod(methods, bean, qlOptions.enableAllowAccessPrivateMethod());
                 Value dataMethod = new DataValue(qLambda);
                 qRuntime.push(dataMethod);
-                if (cacheElement != null) {
+                if (methods != null) {
                     CacheUtil.setMethodCacheElement(bean, this.methodName, methods);
                 }
             } else {
-                QLambda qLambda = new QLambdaMethod((List<Method>) cacheElement, bean, qlOptions.enableAllowAccessPrivateMethod(), this.errorReporter);
+                QLambda qLambda = new QLambdaMethod(cacheElement, bean, qlOptions.enableAllowAccessPrivateMethod());
                 Value dataMethod = new DataValue(qLambda);
                 qRuntime.push(dataMethod);
             }

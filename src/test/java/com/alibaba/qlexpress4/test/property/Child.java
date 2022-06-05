@@ -8,6 +8,8 @@ import com.alibaba.qlexpress4.runtime.Value;
  */
 public class Child extends Parent implements Value {
     public String work = "childWork";
+    public static String staticWork = "childStaticWork";
+
     private Boolean booValue = false;
 
     public static String getStaticGetParam(Integer a, Integer b) {

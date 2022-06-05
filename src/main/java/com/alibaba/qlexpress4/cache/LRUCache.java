@@ -25,4 +25,9 @@ public class LRUCache<K, V> implements ICache<K, V> {
     public void put(K k, V v) {
         this.longTerm.putElement(k, v);
     }
+
+
+    public int size(){
+        return this.longTerm.size();
+    }
 }

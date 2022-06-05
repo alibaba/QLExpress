@@ -54,6 +54,9 @@ public class DataField implements LeftValue {
 
     private Object methodGet() {
         try {
+            if (this.getMethod == null) {
+                return null;
+            }
             if (!this.allowAccessPrivate || this.getMethod.isAccessible()) {
                 return this.getMethod.invoke(this.bean);
             } else {
