@@ -10,12 +10,25 @@ public class DataValue implements Value {
 
     private final Object value;
 
+    private final Class<?> defineType;
+
     public DataValue(Object value) {
         this.value = value;
+        this.defineType = Object.class;
+    }
+
+    public DataValue(Object value, Class<?> defineType) {
+        this.value = value;
+        this.defineType = defineType;
     }
 
     @Override
     public Object get() {
         return this.value;
+    }
+
+    @Override
+    public Class<?> getDefineType() {
+        return defineType;
     }
 }
