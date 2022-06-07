@@ -7,13 +7,13 @@ import java.lang.reflect.Array;
 /**
  * Author: DQinYuan
  */
-public class ArrayValue implements LeftValue {
+public class ArrayItemValue implements LeftValue {
 
     private final Object array;
 
     private final int index;
 
-    public ArrayValue(Object array, int index) {
+    public ArrayItemValue(Object array, int index) {
         this.array = array;
         this.index = index;
     }
