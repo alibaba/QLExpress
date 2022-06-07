@@ -67,14 +67,14 @@ public class QLParserTest {
     @Test
     public void importTest() {
         Program p0 = parse("import a.b.Cc;");
-        List<Stmt> stmtList = p0.getStmtList();
+        StmtList stmtList = p0.getStmtList();
         ImportStmt importStmt = (ImportStmt) stmtList.get(0);
         assertEquals(ImportStmt.ImportType.FIXED, importStmt.getImportType());
         assertEquals("a.b.Cc", importStmt.getPath());
         assertEquals("Cc", importStmt.getKeyToken().getLexeme());
 
         Program p1 = parse("import ab.bb.*;");
-        List<Stmt> stmtList1 = p1.getStmtList();
+        StmtList stmtList1 = p1.getStmtList();
         ImportStmt importStmt1 = (ImportStmt) stmtList1.get(0);
         assertEquals(ImportStmt.ImportType.PREFIX, importStmt1.getImportType());
         assertEquals("ab.bb", importStmt1.getPath());
@@ -82,7 +82,7 @@ public class QLParserTest {
         assertFalse(importStmt1.isStaticImport());
 
         Program p2 = parse("import static ab.Assert.*;");
-        List<Stmt> stmtList2 = p2.getStmtList();
+        StmtList stmtList2 = p2.getStmtList();
         ImportStmt importStmt2 = (ImportStmt) stmtList2.get(0);
         assertTrue(importStmt2.isStaticImport());
 
@@ -545,12 +545,12 @@ public class QLParserTest {
     @Test
     public void programTest() {
         Program program = parse("a=2+3;a*9+2");
-        assertEquals(2, program.getStmtList().size());
+        assertEquals(2, program.getStmtList().getStmts().size());
         assertTrue(program.getStmtList().get(0) instanceof AssignExpr);
         assertTrue(program.getStmtList().get(1) instanceof BinaryOpExpr);
 
         Program program1 = parse("a=2+3;a*9+2;");
-        assertEquals(2, program1.getStmtList().size());
+        assertEquals(2, program1.getStmtList().getStmts().size());
         assertTrue(program1.getStmtList().get(0) instanceof AssignExpr);
         assertTrue(program1.getStmtList().get(1) instanceof BinaryOpExpr);
 
@@ -665,13 +665,13 @@ public class QLParserTest {
                 "} final {" +
                 "}");
         TryCatchStmt tryCatchStmt = (TryCatchStmt) program.getStmtList().get(0);
-        assertEquals(1, tryCatchStmt.getBody().getStmtList().size());
+        assertEquals(1, tryCatchStmt.getBody().getStmtList().getStmts().size());
         assertEquals(Arrays.asList(IllegalStateException.class, IndexOutOfBoundsException.class),
                 tryCatchStmt.getTryCatch().get(0)
                 .getExceptions().stream()
                 .map(DeclType::getClz)
                 .collect(Collectors.toList()));
-        assertEquals(0, tryCatchStmt.getTryFinal().getStmtList().size());
+        assertEquals(0, tryCatchStmt.getTryFinal().getStmtList().getStmts().size());
     }
 
     private void assertErrReport(String script, String expectReport) {

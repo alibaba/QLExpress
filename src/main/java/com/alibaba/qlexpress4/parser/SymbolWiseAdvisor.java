@@ -29,6 +29,12 @@ public class SymbolWiseAdvisor implements QLProgramVisitor<Void, VisitingScope> 
     }
 
     @Override
+    public Void visit(StmtList stmtList, VisitingScope context) {
+        downStream.visit(stmtList, context);
+        return null;
+    }
+
+    @Override
     public Void visit(IndexCallExpr indexCallExpr, VisitingScope visitingScope) {
         downStream.visit(indexCallExpr, visitingScope);
         return null;

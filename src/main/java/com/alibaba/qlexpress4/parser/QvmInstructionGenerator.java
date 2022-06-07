@@ -216,7 +216,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         QLambda functionLambda = generateLambda(functionName, functionStmt.getBody(), visitingScope);
         ErrorReporter errorReporter = newReporterByNode(functionStmt);
         instructionList.add(new ConstInstruction(errorReporter, functionLambda));
-        instructionList.add(new DefineLocalInstruction(errorReporter, functionName));
+        instructionList.add(new DefineLocalInstruction(errorReporter, functionName, QLambda.class));
         return null;
     }
 
@@ -293,7 +293,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         } else {
             instructionList.add(new ConstInstruction(errorReporter, null));
         }
-        instructionList.add(new DefineLocalInstruction(errorReporter, varName));
+        instructionList.add(new DefineLocalInstruction(errorReporter, varName,
+                localVarDeclareStmt.getVarDecl().getType().getClz()));
         return null;
     }
 
@@ -302,7 +303,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         QLambda macroLambda = generateLambda(macroLambdaName(), macroStmt.getBody(), visitingScope);
         ErrorReporter errorReporter = newReporterByNode(macroStmt);
         instructionList.add(new ConstInstruction(errorReporter, macroLambda));
-        instructionList.add(new DefineLocalInstruction(errorReporter, macroStmt.getName().getId()));
+        instructionList.add(new DefineLocalInstruction(errorReporter,
+                macroStmt.getName().getId(), QLambda.class));
         return null;
     }
 

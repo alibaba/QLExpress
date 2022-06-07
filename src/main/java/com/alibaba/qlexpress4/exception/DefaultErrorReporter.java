@@ -20,4 +20,9 @@ public class DefaultErrorReporter implements ErrorReporter {
     public QLRuntimeException report(String errorCode, String reason) {
         return QLException.reportRuntimeErr(script, reportToken, errorCode, reason);
     }
+
+    @Override
+    public QLRuntimeException report(String errorCode, String format, Object... args) {
+        return report(errorCode, String.format(format, args));
+    }
 }
