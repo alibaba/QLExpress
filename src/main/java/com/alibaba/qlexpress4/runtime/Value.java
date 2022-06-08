@@ -10,6 +10,7 @@ public interface Value {
 
     Object get();
 
+    // TODO 方法命名，getDefineClass, getDeclaredClass，getDeclaredType
     Class<?> getDefineType();
 
     default Class<?> getType() {
@@ -39,6 +40,7 @@ public interface Value {
     default String getTypeName() {
         Object value = get();
         if (value == null) {
+            // TODO 这个地方是否返回声明的类型？
             return null;
         }
 
