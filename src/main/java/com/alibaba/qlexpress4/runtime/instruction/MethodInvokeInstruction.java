@@ -6,7 +6,6 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.data.DataMethodInvoke;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -59,15 +58,15 @@ public class MethodInvokeInstruction extends QLInstruction {
                     methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
                 }
                 Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-                Value dataMethodInvoke = new DataMethodInvoke(method, bean, params, qlOptions.enableAllowAccessPrivateMethod());
-                Value dataValue = new DataValue(dataMethodInvoke.get());
+                Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
+                Value dataValue = new DataValue(value);
                 qRuntime.push(dataValue);
                 if(method != null){
                     CacheUtil.setMethodInvokeCacheElement(bean, this.methodName, method, type);
                 }
             } else {
-                Value dataMethodInvoke = new DataMethodInvoke(cacheElement, bean, params, qlOptions.enableAllowAccessPrivateMethod());
-                Value dataValue = new DataValue(dataMethodInvoke.get());
+                Object value = MethodHandler.Access.accessMethodValue(cacheElement,bean,params,qlOptions.enableAllowAccessPrivateMethod());
+                Value dataValue = new DataValue(value);
                 qRuntime.push(dataValue);
             }
         } catch (Exception e) {
