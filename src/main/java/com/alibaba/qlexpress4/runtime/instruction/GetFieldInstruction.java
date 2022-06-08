@@ -76,8 +76,8 @@ public class GetFieldInstruction extends QLInstruction {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName, true);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz, this.fieldName);
-            LeftValue dataField = new DataField(field, getMethod, setMethod, clazz, bean,
-                    this.fieldName, qlOptions.enableAllowAccessPrivateMethod());
+            LeftValue dataField = new DataField(field, getMethod, setMethod, bean,
+                     qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
             CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
             CacheUtil.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
@@ -85,8 +85,8 @@ public class GetFieldInstruction extends QLInstruction {
         } else {
             CacheFieldValue cacheFieldValue = cacheElement;
             LeftValue dataField = new DataField(cacheFieldValue.getField(), cacheFieldValue.getGetMethod(),
-                    cacheFieldValue.getSetMethod(), clazz, bean,
-                    this.fieldName, qlOptions.enableAllowAccessPrivateMethod());
+                    cacheFieldValue.getSetMethod(), bean,
+                    qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
         }
     }

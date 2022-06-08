@@ -12,10 +12,19 @@ public class DataMap implements LeftValue {
 
     private String fieldName;
     private Map map;
+    private Class<?> defineType;
+
 
     public DataMap(Map map, String fieldName) {
         this.map = map;
         this.fieldName = fieldName;
+        this.defineType = Map.class;
+    }
+
+    public DataMap(Map map, String fieldName, Class<?> defineType) {
+        this.map = map;
+        this.fieldName = fieldName;
+        this.defineType = defineType;
     }
 
     @Override
@@ -27,4 +36,10 @@ public class DataMap implements LeftValue {
     public Object get() {
         return this.map.get(this.fieldName);
     }
+
+    @Override
+    public Class<?> getDefineType() {
+        return this.defineType;
+    }
+
 }

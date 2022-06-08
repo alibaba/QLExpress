@@ -16,19 +16,16 @@ public class DataField implements LeftValue {
     private Method setMethod;
     private Object bean;
     private boolean allowAccessPrivate;
-    private String fieldName;
-    private Class<?> clazz;
+    private Class<?> defineType;
 
 
-    public DataField(Field field, Method getMethod, Method setMethod, Class<?> clazz, Object obj,
-                     String fieldName, boolean allowAccessPrivate) {
+    public DataField(Field field, Method getMethod, Method setMethod, Object obj, boolean allowAccessPrivate) {
         this.field = field;
         this.getMethod = getMethod;
         this.setMethod = setMethod;
-        this.clazz = clazz;
         this.bean = obj;
-        this.fieldName = fieldName;
         this.allowAccessPrivate = allowAccessPrivate;
+        this.defineType = Object.class;
     }
 
     @Override
@@ -50,6 +47,11 @@ public class DataField implements LeftValue {
             return rs;
         }
         return null;
+    }
+
+    @Override
+    public Class<?> getDefineType() {
+        return this.defineType;
     }
 
     private Object methodGet() {
