@@ -44,7 +44,7 @@ public class PropertiesUtil {
                 return o.getClass();
             }
         } else {
-            Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ, true);
+            Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ);
             if (accessMember != null) {
                 if (accessMember instanceof Method) {
                     return MethodHandler.Access.accessMethodType(accessMember);
@@ -65,7 +65,7 @@ public class PropertiesUtil {
      * @return Object
      */
     public static Object getPropertyValue(Object bean, String name, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ, true);
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember, bean, null, allowAccessPrivate);
@@ -84,7 +84,7 @@ public class PropertiesUtil {
      * @param value
      */
     public static void setPropertyValue(Object bean, String name, Object value, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.WRITE, true);
+        Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.WRITE);
         if (accessMember instanceof Method) {
             MethodHandler.Access.setAccessMethodValue(accessMember, bean, value, allowAccessPrivate);
             return;
@@ -102,7 +102,7 @@ public class PropertiesUtil {
      * @param value
      */
     public static void setClzPropertyValue(Object bean, String name, Object value, boolean allowAccessPrivate) throws IllegalAccessException {
-        Member accessMember = MemberHandler.Access.getAccessMember((Class<?>) bean, name, AccessMode.WRITE, false);
+        Member accessMember = MemberHandler.Access.getAccessMember((Class<?>) bean, name, AccessMode.WRITE);
         FieldHandler.Access.setAccessFieldValue(accessMember, null, value, allowAccessPrivate);
     }
 
@@ -116,7 +116,7 @@ public class PropertiesUtil {
      * @return
      */
     public static Object getClzField(Class<?> clazz, String name, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        Member accessMember = MemberHandler.Access.getAccessMember(clazz, name, AccessMode.READ, false);
+        Member accessMember = MemberHandler.Access.getAccessMember(clazz, name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
                 return MethodHandler.Access.accessMethodValue(accessMember, null, null, allowAccessPrivate);

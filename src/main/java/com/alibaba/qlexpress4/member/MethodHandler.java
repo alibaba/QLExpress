@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class MethodHandler extends MemberHandler {
 
-    public static Method getGetter(Class<?> clazz, String property, boolean isStaticCheck) {
+    public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
 

@@ -43,15 +43,14 @@ public class TestFieldInstruction {
         Assert.assertNull(testQRuntimeParent.getValue().get());
 
         //parent.name allowPrivate = example
-        //Parent.name allowPrivate = null
         testQRuntimeParent.push(new DataValue(new Parent()));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),"example");
 
-
+        //Parent.name allowPrivate = null
         testQRuntimeParent.push(new DataValue(Parent.class));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        Assert.assertEquals(testQRuntimeParent.getValue().get(),"example");
+        Assert.assertNull(testQRuntimeParent.getValue().get());
 
 //
 //        GetFieldInstruction getFieldInstruction1 = new GetFieldInstruction(errorReporter, "staticPublic");

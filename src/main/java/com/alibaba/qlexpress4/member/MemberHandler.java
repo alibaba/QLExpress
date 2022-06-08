@@ -16,11 +16,11 @@ import java.lang.reflect.Method;
 public class MemberHandler {
 
     public static class Access {
-        public static Member getAccessMember(Class<?> clazz, String property, AccessMode propertyMode, boolean isStaticCheck) {
+        public static Member getAccessMember(Class<?> clazz, String property, AccessMode propertyMode) {
             //from Method
             Method method = null;
             if (AccessMode.READ.equals(propertyMode)) {
-                method = MethodHandler.getGetter(clazz, property, isStaticCheck);
+                method = MethodHandler.getGetter(clazz, property);
             } else {
                 method = MethodHandler.getSetter(clazz, property);
             }

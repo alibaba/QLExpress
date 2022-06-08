@@ -73,7 +73,7 @@ public class GetFieldInstruction extends QLInstruction {
     private void getCacheFieldValue(QLOptions qlOptions, Class<?> clazz, Object bean, QRuntime qRuntime) {
         CacheFieldValue cacheElement = CacheUtil.getFieldCacheElement(clazz, this.fieldName);
         if (cacheElement == null) {
-            Method getMethod = MethodHandler.getGetter(clazz, this.fieldName, true);
+            Method getMethod = MethodHandler.getGetter(clazz, this.fieldName);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz, this.fieldName);
             LeftValue dataField = new DataField(field, getMethod, setMethod, bean,
