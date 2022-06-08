@@ -27,7 +27,7 @@ public class QLambdaInner implements QLambda {
         this.paramsType = paramsType;
     }
 
-    public QResult call(Object... params) {
+    public QResult call(Object... params) throws Exception {
         return null;
     }
 
