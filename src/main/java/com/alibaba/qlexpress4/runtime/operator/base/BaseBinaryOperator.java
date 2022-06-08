@@ -5,23 +5,18 @@ import java.util.Objects;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.operator.Operator;
+import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 
 /**
  * @author 冰够
  */
-public abstract class BaseOperator implements Operator {
-    protected String operator;
-
-    public BaseOperator(String operator) {
-        this.operator = operator;
-    }
-
+public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean isSameType(Value left, Value right) {
-        return left.getType() != null && right.getType() != null && Objects.equals(left.getType(), right.getType());
+        return left.getActualClassName() != null && right.getActualClassName() != null
+            && Objects.equals(left.getActualClassName(), right.getActualClassName());
     }
 
-    protected boolean instanceofComparable(Value value) {
+    protected boolean isInstanceofComparable(Value value) {
         return value.get() instanceof Comparable;
     }
 
@@ -31,8 +26,9 @@ public abstract class BaseOperator implements Operator {
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
         ErrorReporter errorReporter) {
+        // 错误码统一规范
         return errorReporter.report("InvalidOperandType",
             "Cannot use %s operator on leftType:%s with leftValue:%s and rightType:%s with rightValue:%s",
-            operator, left.getTypeName(), left.get(), right.getTypeName(), right.get());
+            getOperator(), left.getActualClassName(), left.get(), right.getActualClassName(), right.get());
     }
 }

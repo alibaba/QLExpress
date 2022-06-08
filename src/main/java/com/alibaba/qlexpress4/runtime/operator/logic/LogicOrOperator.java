@@ -1,23 +1,22 @@
-package com.alibaba.qlexpress4.runtime.operator;
+package com.alibaba.qlexpress4.runtime.operator.logic;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.operator.base.BaseOperator;
+import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
  * TODO bingo null 如何处理？
+ * TODO 参考groovy
+ * 普通类：null-false, 非null-true
  *
  * @author 冰够
  */
-public class LogicOperator extends BaseOperator {
-    public LogicOperator(String operator) {
-        super(operator);
-    }
-
+public class LogicOrOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
+        // 抽取至类型转换工具类
         if (leftValue == null) {
             leftValue = false;
         }
@@ -29,20 +28,16 @@ public class LogicOperator extends BaseOperator {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
-        switch (operator) {
-            case "&&":
-            case "and":
-                return (Boolean)leftValue && (Boolean)rightValue;
-            case "||":
-            case "or":
-                return (Boolean)leftValue || (Boolean)rightValue;
-            default:
-                throw buildInvalidOperandTypeException(left, right, errorReporter);
-        }
+        return (Boolean)leftValue || (Boolean)rightValue;
     }
 
     @Override
-    public int getPrecedence() {
+    public String getOperator() {
+        return "||";
+    }
+
+    @Override
+    public int getPriority() {
         return 0;
     }
 }

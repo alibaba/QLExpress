@@ -1,8 +1,10 @@
-package com.alibaba.qlexpress4.runtime.operator;
+package com.alibaba.qlexpress4.runtime.operator.arithmetic;
+
+import java.util.Objects;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.operator.base.BaseOperator;
+import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
@@ -10,22 +12,17 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  *
  * @author 冰够
  */
-public class PlusOperator extends BaseOperator {
-    public PlusOperator() {
-        super("+");
-    }
-
+public class PlusOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
-        // TODO 都为null，抛异常？ com.ql.util.express.OperatorOfNumber.add
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (leftValue instanceof String) {
+        if (leftValue instanceof String || Objects.equals(left.getDeclaredClass(), String.class)) {
             return (String)leftValue + rightValue;
         }
 
-        if (rightValue instanceof String) {
+        if (rightValue instanceof String || Objects.equals(right.getDeclaredClass(), String.class)) {
             return leftValue + (String)rightValue;
         }
 
@@ -37,7 +34,12 @@ public class PlusOperator extends BaseOperator {
     }
 
     @Override
-    public int getPrecedence() {
+    public String getOperator() {
+        return "+";
+    }
+
+    @Override
+    public int getPriority() {
         return 0;
     }
 }

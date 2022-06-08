@@ -1,6 +1,7 @@
-package com.alibaba.qlexpress4.runtime.operator;
+package com.alibaba.qlexpress4.runtime.operator.unary;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
@@ -8,9 +9,15 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 /**
  * @author 冰够
  */
-public class InvertOperator extends BaseUnaryOperator {
-    public InvertOperator() {
-        super("~");
+public class MinusMinusPrefixUnaryOperator extends BaseUnaryOperator {
+    @Override
+    public String getOperator() {
+        return "--";
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
     }
 
     @Override
@@ -20,6 +27,9 @@ public class InvertOperator extends BaseUnaryOperator {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
 
-        return NumberMath.bitwiseNegate((Number)value);
+        if (value instanceof LeftValue) {
+            ((LeftValue)value).set(NumberMath.subtract((Number)operand, 1));
+        }
+        return operand;
     }
 }

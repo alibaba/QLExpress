@@ -21,6 +21,19 @@ public interface Value {
         return value.getClass();
     }
 
+    Class<?> getDeclaredClass();
+
+    default Class<?> getActualClass() {
+        Object value = get();
+        if (value == null) {
+            // TODO 这个地方是否返回声明的类型？
+            //return getDeclaredClass();
+            return null;
+        }
+
+        return value.getClass();
+    }
+
     default String getTypeName() {
         Object value = get();
         if (value == null) {
@@ -28,5 +41,13 @@ public interface Value {
         }
 
         return value.getClass().getName();
+    }
+
+    default String getActualClassName() {
+        Class<?> actualClass = getActualClass();
+        if (actualClass == null) {
+            return null;
+        }
+        return actualClass.getName();
     }
 }

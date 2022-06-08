@@ -1,28 +1,33 @@
-package com.alibaba.qlexpress4.runtime.operator;
+package com.alibaba.qlexpress4.runtime.operator.logic;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
- * 是否支持BigDecimal等类型的++
- *
  * @author 冰够
  */
-@Deprecated
-public class PlusPlusOperator extends BaseUnaryOperator {
-    public PlusPlusOperator() {
-        super("++");
-    }
-
+public class NotOperator extends BaseUnaryOperator {
     @Override
     public Object execute(Value value, ErrorReporter errorReporter) {
         Object operand = value.get();
-        if (!(operand instanceof Number)) {
+        if (operand == null) {
+            operand = false;
+        }
+        if (!(operand instanceof Boolean)) {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
 
-        return NumberMath.add((Number)operand, 1);
+        return !(Boolean)operand;
+    }
+
+    @Override
+    public String getOperator() {
+        return "!";
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
     }
 }
