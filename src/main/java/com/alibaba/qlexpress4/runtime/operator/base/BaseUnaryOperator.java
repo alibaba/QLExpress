@@ -18,6 +18,6 @@ public abstract class BaseUnaryOperator implements UnaryOperator {
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value value, ErrorReporter errorReporter) {
         return errorReporter.report("InvalidOperandType", "Cannot use %s operator on type:%s with value:%s",
-            getOperator(), value.getActualClassName(), value.get());
+            getOperator(), value.getTypeName(), value.get());
     }
 }

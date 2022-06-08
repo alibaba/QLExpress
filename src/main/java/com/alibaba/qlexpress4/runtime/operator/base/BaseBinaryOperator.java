@@ -12,8 +12,8 @@ import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
  */
 public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean isSameType(Value left, Value right) {
-        return left.getActualClassName() != null && right.getActualClassName() != null
-            && Objects.equals(left.getActualClassName(), right.getActualClassName());
+        return left.getTypeName() != null && right.getTypeName() != null
+            && Objects.equals(left.getTypeName(), right.getTypeName());
     }
 
     protected boolean isInstanceofComparable(Value value) {
@@ -29,6 +29,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         // 错误码统一规范
         return errorReporter.report("InvalidOperandType",
             "Cannot use %s operator on leftType:%s with leftValue:%s and rightType:%s with rightValue:%s",
-            getOperator(), left.getActualClassName(), left.get(), right.getActualClassName(), right.get());
+            getOperator(), left.getTypeName(), left.get(), right.getTypeName(), right.get());
     }
 }

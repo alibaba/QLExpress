@@ -18,11 +18,11 @@ public class PlusOperator extends BaseBinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (leftValue instanceof String || Objects.equals(left.getDeclaredClass(), String.class)) {
+        if (leftValue instanceof String || Objects.equals(left.getDefineType(), String.class)) {
             return (String)leftValue + rightValue;
         }
 
-        if (rightValue instanceof String || Objects.equals(right.getDeclaredClass(), String.class)) {
+        if (rightValue instanceof String || Objects.equals(right.getDefineType(), String.class)) {
             return leftValue + (String)rightValue;
         }
 
