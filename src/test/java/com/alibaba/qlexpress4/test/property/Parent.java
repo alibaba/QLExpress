@@ -51,4 +51,9 @@ public class Parent implements Value {
     public Object get() {
         return this;
     }
+
+    @Override
+    public Class<?> getDefineType() {
+        return Parent.class;
+    }
 }

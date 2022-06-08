@@ -20,8 +20,15 @@ public class QLambdaInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        return Modifier.isAbstract(method.getModifiers()) ? qLambda.call(args) :
-                // 为了应对 toString 方法
-                method.getReturnType() == String.class ? "QLambdaProxy" : null;
+        try {
+            if(Modifier.isAbstract(method.getModifiers())){
+                Object rs = qLambda.call(args);
+                return rs;
+            }else {
+                return method.getReturnType() == String.class ? "QLambdaProxy" : null;
+            }
+        }catch (Exception e){
+        }
+        return null;
     }
 }
