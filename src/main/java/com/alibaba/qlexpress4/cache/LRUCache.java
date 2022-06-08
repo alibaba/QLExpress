@@ -1,33 +1,63 @@
 package com.alibaba.qlexpress4.cache;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * @Author TaoKan
  * @Date 2022/5/28 下午3:10
  */
 public class LRUCache<K, V> implements ICache<K, V> {
-    private LRUHashMap<K, V> longTerm;
+    private LinkedHashMap<K,V> linkedHashMap;
+    private int cacheSize;
+    private ReentrantReadWriteLock lock;
 
-    public LRUCache(int size) {
+
+    public LRUCache(int size){
         init(size);
+    }
+
+    public  void put(K key,V value){
+        this.lock.writeLock().lock();
+        try {
+            linkedHashMap.put(key,value);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     @Override
     public void init(int size) {
-        this.longTerm = new LRUHashMap(size);
+        this.cacheSize = size;
+        this.lock = new ReentrantReadWriteLock();
+        this.linkedHashMap = new LinkedHashMap<K,V>(){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+                if(cacheSize + 1 == linkedHashMap.size()){
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        };
     }
 
-    @Override
-    public V get(K k) {
-        return this.longTerm.getElement(k);
+    public V get(K key){
+        this.lock.readLock().lock();
+        try {
+            return linkedHashMap.get(key);
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
-
-    @Override
-    public void put(K k, V v) {
-        this.longTerm.putElement(k, v);
-    }
-
 
     public int size(){
-        return this.longTerm.size();
+        this.lock.readLock().lock();
+        try {
+            return linkedHashMap.size();
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
 }

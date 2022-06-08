@@ -34,11 +34,7 @@ public class MethodHandler extends MemberHandler {
                     && method.getParameterTypes().length == 0
                     && (getter.equals(method.getName()) || ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class))) {
                 if (mGetCandidate == null || BasicUtil.isPreferredGetter(mGetCandidate, method, map)) {
-                    if (isStaticCheck && !BasicUtil.isStatic(method)) {
-                        mGetCandidate = method;
-                    } else {
-                        mGetCandidate = method;
-                    }
+                    mGetCandidate = method;
                 }
             }
         }

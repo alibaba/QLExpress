@@ -102,14 +102,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>3.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
-            <version>1.0</version>
+            <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+            <artifactId>concurrentlinkedhashmap-lru</artifactId>
+            <version>1.4.2</version>
         </dependency>
     </dependencies>
 
