@@ -10,6 +10,8 @@ public class QResult {
     public enum ResultType {
         // break
         BREAK,
+        // without return, different with return null
+        NONE,
         // normal return
         RETURN
     }

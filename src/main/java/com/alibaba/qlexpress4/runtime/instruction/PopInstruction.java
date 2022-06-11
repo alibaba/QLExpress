@@ -18,6 +18,6 @@ public class PopInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+        qRuntime.pop();
     }
 }

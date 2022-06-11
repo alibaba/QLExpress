@@ -1,12 +1,12 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.data.ReadonlyDataValue;
 
 /**
  * Author: DQinYuan
  */
 public interface Value {
-    Value NULL_VALUE = new DataValue(null);
+    Value NULL_VALUE = new ReadonlyDataValue(null);
 
     Object get();
 

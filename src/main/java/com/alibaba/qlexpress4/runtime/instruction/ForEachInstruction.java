@@ -33,11 +33,16 @@ public class ForEachInstruction extends QLInstruction {
                     "for-each can only be applied to iterable");
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;
+        forEachBody:
         for (Object item : iterable) {
             try {
                 QResult bodyResult = body.call(item);
-                if (QResult.ResultType.BREAK == bodyResult.getResultType()) {
-                    break;
+                switch (bodyResult.getResultType()) {
+                    case RETURN:
+                        qRuntime.exitAndReturn(bodyResult);
+                        break;
+                    case BREAK:
+                        break forEachBody;
                 }
             } catch (Exception e) {
                 if (e instanceof QLRuntimeException) {

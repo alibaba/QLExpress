@@ -4,8 +4,10 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 
 /**
  * @Operation: if top of stack is true, execute ${thenBody}, else execute ${elseBody}
@@ -34,18 +36,16 @@ public class IfInstruction extends QLInstruction {
                     "if condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
+        callBody(qRuntime, conditionBool? thenBody: elseBody);
+    }
+
+    private void callBody(QRuntime qRuntime, QLambda target) {
         try {
-            if (conditionBool) {
-                thenBody.call();
-            } else if (elseBody != null) {
-                elseBody.call();
-            }
+            QResult ifResult = target.call();
+            qRuntime.cascadeReturn(ifResult);
         } catch (Exception e) {
-            if (e instanceof QLRuntimeException) {
-                throw (QLRuntimeException) e;
-            }
-            // should not run there
-            throw errorReporter.report("IF_UNKNOWN_EXCEPTION", "if unknown exception");
+            throw ThrowUtils.wrapException(e, errorReporter,
+                    "IF_BODY_EXECUTE_ERROR", "if statement body execute error");
         }
     }
 }

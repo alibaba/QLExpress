@@ -49,6 +49,14 @@ public abstract class QLException extends RuntimeException {
         return reportErrWithToken(script, token, errorCode, reason, QLRuntimeException::new);
     }
 
+    public static QLRuntimeException reportRuntimeErrWithAttach(String script, Token token, String errorCode, String reason,
+                                                      Object attachment) {
+        return reportErrWithToken(script, token, errorCode, reason, (message, lineNo, colNo, errLexeme,
+                errorCode0, reason0, snippet) -> new QLRuntimeException(attachment, message, lineNo, colNo, errLexeme,
+                        errorCode0, reason0, snippet)
+        );
+    }
+
     private static <T extends QLException> T reportErrWithToken(String script, Token token, String errCode,
                                                                 String reason, ExceptionFactory<T> exceptionFactory) {
         return reportErr(script, token.getPos(), token.getLine(), token.getCol(), token.getLexeme(), errCode, reason,
