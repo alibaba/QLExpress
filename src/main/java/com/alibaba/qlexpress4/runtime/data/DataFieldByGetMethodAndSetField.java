@@ -7,22 +7,20 @@ import java.lang.reflect.Method;
 
 /**
  * @Author TaoKan
- * @Date 2022/4/18 上午7:47
+ * @Date 2022/6/12 上午11:43
  */
-public class DataField implements LeftValue {
+public class DataFieldByGetMethodAndSetField implements LeftValue {
 
     private Field field;
     private Method getMethod;
-    private Method setMethod;
     private Object bean;
     private boolean allowAccessPrivate;
     private Class<?> defineType;
 
 
-    public DataField(Field field, Method getMethod, Method setMethod, Object obj, boolean allowAccessPrivate) {
+    public DataFieldByGetMethodAndSetField(Field field, Method getMethod, Object obj, boolean allowAccessPrivate) {
         this.field = field;
         this.getMethod = getMethod;
-        this.setMethod = setMethod;
         this.bean = obj;
         this.allowAccessPrivate = allowAccessPrivate;
         this.defineType = Object.class;
@@ -30,23 +28,12 @@ public class DataField implements LeftValue {
 
     @Override
     public void set(Object newValue) {
-        if (!methodSet(newValue)) {
-            fieldSet(newValue);
-        }
+        fieldSet(newValue);
     }
 
     @Override
     public Object get() {
-        Object rs = methodGet();
-        if (rs == null) {
-            rs = fieldGet();
-            if (rs != null) {
-                return rs;
-            }
-        } else {
-            return rs;
-        }
-        return null;
+        return methodGet();
     }
 
     @Override
@@ -74,49 +61,6 @@ public class DataField implements LeftValue {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private Object fieldGet() {
-        try {
-            if (!this.allowAccessPrivate || this.field.isAccessible()) {
-                return this.field.get(this.bean);
-            } else {
-                synchronized (this.field) {
-                    try {
-                        this.field.setAccessible(true);
-                        return this.field.get(this.bean);
-                    } finally {
-                        this.field.setAccessible(false);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private boolean methodSet(Object newValue) {
-        try {
-            if (this.setMethod == null) {
-                return false;
-            }
-            if (!this.allowAccessPrivate || this.setMethod.isAccessible()) {
-                this.setMethod.invoke(bean, newValue);
-                return true;
-            } else {
-                synchronized (this.setMethod) {
-                    try {
-                        this.setMethod.setAccessible(true);
-                        this.setMethod.invoke(bean, newValue);
-                        return true;
-                    } finally {
-                        this.setMethod.setAccessible(false);
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
-        return false;
     }
 
     private void fieldSet(Object newValue) {

@@ -38,8 +38,8 @@ public class TestLRU {
 
     @Test
     public void runMultiThreadTask_WhenPutDataInConcurrentToCache_LRUNum() throws Exception {
-        final int size = 40;
-        final int exceedSize = 80;
+        final int size = 4400;
+        final int exceedSize = 420000;
         final ExecutorService executorService = Executors.newFixedThreadPool(8);
         LRUCache<Integer, String> cache = new LRUCache(size);
         CountDownLatch countDownLatch = new CountDownLatch(exceedSize);
@@ -48,15 +48,39 @@ public class TestLRU {
                 cache.put(key, "value" + key);
                 countDownLatch.countDown();
             }).forEach(executorService::submit);
-            countDownLatch.await(1, TimeUnit.SECONDS);
+            countDownLatch.await(100, TimeUnit.SECONDS);
         } finally {
             executorService.shutdown();
+        }
+        final ExecutorService executorService2 = Executors.newFixedThreadPool(8);
+        CountDownLatch countDownLatch2= new CountDownLatch(exceedSize);
+        try {
+            IntStream.range(0, exceedSize).<Runnable>mapToObj(key -> () -> {
+                cache.get(key);
+                countDownLatch2.countDown();
+            }).forEach(executorService2::submit);
+            countDownLatch2.await(100, TimeUnit.SECONDS);
+        } finally {
+            executorService2.shutdown();
+        }
+        final ExecutorService executorService3 = Executors.newFixedThreadPool(8);
+        CountDownLatch countDownLatch3= new CountDownLatch(exceedSize);
+        try {
+            IntStream.range(0, exceedSize).<Runnable>mapToObj(key -> () -> {
+                cache.put(key, "value" + key);
+                countDownLatch3.countDown();
+            }).forEach(executorService3::submit);
+            countDownLatch3.await(100, TimeUnit.SECONDS);
+        } finally {
+            executorService3.shutdown();
         }
         Assert.assertEquals(cache.size(), size);
     }
 
+
+
     @Test
-    public void LRULately() throws Exception {
+    public void lately_LRU() throws Exception {
         LRUCache<Integer, String> cache = new LRUCache(2);
         cache.put(1,"1");
         cache.put(2,"2");
@@ -64,6 +88,15 @@ public class TestLRU {
         cache.put(3,"3");
         Assert.assertEquals(cache.size(), 2);
         Assert.assertNull(cache.get(2), null);
+    }
+
+    @Test
+    public void fullSize_LRU() throws Exception {
+        LRUCache<Integer, String> cache = new LRUCache(50);
+        for(int i = 0; i < 50; i++){
+            cache.put(i,"value"+i);
+            System.out.println(cache.size());
+        }
     }
 
 }

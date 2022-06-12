@@ -2,7 +2,8 @@ package com.alibaba.qlexpress4.cache;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @Author TaoKan
@@ -11,26 +12,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class LRUCache<K, V> implements ICache<K, V> {
     private LinkedHashMap<K,V> linkedHashMap;
     private int cacheSize;
-    private ReentrantReadWriteLock lock;
+    private Lock lock;
 
 
     public LRUCache(int size){
         init(size);
     }
 
-    public  void put(K key,V value){
-        this.lock.writeLock().lock();
-        try {
-            linkedHashMap.put(key,value);
-        } finally {
-            this.lock.writeLock().unlock();
-        }
-    }
-
     @Override
     public void init(int size) {
         this.cacheSize = size;
-        this.lock = new ReentrantReadWriteLock();
+        this.lock = new ReentrantLock();
         this.linkedHashMap = new LinkedHashMap<K,V>(){
             @Override
             protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
@@ -43,21 +35,33 @@ public class LRUCache<K, V> implements ICache<K, V> {
         };
     }
 
-    public V get(K key){
-        this.lock.readLock().lock();
+    @Override
+    public void put(K k, V v) {
+        this.lock.lock();
         try {
-            return linkedHashMap.get(key);
+            linkedHashMap.put(k, v);
         } finally {
-            this.lock.readLock().unlock();
+            this.lock.unlock();
         }
     }
 
+    @Override
+    public V get(K key){
+        this.lock.lock();
+        try {
+            return linkedHashMap.get(key);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+
     public int size(){
-        this.lock.readLock().lock();
+        this.lock.lock();
         try {
             return linkedHashMap.size();
         } finally {
-            this.lock.readLock().unlock();
+            this.lock.unlock();
         }
     }
 }

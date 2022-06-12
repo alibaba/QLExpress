@@ -70,7 +70,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qRuntime.push(dataValue);
             }
         } catch (Exception e) {
-            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value: " + e.getMessage());
+            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method");
         }
     }
 }
