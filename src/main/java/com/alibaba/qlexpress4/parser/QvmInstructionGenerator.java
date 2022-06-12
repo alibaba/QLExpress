@@ -164,11 +164,6 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     }
 
     @Override
-    public Void visit(EmptyStmt emptyStmt, VisitingScope visitingScope) {
-        return null;
-    }
-
-    @Override
     public Void visit(FieldCallExpr fieldCallExpr, VisitingScope visitingScope) {
         fieldCallExpr.getExpr().accept(advisor, visitingScope);
         String fieldName = fieldCallExpr.getAttribute().getId();
@@ -246,15 +241,15 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     }
 
     @Override
-    public Void visit(IfStmt ifStmt, VisitingScope visitingScope) {
-        ifStmt.getCondition().accept(advisor, visitingScope);
+    public Void visit(IfExpr ifExpr, VisitingScope visitingScope) {
+        ifExpr.getCondition().accept(advisor, visitingScope);
 
         int ifCount = ifCount();
         QLambda thenLambda = generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX,
-                ifStmt.getThenBranch(), visitingScope);
-        instructionList.add(new IfInstruction(newReporterByNode(ifStmt), thenLambda,
-                ifStmt.getElseBranch() != null? generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
-                        ifStmt.getElseBranch(), visitingScope): null));
+                ifExpr.getThenBranch(), visitingScope);
+        instructionList.add(new IfInstruction(newReporterByNode(ifExpr), thenLambda,
+                ifExpr.getElseBranch() != null? generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
+                        ifExpr.getElseBranch(), visitingScope): null));
         return null;
     }
 
@@ -363,14 +358,14 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     }
 
     @Override
-    public Void visit(TryCatchStmt tryCatchStmt, VisitingScope visitingScope) {
+    public Void visit(TryCatch tryCatchExpr, VisitingScope visitingScope) {
         int tryCount = tryCount();
         QLambda bodyLambda = generateLambda(prefix + TRY_LAMBDA_PREFIX + tryCount,
-                tryCatchStmt.getBody(), visitingScope);
+                tryCatchExpr.getBody(), visitingScope);
 
         Map<Class<?>, QLambda> exceptionTable = new HashMap<>();
-        for (int catchCount = 0; catchCount < tryCatchStmt.getTryCatch().size(); catchCount++) {
-            TryCatchStmt.CatchClause tryCatch = tryCatchStmt.getTryCatch().get(catchCount);
+        for (int catchCount = 0; catchCount < tryCatchExpr.getTryCatch().size(); catchCount++) {
+            TryCatch.CatchClause tryCatch = tryCatchExpr.getTryCatch().get(catchCount);
             String eName = tryCatch.getVariable().getId();
             String lambdaName = prefix + TRY_LAMBDA_PREFIX + catchCount + CATCH_SUFFIX;
             List<QLInstruction> catchBody = generateNodeInstructions(lambdaName, tryCatch.getBody(), visitingScope);
@@ -383,10 +378,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
             }
         }
 
-        instructionList.add(new TryCatchInstruction(newReporterByNode(tryCatchStmt), bodyLambda, exceptionTable,
-                tryCatchStmt.getTryFinal() != null?
+        instructionList.add(new TryCatchInstruction(newReporterByNode(tryCatchExpr), bodyLambda, exceptionTable,
+                tryCatchExpr.getTryFinal() != null?
                         generateLambda(prefix + TRY_LAMBDA_PREFIX + tryCount + FINAL_SUFFIX,
-                                tryCatchStmt, visitingScope) :
+                                tryCatchExpr, visitingScope) :
                         null)
         );
         return null;

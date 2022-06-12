@@ -12,6 +12,6 @@ public class EmptyStmt extends Stmt {
 
     @Override
     public <R, C> R accept(QLProgramVisitor<R, C> visitor, C context) {
-        return visitor.visit(this, context);
+        return null;
     }
 }

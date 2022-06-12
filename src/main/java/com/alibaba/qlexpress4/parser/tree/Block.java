@@ -4,7 +4,7 @@ import com.alibaba.qlexpress4.parser.Token;
 
 import java.util.List;
 
-public class Block extends Stmt {
+public class Block extends Expr {
 
     private final StmtList stmtList;
 

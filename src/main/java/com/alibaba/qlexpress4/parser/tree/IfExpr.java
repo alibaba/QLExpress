@@ -2,7 +2,10 @@ package com.alibaba.qlexpress4.parser.tree;
 
 import com.alibaba.qlexpress4.parser.Token;
 
-public class IfStmt extends Stmt {
+/**
+ * Author: DQinYuan
+ */
+public class IfExpr extends Expr {
 
     private final Expr condition;
 
@@ -10,7 +13,7 @@ public class IfStmt extends Stmt {
 
     private final Stmt elseBranch;
 
-    public IfStmt(Token keyToken, Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    public IfExpr(Token keyToken, Expr condition, Stmt thenBranch, Stmt elseBranch) {
         super(keyToken);
         this.condition = condition;
         this.thenBranch = thenBranch;

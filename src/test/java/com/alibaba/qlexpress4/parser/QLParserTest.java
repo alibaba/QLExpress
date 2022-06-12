@@ -466,7 +466,7 @@ public class QLParserTest {
 
         Program program1 = parse("int a=0;" +
                 "for (ii : [12,3,4,4]) {" +
-                "   a+=ii" +
+                "   a+=ii;" +
                 "}");
         assertTrue(program1.getStmtList().get(0) instanceof LocalVarDeclareStmt);
         ForEachStmt forEachStmt = (ForEachStmt) program1.getStmtList().get(1);
@@ -477,7 +477,7 @@ public class QLParserTest {
         assertTrue(forEachStmt.getBody() instanceof Block);
 
         Program program2 = parse("for (int iid : a.b.test()) {" +
-                "   a+=iid" +
+                "   a+=iid;" +
                 "}");
         ForEachStmt forEachStmt2 = (ForEachStmt) program2.getStmtList().get(0);
         VarDecl itVar2 = forEachStmt2.getItVar();
@@ -571,6 +571,7 @@ public class QLParserTest {
         assertTrue(block.getStmtList().get(0) instanceof ConstExpr);
 
         Program program0 = parse("1;{a=2+3;a*9+2};3");
+        assertEquals(3, program0.getStmtList().getStmts().size());
         Block block0 = (Block) program0.getStmtList().get(1);
         assertTrue(block0.getStmtList().get(0) instanceof AssignExpr);
         assertTrue(block0.getStmtList().get(1) instanceof BinaryOpExpr);
@@ -590,6 +591,11 @@ public class QLParserTest {
         assertTrue(block2.getStmtList().get(0) instanceof ConstExpr);
         assertTrue(block2.getStmtList().get(1) instanceof Block);
         assertTrue(block2.getStmtList().get(2) instanceof AssignExpr);
+        parse("2 + {24}");
+        parse("return {10+1};");
+        parse("a = {" +
+                "   1+1" +
+                "}");
 
         assertErrReport("{a=123+34", "[Error: can not find '}' to match]\n" +
                 "[Near: {a=123+34]\n" +
@@ -664,14 +670,67 @@ public class QLParserTest {
                 "} catch (IllegalStateException | IndexOutOfBoundsException e) {" +
                 "} final {" +
                 "}");
-        TryCatchStmt tryCatchStmt = (TryCatchStmt) program.getStmtList().get(0);
-        assertEquals(1, tryCatchStmt.getBody().getStmtList().getStmts().size());
+        TryCatch tryCatch = (TryCatch) program.getStmtList().get(0);
+        assertEquals(1, tryCatch.getBody().getStmtList().getStmts().size());
         assertEquals(Arrays.asList(IllegalStateException.class, IndexOutOfBoundsException.class),
-                tryCatchStmt.getTryCatch().get(0)
+                tryCatch.getTryCatch().get(0)
                 .getExceptions().stream()
                 .map(DeclType::getClz)
                 .collect(Collectors.toList()));
-        assertEquals(0, tryCatchStmt.getTryFinal().getStmtList().getStmts().size());
+        assertEquals(0, tryCatch.getTryFinal().getStmtList().getStmts().size());
+    }
+
+    @Test
+    public void ifTest() {
+        Program program = parse("if (true) {" +
+                "    1" +
+                "}" +
+                "a = 10");
+        Stmt stmt = program.getStmtList().get(0);
+        assertTrue(stmt instanceof IfExpr);
+        parse("2 + if (true) {\n" +
+                "    10\n" +
+                "} else {\n" +
+                "    1\n" +
+                "};");
+        parse("return if (true) {\n" +
+                "    10\n" +
+                "} else {\n" +
+                "    1\n" +
+                "};");
+    }
+
+    @Test
+    public void breakContinueInLoopTest() {
+        parse("for (i = 0; i < 3; i++) {" +
+                "  try {" +
+                "    if (a>1) {break;} else {continue;}" +
+                "  } catch (Exception e) {" +
+                "  }" +
+                "}");
+        assertErrReport("break", "[Error: 'break' keyword must in loop]\n" +
+                "[Near: break]\n" +
+                "       ^^^^^\n" +
+                "[Line: 1, Column: 1]");
+        assertErrReport("continue", "[Error: 'continue' keyword must in loop]\n" +
+                "[Near: continue]\n" +
+                "       ^^^^^^^^\n" +
+                "[Line: 1, Column: 1]");
+        assertErrReport("if (true) {continue}", "[Error: 'continue' keyword must in loop]\n" +
+                "[Near: f (true) {continue}]\n" +
+                "                 ^^^^^^^^\n" +
+                "[Line: 1, Column: 12]");
+        assertErrReport("for (i = 0; i < 3; i++) {a = () -> {break;}}",
+                "[Error: 'break' keyword must in loop]\n" +
+                "[Near:  = () -> {break;}}]\n" +
+                "                 ^^^^^\n" +
+                "[Line: 1, Column: 37]");
+        assertErrReport("for (i = 0; i < 3; i++) {1+if (a>1) {break;} else {continue;}}",
+                "[Error: 'break' keyword must in loop]\n" +
+                "[Near: if (a>1) {break;} else {c]\n" +
+                "                 ^^^^^\n" +
+                "[Line: 1, Column: 38]");
+        parse("for (i = 0; i < 3; i++) {if (a>1) {break;} else {continue;}}");
     }
 
     private void assertErrReport(String script, String expectReport) {
@@ -682,6 +741,7 @@ public class QLParserTest {
                             ImportManager.importPack("java.util"),
                             ImportManager.importCls("java.util.function.Function")
                     )), DefaultClassSupplier.INSTANCE).parse();
+            fail();
         } catch (QLSyntaxException e) {
             assertEquals(expectReport, e.getMessage());
         }

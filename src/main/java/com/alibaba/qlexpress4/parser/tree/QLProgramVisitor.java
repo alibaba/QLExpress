@@ -27,8 +27,6 @@ public interface QLProgramVisitor<R, C> {
 
     R visit(Continue aContinue, C context);
 
-    R visit(EmptyStmt emptyStmt, C context);
-
     R visit(FieldCallExpr fieldCallExpr, C context);
 
     R visit(ForEachStmt forEachStmt, C context);
@@ -42,8 +40,6 @@ public interface QLProgramVisitor<R, C> {
     R visit(Identifier identifier, C context);
 
     R visit(IdExpr idExpr, C context);
-
-    R visit(IfStmt ifStmt, C context);
 
     R visit(ImportStmt importStmt, C context);
 
@@ -65,9 +61,11 @@ public interface QLProgramVisitor<R, C> {
 
     R visit(TernaryExpr ternaryExpr, C context);
 
-    R visit(TryCatchStmt tryCatchStmt, C context);
+    R visit(TryCatch tryCatch, C context);
 
     R visit(TypeExpr typeExpr, C context);
 
     R visit(WhileStmt whileStmt, C context);
+
+    R visit(IfExpr ifExpr, C context);
 }

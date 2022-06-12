@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 
 import java.util.Map;
@@ -36,9 +37,23 @@ public class TryCatchInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+        QResult tryCatchResult = tryCatchResult(qRuntime);
+        if (finalBody != null) {
+            try {
+                tryCatchResult = finalBody.call();
+            } catch (Exception e) {
+                throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
+                        "try...catch...final... execute error");
+            }
+        }
+        qRuntime.push(new DataValue(tryCatchResult.getResult()));
+    }
+
+    private QResult tryCatchResult(QRuntime qRuntime) {
         try {
             QResult callResult = body.call();
             qRuntime.cascadeReturn(callResult);
+            return callResult;
         } catch (QLRuntimeException e) {
             Optional<QLambda> exceptionHandlerOp = Optional.ofNullable(e.getAttachment())
                     .map(attach -> exceptionTable.get(attach.getClass()));
@@ -49,13 +64,14 @@ public class TryCatchInstruction extends QLInstruction {
             try {
                 QResult exceptionHandlerResult = exceptionHandlerOp.get().call(attachment);
                 qRuntime.cascadeReturn(exceptionHandlerResult);
+                return exceptionHandlerResult;
             } catch (Exception ex) {
                 throw ThrowUtils.wrapException(ex, errorReporter, "CATCH_HANDLER_EXECUTE_ERROR",
                         "try...catch... handler of '%s' execute error", attachment.getClass().getName());
             }
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_BODY_EXECUTE_ERROR",
-                    "try...catch... body execute error");
+                    "try... body execute error");
         }
     }
 }

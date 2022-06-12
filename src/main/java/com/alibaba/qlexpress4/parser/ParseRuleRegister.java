@@ -9,6 +9,9 @@ import java.util.List;
 class ParseRuleRegister {
 
     private final static List<OperatorParseRule> rules = Arrays.asList(
+            new IfExprRule(),
+            new BlockExprRule(),
+            new TryCatchFinalRule(),
             new LParenRule(),
             new NewRule(),
             new ConstRule(),
@@ -19,10 +22,10 @@ class ParseRuleRegister {
             new UnaryRule()
     );
 
-    protected static Expr parsePrefixAndAdvance(QLParser parser) {
+    protected static Expr parsePrefixAndAdvance(QLParser parser, QLParser.ContextType contextType) {
         for (OperatorParseRule rule : rules) {
             if (rule.matchAndAdvance(parser)) {
-                return rule.prefixParse(parser);
+                return rule.prefixParse(parser, contextType);
             }
         }
         throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),

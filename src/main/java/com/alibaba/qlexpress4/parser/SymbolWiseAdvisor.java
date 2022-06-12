@@ -100,12 +100,6 @@ public class SymbolWiseAdvisor implements QLProgramVisitor<Void, VisitingScope> 
     }
 
     @Override
-    public Void visit(EmptyStmt emptyStmt, VisitingScope visitingScope) {
-        downStream.visit(emptyStmt, visitingScope);
-        return null;
-    }
-
-    @Override
     public Void visit(FieldCallExpr fieldCallExpr, VisitingScope visitingScope) {
         downStream.visit(fieldCallExpr, visitingScope);
         return null;
@@ -157,8 +151,8 @@ public class SymbolWiseAdvisor implements QLProgramVisitor<Void, VisitingScope> 
     }
 
     @Override
-    public Void visit(IfStmt ifStmt, VisitingScope visitingScope) {
-        downStream.visit(ifStmt, visitingScope);
+    public Void visit(IfExpr ifExpr, VisitingScope visitingScope) {
+        downStream.visit(ifExpr, visitingScope);
         return null;
     }
 
@@ -233,8 +227,8 @@ public class SymbolWiseAdvisor implements QLProgramVisitor<Void, VisitingScope> 
     }
 
     @Override
-    public Void visit(TryCatchStmt tryCatchStmt, VisitingScope visitingScope) {
-        downStream.visit(tryCatchStmt, visitingScope);
+    public Void visit(TryCatch tryCatch, VisitingScope visitingScope) {
+        downStream.visit(tryCatch, visitingScope);
         return null;
     }
 

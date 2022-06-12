@@ -6,18 +6,23 @@ import com.alibaba.qlexpress4.runtime.Value;
  * @Author TaoKan
  * @Date 2022/5/6 下午6:29
  */
-public class ReadonlyDataValue implements Value {
+public class DataValue implements Value {
 
     private final Object value;
 
     private final Class<?> defineType;
 
-    public ReadonlyDataValue(Object value) {
+    public DataValue(Object value) {
         this.value = value;
         this.defineType = Object.class;
     }
 
-    public ReadonlyDataValue(Object value, Class<?> defineType) {
+    public DataValue(Value value) {
+        this.value = value.get();
+        this.defineType = Object.class;
+    }
+
+    public DataValue(Object value, Class<?> defineType) {
         this.value = value;
         this.defineType = defineType;
     }

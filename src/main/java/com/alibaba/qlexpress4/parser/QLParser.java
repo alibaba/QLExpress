@@ -16,6 +16,12 @@ import java.util.function.Predicate;
 
 public class QLParser {
 
+    enum ContextType {
+        // break, continue
+        LOOP,
+        BLOCK
+    }
+
     /**
      * left parent Token position -> token just after right parent token , Optional.empty() when without next token
      */
@@ -56,18 +62,11 @@ public class QLParser {
            stmtList.add(importStmt());
         }
 
-        Stmt statement = null;
-        while (!isEnd()) {
-            if (statement instanceof Expr) {
-                // expr statement must end with `;` if not last line
-                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
-                        "statement must end with ';'");
-                if (isEnd()) {
-                    break;
-                }
-            }
-            statement = statement();
-            stmtList.add(statement);
+        stmtList.addAll(stmtList(ContextType.BLOCK).getStmts());
+        if (!isEnd()) {
+            // should not run here
+            throw QLException.reportParserErr(scanner.getScript(),
+                    cur, "INVALID_PROGRAM", "invalid program");
         }
 
         return new Program(new StmtList(pre, stmtList));
@@ -77,15 +76,9 @@ public class QLParser {
         return scanner.getScript();
     }
 
-    private Stmt statement() {
+    protected Stmt statement(ContextType contextType) {
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new EmptyStmt(pre);
-        } else if (matchTypeAndAdvance(TokenType.LBRACE)) {
-            // block
-            return block();
-        } else if (matchKeyWordAndAdvance(KeyWordsSet.IF)) {
-            // if
-            return ifStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.WHILE)) {
             // while
             return whileStmt();
@@ -104,46 +97,51 @@ public class QLParser {
             return macroStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.BREAK) ||
                 matchKeyWordAndAdvance(KeyWordsSet.CONTINUE)) {
+            if (contextType != ContextType.LOOP) {
+                // break continue are only enable in loop context
+                throw QLException.reportParserErr(scanner.getScript(), pre,
+                        "BREAK_CONTINUE_NOT_IN_LOOP",
+                        String.format("'%s' keyword must in loop", pre.getLexeme())
+                );
+            }
             // single token statement
             return singleTokenStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.RETURN)) {
-            return returnStmt();
-        } else if (matchKeyWordAndAdvance(KeyWordsSet.TRY)) {
-            return tryCatchStmt();
+            return returnStmt(contextType);
         } else if (isLocalVarDeclStatement()) {
             // var declare statement
             return localVarDeclareStmt();
         } else {
             // expression(primary, assignment, ternary,....)
-            return expr();
+            return expr(contextType);
         }
     }
 
-    private TryCatchStmt tryCatchStmt() {
+    protected TryCatch tryCatchStmt(ContextType contextType) {
         Token tryToken = pre;
         advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_DECLARE",
                 "expect '{' in try declaration");
-        Block body = block();
+        Block body = block(contextType);
         if (!matchKeyWordAndAdvance(KeyWordsSet.CATCH)) {
-            throw QLException.reportParserErr(scanner.getScript(), tryToken,
-                    "CAN_NOT_FIND_CATCH_TO_MATCH", "can not find 'catch' to match");
+            throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                    "TRY_MISS_CATCH", "can not find 'catch' to match 'try'");
         }
-        List<TryCatchStmt.CatchClause> catchClauses = new ArrayList<>(3);
-        catchClauses.add(catchClause());
+        List<TryCatch.CatchClause> catchClauses = new ArrayList<>(3);
+        catchClauses.add(catchClause(contextType));
         while (matchKeyWordAndAdvance(KeyWordsSet.CATCH)) {
-            catchClauses.add(catchClause());
+            catchClauses.add(catchClause(contextType));
         }
 
         if (matchKeyWordAndAdvance(KeyWordsSet.FINAL)) {
             advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_FINAL_DECLARE",
                     "expect '{' in try...final... declaration");
-            return new TryCatchStmt(tryToken, body, block(), catchClauses);
+            return new TryCatch(tryToken, body, block(contextType), catchClauses);
         } else {
-            return new TryCatchStmt(tryToken, body, null, catchClauses);
+            return new TryCatch(tryToken, body, null, catchClauses);
         }
     }
 
-    private TryCatchStmt.CatchClause catchClause() {
+    private TryCatch.CatchClause catchClause(ContextType contextType) {
         advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_CATCH_EXCEPTION",
                 "expect '(' before catch exception");
         List<DeclType> exceptions = new ArrayList<>(3);
@@ -157,8 +155,8 @@ public class QLParser {
                 "expect ')' after catch exception");
         advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_CATCH_DECLARE",
                 "expect '{' in catch declaration");
-        Block body = block();
-        return new TryCatchStmt.CatchClause(exceptions, variable, body);
+        Block body = block(contextType);
+        return new TryCatch.CatchClause(exceptions, variable, body);
     }
 
     private boolean isLocalVarDeclStatement() {
@@ -274,7 +272,7 @@ public class QLParser {
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
         } else if (matchTypeAndAdvance(TokenType.ASSIGN)) {
-            Expr expr = expr();
+            Expr expr = expr(ContextType.BLOCK);
             advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
                     "statement must end with ';'");
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), expr);
@@ -388,13 +386,13 @@ public class QLParser {
                 lastToken(), "INVALID_TYPE_ARGUMENT", "invalid type argument");
     }
 
-    private Stmt returnStmt() {
+    private Stmt returnStmt(ContextType contextType) {
         Token keyToken = pre;
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new ReturnStmt(keyToken, null);
         }
 
-        Expr expr = expr();
+        Expr expr = expr(contextType);
         advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
                 "statement must end with ';'");
         return new ReturnStmt(keyToken, expr);
@@ -419,7 +417,7 @@ public class QLParser {
         Identifier macroName = idOrReportError("INVALID_MACRO_NAME", "invalid macro name");
         advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_MACRO_DECLARE",
                 "expect '{' in macro declaration");
-        Block body = block();
+        Block body = block(ContextType.BLOCK);
         return new MacroStmt(macroName.getKeyToken(), macroName, body);
     }
 
@@ -475,7 +473,7 @@ public class QLParser {
 
         advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_BEFORE_FUNCTION_BODY",
                 "expect '{' before function body");
-        Block block = block();
+        Block block = block(ContextType.BLOCK);
 
         return new FunctionStmt(functionName.getKeyToken(), functionName, paramList, block);
     }
@@ -498,45 +496,44 @@ public class QLParser {
         return parameterList;
     }
 
-    protected Block block() {
+    protected Block block(ContextType contextType) {
         Token keyToken = pre;
+        StmtList stmtList = stmtList(contextType);
+        // block end
+        advanceOrReportErrorWithToken(TokenType.RBRACE, "CAN_NOT_FIND_RBRACE_TO_MATCH",
+                "can not find '}' to match", keyToken);
+
+        return new Block(keyToken, stmtList);
+    }
+
+    private StmtList stmtList(ContextType contextType) {
         List<Stmt> stmtList = new ArrayList<>();
         Stmt statement = null;
         // block end
-        while (!matchTypeAndAdvance(TokenType.RBRACE)) {
-            if (isEnd()) {
-                throw QLException.reportParserErr(scanner.getScript(), keyToken,
-                        "CAN_NOT_FIND_RBRACE_TO_MATCH", "can not find '}' to match");
-            }
-            if (statement instanceof Expr) {
-                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
-                        "statement must end with ';'");
+        while (!isEnd() && !isTokenType(cur, TokenType.RBRACE)) {
+            if (exprFillSemi(statement)) {
                 statement = null;
                 continue;
             }
-            statement = statement();
-            stmtList.add(statement);
+            statement = statement(contextType);
+            if (!(statement instanceof EmptyStmt)) {
+                stmtList.add(statement);
+            }
         }
 
-        return new Block(keyToken, new StmtList(pre, stmtList));
+        return new StmtList(pre, stmtList);
     }
 
-    private IfStmt ifStmt() {
-        Token keyToken = pre;
-        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_IF_CONDITION",
-                "expect '(' before if condition");
-        Expr condition = expr();
-        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
-                "expect ')' after if condition");
-
-        Stmt thenBranch = statement();
-
-        if (matchKeyWordAndAdvance(KeyWordsSet.ELSE)) {
-            Stmt elseBranch = statement();
-            return new IfStmt(keyToken, condition, thenBranch, elseBranch);
-        } else {
-            return new IfStmt(keyToken, condition, thenBranch, null);
+    private boolean exprFillSemi(Stmt statement) {
+        if (statement instanceof IfExpr || statement instanceof Block || statement instanceof TryCatch) {
+            return false;
         }
+        if (statement instanceof Expr) {
+            advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                    "statement must end with ';'");
+            return true;
+        }
+        return false;
     }
 
     private WhileStmt whileStmt() {
@@ -544,11 +541,11 @@ public class QLParser {
 
         advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_WHILE_CONDITION",
                 "expect '(' before while condition");
-        Expr condition = expr();
+        Expr condition = expr(ContextType.BLOCK);
         advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_WHILE_CONDITION",
                 "expect ')' after while statement");
 
-        Stmt body = statement();
+        Stmt body = statement(ContextType.LOOP);
         return new WhileStmt(keyToken, condition, body);
     }
 
@@ -564,11 +561,11 @@ public class QLParser {
         advanceOrReportError(TokenType.COLON, "EXPECT_COLON_AFTER_FOR_EACH_VARIABLE_DECLARE",
                 "expect ':' after for-each variable declare");
 
-        Expr target = expr();
+        Expr target = expr(ContextType.BLOCK);
         advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_FOR_EACH_EXPRESSION",
                 "expect ')' after for-each expression");
 
-        Stmt body = statement();
+        Stmt body = statement(ContextType.LOOP);
         return new ForEachStmt(forToken, itVar, target, body);
     }
 
@@ -578,25 +575,25 @@ public class QLParser {
             if (isLocalVarDeclStatement()) {
                 forInit = localVarDeclareStmt();
             } else {
-                forInit = expr();
+                forInit = expr(ContextType.BLOCK);
                 advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_INIT",
                         "expect ';' after 'for' init expression");
             }
         }
         Expr condition = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
-            condition = expr();
+            condition = expr(ContextType.BLOCK);
             advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_CONDITION",
                     "expect ';' after 'for' condition expression");
         }
         Expr forUpdate = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
-            forUpdate = expr();
+            forUpdate = expr(ContextType.BLOCK);
         }
         advanceOrReportError(TokenType.RPAREN, "EXPECT_SEMI_AFTER_FOR_UPDATE",
                 "expect ')' after 'for' update expression");
 
-        Stmt body = statement();
+        Stmt body = statement(ContextType.LOOP);
         return new ForStmt(forToken, forInit, condition, forUpdate, body);
     }
 
@@ -667,8 +664,8 @@ public class QLParser {
         cur = scanner.next();
     }
 
-    protected Expr expr() {
-        return parsePrecedence(QLPrecedences.ASSIGN);
+    protected Expr expr(ContextType contextType) {
+        return parsePrecedence(QLPrecedences.ASSIGN, contextType);
     }
 
     private boolean canAssign(Expr leftExpr) {
@@ -743,15 +740,18 @@ public class QLParser {
         Block blockBody = null;
         Expr exprBody = null;
         if (matchTypeAndAdvance(TokenType.LBRACE)) {
-            blockBody = block();
+            blockBody = block(ContextType.BLOCK);
         } else {
-            exprBody = expr();
+            exprBody = expr(ContextType.BLOCK);
         }
         return new LambdaExpr(keyToken, params, blockBody, exprBody);
     }
 
-    protected Expr parsePrecedence(int precedence) {
-        Expr left = ParseRuleRegister.parsePrefixAndAdvance(this);
+    protected Expr parsePrecedence(int precedence, ContextType contextType) {
+        Expr left = ParseRuleRegister.parsePrefixAndAdvance(this, contextType);
+        if (left instanceof IfExpr || left instanceof Block || left instanceof TryCatch) {
+            return left;
+        }
 
         while (true) {
             // union bit move op
@@ -835,7 +835,7 @@ public class QLParser {
             return new CallExpr(keyToken, left, arguments);
         } else if (pre.getType() == TokenType.LBRACK) {
             Token keyToken = pre;
-            Expr indexExpr = expr();
+            Expr indexExpr = expr(ContextType.BLOCK);
             advanceOrReportErrorWithToken(TokenType.RBRACK, "CAN_NOT_FIND_RBRACK_TO_MATCH",
                     "can not find ']' to match", keyToken);
             return new IndexCallExpr(keyToken, left, indexExpr);
@@ -856,18 +856,19 @@ public class QLParser {
                 throw QLException.reportParserErr(scanner.getScript(),
                         keyToken, "INVALID_ASSIGN_TARGET", "invalid assign target");
             }
-            Expr rightExpr = parsePrecedence(QLPrecedences.ASSIGN);
+            Expr rightExpr = parsePrecedence(QLPrecedences.ASSIGN, ContextType.BLOCK);
             return new AssignExpr(keyToken, left, rightExpr);
         } else if (pre.getType() == TokenType.QUESTION) {
             // ?:
             Token keyToken = pre;
-            Expr thenExpr = parsePrecedence(QLPrecedences.TERNARY);
+            Expr thenExpr = parsePrecedence(QLPrecedences.TERNARY, ContextType.BLOCK);
             advanceOrReportErrorWithToken(TokenType.COLON, "CAN_NOT_FIND_COLON_TO_MATCH_QUESTION",
                     "can not find ':' to match '?'", keyToken);
-            Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY);
+            Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY, ContextType.BLOCK);
             return new TernaryExpr(keyToken, left, thenExpr, elseExpr);
         } else if (getMiddleOpPrecedence(pre) != null) {
-            return new BinaryOpExpr(pre, left, parsePrecedence(getMiddleOpPrecedence(pre) + 1));
+            return new BinaryOpExpr(pre, left, parsePrecedence(getMiddleOpPrecedence(pre) + 1,
+                    ContextType.BLOCK));
         } else {
             throw QLException.reportParserErr(scanner.getScript(),
                     pre, "UNKNOWN_MIDDLE_OPERATOR", "unknown middle operator");
@@ -913,7 +914,7 @@ public class QLParser {
                 advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ARGUMENTS",
                         "expect ',' between arguments");
             }
-            arguments.add(expr());
+            arguments.add(expr(ContextType.BLOCK));
         }
         return arguments;
     }

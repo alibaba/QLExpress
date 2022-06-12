@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Author: DQinYuan
  */
-public class TryCatchStmt extends Stmt {
+public class TryCatch extends Expr {
 
     private final Block body;
 
@@ -17,8 +17,8 @@ public class TryCatchStmt extends Stmt {
 
     private final List<CatchClause> tryCatch;
 
-    public TryCatchStmt(Token keyToken, Block body, Block tryFinal,
-                        List<CatchClause> tryCatch) {
+    public TryCatch(Token keyToken, Block body, Block tryFinal,
+                    List<CatchClause> tryCatch) {
         super(keyToken);
         this.body = body;
         this.tryFinal = tryFinal;
