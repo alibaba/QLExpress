@@ -23,7 +23,7 @@ public class CastInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(0);
+        Parameters parameters = qRuntime.pop(2);
         Class<?> targetClz = (Class<?>)parameters.get(0).get();
         Object value = parameters.get(1).get();
         if (value == null) {
@@ -34,7 +34,7 @@ public class CastInstruction extends QLInstruction {
             Value dataCast = new DataValue(targetValue);
             qRuntime.push(dataCast);
         } catch (Exception e) {
-            throw errorReporter.report("CAST_VALUE_ERROR", "can not cast value from this class:" + e.getMessage());
+            throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this class");
         }
     }
 }

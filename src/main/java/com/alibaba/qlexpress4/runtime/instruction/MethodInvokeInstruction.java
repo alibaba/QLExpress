@@ -37,7 +37,7 @@ public class MethodInvokeInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(0);
+        Parameters parameters = qRuntime.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {

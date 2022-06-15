@@ -32,7 +32,7 @@ public class NewInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(0);
+        Parameters parameters = this.argNum == 0 ? null : qRuntime.pop(this.argNum);
         Class<?>[] paramTypes = new Class[this.argNum];
         Object[] objs = new Object[this.argNum];
         Object tmpObj;
