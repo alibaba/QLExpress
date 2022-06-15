@@ -45,18 +45,6 @@ public class BasicUtil {
     }
 
 
-    public static boolean isPreferredGetter(Method before, Method after, Map<String, Integer> map) {
-        Class<?> beforeReturnType = before.getReturnType();
-        Class<?> afterReturnType = after.getReturnType();
-        if (beforeReturnType.equals(afterReturnType)) {
-            return map.get(after.getName()) > map.get(before.getName());
-        } else if (beforeReturnType.isAssignableFrom(afterReturnType)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     public static String getGetter(String s) {
         return new StringBuilder().append("get").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
@@ -168,4 +156,12 @@ public class BasicUtil {
         }
     }
 
+    public static int hashAlgorithmWithNoForNumber(int h){
+        h += (h << 15) ^ 0xffffcd7d;
+        h ^= (h >>> 10);
+        h += (h << 3);
+        h ^= (h >>> 6);
+        h += (h << 2) + (h << 14);
+        return h ^ (h >>> 16);
+    }
 }

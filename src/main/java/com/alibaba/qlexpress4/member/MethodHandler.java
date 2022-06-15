@@ -8,9 +8,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -21,25 +19,40 @@ public class MethodHandler extends MemberHandler {
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
-
-        Map<String, Integer> map = new HashMap<>();
-        map.put(isGet, 2);
-        map.put(getter, 1);
-        map.put(property, 0);
-
-        Method mGetCandidate = null;
-
+        GetterCandidateMethod mGetCandidate = null;
         for (Method method : clazz.getMethods()) {
-            if (BasicUtil.isPublic(method)
-                    && method.getParameterTypes().length == 0
-                    && (getter.equals(method.getName()) || ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class))) {
-                if (mGetCandidate == null || BasicUtil.isPreferredGetter(mGetCandidate, method, map)) {
-                    mGetCandidate = method;
+            if (BasicUtil.isPublic(method) && method.getParameterTypes().length == 0) {
+                if ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class) {
+                    GetterCandidateMethod isGetMethod = new GetterCandidateMethod(method, 2);
+                    if (isPreferredGetter(mGetCandidate, isGetMethod)) {
+                        mGetCandidate = isGetMethod;
+                    }
+                } else if (getter.equals(method.getName())) {
+                    GetterCandidateMethod getterMethod = new GetterCandidateMethod(method, 1);
+                    if (isPreferredGetter(mGetCandidate, getterMethod)) {
+                        mGetCandidate = getterMethod;
+                    }
                 }
             }
         }
-        return mGetCandidate;
+        return mGetCandidate == null ? null : mGetCandidate.getMethod();
     }
+
+    public static boolean isPreferredGetter(GetterCandidateMethod before, GetterCandidateMethod after) {
+        if (before == null) {
+            return true;
+        }
+        Class<?> beforeReturnType = before.method.getReturnType();
+        Class<?> afterReturnType = after.method.getReturnType();
+        if (beforeReturnType.equals(afterReturnType)) {
+            return after.getPriority() > before.getPriority();
+        } else if (beforeReturnType.isAssignableFrom(afterReturnType)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     public static Method getSetter(Class<?> clazz, String property) {
         property = BasicUtil.getSetter(property);
@@ -186,4 +199,31 @@ public class MethodHandler extends MemberHandler {
         }
     }
 
+
+    static class GetterCandidateMethod {
+        public Method getMethod() {
+            return method;
+        }
+
+        public void setMethod(Method method) {
+            this.method = method;
+        }
+
+        private Method method;
+
+        public int getPriority() {
+            return priority;
+        }
+
+        public void setPriority(int priority) {
+            this.priority = priority;
+        }
+
+        private int priority;
+
+        public GetterCandidateMethod(Method method, int priority) {
+            this.method = method;
+            this.priority = priority;
+        }
+    }
 }
