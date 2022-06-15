@@ -26,10 +26,11 @@ public class CastInstruction extends QLInstruction {
         Parameters parameters = qRuntime.pop(2);
         Class<?> targetClz = (Class<?>)parameters.get(0).get();
         Object value = parameters.get(1).get();
-        if (value == null) {
-            throw errorReporter.report("CAST_VALUE_ERROR", "can not get value from null");
-        }
         try {
+            if (value == null) {
+                qRuntime.push(new DataValue(null));
+                return;
+            }
             Object targetValue = BasicUtil.castObject(value, targetClz, true);
             Value dataCast = new DataValue(targetValue);
             qRuntime.push(dataCast);
