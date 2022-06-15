@@ -8,6 +8,13 @@ import com.alibaba.qlexpress4.runtime.Value;
  * @Date 2022/4/9 上午10:55
  */
 public class Parent implements Value {
+    public Parent(){
+
+    }
+    public Parent(int age){
+        this.age = age;
+    }
+
     public static final String staticPublic = "staticPublic";
     private static final String staticPrivate = "staticPrivate";
     private static final String staticGet = "staticGet";

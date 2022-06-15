@@ -33,8 +33,8 @@ public class NewInstruction extends QLInstruction {
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
         Parameters parameters = qRuntime.pop(0);
-        Class<?>[] paramTypes = this.argNum > 0 ? new Class[this.argNum] : null;
-        Object[] objs = this.argNum > 0 ? new Object[this.argNum] : null;
+        Class<?>[] paramTypes = new Class[this.argNum];
+        Object[] objs = new Object[this.argNum];
         Object tmpObj;
         for (int i = 0; i < this.argNum; i++) {
             tmpObj = parameters.get(i).get();
@@ -47,9 +47,7 @@ public class NewInstruction extends QLInstruction {
                 Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));
                 qRuntime.push(dataInstruction);
-                if (cacheElement != null) {
-                    CacheUtil.setConstructorCacheElement(this.newClz, paramTypes, constructor);
-                }
+                CacheUtil.setConstructorCacheElement(this.newClz, paramTypes, constructor);
             } else {
                 Constructor<?> constructor = cacheElement;
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));

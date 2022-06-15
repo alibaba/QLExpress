@@ -43,6 +43,10 @@ public class TestQRuntimeParent implements QRuntime {
         this.value = value;
     }
 
+    public void pushParameter(Parameters parameters){
+        this.parameters = parameters;
+    }
+
     @Override
     public Parameters pop(int number) {
         return this.parameters;
