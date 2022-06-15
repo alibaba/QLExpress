@@ -54,7 +54,7 @@ public class NewInstruction extends QLInstruction {
                 qRuntime.push(dataInstruction);
             }
         } catch (Exception e) {
-            throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object: " + e.getMessage());
+            throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object: constructor not find");
         }
     }
 }
