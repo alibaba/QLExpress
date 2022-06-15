@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.test.property;
 
+import com.alibaba.qlexpress4.member.MemberHandler;
+import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 import org.junit.Assert;
@@ -20,6 +22,8 @@ public class TestPropertyUtils {
 //
 //        Parent parent = new Parent();
 //        parent.setAge(35);
+//        Method m = MethodHandler.getGetter(Child.class,"staticGet");
+//        System.out.println(m);
 //        // getPropertyValue private field - non get
 //        Assert.assertNull(PropertiesUtil.getPropertyValue(parent, "name", false));
 //        Assert.assertNull(PropertiesUtil.getPropertyType(parent, "name"));

@@ -8,9 +8,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @Author TaoKan
@@ -21,15 +19,23 @@ public class MethodHandler extends MemberHandler {
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
-        return Arrays.stream(clazz.getMethods())
-                .filter(method -> BasicUtil.isPublic(method) && method.getParameterTypes().length == 0)
-                .flatMap(method -> getter.equals(method.getName())? Stream.of(new GetterCandidateMethod(method, 1)):
-                        (isGet.equals(method.getName()) && method.getReturnType() == boolean.class)?
-                                Stream.of(new GetterCandidateMethod(method, 2)): Stream.empty())
-                .max(GetterCandidateMethod::getPrefer)
-                .orElse(null).getMethod();
+        GetterCandidateMethod mGetCandidate = null;
+        for (Method method : clazz.getMethods()) {
+            if ((isGet.equals(method.getName())) && method.getReturnType() == boolean.class
+                            && BasicUtil.isPublic(method) && method.getParameterTypes().length == 0) {
+                GetterCandidateMethod isGetMethod = new GetterCandidateMethod(method, 2);
+                if (isPreferredGetter(mGetCandidate, isGetMethod)) {
+                    mGetCandidate = isGetMethod;
+                }
+            } else if (getter.equals(method.getName()) && BasicUtil.isPublic(method) && method.getParameterTypes().length == 0) {
+                GetterCandidateMethod getterMethod = new GetterCandidateMethod(method, 1);
+                if (isPreferredGetter(mGetCandidate, getterMethod)) {
+                    mGetCandidate = getterMethod;
+                }
+            }
+        }
+        return mGetCandidate == null ? null : mGetCandidate.getMethod();
     }
-
 
     public static boolean isPreferredGetter(GetterCandidateMethod before, GetterCandidateMethod after) {
         if (before == null) {
@@ -217,15 +223,6 @@ public class MethodHandler extends MemberHandler {
         public GetterCandidateMethod(Method method, int priority) {
             this.method = method;
             this.priority = priority;
-        }
-
-        public static int getPrefer(GetterCandidateMethod before, GetterCandidateMethod after) {
-            if(isPreferredGetter(before,after)){
-                return 1;
-            }else {
-                return 0;
-            }
-
         }
     }
 }

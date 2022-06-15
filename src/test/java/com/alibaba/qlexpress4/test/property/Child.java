@@ -12,6 +12,10 @@ public class Child extends Parent implements Value {
 
     private Boolean booValue = false;
 
+    public static String getStaticGet() {
+        return "5";
+    }
+
     public static String getStaticGetParam(Integer a, Integer b) {
         return "5";
     }
