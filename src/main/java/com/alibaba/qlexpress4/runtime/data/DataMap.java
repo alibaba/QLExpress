@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public class DataMap implements LeftValue {
 
-    private String fieldName;
-    private Map map;
-    private Class<?> defineType;
+    private final String fieldName;
+    private final Map map;
+    private final Class<?> defineType;
 
 
     public DataMap(Map map, String fieldName) {

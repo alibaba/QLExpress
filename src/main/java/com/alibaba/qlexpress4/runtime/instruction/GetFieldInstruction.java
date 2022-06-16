@@ -7,7 +7,9 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.data.*;
+import com.alibaba.qlexpress4.runtime.data.DataField;
+import com.alibaba.qlexpress4.runtime.data.DataMap;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -77,15 +79,15 @@ public class GetFieldInstruction extends QLInstruction {
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz, this.fieldName);
             LeftValue dataField;
-            if(getMethod != null && setMethod!= null){
-                dataField = getDataFieldByGetAndSetMethod(getMethod,setMethod,bean,qlOptions.enableAllowAccessPrivateMethod());
-            }else if(getMethod != null && setMethod == null){
+            if (getMethod != null && setMethod != null) {
+                dataField = getDataFieldByGetAndSetMethod(getMethod, setMethod, bean, qlOptions.enableAllowAccessPrivateMethod());
+            } else if (getMethod != null && setMethod == null) {
                 dataField = getDataFieldByGetMethodAndSetField(getMethod, field, bean,
                         qlOptions.enableAllowAccessPrivateMethod());
-            }else if(getMethod == null && setMethod != null){
+            } else if (getMethod == null && setMethod != null) {
                 dataField = getDataFieldBySetMethodAndGetField(field, setMethod, bean,
                         qlOptions.enableAllowAccessPrivateMethod());
-            }else {
+            } else {
                 dataField = getDataFieldByGetAndSetField(field, bean, qlOptions.enableAllowAccessPrivateMethod());
             }
             qRuntime.push(dataField);
@@ -95,16 +97,16 @@ public class GetFieldInstruction extends QLInstruction {
         } else {
             CacheFieldValue cacheFieldValue = cacheElement;
             LeftValue dataField;
-            if(cacheFieldValue.getGetMethod() != null && cacheFieldValue.getSetMethod()!= null){
+            if (cacheFieldValue.getGetMethod() != null && cacheFieldValue.getSetMethod() != null) {
                 dataField = getDataFieldByGetAndSetMethod(cacheFieldValue.getGetMethod(), cacheFieldValue.getSetMethod(), bean,
                         qlOptions.enableAllowAccessPrivateMethod());
-            }else if(cacheFieldValue.getGetMethod() != null && cacheFieldValue.getSetMethod() == null){
-                dataField = getDataFieldByGetMethodAndSetField(cacheFieldValue.getGetMethod(),cacheFieldValue.getField(), bean,
+            } else if (cacheFieldValue.getGetMethod() != null && cacheFieldValue.getSetMethod() == null) {
+                dataField = getDataFieldByGetMethodAndSetField(cacheFieldValue.getGetMethod(), cacheFieldValue.getField(), bean,
                         qlOptions.enableAllowAccessPrivateMethod());
-            }else if(cacheFieldValue.getGetMethod() == null && cacheFieldValue.getSetMethod() != null){
+            } else if (cacheFieldValue.getGetMethod() == null && cacheFieldValue.getSetMethod() != null) {
                 dataField = getDataFieldBySetMethodAndGetField(cacheFieldValue.getField(), cacheFieldValue.getSetMethod(), bean,
                         qlOptions.enableAllowAccessPrivateMethod());
-            }else {
+            } else {
                 dataField = getDataFieldByGetAndSetField(cacheFieldValue.getField(), bean,
                         qlOptions.enableAllowAccessPrivateMethod());
             }
@@ -112,72 +114,34 @@ public class GetFieldInstruction extends QLInstruction {
         }
     }
 
-
-
-
     /**
      * set/get by field
+     *
      * @param field
      * @param bean
      * @param enableAllowAccessPrivateMethod
      * @return
      */
     private DataField getDataFieldByGetAndSetField(Field field, Object bean,
-                                                         boolean enableAllowAccessPrivateMethod){
+                                                   boolean enableAllowAccessPrivateMethod) {
         Supplier<Object> supplier;
         Consumer<Object> consumer;
         if (!enableAllowAccessPrivateMethod || field.isAccessible()) {
-            supplier = () -> {
-                try {
-                    return field.get(bean);
-                } catch (Exception e) {
-                    return null;
-                }
-            };
-        }else {
-            supplier = () -> {
-                try {
-                    synchronized (field) {
-                        try {
-                            field.setAccessible(true);
-                            return field.get(bean);
-                        } finally {
-                            field.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                    return null;
-                }
-            };
+            supplier = getFieldSupplierAccessible(field, bean);
+        } else {
+            supplier = getFieldSupplierNotAccessible(field, bean);
         }
-
-        if(!enableAllowAccessPrivateMethod || field.isAccessible()){
-            consumer = (newValue) -> {
-                try {
-                    field.set(bean, newValue);
-                } catch (Exception e) {
-                }
-            };
-        }else {
-            consumer = (newValue) -> {
-                try {
-                    synchronized (field) {
-                        try {
-                            field.setAccessible(true);
-                            field.set(bean, newValue);
-                        } finally {
-                            field.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                }
-            };
+        if (!enableAllowAccessPrivateMethod || field.isAccessible()) {
+            consumer = getFieldConsumerAccessible(field, bean);
+        } else {
+            consumer = getFieldConsumerNotAccessible(field, bean);
         }
         return new DataField(supplier, consumer);
     }
 
     /**
      * set Method and get by field
+     *
      * @param getField
      * @param setMethod
      * @param bean
@@ -185,61 +149,25 @@ public class GetFieldInstruction extends QLInstruction {
      * @return
      */
     private DataField getDataFieldBySetMethodAndGetField(Field getField, Method setMethod, Object bean,
-                                                         boolean enableAllowAccessPrivateMethod){
+                                                         boolean enableAllowAccessPrivateMethod) {
         Supplier<Object> supplier;
         Consumer<Object> consumer;
         if (!enableAllowAccessPrivateMethod || getField.isAccessible()) {
-            supplier = () -> {
-                try {
-                    return getField.get(bean);
-                } catch (Exception e) {
-                    return null;
-                }
-            };
-        }else {
-            supplier = () -> {
-                try {
-                    synchronized (getField) {
-                        try {
-                            getField.setAccessible(true);
-                            return getField.get(bean);
-                        } finally {
-                            getField.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                    return null;
-                }
-            };
+            supplier = getFieldSupplierAccessible(getField, bean);
+        } else {
+            supplier = getFieldSupplierNotAccessible(getField, bean);
         }
-
-        if(!enableAllowAccessPrivateMethod || setMethod.isAccessible()){
-            consumer = (newValue) -> {
-                try {
-                    setMethod.invoke(bean, newValue);
-                } catch (Exception e) {
-                }
-            };
-        }else {
-            consumer = (newValue) -> {
-                try {
-                    synchronized (setMethod) {
-                        try {
-                            setMethod.setAccessible(true);
-                            setMethod.invoke(bean, newValue);
-                        } finally {
-                            setMethod.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                }
-            };
+        if (!enableAllowAccessPrivateMethod || setMethod.isAccessible()) {
+            consumer = getMethodConsumerAccessible(setMethod, bean);
+        } else {
+            consumer = getMethodConsumerNotAccessible(setMethod, bean);
         }
         return new DataField(supplier, consumer);
     }
 
     /**
      * get Method and set by field
+     *
      * @param getMethod
      * @param setField
      * @param bean
@@ -247,61 +175,25 @@ public class GetFieldInstruction extends QLInstruction {
      * @return
      */
     private DataField getDataFieldByGetMethodAndSetField(Method getMethod, Field setField, Object bean,
-                                                         boolean enableAllowAccessPrivateMethod){
+                                                         boolean enableAllowAccessPrivateMethod) {
         Supplier<Object> supplier;
         Consumer<Object> consumer;
         if (!enableAllowAccessPrivateMethod || getMethod.isAccessible()) {
-            supplier = () -> {
-                try {
-                    return getMethod.invoke(bean);
-                } catch (Exception e) {
-                    return null;
-                }
-            };
-        }else {
-            supplier = () -> {
-                try {
-                    synchronized (getMethod) {
-                        try {
-                            getMethod.setAccessible(true);
-                            return getMethod.invoke(bean);
-                        } finally {
-                            getMethod.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                    return null;
-                }
-            };
+            supplier = getMethodSupplierAccessible(getMethod, bean);
+        } else {
+            supplier = getMethodSupplierNotAccessible(getMethod, bean);
         }
-
-        if(!enableAllowAccessPrivateMethod || setField.isAccessible()){
-            consumer = (newValue) -> {
-                try {
-                    setField.set(bean, newValue);
-                } catch (Exception e) {
-                }
-            };
-        }else {
-            consumer = (newValue) -> {
-                try {
-                    synchronized (setField) {
-                        try {
-                            setField.setAccessible(true);
-                            setField.set(bean, newValue);
-                        } finally {
-                            setField.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                }
-            };
+        if (!enableAllowAccessPrivateMethod || setField.isAccessible()) {
+            consumer = getFieldConsumerAccessible(setField, bean);
+        } else {
+            consumer = getFieldConsumerNotAccessible(setField, bean);
         }
         return new DataField(supplier, consumer);
     }
 
     /**
      * get/set by Method
+     *
      * @param getMethod
      * @param setMethod
      * @param bean
@@ -313,55 +205,124 @@ public class GetFieldInstruction extends QLInstruction {
         Supplier<Object> supplier;
         Consumer<Object> consumer;
         if (!enableAllowAccessPrivateMethod || getMethod.isAccessible()) {
-            supplier = () -> {
-                try {
-                    return getMethod.invoke(bean);
-                } catch (Exception e) {
-                    return null;
-                }
-            };
-        }else {
-            supplier = () -> {
-                try {
-                    synchronized (getMethod) {
-                        try {
-                            getMethod.setAccessible(true);
-                            return getMethod.invoke(bean);
-                        } finally {
-                            getMethod.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                    return null;
-                }
-            };
+            supplier = getMethodSupplierAccessible(getMethod, bean);
+        } else {
+            supplier = getMethodSupplierNotAccessible(getMethod, bean);
         }
 
-        if(!enableAllowAccessPrivateMethod || setMethod.isAccessible()){
-            consumer = (newValue) -> {
-                try {
-                    setMethod.invoke(bean, newValue);
-                } catch (Exception e) {
-                }
-            };
-        }else {
-            consumer = (newValue) -> {
-                try {
-                    synchronized (setMethod) {
-                        try {
-                            setMethod.setAccessible(true);
-                            setMethod.invoke(bean, newValue);
-                        } finally {
-                            setMethod.setAccessible(false);
-                        }
-                    }
-                } catch (Exception e) {
-                }
-            };
+        if (!enableAllowAccessPrivateMethod || setMethod.isAccessible()) {
+            consumer = getMethodConsumerAccessible(setMethod, bean);
+        } else {
+            consumer = getMethodConsumerNotAccessible(setMethod, bean);
         }
         return new DataField(supplier, consumer);
     }
 
+
+
+    private Supplier<Object> getFieldSupplierAccessible(Field field, Object bean) {
+        return () -> {
+            try {
+                return field.get(bean);
+            } catch (Exception e) {
+                return null;
+            }
+        };
+    }
+
+    private Supplier<Object> getFieldSupplierNotAccessible(Field field, Object bean) {
+        return () -> {
+            try {
+                synchronized (field) {
+                    try {
+                        field.setAccessible(true);
+                        return field.get(bean);
+                    } finally {
+                        field.setAccessible(false);
+                    }
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        };
+    }
+
+    private Consumer<Object> getFieldConsumerAccessible(Field field, Object bean) {
+        return (newValue) -> {
+            try {
+                field.set(bean, newValue);
+            } catch (Exception e) {
+            }
+        };
+    }
+
+    private Consumer<Object> getFieldConsumerNotAccessible(Field field, Object bean) {
+        return (newValue) -> {
+            try {
+                synchronized (field) {
+                    try {
+                        field.setAccessible(true);
+                        field.set(bean, newValue);
+                    } finally {
+                        field.setAccessible(false);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        };
+    }
+
+    private Supplier<Object> getMethodSupplierAccessible(Method method, Object bean) {
+        return () -> {
+            try {
+                return method.invoke(bean);
+            } catch (Exception e) {
+                return null;
+            }
+        };
+    }
+
+    private Supplier<Object> getMethodSupplierNotAccessible(Method method, Object bean) {
+        return () -> {
+            try {
+                synchronized (method) {
+                    try {
+                        method.setAccessible(true);
+                        return method.invoke(bean);
+                    } finally {
+                        method.setAccessible(false);
+                    }
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        };
+    }
+
+    private Consumer<Object> getMethodConsumerAccessible(Method method, Object bean) {
+        return (newValue) -> {
+            try {
+                method.invoke(bean, newValue);
+            } catch (Exception e) {
+            }
+        };
+    }
+
+    private Consumer<Object> getMethodConsumerNotAccessible(Method method, Object bean) {
+        return (newValue) -> {
+            try {
+                synchronized (method) {
+                    try {
+                        method.setAccessible(true);
+                        method.invoke(bean, newValue);
+                    } finally {
+                        method.setAccessible(false);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        };
+    }
 
 
 }

@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public class DataField implements LeftValue {
     private final Supplier<Object> getOp;
     private final Consumer<Object> setOp;
-    private Class<?> defineType;
+    private final Class<?> defineType;
 
 
     public DataField(Supplier<Object> getOp, Consumer<Object> setOp) {

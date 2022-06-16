@@ -9,7 +9,6 @@ import com.alibaba.qlexpress4.runtime.Value;
 public class DataValue implements Value {
 
     private final Object value;
-
     private final Class<?> defineType;
 
     public DataValue(Object value) {
