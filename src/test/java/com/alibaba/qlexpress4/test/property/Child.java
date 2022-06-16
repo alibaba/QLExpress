@@ -37,6 +37,9 @@ public class Child extends Parent implements Value {
     }
 
     @Override
+    public Child getParentOwn() {return new Child(); }
+
+    @Override
     public Object get() {
         return this;
     }

@@ -50,6 +50,8 @@ public class Parent implements Value {
         return "parent";
     }
 
+    public Parent getParentOwn() {return new Parent(); }
+
     private String getMethod1(int a, int b) {
         return "a";
     }

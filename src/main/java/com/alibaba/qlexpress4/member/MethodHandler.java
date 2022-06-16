@@ -41,15 +41,7 @@ public class MethodHandler extends MemberHandler {
         if (before == null) {
             return true;
         }
-        Class<?> beforeReturnType = before.method.getReturnType();
-        Class<?> afterReturnType = after.method.getReturnType();
-        if (beforeReturnType.equals(afterReturnType)) {
-            return after.getPriority() > before.getPriority();
-        } else if (beforeReturnType.isAssignableFrom(afterReturnType)) {
-            return true;
-        } else {
-            return false;
-        }
+        return after.getPriority() >= before.getPriority();
     }
 
 

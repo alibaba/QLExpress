@@ -43,6 +43,9 @@ public class GetMethodInstruction extends QLInstruction {
             } else {
                 methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
             }
+            if(methods.size() == 0){
+                throw this.errorReporter.report("GET_METHOD_ERROR", "method not exists");
+            }
             QLambda qLambda = new QLambdaMethod(methods, bean, qlOptions.enableAllowAccessPrivateMethod());
             Value dataMethod = new DataValue(qLambda);
             qRuntime.push(dataMethod);
