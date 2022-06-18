@@ -6,7 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
  * Author: DQinYuan
  */
 public interface Value {
-    Value NULL_VALUE = new DataValue(null);
+    Value NULL_VALUE = new DataValue((Object) null);
 
     Object get();
 
