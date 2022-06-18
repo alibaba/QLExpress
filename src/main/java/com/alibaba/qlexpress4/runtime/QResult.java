@@ -7,9 +7,11 @@ public class QResult {
 
     public static final QResult BREAK_RESULT = new QResult(Value.NULL_VALUE, ResultType.BREAK);
 
-    enum ResultType {
+    public enum ResultType {
         // break
         BREAK,
+        // without return, different with return null
+        NONE,
         // normal return
         RETURN
     }

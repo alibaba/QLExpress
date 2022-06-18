@@ -18,6 +18,7 @@ public class ThrowInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+        Object throwObj = qRuntime.pop().get();
+        throw errorReporter.report(throwObj, "USER_DEFINED_THROW", "throw statement");
     }
 }
