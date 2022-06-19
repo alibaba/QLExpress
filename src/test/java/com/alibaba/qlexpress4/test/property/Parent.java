@@ -23,6 +23,7 @@ public class Parent implements Value {
     private static final String staticFinal = "staticFinal";
     public String sex = "man";
 
+
     @QLAlias("生日")
     public String birth = "2022-01-01";
     private int age;
@@ -59,6 +60,13 @@ public class Parent implements Value {
         return "a";
     }
 
+    public String getBirth() {
+        return birth;
+    }
+
+    public void setBirth(String birth) {
+        this.birth = birth;
+    }
     @Override
     public Object get() {
         return this;

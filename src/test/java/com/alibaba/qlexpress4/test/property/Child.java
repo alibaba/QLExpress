@@ -11,6 +11,8 @@ public class Child extends Parent implements Value {
     public static String staticWork = "childStaticWork";
 
     private Boolean booValue = false;
+    private int age = 11;
+    private String birth = "2021-02-02";
 
     public static String getStaticGet() {
         return "5";
@@ -34,6 +36,17 @@ public class Child extends Parent implements Value {
 
     private String getMethod1(int a, int b) {
         return "c";
+    }
+
+
+    @Override
+    public int getAge() {
+        return age;
+    }
+
+    @Override
+    public void setAge(int age) {
+        this.age = age;
     }
 
     @Override

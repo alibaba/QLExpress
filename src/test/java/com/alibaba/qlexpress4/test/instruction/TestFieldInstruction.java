@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
+import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.Parent;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import org.junit.Assert;
@@ -239,17 +240,62 @@ public class TestFieldInstruction {
 
     /**
      * normal case(normal field of Parent instance)
-     * parent.age accessible
+     * parent.name accessible
      *
      * @throws Exception
      */
+    @Test
+    public void case9() throws Exception{
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
+        };
+        CacheUtil.initCache(128, true);
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new Parent());
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
+    }
+
 
     /**
      * error case(normal field of Parent instance)
-     * parent.age with not accessible
+     * parent.name with not accessible
      *
      * @throws Exception
      */
+    @Test
+    public void case10() throws Exception{
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
+        };
+        CacheUtil.initCache(128, true);
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new Parent());
+        try {
+            getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
+            ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+            Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
+        }catch (Exception e){
+            Assert.assertTrue(e != null);
+        }
+    }
 
     /**
      * normal case(normal method of Parent,Child instance)
@@ -257,99 +303,52 @@ public class TestFieldInstruction {
      *
      * @throws Exception
      */
+    @Test
+    public void case11() throws Exception{
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
+        };
+        CacheUtil.initCache(128, true);
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new Child());
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),11);
+    }
+
 
 
     /**
      * normal case(normal method of Parent,Child instance)
-     * parent.getAge() instead of child.age
+     * parent.getBirth() public instead of child.birth(not allow)
      *
      * @throws Exception
      */
+    @Test
+    public void case12() throws Exception{
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
+        };
+        CacheUtil.initCache(128, true);
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "birth");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new Child());
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),"2022-01-01");
+    }
 
-
-    /**
-     * error case(normal method of Parent instance)
-     * parent.getMethod1() not access
-     *
-     * @throws Exception
-     */
-
-//
-//
-//    @Test
-//    public void testField() throws Exception{
-//        ErrorReporter errorReporter = new ErrorReporter() {
-//            @Override
-//            public QLRuntimeException report(String errorCode, String reason) {
-//                return null;
-//            }
-//
-//            @Override
-//            public QLRuntimeException report(String errorCode, String format, Object... args) {
-//                return null;
-//            }
-//        };
-//        CacheUtil.initCache(128, true);
-//
-//        //parent.name notAllowPrivate = null
-//        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
-//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-//        testQRuntimeParent.push(new Parent());
-//        getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-//        Assert.assertNull(testQRuntimeParent.getValue().get());
-//
-//        //Parent.name notAllowPrivate = null
-//        testQRuntimeParent.push(new DataValue(Parent.class));
-//        getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-//        Assert.assertNull(testQRuntimeParent.getValue().get());
-//
-//        //parent.name allowPrivate = example
-//        testQRuntimeParent.push(new DataValue(new Parent()));
-//        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-//        Assert.assertEquals(testQRuntimeParent.getValue().get(),"example");
-//
-//        //Parent.name allowPrivate = null
-//        testQRuntimeParent.push(new DataValue(Parent.class));
-//        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-//        Assert.assertNull(testQRuntimeParent.getValue().get());
-//
-////
-////        GetFieldInstruction getFieldInstruction1 = new GetFieldInstruction(errorReporter, "staticPublic");
-////        testQRuntimeParent.push(parent);
-////
-////        getFieldInstruction1.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue(testQRuntimeParent.getValue().get().equals("staticPublic"));
-////        testQRuntimeParent.push(parent);
-////
-////        getFieldInstruction1.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue(testQRuntimeParent.getValue().get().equals("staticPublic"));
-////
-////        GetFieldInstruction getFieldInstruction2 = new GetFieldInstruction(errorReporter, "staticPrivate");
-////        testQRuntimeParent.push(parent);
-////        getFieldInstruction2.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertNull(testQRuntimeParent.getValue().get());
-////
-////        GetFieldInstruction getFieldInstruction3 = new GetFieldInstruction(errorReporter, "staticGet");
-////        testQRuntimeParent.push(parent);
-////        getFieldInstruction3.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue(testQRuntimeParent.getValue().get().equals("staticGet"));
-////
-////        GetFieldInstruction getFieldInstruction4 = new GetFieldInstruction(errorReporter, "age");
-////        testQRuntimeParent.setParameters(new TestParametersParent());
-////        parent.setAge(35);
-////        testQRuntimeParent.push(parent);
-////        getFieldInstruction4.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue((int) testQRuntimeParent.getValue().get() == 35);
-////
-////        GetFieldInstruction getFieldInstruction5 = new GetFieldInstruction(errorReporter, "sex");
-////        testQRuntimeParent.push(parent);
-////        getFieldInstruction5.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue(testQRuntimeParent.getValue().get().equals("man"));
-////
-////        GetFieldInstruction getFieldInstruction6 = new GetFieldInstruction(errorReporter, "生日");
-////        testQRuntimeParent.push(parent);
-////        getFieldInstruction6.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-////        Assert.assertTrue(testQRuntimeParent.getValue().get().equals("2022-01-01"));
-//
-//    }
 }
