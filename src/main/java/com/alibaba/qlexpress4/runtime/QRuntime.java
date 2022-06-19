@@ -56,22 +56,6 @@ public interface QRuntime {
     Value pop();
 
     /**
-     * cascade return by child runtime result
-     * @param cascadeReturnValue child return value
-     */
-    default void cascadeReturn(QResult cascadeReturnValue) {
-        if (QResult.ResultType.RETURN == cascadeReturnValue.getResultType()) {
-            exitAndReturn(cascadeReturnValue);
-        }
-    }
-
-    /**
-     * exit and return specified value
-     * @param returnValue
-     */
-    void exitAndReturn(QResult returnValue);
-
-    /**
      * get script start time
      * @return start time
      */

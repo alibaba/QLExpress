@@ -14,14 +14,16 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
  * Author: DQinYuan
  */
 public class ReturnInstruction extends QLInstruction {
-    public ReturnInstruction(ErrorReporter errorReporter) {
+
+    private final QResult.ResultType resultType;
+
+    public ReturnInstruction(ErrorReporter errorReporter, QResult.ResultType resultType) {
         super(errorReporter);
+        this.resultType = resultType;
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object returnValue = qRuntime.pop().get();
-        qRuntime.exitAndReturn(new QResult(new DataValue(returnValue),
-                QResult.ResultType.RETURN));
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
+        return new QResult(new DataValue(qRuntime.pop()), resultType);
     }
 }

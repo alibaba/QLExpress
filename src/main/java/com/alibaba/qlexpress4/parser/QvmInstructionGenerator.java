@@ -3,9 +3,7 @@ package com.alibaba.qlexpress4.parser;
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.parser.tree.*;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QLambdaInner;
-import com.alibaba.qlexpress4.runtime.QVm;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorFactory;
 
@@ -34,8 +32,6 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
 
     private final String prefix;
 
-    private final QVm qVm;
-
     private final String script;
 
     private final SymbolWiseAdvisor advisor;
@@ -51,9 +47,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     private int tryCounter = 0;
     private int whileCounter = 0;
 
-    public QvmInstructionGenerator(String prefix, QVm qVm, String script, SymbolWiseAdvisor advisor) {
+    public QvmInstructionGenerator(String prefix, String script, SymbolWiseAdvisor advisor) {
         this.prefix = prefix;
-        this.qVm = qVm;
         this.script = script;
         this.advisor = advisor;
     }
@@ -102,7 +97,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
 
     @Override
     public Void visit(Block block, VisitingScope visitingScope) {
-        instructionList.add(new ConstInstruction(newReporterByNode(block),
+        instructionList.add(new LoadLambdaInstruction(newReporterByNode(block),
                 generateLambda(blockLambdaName(), block.getStmtList(), visitingScope)));
         instructionList.add(new CallInstruction(newReporterByNode(block), 0));
         return null;
@@ -159,7 +154,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     public Void visit(Continue aContinue, VisitingScope visitingScope) {
         ErrorReporter errorReporter = newReporterByNode(aContinue);
         instructionList.add(new ConstInstruction(errorReporter, null));
-        instructionList.add(new ReturnInstruction(errorReporter));
+        instructionList.add(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN));
         return null;
     }
 
@@ -176,11 +171,11 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         forEachStmt.getTarget().accept(advisor, visitingScope);
         ErrorReporter forEachErrReporter = newReporterByNode(forEachStmt);
         VarDecl itVar = forEachStmt.getItVar();
-        QLambda bodyLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount(),
+        QLambdaDefinition bodyLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount(),
                 forEachStmt.getBody() instanceof Block? ((Block) forEachStmt.getBody()).getStmtList():
                 forEachStmt.getBody(),
                 visitingScope, Collections.singletonList(
-                        new QLambdaInner.Param(itVar.getVariable().getId(), itVar.getType().getClz())));
+                        new QLambdaDefinition.Param(itVar.getVariable().getId(), itVar.getType().getClz())));
         instructionList.add(new ForEachInstruction(forEachErrReporter, bodyLambda));
         return null;
     }
@@ -188,16 +183,16 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     @Override
     public Void visit(ForStmt forStmt, VisitingScope visitingScope) {
         int forCount = forCount();
-        QLambda conditionLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount + CONDITION_SUFFIX,
+        QLambdaDefinition conditionLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount + CONDITION_SUFFIX,
                 forStmt.getCondition(), visitingScope);
         String bodyLambdaName = prefix + FOR_LAMBDA_NAME_PREFIX + forCount + BODY_SUFFIX;
-        QLambda bodyLambda = generateLambda(bodyLambdaName,
+        QLambdaDefinition bodyLambda = generateLambda(bodyLambdaName,
                 forStmt.getBody(), visitingScope, Collections.emptyList(),
                 generateNodeInstructions(bodyLambdaName, forStmt.getForUpdate(), visitingScope));
         ErrorReporter forErrReporter = newReporterByNode(forStmt);
         WhileInstruction whileInstruction = new WhileInstruction(forErrReporter,
                 conditionLambda, bodyLambda);
-        QLambda forLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount,
+        QLambdaDefinition forLambda = generateLambda(prefix + FOR_LAMBDA_NAME_PREFIX + forCount,
                 forStmt.getForInit(), visitingScope, Collections.emptyList(),
                 Collections.singletonList(whileInstruction));
         instructionList.add(new ConstInstruction(forErrReporter, forLambda));
@@ -208,7 +203,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     @Override
     public Void visit(FunctionStmt functionStmt, VisitingScope visitingScope) {
         String functionName = functionStmt.getName().getId();
-        QLambda functionLambda = generateLambda(functionName, functionStmt.getBody(), visitingScope);
+        QLambdaDefinition functionLambda = generateLambda(functionName, functionStmt.getBody(), visitingScope);
         ErrorReporter errorReporter = newReporterByNode(functionStmt);
         instructionList.add(new ConstInstruction(errorReporter, functionLambda));
         instructionList.add(new DefineLocalInstruction(errorReporter, functionName, QLambda.class));
@@ -245,7 +240,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         ifExpr.getCondition().accept(advisor, visitingScope);
 
         int ifCount = ifCount();
-        QLambda thenLambda = generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX,
+        QLambdaDefinition thenLambda = generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX,
                 ifExpr.getThenBranch(), visitingScope);
         instructionList.add(new IfInstruction(newReporterByNode(ifExpr), thenLambda,
                 ifExpr.getElseBranch() != null? generateLambda(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
@@ -261,13 +256,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
 
     @Override
     public Void visit(LambdaExpr lambdaExpr, VisitingScope visitingScope) {
-        List<QLambdaInner.Param> paramClzes = lambdaExpr.getParameters().stream()
-                .map(varDecl -> new QLambdaInner.Param(varDecl.getVariable().getId(),
+        List<QLambdaDefinition.Param> paramClzes = lambdaExpr.getParameters().stream()
+                .map(varDecl -> new QLambdaDefinition.Param(varDecl.getVariable().getId(),
                         varDecl.getType().getClz()))
                 .collect(Collectors.toList());
-        QLambda qLambda = generateLambda(lambdaName(), lambdaExpr.getExprBody() == null ? lambdaExpr.getBlockBody() :
-                        lambdaExpr.getExprBody(), visitingScope, paramClzes);
-        instructionList.add(new ConstInstruction(newReporterByNode(lambdaExpr), qLambda));
+        QLambdaDefinition qLambda = generateLambda(lambdaName(), lambdaExpr.getExprBody() == null ?
+                lambdaExpr.getBlockBody() : lambdaExpr.getExprBody(), visitingScope, paramClzes);
+        instructionList.add(new LoadLambdaInstruction(newReporterByNode(lambdaExpr), qLambda));
         return null;
     }
 
@@ -295,7 +290,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
 
     @Override
     public Void visit(MacroStmt macroStmt, VisitingScope visitingScope) {
-        QLambda macroLambda = generateLambda(macroLambdaName(), macroStmt.getBody(), visitingScope);
+        QLambdaDefinition macroLambda = generateLambda(macroLambdaName(), macroStmt.getBody(), visitingScope);
         ErrorReporter errorReporter = newReporterByNode(macroStmt);
         instructionList.add(new ConstInstruction(errorReporter, macroLambda));
         instructionList.add(new DefineLocalInstruction(errorReporter,
@@ -340,7 +335,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
             instructionList.add(new ConstInstruction(errorReporter, null));
         }
 
-        instructionList.add(new ReturnInstruction(errorReporter));
+        instructionList.add(new ReturnInstruction(errorReporter, QResult.ResultType.CASCADE_RETURN));
         return null;
     }
 
@@ -349,9 +344,9 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         ternaryExpr.getCondition().accept(advisor, visitingScope);
 
         int ternaryCount = ternaryCount();
-        QLambda thenLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + THEN_SUFFIX,
+        QLambdaDefinition thenLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + THEN_SUFFIX,
                 ternaryExpr.getThenExpr(), visitingScope);
-        QLambda elseLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + ELSE_SUFFIX,
+        QLambdaDefinition elseLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + ELSE_SUFFIX,
                 ternaryExpr.getElseExpr(), visitingScope);
         instructionList.add(new IfInstruction(newReporterByNode(ternaryExpr), thenLambda, elseLambda));
         return null;
@@ -360,10 +355,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     @Override
     public Void visit(TryCatch tryCatchExpr, VisitingScope visitingScope) {
         int tryCount = tryCount();
-        QLambda bodyLambda = generateLambda(prefix + TRY_LAMBDA_PREFIX + tryCount,
+        QLambdaDefinition bodyLambda = generateLambda(prefix + TRY_LAMBDA_PREFIX + tryCount,
                 tryCatchExpr.getBody(), visitingScope);
 
-        Map<Class<?>, QLambda> exceptionTable = new HashMap<>();
+        Map<Class<?>, QLambdaDefinition> exceptionTable = new HashMap<>();
         for (int catchCount = 0; catchCount < tryCatchExpr.getTryCatch().size(); catchCount++) {
             TryCatch.CatchClause tryCatch = tryCatchExpr.getTryCatch().get(catchCount);
             String eName = tryCatch.getVariable().getId();
@@ -371,10 +366,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
             List<QLInstruction> catchBody = generateNodeInstructions(lambdaName, tryCatch.getBody(), visitingScope);
             for (int exceptionCount = 0; exceptionCount < tryCatch.getExceptions().size(); exceptionCount++) {
                 DeclType exceptionType = tryCatch.getExceptions().get(exceptionCount);
-                QLambdaInner.Param eParam = new QLambdaInner.Param(eName, exceptionType.getClz());
-                QLambdaInner qLambdaInner = new QLambdaInner(qVm, lambdaName, catchBody,
-                        Collections.singletonList(eParam));
-                exceptionTable.put(exceptionType.getClz(), qLambdaInner);
+                QLambdaDefinition.Param eParam = new QLambdaDefinition.Param(eName, exceptionType.getClz());
+                QLambdaDefinition exceptionHandlerDefinition = new QLambdaDefinition(lambdaName, catchBody,
+                        Collections.singletonList(eParam), 0);
+                exceptionTable.put(exceptionType.getClz(), exceptionHandlerDefinition);
             }
         }
 
@@ -397,9 +392,9 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
     @Override
     public Void visit(WhileStmt whileStmt, VisitingScope visitingScope) {
         int whileCount = whileCount();
-        QLambda conditionLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + CONDITION_SUFFIX,
+        QLambdaDefinition conditionLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + CONDITION_SUFFIX,
                 whileStmt.getCondition(), visitingScope);
-        QLambda bodyLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + BODY_SUFFIX,
+        QLambdaDefinition bodyLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + BODY_SUFFIX,
                 whileStmt.getBody(), visitingScope);
         instructionList.add(new WhileInstruction(newReporterByNode(whileStmt), conditionLambda, bodyLambda));
         return null;
@@ -409,26 +404,26 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
         return instructionList;
     }
 
-    private QLambda generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope) {
+    private QLambdaDefinition generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope) {
         return generateLambda(name, targetNode, visitingScope, Collections.emptyList(), Collections.emptyList());
     }
 
-    private QLambda generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope,
-                                   List<QLambdaInner.Param> paramsType) {
+    private QLambdaDefinition generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope,
+                                             List<QLambdaDefinition.Param> paramsType) {
         return generateLambda(name, targetNode, visitingScope, paramsType, Collections.emptyList());
     }
 
-    private QLambda generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope,
-                                   List<QLambdaInner.Param> paramsType, List<QLInstruction> extra) {
+    private QLambdaDefinition generateLambda(String name, SyntaxNode targetNode, VisitingScope visitingScope,
+                                   List<QLambdaDefinition.Param> paramsType, List<QLInstruction> extra) {
         List<QLInstruction> instructionList = generateNodeInstructions(name, targetNode, visitingScope);
         instructionList.addAll(extra);
-        return new QLambdaInner(qVm, name, instructionList, paramsType);
+        return new QLambdaDefinition(name, instructionList, paramsType, 0);
     }
 
     private List<QLInstruction> generateNodeInstructions(String name, SyntaxNode targetNode, VisitingScope visitingScope) {
         FunctionHolder<SymbolWiseAdvisor, QLProgramVisitor<?, VisitingScope>> qvmInstructionGeneratorHolder =
                 new FunctionHolder<>(symbolAdvisor -> new QvmInstructionGenerator(name + "_",
-                        qVm,  script, symbolAdvisor));
+                        script, symbolAdvisor));
         SymbolWiseAdvisor symbolWiseAdvisor = new SymbolWiseAdvisor(script, qvmInstructionGeneratorHolder);
         targetNode.accept(symbolWiseAdvisor, visitingScope);
         return ((QvmInstructionGenerator) qvmInstructionGeneratorHolder.getResult()).getInstructionList();

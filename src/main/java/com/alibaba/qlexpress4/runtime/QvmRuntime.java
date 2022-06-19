@@ -4,22 +4,28 @@ import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Author: DQinYuan
  */
 public class QvmRuntime implements QRuntime {
 
-    private final QvmRuntime parent;
+    private final QRuntime parent;
 
-    private final Map<String, LeftValue> symbolTable = new HashMap<>();
+    private final Map<String, LeftValue> symbolTable;
 
     private final FixedSizeStack opStack;
 
-    public QvmRuntime(QvmRuntime parent, int maxStackSize) {
+    /**
+     * equals to parent
+     */
+    private final long startTime;
+
+    public QvmRuntime(QRuntime parent, Map<String, LeftValue> symbolTable, int maxStackSize, long startTime) {
         this.parent = parent;
+        this.symbolTable = symbolTable;
         this.opStack = new FixedSizeStack(maxStackSize);
+        this.startTime = startTime;
     }
 
     @Override
@@ -66,12 +72,7 @@ public class QvmRuntime implements QRuntime {
     }
 
     @Override
-    public void exitAndReturn(QResult returnValue) {
-
-    }
-
-    @Override
     public long scriptStartTimeStamp() {
-        return 0;
+        return startTime;
     }
 }

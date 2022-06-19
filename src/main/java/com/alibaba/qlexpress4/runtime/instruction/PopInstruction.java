@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
@@ -17,7 +18,8 @@ public class PopInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         qRuntime.pop();
+        return QResult.CONTINUE_RESULT;
     }
 }

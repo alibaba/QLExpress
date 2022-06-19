@@ -3,9 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 
@@ -21,14 +19,15 @@ import java.util.Optional;
  */
 public class TryCatchInstruction extends QLInstruction {
 
-    private final QLambda body;
+    private final QLambdaDefinition body;
 
-    private final Map<Class<?>, QLambda> exceptionTable;
+    private final Map<Class<?>, QLambdaDefinition> exceptionTable;
 
-    private final QLambda finalBody;
+    private final QLambdaDefinition finalBody;
 
-    public TryCatchInstruction(ErrorReporter errorReporter, QLambda body, Map<Class<?>, QLambda> exceptionTable,
-                               QLambda finalBody) {
+    public TryCatchInstruction(ErrorReporter errorReporter, QLambdaDefinition body,
+                               Map<Class<?>, QLambdaDefinition> exceptionTable,
+                               QLambdaDefinition finalBody) {
         super(errorReporter);
         this.body = body;
         this.exceptionTable = exceptionTable;
@@ -36,35 +35,50 @@ public class TryCatchInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QResult tryCatchResult = tryCatchResult(qRuntime);
-        if (finalBody != null) {
-            try {
-                tryCatchResult = finalBody.call();
-            } catch (Exception e) {
-                throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
-                        "try...catch...final... execute error");
-            }
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
+        QResult tryCatchResult = tryCatchResult(qRuntime, qlOptions);
+        QResult finalResult = finalResult(qRuntime, qlOptions);
+        if (finalResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
+            return finalResult;
         }
-        qRuntime.push(new DataValue(tryCatchResult.getResult()));
+        if (tryCatchResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
+            return tryCatchResult;
+        }
+        Value resultValue = finalBody == null? tryCatchResult.getResult(): finalResult.getResult();
+        qRuntime.push(new DataValue(resultValue.get()));
+        return QResult.CONTINUE_RESULT;
     }
 
-    private QResult tryCatchResult(QRuntime qRuntime) {
+    private QResult finalResult(QRuntime qRuntime, QLOptions qlOptions) {
+        if (finalBody == null) {
+            return QResult.CONTINUE_RESULT;
+        }
+        QLambda finalLambda = finalBody.toLambda(qRuntime, qlOptions, true);
         try {
-            QResult callResult = body.call();
-            qRuntime.cascadeReturn(callResult);
-            return callResult;
+            return finalLambda.call();
+        } catch (Exception e) {
+            throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
+                    "try...catch...final... execute error");
+        }
+    }
+
+    private QResult tryCatchResult(QRuntime qRuntime, QLOptions qlOptions) {
+        try {
+            QLambda bodyLambda = body.toLambda(qRuntime, qlOptions, true);
+            return bodyLambda.call();
         } catch (QLRuntimeException e) {
-            Optional<QLambda> exceptionHandlerOp = Optional.ofNullable(e.getAttachment())
+            Optional<QLambdaDefinition> exceptionHandlerOp = Optional.ofNullable(e.getAttachment())
                     .map(attach -> exceptionTable.get(attach.getClass()));
             if (!exceptionHandlerOp.isPresent()) {
                 throw e;
             }
+            QLambda catchHandlerLambda = exceptionHandlerOp.get()
+                    .toLambda(qRuntime, qlOptions, true);
+
             Object attachment = e.getAttachment();
             try {
-                QResult exceptionHandlerResult = exceptionHandlerOp.get().call(attachment);
-                qRuntime.cascadeReturn(exceptionHandlerResult);
-                return exceptionHandlerResult;
+                // call exceptionHandler
+                return catchHandlerLambda.call(attachment);
             } catch (Exception ex) {
                 throw ThrowUtils.wrapException(ex, errorReporter, "CATCH_HANDLER_EXECUTE_ERROR",
                         "try...catch... handler of '%s' execute error", attachment.getClass().getName());

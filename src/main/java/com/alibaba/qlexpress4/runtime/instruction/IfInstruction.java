@@ -2,9 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 
@@ -17,32 +15,37 @@ import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
  */
 public class IfInstruction extends QLInstruction {
 
-    private final QLambda thenBody;
+    private final QLambdaDefinition thenBody;
 
-    private final QLambda elseBody;
+    private final QLambdaDefinition elseBody;
 
-    public IfInstruction(ErrorReporter errorReporter, QLambda thenBody, QLambda elseBody) {
+    public IfInstruction(ErrorReporter errorReporter, QLambdaDefinition thenBody, QLambdaDefinition elseBody) {
         super(errorReporter);
         this.thenBody = thenBody;
         this.elseBody = elseBody;
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object condition = qRuntime.pop().get();
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("IF_CONDITION_NOT_BOOL",
                     "if condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
-        callBody(qRuntime, conditionBool? thenBody: elseBody);
+        QLambda lambda = new QLambdaInner(conditionBool? thenBody: elseBody, qRuntime,
+                qlOptions, true);
+        return callBody(qRuntime, lambda);
     }
 
-    private void callBody(QRuntime qRuntime, QLambda target) {
+    private QResult callBody(QRuntime qRuntime, QLambda target) {
         try {
             QResult ifResult = target.call();
-            qRuntime.cascadeReturn(ifResult);
+            if (ifResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
+                return ifResult;
+            }
             qRuntime.push(new DataValue(ifResult.getResult()));
+            return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,
                     "IF_BODY_EXECUTE_ERROR", "if statement body execute error");

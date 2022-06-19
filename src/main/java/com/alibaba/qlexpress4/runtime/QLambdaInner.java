@@ -1,51 +1,59 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: DQinYuan
  */
 public class QLambdaInner implements QLambda {
 
-    private final QVm qVm;
+    private final QLambdaDefinition lambdaDefinition;
 
-    /**
-     * function name
-     */
-    private final String name;
+    private final QRuntime qRuntime;
 
-    private final List<QLInstruction> instructionList;
+    private final QLOptions qlOptions;
 
-    private final List<Param> paramsType;
+    private final boolean newEnv;
 
-    public QLambdaInner(QVm qVm, String name, List<QLInstruction> instructionList, List<Param> paramsType) {
-        this.qVm = qVm;
-        this.name = name;
-        this.instructionList = instructionList;
-        this.paramsType = paramsType;
+    public QLambdaInner(QLambdaDefinition lambdaDefinition, QRuntime qRuntime, QLOptions qlOptions,
+                        boolean newEnv) {
+        this.lambdaDefinition = lambdaDefinition;
+        this.qRuntime = qRuntime;
+        this.qlOptions = qlOptions;
+        this.newEnv = newEnv;
     }
 
     public QResult call(Object... params) throws Exception {
-        return null;
+        QRuntime newRuntime = newEnv? inheritRuntime(params): qRuntime;
+
+        List<QLInstruction> instructionList = lambdaDefinition.getInstructionList();
+        for (QLInstruction qlInstruction : instructionList) {
+            QResult qResult = qlInstruction.execute(newRuntime, qlOptions);
+            switch (qResult.getResultType()) {
+                case RETURN:
+                case CASCADE_RETURN:
+                    return qResult;
+            }
+        }
+
+        return QResult.CONTINUE_RESULT;
     }
 
-    public static class Param {
-        private final String name;
-        private final Class<?> clazz;
-
-        public Param(String name, Class<?> clazz) {
-            this.name = name;
-            this.clazz = clazz;
+    private QRuntime inheritRuntime(Object[] params) {
+        Map<String, LeftValue> initSymbolTable = new HashMap<>();
+        List<QLambdaDefinition.Param> paramsDefinition = lambdaDefinition.getParamsType();
+        for (int i = 0; i < params.length; i++) {
+            QLambdaDefinition.Param paramDefinition = paramsDefinition.get(i);
+            initSymbolTable.put(paramDefinition.getName(),
+                    new AssignableDataValue(params[i], paramDefinition.getClazz()));
         }
-
-        public String getName() {
-            return name;
-        }
-
-        public Class<?> getClazz() {
-            return clazz;
-        }
+        return new QvmRuntime(qRuntime, initSymbolTable, lambdaDefinition.getMaxStackSize(),
+                qRuntime.scriptStartTimeStamp());
     }
 }

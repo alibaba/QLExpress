@@ -18,7 +18,7 @@ public class BreakInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        qRuntime.exitAndReturn(QResult.BREAK_RESULT);
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
+        return QResult.BREAK_RESULT;
     }
 }

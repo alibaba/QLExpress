@@ -6,14 +6,17 @@ package com.alibaba.qlexpress4.runtime;
 public class QResult {
 
     public static final QResult BREAK_RESULT = new QResult(Value.NULL_VALUE, ResultType.BREAK);
+    public static final QResult CONTINUE_RESULT = new QResult(Value.NULL_VALUE, ResultType.CONTINUE);
 
     public enum ResultType {
         // break
         BREAK,
         // without return, different with return null
-        NONE,
-        // normal return
-        RETURN
+        CONTINUE,
+        // return
+        RETURN,
+        // cascade return parent lambda
+        CASCADE_RETURN
     }
 
     public QResult(Value result, ResultType rType) {

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
 import com.alibaba.qlexpress4.runtime.data.ListItemValue;
@@ -25,7 +26,7 @@ public class IndexInstruction extends QLInstruction {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object indexAble = qRuntime.pop().get();
         Object index = qRuntime.pop().get();
         if (indexAble instanceof List) {
@@ -42,6 +43,7 @@ public class IndexInstruction extends QLInstruction {
             throw errorReporter.report("INVALID_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());
         }
+        return QResult.CONTINUE_RESULT;
     }
 
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {

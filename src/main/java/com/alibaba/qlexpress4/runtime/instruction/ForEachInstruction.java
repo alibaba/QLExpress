@@ -3,9 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 
 /**
  * @Operation: process each element in iterable object on top of stack,
@@ -16,29 +14,29 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  */
 public class ForEachInstruction extends QLInstruction {
 
-    private final QLambda body;
+    private final QLambdaDefinition body;
 
-    public ForEachInstruction(ErrorReporter errorReporter, QLambda body) {
+    public ForEachInstruction(ErrorReporter errorReporter, QLambdaDefinition body) {
         super(errorReporter);
         this.body = body;
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object mayBeIterable = qRuntime.pop().get();
         if (!(mayBeIterable instanceof Iterable)) {
             throw errorReporter.report("FOR_EACH_NOT_ITERABLE",
                     "for-each can only be applied to iterable");
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;
+        QLambda bodyLambda = new QLambdaInner(body, qRuntime, qlOptions, true);
         forEachBody:
         for (Object item : iterable) {
             try {
-                QResult bodyResult = body.call(item);
+                QResult bodyResult = bodyLambda.call(item);
                 switch (bodyResult.getResultType()) {
-                    case RETURN:
-                        qRuntime.exitAndReturn(bodyResult);
-                        break;
+                    case CASCADE_RETURN:
+                        return bodyResult;
                     case BREAK:
                         break forEachBody;
                 }
@@ -51,5 +49,6 @@ public class ForEachInstruction extends QLInstruction {
                         "for each unknown exception");
             }
         }
+        return QResult.CONTINUE_RESULT;
     }
 }
