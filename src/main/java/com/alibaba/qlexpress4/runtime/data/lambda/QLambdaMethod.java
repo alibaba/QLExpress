@@ -36,7 +36,7 @@ public class QLambdaMethod implements QLambda {
         if (method == null) {
             return new QResult(null, QResult.ResultType.RETURN);
         }
-        if (method.isAccessible()) {
+        if (BasicUtil.isPublic(method)) {
             Object result = method.invoke(this.bean, params);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         } else {

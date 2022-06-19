@@ -4,6 +4,8 @@ import com.alibaba.qlexpress4.member.MemberHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
+import com.ql.util.express.DefaultContext;
+import com.ql.util.express.ExpressRunner;
 import org.junit.Assert;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,12 +19,16 @@ import java.util.List;
 
 
 public class TestPropertyUtils {
-//    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException {
+    public static void main(String[] args) throws Exception {
+        ExpressRunner expressRunner = new ExpressRunner();
+        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
+        defaultContext.put("a",Parent.class);
+        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
+        System.out.println(a);
 //        CacheUtil.initCache(128, false);
 //
-//        Parent parent = new Parent();
-//        parent.setAge(35);
-//        Method m = MethodHandler.getGetter(Child.class,"staticGet");
+//        Child child = new Child();
+//        Method m = MethodHandler.getGetter(Child.class,"parentOwn");
 //        System.out.println(m);
 //        // getPropertyValue private field - non get
 //        Assert.assertNull(PropertiesUtil.getPropertyValue(parent, "name", false));
@@ -67,5 +73,5 @@ public class TestPropertyUtils {
 //        Assert.assertTrue(Parent.staticSet.equals("st1"));
 //
 //        Assert.assertTrue(PropertiesUtil.getPropertyValue(c, "booValue", false).equals(true));
-//    }
+    }
 }

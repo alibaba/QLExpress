@@ -19,6 +19,8 @@ public class Parent implements Value {
     private static final String staticPrivate = "staticPrivate";
     private static final String staticGet = "staticGet";
     public static String staticSet = "staticSet";
+    private static String staticSetPrivate = "staticSetPrivate";
+    private static final String staticFinal = "staticFinal";
     public String sex = "man";
 
     @QLAlias("生日")
@@ -26,8 +28,9 @@ public class Parent implements Value {
     private int age;
     private String name = "example";
 
+
     public static String getStaticGet() {
-        return staticGet;
+        return "staticGet1";
     }
 
     public static String getStaticGetParam(Integer a) {
