@@ -351,4 +351,36 @@ public class TestFieldInstruction {
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"2022-01-01");
     }
 
+
+
+    /**
+     * error case(normal method of Parent instance)
+     * parent.getMethod1() not findl
+     *
+     * @throws Exception
+     */
+    @Test
+    public void case13() throws Exception{
+        ErrorReporter errorReporter = new ErrorReporter() {
+            @Override
+            public QLRuntimeException report(String errorCode, String reason) {
+                return null;
+            }
+            @Override
+            public QLRuntimeException report(String errorCode, String format, Object... args) {
+                return null;
+            }
+        };
+        CacheUtil.initCache(128, true);
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "method1");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new Child());
+        try {
+            getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        }catch (Exception e){
+            Assert.assertTrue(e != null);
+        }
+    }
+
+
 }

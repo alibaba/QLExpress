@@ -34,8 +34,8 @@ public class Child extends Parent implements Value {
         this.booValue = booValue;
     }
 
-    private String getMethod1(int a, int b) {
-        return "c";
+    private int getMethod1(int a, int b) {
+        return a+b;
     }
 
 

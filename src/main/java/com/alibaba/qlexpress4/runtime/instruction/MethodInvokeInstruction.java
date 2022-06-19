@@ -43,43 +43,53 @@ public class MethodInvokeInstruction extends QLInstruction {
         for (int i = 0; i < this.argNum; i++) {
             params[i] = parameters.get(i + 1).get();
         }
-
         if (bean == null) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean, this.methodName, type);
+        Method method;
+        if(bean instanceof Class){
+            method = getClazzMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
+        }else {
+            method = getInstanceMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
+        }
+        try {
+            Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
+            Value dataValue = new DataValue(value);
+            qRuntime.push(dataValue);
+        }catch (Exception e){
+            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
+        }
+    }
+
+    public Method getClazzMethod(Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        Method cacheElement = CacheUtil.getMethodInvokeCacheElement((Class<?>) bean , this.methodName, type);
         if (cacheElement == null) {
-            List<Method> methods;
-            if (bean instanceof Class) {
-                methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-            } else {
-                methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-            }
+            List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
             if(method == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
-            try {
-                Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
-                Value dataValue = new DataValue(value);
-                qRuntime.push(dataValue);
-                if(method != null){
-                    CacheUtil.setMethodInvokeCacheElement(bean, this.methodName, method, type);
-                }
-            }catch (Exception e){
-                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
-            }
-
-        } else {
-            try {
-                Object value = MethodHandler.Access.accessMethodValue(cacheElement,bean,params,qlOptions.enableAllowAccessPrivateMethod());
-                Value dataValue = new DataValue(value);
-                qRuntime.push(dataValue);
-            }catch (Exception e){
-                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
-            }
+            CacheUtil.setMethodInvokeCacheElement((Class<?>)bean, this.methodName, method, type);
+            return method;
+        }else {
+            return cacheElement;
         }
-
     }
+
+    public Method getInstanceMethod(Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean.getClass() , this.methodName, type);
+        if (cacheElement == null) {
+            List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            if(method == null){
+                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
+            }
+            CacheUtil.setMethodInvokeCacheElement(bean.getClass(), this.methodName, method, type);
+            return method;
+        }else {
+            return cacheElement;
+        }
+    }
+
 }

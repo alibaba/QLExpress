@@ -46,31 +46,31 @@ public class CacheUtil {
     }
 
 
-    public static List<Method> getMethodCacheElement(Object bean, String methodName, Class<?>[] type) {
-        String key = methodCacheElement.buildCacheKey((Class<?>) bean, methodName, type);
+    public static List<Method> getMethodCacheElement(Class<?> bean, String methodName, Class<?>[] type) {
+        String key = methodCacheElement.buildCacheKey(bean, methodName, type);
         return methodCacheElement.getCacheElement(key);
     }
 
-    public static Method getMethodInvokeCacheElement(Object bean, String methodName, Class<?>[] type) {
-        String key = methodInvokeCacheElement.buildCacheKey((Class<?>) bean, methodName, type);
+    public static Method getMethodInvokeCacheElement(Class<?> bean, String methodName, Class<?>[] type) {
+        String key = methodInvokeCacheElement.buildCacheKey(bean, methodName, type);
         return methodInvokeCacheElement.getCacheElement(key);
     }
 
-    public static List<Method> getMethodCacheElement(Object bean, String methodName) {
+    public static List<Method> getMethodCacheElement(Class<?> bean, String methodName) {
         return getMethodCacheElement(bean, methodName, null);
     }
 
-    public static void setMethodCacheElement(Object bean, String methodName, List<Method> value) {
+    public static void setMethodCacheElement(Class<?> bean, String methodName, List<Method> value) {
         setMethodCacheElement(bean, methodName, value, null);
     }
 
-    public static void setMethodCacheElement(Object bean, String methodName, List<Method> value, Class<?>[] type) {
-        String key = methodCacheElement.buildCacheKey((Class<?>) bean, methodName, type);
+    public static void setMethodCacheElement(Class<?> bean, String methodName, List<Method> value, Class<?>[] type) {
+        String key = methodCacheElement.buildCacheKey(bean, methodName, type);
         methodCacheElement.setCacheElement(key, value);
     }
 
-    public static void setMethodInvokeCacheElement(Object bean, String methodName, Method value, Class<?>[] type) {
-        String key = methodInvokeCacheElement.buildCacheKey((Class<?>) bean, methodName, type);
+    public static void setMethodInvokeCacheElement(Class<?> bean, String methodName, Method value, Class<?>[] type) {
+        String key = methodInvokeCacheElement.buildCacheKey( bean, methodName, type);
         methodInvokeCacheElement.setCacheElement(key, value);
     }
 
@@ -90,31 +90,4 @@ public class CacheUtil {
         }
         return functionCacheElement.cacheFunctionInterface(clazz);
     }
-
-    private static List<Method> getStaticCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        return PropertiesUtil.getClzMethod((Class<?>) bean, methodName, allowAccessPrivate);
-    }
-
-    private static Object getStaticCacheMethodValueFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        List<Method> methods = getStaticCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
-        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-        if (method == null) {
-            return null;
-        }
-        return MethodHandler.Access.accessMethodValue(method, bean, args, allowAccessPrivate);
-    }
-
-    private static List<Method> getCacheMethodFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        return PropertiesUtil.getMethod(bean, methodName, allowAccessPrivate);
-    }
-
-    private static Object getCacheMethodValueFromProperty(Object bean, String methodName, Object[] args, Class<?>[] type, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
-        List<Method> methods = getCacheMethodFromProperty(bean, methodName, args, type, allowAccessPrivate);
-        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-        if (method == null) {
-            return null;
-        }
-        return MethodHandler.Access.accessMethodValue(method, bean, args, allowAccessPrivate);
-    }
-
 }

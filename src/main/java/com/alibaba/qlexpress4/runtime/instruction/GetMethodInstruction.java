@@ -35,27 +35,53 @@ public class GetMethodInstruction extends QLInstruction {
         if (bean == null) {
             throw this.errorReporter.report("GET_METHOD_ERROR", "can not get method from null");
         }
-        List<Method> cacheElement = CacheUtil.getMethodCacheElement(bean, this.methodName);
-        if (cacheElement == null) {
-            List<Method> methods;
-            if (bean instanceof Class) {
-                methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-            } else {
-                methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-            }
-            if(methods.size() == 0){
-                throw this.errorReporter.report("GET_METHOD_ERROR", "method not exists");
-            }
-            QLambda qLambda = new QLambdaMethod(methods, bean, qlOptions.enableAllowAccessPrivateMethod());
-            Value dataMethod = new DataValue(qLambda);
+        if (bean instanceof Class) {
+            DataValue dataMethod = getClazzMethod(bean, qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataMethod);
-            if (methods != null) {
-                CacheUtil.setMethodCacheElement(bean, this.methodName, methods);
-            }
-        } else {
-            QLambda qLambda = new QLambdaMethod(cacheElement, bean, qlOptions.enableAllowAccessPrivateMethod());
-            Value dataMethod = new DataValue(qLambda);
+            return;
+        }else {
+            DataValue dataMethod = getInstanceMethod(bean, qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataMethod);
+            return;
         }
     }
+
+    public DataValue getClazzMethod(Object bean, boolean enableAllowAccessPrivateMethod){
+        List<Method> cacheElement = CacheUtil.getMethodCacheElement((Class<?>) bean , this.methodName);
+        if (cacheElement == null) {
+            List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
+            if (methods.size() == 0) {
+                throw this.errorReporter.report("GET_METHOD_ERROR", "method not exists");
+            }
+            QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
+            DataValue dataMethod = new DataValue(qLambda);
+            if (methods != null) {
+                CacheUtil.setMethodCacheElement((Class<?>) bean, this.methodName, methods);
+            }
+            return dataMethod;
+        }else {
+            QLambda qLambda = new QLambdaMethod(cacheElement, bean, enableAllowAccessPrivateMethod);
+            return new DataValue(qLambda);
+        }
+    }
+
+    public DataValue getInstanceMethod(Object bean, boolean enableAllowAccessPrivateMethod){
+        List<Method> cacheElement = CacheUtil.getMethodCacheElement(bean.getClass() , this.methodName);
+        if (cacheElement == null) {
+            List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
+            if (methods.size() == 0) {
+                throw this.errorReporter.report("GET_METHOD_ERROR", "method not exists");
+            }
+            QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
+            DataValue dataMethod = new DataValue(qLambda);
+            if (methods != null) {
+                CacheUtil.setMethodCacheElement(bean.getClass(), this.methodName, methods);
+            }
+            return dataMethod;
+        }else {
+            QLambda qLambda = new QLambdaMethod(cacheElement, bean, enableAllowAccessPrivateMethod);
+            return new DataValue(qLambda);
+        }
+    }
+
 }
