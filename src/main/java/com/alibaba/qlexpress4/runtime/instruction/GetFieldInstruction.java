@@ -112,7 +112,7 @@ public class GetFieldInstruction extends QLInstruction {
         }
 
         if(field != null){
-            if(field.isAccessible() || BasicUtil.isStatic(field)){
+            if(field.isAccessible() || (BasicUtil.isStatic(field) && BasicUtil.isPublic(field))){
                 if(supplier == null){
                     supplier = getFieldSupplierAccessible(field, bean);
                 }
