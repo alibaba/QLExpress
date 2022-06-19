@@ -13,15 +13,19 @@ public class FieldHandler extends MemberHandler {
     public static class Access {
         public static void setAccessFieldValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivate) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
-            if (allowAccessPrivate || accessField.isAccessible()) {
+            if (accessField.isAccessible()) {
                 accessField.set(bean, value);
             } else {
-                synchronized (accessField) {
-                    try {
-                        accessField.setAccessible(true);
-                        accessField.set(bean, value);
-                    } finally {
-                        accessField.setAccessible(false);
+                if(!allowAccessPrivate){
+                    throw new IllegalAccessException("can not allow access");
+                }else {
+                    synchronized (accessField) {
+                        try {
+                            accessField.setAccessible(true);
+                            accessField.set(bean, value);
+                        } finally {
+                            accessField.setAccessible(false);
+                        }
                     }
                 }
             }
@@ -35,15 +39,19 @@ public class FieldHandler extends MemberHandler {
 
         public static Object accessFieldValue(Member accessMember, Object bean, boolean allowAccessPrivate) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
-            if (!allowAccessPrivate || accessField.isAccessible()) {
+            if (accessField.isAccessible()) {
                 return accessField.get(bean);
             } else {
-                synchronized (accessField) {
-                    try {
-                        accessField.setAccessible(true);
-                        return accessField.get(bean);
-                    } finally {
-                        accessField.setAccessible(false);
+                if(!allowAccessPrivate){
+                    throw new IllegalAccessException("can not allow access");
+                }else {
+                    synchronized (accessField) {
+                        try {
+                            accessField.setAccessible(true);
+                            return accessField.get(bean);
+                        } finally {
+                            accessField.setAccessible(false);
+                        }
                     }
                 }
             }

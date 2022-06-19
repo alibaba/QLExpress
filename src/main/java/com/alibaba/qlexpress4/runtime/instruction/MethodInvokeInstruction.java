@@ -47,30 +47,39 @@ public class MethodInvokeInstruction extends QLInstruction {
         if (bean == null) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
-        try {
-            Class<?>[] type = BasicUtil.getTypeOfObject(params);
-            Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean, this.methodName, type);
-            if (cacheElement == null) {
-                List<Method> methods;
-                if (bean instanceof Class) {
-                    methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-                } else {
-                    methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
-                }
-                Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+        Class<?>[] type = BasicUtil.getTypeOfObject(params);
+        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean, this.methodName, type);
+        if (cacheElement == null) {
+            List<Method> methods;
+            if (bean instanceof Class) {
+                methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
+            } else {
+                methods = PropertiesUtil.getMethod(bean, this.methodName, qlOptions.enableAllowAccessPrivateMethod());
+            }
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            if(method == null){
+                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
+            }
+            try {
                 Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(value);
                 qRuntime.push(dataValue);
                 if(method != null){
                     CacheUtil.setMethodInvokeCacheElement(bean, this.methodName, method, type);
                 }
-            } else {
+            }catch (Exception e){
+                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
+            }
+
+        } else {
+            try {
                 Object value = MethodHandler.Access.accessMethodValue(cacheElement,bean,params,qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(value);
                 qRuntime.push(dataValue);
+            }catch (Exception e){
+                throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
             }
-        } catch (Exception e) {
-            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method");
         }
+
     }
 }

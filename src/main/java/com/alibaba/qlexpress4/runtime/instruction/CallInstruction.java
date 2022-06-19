@@ -25,7 +25,7 @@ public class CallInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(0);
+        Parameters parameters = qRuntime.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {
@@ -38,7 +38,7 @@ public class CallInstruction extends QLInstruction {
             QLambda qLambda = (QLambdaMethod) bean;
             qRuntime.push(qLambda.call(params).getResult());
         } catch (Exception e) {
-            throw errorReporter.report("CALL_LAMBDA_VALUE_ERROR", "can not get lambda value: " + e.getMessage());
+            throw errorReporter.report("CALL_LAMBDA_VALUE_ERROR", "callable method not accessible");
         }
     }
 }

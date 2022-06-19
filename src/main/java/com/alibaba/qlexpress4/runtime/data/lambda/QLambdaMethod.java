@@ -36,17 +36,21 @@ public class QLambdaMethod implements QLambda {
         if (method == null) {
             return new QResult(null, QResult.ResultType.RETURN);
         }
-        if (!this.allowAccessPrivate || method.isAccessible()) {
+        if (method.isAccessible()) {
             Object result = method.invoke(this.bean, params);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         } else {
-            synchronized (method) {
-                try {
-                    method.setAccessible(true);
-                    Object result = method.invoke(this.bean, params);
-                    return new QResult(new DataValue(result), QResult.ResultType.RETURN);
-                } finally {
-                    method.setAccessible(false);
+            if(!allowAccessPrivate){
+                throw new RuntimeException("QLambdaMethod not accessible");
+            }else {
+                synchronized (method) {
+                    try {
+                        method.setAccessible(true);
+                        Object result = method.invoke(this.bean, params);
+                        return new QResult(new DataValue(result), QResult.ResultType.RETURN);
+                    } finally {
+                        method.setAccessible(false);
+                    }
                 }
             }
         }

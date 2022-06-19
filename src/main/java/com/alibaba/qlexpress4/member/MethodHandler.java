@@ -157,15 +157,19 @@ public class MethodHandler extends MemberHandler {
         public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 IllegalArgumentException, InvocationTargetException, IllegalAccessException {
             Method accessMethod = ((Method) accessMember);
-            if (!allowAccessPrivateMethod || accessMethod.isAccessible()) {
+            if (accessMethod.isAccessible()) {
                 return accessMethod.invoke(bean, params);
             } else {
-                synchronized (accessMethod) {
-                    try {
-                        accessMethod.setAccessible(true);
-                        return accessMethod.invoke(bean, params);
-                    } finally {
-                        accessMethod.setAccessible(false);
+                if(!allowAccessPrivateMethod){
+                    throw new IllegalAccessException("can not allow access");
+                }else {
+                    synchronized (accessMethod) {
+                        try {
+                            accessMethod.setAccessible(true);
+                            return accessMethod.invoke(bean, params);
+                        } finally {
+                            accessMethod.setAccessible(false);
+                        }
                     }
                 }
             }
@@ -174,15 +178,19 @@ public class MethodHandler extends MemberHandler {
         public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)
                 throws IllegalArgumentException, InvocationTargetException, IllegalAccessException {
             Method accessMethod = ((Method) accessMember);
-            if (!allowAccessPrivateMethod || accessMethod.isAccessible()) {
+            if (accessMethod.isAccessible()) {
                 accessMethod.invoke(bean, value);
             } else {
-                synchronized (accessMethod) {
-                    try {
-                        accessMethod.setAccessible(true);
-                        accessMethod.invoke(bean, value);
-                    } finally {
-                        accessMethod.setAccessible(false);
+                if(!allowAccessPrivateMethod){
+                    throw new IllegalAccessException("can not allow access");
+                }else {
+                    synchronized (accessMethod) {
+                        try {
+                            accessMethod.setAccessible(true);
+                            accessMethod.invoke(bean, value);
+                        } finally {
+                            accessMethod.setAccessible(false);
+                        }
                     }
                 }
             }
