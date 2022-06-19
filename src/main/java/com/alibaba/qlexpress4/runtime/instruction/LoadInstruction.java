@@ -30,8 +30,7 @@ public class LoadInstruction extends QLInstruction {
     private LeftValue getOrCreateSymbol(QRuntime qRuntime) {
         LeftValue symbol = qRuntime.getSymbol(name);
         if (symbol == null) {
-            symbol = new AssignableDataValue(null);
-            qRuntime.defineSymbol(name, Object.class, symbol);
+            symbol = qRuntime.defineSymbol(name, Object.class);
         }
         return symbol;
     }

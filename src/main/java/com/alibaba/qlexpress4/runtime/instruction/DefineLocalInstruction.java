@@ -25,6 +25,6 @@ public class DefineLocalInstruction extends QLInstruction {
 
     @Override
     public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-        qRuntime.defineLocalSymbol(variableName, defineClz, qRuntime.pop());
+        qRuntime.defineLocalSymbol(variableName, defineClz, qRuntime.pop().get());
     }
 }
