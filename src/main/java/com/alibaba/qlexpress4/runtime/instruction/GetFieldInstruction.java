@@ -92,7 +92,7 @@ public class GetFieldInstruction extends QLInstruction {
         Supplier<Object> supplier = null;
         Consumer<Object> consumer = null;
         if(getMethod != null){
-            if(getMethod.isAccessible()){
+            if(getMethod.isAccessible() || BasicUtil.isStatic(getMethod)){
                 supplier = getMethodSupplierAccessible(getMethod, bean);
             }
             if(supplier == null && enableAllowAccessPrivateMethod){
@@ -112,7 +112,7 @@ public class GetFieldInstruction extends QLInstruction {
         }
 
         if(field != null){
-            if(field.isAccessible()){
+            if(field.isAccessible() || BasicUtil.isStatic(getMethod)){
                 if(supplier == null){
                     supplier = getFieldSupplierAccessible(field, bean);
                 }
