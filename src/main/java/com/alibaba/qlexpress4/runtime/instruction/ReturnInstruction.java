@@ -2,7 +2,9 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 
 /**
  * @Operation: return top element and exit lambda
@@ -12,12 +14,16 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * Author: DQinYuan
  */
 public class ReturnInstruction extends QLInstruction {
-    public ReturnInstruction(ErrorReporter errorReporter) {
+
+    private final QResult.ResultType resultType;
+
+    public ReturnInstruction(ErrorReporter errorReporter, QResult.ResultType resultType) {
         super(errorReporter);
+        this.resultType = resultType;
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
-
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
+        return new QResult(new DataValue(qRuntime.pop()), resultType);
     }
 }

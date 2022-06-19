@@ -16,6 +16,11 @@ public class DataValue implements Value {
         this.defineType = Object.class;
     }
 
+    public DataValue(Value value) {
+        this.value = value.get();
+        this.defineType = Object.class;
+    }
+
     public DataValue(Object value, Class<?> defineType) {
         this.value = value;
         this.defineType = defineType;

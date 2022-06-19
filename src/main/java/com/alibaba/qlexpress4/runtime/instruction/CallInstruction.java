@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QRuntime;
@@ -24,7 +25,7 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Parameters parameters = qRuntime.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
@@ -40,5 +41,6 @@ public class CallInstruction extends QLInstruction {
         } catch (Exception e) {
             throw errorReporter.report("CALL_LAMBDA_VALUE_ERROR", "callable method not accessible");
         }
+        return QResult.CONTINUE_RESULT;
     }
 }

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.LeftValue;
@@ -37,7 +38,7 @@ public class GetFieldInstruction extends QLInstruction {
     }
 
     @Override
-    public void execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object bean = qRuntime.pop().get();
         if (bean == null) {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field from null");
@@ -58,6 +59,7 @@ public class GetFieldInstruction extends QLInstruction {
         } else {
             getCacheFieldValue(qlOptions, bean.getClass(), bean, qRuntime);
         }
+        return QResult.CONTINUE_RESULT;
     }
 
     /**

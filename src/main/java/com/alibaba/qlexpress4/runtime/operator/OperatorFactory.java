@@ -1,18 +1,20 @@
 package com.alibaba.qlexpress4.runtime.operator;
 
+import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
+
 /**
  * Author: DQinYuan
  */
 public class OperatorFactory {
 
-    public static Operator getOperator(String operatorLexeme) {
+    public static BinaryOperator getOperator(String operatorLexeme) {
         return null;
     }
 
     /**
      * like --1 ++1 !true ~1 ^1
      *
-     * @param operatorLexeme
+     * @param operatorLexeme ++, --
      * @return
      */
     public static UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {

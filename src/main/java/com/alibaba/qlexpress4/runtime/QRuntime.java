@@ -7,49 +7,43 @@ public interface QRuntime {
 
     /**
      * get assignable symbol variable by name
-     *
      * @param varName variable name
      * @return assignable value, null if not exist
      */
     LeftValue getSymbol(String varName);
 
     /**
-     * get immutable symbol variable value by name
-     *
+     * get symbol variable value by name
      * @param varName variable name
-     * @return immutable value, null if not exist
+     * @return inner value, null if not exist
      */
-    Value getSymbolValue(String varName);
+    Object getSymbolValue(String varName);
 
     /**
      * define a symbol in global scope
      * for example, `Number a = 10`
-     * define("a", Number.class, new Value(10))
-     *
+     *              define("a", Number.class, new Value(10))
      * @param varName symbol name
-     * @param varClz  symbol clz, declare clz, not real clz
-     * @param value   symbol init value
+     * @param varClz symbol clz, declare clz, not real clz
      */
-    void defineSymbol(String varName, Class<?> varClz, Value value);
+    LeftValue defineSymbol(String varName, Class<?> varClz);
 
     /**
      * define a symbol in local scope
      * @param varName
      * @param varClz
-     * @param value
+     * @param value init value
      */
-    void defineLocalSymbol(String varName, Class<?> varClz, Value value);
+    void defineLocalSymbol(String varName, Class<?> varClz, Object value);
 
     /**
      * push value on the top of stack
-     *
      * @param value pushed element
      */
     void push(Value value);
 
     /**
      * pop number elements on top of stack
-     *
      * @param number pop elements' number
      * @return popped elements
      */
@@ -57,21 +51,12 @@ public interface QRuntime {
 
     /**
      * pop one element on top of stack
-     *
      * @return popped element
      */
     Value pop();
 
     /**
-     * exit and return specified value
-     *
-     * @param returnValue
-     */
-    void exitAndReturn(QResult returnValue);
-
-    /**
      * get script start time
-     *
      * @return start time
      */
     long scriptStartTimeStamp();
