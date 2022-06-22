@@ -110,8 +110,6 @@ public class GetFieldInstruction extends QLInstruction {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
         }
         if (setterOp == null) {
-            // 此时该字段是只读的，应该返回 Value，而不是 LeftValue
-            // 可以有两种实现，立即将值获取，以及稍后 get 的时候再获取
             return new DataValue(getterOp);
         }
         return new DataField(getterOp, setterOp);
