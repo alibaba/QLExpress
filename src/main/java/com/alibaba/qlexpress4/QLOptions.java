@@ -17,6 +17,12 @@ public class QLOptions {
      */
     private final boolean precise;
 
+    /**
+     * allowAccessPrivateMethod default false
+     */
+    private final boolean allowAccessPrivateMethod;
+
+
     private final ClassLoader classLoader;
 
     /**
@@ -30,15 +36,24 @@ public class QLOptions {
      */
     private final List<String> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport) {
+    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport, boolean allowAccessPrivateMethod) {
         this.precise = precise;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
+        this.allowAccessPrivateMethod = allowAccessPrivateMethod;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public boolean isPrecise() {
         return precise;
+    }
+
+    public boolean enableAllowAccessPrivateMethod() {
+        return allowAccessPrivateMethod;
     }
 
     public ClassLoader getClassLoader() {
@@ -53,13 +68,11 @@ public class QLOptions {
         return defaultImport;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder {
 
         private boolean precise = true;
+
+        private boolean allowAccessPrivateMethod;
 
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
@@ -71,6 +84,11 @@ public class QLOptions {
 
         public Builder precise(boolean precise) {
             this.precise = precise;
+            return this;
+        }
+
+        public Builder allowAccessPrivateMethod(boolean allowAccessPrivateMethod) {
+            this.allowAccessPrivateMethod = allowAccessPrivateMethod;
             return this;
         }
 
@@ -90,7 +108,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport);
+            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
         }
     }
 
