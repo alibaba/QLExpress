@@ -90,7 +90,6 @@ public class GetFieldInstruction extends QLInstruction {
     }
 
 
-    // 不能确定是哪种 Value
     private Value getDataField(Method getMethod, Method setMethod, Field field, Object bean, boolean enableAllowAccessPrivateMethod) {
         Supplier<Object> getterOp = operator(
                 getMethodSupplierAccessible(getMethod, bean),
