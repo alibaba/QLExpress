@@ -29,14 +29,16 @@ public class TestQRuntimeParent implements QRuntime {
     }
 
     @Override
-    public void defineSymbol(String varName, Class<?> varClz, Value value) {
-
+    public LeftValue defineSymbol(String varName, Class<?> varClz) {
+        return null;
     }
 
     @Override
-    public void defineLocalSymbol(String varName, Class<?> varClz, Value value) {
+    public void defineLocalSymbol(String varName, Class<?> varClz, Object value) {
 
     }
+
+
 
     @Override
     public void push(Value value) {
@@ -57,10 +59,7 @@ public class TestQRuntimeParent implements QRuntime {
         return this.value;
     }
 
-    @Override
-    public void exitAndReturn(QResult returnValue) {
 
-    }
 
     @Override
     public long scriptStartTimeStamp() {

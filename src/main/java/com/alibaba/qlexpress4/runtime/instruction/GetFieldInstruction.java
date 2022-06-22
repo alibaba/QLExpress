@@ -76,13 +76,13 @@ public class GetFieldInstruction extends QLInstruction {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz, this.fieldName);
-            DataField dataField = getDataField(getMethod,setMethod,field,bean,qlOptions.enableAllowAccessPrivateMethod());
+            Value dataField = getDataField(getMethod,setMethod,field,bean,qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
             CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
             CacheUtil.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
         } else {
             CacheFieldValue cacheFieldValue = cacheElement;
-            DataField dataField = getDataField(cacheFieldValue.getGetMethod(),cacheFieldValue.getSetMethod(),
+            Value dataField = getDataField(cacheFieldValue.getGetMethod(),cacheFieldValue.getSetMethod(),
                     cacheFieldValue.getField(),bean,qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
             return;
@@ -90,60 +90,58 @@ public class GetFieldInstruction extends QLInstruction {
     }
 
 
-    private DataField getDataField(Method getMethod, Method setMethod, Field field, Object bean, boolean enableAllowAccessPrivateMethod){
-        Supplier<Object> supplier = null;
-        Consumer<Object> consumer = null;
-        if(getMethod != null){
-            if(BasicUtil.isPublic(getMethod)){
-                supplier = getMethodSupplierAccessible(getMethod, bean);
-            }
-            if(supplier == null && enableAllowAccessPrivateMethod){
-                supplier = getMethodSupplierNotAccessible(getMethod, bean);
-            }
-        }
-        if(setMethod != null){
-            if(BasicUtil.isPublic(setMethod)){
-                consumer = getMethodConsumerAccessible(setMethod, bean);
-            }
-            if(consumer == null && enableAllowAccessPrivateMethod){
-                consumer = getMethodConsumerNotAccessible(setMethod, bean);
-            }
-        }
-        if(supplier != null && consumer != null){
-            return new DataField(supplier, consumer);
-        }
+    // 不能确定是哪种 Value
+    private Value getDataField(Method getMethod, Method setMethod, Field field, Object bean, boolean enableAllowAccessPrivateMethod) {
+        Supplier<Object> getterOp = operator(
+                getMethodSupplierAccessible(getMethod, bean),
+                getMethodSupplierNotAccessible(getMethod, bean),
+                getFieldSupplierAccessible(field, bean),
+                getFieldSupplierNotAccessible(field, bean),
+                getMethod, field, enableAllowAccessPrivateMethod);
 
-        if(field != null){
-            if(BasicUtil.isPublic(field)){
-                if(supplier == null){
-                    supplier = getFieldSupplierAccessible(field, bean);
-                }
-                if(consumer == null){
-                    consumer = getFieldConsumerAccessible(field, bean);
-                }
-            }else {
-                if(!enableAllowAccessPrivateMethod){
-                    //either of getMethod or setMethod is null or both null && field cannot access
-                    throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
-                }
-                if(supplier == null){
-                    supplier = getFieldSupplierNotAccessible(field, bean);
-                }
-                if(consumer == null){
-                    consumer = getFieldConsumerNotAccessible(field, bean);
-                }
-            }
-        }else {
-            //either of getMethod or setMethod is null or both null && field is null
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field");
-        }
+        Consumer<Object> setterOp = operator(
+                getMethodConsumerAccessible(setMethod, bean),
+                getMethodConsumerNotAccessible(setMethod, bean),
+                getFieldConsumerAccessible(field, bean),
+                getFieldConsumerNotAccessible(field, bean),
+                setMethod, field, enableAllowAccessPrivateMethod);
 
-        if(supplier == null || consumer == null){
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field");
-        }else {
-            return new DataField(supplier, consumer);
+        if (getterOp == null) {
+            throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
         }
+        if (setterOp == null) {
+            // 此时该字段是只读的，应该返回 Value，而不是 LeftValue
+            // 可以有两种实现，立即将值获取，以及稍后 get 的时候再获取
+            return new DataValue(getterOp);
+        }
+        return new DataField(getterOp, setterOp);
     }
+
+    private <T> T process(T doing){
+        return doing;
+    }
+
+    private <T> T operator(T methodAccess, T methodNotAccess, T fieldAccess, T fieldNotAccess, Method method, Field field,
+                           boolean enableAllowAccessPrivateMethod){
+        if(method != null){
+            if(BasicUtil.isPublic(method)){
+                return process(methodAccess);
+            }
+            if(enableAllowAccessPrivateMethod){
+                return process(methodNotAccess);
+            }
+        }
+        if (field != null) {
+            if(BasicUtil.isPublic(field)){
+                return process(fieldAccess);
+            }
+            if(enableAllowAccessPrivateMethod) {
+                return process(fieldNotAccess);
+            }
+        }
+        return null;
+    }
+
 
     private Supplier<Object> getFieldSupplierAccessible(Field field, Object bean) {
         return () -> {

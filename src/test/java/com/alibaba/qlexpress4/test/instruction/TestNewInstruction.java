@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.instruction.NewInstruction;
+import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Parent;
 import com.alibaba.qlexpress4.test.property.ParentParameters;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -17,17 +18,7 @@ import org.junit.Test;
 public class TestNewInstruction {
     @Test
     public void testNewInstruction() throws Exception{
-        ErrorReporter errorReporter = new ErrorReporter() {
-            @Override
-            public QLRuntimeException report(String errorCode, String reason) {
-                return null;
-            }
-
-            @Override
-            public QLRuntimeException report(String errorCode, String format, Object... args) {
-                return null;
-            }
-        };
+        ErrorReporter errorReporter = new TestErrorReporter();
         CacheUtil.initCache(128, true);
         NewInstruction newInstructionForParent0 = new NewInstruction(errorReporter, Parent.class, 0);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();

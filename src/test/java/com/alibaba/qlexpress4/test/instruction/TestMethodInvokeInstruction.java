@@ -26,6 +26,10 @@ public class TestMethodInvokeInstruction {
     public void case1(){
         ErrorReporter errorReporter = new ErrorReporter() {
             @Override
+            public QLRuntimeException report(Object attachment, String errorCode, String reason) {
+                return null;
+            }
+            @Override
             public QLRuntimeException report(String errorCode, String reason) {
                 return null;
             }
