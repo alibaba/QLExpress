@@ -117,8 +117,8 @@ public class GetFieldInstruction extends QLInstruction {
         return new DataField(getterOp, setterOp);
     }
 
-    private <T> T process(T doing){
-        return doing;
+    private <T> T process(T functional){
+        return functional;
     }
 
     private <T> T operator(T methodAccess, T methodNotAccess, T fieldAccess, T fieldNotAccess, Method method, Field field,
