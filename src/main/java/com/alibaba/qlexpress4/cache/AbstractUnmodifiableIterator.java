@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
  * AbstractUnmodifiableIterator
  * @Author TaoKan
  * @Date 2022/6/11 下午8:05
+ * test
  */
 public abstract class AbstractUnmodifiableIterator<E> implements Iterator<E> {
     private E next;
