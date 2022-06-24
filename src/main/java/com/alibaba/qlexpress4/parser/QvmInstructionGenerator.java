@@ -61,12 +61,17 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, VisitingS
 
     @Override
     public Void visit(StmtList stmtList, VisitingScope visitingScope) {
+        Stmt preStmt = null;
         for (Stmt stmt : stmtList.getStmts()) {
-            stmt.accept(advisor, visitingScope);
-            if (stmt instanceof Expr) {
+            if (preStmt instanceof Expr) {
                 // pop if no acceptor
-                instructionList.add(new PopInstruction(newReporterByNode(stmt)));
+                instructionList.add(new PopInstruction(newReporterByNode(preStmt)));
             }
+            preStmt = stmt;
+            preStmt.accept(advisor, visitingScope);
+        }
+        if (preStmt instanceof Expr) {
+            instructionList.add(new ReturnInstruction(newReporterByNode(preStmt), QResult.ResultType.RETURN));
         }
         return null;
     }
