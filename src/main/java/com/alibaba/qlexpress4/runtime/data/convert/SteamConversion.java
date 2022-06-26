@@ -10,155 +10,58 @@ import java.util.stream.*;
  */
 public class SteamConversion {
 
-    //--------------------------------------------------------------------------
-
-    /**
-     * Returns a sequential {@link Stream} containing a single element.
-     *
-     * <pre class="TestCase">
-     * def item = 'string'
-     * assert item.stream().toList() == ['string']
-     * assert item.stream().findFirst().isPresent()
-     * </pre>
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final T self) {
-        return Stream.of(self);
+    public static <T> Stream<T> stream(final T t) {
+        return Stream.of(t);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param <T>  The type of the array elements
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static <T> Stream<T> stream(final T[] self) {
-        return Arrays.stream(self);
+    public static <T> Stream<T> stream(final T[] t) {
+        return Arrays.stream(t);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Integer> stream(final int[] self) {
-        return Arrays.stream(self).boxed();
+    public static Stream<Integer> stream(final int[] ints) {
+        return Arrays.stream(ints).boxed();
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Long> stream(final long[] self) {
-        return Arrays.stream(self).boxed();
+    public static Stream<Long> stream(final long[] longs) {
+        return Arrays.stream(longs).boxed();
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Double> stream(final double[] self) {
-        return Arrays.stream(self).boxed();
+    public static Stream<Double> stream(final double[] doubles) {
+        return Arrays.stream(doubles).boxed();
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Character> stream(final char[] self) {
-        return IntStream.range(0, self.length).mapToObj(i -> self[i]);
+    public static Stream<Character> stream(final char[] chars) {
+        return IntStream.range(0, chars.length).mapToObj(i -> chars[i]);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Byte> stream(final byte[] self) {
-        return IntStream.range(0, self.length).mapToObj(i -> self[i]);
+    public static Stream<Byte> stream(final byte[] bytes) {
+        return IntStream.range(0, bytes.length).mapToObj(i -> bytes[i]);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Short> stream(final short[] self) {
-        return IntStream.range(0, self.length).mapToObj(i -> self[i]);
+    public static Stream<Short> stream(final short[] shorts) {
+        return IntStream.range(0, shorts.length).mapToObj(i -> shorts[i]);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Boolean> stream(final boolean[] self) {
-        return IntStream.range(0, self.length).mapToObj(i -> self[i]);
+    public static Stream<Boolean> stream(final boolean[] booleans) {
+        return IntStream.range(0, booleans.length).mapToObj(i -> booleans[i]);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified array as its
-     * source.
-     *
-     * @param self The array, assumed to be unmodified during use
-     * @return a {@code Stream} for the array
-     * @since 2.5.0
-     */
-    public static Stream<Float> stream(final float[] self) {
-        return IntStream.range(0, self.length).mapToObj(i -> self[i]);
+    public static Stream<Float> stream(final float[] floats) {
+        return IntStream.range(0, floats.length).mapToObj(i -> floats[i]);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified element(s) as its
-     * source.
-     * <pre class="TestCase">
-     * def tokens = new StringTokenizer('one two')
-     * assert tokens.stream().toList() == ['one', 'two']
-     * </pre>
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final Enumeration<T> self) {
+    public static <T> Stream<T> stream(final Enumeration<T> enumeration) {
         return stream(new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
             @Override
             public void forEachRemaining(final Consumer<? super T> action) {
-                while (self.hasMoreElements()) {
-                    action.accept(self.nextElement());
+                while (enumeration.hasMoreElements()) {
+                    action.accept(enumeration.nextElement());
                 }
             }
-
             @Override
-            public boolean tryAdvance(final Consumer<? super T> action) {
-                if (self.hasMoreElements()) {
-                    action.accept(self.nextElement());
+            public boolean tryAdvance(final Consumer<? super T> consumer) {
+                if (enumeration.hasMoreElements()) {
+                    consumer.accept(enumeration.nextElement());
                     return true;
                 }
                 return false;
@@ -166,106 +69,41 @@ public class SteamConversion {
         });
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified element(s) as its
-     * source.
-     *
-     * <pre class="TestCase">
-     * class Items implements Iterable<String> {
-     *   Iterator&lt;String&gt; iterator() {
-     *     ['one', 'two'].iterator()
-     *   }
-     * }
-     * def items = new Items()
-     * assert items.stream().toList() == ['one', 'two']
-     * </pre>
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final Iterable<T> self) {
-        return StreamSupport.stream(self.spliterator(), false);
+    public static <T> Stream<T> stream(final Iterable<T> iterable) {
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified element(s) as its
-     * source.
-     *
-     * <pre class="TestCase">
-     * [].iterator().stream().toList().isEmpty()
-     * ['one', 'two'].iterator().stream().toList() == ['one', 'two']
-     * </pre>
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final Iterator<T> self) {
-        return stream(Spliterators.spliteratorUnknownSize(self, Spliterator.ORDERED));
+    public static <T> Stream<T> stream(final Iterator<T> iterator) {
+        return stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED));
     }
 
-    /**
-     * Returns a sequential {@link Stream} with the specified element(s) as its
-     * source.
-     *
-     * <pre class="TestCase">
-     * assert [].spliterator().stream().toList().isEmpty()
-     * assert ['one', 'two'].spliterator().stream().toList() == ['one', 'two']
-     * </pre>
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final Spliterator<T> self) {
-        return StreamSupport.stream(self, false);
+    public static <T> Stream<T> stream(final Spliterator<T> spliterator) {
+        return StreamSupport.stream(spliterator, false);
     }
 
-
-    /**
-     * If a value is present in the {@link Optional}, returns a {@link Stream}
-     * with the value as its source or else an empty stream.
-     *
-     * @since 3.0.0
-     */
-    public static <T> Stream<T> stream(final Optional<T> self) {
-        return self.map(Stream::of).orElseGet(Stream::empty);
+    public static <T> Stream<T> stream(final Optional<T> optional) {
+        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 
-    //
-
-    /**
-     * If a value is present in the {@link OptionalInt}, returns an {@link IntStream}
-     * with the value as its source or else an empty stream.
-     *
-     * @since 3.0.0
-     */
-    public static IntStream stream(final OptionalInt self) {
-        if (!self.isPresent()) {
+    public static IntStream stream(final OptionalInt optionalInt) {
+        if (!optionalInt.isPresent()) {
             return IntStream.empty();
         }
-        return IntStream.of(self.getAsInt());
+        return IntStream.of(optionalInt.getAsInt());
     }
 
-    /**
-     * If a value is present in the {@link OptionalLong}, returns a {@link LongStream}
-     * with the value as its source or else an empty stream.
-     *
-     * @since 3.0.0
-     */
-    public static LongStream stream(final OptionalLong self) {
-        if (!self.isPresent()) {
+    public static LongStream stream(final OptionalLong optionalLong) {
+        if (!optionalLong.isPresent()) {
             return LongStream.empty();
         }
-        return LongStream.of(self.getAsLong());
+        return LongStream.of(optionalLong.getAsLong());
     }
 
-    /**
-     * If a value is present in the {@link OptionalDouble}, returns a {@link DoubleStream}
-     * with the value as its source or else an empty stream.
-     *
-     * @since 3.0.0
-     */
-    public static DoubleStream stream(final OptionalDouble self) {
-        if (!self.isPresent()) {
+    public static DoubleStream stream(final OptionalDouble optionalDouble) {
+        if (!optionalDouble.isPresent()) {
             return DoubleStream.empty();
         }
-        return DoubleStream.of(self.getAsDouble());
+        return DoubleStream.of(optionalDouble.getAsDouble());
     }
 
 }

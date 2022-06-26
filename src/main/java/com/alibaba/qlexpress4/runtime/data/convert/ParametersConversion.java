@@ -11,14 +11,16 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
  */
 public class ParametersConversion {
 
+    private final static int LEVEL_WEIGHT = 10;
+
     public static int calculatorMatchConversionLevel(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, int assignLevel) {
-        int matchConversionLevel = MatchConversation.EQUALS.level;
+        int matchConversionLevel = MatchConversation.EQUALS.weight;
         for (int i = 0; i < goal.length; i++) {
             MatchConversation result = compareParametersTypes(qlCaches, candidate[i], goal[i]);
             if (MatchConversation.NOT_MATCH == result) {
-                return MatchConversation.NOT_MATCH.level;
+                return MatchConversation.NOT_MATCH.weight;
             }
-            int weight = result.level + assignLevel*10;
+            int weight = result.weight + assignLevel * LEVEL_WEIGHT;
             if (matchConversionLevel < weight) {
                 matchConversionLevel = weight;
             }
@@ -65,10 +67,10 @@ public class ParametersConversion {
     enum MatchConversation {
         NOT_MATCH(-1), EXTEND(5), IMPLICIT(4), NORMAL(3), ASSIGN(2), EQUALS(1);
 
-        private int level;
+        private int weight;
 
-        MatchConversation(int level) {
-            this.level = level;
+        MatchConversation(int weight) {
+            this.weight = weight;
         }
     }
 }
