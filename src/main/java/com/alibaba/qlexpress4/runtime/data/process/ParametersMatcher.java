@@ -6,22 +6,23 @@ package com.alibaba.qlexpress4.runtime.data.process;
  */
 public class ParametersMatcher {
     public static final int DEFAULT_INDEX = -1;
-    public static final int DEFAULT_LEVEL = Integer.MAX_VALUE;
-    private int matchLevel;
+    public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
+
+    private int matchWeight;
     private int index;
     private Class<?>[] parametersClassType;
 
     public ParametersMatcher() {
-        this.matchLevel = DEFAULT_LEVEL;
+        this.matchWeight = DEFAULT_WEIGHT;
         this.index = DEFAULT_INDEX;
     }
 
-    public int getMatchLevel() {
-        return matchLevel;
+    public int getMatchWeight() {
+        return matchWeight;
     }
 
-    public void setMatchLevel(int matchLevel) {
-        this.matchLevel = matchLevel;
+    public void setMatchWeight(int matchWeight) {
+        this.matchWeight = matchWeight;
     }
 
     public int getIndex() {

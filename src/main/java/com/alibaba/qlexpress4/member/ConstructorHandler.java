@@ -24,7 +24,7 @@ public class ConstructorHandler extends MemberHandler {
                     constructorList.add(constructor);
                 }
             }
-            int match = MemberHandler.Preferred.findMostSpecificSignature(qlCaches, types, listClass.toArray(new Class[0][]));
+            int match = MemberHandler.Preferred.findMostSpecificSignatureForConstructor(qlCaches, types, listClass.toArray(new Class[0][]));
             return match == ParametersMatcher.DEFAULT_INDEX ? null : constructorList.get(match);
         }
     }

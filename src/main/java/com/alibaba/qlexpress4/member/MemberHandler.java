@@ -43,18 +43,18 @@ public class MemberHandler {
 
     public static class Preferred {
 
-        public static int findMostSpecificSignature(QLCaches qlCaches, Class<?>[] goalMatch, Class<?>[][] candidates) {
+        public static int findMostSpecificSignatureForConstructor(QLCaches qlCaches, Class<?>[] goalMatch, Class<?>[][] candidates) {
             ParametersMatcher bestMatcher = new ParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
-                int level = ParametersConversion.calculatorMatchConversionLevel(qlCaches, goalMatch, targetMatch, 0);
-                if (level > bestMatcher.getMatchLevel()) {
+                int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch);
+                if (weight > bestMatcher.getMatchWeight()) {
                     bestMatcher.setParametersClassType(targetMatch);
-                    bestMatcher.setMatchLevel(level);
+                    bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);
-                } else if (level == bestMatcher.getMatchLevel() && level != ParametersMatcher.DEFAULT_LEVEL) {
-                    throw new QLTransferException("not the only matcher found");
+                } else if (weight == bestMatcher.getMatchWeight() && weight != ParametersMatcher.DEFAULT_WEIGHT) {
+                    throw new QLTransferException("not the only constructor found");
                 }
             }
             return bestMatcher.getIndex();
@@ -68,13 +68,13 @@ public class MemberHandler {
                 Class<?>[] targetMatch = candidates[i].getParamClass();
                 //parent first
                 int assignLevel = candidates[i].getLevel();
-                int level = ParametersConversion.calculatorMatchConversionLevel(qlCaches, goalMatch, targetMatch, assignLevel);
-                if (level < bestMatcher.getMatchLevel()) {
+                int level = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, assignLevel);
+                if (level < bestMatcher.getMatchWeight()) {
                     bestMatcher.setParametersClassType(targetMatch);
-                    bestMatcher.setMatchLevel(level);
+                    bestMatcher.setMatchWeight(level);
                     bestMatcher.setIndex(i);
-                } else if (level == bestMatcher.getMatchLevel() && level != ParametersMatcher.DEFAULT_LEVEL) {
-                    throw new QLTransferException("not the only matcher found");
+                } else if (level == bestMatcher.getMatchWeight() && level != ParametersMatcher.DEFAULT_WEIGHT) {
+                    throw new QLTransferException("not the only method matcher found");
                 }
             }
             return bestMatcher.getIndex();

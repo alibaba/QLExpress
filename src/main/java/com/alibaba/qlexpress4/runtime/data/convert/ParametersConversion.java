@@ -13,7 +13,11 @@ public class ParametersConversion {
 
     private final static int LEVEL_WEIGHT = 10;
 
-    public static int calculatorMatchConversionLevel(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, int assignLevel) {
+    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate) {
+        return calculatorMatchConversionWeight(qlCaches, goal, candidate, 0);
+    }
+
+    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, int assignLevel) {
         int matchConversionLevel = MatchConversation.EQUALS.weight;
         for (int i = 0; i < goal.length; i++) {
             MatchConversation result = compareParametersTypes(qlCaches, candidate[i], goal[i]);
