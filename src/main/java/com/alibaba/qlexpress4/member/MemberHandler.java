@@ -70,12 +70,14 @@ public class MemberHandler {
                 //parent first
                 int assignLevel = candidates[i].getLevel();
                 int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, new Weighter(assignLevel));
-                if (weight < bestMatcher.getMatchWeight()) {
-                    bestMatcher.setParametersClassType(targetMatch);
-                    bestMatcher.setMatchWeight(weight);
-                    bestMatcher.setIndex(i);
-                } else if (weight == bestMatcher.getMatchWeight() && weight != ParametersMatcher.DEFAULT_WEIGHT) {
-                    throw new QLTransferException("not the only method matcher found");
+                if (weight != ParametersMatcher.DEFAULT_WEIGHT){
+                    if (weight < bestMatcher.getMatchWeight()) {
+                        bestMatcher.setParametersClassType(targetMatch);
+                        bestMatcher.setMatchWeight(weight);
+                        bestMatcher.setIndex(i);
+                    } else if (weight == bestMatcher.getMatchWeight()) {
+                        throw new QLTransferException("not the only method matcher found");
+                    }
                 }
             }
             return bestMatcher.getIndex();
