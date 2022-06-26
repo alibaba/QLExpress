@@ -131,12 +131,12 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(CallExpr callExpr, GeneratorScope generatorScope) {
         Expr target = callExpr.getTarget();
-        if (target instanceof FieldCallExpr) {
-            // method invoke optimize
-            FieldCallExpr fieldCallExpr = (FieldCallExpr) target;
-            fieldCallExpr.getExpr().accept(this, generatorScope);
+        if (target instanceof GetFieldExpr) {
+            // method invoke
+            GetFieldExpr getFieldExpr = (GetFieldExpr) target;
+            getFieldExpr.getExpr().accept(this, generatorScope);
             callExpr.getArguments().forEach(arg -> arg.accept(this, generatorScope));
-            Identifier attribute = fieldCallExpr
+            Identifier attribute = getFieldExpr
                     .getAttribute();
             addInstruction(new MethodInvokeInstruction(newReporterByToken(attribute.getKeyToken()),
                     attribute.getId(), callExpr.getArguments().size()));
@@ -174,10 +174,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     }
 
     @Override
-    public Void visit(FieldCallExpr fieldCallExpr, GeneratorScope generatorScope) {
-        fieldCallExpr.getExpr().accept(this, generatorScope);
-        String fieldName = fieldCallExpr.getAttribute().getId();
-        addInstruction(new GetFieldInstruction(newReporterByNode(fieldCallExpr), fieldName));
+    public Void visit(GetFieldExpr getFieldExpr, GeneratorScope generatorScope) {
+        getFieldExpr.getExpr().accept(this, generatorScope);
+        String fieldName = getFieldExpr.getAttribute().getId();
+        addInstruction(new GetFieldInstruction(newReporterByNode(getFieldExpr), fieldName));
         return null;
     }
 
@@ -252,6 +252,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         addInstruction(new IfInstruction(newReporterByNode(ifExpr), thenLambda,
                 ifExpr.getElseBranch() != null? generateLambdaNewScope(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
                         ifExpr.getElseBranch(), generatorScope): null));
+        return null;
+    }
+
+    @Override
+    public Void visit(GetMethodExpr getMethodExpr, GeneratorScope context) {
+        addInstruction(new GetMethodInstruction(newReporterByNode(getMethodExpr),
+                getMethodExpr.getAttribute().getId()));
         return null;
     }
 

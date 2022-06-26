@@ -50,6 +50,16 @@ public class TryCatchInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     private QResult finalResult(QRuntime qRuntime, QLOptions qlOptions) {
         if (finalBody == null) {
             return QResult.CONTINUE_RESULT;

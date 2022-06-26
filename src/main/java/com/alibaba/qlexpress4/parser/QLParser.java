@@ -664,7 +664,7 @@ public class QLParser {
     }
 
     private boolean canAssign(Expr leftExpr) {
-        return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr) ||
+        return (leftExpr instanceof GetFieldExpr) || (leftExpr instanceof IdExpr) ||
                 (leftExpr instanceof IndexCallExpr);
     }
 
@@ -834,13 +834,20 @@ public class QLParser {
             advanceOrReportErrorWithToken(TokenType.RBRACK, "CAN_NOT_FIND_RBRACK_TO_MATCH",
                     "can not find ']' to match", keyToken);
             return new IndexCallExpr(keyToken, left, indexExpr);
-        } else if (pre.getType() == TokenType.DOT || pre.getType() == TokenType.METHOD_REF) {
-            // field call
+        } else if (pre.getType() == TokenType.DOT) {
+            // get field
             if (matchTypeAndAdvance(TokenType.ID)) {
-                return new FieldCallExpr(pre, left, new Identifier(pre));
+                return new GetFieldExpr(pre, left, new Identifier(pre));
             }
             throw QLException.reportParserErr(scanner.getScript(),
                     lastToken(), "INVALID_FIELD", "invalid field");
+        } else if (pre.getType() == TokenType.METHOD_REF) {
+            // get method
+            if (matchTypeAndAdvance(TokenType.ID)) {
+                return new GetMethodExpr(pre, left, new Identifier(pre));
+            }
+            throw QLException.reportParserErr(scanner.getScript(),
+                    lastToken(), "INVALID_METHOD_NAME", "invalid method name");
         } else if (pre.getType() == TokenType.INC || pre.getType() == TokenType.DEC) {
             // suffix operator
             return new SuffixUnaryOpExpr(pre, left);
