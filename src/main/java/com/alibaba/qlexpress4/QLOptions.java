@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.parser.ImportManager;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,6 +20,12 @@ public class QLOptions {
     private final boolean precise;
 
     /**
+     * define global symbol in user context
+     * default false
+     */
+    private final boolean polluteUserContext;
+
+    /**
      * allowAccessPrivateMethod default false
      */
     private final boolean allowAccessPrivateMethod;
@@ -34,10 +42,12 @@ public class QLOptions {
     /**
      * default import java packages for script
      */
-    private final List<String> defaultImport;
+    private final List<ImportManager.Import> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport, boolean allowAccessPrivateMethod) {
+    private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
+                      List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod) {
         this.precise = precise;
+        this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
@@ -52,6 +62,10 @@ public class QLOptions {
         return precise;
     }
 
+    public boolean isPolluteUserContext() {
+        return polluteUserContext;
+    }
+
     public boolean enableAllowAccessPrivateMethod() {
         return allowAccessPrivateMethod;
     }
@@ -64,7 +78,7 @@ public class QLOptions {
         return timeoutMillis;
     }
 
-    public List<String> getDefaultImport() {
+    public List<ImportManager.Import> getDefaultImport() {
         return defaultImport;
     }
 
@@ -72,14 +86,18 @@ public class QLOptions {
 
         private boolean precise = true;
 
+        private boolean polluteUserContext = false;
+
         private boolean allowAccessPrivateMethod;
 
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
         private long timeoutMillis = -1;
 
-        private List<String> defaultImport = Arrays.asList(
-                "java.lang", "java.util", "java.util.stream"
+        private List<ImportManager.Import> defaultImport = Arrays.asList(
+                ImportManager.importPack("java.lang"),
+                ImportManager.importPack("java.util"),
+                ImportManager.importPack("java.util.stream")
         );
 
         public Builder precise(boolean precise) {
@@ -97,7 +115,7 @@ public class QLOptions {
             return this;
         }
 
-        public Builder defaultImport(List<String> defaultImport) {
+        public Builder defaultImport(List<ImportManager.Import> defaultImport) {
             this.defaultImport = defaultImport;
             return this;
         }
@@ -108,7 +126,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
+            return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
         }
     }
 

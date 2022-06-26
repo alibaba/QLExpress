@@ -29,4 +29,14 @@ public class DefineLocalInstruction extends QLInstruction {
         qRuntime.defineLocalSymbol(variableName, defineClz, qRuntime.pop().get());
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
 }

@@ -26,4 +26,14 @@ public class ReturnInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         return new QResult(new DataValue(qRuntime.pop()), resultType);
     }
+
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
 }

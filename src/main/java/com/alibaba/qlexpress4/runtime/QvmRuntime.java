@@ -13,7 +13,7 @@ public class QvmRuntime implements QRuntime {
 
     private final QRuntime parent;
 
-    private final Map<String, LeftValue> symbolTable;
+    private final Map<String, Value> symbolTable;
 
     private final FixedSizeStack opStack;
 
@@ -22,7 +22,7 @@ public class QvmRuntime implements QRuntime {
      */
     private final long startTime;
 
-    public QvmRuntime(QRuntime parent, Map<String, LeftValue> symbolTable, int maxStackSize, long startTime) {
+    public QvmRuntime(QRuntime parent, Map<String, Value> symbolTable, int maxStackSize, long startTime) {
         this.parent = parent;
         this.symbolTable = symbolTable;
         this.opStack = new FixedSizeStack(maxStackSize);
@@ -30,15 +30,15 @@ public class QvmRuntime implements QRuntime {
     }
 
     @Override
-    public LeftValue getSymbol(String varName) {
-        LeftValue localSymbol = symbolTable.get(varName);
+    public Value getSymbol(String varName) {
+        Value localSymbol = symbolTable.get(varName);
         return localSymbol != null? localSymbol:
                 parent != null? parent.getSymbol(varName): null;
     }
 
     @Override
     public Object getSymbolValue(String varName) {
-        LeftValue symbol = getSymbol(varName);
+        Value symbol = getSymbol(varName);
         return symbol == null? null: symbol.get();
     }
 

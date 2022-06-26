@@ -64,4 +64,14 @@ public class NewInstruction extends QLInstruction {
         }
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return argNum;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

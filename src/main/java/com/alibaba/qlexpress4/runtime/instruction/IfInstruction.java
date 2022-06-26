@@ -3,8 +3,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
+import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 
 /**
  * @Operation: if top of stack is true, execute ${thenBody}, else execute ${elseBody}
@@ -38,13 +38,23 @@ public class IfInstruction extends QLInstruction {
         return callBody(qRuntime, lambda);
     }
 
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     private QResult callBody(QRuntime qRuntime, QLambda target) {
         try {
             QResult ifResult = target.call();
             if (ifResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
                 return ifResult;
             }
-            qRuntime.push(new DataValue(ifResult.getResult()));
+            qRuntime.push(ValueUtils.toImmutable(ifResult.getResult()));
             return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,

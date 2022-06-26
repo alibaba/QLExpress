@@ -46,7 +46,7 @@ public class QLambdaInner implements QLambda {
     }
 
     private QRuntime inheritRuntime(Object[] params) {
-        Map<String, LeftValue> initSymbolTable = new HashMap<>();
+        Map<String, Value> initSymbolTable = new HashMap<>();
         List<QLambdaDefinition.Param> paramsDefinition = lambdaDefinition.getParamsType();
         for (int i = 0; i < params.length; i++) {
             QLambdaDefinition.Param paramDefinition = paramsDefinition.get(i);

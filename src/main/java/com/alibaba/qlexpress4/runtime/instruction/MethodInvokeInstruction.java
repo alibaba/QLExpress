@@ -5,10 +5,7 @@ import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.cache.QLMethodInvokeCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -50,13 +47,10 @@ public class MethodInvokeInstruction extends QLInstruction {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method method;
         QLCaches qlCaches = qRuntime.getQLCaches();
-        if(bean instanceof Class){
-            method = getClazzMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
-        }else {
-            method = getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
-        }
+        Method method = bean instanceof MetaClass?
+                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
+                getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
         try {
             Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
@@ -65,6 +59,16 @@ public class MethodInvokeInstruction extends QLInstruction {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
         }
         return QResult.CONTINUE_RESULT;
+    }
+
+    @Override
+    public int stackInput() {
+        return argNum + 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
     }
 
     public Method getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){

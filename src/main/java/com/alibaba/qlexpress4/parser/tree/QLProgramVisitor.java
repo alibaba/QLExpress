@@ -27,7 +27,7 @@ public interface QLProgramVisitor<R, C> {
 
     R visit(Continue aContinue, C context);
 
-    R visit(FieldCallExpr fieldCallExpr, C context);
+    R visit(GetFieldExpr getFieldExpr, C context);
 
     R visit(ForEachStmt forEachStmt, C context);
 
@@ -68,4 +68,6 @@ public interface QLProgramVisitor<R, C> {
     R visit(WhileStmt whileStmt, C context);
 
     R visit(IfExpr ifExpr, C context);
+
+    R visit(GetMethodExpr getMethodExpr, C context);
 }

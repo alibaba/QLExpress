@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
 
 /**
  * @Operation: load variable from local to global scope, create when not exist
@@ -28,8 +29,18 @@ public class LoadInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
-    private LeftValue getOrCreateSymbol(QRuntime qRuntime) {
-        LeftValue symbol = qRuntime.getSymbol(name);
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
+    private Value getOrCreateSymbol(QRuntime qRuntime) {
+        Value symbol = qRuntime.getSymbol(name);
         if (symbol == null) {
             symbol = qRuntime.defineSymbol(name, Object.class);
         }

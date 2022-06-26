@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.ClassSupplier;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -221,7 +222,7 @@ public class QLParser {
     public Expr parseIdOrQualifiedCls() {
         Class<?> cls = importManager.loadFromImport(pre.getLexeme(), classSupplier);
         if (cls != null) {
-            return new ConstExpr(pre, cls);
+            return new ConstExpr(pre, new MetaClass(cls));
         }
 
         StringBuilder pathBuilder = new StringBuilder(pre.getLexeme());
@@ -238,7 +239,7 @@ public class QLParser {
                     for (int i = 0; i < lookAheadNum + 1; i++) {
                         advance();
                     }
-                    return new ConstExpr(partPath, cls);
+                    return new ConstExpr(partPath, new MetaClass(cls));
                 }
                 splitDot = scanner.lookAhead();
             } else {
@@ -663,7 +664,7 @@ public class QLParser {
     }
 
     private boolean canAssign(Expr leftExpr) {
-        return (leftExpr instanceof FieldCallExpr) || (leftExpr instanceof IdExpr) ||
+        return (leftExpr instanceof GetFieldExpr) || (leftExpr instanceof IdExpr) ||
                 (leftExpr instanceof IndexCallExpr);
     }
 
@@ -833,13 +834,20 @@ public class QLParser {
             advanceOrReportErrorWithToken(TokenType.RBRACK, "CAN_NOT_FIND_RBRACK_TO_MATCH",
                     "can not find ']' to match", keyToken);
             return new IndexCallExpr(keyToken, left, indexExpr);
-        } else if (pre.getType() == TokenType.DOT || pre.getType() == TokenType.METHOD_REF) {
-            // field call
+        } else if (pre.getType() == TokenType.DOT) {
+            // get field
             if (matchTypeAndAdvance(TokenType.ID)) {
-                return new FieldCallExpr(pre, left, new Identifier(pre));
+                return new GetFieldExpr(pre, left, new Identifier(pre));
             }
             throw QLException.reportParserErr(scanner.getScript(),
                     lastToken(), "INVALID_FIELD", "invalid field");
+        } else if (pre.getType() == TokenType.METHOD_REF) {
+            // get method
+            if (matchTypeAndAdvance(TokenType.ID)) {
+                return new GetMethodExpr(pre, left, new Identifier(pre));
+            }
+            throw QLException.reportParserErr(scanner.getScript(),
+                    lastToken(), "INVALID_METHOD_NAME", "invalid method name");
         } else if (pre.getType() == TokenType.INC || pre.getType() == TokenType.DEC) {
             // suffix operator
             return new SuffixUnaryOpExpr(pre, left);

@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.parser;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -243,7 +244,8 @@ class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
                 List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
                 ConstExpr typeConstExpr = (ConstExpr) idExpr;
                 return new TypeExpr(idToken, new DeclType(typeConstExpr.getKeyToken(),
-                        (Class<?>) typeConstExpr.getConstValue(), typeArguments));
+                        ((MetaClass) typeConstExpr.getConstValue()).getClz(),
+                        typeArguments));
             }
         }
         return idExpr;

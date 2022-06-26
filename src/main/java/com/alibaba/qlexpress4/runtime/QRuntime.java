@@ -10,9 +10,9 @@ public interface QRuntime {
     /**
      * get assignable symbol variable by name
      * @param varName variable name
-     * @return assignable value, null if not exist
+     * @return value, null if not exist
      */
-    LeftValue getSymbol(String varName);
+    Value getSymbol(String varName);
 
     /**
      * get symbol variable value by name

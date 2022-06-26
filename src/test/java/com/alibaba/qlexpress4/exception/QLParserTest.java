@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.Token;
 import com.alibaba.qlexpress4.parser.TokenType;
 import com.alibaba.qlexpress4.parser.tree.*;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 import org.junit.Test;
 
 import java.util.*;
@@ -272,7 +273,7 @@ public class QLParserTest {
         Program program3 = parse("(Integer) a.test");
         CastExpr castFieldCallExpr = (CastExpr) program3.getStmtList().get(0);
         assertTrue(castFieldCallExpr.getTypeExpr() instanceof ConstExpr);
-        assertTrue(castFieldCallExpr.getTarget() instanceof FieldCallExpr);
+        assertTrue(castFieldCallExpr.getTarget() instanceof GetFieldExpr);
     }
 
     @Test
@@ -345,8 +346,8 @@ public class QLParserTest {
         BinaryOpExpr left = (BinaryOpExpr) binaryOpExpr.getLeft();
         assertTrue(left.getLeft() instanceof ConstExpr);
         CallExpr leftRight = (CallExpr) left.getRight();
-        FieldCallExpr fieldCallExpr = (FieldCallExpr) leftRight.getTarget();
-        CastExpr castExpr = (CastExpr) ((GroupExpr) fieldCallExpr.getExpr()).getExpr();
+        GetFieldExpr getFieldExpr = (GetFieldExpr) leftRight.getTarget();
+        CastExpr castExpr = (CastExpr) ((GroupExpr) getFieldExpr.getExpr()).getExpr();
         assertEquals("Function", castExpr.getTypeExpr().getKeyToken().getLexeme());
         assertTrue(castExpr.getTarget() instanceof LambdaExpr);
 
@@ -372,10 +373,10 @@ public class QLParserTest {
         Program program = parse("1+a.c+2");
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         BinaryOpExpr left = (BinaryOpExpr) binaryOpExpr.getLeft();
-        FieldCallExpr fieldCallExpr = (FieldCallExpr) left.getRight();
-        assertTrue(fieldCallExpr.getExpr() instanceof IdExpr);
-        assertEquals("a", fieldCallExpr.getExpr().getKeyToken().getLexeme());
-        assertEquals("c", fieldCallExpr.getAttribute().getKeyToken().getLexeme());
+        GetFieldExpr getFieldExpr = (GetFieldExpr) left.getRight();
+        assertTrue(getFieldExpr.getExpr() instanceof IdExpr);
+        assertEquals("a", getFieldExpr.getExpr().getKeyToken().getLexeme());
+        assertEquals("c", getFieldExpr.getAttribute().getKeyToken().getLexeme());
 
         assertErrReport("a.(1+2)", "[Error: invalid field]\n" +
                 "[Near: a.(1+2)]\n" +
@@ -389,11 +390,11 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
         CallExpr left = (CallExpr) binaryOpExpr.getLeft();
         assertTrue(left.getArguments().isEmpty());
-        FieldCallExpr objectExpr = (FieldCallExpr) left.getTarget();
+        GetFieldExpr objectExpr = (GetFieldExpr) left.getTarget();
         assertEquals("a", objectExpr.getExpr().getKeyToken().getLexeme());
         assertEquals("c", objectExpr.getAttribute().getKeyToken().getLexeme());
         CallExpr right = (CallExpr) binaryOpExpr.getRight();
-        assertTrue(right.getTarget() instanceof FieldCallExpr);
+        assertTrue(right.getTarget() instanceof GetFieldExpr);
         assertEquals(Arrays.asList("1", "2"), right.getArguments().stream()
                 .map(Expr::getKeyToken)
                 .map(Token::getLexeme)
@@ -640,21 +641,22 @@ public class QLParserTest {
     public void methodRefTest() {
         Program program = parse("Math::abs testOp s::charAt");
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
-        assertTrue(binaryOpExpr.getLeft() instanceof FieldCallExpr);
-        assertTrue(binaryOpExpr.getRight() instanceof FieldCallExpr);
-        FieldCallExpr leftFieldCall = (FieldCallExpr) binaryOpExpr.getLeft();
-        assertEquals("abs", leftFieldCall.getAttribute().getKeyToken().getLexeme());
-        assertEquals("Math", leftFieldCall.getExpr().getKeyToken().getLexeme());
+        assertTrue(binaryOpExpr.getLeft() instanceof GetMethodExpr);
+        assertTrue(binaryOpExpr.getRight() instanceof GetMethodExpr);
+        GetMethodExpr leftGetMethod = (GetMethodExpr) binaryOpExpr.getLeft();
+        assertEquals("abs", leftGetMethod.getAttribute().getKeyToken().getLexeme());
+        assertEquals("Math", leftGetMethod.getExpr().getKeyToken().getLexeme());
 
-        FieldCallExpr rightFieldCall = (FieldCallExpr) binaryOpExpr.getRight();
-        assertEquals("charAt", rightFieldCall.getAttribute().getKeyToken().getLexeme());
-        assertEquals("s", rightFieldCall.getExpr().getKeyToken().getLexeme());
+        GetMethodExpr rightGetMethod = (GetMethodExpr) binaryOpExpr.getRight();
+        assertEquals("charAt", rightGetMethod.getAttribute().getKeyToken().getLexeme());
+        assertEquals("s", rightGetMethod.getExpr().getKeyToken().getLexeme());
     }
 
     @Test
     public void parseClsQualifiedNameTest() {
         Program programClsFirst = parse("int java = 10;java.util.ArrayList");
-        assertEquals(ArrayList.class, ((ConstExpr) programClsFirst.getStmtList().get(1)).getConstValue());
+        assertEquals(ArrayList.class, ((MetaClass) ((ConstExpr) programClsFirst.getStmtList().get(1))
+                .getConstValue()).getClz());
 
         assertErrReport("Map<java.cc.String, Integer> m;", "[Error: can not find class: java.cc.String]\n" +
                 "[Near: p<java.cc.String, Integer>]\n" +

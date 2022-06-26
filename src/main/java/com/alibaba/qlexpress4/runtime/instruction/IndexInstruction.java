@@ -27,8 +27,8 @@ public class IndexInstruction extends QLInstruction {
     @SuppressWarnings("unchecked")
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object indexAble = qRuntime.pop().get();
         Object index = qRuntime.pop().get();
+        Object indexAble = qRuntime.pop().get();
         if (indexAble instanceof List) {
             Integer indexInt = assertType(index, Integer.class, "LIST_INVALID_INDEX",
                     "list can only be indexed by int");
@@ -44,6 +44,16 @@ public class IndexInstruction extends QLInstruction {
                     indexAble == null? "null": indexAble.getClass().getName());
         }
         return QResult.CONTINUE_RESULT;
+    }
+
+    @Override
+    public int stackInput() {
+        return 2;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
     }
 
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {
