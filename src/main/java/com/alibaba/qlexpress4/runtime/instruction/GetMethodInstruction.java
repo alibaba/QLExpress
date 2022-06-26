@@ -46,6 +46,16 @@ public class GetMethodInstruction extends QLInstruction {
         }
     }
 
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     public DataValue getClazzMethod(Object bean, boolean enableAllowAccessPrivateMethod){
         List<Method> cacheElement = CacheUtil.getMethodCacheElement((Class<?>) bean , this.methodName);
         if (cacheElement == null) {

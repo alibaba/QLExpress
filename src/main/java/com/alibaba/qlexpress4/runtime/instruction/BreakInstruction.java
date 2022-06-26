@@ -21,4 +21,14 @@ public class BreakInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         return QResult.BREAK_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
 }

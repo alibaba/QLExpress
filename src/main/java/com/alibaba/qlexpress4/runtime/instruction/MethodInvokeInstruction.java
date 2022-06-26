@@ -64,6 +64,16 @@ public class MethodInvokeInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return argNum + 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     public Method getClazzMethod(Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
         Method cacheElement = CacheUtil.getMethodInvokeCacheElement((Class<?>) bean , this.methodName, type);
         if (cacheElement == null) {

@@ -30,4 +30,14 @@ public class LoadLambdaInstruction extends QLInstruction {
         qRuntime.push(new DataValue(lambdaInstance));
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

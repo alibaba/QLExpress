@@ -23,4 +23,14 @@ public abstract class QLInstruction {
     }
 
     public abstract QResult execute(QRuntime qRuntime, QLOptions qlOptions);
+
+    /**
+     * @return input size
+     */
+    public abstract int stackInput();
+
+    /**
+     * @return output size
+     */
+    public abstract int stackOutput();
 }

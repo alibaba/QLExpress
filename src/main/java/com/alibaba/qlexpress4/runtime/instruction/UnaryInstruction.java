@@ -31,4 +31,14 @@ public class UnaryInstruction extends QLInstruction {
         //qRuntime.push();
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

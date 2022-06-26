@@ -25,4 +25,14 @@ public class NewListInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return initLength;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

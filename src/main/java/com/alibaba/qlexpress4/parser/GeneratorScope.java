@@ -14,23 +14,24 @@ public class GeneratorScope {
 
     private final GeneratorScope parent;
 
-    private Map<String, List<QLInstruction>> macroInstructions;
+    private Map<String, QvmInstructionGenerator.NodeInstructions> macroInstructions;
 
     public GeneratorScope(GeneratorScope parent) {
         this.parent = parent;
         this.macroInstructions = Collections.emptyMap();
     }
 
-    public void defineMacro(String name, List<QLInstruction> instructions) {
-        if (macroInstructions == Collections.<String, List<QLInstruction>>emptyMap()) {
+    public void defineMacro(String name, QvmInstructionGenerator.NodeInstructions instructions) {
+        if (macroInstructions == Collections.
+                <String, QvmInstructionGenerator.NodeInstructions>emptyMap()) {
             // optimize performance
             macroInstructions = new HashMap<>();
         }
         macroInstructions.put(name, instructions);
     }
 
-    public List<QLInstruction> getMacroInstructions(String macroName) {
-        List<QLInstruction> qlInstructions = macroInstructions.get(macroName);
+    public QvmInstructionGenerator.NodeInstructions getMacroInstructions(String macroName) {
+        QvmInstructionGenerator.NodeInstructions qlInstructions = macroInstructions.get(macroName);
         return qlInstructions != null? qlInstructions:
                 parent != null? parent.getMacroInstructions(macroName): null;
     }

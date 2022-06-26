@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
+import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class TryCatchInstruction extends QLInstruction {
             return tryCatchResult;
         }
         Value resultValue = finalBody == null? tryCatchResult.getResult(): finalResult.getResult();
-        qRuntime.push(new DataValue(resultValue.get()));
+        qRuntime.push(ValueUtils.toImmutable(resultValue));
         return QResult.CONTINUE_RESULT;
     }
 

@@ -40,4 +40,14 @@ public class CastInstruction extends QLInstruction {
         }
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 2;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

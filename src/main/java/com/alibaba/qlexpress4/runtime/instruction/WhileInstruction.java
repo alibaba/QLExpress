@@ -48,6 +48,16 @@ public class WhileInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
+
     private boolean evalCondition(QRuntime qRuntime, QLOptions qlOptions) {
         try {
             QLambda conditionLambda = condition.toLambda(qRuntime, qlOptions, false);

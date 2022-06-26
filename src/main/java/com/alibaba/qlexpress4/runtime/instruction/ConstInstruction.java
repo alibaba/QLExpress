@@ -27,4 +27,14 @@ public class ConstInstruction extends QLInstruction {
         qRuntime.push(new DataValue(constObj));
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
 }

@@ -62,6 +62,16 @@ public class GetFieldInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     /**
      * getValue from cache, if value not exist getInstance
      *

@@ -28,6 +28,16 @@ public class LoadInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     private LeftValue getOrCreateSymbol(QRuntime qRuntime) {
         LeftValue symbol = qRuntime.getSymbol(name);
         if (symbol == null) {

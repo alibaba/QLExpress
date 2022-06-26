@@ -46,6 +46,16 @@ public class IndexInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
+    @Override
+    public int stackInput() {
+        return 2;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 1;
+    }
+
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {
         if (obj != null && obj.getClass().isAssignableFrom(obj.getClass())) {
             return assertType.cast(obj);

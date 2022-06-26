@@ -29,4 +29,14 @@ public class CheckTimeOutInstruction extends QLInstruction {
         }
         return QResult.CONTINUE_RESULT;
     }
+
+    @Override
+    public int stackInput() {
+        return 0;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
 }

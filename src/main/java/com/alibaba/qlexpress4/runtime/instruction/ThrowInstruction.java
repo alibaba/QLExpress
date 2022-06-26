@@ -22,4 +22,14 @@ public class ThrowInstruction extends QLInstruction {
         Object throwObj = qRuntime.pop().get();
         throw errorReporter.report(throwObj, "USER_DEFINED_THROW", "throw statement");
     }
+
+    @Override
+    public int stackInput() {
+        return 1;
+    }
+
+    @Override
+    public int stackOutput() {
+        return 0;
+    }
 }
