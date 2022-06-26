@@ -2,8 +2,12 @@ package com.alibaba.qlexpress4;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -20,4 +24,14 @@ public class Express4RunnerTest {
         assertTrue(result instanceof HashMap);
     }
 
+    @Test
+    public void parseLambdaTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+
+        List<Integer> result = Stream.of(1, 2, 3)
+                .filter(express4Runner.parseToLambda("false", Collections.emptyMap(),
+                        QLOptions.DEFAULT_OPTIONS))
+                .collect(Collectors.toList());
+        assertTrue(result.isEmpty());
+    }
 }
