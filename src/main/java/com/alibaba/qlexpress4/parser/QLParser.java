@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.ClassSupplier;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -221,7 +222,7 @@ public class QLParser {
     public Expr parseIdOrQualifiedCls() {
         Class<?> cls = importManager.loadFromImport(pre.getLexeme(), classSupplier);
         if (cls != null) {
-            return new ConstExpr(pre, cls);
+            return new ConstExpr(pre, new MetaClass(cls));
         }
 
         StringBuilder pathBuilder = new StringBuilder(pre.getLexeme());
@@ -238,7 +239,7 @@ public class QLParser {
                     for (int i = 0; i < lookAheadNum + 1; i++) {
                         advance();
                     }
-                    return new ConstExpr(partPath, cls);
+                    return new ConstExpr(partPath, new MetaClass(cls));
                 }
                 splitDot = scanner.lookAhead();
             } else {

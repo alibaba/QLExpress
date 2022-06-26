@@ -3,10 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -48,12 +45,9 @@ public class MethodInvokeInstruction extends QLInstruction {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method method;
-        if(bean instanceof Class){
-            method = getClazzMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
-        }else {
-            method = getInstanceMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
-        }
+        Method method = bean instanceof MetaClass?
+                getClazzMethod(((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
+                getInstanceMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
         try {
             Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
