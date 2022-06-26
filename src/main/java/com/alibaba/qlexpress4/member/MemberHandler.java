@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLTransferException;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.process.CandidateMethodAttr;
 import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
+import com.alibaba.qlexpress4.runtime.data.process.Weighter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -68,12 +69,12 @@ public class MemberHandler {
                 Class<?>[] targetMatch = candidates[i].getParamClass();
                 //parent first
                 int assignLevel = candidates[i].getLevel();
-                int level = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, assignLevel);
-                if (level < bestMatcher.getMatchWeight()) {
+                int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, new Weighter(assignLevel));
+                if (weight < bestMatcher.getMatchWeight()) {
                     bestMatcher.setParametersClassType(targetMatch);
-                    bestMatcher.setMatchWeight(level);
+                    bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);
-                } else if (level == bestMatcher.getMatchWeight() && level != ParametersMatcher.DEFAULT_WEIGHT) {
+                } else if (weight == bestMatcher.getMatchWeight() && weight != ParametersMatcher.DEFAULT_WEIGHT) {
                     throw new QLTransferException("not the only method matcher found");
                 }
             }

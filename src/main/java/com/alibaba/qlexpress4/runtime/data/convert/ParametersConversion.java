@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.data.process.Weighter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
@@ -11,26 +12,24 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
  */
 public class ParametersConversion {
 
-    private final static int LEVEL_WEIGHT = 10;
-
     public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate) {
-        return calculatorMatchConversionWeight(qlCaches, goal, candidate, 0);
+        return calculatorMatchConversionWeight(qlCaches, goal, candidate, new Weighter());
     }
 
-    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, int assignLevel) {
-        int matchConversionLevel = MatchConversation.EQUALS.weight;
+    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, Weighter weighter) {
+        int matchConversionWeight = MatchConversation.EQUALS.weight;
         for (int i = 0; i < goal.length; i++) {
             MatchConversation result = compareParametersTypes(qlCaches, candidate[i], goal[i]);
             if (MatchConversation.NOT_MATCH == result) {
                 return MatchConversation.NOT_MATCH.weight;
             }
-            int weight = result.weight + assignLevel * LEVEL_WEIGHT;
-            if (matchConversionLevel < weight) {
-                matchConversionLevel = weight;
+            int weight = weighter.addWeight(result.weight);
+            if (matchConversionWeight < weight) {
+                matchConversionWeight = weight;
             }
         }
         //child level first
-        return matchConversionLevel;
+        return matchConversionWeight;
     }
 
 
@@ -45,7 +44,7 @@ public class ParametersConversion {
             return compareParametersTypes(qlCaches, target.getComponentType(), source.getComponentType());
         }
         if (source.isPrimitive() && target == Object.class) {
-            return MatchConversation.NORMAL;
+            return MatchConversation.IMPLICIT;
         }
         if (BasicUtil.transToPrimitive(source) == BasicUtil.transToPrimitive(target)) {
             return MatchConversation.IMPLICIT;
@@ -69,7 +68,8 @@ public class ParametersConversion {
 
 
     enum MatchConversation {
-        NOT_MATCH(-1), EXTEND(5), IMPLICIT(4), NORMAL(3), ASSIGN(2), EQUALS(1);
+
+        NOT_MATCH(-1), EXTEND(4), IMPLICIT(3), ASSIGN(2), EQUALS(1);
 
         private int weight;
 
