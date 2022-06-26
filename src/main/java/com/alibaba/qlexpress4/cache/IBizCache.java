@@ -1,20 +1,18 @@
 package com.alibaba.qlexpress4.cache;
 
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
  * @Author TaoKan
- * @Date 2022/4/7 下午5:18
+ * @Date 2022/6/26 下午4:37
  */
-public interface ICacheElement<V> {
+public interface IBizCache<E,P> {
+    P initCache(int size, boolean enableUseCacheClear);
 
-    void initCache(int size, boolean enableUseCacheClear);
+    E getCacheElement(String key);
 
-    V getCacheElement(String key);
-
-    void setCacheElement(String key, V value);
+    void setCacheElement(String key, E value);
 
     default String buildCacheKey(Class<?> baseClass, String name, Class<?>[] types){
         StringBuilder builder = new StringBuilder();

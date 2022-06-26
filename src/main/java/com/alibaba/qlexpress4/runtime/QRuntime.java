@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.cache.*;
+
 /**
  * Author: DQinYuan
  */
@@ -61,4 +63,9 @@ public interface QRuntime {
      */
     long scriptStartTimeStamp();
 
+    /**
+     * get instance cache from qvm
+     * @return ICache
+     */
+    QLCaches getQLCaches();
 }

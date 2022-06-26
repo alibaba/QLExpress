@@ -1,6 +1,9 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.cache.QLCaches;
+import com.alibaba.qlexpress4.cache.QLConstructorCache;
+import com.alibaba.qlexpress4.cache.QLFunctionCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.ConstructorHandler;
 import com.alibaba.qlexpress4.runtime.Parameters;
@@ -43,12 +46,14 @@ public class NewInstruction extends QLInstruction {
             objs[i] = tmpObj;
         }
         try {
-            Constructor<?> cacheElement = CacheUtil.getConstructorCacheElement(this.newClz, paramTypes);
+            QLCaches qlCaches = qRuntime.getQLCaches();
+            QLConstructorCache qlConstructorCache = qlCaches.getQlConstructorCache();
+            Constructor<?> cacheElement = CacheUtil.getConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes);
             if (cacheElement == null) {
-                Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
+                Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(qlCaches, this.newClz, paramTypes);
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));
                 qRuntime.push(dataInstruction);
-                CacheUtil.setConstructorCacheElement(this.newClz, paramTypes, constructor);
+                CacheUtil.setConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes, constructor);
             } else {
                 Constructor<?> constructor = cacheElement;
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));

@@ -2,19 +2,18 @@ package com.alibaba.qlexpress4.cache;
 
 import java.lang.reflect.Constructor;
 
-
-
 /**
  * @Author TaoKan
- * @Date 2022/4/7 下午5:20
+ * @Date 2022/6/26 下午4:40
  */
-public class ConstructorCacheElement implements ICacheElement<Constructor<?>> {
+public class QLConstructorCache implements IBizCache<Constructor<?>,QLConstructorCache> {
     private ICache<String, Constructor<?>> CONSTRUCTOR_CACHE = null;
 
 
     @Override
-    public void initCache(int size, boolean enableUseCacheClear) {
+    public QLConstructorCache initCache(int size, boolean enableUseCacheClear) {
         CONSTRUCTOR_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
+        return this;
     }
 
     @Override

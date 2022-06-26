@@ -1,16 +1,16 @@
 package com.alibaba.qlexpress4.cache;
 
-
 /**
  * @Author TaoKan
- * @Date 2022/5/15 下午8:29
+ * @Date 2022/6/26 下午4:47
  */
-public class ScriptCacheElement implements ICacheElement<String> {
+public class QLScriptCache implements IBizCache<String,QLScriptCache> {
     private ICache<String, String> SCRIPT_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean enableUseCacheClear) {
+    public QLScriptCache initCache(int size, boolean enableUseCacheClear) {
         SCRIPT_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
+        return this;
     }
 
     @Override

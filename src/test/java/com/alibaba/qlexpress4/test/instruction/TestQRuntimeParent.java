@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4.test.instruction;
 
+import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.utils.CacheUtil;
 
 /**
  * @Author TaoKan
@@ -64,5 +66,19 @@ public class TestQRuntimeParent implements QRuntime {
     @Override
     public long scriptStartTimeStamp() {
         return 0;
+    }
+
+    @Override
+    public QLCaches getQLCaches() {
+        int size = 128;
+        boolean enableUseCacheClear = false;
+        QLCaches qlCaches = new QLCaches();
+        qlCaches.setQlConstructorCache(CacheUtil.initConstructorCache(size,enableUseCacheClear));
+        qlCaches.setQlFieldCache(CacheUtil.initFieldCache(size,enableUseCacheClear));
+        qlCaches.setQlFunctionCache(CacheUtil.initFunctionCache(size,enableUseCacheClear));
+        qlCaches.setQlMethodCache(CacheUtil.initMethodCache(size,enableUseCacheClear));
+        qlCaches.setQlMethodInvokeCache(CacheUtil.initMethodInvokeCache(size,enableUseCacheClear));
+        qlCaches.setQlScriptCache(CacheUtil.initScriptCache(size,true));
+        return qlCaches;
     }
 }

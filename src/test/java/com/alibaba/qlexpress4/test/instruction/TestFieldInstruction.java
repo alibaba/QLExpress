@@ -27,7 +27,6 @@ public class TestFieldInstruction {
     @Test
     public void case1() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(Parent.class));
@@ -48,7 +47,6 @@ public class TestFieldInstruction {
     @Test
     public void case2() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(Parent.class));
@@ -66,7 +64,6 @@ public class TestFieldInstruction {
     @Test
     public void case3() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(Parent.class));
@@ -86,7 +83,6 @@ public class TestFieldInstruction {
     @Test
     public void case4() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(Parent.class));
@@ -103,7 +99,6 @@ public class TestFieldInstruction {
     @Test
     public void case5() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(Parent.class));
@@ -121,7 +116,6 @@ public class TestFieldInstruction {
     @Test
     public void case6() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticFinal");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -140,7 +134,6 @@ public class TestFieldInstruction {
     @Test
     public void case7() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -158,7 +151,6 @@ public class TestFieldInstruction {
     @Test
     public void case8() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -176,7 +168,6 @@ public class TestFieldInstruction {
     @Test
     public void case9() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -195,7 +186,6 @@ public class TestFieldInstruction {
     @Test
     public void case10() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -217,7 +207,6 @@ public class TestFieldInstruction {
     @Test
     public void case11() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());
@@ -236,7 +225,6 @@ public class TestFieldInstruction {
     @Test
     public void case12() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "birth");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());
@@ -255,7 +243,6 @@ public class TestFieldInstruction {
     @Test
     public void case13() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "method1");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());

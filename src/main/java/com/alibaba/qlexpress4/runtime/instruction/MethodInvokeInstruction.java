@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.cache.QLCaches;
+import com.alibaba.qlexpress4.cache.QLMethodInvokeCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.Parameters;
@@ -49,10 +51,11 @@ public class MethodInvokeInstruction extends QLInstruction {
         }
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
         Method method;
+        QLCaches qlCaches = qRuntime.getQLCaches();
         if(bean instanceof Class){
-            method = getClazzMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
+            method = getClazzMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
         }else {
-            method = getInstanceMethod(bean, type, qlOptions.enableAllowAccessPrivateMethod());
+            method = getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
         }
         try {
             Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
@@ -64,30 +67,30 @@ public class MethodInvokeInstruction extends QLInstruction {
         return QResult.CONTINUE_RESULT;
     }
 
-    public Method getClazzMethod(Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        Method cacheElement = CacheUtil.getMethodInvokeCacheElement((Class<?>) bean , this.methodName, type);
+    public Method getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, methods.toArray(new Method[0]));
             if(method == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
-            CacheUtil.setMethodInvokeCacheElement((Class<?>)bean, this.methodName, method, type);
+            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, method, type);
             return method;
         }else {
             return cacheElement;
         }
     }
 
-    public Method getInstanceMethod(Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(bean.getClass() , this.methodName, type);
+    public Method getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass() , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, methods.toArray(new Method[0]));
             if(method == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
-            CacheUtil.setMethodInvokeCacheElement(bean.getClass(), this.methodName, method, type);
+            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, method, type);
             return method;
         }else {
             return cacheElement;

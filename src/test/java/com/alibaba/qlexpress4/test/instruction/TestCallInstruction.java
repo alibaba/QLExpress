@@ -37,7 +37,6 @@ public class TestCallInstruction {
                 return null;
             }
         };
-        CacheUtil.initCache(128, true);
         GetMethodInstruction getMethodInstruction = new GetMethodInstruction(errorReporter, "getMethod1");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());

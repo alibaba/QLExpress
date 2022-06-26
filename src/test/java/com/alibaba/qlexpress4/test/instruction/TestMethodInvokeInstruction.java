@@ -38,7 +38,6 @@ public class TestMethodInvokeInstruction {
                 return null;
             }
         };
-        CacheUtil.initCache(128, true);
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod1",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();

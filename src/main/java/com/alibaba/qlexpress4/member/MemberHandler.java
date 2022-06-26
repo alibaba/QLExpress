@@ -1,9 +1,11 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.enums.AccessMode;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.exception.QLTransferException;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.process.CandidateMethodAttr;
+import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -41,115 +43,42 @@ public class MemberHandler {
 
     public static class Preferred {
 
-
-        public static int findMostSpecificSignature(Class<?>[] idealMatch, Class<?>[][] candidates) {
-            Class<?>[] bestMatch = null;
-            int bestMatchIndex = -1;
+        public static int findMostSpecificSignature(QLCaches qlCaches, Class<?>[] goalMatch, Class<?>[][] candidates) {
+            ParametersMatcher bestMatcher = new ParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
-                if (isSignatureAssignable(idealMatch, targetMatch) && ((bestMatch == null)
-                        || isSignatureAssignable(targetMatch, bestMatch))) {
-                    bestMatch = targetMatch;
-                    bestMatchIndex = i;
+                int level = ParametersConversion.calculatorMatchConversionLevel(qlCaches, goalMatch, targetMatch, 0);
+                if (level > bestMatcher.getMatchLevel()) {
+                    bestMatcher.setParametersClassType(targetMatch);
+                    bestMatcher.setMatchLevel(level);
+                    bestMatcher.setIndex(i);
+                } else if (level == bestMatcher.getMatchLevel() && level != ParametersMatcher.DEFAULT_LEVEL) {
+                    throw new QLTransferException("not the only matcher found");
                 }
             }
-
-            if (bestMatch != null) {
-                return bestMatchIndex;
-            } else {
-                return -1;
-            }
+            return bestMatcher.getIndex();
         }
 
-        private static boolean isSignatureAssignable(Class<?>[] from, Class<?>[] to) {
-            for (int i = 0; i < from.length; i++) {
-                if (!isAssignable(to[i], from[i])) {
-                    return false;
+
+        public static int findMostSpecificSignature(QLCaches qlCaches, Class<?>[] goalMatch, CandidateMethodAttr[] candidates) {
+            ParametersMatcher bestMatcher = new ParametersMatcher();
+
+            for (int i = candidates.length - 1; i >= 0; i--) {
+                Class<?>[] targetMatch = candidates[i].getParamClass();
+                //parent first
+                int assignLevel = candidates[i].getLevel();
+                int level = ParametersConversion.calculatorMatchConversionLevel(qlCaches, goalMatch, targetMatch, assignLevel);
+                if (level < bestMatcher.getMatchLevel()) {
+                    bestMatcher.setParametersClassType(targetMatch);
+                    bestMatcher.setMatchLevel(level);
+                    bestMatcher.setIndex(i);
+                } else if (level == bestMatcher.getMatchLevel() && level != ParametersMatcher.DEFAULT_LEVEL) {
+                    throw new QLTransferException("not the only matcher found");
                 }
             }
-            return true;
+            return bestMatcher.getIndex();
         }
-
-        private static boolean isAssignable(Class<?> target, Class<?> source) {
-            if (target == source) {
-                return true;
-            }
-            if (target.isArray() && source.isArray()) {
-                return isAssignable(target.getComponentType(), source.getComponentType());
-            }
-            return isAssignablePrivate(target, source);
-        }
-
-        private static boolean isAssignablePrivate(Class<?> target, Class<?> source) {
-            if (target == source) {
-                return true;
-            }
-
-            if (target == null) {
-                return false;
-            }
-
-            if (source == null) {
-                return !target.isPrimitive();
-            }
-
-            if (target.isAssignableFrom(source)) {
-                return true;
-            }
-            if (source.isPrimitive() && target == Object.class) {
-                return true;
-            }
-
-            if (!target.isPrimitive()) {
-                if (target == Byte.class) {
-                    target = byte.class;
-                } else if (target == Short.class) {
-                    target = short.class;
-                } else if (target == Integer.class) {
-                    target = int.class;
-                } else if (target == Long.class) {
-                    target = long.class;
-                } else if (target == Float.class) {
-                    target = float.class;
-                } else if (target == Double.class) {
-                    target = double.class;
-                }
-            }
-            if (!source.isPrimitive()) {
-                if (source == Byte.class) {
-                    source = byte.class;
-                } else if (source == Short.class) {
-                    source = short.class;
-                } else if (source == Integer.class) {
-                    source = int.class;
-                } else if (source == Long.class) {
-                    source = long.class;
-                } else if (source == Float.class) {
-                    source = float.class;
-                } else if (source == Double.class) {
-                    source = double.class;
-                }
-            }
-
-            if (target == source) {
-                return true;
-            }
-
-            if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
-                    && CacheUtil.isFunctionInterface(target)) {
-                return true;
-            }
-
-            for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES) {
-                if (target == classMatch[0] && source == classMatch[1]) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
     }
 
 }

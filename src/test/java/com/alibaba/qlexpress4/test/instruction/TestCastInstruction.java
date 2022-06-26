@@ -20,7 +20,6 @@ public class TestCastInstruction {
     @Test
     public void testCastInstruction() {
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         CastInstruction newInstructionForParent0 = new CastInstruction(errorReporter);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         newInstructionForParent0.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);

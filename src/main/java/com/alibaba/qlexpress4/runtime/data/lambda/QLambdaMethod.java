@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.lambda;
 
+import com.alibaba.qlexpress4.cache.QLCaches;
+import com.alibaba.qlexpress4.cache.QLFunctionCache;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
@@ -17,11 +19,13 @@ public class QLambdaMethod implements QLambda {
     private List<Method> methods;
     private Object bean;
     private boolean allowAccessPrivate;
+    private QLCaches qlCaches;
 
-    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate) {
+    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate, QLCaches qlCaches) {
         this.methods = methods;
         this.bean = obj;
         this.allowAccessPrivate = allowAccessPrivate;
+        this.qlCaches = qlCaches;
     }
 
     @Override
@@ -31,7 +35,7 @@ public class QLambdaMethod implements QLambda {
         }
 
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, this.methods.toArray(new Method[0]));
+        Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, this.methods.toArray(new Method[0]));
 
         if (method == null) {
             return new QResult(null, QResult.ResultType.RETURN);
