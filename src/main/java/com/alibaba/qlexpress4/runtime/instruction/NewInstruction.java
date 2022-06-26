@@ -62,7 +62,7 @@ public class NewInstruction extends QLInstruction {
 
     @Override
     public int stackInput() {
-        return argNum + 1;
+        return argNum;
     }
 
     @Override

@@ -27,8 +27,8 @@ public class IndexInstruction extends QLInstruction {
     @SuppressWarnings("unchecked")
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object indexAble = qRuntime.pop().get();
         Object index = qRuntime.pop().get();
+        Object indexAble = qRuntime.pop().get();
         if (indexAble instanceof List) {
             Integer indexInt = assertType(index, Integer.class, "LIST_INVALID_INDEX",
                     "list can only be indexed by int");

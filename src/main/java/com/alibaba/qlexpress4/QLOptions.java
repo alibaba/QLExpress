@@ -20,6 +20,12 @@ public class QLOptions {
     private final boolean precise;
 
     /**
+     * define global symbol in user context
+     * default false
+     */
+    private final boolean polluteUserContext;
+
+    /**
      * allowAccessPrivateMethod default false
      */
     private final boolean allowAccessPrivateMethod;
@@ -38,9 +44,10 @@ public class QLOptions {
      */
     private final List<ImportManager.Import> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis,
+    private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod) {
         this.precise = precise;
+        this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
@@ -53,6 +60,10 @@ public class QLOptions {
 
     public boolean isPrecise() {
         return precise;
+    }
+
+    public boolean isPolluteUserContext() {
+        return polluteUserContext;
     }
 
     public boolean enableAllowAccessPrivateMethod() {
@@ -74,6 +85,8 @@ public class QLOptions {
     public static class Builder {
 
         private boolean precise = true;
+
+        private boolean polluteUserContext = false;
 
         private boolean allowAccessPrivateMethod;
 
@@ -113,7 +126,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
+            return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
         }
     }
 
