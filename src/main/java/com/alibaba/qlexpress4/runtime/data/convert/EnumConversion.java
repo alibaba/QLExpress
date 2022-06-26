@@ -8,10 +8,6 @@ import com.alibaba.qlexpress4.exception.QLTransferException;
  */
 public class EnumConversion {
 
-    /**
-     * this class requires that the supplied enum is not fitting a
-     * Collection case for casting
-     */
     public static Enum trans(Object object, Class<? extends Enum> type) {
         if (object == null) {
             return null;

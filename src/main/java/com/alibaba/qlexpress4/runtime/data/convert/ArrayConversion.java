@@ -43,7 +43,7 @@ public class ArrayConversion {
         }
 
         Class<?> elementType = type.getComponentType();
-        Collection<?> collection = asCollection(object);
+        Collection<?> collection = toCollection(object);
         Object array = Array.newInstance(elementType, collection.size());
 
         int i = 0;
@@ -54,7 +54,7 @@ public class ArrayConversion {
         return array;
     }
 
-    public static Collection asCollection(final Object value) {
+    public static Collection toCollection(final Object value) {
         if (value == null) {
             return Collections.EMPTY_LIST;
         } else if (value instanceof Collection) {
@@ -62,7 +62,7 @@ public class ArrayConversion {
         } else if (value instanceof Map) {
             return ((Map) value).entrySet();
         } else if (value.getClass().isArray()) {
-            return arrayAsCollection(value);
+            return arrayToCollection(value);
         } else if (value instanceof BaseStream) {
             return toList((BaseStream) value);
         } else if (value instanceof String) {
@@ -72,34 +72,17 @@ public class ArrayConversion {
         }
     }
 
-
-    /**
-     * Accumulates the elements of stream into a new List.
-     *
-     * @param self the stream
-     * @param <T>  the type of element
-     * @return a new {@code java.util.List} instance
-     * @since 2.5.0
-     */
-    public static <T> List<T> toList(final Stream<T> self) {
-        return self.collect(Collectors.toList());
+    public static <T> List<T> toList(final Stream<T> stream) {
+        return stream.collect(Collectors.toList());
     }
 
-    /**
-     * Accumulates the elements of stream into a new List.
-     *
-     * @param self the {@code java.util.stream.BaseStream}
-     * @param <T>  the type of element
-     * @return a new {@code java.util.List} instance
-     * @since 2.5.0
-     */
-    public static <T> List<T> toList(final BaseStream<T, ? extends BaseStream> self) {
-        return SteamConversion.stream(self.iterator()).collect(Collectors.toList());
+    public static <T> List<T> toList(final BaseStream<T, ? extends BaseStream> baseStream) {
+        return SteamConversion.stream(baseStream.iterator()).collect(Collectors.toList());
     }
 
 
-    public static List<String> toList(final CharSequence self) {
-        String s = self.toString();
+    public static List<String> toList(final CharSequence charSequence) {
+        String s = charSequence.toString();
         final int n = s.length();
         List<String> answer = new ArrayList<>(n);
         for (int i = 0; i < n; i += 1) {
@@ -108,20 +91,13 @@ public class ArrayConversion {
         return answer;
     }
 
-    public static Collection arrayAsCollection(Object value) {
+    public static Collection arrayToCollection(Object value) {
         if (value.getClass().getComponentType().isPrimitive()) {
             return primitiveArrayToList(value);
         }
-        return arrayAsCollection((Object[]) value);
+        return arrayToCollection((Object[]) value);
     }
 
-
-    /**
-     * Allows conversion of arrays into a mutable List
-     *
-     * @param array an array
-     * @return the array as a List
-     */
     public static List primitiveArrayToList(Object array) {
         int size = Array.getLength(array);
         List list = new ArrayList(size);
@@ -135,7 +111,7 @@ public class ArrayConversion {
         return list;
     }
 
-    public static <T> Collection<T> arrayAsCollection(T[] value) {
+    public static <T> Collection<T> arrayToCollection(T[] value) {
         return Arrays.asList(value);
     }
 
