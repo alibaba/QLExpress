@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.parser.ImportManager;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,9 +36,10 @@ public class QLOptions {
     /**
      * default import java packages for script
      */
-    private final List<String> defaultImport;
+    private final List<ImportManager.Import> defaultImport;
 
-    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis, List<String> defaultImport, boolean allowAccessPrivateMethod) {
+    private QLOptions(boolean precise, ClassLoader classLoader, long timeoutMillis,
+                      List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod) {
         this.precise = precise;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
@@ -64,7 +67,7 @@ public class QLOptions {
         return timeoutMillis;
     }
 
-    public List<String> getDefaultImport() {
+    public List<ImportManager.Import> getDefaultImport() {
         return defaultImport;
     }
 
@@ -78,8 +81,10 @@ public class QLOptions {
 
         private long timeoutMillis = -1;
 
-        private List<String> defaultImport = Arrays.asList(
-                "java.lang", "java.util", "java.util.stream"
+        private List<ImportManager.Import> defaultImport = Arrays.asList(
+                ImportManager.importPack("java.lang"),
+                ImportManager.importPack("java.util"),
+                ImportManager.importPack("java.util.stream")
         );
 
         public Builder precise(boolean precise) {
@@ -97,7 +102,7 @@ public class QLOptions {
             return this;
         }
 
-        public Builder defaultImport(List<String> defaultImport) {
+        public Builder defaultImport(List<ImportManager.Import> defaultImport) {
             this.defaultImport = defaultImport;
             return this;
         }
