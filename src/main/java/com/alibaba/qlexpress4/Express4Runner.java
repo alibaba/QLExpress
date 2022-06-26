@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
@@ -21,7 +22,12 @@ public class Express4Runner {
     private Map<String, BinaryOperator> userDefineOperator = Collections.emptyMap();
 
     public Express4Runner(InitOptions initOptions) {
-        CacheUtil.initCache(10, initOptions.enableUseCacheClear());
+        QLConstructorCache qlConstructorCache = CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear());
+        QLFunctionCache qlFunctionCache = CacheUtil.initFunctionCache(10, initOptions.enableUseCacheClear());
+        QLScriptCache qlScriptCache = CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear());
+        QLFieldCache qlFieldCache = CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear());
+        QLMethodCache qlMethodCache = CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear());
+        QLMethodInvokeCache qlMethodInvokeCache = CacheUtil.initMethodInvokeCache(10, initOptions.enableUseCacheClear());
     }
 
     public Object execute(String script, Map<String, Value> context, QLOptions qlOptions) throws Exception {
