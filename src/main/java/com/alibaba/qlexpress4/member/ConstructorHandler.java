@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.cache.QLFunctionCache;
-import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class ConstructorHandler extends MemberHandler {
                 }
             }
             int match = MemberHandler.Preferred.findMostSpecificSignatureForConstructor(qlCaches, types, listClass.toArray(new Class[0][]));
-            return match == ParametersMatcher.DEFAULT_INDEX ? null : constructorList.get(match);
+            return match == BasicUtil.DEFAULT_MATCH_INDEX ? null : constructorList.get(match);
         }
     }
 }

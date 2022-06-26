@@ -87,7 +87,7 @@ public class MethodHandler extends MemberHandler {
                 candidates[i] = new CandidateMethodAttr(methods[i].getParameterTypes(),level);
             }
             int match = MemberHandler.Preferred.findMostSpecificSignature(qlCaches, idealMatch, candidates);
-            return match == ParametersMatcher.DEFAULT_INDEX ? null : methods[match];
+            return match == BasicUtil.DEFAULT_MATCH_INDEX ? null : methods[match];
         }
 
 

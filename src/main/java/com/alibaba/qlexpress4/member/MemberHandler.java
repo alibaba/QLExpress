@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.process.CandidateMethodAttr;
 import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
 import com.alibaba.qlexpress4.runtime.data.process.Weighter;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -54,7 +55,7 @@ public class MemberHandler {
                     bestMatcher.setParametersClassType(targetMatch);
                     bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);
-                } else if (weight == bestMatcher.getMatchWeight() && weight != ParametersMatcher.DEFAULT_WEIGHT) {
+                } else if (weight == bestMatcher.getMatchWeight() && weight != BasicUtil.DEFAULT_WEIGHT) {
                     throw new QLTransferException("not the only constructor found");
                 }
             }
@@ -70,7 +71,7 @@ public class MemberHandler {
                 //parent first
                 int assignLevel = candidates[i].getLevel();
                 int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, new Weighter(assignLevel));
-                if (weight != ParametersMatcher.DEFAULT_WEIGHT){
+                if (weight != BasicUtil.DEFAULT_WEIGHT){
                     if (weight < bestMatcher.getMatchWeight()) {
                         bestMatcher.setParametersClassType(targetMatch);
                         bestMatcher.setMatchWeight(weight);

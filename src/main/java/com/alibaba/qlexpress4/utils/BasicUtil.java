@@ -20,6 +20,8 @@ public class BasicUtil {
     public static final String CLASS = "class";
     public static final String NEW = "new";
     public static final int LEVEL_FACTOR = 10;
+    public static final int DEFAULT_MATCH_INDEX = -1;
+    public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
     public static final Class<?>[][] CLASS_MATCHES_IMPLICIT = new Class[][]{
             //原始数据类型
