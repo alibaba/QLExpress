@@ -25,25 +25,21 @@ public class BasicUtil {
 
     public static final Class<?>[][] CLASS_MATCHES_IMPLICIT = new Class[][]{
             {double.class, float.class}, {double.class, long.class}, {double.class, int.class},
-            {double.class, short.class},
-            {double.class, byte.class},  {float.class, long.class}, {float.class, int.class},
-            {float.class, short.class}, {float.class, byte.class},
+            {double.class, short.class},{double.class, byte.class},  {float.class, long.class},
+            {float.class, int.class},{float.class, short.class}, {float.class, byte.class},
             {long.class, int.class}, {long.class, short.class}, {long.class, byte.class},
-            {int.class, short.class}, {int.class, byte.class},
-            {short.class, byte.class}
+            {int.class, short.class}, {int.class, byte.class}, {short.class, byte.class}
     };
 
     public static final Class<?>[][] CLASS_MATCHES_EXTEND = new Class[][]{
             {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
             {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
-            {double.class, BigDecimal.class}, {float.class, BigDecimal.class},
-            {short.class, BigDecimal.class}, {byte.class, BigDecimal.class},
-            {int.class, BigDecimal.class}, {long.class, BigDecimal.class},
+            {double.class, BigDecimal.class}, {float.class, BigDecimal.class}, {byte.class, BigDecimal.class},
+            {short.class, BigDecimal.class}, {int.class, BigDecimal.class}, {long.class, BigDecimal.class},
             {BigInteger.class, double.class}, {BigInteger.class, float.class}, {BigInteger.class, long.class},
             {BigInteger.class, int.class}, {BigInteger.class, short.class}, {BigInteger.class, byte.class},
-            {double.class, BigInteger.class}, {float.class, BigInteger.class},
-            {short.class, BigInteger.class}, {byte.class, BigInteger.class},
-            {int.class, BigInteger.class}, {long.class, BigInteger.class}
+            {double.class, BigInteger.class}, {float.class, BigInteger.class},{byte.class, BigInteger.class},
+            {short.class, BigInteger.class}, {int.class, BigInteger.class}, {long.class, BigInteger.class}
     };
 
 
