@@ -104,14 +104,14 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         assignExpr.getLeft().accept(this, generatorScope);
         assignExpr.getRight().accept(this, generatorScope);
         addInstruction(new OperatorInstruction(newReporterByNode(assignExpr), OperatorFactory
-                .getOperator(assignExpr.getKeyToken().getLexeme())));
+                .getBinaryOperator(assignExpr.getKeyToken().getLexeme())));
         return null;
     }
 
     @Override
     public Void visit(BinaryOpExpr binaryOpExpr, GeneratorScope generatorScope) {
         addInstruction(new OperatorInstruction(newReporterByNode(binaryOpExpr), OperatorFactory
-                .getOperator(binaryOpExpr.getKeyToken().getLexeme())));
+                .getBinaryOperator(binaryOpExpr.getKeyToken().getLexeme())));
         return null;
     }
 
