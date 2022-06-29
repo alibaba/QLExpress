@@ -12,14 +12,14 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
  */
 public class ParametersConversion {
 
-    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate) {
-        return calculatorMatchConversionWeight(qlCaches, goal, candidate, new Weighter());
+    public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate) {
+        return calculatorMatchConversionWeight(goal, candidate, new Weighter());
     }
 
-    public static int calculatorMatchConversionWeight(QLCaches qlCaches, Class<?>[] goal, Class<?>[] candidate, Weighter weighter) {
+    public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate, Weighter weighter) {
         int matchConversionWeight = MatchConversation.EQUALS.weight;
         for (int i = 0; i < goal.length; i++) {
-            MatchConversation result = compareParametersTypes(qlCaches, candidate[i], goal[i]);
+            MatchConversation result = compareParametersTypes(candidate[i], goal[i]);
             if (MatchConversation.NOT_MATCH == result) {
                 return MatchConversation.NOT_MATCH.weight;
             }
@@ -33,7 +33,7 @@ public class ParametersConversion {
     }
 
 
-    private static MatchConversation compareParametersTypes(QLCaches qlCaches, Class<?> target, Class<?> source) {
+    private static MatchConversation compareParametersTypes(Class<?> target, Class<?> source) {
         if (target == source) {
             return MatchConversation.EQUALS;
         }
@@ -41,7 +41,7 @@ public class ParametersConversion {
             return MatchConversation.ASSIGN;
         }
         if (target.isArray() && source.isArray()) {
-            return compareParametersTypes(qlCaches, target.getComponentType(), source.getComponentType());
+            return compareParametersTypes(target.getComponentType(), source.getComponentType());
         }
         if (source.isPrimitive() && target == Object.class) {
             return MatchConversation.IMPLICIT;
@@ -50,7 +50,7 @@ public class ParametersConversion {
             return MatchConversation.IMPLICIT;
         }
         if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
-                && CacheUtil.isFunctionInterface(qlCaches.getQlFunctionCache(), target)) {
+                && CacheUtil.isFunctionInterface(target)) {
             return MatchConversation.IMPLICIT;
         }
         for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES_IMPLICIT) {

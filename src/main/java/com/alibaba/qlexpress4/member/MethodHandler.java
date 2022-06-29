@@ -77,7 +77,7 @@ public class MethodHandler extends MemberHandler {
          * @param methods
          * @return
          */
-        public static Method findMostSpecificMethod(QLCaches qlCaches, Class<?>[] idealMatch, Method[] methods) {
+        public static Method findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
             CandidateMethodAttr[] candidates = new CandidateMethodAttr[methods.length];
             Method compareMethod = null;
             int level = 1;
@@ -86,7 +86,7 @@ public class MethodHandler extends MemberHandler {
                 compareMethod = methods[i];
                 candidates[i] = new CandidateMethodAttr(methods[i].getParameterTypes(),level);
             }
-            int match = MemberHandler.Preferred.findMostSpecificSignature(qlCaches, idealMatch, candidates);
+            int match = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
             return match == BasicUtil.DEFAULT_MATCH_INDEX ? null : methods[match];
         }
 

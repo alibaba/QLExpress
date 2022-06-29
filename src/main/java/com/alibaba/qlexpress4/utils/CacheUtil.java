@@ -12,6 +12,8 @@ import java.util.List;
  * @Date 2022/5/28 下午5:21
  */
 public class CacheUtil {
+    public static final QLFunctionCache qlFunctionCache = initFunctionCache(64,false);
+
     public static QLFieldCache initFieldCache(int size, boolean enableUseCacheClear) {
         return new QLFieldCache().initCache(size, enableUseCacheClear);
     }
@@ -90,7 +92,7 @@ public class CacheUtil {
         qlConstructorCache.setCacheElement(key, value);
     }
 
-    public static boolean isFunctionInterface(QLFunctionCache qlFunctionCache, Class<?> clazz) {
+    public static boolean isFunctionInterface(Class<?> clazz) {
         if (clazz == null) {
             return false;
         }

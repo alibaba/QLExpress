@@ -45,12 +45,12 @@ public class MemberHandler {
 
     public static class Preferred {
 
-        public static int findMostSpecificSignatureForConstructor(QLCaches qlCaches, Class<?>[] goalMatch, Class<?>[][] candidates) {
+        public static int findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {
             ParametersMatcher bestMatcher = new ParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
-                int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch);
+                int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch);
                 if (weight > bestMatcher.getMatchWeight()) {
                     bestMatcher.setParametersClassType(targetMatch);
                     bestMatcher.setMatchWeight(weight);
@@ -63,14 +63,14 @@ public class MemberHandler {
         }
 
 
-        public static int findMostSpecificSignature(QLCaches qlCaches, Class<?>[] goalMatch, CandidateMethodAttr[] candidates) {
+        public static int findMostSpecificSignature(Class<?>[] goalMatch, CandidateMethodAttr[] candidates) {
             ParametersMatcher bestMatcher = new ParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i].getParamClass();
                 //parent first
                 int assignLevel = candidates[i].getLevel();
-                int weight = ParametersConversion.calculatorMatchConversionWeight(qlCaches, goalMatch, targetMatch, new Weighter(assignLevel));
+                int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new Weighter(assignLevel));
                 if (weight != BasicUtil.DEFAULT_WEIGHT){
                     if (weight < bestMatcher.getMatchWeight()) {
                         bestMatcher.setParametersClassType(targetMatch);

@@ -11,7 +11,7 @@ import java.util.stream.*;
  * @Date 2022/6/26 下午3:35
  */
 public class ArrayConversion {
-    public static Object trans(QLCaches qlCaches, final Object object, final Class type) {
+    public static Object trans(final Object object, final Class type) {
         if (type.isAssignableFrom(object.getClass())) {
             return object;
         }
@@ -48,7 +48,7 @@ public class ArrayConversion {
 
         int i = 0;
         for (Object element : collection) {
-            Array.set(array, i++, InstanceConversion.castObject(qlCaches, element, elementType));
+            Array.set(array, i++, InstanceConversion.castObject(element, elementType));
         }
 
         return array;

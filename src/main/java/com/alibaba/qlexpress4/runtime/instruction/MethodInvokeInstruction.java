@@ -75,7 +75,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, methods.toArray(new Method[0]));
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
             if(method == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
@@ -90,7 +90,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass() , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, methods.toArray(new Method[0]));
+            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
             if(method == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }

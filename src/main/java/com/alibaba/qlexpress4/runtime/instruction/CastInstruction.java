@@ -33,7 +33,7 @@ public class CastInstruction extends QLInstruction {
                 qRuntime.push(new DataValue(null));
                 return QResult.CONTINUE_RESULT;
             }
-            Object targetValue = InstanceConversion.castObject(qRuntime.getQLCaches(), value, targetClz);
+            Object targetValue = InstanceConversion.castObject(value, targetClz);
             Value dataCast = new DataValue(targetValue);
             qRuntime.push(dataCast);
         } catch (QLTransferException e){

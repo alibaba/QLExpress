@@ -35,7 +35,7 @@ public class QLambdaMethod implements QLambda {
         }
 
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method method = MethodHandler.Preferred.findMostSpecificMethod(qlCaches, type, this.methods.toArray(new Method[0]));
+        Method method = MethodHandler.Preferred.findMostSpecificMethod(type, this.methods.toArray(new Method[0]));
 
         if (method == null) {
             return new QResult(null, QResult.ResultType.RETURN);

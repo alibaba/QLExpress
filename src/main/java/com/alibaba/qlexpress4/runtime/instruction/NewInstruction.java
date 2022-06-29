@@ -50,7 +50,7 @@ public class NewInstruction extends QLInstruction {
             QLConstructorCache qlConstructorCache = qlCaches.getQlConstructorCache();
             Constructor<?> cacheElement = CacheUtil.getConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes);
             if (cacheElement == null) {
-                Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(qlCaches, this.newClz, paramTypes);
+                Constructor<?> constructor = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
                 Value dataInstruction = new DataValue(constructor.newInstance(objs));
                 qRuntime.push(dataInstruction);
                 CacheUtil.setConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes, constructor);
