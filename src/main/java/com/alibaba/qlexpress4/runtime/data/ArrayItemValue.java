@@ -20,8 +20,8 @@ public class ArrayItemValue implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
-        Array.set(array, index, InstanceConversion.castObject(newValue, getDefineType()));
+    public void setInner(Object newValue) {
+        Array.set(array, index, newValue);
     }
 
     @Override

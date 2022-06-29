@@ -19,7 +19,7 @@ public class ListItemValue implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         list.set(index, newValue);
     }
 

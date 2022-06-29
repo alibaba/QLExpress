@@ -29,8 +29,8 @@ public class DataMap implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
-        this.map.put(this.fieldName, InstanceConversion.castObject(newValue, this.defineType));
+    public void setInner(Object newValue) {
+        this.map.put(this.fieldName, newValue);
     }
 
     @Override

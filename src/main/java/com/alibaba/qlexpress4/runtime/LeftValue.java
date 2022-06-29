@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
+
 /**
  * assignable value
  * <p>
@@ -7,6 +9,9 @@ package com.alibaba.qlexpress4.runtime;
  */
 public interface LeftValue extends Value {
 
-    void set(Object newValue);
+    default void set(Object newValue){
+        setInner(InstanceConversion.castObject(newValue, getDefineType()));
+    }
 
+    void setInner(Object newValue);
 }

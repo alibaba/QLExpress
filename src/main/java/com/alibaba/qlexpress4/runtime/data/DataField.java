@@ -30,7 +30,7 @@ public class DataField implements LeftValue {
 
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         setOp.accept(InstanceConversion.castObject(newValue, getDefineType()));
     }
 

@@ -19,7 +19,7 @@ public class MapItemValue implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         map.put(key, newValue);
     }
 
