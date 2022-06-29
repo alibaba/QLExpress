@@ -2,11 +2,12 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.cache.QLMethodInvokeCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
@@ -48,11 +49,12 @@ public class MethodInvokeInstruction extends QLInstruction {
         }
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
         QLCaches qlCaches = qRuntime.getQLCaches();
-        Method method = bean instanceof MetaClass?
+        QLImplicitMethod implicitMethod = bean instanceof MetaClass?
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
         try {
-            Object value = MethodHandler.Access.accessMethodValue(method,bean,params,qlOptions.enableAllowAccessPrivateMethod());
+            Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
+                    ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes(),implicitMethod.needImplicitTrans()),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qRuntime.push(dataValue);
         }catch (Exception e){
@@ -71,31 +73,31 @@ public class MethodInvokeInstruction extends QLInstruction {
         return 1;
     }
 
-    public Method getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean , this.methodName, type);
+    public QLImplicitMethod getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(method == null){
+            QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            if(implicitMethod.getMethod() == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
-            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, method, type);
-            return method;
+            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, implicitMethod, type);
+            return implicitMethod;
         }else {
             return cacheElement;
         }
     }
 
-    public Method getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        Method cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass() , this.methodName, type);
+    public QLImplicitMethod getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
+        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass() , this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
-            Method method = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(method == null){
+            QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
+            if(implicitMethod.getMethod() == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
-            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, method, type);
-            return method;
+            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, implicitMethod, type);
+            return implicitMethod;
         }else {
             return cacheElement;
         }

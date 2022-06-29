@@ -1,17 +1,17 @@
-package com.alibaba.qlexpress4.runtime.data.process;
+package com.alibaba.qlexpress4.runtime.data.implicit;
 
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
  * @Author TaoKan
- * @Date 2022/6/25 下午6:08
+ * @Date 2022/6/29 下午4:20
  */
-public class ParametersMatcher {
+public class QLParametersMatcher {
     private int matchWeight;
     private int index;
     private Class<?>[] parametersClassType;
 
-    public ParametersMatcher() {
+    public QLParametersMatcher() {
         this.matchWeight = BasicUtil.DEFAULT_WEIGHT;
         this.index = BasicUtil.DEFAULT_MATCH_INDEX;
     }
@@ -39,5 +39,4 @@ public class ParametersMatcher {
     public void setParametersClassType(Class<?>[] parametersClassType) {
         this.parametersClassType = parametersClassType;
     }
-
 }

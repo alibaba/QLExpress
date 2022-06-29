@@ -7,7 +7,6 @@ package com.alibaba.qlexpress4.cache;
 public class QLCaches {
     private QLConstructorCache qlConstructorCache;
     private QLFieldCache qlFieldCache;
-    private QLFunctionCache qlFunctionCache;
     private QLMethodCache qlMethodCache;
     private QLMethodInvokeCache qlMethodInvokeCache;
     private QLScriptCache qlScriptCache;
@@ -26,14 +25,6 @@ public class QLCaches {
 
     public void setQlFieldCache(QLFieldCache qlFieldCache) {
         this.qlFieldCache = qlFieldCache;
-    }
-
-    public QLFunctionCache getQlFunctionCache() {
-        return qlFunctionCache;
-    }
-
-    public void setQlFunctionCache(QLFunctionCache qlFunctionCache) {
-        this.qlFunctionCache = qlFunctionCache;
     }
 
     public QLMethodCache getQlMethodCache() {

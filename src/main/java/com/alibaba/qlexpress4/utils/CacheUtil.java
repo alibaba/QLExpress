@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.utils;
 
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -54,7 +55,7 @@ public class CacheUtil {
         return qlMethodCache.getCacheElement(key);
     }
 
-    public static Method getMethodInvokeCacheElement(QLMethodInvokeCache qlMethodInvokeCache, Class<?> bean, String methodName, Class<?>[] type) {
+    public static QLImplicitMethod getMethodInvokeCacheElement(QLMethodInvokeCache qlMethodInvokeCache, Class<?> bean, String methodName, Class<?>[] type) {
         String key = qlMethodInvokeCache.buildCacheKey(bean, methodName, type);
         return qlMethodInvokeCache.getCacheElement(key);
     }
@@ -75,7 +76,7 @@ public class CacheUtil {
     }
 
     public static void setMethodInvokeCacheElement(QLMethodInvokeCache qlMethodInvokeCache,
-                                                   Class<?> bean, String methodName, Method value, Class<?>[] type) {
+                                                   Class<?> bean, String methodName, QLImplicitMethod value, Class<?>[] type) {
         String key = qlMethodInvokeCache.buildCacheKey(bean, methodName, type);
         qlMethodInvokeCache.setCacheElement(key, value);
     }

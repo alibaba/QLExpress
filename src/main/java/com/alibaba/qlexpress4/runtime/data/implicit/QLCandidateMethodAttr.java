@@ -1,15 +1,14 @@
-package com.alibaba.qlexpress4.runtime.data.process;
+package com.alibaba.qlexpress4.runtime.data.implicit;
 
 /**
  * @Author TaoKan
- * @Date 2022/6/26 下午6:40
+ * @Date 2022/6/29 下午4:25
  */
-public class CandidateMethodAttr {
-
+public class QLCandidateMethodAttr {
     private Class<?>[] paramClass;
     private int level;
 
-    public CandidateMethodAttr(Class<?>[] paramClass, int level){
+    public QLCandidateMethodAttr(Class<?>[] paramClass, int level){
         this.paramClass = paramClass;
         this.level = level;
     }
@@ -29,5 +28,4 @@ public class CandidateMethodAttr {
     public void setLevel(int level) {
         this.level = level;
     }
-
 }

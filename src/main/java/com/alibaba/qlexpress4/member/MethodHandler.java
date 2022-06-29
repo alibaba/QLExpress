@@ -1,9 +1,8 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.cache.QLFunctionCache;
-import com.alibaba.qlexpress4.runtime.data.process.CandidateMethodAttr;
-import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
@@ -77,17 +76,18 @@ public class MethodHandler extends MemberHandler {
          * @param methods
          * @return
          */
-        public static Method findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
-            CandidateMethodAttr[] candidates = new CandidateMethodAttr[methods.length];
+        public static QLImplicitMethod findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
+            QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[methods.length];
             Method compareMethod = null;
             int level = 1;
             for (int i = 0; i < methods.length; i++) {
                 level += compareLevelOfMethod(compareMethod,methods[i]);
                 compareMethod = methods[i];
-                candidates[i] = new CandidateMethodAttr(methods[i].getParameterTypes(),level);
+                candidates[i] = new QLCandidateMethodAttr(methods[i].getParameterTypes(),level);
             }
-            int match = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
-            return match == BasicUtil.DEFAULT_MATCH_INDEX ? null : methods[match];
+            QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
+            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
+                    new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans());
         }
 
 

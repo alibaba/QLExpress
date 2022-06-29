@@ -1,12 +1,12 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.enums.AccessMode;
 import com.alibaba.qlexpress4.exception.QLTransferException;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
-import com.alibaba.qlexpress4.runtime.data.process.CandidateMethodAttr;
-import com.alibaba.qlexpress4.runtime.data.process.ParametersMatcher;
-import com.alibaba.qlexpress4.runtime.data.process.Weighter;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLParametersMatcher;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Field;
@@ -46,7 +46,7 @@ public class MemberHandler {
     public static class Preferred {
 
         public static int findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {
-            ParametersMatcher bestMatcher = new ParametersMatcher();
+            QLParametersMatcher bestMatcher = new QLParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
@@ -63,14 +63,14 @@ public class MemberHandler {
         }
 
 
-        public static int findMostSpecificSignature(Class<?>[] goalMatch, CandidateMethodAttr[] candidates) {
-            ParametersMatcher bestMatcher = new ParametersMatcher();
+        public static QLImplicitMatcher findMostSpecificSignature(Class<?>[] goalMatch, QLCandidateMethodAttr[] candidates) {
+            QLParametersMatcher bestMatcher = new QLParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i].getParamClass();
                 //parent first
                 int assignLevel = candidates[i].getLevel();
-                int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new Weighter(assignLevel));
+                int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
                 if (weight != BasicUtil.DEFAULT_WEIGHT){
                     if (weight < bestMatcher.getMatchWeight()) {
                         bestMatcher.setParametersClassType(targetMatch);
@@ -81,7 +81,8 @@ public class MemberHandler {
                     }
                 }
             }
-            return bestMatcher.getIndex();
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.MatchConversation.EXTEND.getWeight() ? true : false
+                    ,bestMatcher.getIndex());
         }
     }
 

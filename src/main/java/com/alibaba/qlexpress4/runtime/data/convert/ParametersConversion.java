@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.data.process.Weighter;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
@@ -13,17 +12,17 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 public class ParametersConversion {
 
     public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate) {
-        return calculatorMatchConversionWeight(goal, candidate, new Weighter());
+        return calculatorMatchConversionWeight(goal, candidate, new QLWeighter());
     }
 
-    public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate, Weighter weighter) {
-        int matchConversionWeight = MatchConversation.EQUALS.weight;
+    public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate, QLWeighter weighter) {
+        int matchConversionWeight = MatchConversation.EQUALS.getWeight();
         for (int i = 0; i < goal.length; i++) {
             MatchConversation result = compareParametersTypes(candidate[i], goal[i]);
             if (MatchConversation.NOT_MATCH == result) {
-                return MatchConversation.NOT_MATCH.weight;
+                return MatchConversation.NOT_MATCH.getWeight();
             }
-            int weight = weighter.addWeight(result.weight);
+            int weight = weighter.addWeight(result.getWeight());
             if (matchConversionWeight < weight) {
                 matchConversionWeight = weight;
             }
@@ -67,14 +66,31 @@ public class ParametersConversion {
     }
 
 
-    enum MatchConversation {
+    public static Object[] convert(Object[] oriParams, Class<?>[] oriTypes, Class<?>[] goalTypes, boolean needImplicitTrans){
+        if(!needImplicitTrans){
+            return oriParams;
+        }
+        for(int i = 0; i < oriTypes.length; i++){
+            if(oriTypes[i] != goalTypes[i]){
+                oriParams[i] = InstanceConversion.castObject(oriParams[i],goalTypes[i]);
+            }
+        }
+        return oriParams;
+    }
+
+    public enum MatchConversation {
 
         NOT_MATCH(-1), EXTEND(4), IMPLICIT(3), ASSIGN(2), EQUALS(1);
 
-        private int weight;
+        private final int weight;
 
         MatchConversation(int weight) {
             this.weight = weight;
         }
+
+        public int getWeight() {
+            return weight;
+        }
+
     }
 }

@@ -1,10 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.exception.QLTransferException;
-import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * @Author TaoKan
@@ -41,12 +37,7 @@ public class NumberConversion {
                 }
                 return answer;
             }
-            if (type == BigDecimal.class) {
-                return NumberMath.toBigDecimal(n);
-            }
-            if (type == BigInteger.class) {
-                return NumberMath.toBigInteger(n);
-            }
+            return ExtendConversion.extendNumberConvert(n, type, object);
         }
 
         throw new QLTransferException("can not cast " + object.getClass().getName()

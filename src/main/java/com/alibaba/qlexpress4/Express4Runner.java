@@ -23,7 +23,6 @@ public class Express4Runner {
 
     public Express4Runner(InitOptions initOptions) {
         QLConstructorCache qlConstructorCache = CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear());
-        QLFunctionCache qlFunctionCache = CacheUtil.initFunctionCache(10, initOptions.enableUseCacheClear());
         QLScriptCache qlScriptCache = CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear());
         QLFieldCache qlFieldCache = CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear());
         QLMethodCache qlMethodCache = CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear());
