@@ -24,7 +24,6 @@ public class BasicUtil {
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
     public static final Class<?>[][] CLASS_MATCHES_IMPLICIT = new Class[][]{
-            //原始数据类型
             {double.class, float.class}, {double.class, long.class}, {double.class, int.class},
             {double.class, short.class},
             {double.class, byte.class},  {float.class, long.class}, {float.class, int.class},
@@ -35,7 +34,6 @@ public class BasicUtil {
     };
 
     public static final Class<?>[][] CLASS_MATCHES_EXTEND = new Class[][]{
-            //原始数据类型
             {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
             {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
             {double.class, BigDecimal.class}, {float.class, BigDecimal.class},
