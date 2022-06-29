@@ -78,6 +78,7 @@ public class ParametersConversion {
         return oriParams;
     }
 
+    //weight less = level higher
     public enum QLMatchConversation {
 
         NOT_MATCH(-1), EXTEND(8), IMPLICIT(3), ASSIGN(2), EQUALS(1);
