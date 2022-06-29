@@ -20,11 +20,14 @@ import java.util.List;
 
 public class TestPropertyUtils {
     public static void main(String[] args) throws Exception {
-        ExpressRunner expressRunner = new ExpressRunner();
-        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
-        defaultContext.put("a",Parent.class);
-        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
-        System.out.println(a);
+//        ExpressRunner expressRunner = new ExpressRunner();
+//        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
+//        defaultContext.put("a",Parent.class);
+//        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
+//        System.out.println(a);
+         Parent parent = new Parent();
+          Method method = parent.getClass().getMethod("getMethod2",long.class,long.class);
+        System.out.println(method.invoke(parent,5,6));
 //        CacheUtil.initCache(128, false);
 //
 //        Child child = new Child();

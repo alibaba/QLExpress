@@ -76,4 +76,6 @@ public class Parent implements Value {
     public Class<?> getDefineType() {
         return Parent.class;
     }
+
+    public String getMethod2(long a,long b){return "b";}
 }

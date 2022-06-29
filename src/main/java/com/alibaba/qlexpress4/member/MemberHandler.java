@@ -81,7 +81,7 @@ public class MemberHandler {
                     }
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.MatchConversation.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
                     ,bestMatcher.getIndex());
         }
     }

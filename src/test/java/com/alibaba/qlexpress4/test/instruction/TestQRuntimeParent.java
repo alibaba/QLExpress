@@ -75,7 +75,6 @@ public class TestQRuntimeParent implements QRuntime {
         QLCaches qlCaches = new QLCaches();
         qlCaches.setQlConstructorCache(CacheUtil.initConstructorCache(size,enableUseCacheClear));
         qlCaches.setQlFieldCache(CacheUtil.initFieldCache(size,enableUseCacheClear));
-        qlCaches.setQlFunctionCache(CacheUtil.initFunctionCache(size,enableUseCacheClear));
         qlCaches.setQlMethodCache(CacheUtil.initMethodCache(size,enableUseCacheClear));
         qlCaches.setQlMethodInvokeCache(CacheUtil.initMethodInvokeCache(size,enableUseCacheClear));
         qlCaches.setQlScriptCache(CacheUtil.initScriptCache(size,true));
