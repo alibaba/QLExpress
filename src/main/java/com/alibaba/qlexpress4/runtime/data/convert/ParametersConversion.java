@@ -57,7 +57,7 @@ public class ParametersConversion {
                 return QLMatchConversation.IMPLICIT;
             }
         }
-        for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES) {
+        for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES_EXTEND) {
             if (target == classMatch[0] && source == classMatch[1]) {
                 return QLMatchConversation.EXTEND;
             }

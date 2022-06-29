@@ -34,7 +34,7 @@ public class BasicUtil {
             {short.class, byte.class}
     };
 
-    public static final Class<?>[][] CLASS_MATCHES = new Class[][]{
+    public static final Class<?>[][] CLASS_MATCHES_EXTEND = new Class[][]{
             //原始数据类型
             {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
             {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
