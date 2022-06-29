@@ -80,7 +80,7 @@ public class ParametersConversion {
 
     public enum QLMatchConversation {
 
-        NOT_MATCH(-1), EXTEND(4), IMPLICIT(3), ASSIGN(2), EQUALS(1);
+        NOT_MATCH(-1), EXTEND(8), IMPLICIT(3), ASSIGN(2), EQUALS(1);
 
         private final int weight;
 
