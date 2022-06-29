@@ -4,7 +4,7 @@ import com.alibaba.qlexpress4.parser.KeyWordsSet;
 import com.alibaba.qlexpress4.parser.Token;
 
 /**
- * Comment By 冰够 Precedence > Priority ?
+ * Comment By 冰够 Precedence > OperatorPriority ?
  * <p>
  * Author: DQinYuan
  * date 2022/1/12 2:31 下午

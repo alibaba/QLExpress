@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.runtime.operator.arithmetic.ModOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.MultiplyOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.PlusOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseAndOperator;
+import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseInvertOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseLeftShiftOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedOperator;
@@ -17,7 +18,14 @@ import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
+import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusPrefixUnaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusSuffixUnaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.MinusUnaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.PlusPlusPrefixUnaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.PlusPlusSuffixUnaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.unary.PlusUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 
 /**
@@ -85,16 +93,38 @@ public class OperatorFactory {
      * @return
      */
     public static UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {
-        return null;
+        switch (operatorLexeme) {
+            case "+":
+                return new PlusUnaryOperator();
+            case "-":
+                return new MinusUnaryOperator();
+            case "++":
+                return new PlusPlusPrefixUnaryOperator();
+            case "--":
+                return new MinusMinusPrefixUnaryOperator();
+            case "~":
+                return new BitwiseInvertOperator();
+            case "!":
+                return new LogicNotOperator();
+            default:
+                return null;
+        }
     }
 
     /**
      * like 1-- 1++
      *
-     * @param operatorLexeme
+     * @param operatorLexeme ++, --
      * @return
      */
     public static UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
-        return null;
+        switch (operatorLexeme) {
+            case "++":
+                return new PlusPlusSuffixUnaryOperator();
+            case "--":
+                return new MinusMinusSuffixUnaryOperator();
+            default:
+                return null;
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
@@ -40,6 +41,6 @@ public class PlusOperator extends BaseBinaryOperator {
 
     @Override
     public int getPriority() {
-        return 0;
+        return OperatorPriority.PRIORITY_11;
     }
 }
