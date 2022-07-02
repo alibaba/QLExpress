@@ -19,10 +19,14 @@ public class IfInstruction extends QLInstruction {
 
     private final QLambdaDefinition elseBody;
 
-    public IfInstruction(ErrorReporter errorReporter, QLambdaDefinition thenBody, QLambdaDefinition elseBody) {
+    private final boolean newEnv;
+
+    public IfInstruction(ErrorReporter errorReporter, QLambdaDefinition thenBody, QLambdaDefinition elseBody,
+                         boolean newEnv) {
         super(errorReporter);
         this.thenBody = thenBody;
         this.elseBody = elseBody;
+        this.newEnv = newEnv;
     }
 
     @Override
@@ -33,8 +37,8 @@ public class IfInstruction extends QLInstruction {
                     "if condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
-        QLambda lambda = new QLambdaInner(conditionBool? thenBody: elseBody, qRuntime,
-                qlOptions, true);
+        QLambda lambda = (conditionBool? thenBody: elseBody)
+                .toLambda(qRuntime, qlOptions, newEnv);
         return callBody(qRuntime, lambda);
     }
 

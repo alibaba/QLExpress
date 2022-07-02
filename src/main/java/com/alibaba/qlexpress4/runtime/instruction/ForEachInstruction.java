@@ -29,7 +29,7 @@ public class ForEachInstruction extends QLInstruction {
                     "for-each can only be applied to iterable");
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;
-        QLambda bodyLambda = new QLambdaInner(body, qRuntime, qlOptions, true);
+        QLambda bodyLambda = body.toLambda(qRuntime, qlOptions, true);
         forEachBody:
         for (Object item : iterable) {
             try {

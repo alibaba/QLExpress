@@ -23,4 +23,23 @@ public class Express4RunnerTest {
         assertEquals("bbb", ((HashMap<?, ?>) result).get("aaa"));
     }
 
+    @Test
+    public void shortCircuitTest() throws Exception {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertTrue((Boolean) express4Runner.execute("true && true && true",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertFalse((Boolean) express4Runner.execute("true && false && (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("a = 1+1+1+1+1+1+1+1+1;" +
+                        "true && true && true",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+
+        assertFalse((Boolean) express4Runner.execute("false || false || false",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("false || true || (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("(false && (1/0)) || true || (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+    }
+
 }

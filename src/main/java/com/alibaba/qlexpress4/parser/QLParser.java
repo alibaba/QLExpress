@@ -869,6 +869,7 @@ public class QLParser {
             Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY, ContextType.BLOCK);
             return new TernaryExpr(keyToken, left, thenExpr, elseExpr);
         } else if (getMiddleOpPrecedence(pre) != null) {
+            // normal binary operator is left-associative
             return new BinaryOpExpr(pre, left, parsePrecedence(getMiddleOpPrecedence(pre) + 1,
                     ContextType.BLOCK));
         } else {

@@ -4,7 +4,6 @@ import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
@@ -51,7 +50,7 @@ public class Express4Runner {
                 qlOptions.isPolluteUserContext()? context: new HashMap<>(context),
                 qvmInstructionGenerator.getMaxStackSize(), System.currentTimeMillis());
 
-        QLambdaDefinition mainLambdaDefine = new QLambdaDefinition("main",
+        QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
                 qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
                 qvmInstructionGenerator.getMaxStackSize());
         return mainLambdaDefine.toLambda(rootRuntime, qlOptions, false);
