@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
@@ -23,9 +24,16 @@ public class Express4Runner {
         CacheUtil.initCache(10, initOptions.enableUseCacheClear());
     }
 
-    public Object execute(String script, Map<String, Value> context, QLOptions qlOptions) throws Exception {
+    public Object execute(String script, Map<String, Value> context, QLOptions qlOptions) throws QLException {
         QLambda mainLambda = parseToLambda(script, context, qlOptions);
-        return mainLambda.call().getResult().get();
+        try {
+            return mainLambda.call().getResult().get();
+        } catch (QLException e) {
+            throw e;
+        } catch (Exception nuKnown) {
+            // should not run here
+            throw new RuntimeException(nuKnown);
+        }
     }
 
     public Program parseToSyntaxTree(String script, QLOptions qlOptions) {

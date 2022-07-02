@@ -14,9 +14,9 @@ import java.util.List;
  */
 public class QLambdaMethod implements QLambda {
 
-    private List<Method> methods;
-    private Object bean;
-    private boolean allowAccessPrivate;
+    private final List<Method> methods;
+    private final Object bean;
+    private final boolean allowAccessPrivate;
 
     public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate) {
         this.methods = methods;

@@ -34,6 +34,30 @@ public class QLException extends RuntimeException {
         this.snippet = snippet;
     }
 
+    public int getLineNo() {
+        return lineNo;
+    }
+
+    public int getColNo() {
+        return colNo;
+    }
+
+    public String getErrLexeme() {
+        return errLexeme;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public String getSnippet() {
+        return snippet;
+    }
+
     public static QLSyntaxException reportParserErr(String script, Token token, String errorCode, String reason) {
         return reportErrWithToken(script, token, errorCode, reason, QLSyntaxException::new);
     }

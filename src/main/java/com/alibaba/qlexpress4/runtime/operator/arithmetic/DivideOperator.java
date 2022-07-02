@@ -16,7 +16,11 @@ public class DivideOperator extends BaseBinaryOperator {
         Object rightValue = right.get();
 
         if (isBothNumbers(left, right)) {
-            return NumberMath.divide((Number)leftValue, (Number)rightValue);
+            try {
+                return NumberMath.divide((Number)leftValue, (Number)rightValue);
+            } catch (ArithmeticException arithmeticException) {
+                throw errorReporter.report("INVALID_ARITHMETIC", arithmeticException.getMessage());
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);

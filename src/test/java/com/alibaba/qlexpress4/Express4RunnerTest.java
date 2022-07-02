@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.exception.QLException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -13,7 +14,7 @@ import static org.junit.Assert.*;
 public class Express4RunnerTest {
 
     @Test
-    public void mapSetGetTest() throws Exception {
+    public void mapSetGetTest() {
         String script = "a = new HashMap<>();" +
                 "a['aaa'] = 'bbb';" +
                 "a";
@@ -24,7 +25,7 @@ public class Express4RunnerTest {
     }
 
     @Test
-    public void shortCircuitTest() throws Exception {
+    public void shortCircuitTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         assertTrue((Boolean) express4Runner.execute("true && true && true",
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
@@ -40,6 +41,24 @@ public class Express4RunnerTest {
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
         assertTrue((Boolean) express4Runner.execute("(false && (1/0)) || true || (1/0)",
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+
+        assertErrorCode(express4Runner, "true && (1/0)", "INVALID_ARITHMETIC");
+    }
+
+    @Test
+    public void assignTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertErrorCode(express4Runner, "1 = 0", "INVALID_ASSIGN_TARGET");
+    }
+
+    private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
+        try {
+            express4Runner.execute(script, Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS);
+        } catch (QLException e) {
+            assertEquals(errCode, e.getErrorCode());
+        }
+
     }
 
 }
