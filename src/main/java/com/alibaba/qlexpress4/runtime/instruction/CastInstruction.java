@@ -8,6 +8,9 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: force cast value to specified type
@@ -24,12 +27,11 @@ public class CastInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(2);
-        Class<?> targetClz = (Class<?>)parameters.get(0).get();
-        Object value = parameters.get(1).get();
+        Object value = qRuntime.pop().get();
+        Class<?> targetClz = (Class<?>) qRuntime.pop().get();
         try {
             if (value == null) {
-                qRuntime.push(new DataValue(null));
+                qRuntime.push(Value.NULL_VALUE);
                 return QResult.CONTINUE_RESULT;
             }
             Object targetValue = BasicUtil.castObject(value, targetClz, true);
@@ -49,5 +51,10 @@ public class CastInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Cast", debug);
     }
 }

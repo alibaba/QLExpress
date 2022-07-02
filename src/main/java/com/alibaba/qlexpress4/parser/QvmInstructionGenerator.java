@@ -171,7 +171,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     @Override
     public Void visit(Break aBreak, GeneratorScope generatorScope) {
-        addInstruction(new BreakInstruction(newReporterByNode(aBreak)));
+        addInstruction(new BreakContinueInstruction(newReporterByNode(aBreak), QResult.BREAK_RESULT));
         return null;
     }
 
@@ -215,6 +215,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(Continue aContinue, GeneratorScope generatorScope) {
         ErrorReporter errorReporter = newReporterByNode(aContinue);
+        addInstruction(new BreakContinueInstruction(errorReporter, QResult.CONTINUE_RESULT));
         addInstruction(new ConstInstruction(errorReporter, null));
         addInstruction(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN));
         return null;
@@ -321,8 +322,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                 .map(varDecl -> new QLambdaDefinitionInner.Param(varDecl.getVariable().getId(),
                         varDecl.getType().getClz()))
                 .collect(Collectors.toList());
-        QLambdaDefinition qLambda = generateLambdaNewScope(lambdaName(), lambdaExpr.getExprBody() == null ?
-                lambdaExpr.getBlockBody() : lambdaExpr.getExprBody(), generatorScope, paramClzes);
+        QLambdaDefinition qLambda = generateLambdaNewScope(lambdaName(), lambdaExpr.getBody(),
+                generatorScope, paramClzes);
         addInstruction(new LoadLambdaInstruction(newReporterByNode(lambdaExpr), qLambda));
         return null;
     }

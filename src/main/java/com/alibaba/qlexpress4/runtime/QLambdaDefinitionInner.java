@@ -2,8 +2,10 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Author: DQinYuan
@@ -29,6 +31,7 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
         this.maxStackSize = maxStackSize;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -49,6 +52,13 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
     public QLambda toLambda(QRuntime qRuntime, QLOptions qlOptions,
                             boolean newEnv) {
         return new QLambdaInner(this, qRuntime, qlOptions, newEnv);
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        for (QLInstruction qlInstruction : instructionList) {
+            qlInstruction.println(depth, debug);
+        }
     }
 
     public static class Param {

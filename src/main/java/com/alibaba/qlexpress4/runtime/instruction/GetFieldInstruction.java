@@ -11,6 +11,7 @@ import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -69,6 +70,11 @@ public class GetFieldInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "GetField " + fieldName, debug);
     }
 
     /**

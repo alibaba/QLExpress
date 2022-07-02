@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: process each element in iterable object on top of stack,
@@ -60,5 +63,11 @@ public class ForEachInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 0;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "ForEach", debug);
+        body.println(depth+1, debug);
     }
 }

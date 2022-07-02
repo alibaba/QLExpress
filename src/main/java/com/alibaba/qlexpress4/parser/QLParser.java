@@ -732,14 +732,7 @@ public class QLParser {
         // skip ->
         advance();
         Token keyToken = pre;
-        Block blockBody = null;
-        Expr exprBody = null;
-        if (matchTypeAndAdvance(TokenType.LBRACE)) {
-            blockBody = block(ContextType.BLOCK);
-        } else {
-            exprBody = expr(ContextType.BLOCK);
-        }
-        return new LambdaExpr(keyToken, params, blockBody, exprBody);
+        return new LambdaExpr(keyToken, params, expr(ContextType.BLOCK));
     }
 
     protected Expr parsePrecedence(int precedence, ContextType contextType) {

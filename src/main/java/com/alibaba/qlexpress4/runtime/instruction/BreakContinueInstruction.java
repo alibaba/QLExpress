@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: return break object and exit lambda
@@ -12,14 +15,18 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
  * <p>
  * Author: DQinYuan
  */
-public class BreakInstruction extends QLInstruction {
-    public BreakInstruction(ErrorReporter errorReporter) {
+public class BreakContinueInstruction extends QLInstruction {
+
+    private final QResult result;
+
+    public BreakContinueInstruction(ErrorReporter errorReporter, QResult result) {
         super(errorReporter);
+        this.result = result;
     }
 
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        return QResult.BREAK_RESULT;
+        return result;
     }
 
     @Override
@@ -30,5 +37,10 @@ public class BreakInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 0;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Break", debug);
     }
 }

@@ -51,6 +51,11 @@ public class Express4Runner {
 
     private QLambda parseToLambda(String script, Map<String, Value> context, QLOptions qlOptions) {
         Program program = parseToSyntaxTree(script, qlOptions);
+        if (qlOptions.isDebug()) {
+            qlOptions.getDebugInfoConsumer().accept("\nAST:");
+            AstPrinter astPrinter = new AstPrinter(qlOptions.getDebugInfoConsumer());
+            program.accept(astPrinter, null);
+        }
 
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator("", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
@@ -61,6 +66,10 @@ public class Express4Runner {
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
                 qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
                 qvmInstructionGenerator.getMaxStackSize());
+        if (qlOptions.isDebug()) {
+            qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
+            mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
+        }
         return mainLambdaDefine.toLambda(rootRuntime, qlOptions, false);
     }
 }

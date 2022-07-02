@@ -5,6 +5,8 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
+import java.util.function.Consumer;
+
 /**
  * Instruction Specification:
  *
@@ -33,4 +35,6 @@ public abstract class QLInstruction {
      * @return output size
      */
     public abstract int stackOutput();
+
+    public abstract void println(int depth, Consumer<String> debug);
 }

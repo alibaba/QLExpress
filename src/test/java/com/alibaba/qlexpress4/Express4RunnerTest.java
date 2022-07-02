@@ -51,6 +51,20 @@ public class Express4RunnerTest {
         assertErrorCode(express4Runner, "1 = 0", "INVALID_ASSIGN_TARGET");
     }
 
+    @Test
+    public void debugExample() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions debugOptions = QLOptions.builder()
+                .debug(true)
+                .build();
+        Object result = express4Runner.execute("1+1", Collections.emptyMap(), debugOptions);
+        assertEquals(2, result);
+
+        Object result1 = express4Runner.execute("false || true || (1/0)",
+                Collections.emptyMap(), debugOptions);
+        assertTrue((Boolean) result1);
+    }
+
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
         try {
             express4Runner.execute(script, Collections.emptyMap(),
