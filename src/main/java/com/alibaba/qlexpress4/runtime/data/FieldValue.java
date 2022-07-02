@@ -9,13 +9,13 @@ import java.util.function.Supplier;
  * @Author TaoKan
  * @Date 2022/6/16 上午10:17
  */
-public class DataField implements LeftValue {
+public class FieldValue implements LeftValue {
     private final Supplier<Object> getOp;
     private final Consumer<Object> setOp;
     private final Class<?> defineType;
 
 
-    public DataField(Supplier<Object> getOp, Consumer<Object> setOp) {
+    public FieldValue(Supplier<Object> getOp, Consumer<Object> setOp) {
         this.getOp = getOp;
         this.setOp = setOp;
         this.defineType = Object.class;

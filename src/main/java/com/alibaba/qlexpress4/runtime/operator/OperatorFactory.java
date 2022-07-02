@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.runtime.operator.arithmetic.MinusOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.ModOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.MultiplyOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.PlusOperator;
+import com.alibaba.qlexpress4.runtime.operator.assign.AssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseInvertOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseLeftShiftOperator;
@@ -40,6 +41,8 @@ public class OperatorFactory {
      */
     public static BinaryOperator getBinaryOperator(String operatorLexeme) {
         switch (operatorLexeme) {
+            case "=":
+                return new AssignOperator();
             case "+":
                 return new PlusOperator();
             case "-":

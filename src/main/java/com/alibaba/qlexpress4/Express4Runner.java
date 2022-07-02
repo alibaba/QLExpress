@@ -42,7 +42,7 @@ public class Express4Runner {
         return qlParser.parse();
     }
 
-    public QLambda parseToLambda(String script, Map<String, Value> context, QLOptions qlOptions) {
+    private QLambda parseToLambda(String script, Map<String, Value> context, QLOptions qlOptions) {
         Program program = parseToSyntaxTree(script, qlOptions);
 
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator("", script);

@@ -5,9 +5,9 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.data.DataField;
-import com.alibaba.qlexpress4.runtime.data.DataMap;
+import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -34,6 +34,7 @@ public class GetFieldInstruction extends QLInstruction {
         this.fieldName = fieldName;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object bean = qRuntime.pop().get();
@@ -52,7 +53,7 @@ public class GetFieldInstruction extends QLInstruction {
                 getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qRuntime);
             }
         } else if (bean instanceof Map) {
-            LeftValue dataMap = new DataMap((Map<?, ?>) bean, this.fieldName);
+            LeftValue dataMap = new MapItemValue((Map<? super Object, ? super Object>) bean, this.fieldName);
             qRuntime.push(dataMap);
         } else {
             getCacheFieldValue(qlOptions, bean.getClass(), bean, qRuntime);
@@ -117,7 +118,7 @@ public class GetFieldInstruction extends QLInstruction {
         if (setterOp == null) {
             return new DataValue(getterOp);
         }
-        return new DataField(getterOp, setterOp);
+        return new FieldValue(getterOp, setterOp);
     }
 
     private <T> T process(T functional){
