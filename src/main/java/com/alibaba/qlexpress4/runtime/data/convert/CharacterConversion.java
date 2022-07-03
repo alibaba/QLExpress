@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.exception.QLTransferException;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 /**
  * @Author TaoKan
@@ -8,21 +9,21 @@ import com.alibaba.qlexpress4.exception.QLTransferException;
  */
 public class CharacterConversion {
 
-    public static Character trans(Object object) {
+    public static QLConvertResult trans(Object object) {
         if (object == null) {
-            return null;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
         }
         if (object instanceof Character) {
-            return (Character) object;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Character) object);
         } else if (object instanceof Number) {
             Number value = (Number) object;
-            return (char) value.intValue();
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, (char) value.intValue());
         }
         String text = object.toString();
         if (text.length() == 1) {
-            return text.charAt(0);
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, text.charAt(0));
         } else {
-            throw new QLTransferException("can not cast to char");
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
         }
     }
 }

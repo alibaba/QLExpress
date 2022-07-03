@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.utils;
 
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitConstructor;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 
 import java.lang.reflect.Constructor;
@@ -81,14 +82,14 @@ public class CacheUtil {
         qlMethodInvokeCache.setCacheElement(key, value);
     }
 
-    public static Constructor<?> getConstructorCacheElement(QLConstructorCache qlConstructorCache,
+    public static QLImplicitConstructor getConstructorCacheElement(QLConstructorCache qlConstructorCache,
                                                             Class<?> baseClass, Class<?>[] types) {
         String key = qlConstructorCache.buildCacheKey(baseClass, BasicUtil.NEW, types);
         return qlConstructorCache.getCacheElement(key);
     }
 
     public static void setConstructorCacheElement(QLConstructorCache qlConstructorCache,
-                                                  Class<?> baseClass, Class<?>[] types, Constructor<?> value) {
+                                                  Class<?> baseClass, Class<?>[] types, QLImplicitConstructor value) {
         String key = qlConstructorCache.buildCacheKey(baseClass, BasicUtil.NEW, types);
         qlConstructorCache.setCacheElement(key, value);
     }

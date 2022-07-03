@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data;
 
 import com.alibaba.qlexpress4.runtime.LeftValue;
-import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -31,7 +30,7 @@ public class DataField implements LeftValue {
 
     @Override
     public void setInner(Object newValue) {
-        setOp.accept(InstanceConversion.castObject(newValue, getDefineType()));
+        setOp.accept(newValue);
     }
 
     @Override

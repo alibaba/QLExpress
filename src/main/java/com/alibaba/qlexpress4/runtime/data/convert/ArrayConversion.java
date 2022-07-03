@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -11,34 +12,34 @@ import java.util.stream.*;
  * @Date 2022/6/26 下午3:35
  */
 public class ArrayConversion {
-    public static Object trans(final Object object, final Class type) {
+    public static QLConvertResult trans(final Object object, final Class type) {
         if (type.isAssignableFrom(object.getClass())) {
-            return object;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, object);
         }
 
         if (object instanceof IntStream) {
             if (type.equals(int[].class)) {
-                return ((IntStream) object).toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).toArray());
             } else if (type.equals(long[].class)) {
-                return ((IntStream) object).asLongStream().toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).asLongStream().toArray());
             } else if (type.equals(double[].class)) {
-                return ((IntStream) object).asDoubleStream().toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).asDoubleStream().toArray());
             } else if (type.equals(Integer[].class)) {
-                return ((IntStream) object).boxed().toArray(Integer[]::new);
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).boxed().toArray(Integer[]::new));
             }
         } else if (object instanceof LongStream) {
             if (type.equals(long[].class)) {
-                return ((LongStream) object).toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).toArray());
             } else if (type.equals(double[].class)) {
-                return ((LongStream) object).asDoubleStream().toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).asDoubleStream().toArray());
             } else if (type.equals(Long[].class)) {
-                return ((LongStream) object).boxed().toArray(Long[]::new);
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).boxed().toArray(Long[]::new));
             }
         } else if (object instanceof DoubleStream) {
             if (type.equals(double[].class)) {
-                return ((DoubleStream) object).toArray();
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((DoubleStream) object).toArray());
             } else if (type.equals(Double[].class)) {
-                return ((DoubleStream) object).boxed().toArray(Double[]::new);
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((DoubleStream) object).boxed().toArray(Double[]::new));
             }
         }
 
@@ -48,10 +49,15 @@ public class ArrayConversion {
 
         int i = 0;
         for (Object element : collection) {
-            Array.set(array, i++, InstanceConversion.castObject(element, elementType));
+            QLConvertResult qlConvertResult = InstanceConversion.castObject(element, elementType);
+            //if one element cannot trans
+            if(qlConvertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                return qlConvertResult;
+            }
+            Array.set(array, i++, qlConvertResult.getCastValue());
         }
 
-        return array;
+        return new QLConvertResult(QLConvertResultType.CAN_TRANS, array);
     }
 
     public static Collection toCollection(final Object value) {

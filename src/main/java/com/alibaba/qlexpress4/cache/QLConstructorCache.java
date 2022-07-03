@@ -1,13 +1,13 @@
 package com.alibaba.qlexpress4.cache;
 
-import java.lang.reflect.Constructor;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitConstructor;
 
 /**
  * @Author TaoKan
  * @Date 2022/6/26 下午4:40
  */
-public class QLConstructorCache implements IBizCache<Constructor<?>,QLConstructorCache> {
-    private ICache<String, Constructor<?>> CONSTRUCTOR_CACHE = null;
+public class QLConstructorCache implements IBizCache<QLImplicitConstructor,QLConstructorCache> {
+    private ICache<String, QLImplicitConstructor> CONSTRUCTOR_CACHE = null;
 
 
     @Override
@@ -17,12 +17,12 @@ public class QLConstructorCache implements IBizCache<Constructor<?>,QLConstructo
     }
 
     @Override
-    public Constructor<?> getCacheElement(String key) {
+    public QLImplicitConstructor getCacheElement(String key) {
         return CONSTRUCTOR_CACHE.get(key);
     }
 
     @Override
-    public void setCacheElement(String key, Constructor<?> value) {
+    public void setCacheElement(String key, QLImplicitConstructor value) {
         CONSTRUCTOR_CACHE.put(key, value);
     }
 

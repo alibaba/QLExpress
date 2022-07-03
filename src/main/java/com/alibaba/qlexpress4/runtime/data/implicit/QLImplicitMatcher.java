@@ -5,19 +5,21 @@ package com.alibaba.qlexpress4.runtime.data.implicit;
  * @Date 2022/6/29 下午4:24
  */
 public class QLImplicitMatcher {
-    private final boolean needImplicitTrans;
-    private final int matchIndex;
+    private final Boolean needImplicitTrans;
+    private final Integer matchIndex;
 
-    public QLImplicitMatcher(boolean needImplicitTrans, int matchIndex){
+    public QLImplicitMatcher(Boolean needImplicitTrans, Integer matchIndex){
         this.needImplicitTrans = needImplicitTrans;
         this.matchIndex = matchIndex;
     }
 
-    public boolean needImplicitTrans() {
+    public Boolean needImplicitTrans() {
         return needImplicitTrans;
     }
 
-    public int getMatchIndex() {
+    public Integer getMatchIndex() {
         return matchIndex;
     }
+
+
 }

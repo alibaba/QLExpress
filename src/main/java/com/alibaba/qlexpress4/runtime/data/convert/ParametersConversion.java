@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -66,16 +68,20 @@ public class ParametersConversion {
     }
 
 
-    public static Object[] convert(Object[] oriParams, Class<?>[] oriTypes, Class<?>[] goalTypes, boolean needImplicitTrans){
+    public static QLConvertResult convert(Object[] oriParams, Class<?>[] oriTypes, Class<?>[] goalTypes, boolean needImplicitTrans){
         if(!needImplicitTrans){
-            return oriParams;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS,oriParams);
         }
         for(int i = 0; i < oriTypes.length; i++){
             if(oriTypes[i] != goalTypes[i]){
-                oriParams[i] = InstanceConversion.castObject(oriParams[i],goalTypes[i]);
+                QLConvertResult paramResult = InstanceConversion.castObject(oriParams[i],goalTypes[i]);
+                if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                    return paramResult;
+                }
+                oriParams[i] = paramResult.getCastValue();
             }
         }
-        return oriParams;
+        return new QLConvertResult(QLConvertResultType.CAN_TRANS,oriParams);
     }
 
     //weight less = level higher

@@ -1,12 +1,9 @@
 package com.alibaba.qlexpress4.utils;
 
-import com.alibaba.qlexpress4.proxy.QLambdaInvocationHandler;
-import com.alibaba.qlexpress4.runtime.QLambda;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map;
 
 import static java.lang.Character.toUpperCase;
 

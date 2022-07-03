@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.exception.QLTransferException;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 /**
  * @Author TaoKan
@@ -8,18 +9,17 @@ import com.alibaba.qlexpress4.exception.QLTransferException;
  */
 public class EnumConversion {
 
-    public static Enum trans(Object object, Class<? extends Enum> type) {
+    public static QLConvertResult trans(Object object, Class<? extends Enum> type) {
         if (object == null) {
-            return null;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
         }
         if (type.isInstance(object)) {
-            return (Enum) object;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Enum) object);
         }
         if (object instanceof String) {
-            return Enum.valueOf(type, object.toString());
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, Enum.valueOf(type, object.toString()));
         }
-        throw new QLTransferException("can not cast " + object.getClass().getName()
-                + " value " + object + " to enum type");
+        return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
     }
 
 }

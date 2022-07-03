@@ -7,6 +7,8 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -52,9 +54,14 @@ public class MethodInvokeInstruction extends QLInstruction {
         QLImplicitMethod implicitMethod = bean instanceof MetaClass?
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
+
+        QLConvertResult convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes(),implicitMethod.needImplicitTrans());
+        if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not cast param");
+        }
         try {
             Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
-                    ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes(),implicitMethod.needImplicitTrans()),qlOptions.enableAllowAccessPrivateMethod());
+                    (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qRuntime.push(dataValue);
         }catch (Exception e){

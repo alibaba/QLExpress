@@ -5,6 +5,8 @@ import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
@@ -40,7 +42,11 @@ public class QLambdaMethod implements QLambda {
             return new QResult(null, QResult.ResultType.RETURN);
         }
         if (BasicUtil.isPublic(method)) {
-            Object result = method.invoke(this.bean, ParametersConversion.convert(params, type, method.getParameterTypes(), implicitMethod.needImplicitTrans()));
+            QLConvertResult convertResult = ParametersConversion.convert(params, type, method.getParameterTypes(), implicitMethod.needImplicitTrans());
+            if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                return new QResult(null, QResult.ResultType.RETURN);
+            }
+            Object result = method.invoke(this.bean, convertResult.getCastValue());
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         } else {
             if (!allowAccessPrivate) {

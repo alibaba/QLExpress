@@ -1,12 +1,8 @@
 package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.enums.AccessMode;
-import com.alibaba.qlexpress4.exception.QLTransferException;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLParametersMatcher;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
+import com.alibaba.qlexpress4.runtime.data.implicit.*;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Field;
@@ -45,7 +41,7 @@ public class MemberHandler {
 
     public static class Preferred {
 
-        public static int findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {
+        public static QLImplicitMatcher findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {
             QLParametersMatcher bestMatcher = new QLParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
@@ -56,10 +52,11 @@ public class MemberHandler {
                     bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);
                 } else if (weight == bestMatcher.getMatchWeight() && weight != BasicUtil.DEFAULT_WEIGHT) {
-                    throw new QLTransferException("not the only constructor found");
+                    return new QLImplicitMatcher(false,-1);
                 }
             }
-            return bestMatcher.getIndex();
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
+                    ,bestMatcher.getIndex());
         }
 
 
@@ -77,7 +74,7 @@ public class MemberHandler {
                         bestMatcher.setMatchWeight(weight);
                         bestMatcher.setIndex(i);
                     } else if (weight == bestMatcher.getMatchWeight()) {
-                        throw new QLTransferException("not the only method matcher found");
+                        return new QLImplicitMatcher(false,-1);
                     }
                 }
             }

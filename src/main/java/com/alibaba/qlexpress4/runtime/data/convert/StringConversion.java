@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.exception.QLTransferException;
-import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 import java.lang.reflect.Method;
 
@@ -11,9 +10,9 @@ import java.lang.reflect.Method;
  * @Date 2022/6/26 下午3:39
  */
 public class StringConversion {
-    public static String trans(Object object) {
+    public static QLConvertResult trans(Object object) {
         if (object == null) {
-            return "null";
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, "null");
         }
         Class<?> beanClass;
         String methodName = "toString";
@@ -25,10 +24,9 @@ public class StringConversion {
         }
         try {
             Method method = beanClass.getMethod(methodName, null);
-            return method.invoke(object, null).toString();
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, method.invoke(object, null).toString());
         } catch (Exception e) {
-            throw new QLTransferException("can not cast " + object.getClass().getName()
-                    + " value " + object + " to String type");
+            return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
         }
     }
 }

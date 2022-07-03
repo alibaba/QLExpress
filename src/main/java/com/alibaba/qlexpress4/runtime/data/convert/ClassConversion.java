@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.exception.QLTransferException;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 /**
  * @Author TaoKan
@@ -8,18 +9,17 @@ import com.alibaba.qlexpress4.exception.QLTransferException;
  */
 public class ClassConversion {
 
-    public static Class trans(Object object) {
+    public static QLConvertResult trans(Object object) {
         if (object == null) {
-            return null;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
         }
         if (object instanceof Class) {
-            return (Class) object;
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Class) object);
         }
         try {
-            return Class.forName(object.toString());
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, Class.forName(object.toString()));
         } catch (Exception e) {
-            throw new QLTransferException("can not cast " + object.getClass().getName()
-                    + " value " + object + " to class type");
+            return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
         }
     }
 
