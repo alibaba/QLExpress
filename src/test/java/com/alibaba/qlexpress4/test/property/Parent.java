@@ -15,6 +15,10 @@ public class Parent implements Value {
         this.age = age;
     }
 
+
+
+
+
     public static final String staticPublic = "staticPublic";
     private static final String staticPrivate = "staticPrivate";
     private static final String staticGet = "staticGet";
@@ -77,5 +81,9 @@ public class Parent implements Value {
         return Parent.class;
     }
 
-    public String getMethod2(long a,long b){return "b";}
+//    public String getMethod2(long a,long b){return "b";}
+
+    public String getMethod2(long a){return "b";}
+    public String getMethod2(int b){return "b";}
+
 }

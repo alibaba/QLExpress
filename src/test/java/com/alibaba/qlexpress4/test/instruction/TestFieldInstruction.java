@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.test.TestErrorReporter;
@@ -49,7 +50,7 @@ public class TestFieldInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         ((LeftValue)testQRuntimeParent.getValue()).set("staticSet1");
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSet1");
@@ -85,7 +86,7 @@ public class TestFieldInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSetPrivate");
     }
@@ -101,7 +102,7 @@ public class TestFieldInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSetPrivate");
     }
