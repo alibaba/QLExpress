@@ -3,6 +3,7 @@ package com.ql.util.express.bugfix;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,8 +28,7 @@ public class ScientificNumberTest {
         IExpressContext<String, Object> context = new DefaultContext<>();
         for (String exp: express) {
             Object result = runner.execute(exp, context, null, false, false);
-            System.out.println(exp + ": " + result);
-            assert ((Boolean)result);
+            Assert.assertTrue((Boolean)result);
         }
     }
 }
