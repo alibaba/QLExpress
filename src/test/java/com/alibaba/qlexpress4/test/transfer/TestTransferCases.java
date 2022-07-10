@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.runtime.instruction.NewInstruction;
 import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.instruction.TestQRuntimeParent;
 import com.alibaba.qlexpress4.test.property.Child;
+import com.alibaba.qlexpress4.test.property.Child1;
 import com.alibaba.qlexpress4.test.property.Parent;
 import com.alibaba.qlexpress4.test.property.ParentParameters;
 import org.junit.Assert;
@@ -38,9 +39,9 @@ public class TestTransferCases {
     }
     /**
      * type1:int type2:int
-     * parent method11(int , int)
-     * child method11(long, int)
-     * return parent.method11
+     * parent method12(int , int)
+     * child method12(Boolean, int)
+     * return parent.method12
      */
     @Test
     public void testCastNotTransferChildMatchMethod() {
@@ -58,11 +59,11 @@ public class TestTransferCases {
     /**
      * type1:int type2:int
      * parent new Parent(int , int)
-     * child new Child(long, int)
+     * child new Child(boolean, int)
      * return (not match)
      */
     @Test
-    public void testNewTransferChildMatchConstructor() {
+    public void testNewNotTransferChildMatchConstructor() {
         ErrorReporter errorReporter = new TestErrorReporter();
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child.class, 2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
@@ -78,7 +79,24 @@ public class TestTransferCases {
         }
         Assert.assertTrue(false);
     }
-
+    /**
+     * type1:int type2:int
+     * parent new Parent(int , int)
+     * child new Child1(long, int)
+     * return new Child1
+     */
+    @Test
+    public void testNewTransferChildMatchConstructor() {
+        ErrorReporter errorReporter = new TestErrorReporter();
+        NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 2);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(2);
+        parentParameters.push(3);
+        testQRuntimeParent.pushParameter(parentParameters);
+        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
+    }
 
 
     /**

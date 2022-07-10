@@ -47,7 +47,7 @@ public class MemberHandler {
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
                 int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch);
-                if (weight > bestMatcher.getMatchWeight()) {
+                if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConversation.NOT_MATCH.getWeight()) {
                     bestMatcher.setParametersClassType(targetMatch);
                     bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);

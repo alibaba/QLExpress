@@ -18,8 +18,8 @@ public class Child extends Parent implements Value {
     public Child(){
         this.result = 0L;
     }
-    public Child(long a, int b){
-        this.result = a+b+1;
+    public Child(boolean a, int b){
+        this.result = 1;
     }
 
     public static String getStaticGet() {
