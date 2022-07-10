@@ -85,7 +85,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(implicitMethod.getMethod() == null){
+            if(implicitMethod == null || implicitMethod.getMethod() == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
             CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, implicitMethod, type);
@@ -100,7 +100,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(implicitMethod.getMethod() == null){
+            if(implicitMethod == null || implicitMethod.getMethod() == null){
                 throw errorReporter.report("GET_METHOD_VALUE_ERROR", "method not exists");
             }
             CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, implicitMethod, type);

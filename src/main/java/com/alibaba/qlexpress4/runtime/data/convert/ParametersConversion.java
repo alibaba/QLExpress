@@ -35,16 +35,19 @@ public class ParametersConversion {
 
 
     private static QLMatchConversation compareParametersTypes(Class<?> target, Class<?> source) {
+        if (source == null && (target == boolean.class || target == Boolean.class)){
+            return QLMatchConversation.EXTEND;
+        }
         if (target == source) {
             return QLMatchConversation.EQUALS;
         }
-        if (source.isAssignableFrom(target)) {
+        if (target.isAssignableFrom(source)) {
             return QLMatchConversation.ASSIGN;
         }
         if (target.isArray() && source.isArray()) {
             return compareParametersTypes(target.getComponentType(), source.getComponentType());
         }
-        if (source.isPrimitive() && target == Object.class) {
+        if (target == Object.class) {
             return QLMatchConversation.IMPLICIT;
         }
 

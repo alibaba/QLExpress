@@ -49,7 +49,11 @@ public class NewInstruction extends QLInstruction {
 
         for (int i = 0; i < this.argNum; i++) {
             tmpObj = parameters.get(i).get();
-            paramTypes[i] = tmpObj.getClass();
+            if(tmpObj == null){
+                paramTypes[i] = null;
+            }else {
+                paramTypes[i] = tmpObj.getClass();
+            }
             objs[i] = tmpObj;
         }
         QLCaches qlCaches = qRuntime.getQLCaches();

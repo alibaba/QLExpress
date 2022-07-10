@@ -52,10 +52,10 @@ public class MemberHandler {
                     bestMatcher.setMatchWeight(weight);
                     bestMatcher.setIndex(i);
                 } else if (weight == bestMatcher.getMatchWeight() && weight != BasicUtil.DEFAULT_WEIGHT) {
-                    return new QLImplicitMatcher(false,-1);
+                    return new QLImplicitMatcher(false,BasicUtil.DEFAULT_MATCH_INDEX);
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
                     ,bestMatcher.getIndex());
         }
 
@@ -74,11 +74,11 @@ public class MemberHandler {
                         bestMatcher.setMatchWeight(weight);
                         bestMatcher.setIndex(i);
                     } else if (weight == bestMatcher.getMatchWeight()) {
-                        return new QLImplicitMatcher(false,-1);
+                        return new QLImplicitMatcher(false,BasicUtil.DEFAULT_MATCH_INDEX);
                     }
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight() == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
                     ,bestMatcher.getIndex());
         }
     }

@@ -20,6 +20,6 @@ public interface IBizCache<E,P> {
         if (types == null || types.length == 0) {
             return builder.toString();
         }
-        return builder.append(Arrays.stream(types).map(v->v.toString()).collect(Collectors.joining(","))).toString();
+        return builder.append(Arrays.stream(types).map(v->v==null?"null":v.toString()).collect(Collectors.joining(","))).toString();
     }
 }
