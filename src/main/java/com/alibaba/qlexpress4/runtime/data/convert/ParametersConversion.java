@@ -47,7 +47,16 @@ public class ParametersConversion {
         if (source.isPrimitive() && target == Object.class) {
             return QLMatchConversation.IMPLICIT;
         }
-        if (BasicUtil.transToPrimitive(source) == BasicUtil.transToPrimitive(target)) {
+
+        Class<?> sourcePrimitive = source;
+        Class<?> targetPrimitive = target;
+        if(!source.isPrimitive()){
+            sourcePrimitive = BasicUtil.transToPrimitive(source);
+        }
+        if(!target.isPrimitive()){
+            targetPrimitive = BasicUtil.transToPrimitive(target);
+        }
+        if (sourcePrimitive == targetPrimitive) {
             return QLMatchConversation.IMPLICIT;
         }
         if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
@@ -55,7 +64,7 @@ public class ParametersConversion {
             return QLMatchConversation.IMPLICIT;
         }
         for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES_IMPLICIT) {
-            if (target == classMatch[0] && source == classMatch[1]) {
+            if (targetPrimitive == classMatch[0] && sourcePrimitive == classMatch[1]) {
                 return QLMatchConversation.IMPLICIT;
             }
         }

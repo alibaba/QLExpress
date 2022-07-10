@@ -92,4 +92,8 @@ public class Parent implements Value {
         return a+b+1;
     }
 
+    private long getMethod12(int a, int b) {
+        return a+b;
+    }
+
 }

@@ -50,6 +50,9 @@ public class Child extends Parent implements Value {
         return a+b;
     }
 
+    private long getMethod12(Boolean a, int b) {
+        return b;
+    }
 
     @Override
     public int getAge() {

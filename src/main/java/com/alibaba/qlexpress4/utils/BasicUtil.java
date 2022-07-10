@@ -88,24 +88,22 @@ public class BasicUtil {
 
 
     public static Class<?> transToPrimitive(Class<?> clazz){
-        if (!clazz.isPrimitive()) {
-            if(clazz == Boolean.class){
-                clazz = boolean.class;
-            } else if (clazz == Byte.class) {
-                clazz = byte.class;
-            } else if (clazz == Short.class) {
-                clazz = short.class;
-            } else if (clazz == Integer.class) {
-                clazz = int.class;
-            } else if (clazz == Long.class) {
-                clazz = long.class;
-            } else if (clazz == Float.class) {
-                clazz = float.class;
-            } else if (clazz == Double.class) {
-                clazz = double.class;
-            } else if (clazz == Character.class) {
-                clazz = char.class;
-            }
+        if(clazz == Boolean.class){
+            clazz = boolean.class;
+        } else if (clazz == Byte.class) {
+            clazz = byte.class;
+        } else if (clazz == Short.class) {
+            clazz = short.class;
+        } else if (clazz == Integer.class) {
+            clazz = int.class;
+        } else if (clazz == Long.class) {
+            clazz = long.class;
+        } else if (clazz == Float.class) {
+            clazz = float.class;
+        } else if (clazz == Double.class) {
+            clazz = double.class;
+        } else if (clazz == Character.class) {
+            clazz = char.class;
         }
         return clazz;
     }

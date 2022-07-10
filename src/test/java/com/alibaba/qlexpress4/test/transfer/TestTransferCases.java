@@ -21,12 +21,31 @@ public class TestTransferCases {
      * type1:int type2:int
      * parent method11(int , int)
      * child method11(long, int)
-     * return parent.method1
+     * return child.method11
      */
     @Test
     public void testCastTransferChildMatchMethod() {
         ErrorReporter errorReporter = new TestErrorReporter();
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod11",2);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child());
+        parentParameters.push(1);
+        parentParameters.push(2);
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),3L);
+    }
+    /**
+     * type1:int type2:int
+     * parent method11(int , int)
+     * child method11(long, int)
+     * return parent.method11
+     */
+    @Test
+    public void testCastNotTransferChildMatchMethod() {
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod12",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child());

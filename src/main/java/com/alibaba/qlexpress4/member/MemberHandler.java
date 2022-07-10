@@ -69,7 +69,7 @@ public class MemberHandler {
                 int assignLevel = candidates[i].getLevel();
                 int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
                 if (weight != BasicUtil.DEFAULT_WEIGHT){
-                    if (weight < bestMatcher.getMatchWeight()) {
+                    if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConversation.NOT_MATCH.getWeight()) {
                         bestMatcher.setParametersClassType(targetMatch);
                         bestMatcher.setMatchWeight(weight);
                         bestMatcher.setIndex(i);
