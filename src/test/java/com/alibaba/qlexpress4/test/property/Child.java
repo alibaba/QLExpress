@@ -13,6 +13,14 @@ public class Child extends Parent implements Value {
     private Boolean booValue = false;
     private int age = 11;
     private String birth = "2021-02-02";
+    private final long result;
+
+    public Child(){
+        this.result = 0L;
+    }
+    public Child(long a, int b){
+        this.result = a+b+1;
+    }
 
     public static String getStaticGet() {
         return "5";
@@ -35,6 +43,10 @@ public class Child extends Parent implements Value {
     }
 
     private int getMethod1(int a, int b) {
+        return a+b;
+    }
+
+    private long getMethod11(long a, int b) {
         return a+b;
     }
 

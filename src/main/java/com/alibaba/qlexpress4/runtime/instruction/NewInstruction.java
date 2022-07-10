@@ -57,7 +57,7 @@ public class NewInstruction extends QLInstruction {
         QLImplicitConstructor cacheElement = CacheUtil.getConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes);
         if (cacheElement == null) {
             cacheElement = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
-            if (cacheElement.getConstructor() == null) {
+            if (cacheElement==null || cacheElement.getConstructor() == null) {
                 throw errorReporter.report("NEW_OBJECT_CREATE_ERROR", "not find constructor");
             }
             CacheUtil.setConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes, cacheElement);

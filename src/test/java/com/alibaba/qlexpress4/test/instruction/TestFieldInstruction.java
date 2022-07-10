@@ -2,7 +2,6 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -11,7 +10,6 @@ import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.Parent;
 import com.alibaba.qlexpress4.test.property.TestEnum;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,12 +30,9 @@ public class TestFieldInstruction {
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
-        try {
-            getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        }catch (Exception e){
-            Assert.assertTrue(e != null);
-        }
-    }
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticGet1");
+     }
 
 
     /**
@@ -73,7 +68,9 @@ public class TestFieldInstruction {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
     /**
@@ -197,7 +194,9 @@ public class TestFieldInstruction {
             Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
     /**
@@ -252,7 +251,9 @@ public class TestFieldInstruction {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
 

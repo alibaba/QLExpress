@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.instruction.CallInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.GetMethodInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.MethodInvokeInstruction;
+import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.ParentParameters;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -24,20 +25,7 @@ public class TestMethodInvokeInstruction {
      */
     @Test
     public void case1(){
-        ErrorReporter errorReporter = new ErrorReporter() {
-            @Override
-            public QLRuntimeException report(Object attachment, String errorCode, String reason) {
-                return null;
-            }
-            @Override
-            public QLRuntimeException report(String errorCode, String reason) {
-                return null;
-            }
-            @Override
-            public QLRuntimeException report(String errorCode, String format, Object... args) {
-                return null;
-            }
-        };
+        ErrorReporter errorReporter = new TestErrorReporter();
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod1",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();

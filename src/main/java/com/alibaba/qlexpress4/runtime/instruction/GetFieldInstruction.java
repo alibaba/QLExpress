@@ -127,7 +127,7 @@ public class GetFieldInstruction extends QLInstruction {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
         }
         if (setterOp == null) {
-            return new DataValue(getterOp);
+            return new DataValue(getterOp.get());
         }
         return new DataField(getterOp, setterOp);
     }
