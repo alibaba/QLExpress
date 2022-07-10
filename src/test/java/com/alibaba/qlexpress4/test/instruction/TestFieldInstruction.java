@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.Parent;
+import com.alibaba.qlexpress4.test.property.TestEnum;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class TestFieldInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         try {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         }catch (Exception e){
@@ -67,7 +68,7 @@ public class TestFieldInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         try {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         }catch (Exception e){
@@ -254,5 +255,23 @@ public class TestFieldInstruction {
         }
     }
 
+
+    /**
+     * enum attr get
+     * TestEnum.skt.getValue()
+     *
+     * @throws Exception
+     */
+    @Test
+    public void case14() throws Exception{
+        ErrorReporter errorReporter = new TestErrorReporter();
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "SKT");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new DataValue(new MetaClass(TestEnum.class)));
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        GetFieldInstruction getFieldInstruction1 = new GetFieldInstruction(errorReporter, "value");
+        getFieldInstruction1.execute(testQRuntimeParent,QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),-1);
+    }
 
 }

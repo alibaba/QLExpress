@@ -49,6 +49,16 @@ public class GetFieldInstruction extends QLInstruction {
             if (BasicUtil.CLASS.equals(this.fieldName)) {
                 Value dataClazz = new DataValue(metaClass.getClz());
                 qRuntime.push(dataClazz);
+            } else if(metaClass.getClz().isEnum()){
+                Object[] enums = metaClass.getClz().getEnumConstants();
+                for(Object enumObj: enums){
+                    if(this.fieldName.equals(enumObj.toString())){
+                        Value dataEnum = new DataValue(enumObj);
+                        qRuntime.push(dataEnum);
+                        return QResult.CONTINUE_RESULT;
+                    }
+                }
+                throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get enum from null");
             } else {
                 getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qRuntime);
             }
