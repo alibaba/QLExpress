@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.cache;
 
+import com.alibaba.qlexpress4.utils.BasicUtil;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -16,10 +18,10 @@ public interface IBizCache<E,P> {
 
     default String buildCacheKey(Class<?> baseClass, String name, Class<?>[] types){
         StringBuilder builder = new StringBuilder();
-        builder.append(baseClass.getName()).append("#").append(name).append(";");
+        builder.append(baseClass.getName()).append(BasicUtil.SPLIT_CLASS).append(name).append(BasicUtil.SPLIT_NAME);
         if (types == null || types.length == 0) {
             return builder.toString();
         }
-        return builder.append(Arrays.stream(types).map(v->v==null?"null":v.toString()).collect(Collectors.joining(","))).toString();
+        return builder.append(Arrays.stream(types).map(v->v==null? BasicUtil.NULL_SIGN :v.toString()).collect(Collectors.joining(BasicUtil.SPLIT_COLLECTOR))).toString();
     }
 }

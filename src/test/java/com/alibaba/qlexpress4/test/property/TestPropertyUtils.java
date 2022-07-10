@@ -26,11 +26,10 @@ public class TestPropertyUtils {
 //        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
 //        System.out.println(a);
          Integer a = 5;
-        Parent parent = new Parent(5);
+        Child5 parent = new Child5();
 
-        parent.getMethod2(a);
-          Method method = parent.getClass().getMethod("getMethod2",long.class,long.class);
-        System.out.println(method.invoke(parent,5,6));
+          Method method = parent.getClass().getMethod("getMethod8",double.class);
+        System.out.println(method.invoke(parent,5));
 //        CacheUtil.initCache(128, false);
 //
 //        Child child = new Child();

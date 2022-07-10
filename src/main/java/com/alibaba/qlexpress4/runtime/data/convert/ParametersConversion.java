@@ -62,19 +62,14 @@ public class ParametersConversion {
         if (sourcePrimitive == targetPrimitive) {
             return QLMatchConversation.IMPLICIT;
         }
-        if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
-                && CacheUtil.isFunctionInterface(target)) {
+        if ((source == QLambda.class) && CacheUtil.isFunctionInterface(target)) {
             return QLMatchConversation.IMPLICIT;
         }
-        for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES_IMPLICIT) {
-            if (targetPrimitive == classMatch[0] && sourcePrimitive == classMatch[1]) {
-                return QLMatchConversation.IMPLICIT;
-            }
+        if (BasicUtil.classMatchImplicit(targetPrimitive,sourcePrimitive)){
+            return QLMatchConversation.IMPLICIT;
         }
-        for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES_EXTEND) {
-            if (target == classMatch[0] && source == classMatch[1]) {
-                return QLMatchConversation.EXTEND;
-            }
+        if (BasicUtil.classMatchImplicitExtend(target,source)){
+            return QLMatchConversation.EXTEND;
         }
         return QLMatchConversation.NOT_MATCH;
     }

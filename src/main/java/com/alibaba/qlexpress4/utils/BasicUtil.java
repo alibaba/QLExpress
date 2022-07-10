@@ -16,29 +16,56 @@ public class BasicUtil {
     public static final String LENGTH = "length";
     public static final String CLASS = "class";
     public static final String NEW = "new";
+    public static final String SPLIT_CLASS = "#";
+    public static final String SPLIT_NAME = ";";
+    public static final String SPLIT_COLLECTOR = ",";
+
     public static final int LEVEL_FACTOR = 10;
     public static final int DEFAULT_MATCH_INDEX = -1;
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
-    public static final Class<?>[][] CLASS_MATCHES_IMPLICIT = new Class[][]{
-            {double.class, float.class}, {double.class, long.class}, {double.class, int.class},
-            {double.class, short.class},{double.class, byte.class},  {float.class, long.class},
-            {float.class, int.class},{float.class, short.class}, {float.class, byte.class},
-            {long.class, int.class}, {long.class, short.class}, {long.class, byte.class},
-            {int.class, short.class}, {int.class, byte.class}, {short.class, byte.class}
-    };
+    public static boolean classMatchImplicit(Class<?> target, Class<?> source){
+        if(target == double.class){
+            if(source == float.class || source == long.class || source == int.class || source == short.class || source == byte.class){
+                return true;
+            }
+            return false;
+        }else if(target == float.class){
+            if(source == long.class || source == int.class || source == short.class || source == byte.class){
+                return true;
+            }
+            return false;
+        }else if(target == long.class){
+            if(source == int.class || source == short.class || source == byte.class){
+                return true;
+            }
+            return false;
+        }else if(target == int.class){
+            if(source == short.class || source == byte.class){
+                return true;
+            }
+            return false;
+        }else if(target == short.class && source == byte.class){
+            return true;
+        }
+        return false;
+    }
 
-    public static final Class<?>[][] CLASS_MATCHES_EXTEND = new Class[][]{
-            {BigDecimal.class, double.class}, {BigDecimal.class, float.class}, {BigDecimal.class, long.class},
-            {BigDecimal.class, int.class}, {BigDecimal.class, short.class}, {BigDecimal.class, byte.class},
-            {double.class, BigDecimal.class}, {float.class, BigDecimal.class}, {byte.class, BigDecimal.class},
-            {short.class, BigDecimal.class}, {int.class, BigDecimal.class}, {long.class, BigDecimal.class},
-            {BigInteger.class, double.class}, {BigInteger.class, float.class}, {BigInteger.class, long.class},
-            {BigInteger.class, int.class}, {BigInteger.class, short.class}, {BigInteger.class, byte.class},
-            {double.class, BigInteger.class}, {float.class, BigInteger.class},{byte.class, BigInteger.class},
-            {short.class, BigInteger.class}, {int.class, BigInteger.class}, {long.class, BigInteger.class}
-    };
 
+    public static boolean classMatchImplicitExtend(Class<?> target, Class<?> source){
+        if(target == BigDecimal.class || target == BigInteger.class){
+            if(source == double.class || source == float.class || source == long.class || source == int.class || source == short.class || source == byte.class){
+                return true;
+            }
+            return false;
+        }else if(target == double.class || target == float.class || target == long.class || target == int.class || target == short.class || target == byte.class){
+            if(source == BigDecimal.class || source == BigInteger.class){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 
     public static boolean isPublic(Member member) {
         return Modifier.isPublic(member.getModifiers());

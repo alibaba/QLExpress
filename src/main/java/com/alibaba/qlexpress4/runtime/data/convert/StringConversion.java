@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Method;
 
@@ -12,7 +13,7 @@ import java.lang.reflect.Method;
 public class StringConversion {
     public static QLConvertResult trans(Object object) {
         if (object == null) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, "null");
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS, BasicUtil.NULL_SIGN);
         }
         Class<?> beanClass;
         String methodName = "toString";
