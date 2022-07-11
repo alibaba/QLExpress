@@ -38,6 +38,15 @@ public class TestQRuntimeParent implements QRuntime {
 
     }
 
+    @Override
+    public void defineFunction(String functionName, QFunction function) {
+
+    }
+
+    @Override
+    public QFunction getFunction(String functionName) {
+        return null;
+    }
 
 
     @Override
@@ -59,10 +68,13 @@ public class TestQRuntimeParent implements QRuntime {
         return this.value;
     }
 
-
-
     @Override
     public long scriptStartTimeStamp() {
         return 0;
+    }
+
+    @Override
+    public boolean isPopulate() {
+        return true;
     }
 }

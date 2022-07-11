@@ -36,7 +36,7 @@ public class IndexInstruction extends QLInstruction {
                     "list can only be indexed by int");
             qRuntime.push(new ListItemValue((List<? super Object>) indexAble, indexInt));
         } else if (indexAble instanceof Map) {
-            qRuntime.push(new MapItemValue((Map<? super Object, ? super Object>) indexAble, index));
+            qRuntime.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             Integer indexInt = assertType(index, Integer.class, "ARRAY_INVALID_INDEX",
                     "array can only be indexed by int");

@@ -34,10 +34,10 @@ public class CallConstInstruction extends QLInstruction {
                 return result;
             }
             qRuntime.push(ValueUtils.toImmutable(result.getResult()));
+            return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
         }
-        return QResult.CONTINUE_RESULT;
     }
 
     @Override

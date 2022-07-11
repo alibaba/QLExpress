@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.exception.UserDefineException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -52,6 +53,35 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void addFunctionTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("assert", (qRuntime, parameters) -> {
+            int pSize = parameters.size();
+            switch (pSize) {
+                case 1:
+                    Boolean b = (Boolean) parameters.getValue(0);
+                    if (b == null || !b) {
+                        throw new UserDefineException("assert fail");
+                    }
+                    return null;
+                case 2:
+                    Boolean b0 = (Boolean) parameters.getValue(0);
+                    if (b0 == null || !b0) {
+                        throw new UserDefineException((String) parameters.getValue(1));
+                    }
+                    return null;
+                default:
+                    throw new UserDefineException("invalid parameter size");
+            }
+        });
+        express4Runner.execute("assert(true)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertErrCodeAndReason(express4Runner, "assert(false)", "CALL_FUNCTION_BIZ_EXCEPTION",
+                "assert fail");
+        assertErrCodeAndReason(express4Runner, "assert(false, 'my test')",
+                "CALL_FUNCTION_BIZ_EXCEPTION", "my test");
+    }
+
+    @Test
     public void debugExample() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
@@ -75,4 +105,14 @@ public class Express4RunnerTest {
 
     }
 
+    private void assertErrCodeAndReason(Express4Runner express4Runner, String script,
+                                        String errCode, String reason) {
+        try {
+            express4Runner.execute(script, Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS);
+        } catch (QLException e) {
+            assertEquals(errCode, e.getErrorCode());
+            assertEquals(reason, e.getReason());
+        }
+    }
 }

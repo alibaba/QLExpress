@@ -187,6 +187,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                     .getAttribute();
             addInstruction(new MethodInvokeInstruction(newReporterByToken(attribute.getKeyToken()),
                     attribute.getId(), callExpr.getArguments().size()));
+        } else if (target instanceof IdExpr) {
+            callExpr.getArguments().forEach(arg -> arg.accept(this, generatorScope));
+            addInstruction(new CallFunctionInstruction(newReporterByNode(callExpr),
+                    target.getKeyToken().getLexeme(), callExpr.getArguments().size()));
         } else {
             // evaluated lambda
             target.accept(this, generatorScope);
@@ -267,8 +271,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         String functionName = functionStmt.getName().getId();
         QLambdaDefinition functionLambda = generateLambdaNewScope(functionName, functionStmt.getBody(), generatorScope);
         ErrorReporter errorReporter = newReporterByNode(functionStmt);
-        addInstruction(new ConstInstruction(errorReporter, functionLambda));
-        addInstruction(new DefineLocalInstruction(errorReporter, functionName, QLambda.class));
+        addInstruction(new DefineFunctionInstruction(errorReporter, functionName, functionLambda));
         return null;
     }
 

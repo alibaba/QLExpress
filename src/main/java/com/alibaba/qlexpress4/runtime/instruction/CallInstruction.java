@@ -6,7 +6,8 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
+import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -31,20 +32,22 @@ public class CallInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Parameters parameters = qRuntime.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
-        Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
+        Object[] params = new Object[this.argNum];
         for (int i = 0; i < this.argNum; i++) {
             params[i] = parameters.get(i + 1).get();
         }
-        if (bean == null) {
-            throw this.errorReporter.report("CALL_LAMBDA_ERROR", "can not get lambda method from null");
+        if (!(bean instanceof QLambda)) {
+            throw this.errorReporter.report("OBJECT_NOT_CALLABLE",
+                    "left side is not callable object");
         }
         try {
-            QLambda qLambda = (QLambdaMethod) bean;
-            qRuntime.push(qLambda.call(params).getResult());
+            QLambda qLambda = (QLambda) bean;
+            qRuntime.push(ValueUtils.toImmutable(qLambda.call(params).getResult()));
+            return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
-            throw errorReporter.report("CALL_LAMBDA_VALUE_ERROR", "callable method not accessible");
+            throw ThrowUtils.wrapException(e, errorReporter,
+                    "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
         }
-        return QResult.CONTINUE_RESULT;
     }
 
     @Override

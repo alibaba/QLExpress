@@ -44,6 +44,11 @@ public class FixedSizeStack {
         public Value get(int i) {
             return i >= length? null: elements[start + i];
         }
+
+        @Override
+        public int size() {
+            return length;
+        }
     }
 
 }

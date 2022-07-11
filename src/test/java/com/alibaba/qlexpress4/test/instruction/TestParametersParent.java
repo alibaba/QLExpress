@@ -15,4 +15,9 @@ public class TestParametersParent implements Parameters {
         parent.setAge(35);
         return parent;
     }
+
+    @Override
+    public int size() {
+        return 0;
+    }
 }

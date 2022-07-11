@@ -54,7 +54,7 @@ public class GetFieldInstruction extends QLInstruction {
                 getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qRuntime);
             }
         } else if (bean instanceof Map) {
-            LeftValue dataMap = new MapItemValue((Map<? super Object, ? super Object>) bean, this.fieldName);
+            LeftValue dataMap = new MapItemValue((Map<?, ?>) bean, this.fieldName);
             qRuntime.push(dataMap);
         } else {
             getCacheFieldValue(qlOptions, bean.getClass(), bean, qRuntime);

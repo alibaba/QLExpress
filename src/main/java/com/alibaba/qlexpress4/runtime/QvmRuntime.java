@@ -14,6 +14,8 @@ public class QvmRuntime implements QRuntime {
 
     private final Map<String, Value> symbolTable;
 
+    private final Map<String, QFunction> functionTable;
+
     private final FixedSizeStack opStack;
 
     /**
@@ -23,7 +25,10 @@ public class QvmRuntime implements QRuntime {
 
     public QvmRuntime(QRuntime parent, Map<String, Value> symbolTable, int maxStackSize, long startTime) {
         this.parent = parent;
+        // TODO: 优化成 fixedArrayMap
         this.symbolTable = symbolTable;
+        // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
+        this.functionTable = new HashMap<>();
         this.opStack = new FixedSizeStack(maxStackSize);
         this.startTime = startTime;
     }
@@ -44,16 +49,33 @@ public class QvmRuntime implements QRuntime {
     @Override
     public LeftValue defineSymbol(String varName, Class<?> varClz) {
         if (parent == null) {
-            LeftValue symbol = new AssignableDataValue(null, varClz);
-            symbolTable.put(varName, symbol);
-            return symbol;
+            return defineSymbolInner(varName, varClz);
         }
-        return parent.defineSymbol(varName, varClz);
+        return parent.isPopulate()? parent.defineSymbol(varName, varClz):
+                defineSymbolInner(varName, varClz);
+    }
+
+    private LeftValue defineSymbolInner(String varName, Class<?> varClz) {
+        LeftValue symbol = new AssignableDataValue(null, varClz);
+        symbolTable.put(varName, symbol);
+        return symbol;
     }
 
     @Override
     public void defineLocalSymbol(String varName, Class<?> varClz, Object value) {
         symbolTable.put(varName, new AssignableDataValue(value, varClz));
+    }
+
+    @Override
+    public void defineFunction(String functionName, QFunction function) {
+        functionTable.put(functionName, function);
+    }
+
+    @Override
+    public QFunction getFunction(String functionName) {
+        QFunction function = functionTable.get(functionName);
+        return function == null && parent != null? parent.getFunction(functionName):
+                function;
     }
 
     @Override
@@ -74,5 +96,10 @@ public class QvmRuntime implements QRuntime {
     @Override
     public long scriptStartTimeStamp() {
         return startTime;
+    }
+
+    @Override
+    public boolean isPopulate() {
+        return true;
     }
 }

@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -20,11 +21,13 @@ public class Express4Runner {
     // TODO: bingou OperatorManager?
     private Map<String, BinaryOperator> userDefineOperator = Collections.emptyMap();
 
+    private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
+
     public Express4Runner(InitOptions initOptions) {
         CacheUtil.initCache(10, initOptions.enableUseCacheClear());
     }
 
-    public Object execute(String script, Map<String, Value> context, QLOptions qlOptions) throws QLException {
+    public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
         QLambda mainLambda = parseToLambda(script, context, qlOptions);
         try {
             return mainLambda.call().getResult().get();
@@ -34,6 +37,10 @@ public class Express4Runner {
             // should not run here
             throw new RuntimeException(nuKnown);
         }
+    }
+
+    public void addFunction(String name, QFunction function) {
+        userDefineFunction.put(name, function);
     }
 
     public Program parseToSyntaxTree(String script, QLOptions qlOptions) {
@@ -49,7 +56,7 @@ public class Express4Runner {
         return qlParser.parse();
     }
 
-    private QLambda parseToLambda(String script, Map<String, Value> context, QLOptions qlOptions) {
+    private QLambda parseToLambda(String script, Map<String, Object> context, QLOptions qlOptions) {
         Program program = parseToSyntaxTree(script, qlOptions);
         if (qlOptions.isDebug()) {
             qlOptions.getDebugInfoConsumer().accept("\nAST:");
@@ -59,9 +66,8 @@ public class Express4Runner {
 
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator("", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
-        QvmRuntime rootRuntime = new QvmRuntime(null,
-                qlOptions.isPolluteUserContext()? context: new HashMap<>(context),
-                qvmInstructionGenerator.getMaxStackSize(), System.currentTimeMillis());
+        QRuntime rootRuntime = new QvmRootRuntime(context, userDefineFunction,
+                qlOptions.isPolluteUserContext(), System.currentTimeMillis());
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
                 qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
@@ -70,6 +76,6 @@ public class Express4Runner {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
-        return mainLambdaDefine.toLambda(rootRuntime, qlOptions, false);
+        return mainLambdaDefine.toLambda(rootRuntime, qlOptions, true);
     }
 }
