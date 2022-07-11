@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -79,6 +80,9 @@ public class Express4RunnerTest {
                 "assert fail");
         assertErrCodeAndReason(express4Runner, "assert(false, 'my test')",
                 "CALL_FUNCTION_BIZ_EXCEPTION", "my test");
+        // variable can be the same name with function
+        express4Runner.execute("assert = 4;assert(assert == 4)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
     }
 
     @Test
@@ -95,6 +99,25 @@ public class Express4RunnerTest {
         assertTrue((Boolean) result1);
     }
 
+    @Test
+    public void populateTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions populateOption = QLOptions.builder()
+                .polluteUserContext(true).build();
+        Map<String, Object> populatedMap = new HashMap<>();
+        populatedMap.put("b", 10);
+        express4Runner.execute("a = 11;b = a", populatedMap, populateOption);
+        assertEquals(11, populatedMap.get("a"));
+        assertEquals(11, populatedMap.get("b"));
+
+        // no population
+        assertErrorCode(express4Runner, populatedMap, "a = 19", "INVALID_ASSIGNMENT");
+
+        Map<String, Object> populatedMap2 = new HashMap<>();
+        express4Runner.execute("a = 11", populatedMap2, QLOptions.DEFAULT_OPTIONS);
+        assertFalse(populatedMap2.containsKey("a"));
+    }
+
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
         try {
             express4Runner.execute(script, Collections.emptyMap(),
@@ -102,7 +125,15 @@ public class Express4RunnerTest {
         } catch (QLException e) {
             assertEquals(errCode, e.getErrorCode());
         }
+    }
 
+    private void assertErrorCode(Express4Runner express4Runner, Map<String, Object> existMap,
+                                 String script, String errCode) {
+        try {
+            express4Runner.execute(script, existMap, QLOptions.DEFAULT_OPTIONS);
+        } catch (QLException e) {
+            assertEquals(errCode, e.getErrorCode());
+        }
     }
 
     private void assertErrCodeAndReason(Express4Runner express4Runner, String script,
