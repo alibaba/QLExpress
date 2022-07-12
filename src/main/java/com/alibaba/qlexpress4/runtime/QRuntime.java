@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import java.util.Map;
+
 /**
  * Author: DQinYuan
  */
@@ -80,4 +82,6 @@ public interface QRuntime {
      * @return
      */
     boolean isPopulate();
+
+    Map<String, Object> attachment();
 }

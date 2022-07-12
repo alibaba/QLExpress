@@ -15,14 +15,17 @@ public class QvmRootRuntime implements QRuntime {
 
     private final Map<String, QFunction> externalFunction;
 
+    private final Map<String, Object> attachments;
+
     private final boolean polluteExternal;
 
     private final long startTime;
 
     public QvmRootRuntime(Map<String, Object> externalVariable, Map<String, QFunction> externalFunction,
-                          boolean polluteExternal, long startTime) {
+                          Map<String, Object> attachments, boolean polluteExternal, long startTime) {
         this.externalVariable = externalVariable;
         this.externalFunction = externalFunction;
+        this.attachments = attachments;
         this.polluteExternal = polluteExternal;
         this.startTime = startTime;
     }
@@ -84,5 +87,10 @@ public class QvmRootRuntime implements QRuntime {
     @Override
     public boolean isPopulate() {
         return polluteExternal;
+    }
+
+    @Override
+    public Map<String, Object> attachment() {
+        return attachments;
     }
 }

@@ -3,7 +3,9 @@ package com.alibaba.qlexpress4;
 import com.alibaba.qlexpress4.parser.ImportManager;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -44,11 +46,19 @@ public class QLOptions {
 
     /**
      * default import java packages for script
-     * default          ImportManager.importPack("java.lang"),
+     * default         ImportManager.importPack("java.lang"),
      *                 ImportManager.importPack("java.util"),
      *                 ImportManager.importPack("java.util.stream")
      */
     private final List<ImportManager.Import> defaultImport;
+
+    /**
+     * attachments will be carried to user defined function/operator/macro
+     * only used to pass data, not as variable value
+     *
+     * default empty map
+     */
+    private final Map<String, Object> attachments;
 
     /**
      * open debug mode
@@ -64,13 +74,14 @@ public class QLOptions {
 
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
-                      boolean debug, Consumer<String> debugInfoConsumer) {
+                      Map<String, Object> attachments, boolean debug, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
+        this.attachments = attachments;
         this.debug = debug;
         this.debugInfoConsumer = debugInfoConsumer;
     }
@@ -103,6 +114,10 @@ public class QLOptions {
         return defaultImport;
     }
 
+    public Map<String, Object> getAttachments() {
+        return attachments;
+    }
+
     public boolean isDebug() {
         return debug;
     }
@@ -122,6 +137,8 @@ public class QLOptions {
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
         private long timeoutMillis = -1;
+
+        private Map<String, Object> attachments = Collections.emptyMap();
 
         private boolean debug = false;
 
@@ -163,6 +180,11 @@ public class QLOptions {
             return this;
         }
 
+        public Builder attachments(Map<String, Object> attachments) {
+            this.attachments = attachments;
+            return this;
+        }
+
         public Builder debug(boolean debug) {
             this.debug = debug;
             return this;
@@ -175,7 +197,7 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
-                    defaultImport, allowAccessPrivateMethod, debug, debugInfoConsumer);
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, debugInfoConsumer);
         }
     }
 

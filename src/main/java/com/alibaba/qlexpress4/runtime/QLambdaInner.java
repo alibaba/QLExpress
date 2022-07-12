@@ -53,7 +53,7 @@ public class QLambdaInner implements QLambda {
             initSymbolTable.put(paramDefinition.getName(),
                     new AssignableDataValue(params[i], paramDefinition.getClazz()));
         }
-        return new QvmRuntime(qRuntime, initSymbolTable, lambdaDefinition.getMaxStackSize(),
-                qRuntime.scriptStartTimeStamp());
+        return new QvmRuntime(qRuntime, initSymbolTable, qRuntime.attachment(),
+                lambdaDefinition.getMaxStackSize(), qRuntime.scriptStartTimeStamp());
     }
 }

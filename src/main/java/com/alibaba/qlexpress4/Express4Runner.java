@@ -67,7 +67,7 @@ public class Express4Runner {
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator("", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
         QRuntime rootRuntime = new QvmRootRuntime(context, userDefineFunction,
-                qlOptions.isPolluteUserContext(), System.currentTimeMillis());
+                qlOptions.getAttachments(), qlOptions.isPolluteUserContext(), System.currentTimeMillis());
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
                 qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),

@@ -16,6 +16,8 @@ public class QvmRuntime implements QRuntime {
 
     private final Map<String, QFunction> functionTable;
 
+    private final Map<String, Object> attachments;
+
     private final FixedSizeStack opStack;
 
     /**
@@ -23,12 +25,14 @@ public class QvmRuntime implements QRuntime {
      */
     private final long startTime;
 
-    public QvmRuntime(QRuntime parent, Map<String, Value> symbolTable, int maxStackSize, long startTime) {
+    public QvmRuntime(QRuntime parent, Map<String, Value> symbolTable,
+                      Map<String, Object> attachments, int maxStackSize, long startTime) {
         this.parent = parent;
         // TODO: 优化成 fixedArrayMap
         this.symbolTable = symbolTable;
         // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
         this.functionTable = new HashMap<>();
+        this.attachments = attachments;
         this.opStack = new FixedSizeStack(maxStackSize);
         this.startTime = startTime;
     }
@@ -101,5 +105,10 @@ public class QvmRuntime implements QRuntime {
     @Override
     public boolean isPopulate() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> attachment() {
+        return attachments;
     }
 }

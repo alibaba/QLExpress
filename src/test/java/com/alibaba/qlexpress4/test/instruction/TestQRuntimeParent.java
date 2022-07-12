@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.runtime.*;
 
+import java.util.Map;
+
 /**
  * @Author TaoKan
  * @Date 2022/5/15 上午11:03
@@ -76,5 +78,10 @@ public class TestQRuntimeParent implements QRuntime {
     @Override
     public boolean isPopulate() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> attachment() {
+        return null;
     }
 }
