@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.member.MemberHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
+import com.alibaba.qlexpress4.runtime.data.convert.NumberConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 import com.ql.util.express.DefaultContext;
@@ -10,6 +12,7 @@ import org.junit.Assert;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -25,11 +28,14 @@ public class TestPropertyUtils {
 //        defaultContext.put("a",Parent.class);
 //        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
 //        System.out.println(a);
-         Integer a = 5;
-        Child5 parent = new Child5();
-
-          Method method = parent.getClass().getMethod("getMethod8",double.class);
-        System.out.println(method.invoke(parent,5));
+        BigInteger b = new BigInteger("6");
+        QLConvertResult q = NumberConversion.trans(b,Integer.class);
+        System.out.println(q.getCastValue());
+//         Integer a = 5;
+//        Child5 parent = new Child5();
+//
+//          Method method = parent.getClass().getMethod("getMethod8",double.class);
+//        System.out.println(method.invoke(parent,5));
 //        CacheUtil.initCache(128, false);
 //
 //        Child child = new Child();
