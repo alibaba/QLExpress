@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.test.instruction.TestQRuntimeParent;
 import com.alibaba.qlexpress4.test.property.*;
 import org.junit.Assert;
 import org.junit.Test;
+import java.math.BigDecimal;
 
 /**
  * @Author TaoKan
@@ -319,12 +320,57 @@ public class TestTransferCases {
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child5);
     }
+
+    /**
+     * type1:int
+     * Child6 method9(BigInteger)
+     * return child6.method9
+     */
     @Test
     public void testCaseTransferExtend(){
-
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod9",1);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child6());
+        parentParameters.push(5);
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),5);
     }
+
+    /**
+     * type1:int
+     * Child6 new(double)
+     * return Child6
+     */
     @Test
     public void testNewTransferExtend(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        NewInstruction newInstruction = new NewInstruction(errorReporter, Child6.class, 1);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(5);
+        testQRuntimeParent.pushParameter(parentParameters);
+        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child6);
+    }
 
+    /**
+     * type1:BigDecimal
+     * Child6 method10(double)
+     * return child6.method10
+     */
+    @Test
+    public void testCaseTransferExtend2(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod10",1);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child6());
+        parentParameters.push(new BigDecimal("5.0"));
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),new BigDecimal("5.0"));
     }
 }

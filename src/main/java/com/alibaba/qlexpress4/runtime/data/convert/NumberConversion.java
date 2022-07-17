@@ -10,7 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
  */
 public class NumberConversion {
     public static QLConvertResult trans(Object object, Class type) {
-        if (Number.class.isAssignableFrom(type)) {
+        if (Number.class.isAssignableFrom(type) || type.isPrimitive()) {
             QLConvertResult castToNumber = castToNumber(object);
             if(castToNumber.getResultType().equals(QLConvertResultType.NOT_TRANS)){
                 return castToNumber;

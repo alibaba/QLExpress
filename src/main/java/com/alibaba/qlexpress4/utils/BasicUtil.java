@@ -56,9 +56,16 @@ public class BasicUtil {
         if(target == BigDecimal.class || target == BigInteger.class){
             if(source == double.class || source == float.class || source == long.class || source == int.class || source == short.class || source == byte.class){
                 return true;
+            }else if(source == Double.class || source == Float.class || source == Long.class || source == Integer.class || source == Short.class || source == Byte.class){
+                return true;
             }
             return false;
         }else if(target == double.class || target == float.class || target == long.class || target == int.class || target == short.class || target == byte.class){
+            if(source == BigDecimal.class || source == BigInteger.class){
+                return true;
+            }
+            return false;
+        }else if(source == Double.class || source == Float.class || source == Long.class || source == Integer.class || source == Short.class || source == Byte.class){
             if(source == BigDecimal.class || source == BigInteger.class){
                 return true;
             }
