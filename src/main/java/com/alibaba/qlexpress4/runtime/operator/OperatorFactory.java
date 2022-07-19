@@ -52,7 +52,7 @@ public class OperatorFactory {
             case "/":
                 return new DivideOperator();
             case "%":
-            case "mod": // TODO bingo 是否需要
+            case "mod":
                 return new ModOperator();
             case "&":
                 return new BitwiseAndOperator();
@@ -67,10 +67,10 @@ public class OperatorFactory {
             case ">>>":
                 return new BitwiseRightShiftUnsignedOperator();
             case "&&":
-            case "and":// TODO bingo 是否需要
+            case "and":
                 return new LogicAndOperator();
             case "||":
-            case "or":// TODO bingo 是否需要
+            case "or":
                 return new LogicOrOperator();
             case "==":
                 return new EqualOperator();

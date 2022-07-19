@@ -32,7 +32,7 @@ public class AssignableDataValue implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return defineType;
     }
 }

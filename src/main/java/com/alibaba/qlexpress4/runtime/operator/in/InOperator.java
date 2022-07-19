@@ -24,7 +24,7 @@ public class InOperator extends BaseBinaryOperator {
         }
 
         Collection<?> rightCollection = (Collection<?>)right;
-        // TODO bingo 这样处理？
+        // TODO bingo 这样处理？ 抽取公共逻辑
         EqualOperator equalOperator = new EqualOperator();
         for (Object rightElement : rightCollection) {
             boolean executeResult = (boolean)equalOperator.execute(left, new DataValue(rightElement), errorReporter);

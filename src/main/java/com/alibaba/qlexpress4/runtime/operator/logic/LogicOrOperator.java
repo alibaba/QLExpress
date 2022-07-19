@@ -17,6 +17,7 @@ public class LogicOrOperator extends BaseBinaryOperator {
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
+        // TODO 调用灵葙的工具类，object > boolean，隐式转换 @灵葙
         // 抽取至类型转换工具类
         if (leftValue == null) {
             leftValue = false;

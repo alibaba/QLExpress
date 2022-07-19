@@ -17,7 +17,7 @@ public class MockValue implements Value {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return declaredClass;
     }
 }

@@ -1,7 +1,5 @@
 package com.alibaba.qlexpress4.runtime.operator.arithmetic;
 
-import java.util.Objects;
-
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
@@ -19,11 +17,11 @@ public class PlusOperator extends BaseBinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (leftValue instanceof String || Objects.equals(left.getDefineType(), String.class)) {
+        if (leftValue instanceof String) {
             return (String)leftValue + rightValue;
         }
 
-        if (rightValue instanceof String || Objects.equals(right.getDefineType(), String.class)) {
+        if (rightValue instanceof String) {
             return leftValue + (String)rightValue;
         }
 

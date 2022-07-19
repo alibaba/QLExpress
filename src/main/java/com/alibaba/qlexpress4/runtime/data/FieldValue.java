@@ -33,7 +33,7 @@ public class FieldValue implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return this.defineType;
     }
 }
