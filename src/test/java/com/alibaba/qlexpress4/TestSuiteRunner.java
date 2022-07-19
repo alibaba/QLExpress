@@ -1,7 +1,9 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONException;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
@@ -17,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,7 +30,6 @@ public class TestSuiteRunner {
 
     private static final String ASSERT_FUNCTION_NAME = "assert";
     private static final String TEST_PATH_ATT = "TEST_PATH";
-    private static final String ERROR_CODE_DIR_NAME = "errcode";
 
     private Express4Runner testRunner;
 
@@ -49,9 +51,6 @@ public class TestSuiteRunner {
                 String newPrefix = pathPrefix + "/" + path.getFileName();
                 if (Files.isDirectory(path)) {
                     handleDirectory(path, newPrefix);
-                } else if (ERROR_CODE_DIR_NAME.equals(dir.getFileName().toString())) {
-                    handleErrCode(path, newPrefix, path.getFileName().toString()
-                            .replace(".ql", ""));
                 } else {
                     handleFile(path, newPrefix);
                 }
@@ -61,15 +60,33 @@ public class TestSuiteRunner {
         });
     }
 
-    private void handleErrCode(Path qlFile, String path, String expectErrCode) throws IOException {
+    private void handleFile(Path qlFile, String path) throws IOException {
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
+        QLOptions qlOptions = QLOptions.builder()
+                .attachments(attachments)
+                .build();
 
         String qlScript = new String(Files.readAllBytes(qlFile));
+        // parse testsuite option first
+        Optional<ScriptOption> scriptOption = parseOption(qlScript);
+        Optional<String> errCodeOp = scriptOption.map(ScriptOption::getErrCode);
+        if (errCodeOp.isPresent()) {
+            assertErrCode(path, qlScript, qlOptions, errCodeOp.get());
+            return;
+        }
+
         try {
-            testRunner.execute(qlScript, Collections.emptyMap(), QLOptions.builder()
-                    .attachments(attachments)
-                    .build());
+            testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
+        } catch (Exception e) {
+            throw new RuntimeException(path + " unknown error", e);
+        }
+    }
+
+    private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode)
+            throws IOException {
+        try {
+            testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (QLException qlException) {
             assertEquals(path + " error code assert fail", expectErrCode, qlException.getErrorCode());
         } catch (Exception e) {
@@ -77,17 +94,21 @@ public class TestSuiteRunner {
         }
     }
 
-    private void handleFile(Path qlFile, String path) throws IOException {
-        Map<String, Object> attachments = new HashMap<>();
-        attachments.put(TEST_PATH_ATT, path);
-
-        String qlScript = new String(Files.readAllBytes(qlFile));
+    private Optional<ScriptOption> parseOption(String qlScript) {
+        if (!qlScript.startsWith("/*")) {
+            return Optional.empty();
+        }
+        int endIndex = qlScript.indexOf("*/");
+        if (endIndex == -1) {
+            return Optional.empty();
+        }
+        String configJson = qlScript.substring(2, endIndex);
         try {
-            testRunner.execute(qlScript, Collections.emptyMap(), QLOptions.builder()
-                    .attachments(attachments)
-                    .build());
-        } catch (Exception e) {
-            throw new RuntimeException(path + " unknown error", e);
+            JSONObject jObj = JSON.parseObject(configJson);
+            String errCode = jObj.getString("errCode");
+            return Optional.of(new ScriptOption(errCode));
+        } catch (JSONException e) {
+            return Optional.empty();
         }
     }
 
@@ -153,6 +174,19 @@ public class TestSuiteRunner {
 
         private String wrap(Map<String, Object> attachments, String originErrInfo) {
             return attachments.get(TEST_PATH_ATT) + ": " + originErrInfo;
+        }
+    }
+
+    private static class ScriptOption {
+
+        private final String errCode;
+
+        private ScriptOption(String errCode) {
+            this.errCode = errCode;
+        }
+
+        public String getErrCode() {
+            return errCode;
         }
     }
 }
