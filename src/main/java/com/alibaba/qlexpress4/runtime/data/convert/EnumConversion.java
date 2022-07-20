@@ -12,11 +12,9 @@ public class EnumConversion {
     public static QLConvertResult trans(Object object, Class<? extends Enum> type) {
         if (object == null) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
-        }
-        if (type.isInstance(object)) {
+        }else if (type.isInstance(object)) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Enum) object);
-        }
-        if (object instanceof String) {
+        }else if (object instanceof String) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, Enum.valueOf(type, object.toString()));
         }
         return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);

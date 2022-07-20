@@ -29,7 +29,7 @@ public class MinusMinusSuffixUnaryOperator extends BaseUnaryOperator {
 
         Number result = NumberMath.subtract((Number)operand, 1);
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(result);
+            ((LeftValue)value).set(result,errorReporter);
         }
         return result;
     }

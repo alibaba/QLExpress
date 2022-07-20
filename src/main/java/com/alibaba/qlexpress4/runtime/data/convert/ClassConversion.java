@@ -12,15 +12,10 @@ public class ClassConversion {
     public static QLConvertResult trans(Object object) {
         if (object == null) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
-        }
-        if (object instanceof Class) {
+        }else if (object instanceof Class) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Class) object);
         }
-        try {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, Class.forName(object.toString()));
-        } catch (Exception e) {
-            return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
-        }
+        return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
     }
 
 }

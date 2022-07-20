@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author TaoKan
@@ -28,9 +29,11 @@ public class TestPropertyUtils {
 //        defaultContext.put("a",Parent.class);
 //        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
 //        System.out.println(a);
-        BigInteger b = new BigInteger("6");
-        QLConvertResult q = NumberConversion.trans(b,Integer.class);
-        System.out.println(q.getCastValue());
+         Optional<Integer> targetOp = Optional.ofNullable(1);
+         System.out.println(targetOp.orElse(3));
+//        BigInteger b = new BigInteger("6");
+//        QLConvertResult q = NumberConversion.trans(b,Integer.class);
+//        System.out.println(q.getCastValue());
 //         Integer a = 5;
 //        Child5 parent = new Child5();
 //

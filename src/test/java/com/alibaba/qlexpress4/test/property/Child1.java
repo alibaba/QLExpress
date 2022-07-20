@@ -23,7 +23,7 @@ public class Child1 extends Parent implements Value {
         return t;
     }
 
-    public int getMethod4(Object s,Boolean t){
+    public int getMethod4(Object s,boolean t){
         return 2;
     }
 }

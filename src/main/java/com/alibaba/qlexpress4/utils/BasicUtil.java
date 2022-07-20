@@ -1,9 +1,14 @@
 package com.alibaba.qlexpress4.utils;
 
 
+import com.alibaba.qlexpress4.runtime.data.checker.*;
+
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.Character.toUpperCase;
 
@@ -24,54 +29,76 @@ public class BasicUtil {
     public static final int DEFAULT_MATCH_INDEX = -1;
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
-    public static boolean classMatchImplicit(Class<?> target, Class<?> source){
-        if(target == double.class){
-            if(source == float.class || source == long.class || source == int.class || source == short.class || source == byte.class){
-                return true;
-            }
-            return false;
-        }else if(target == float.class){
-            if(source == long.class || source == int.class || source == short.class || source == byte.class){
-                return true;
-            }
-            return false;
-        }else if(target == long.class){
-            if(source == int.class || source == short.class || source == byte.class){
-                return true;
-            }
-            return false;
-        }else if(target == int.class){
-            if(source == short.class || source == byte.class){
-                return true;
-            }
-            return false;
-        }else if(target == short.class && source == byte.class){
-            return true;
-        }
-        return false;
+    private static final Map<Class<?>,Class<?>> primitiveMap;
+    private static final Map<Class<?>,Integer> classMatchImplicit;
+    private static final Map<Class<?>,Integer> classMatchImplicitExtend;
+
+
+    static{
+        primitiveMap = new HashMap<>(8);
+        primitiveMap.put(Boolean.class,boolean.class);
+        primitiveMap.put(Character.class,char.class);
+        primitiveMap.put(Double.class,double.class);
+        primitiveMap.put(Float.class,float.class);
+        primitiveMap.put(Integer.class,int.class);
+        primitiveMap.put(Long.class,long.class);
+        primitiveMap.put(Byte.class,byte.class);
+        primitiveMap.put(Short.class,short.class);
+    }
+
+    static {
+        classMatchImplicit = new HashMap<>(6);
+        classMatchImplicit.put(double.class,5);
+        classMatchImplicit.put(float.class,4);
+        classMatchImplicit.put(long.class,3);
+        classMatchImplicit.put(int.class,2);
+        classMatchImplicit.put(short.class,1);
+        classMatchImplicit.put(byte.class,0);
+    }
+
+    static {
+        classMatchImplicitExtend = new HashMap<>(14);
+        classMatchImplicitExtend.put(BigInteger.class,13);
+        classMatchImplicitExtend.put(BigDecimal.class,12);
+        classMatchImplicitExtend.put(Double.class,11);
+        classMatchImplicitExtend.put(Float.class,10);
+        classMatchImplicitExtend.put(Long.class,9);
+        classMatchImplicitExtend.put(Integer.class,8);
+        classMatchImplicitExtend.put(Short.class,7);
+        classMatchImplicitExtend.put(Byte.class,6);
+        classMatchImplicitExtend.put(double.class,5);
+        classMatchImplicitExtend.put(float.class,4);
+        classMatchImplicitExtend.put(long.class,3);
+        classMatchImplicitExtend.put(int.class,2);
+        classMatchImplicitExtend.put(short.class,1);
+        classMatchImplicitExtend.put(byte.class,0);
     }
 
 
-    public static boolean classMatchImplicitExtend(Class<?> target, Class<?> source){
-        if(target == BigDecimal.class || target == BigInteger.class){
-            if(source == double.class || source == float.class || source == long.class || source == int.class || source == short.class || source == byte.class){
-                return true;
-            }else if(source == Double.class || source == Float.class || source == Long.class || source == Integer.class || source == Short.class || source == Byte.class){
-                return true;
-            }
-            return false;
-        }else if(target == double.class || target == float.class || target == long.class || target == int.class || target == short.class || target == byte.class){
-            if(source == BigDecimal.class || source == BigInteger.class){
-                return true;
-            }
-            return false;
-        }else if(source == Double.class || source == Float.class || source == Long.class || source == Integer.class || source == Short.class || source == Byte.class){
-            if(source == BigDecimal.class || source == BigInteger.class){
-                return true;
-            }
+
+    public static Class<?> transToPrimitive(Class<?> clazz){
+        return primitiveMap.get(clazz);
+    }
+
+
+    public static boolean classMatchImplicit(Class<?> target, Class<?> source){
+        Optional<Integer> targetOp = Optional.ofNullable(classMatchImplicit.get(target));
+        Optional<Integer> sourceOp = Optional.ofNullable(classMatchImplicit.get(source));
+        if(targetOp.isPresent() && sourceOp.isPresent() && targetOp.get() > sourceOp.get()){
+            return true;
+        }else {
             return false;
         }
-        return false;
+    }
+
+    public static boolean classMatchImplicitExtend(Class<?> target, Class<?> source){
+        Optional<Integer> targetOp = Optional.ofNullable(classMatchImplicitExtend.get(target));
+        Optional<Integer> sourceOp = Optional.ofNullable(classMatchImplicitExtend.get(source));
+        if(targetOp.isPresent() && sourceOp.isPresent()){
+            return true;
+        }else {
+            return false;
+        }
     }
 
     public static boolean isPublic(Member member) {
@@ -120,25 +147,4 @@ public class BasicUtil {
         return h ^ (h >>> 16);
     }
 
-
-    public static Class<?> transToPrimitive(Class<?> clazz){
-        if(clazz == Boolean.class){
-            clazz = boolean.class;
-        } else if (clazz == Byte.class) {
-            clazz = byte.class;
-        } else if (clazz == Short.class) {
-            clazz = short.class;
-        } else if (clazz == Integer.class) {
-            clazz = int.class;
-        } else if (clazz == Long.class) {
-            clazz = long.class;
-        } else if (clazz == Float.class) {
-            clazz = float.class;
-        } else if (clazz == Double.class) {
-            clazz = double.class;
-        } else if (clazz == Character.class) {
-            clazz = char.class;
-        }
-        return clazz;
-    }
 }

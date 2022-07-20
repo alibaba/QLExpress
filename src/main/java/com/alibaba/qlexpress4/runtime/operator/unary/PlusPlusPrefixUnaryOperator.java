@@ -28,7 +28,7 @@ public class PlusPlusPrefixUnaryOperator extends BaseUnaryOperator {
         }
 
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(NumberMath.add((Number)operand, 1));
+            ((LeftValue)value).set(NumberMath.add((Number)operand, 1),errorReporter);
         }
         return operand;
     }

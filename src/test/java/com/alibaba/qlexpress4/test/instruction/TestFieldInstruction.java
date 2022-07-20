@@ -48,7 +48,7 @@ public class TestFieldInstruction {
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        ((LeftValue)testQRuntimeParent.getValue()).set("staticSet1");
+        ((LeftValue)testQRuntimeParent.getValue()).set("staticSet1",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSet1");
     }
 
@@ -119,7 +119,7 @@ public class TestFieldInstruction {
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue)testQRuntimeParent.getValue()).set("111");
+        ((LeftValue)testQRuntimeParent.getValue()).set("111",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticFinal");
     }
 
@@ -154,7 +154,7 @@ public class TestFieldInstruction {
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        ((LeftValue)testQRuntimeParent.getValue()).set(35);
+        ((LeftValue)testQRuntimeParent.getValue()).set(35,errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),35);
     }
 
@@ -171,7 +171,7 @@ public class TestFieldInstruction {
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+        ((LeftValue)testQRuntimeParent.getValue()).set("name1",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
     }
 
@@ -190,7 +190,7 @@ public class TestFieldInstruction {
         testQRuntimeParent.push(new Parent());
         try {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
-            ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+            ((LeftValue)testQRuntimeParent.getValue()).set("name1",errorReporter);
             Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
         }catch (Exception e){
             Assert.assertTrue(e != null);

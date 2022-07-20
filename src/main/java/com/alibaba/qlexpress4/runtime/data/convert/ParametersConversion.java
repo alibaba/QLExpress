@@ -1,17 +1,28 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
-import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.data.checker.*;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
-import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 
 /**
  * @Author TaoKan
  * @Date 2022/6/25 下午7:01
  */
 public class ParametersConversion {
+    private static final TypeConvertChecker[] typeParametersChecker;
+
+    static {
+        typeParametersChecker = new TypeConvertChecker[]{
+                new QLNullParametersChecker(),
+                new QLEqualsParametersChecker(),
+                new QLAssignableParametersChecker(),
+                new QLObjectParametersChecker(),
+                new QLLambdaFunctionalChecker(),
+                new QLPrimitiveParametersChecker(),
+                new QLExtendParametersChecker(),
+                new QLArrayParametersChecker()};
+    }
 
     public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate) {
         return calculatorMatchConversionWeight(goal, candidate, new QLWeighter());
@@ -34,42 +45,11 @@ public class ParametersConversion {
     }
 
 
-    private static QLMatchConversation compareParametersTypes(Class<?> target, Class<?> source) {
-        if (source == null && (target == boolean.class || target == Boolean.class)){
-            return QLMatchConversation.EXTEND;
-        }
-        if (target == source) {
-            return QLMatchConversation.EQUALS;
-        }
-        if (target.isAssignableFrom(source)) {
-            return QLMatchConversation.ASSIGN;
-        }
-        if (target.isArray() && source.isArray()) {
-            return compareParametersTypes(target.getComponentType(), source.getComponentType());
-        }
-        if (target == Object.class) {
-            return QLMatchConversation.IMPLICIT;
-        }
-
-        Class<?> sourcePrimitive = source;
-        Class<?> targetPrimitive = target;
-        if(!source.isPrimitive()){
-            sourcePrimitive = BasicUtil.transToPrimitive(source);
-        }
-        if(!target.isPrimitive()){
-            targetPrimitive = BasicUtil.transToPrimitive(target);
-        }
-        if (sourcePrimitive == targetPrimitive) {
-            return QLMatchConversation.IMPLICIT;
-        }
-        if ((source == QLambda.class) && CacheUtil.isFunctionInterface(target)) {
-            return QLMatchConversation.IMPLICIT;
-        }
-        if (BasicUtil.classMatchImplicit(targetPrimitive,sourcePrimitive)){
-            return QLMatchConversation.IMPLICIT;
-        }
-        if (BasicUtil.classMatchImplicitExtend(target,source)){
-            return QLMatchConversation.EXTEND;
+    public static QLMatchConversation compareParametersTypes(Class<?> target, Class<?> source) {
+        for (TypeConvertChecker checker : typeParametersChecker){
+            if(checker.typeCheck(source,target)){
+                return (QLMatchConversation)checker.typeReturn(source,target);
+            }
         }
         return QLMatchConversation.NOT_MATCH;
     }
