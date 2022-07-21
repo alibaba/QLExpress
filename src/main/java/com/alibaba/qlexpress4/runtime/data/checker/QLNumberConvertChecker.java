@@ -1,15 +1,41 @@
 package com.alibaba.qlexpress4.runtime.data.checker;
 
-import com.alibaba.qlexpress4.runtime.data.convert.ExtendConversion;
 import com.alibaba.qlexpress4.runtime.data.convert.NumberConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author TaoKan
  * @Date 2022/7/20 下午11:08
  */
 public class QLNumberConvertChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+
+    private final Map<Class<?>,TypeConvertChecker> numberConvertMap;
+
+    public QLNumberConvertChecker(){
+        numberConvertMap = new HashMap<>(16);
+        numberConvertMap.put(Byte.class,new QLNumberToByteConvertChecker());
+        numberConvertMap.put(byte.class,new QLNumberToByteConvertChecker());
+        numberConvertMap.put(Character.class,new QLNumberToCharConvertChecker());
+        numberConvertMap.put(char.class,new QLNumberToCharConvertChecker());
+        numberConvertMap.put(Short.class,new QLNumberToShortConvertChecker());
+        numberConvertMap.put(short.class,new QLNumberToShortConvertChecker());
+        numberConvertMap.put(Integer.class,new QLNumberToIntConvertChecker());
+        numberConvertMap.put(int.class,new QLNumberToIntConvertChecker());
+        numberConvertMap.put(Long.class,new QLNumberToLongConvertChecker());
+        numberConvertMap.put(long.class,new QLNumberToLongConvertChecker());
+        numberConvertMap.put(Float.class,new QLNumberToFloatConvertChecker());
+        numberConvertMap.put(float.class,new QLNumberToFloatConvertChecker());
+        numberConvertMap.put(Double.class,new QLNumberToDoubleConvertChecker());
+        numberConvertMap.put(double.class,new QLNumberToDoubleConvertChecker());
+        numberConvertMap.put(BigInteger.class,new QLNumberToBigIntegerConvertChecker());
+        numberConvertMap.put(BigDecimal.class,new QLNumberToBigDecimalConvertChecker());
+    }
 
     @Override
     public boolean typeCheck(Object value, Class<?> type) {
@@ -24,32 +50,10 @@ public class QLNumberConvertChecker implements TypeConvertChecker<QLConvertResul
         }
 
         Number n = (Number) castToNumber.getCastValue();
-        if (type == Byte.class || type == byte.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, n.byteValue());
+        TypeConvertChecker typeConvertChecker = numberConvertMap.get(type);
+        if(typeConvertChecker != null){
+            return (QLConvertResult) typeConvertChecker.typeReturn(n,type);
         }
-        if (type == Character.class || type == char.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, (char) n.intValue());
-        }
-        if (type == Short.class || type == short.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, n.shortValue());
-        }
-        if (type == Integer.class || type == int.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, n.intValue());
-        }
-        if (type == Long.class || type == long.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, n.longValue());
-        }
-        if (type == Float.class || type == float.class) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, n.floatValue());
-        }
-        if (type == Double.class || type == double.class) {
-            double answer = n.doubleValue();
-            if (!(n instanceof Double) && (answer == Double.NEGATIVE_INFINITY
-                    || answer == Double.POSITIVE_INFINITY)) {
-                return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
-            }
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, answer);
-        }
-        return ExtendConversion.extendNumberConvert(n, type);
+        return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
     }
 }

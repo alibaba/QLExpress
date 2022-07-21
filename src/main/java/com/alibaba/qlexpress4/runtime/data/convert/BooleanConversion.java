@@ -12,8 +12,7 @@ public class BooleanConversion {
     public static QLConvertResult trans(Object object) {
         if (object == null) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS,false);
-        }
-        if (object.getClass() == Boolean.class) {
+        }else if (object.getClass() == Boolean.class) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS,(Boolean) object);
         }
         return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);

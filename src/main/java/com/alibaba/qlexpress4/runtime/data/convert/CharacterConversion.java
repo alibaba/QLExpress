@@ -12,8 +12,7 @@ public class CharacterConversion {
     public static QLConvertResult trans(Object object) {
         if (object == null) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
-        }
-        if (object instanceof Character) {
+        } else if (object instanceof Character) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, (Character) object);
         } else if (object instanceof Number) {
             Number value = (Number) object;

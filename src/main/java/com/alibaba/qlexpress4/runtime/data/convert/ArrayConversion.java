@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
+import com.alibaba.qlexpress4.runtime.data.checker.*;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
@@ -12,37 +13,25 @@ import java.util.stream.*;
  * @Date 2022/6/26 下午3:35
  */
 public class ArrayConversion {
+    private static final TypeConvertChecker[] typeConvertArrayChecker;
+
+    static {
+        typeConvertArrayChecker = new TypeConvertChecker[]{
+                new QLArrayAssignableConvertChecker(),
+                new QLArrayIntStreamConvertChecker(),
+                new QLArrayLongStreamConvertChecker(),
+                new QLArrayDoubleStreamConvertChecker()};
+    }
+
     public static QLConvertResult trans(final Object object, final Class type) {
-        if (type.isAssignableFrom(object.getClass())) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, object);
-        }
-
-        if (object instanceof IntStream) {
-            if (type.equals(int[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).toArray());
-            } else if (type.equals(long[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).asLongStream().toArray());
-            } else if (type.equals(double[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).asDoubleStream().toArray());
-            } else if (type.equals(Integer[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((IntStream) object).boxed().toArray(Integer[]::new));
-            }
-        } else if (object instanceof LongStream) {
-            if (type.equals(long[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).toArray());
-            } else if (type.equals(double[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).asDoubleStream().toArray());
-            } else if (type.equals(Long[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((LongStream) object).boxed().toArray(Long[]::new));
-            }
-        } else if (object instanceof DoubleStream) {
-            if (type.equals(double[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((DoubleStream) object).toArray());
-            } else if (type.equals(Double[].class)) {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, ((DoubleStream) object).boxed().toArray(Double[]::new));
+        for(TypeConvertChecker typeConvertChecker: typeConvertArrayChecker){
+            if(typeConvertChecker.typeCheck(object,type)){
+                QLConvertResult result = (QLConvertResult)typeConvertChecker.typeReturn(object,type);
+                if(result != null){
+                    return result;
+                }
             }
         }
-
         Class<?> elementType = type.getComponentType();
         Collection<?> collection = toCollection(object);
         Object array = Array.newInstance(elementType, collection.size());

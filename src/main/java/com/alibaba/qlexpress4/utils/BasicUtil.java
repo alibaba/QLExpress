@@ -82,9 +82,9 @@ public class BasicUtil {
 
 
     public static boolean classMatchImplicit(Class<?> target, Class<?> source){
-        Optional<Integer> targetOp = Optional.ofNullable(classMatchImplicit.get(target));
-        Optional<Integer> sourceOp = Optional.ofNullable(classMatchImplicit.get(source));
-        if(targetOp.isPresent() && sourceOp.isPresent() && targetOp.get() > sourceOp.get()){
+        Integer targetOp = classMatchImplicit.get(target);
+        Integer sourceOp = classMatchImplicit.get(source);
+        if(targetOp != null && sourceOp != null && targetOp > sourceOp){
             return true;
         }else {
             return false;
@@ -92,9 +92,9 @@ public class BasicUtil {
     }
 
     public static boolean classMatchImplicitExtend(Class<?> target, Class<?> source){
-        Optional<Integer> targetOp = Optional.ofNullable(classMatchImplicitExtend.get(target));
-        Optional<Integer> sourceOp = Optional.ofNullable(classMatchImplicitExtend.get(source));
-        if(targetOp.isPresent() && sourceOp.isPresent()){
+        Integer targetOp = classMatchImplicitExtend.get(target);
+        Integer sourceOp = classMatchImplicitExtend.get(source);
+        if(targetOp != null && sourceOp != null){
             return true;
         }else {
             return false;

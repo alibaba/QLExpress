@@ -6,7 +6,9 @@ package com.alibaba.qlexpress4.runtime.data.checker;
  */
 public interface TypeConvertChecker<R, S, T> {
 
-    boolean typeCheck(S source, T target);
+    default boolean typeCheck(S source, T target){
+        return true;
+    }
 
     R typeReturn(S source, T target);
 
