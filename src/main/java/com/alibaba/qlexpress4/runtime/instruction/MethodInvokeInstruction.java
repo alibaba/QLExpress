@@ -42,14 +42,16 @@ public class MethodInvokeInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Parameters parameters = qRuntime.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
+        Class<?>[] type = new Class[this.argNum];
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {
-            params[i] = parameters.get(i + 1).get();
+            Value v =  parameters.get(i + 1);
+            params[i] = v.get();
+            type[i] = v.get() == null ? null : v.getDefineType();
         }
         if (bean == null) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
-        Class<?>[] type = BasicUtil.getTypeOfObject(params);
         QLCaches qlCaches = qRuntime.getQLCaches();
         QLImplicitMethod implicitMethod = bean instanceof MetaClass?
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):

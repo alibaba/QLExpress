@@ -28,7 +28,7 @@ public class TestNewInstruction {
         NewInstruction newInstructionForParentWithAge = new NewInstruction(errorReporter, Parent.class, 1);
         TestQRuntimeParent testQRuntimeParent1 = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(6);
+        parentParameters.push(6,int.class);
         testQRuntimeParent1.pushParameter(parentParameters);
         newInstructionForParentWithAge.execute(testQRuntimeParent1, QLOptions.DEFAULT_OPTIONS);
         Object result = testQRuntimeParent1.getValue().get();

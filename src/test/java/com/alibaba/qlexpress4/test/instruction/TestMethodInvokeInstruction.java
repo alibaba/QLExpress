@@ -29,9 +29,9 @@ public class TestMethodInvokeInstruction {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod1",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child());
-        parentParameters.push(1);
-        parentParameters.push(2);
+        parentParameters.push(new Child(),Child.class);
+        parentParameters.push(1,int.class);
+        parentParameters.push(2,int.class);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),3);

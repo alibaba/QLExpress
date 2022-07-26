@@ -45,16 +45,11 @@ public class NewInstruction extends QLInstruction {
         Parameters parameters = this.argNum == 0 ? null : qRuntime.pop(this.argNum);
         Class<?>[] paramTypes = new Class[this.argNum];
         Object[] objs = new Object[this.argNum];
-        Object tmpObj;
 
         for (int i = 0; i < this.argNum; i++) {
-            tmpObj = parameters.get(i).get();
-            if(tmpObj == null){
-                paramTypes[i] = null;
-            }else {
-                paramTypes[i] = tmpObj.getClass();
-            }
-            objs[i] = tmpObj;
+            Value v =  parameters.get(i);
+            objs[i] = v.get();
+            paramTypes[i] = v.get() == null ? null : v.getDefineType();
         }
         QLCaches qlCaches = qRuntime.getQLCaches();
         QLConstructorCache qlConstructorCache = qlCaches.getQlConstructorCache();
