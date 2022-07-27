@@ -47,7 +47,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         for (int i = 0; i < this.argNum; i++) {
             Value v =  parameters.get(i + 1);
             params[i] = v.get();
-            type[i] = v.get() == null ? null : v.getDefineType();
+            type[i] = v.getDefineType();
         }
         if (bean == null) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
