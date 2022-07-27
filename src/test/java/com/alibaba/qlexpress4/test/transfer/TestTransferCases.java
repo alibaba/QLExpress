@@ -28,9 +28,9 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod11",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child(),Child.class);
-        parentParameters.push(1,int.class);
-        parentParameters.push(2,int.class);
+        parentParameters.push(new Child());
+        parentParameters.push(1);
+        parentParameters.push(2);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),3L);
@@ -47,9 +47,9 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod12",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child(),Child.class);
-        parentParameters.push(1,int.class);
-        parentParameters.push(2,int.class);
+        parentParameters.push(new Child());
+        parentParameters.push(1);
+        parentParameters.push(2);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),3L);
@@ -66,8 +66,8 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child.class, 2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(2,int.class);
-        parentParameters.push(3,int.class);
+        parentParameters.push(2);
+        parentParameters.push(3);
         testQRuntimeParent.pushParameter(parentParameters);
         try {
             newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
@@ -89,8 +89,8 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(2,int.class);
-        parentParameters.push(3,int.class);
+        parentParameters.push(2);
+        parentParameters.push(3);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
@@ -109,8 +109,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod3",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child1(),Child1.class);
-        parentParameters.push((Integer)null,null);
+        parentParameters.push(new Child1());
+        parentParameters.push((Integer)null);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),false);
@@ -127,7 +127,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(null,null);
+        parentParameters.push(null);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
@@ -144,9 +144,9 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod4",2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child1(),Child1.class);
-        parentParameters.push(1,int.class);
-        parentParameters.push((Integer)null,Integer.class);
+        parentParameters.push(new Child1());
+        parentParameters.push(1);
+        parentParameters.push((Integer)null);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),2);
@@ -164,8 +164,8 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child2.class, 2);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(1,int.class);
-        parentParameters.push(null,Object.class);
+        parentParameters.push(1);
+        parentParameters.push(null);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child2);
@@ -182,8 +182,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod5",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child3(),Child3.class);
-        parentParameters.push(new Child3(),Child3.class);
+        parentParameters.push(new Child3());
+        parentParameters.push(new Child3());
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),0);
@@ -200,7 +200,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child3.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child3(),Child3.class);
+        parentParameters.push(new Child3());
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child3);
@@ -218,8 +218,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod6",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child3(),Child3.class);
-        parentParameters.push(new Integer[]{5,6},Integer[].class);
+        parentParameters.push(new Child3());
+        parentParameters.push(new Integer[]{5,6});
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),10);
@@ -236,7 +236,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child3.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Integer[]{5,6},Integer[].class);
+        parentParameters.push(new Integer[]{5,6});
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child3);
@@ -253,8 +253,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod7",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child4(),Child4.class);
-        parentParameters.push(new Integer(5),Integer.class);
+        parentParameters.push(new Child4());
+        parentParameters.push(new Integer(5));
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),5);
@@ -271,7 +271,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child4.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Integer(5),Integer.class);
+        parentParameters.push(new Integer(5));
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child4);
@@ -297,8 +297,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod8",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child5(),Child5.class);
-        parentParameters.push(5,int.class);
+        parentParameters.push(new Child5());
+        parentParameters.push(5);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),5.0);
@@ -315,7 +315,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child5.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(5,int.class);
+        parentParameters.push(5);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child5);
@@ -332,8 +332,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod9",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child6(),Child6.class);
-        parentParameters.push(5,int.class);
+        parentParameters.push(new Child6());
+        parentParameters.push(5);
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),5);
@@ -350,7 +350,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, Child6.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(5,double.class);
+        parentParameters.push(5);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child6);
@@ -367,8 +367,8 @@ public class TestTransferCases {
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod10",1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child6(), Child6.class);
-        parentParameters.push(new BigDecimal("5.0"), BigDecimal.class);
+        parentParameters.push(new Child6());
+        parentParameters.push(new BigDecimal("5.0"));
         testQRuntimeParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),new BigDecimal("5.0"));
@@ -386,7 +386,7 @@ public class TestTransferCases {
         NewInstruction newInstruction = new NewInstruction(errorReporter, BugFixTest1.class, 1);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(5.0,double.class);
+        parentParameters.push(5.0);
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
     }

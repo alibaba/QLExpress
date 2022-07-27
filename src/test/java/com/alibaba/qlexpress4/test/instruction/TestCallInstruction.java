@@ -34,9 +34,9 @@ public class TestCallInstruction {
 
         CallInstruction callInstruction = new CallInstruction(errorReporter, 2);
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(qLambda,QLambda.class);
-        parentParameters.push(1,int.class);
-        parentParameters.push(2,int.class);
+        parentParameters.push(qLambda);
+        parentParameters.push(1);
+        parentParameters.push(2);
         testQRuntimeParent.setParameters(parentParameters);
         callInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQRuntimeParent.getValue().get(),3);

@@ -16,10 +16,10 @@ public class ParametersConversion {
         typeParametersChecker = new TypeConvertChecker[]{
                 new QLNullParametersChecker(),
                 new QLEqualsParametersChecker(),
+                new QLPrimitiveParametersChecker(),
                 new QLAssignableParametersChecker(),
                 new QLObjectParametersChecker(),
                 new QLLambdaFunctionalChecker(),
-                new QLPrimitiveParametersChecker(),
                 new QLExtendParametersChecker(),
                 new QLArrayParametersChecker()};
     }

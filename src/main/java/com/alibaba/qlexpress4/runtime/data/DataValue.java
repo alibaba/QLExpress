@@ -13,17 +13,17 @@ public class DataValue implements Value {
 
     public DataValue(Object value) {
         this.value = value;
-        this.defineType = value == null ? null : value.getClass();
+        this.defineType = Object.class;
     }
 
     public DataValue(Value value) {
         this.value = value.get();
-        this.defineType = value.getDefineType();
+        this.defineType = Object.class;
     }
 
     public DataValue(Object value, Class<?> defineType) {
         this.value = value;
-        this.defineType = value == null ? null : defineType;
+        this.defineType = defineType;
     }
 
     @Override

@@ -19,7 +19,7 @@ public class ParentParameters implements Parameters {
         return values.get(i);
     }
 
-    public void push(Object s, Class<?> defineType){
-        values.add(new DataValue(s,defineType));
+    public void push(Object s){
+        values.add(new DataValue(s));
     }
 }
