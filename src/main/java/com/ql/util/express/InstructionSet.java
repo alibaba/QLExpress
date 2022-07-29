@@ -29,7 +29,7 @@ public class InstructionSet {
     private static final transient Log log = LogFactory.getLog(InstructionSet.class);
     public static final String TYPE_CLASS = "VClass";
     public static final String TYPE_FUNCTION = "function";
-    public static final String TYPE_MARCO = "marco";
+    public static final String TYPE_MACRO = "macro";
 
     public static final boolean PRINT_INSTRUCTION_ERROR = false;
 
