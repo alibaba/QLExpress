@@ -1,6 +1,10 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.runtime.data.checker.*;
+import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.array.QLArrayAssignableConvertChecker;
+import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.array.QLArrayDoubleStreamConvertChecker;
+import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.array.QLArrayIntStreamConvertChecker;
+import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.array.QLArrayLongStreamConvertChecker;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
