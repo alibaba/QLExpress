@@ -39,8 +39,8 @@ public class DataMap implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
-        return this.defineType;
+    public Class<?> getDefinedType() {
+        return Map.class;
     }
 
 }

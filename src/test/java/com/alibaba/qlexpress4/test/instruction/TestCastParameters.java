@@ -17,6 +17,7 @@ public class TestCastParameters implements Parameters {
         this.obj = obj;
     }
 
+
     @Override
     public Value get(int i) {
         if(i == 0){
@@ -26,5 +27,10 @@ public class TestCastParameters implements Parameters {
             return new DataValue(obj);
         }
         return null;
+    }
+
+    @Override
+    public int size() {
+        return 0;
     }
 }
