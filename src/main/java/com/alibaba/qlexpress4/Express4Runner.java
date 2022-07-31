@@ -48,6 +48,16 @@ public class Express4Runner {
         userDefineFunction.put(name, function);
     }
 
+
+//    public void addFunctionByAnnotationObject(Object object) {
+//        userDefineFunction.put(name, function);
+//    }
+//
+//    public void addFunctionByAnnotationClass(Class<?> clazz) {
+//        userDefineFunction.put(name, function);
+//    }
+
+
     public Program parseToSyntaxTree(String script, QLOptions qlOptions) {
         Map<String, Integer> userDefineOperatorPrecedence = userDefineOperator.entrySet().stream()
                 .collect(Collectors.toMap(
