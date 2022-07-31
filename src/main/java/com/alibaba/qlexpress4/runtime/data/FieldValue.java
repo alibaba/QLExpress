@@ -21,7 +21,7 @@ public class FieldValue implements LeftValue {
         this.defineType = Object.class;
     }
 
-    public DataField(Supplier<Object> getOp, Consumer<Object> setOp, Class<?> defineType) {
+    public FieldValue(Supplier<Object> getOp, Consumer<Object> setOp, Class<?> defineType) {
         this.getOp = getOp;
         this.setOp = setOp;
         this.defineType = defineType;
