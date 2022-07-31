@@ -4,12 +4,13 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @Operation: try and catch throw element
@@ -58,6 +59,18 @@ public class TryCatchInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "TryCatch", debug);
+        body.println(depth+1, debug);
+        for (Map.Entry<Class<?>, QLambdaDefinition> clsLambdaEn : exceptionTable.entrySet()) {
+            PrintlnUtils.printlnByCurDepth(depth+1, clsLambdaEn.getKey().getSimpleName(),
+                    debug);
+            clsLambdaEn.getValue().println(depth+2, debug);
+        }
+        finalBody.println(depth+1, debug);
     }
 
     private QResult finalResult(QRuntime qRuntime, QLOptions qlOptions) {

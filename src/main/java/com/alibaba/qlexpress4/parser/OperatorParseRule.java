@@ -125,14 +125,7 @@ class LParenRule extends OperatorParseRule {
         // skip ->
         parser.advance();
         Token keyToken = parser.pre;
-        Block blockBody = null;
-        Expr exprBody = null;
-        if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
-            blockBody = parser.block(QLParser.ContextType.BLOCK);
-        } else {
-            exprBody = parser.expr(contextType);
-        }
-        return new LambdaExpr(keyToken, params, blockBody, exprBody);
+        return new LambdaExpr(keyToken, params, parser.expr(contextType));
     }
 
     private Expr castExpr(QLParser parser, QLParser.ContextType contextType) {
@@ -219,19 +212,10 @@ class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
         if (parser.matchTypeAndAdvance(TokenType.ARROW)) {
             // single param lambda expression
             Token lambdaKeyToken = parser.pre;
-            if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
-                return new LambdaExpr(lambdaKeyToken,
-                        Collections.singletonList(
-                                new VarDecl(null, new Identifier(idToken))
-                        ),
-                        parser.block(QLParser.ContextType.BLOCK), null);
-            } else {
-                return new LambdaExpr(lambdaKeyToken,
-                        Collections.singletonList(
-                                new VarDecl(null, new Identifier(idToken))
-                        ),
-                        null, parser.expr(contextType));
-            }
+            return new LambdaExpr(lambdaKeyToken,
+                    Collections.singletonList(
+                            new VarDecl(null, new Identifier(idToken))
+                    ), parser.expr(contextType));
         }
 
         Expr idExpr = parser.parseIdOrQualifiedCls();

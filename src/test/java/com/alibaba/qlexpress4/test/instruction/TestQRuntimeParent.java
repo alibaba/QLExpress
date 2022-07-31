@@ -4,6 +4,8 @@ import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
+import java.util.Map;
+
 /**
  * @Author TaoKan
  * @Date 2022/5/15 上午11:03
@@ -40,6 +42,15 @@ public class TestQRuntimeParent implements QRuntime {
 
     }
 
+    @Override
+    public void defineFunction(String functionName, QFunction function) {
+
+    }
+
+    @Override
+    public QFunction getFunction(String functionName) {
+        return null;
+    }
 
 
     @Override
@@ -61,11 +72,19 @@ public class TestQRuntimeParent implements QRuntime {
         return this.value;
     }
 
-
-
     @Override
     public long scriptStartTimeStamp() {
         return 0;
+    }
+
+    @Override
+    public boolean isPopulate() {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> attachment() {
+        return null;
     }
 
     @Override

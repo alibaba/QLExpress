@@ -2,12 +2,12 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: call const lambda
@@ -34,10 +34,10 @@ public class CallConstInstruction extends QLInstruction {
                 return result;
             }
             qRuntime.push(ValueUtils.toImmutable(result.getResult()));
+            return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
         }
-        return QResult.CONTINUE_RESULT;
     }
 
     @Override
@@ -48,5 +48,11 @@ public class CallConstInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "CallConst " + constLambda.getName(), debug);
+        constLambda.println(depth+1, debug);
     }
 }

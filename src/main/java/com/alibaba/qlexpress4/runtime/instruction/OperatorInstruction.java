@@ -5,7 +5,11 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: do middle operator +=,>>,>>>,<<,.
@@ -25,12 +29,10 @@ public class OperatorInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        // a += 1;
-        Value leftValue = qRuntime.pop();
         Value rightValue = qRuntime.pop();
+        Value leftValue = qRuntime.pop();
         Object result = operator.execute(leftValue, rightValue, errorReporter);
-        // TODO bingo 应该push吧？灵葙实现Value
-        //qRuntime.push(new Value(result);
+        qRuntime.push(new DataValue(result));
         return QResult.CONTINUE_RESULT;
     }
 
@@ -42,5 +44,10 @@ public class OperatorInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Operator " + operator.getOperator(), debug);
     }
 }

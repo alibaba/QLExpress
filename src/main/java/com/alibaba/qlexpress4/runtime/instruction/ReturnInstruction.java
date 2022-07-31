@@ -5,6 +5,9 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: return top element and exit lambda
@@ -35,5 +38,10 @@ public class ReturnInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 0;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Return " + resultType.name(), debug);
     }
 }

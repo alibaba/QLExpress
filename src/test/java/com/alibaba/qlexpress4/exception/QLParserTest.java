@@ -308,7 +308,7 @@ public class QLParserTest {
     public void lambdaTest() {
         Program program = parse("(a, b, c) -> c+d");
         LambdaExpr lambdaExpr = (LambdaExpr) program.getStmtList().get(0);
-        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) lambdaExpr.getExprBody();
+        BinaryOpExpr binaryOpExpr = (BinaryOpExpr) lambdaExpr.getBody();
         assertEquals(TokenType.ADD, binaryOpExpr.getKeyToken().getType());
         assertEquals(Arrays.asList("a", "b", "c"), lambdaExpr.getParameters().stream()
                 .map(VarDecl::getVariable)

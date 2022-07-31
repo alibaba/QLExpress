@@ -5,6 +5,11 @@ package com.alibaba.qlexpress4.runtime;
  */
 public interface Parameters {
 
+    default Object getValue(int i) {
+        Value boxedValue = get(i);
+        return boxedValue == null? null: boxedValue.get();
+    }
+
     /**
      * get parameters in i position
      *
@@ -13,4 +18,9 @@ public interface Parameters {
      */
     Value get(int i);
 
+    /**
+     * parameters size
+     * @return
+     */
+    int size();
 }

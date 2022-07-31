@@ -16,10 +16,12 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitConstructor;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 /**
  * @Operation: new an object of specified class
@@ -124,5 +126,11 @@ public class NewInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "New cls " + newClz.getSimpleName()
+                + " with argNum " + argNum, debug);
     }
 }

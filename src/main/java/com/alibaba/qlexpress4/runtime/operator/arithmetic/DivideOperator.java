@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.arithmetic;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
@@ -15,7 +16,11 @@ public class DivideOperator extends BaseBinaryOperator {
         Object rightValue = right.get();
 
         if (isBothNumbers(left, right)) {
-            return NumberMath.divide((Number)leftValue, (Number)rightValue);
+            try {
+                return NumberMath.divide((Number)leftValue, (Number)rightValue);
+            } catch (ArithmeticException arithmeticException) {
+                throw errorReporter.report("INVALID_ARITHMETIC", arithmeticException.getMessage());
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
@@ -28,6 +33,6 @@ public class DivideOperator extends BaseBinaryOperator {
 
     @Override
     public int getPriority() {
-        return 0;
+        return OperatorPriority.PRIORITY_12;
     }
 }

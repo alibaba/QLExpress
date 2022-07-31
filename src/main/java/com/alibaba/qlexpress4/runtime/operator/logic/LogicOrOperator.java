@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.logic;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 
 /**
  * TODO bingo null 如何处理？
@@ -16,6 +17,7 @@ public class LogicOrOperator extends BaseBinaryOperator {
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
+        // TODO 调用灵葙的工具类，object > boolean，隐式转换 @灵葙
         // 抽取至类型转换工具类
         if (leftValue == null) {
             leftValue = false;
@@ -38,6 +40,6 @@ public class LogicOrOperator extends BaseBinaryOperator {
 
     @Override
     public int getPriority() {
-        return 0;
+        return OperatorPriority.PRIORITY_2;
     }
 }

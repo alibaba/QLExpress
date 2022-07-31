@@ -7,13 +7,14 @@ import java.util.Map;
 /**
  * Author: DQinYuan
  */
+@SuppressWarnings("all")
 public class MapItemValue implements LeftValue {
 
-    private final Map<? super Object, ? super Object> map;
+    private final Map map;
 
     private final Object key;
 
-    public MapItemValue(Map<? super Object, ? super Object> map, Object key) {
+    public MapItemValue(Map map, Object key) {
         this.map = map;
         this.key = key;
     }
@@ -29,7 +30,7 @@ public class MapItemValue implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return Object.class;
     }
 }

@@ -19,6 +19,11 @@ public class ParentParameters implements Parameters {
         return values.get(i);
     }
 
+    @Override
+    public int size() {
+        return 0;
+    }
+
     public void push(Object s){
         values.add(new DataValue(s));
     }

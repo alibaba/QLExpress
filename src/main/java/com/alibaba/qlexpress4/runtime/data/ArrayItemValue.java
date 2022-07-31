@@ -30,7 +30,7 @@ public class ArrayItemValue implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return array.getClass().getComponentType();
     }
 }

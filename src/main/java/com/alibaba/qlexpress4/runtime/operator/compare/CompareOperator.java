@@ -37,7 +37,7 @@ public abstract class CompareOperator extends BaseBinaryOperator {
             return 0;
         }
 
-        // null
+        // null TODO 参考 groovy
         if (isSameType(left, right) && isInstanceofComparable(left)) {
             return ((Comparable)left).compareTo(right);
         }

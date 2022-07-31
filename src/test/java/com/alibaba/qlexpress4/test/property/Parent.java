@@ -79,7 +79,7 @@ public class Parent implements Value {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return Parent.class;
     }
 

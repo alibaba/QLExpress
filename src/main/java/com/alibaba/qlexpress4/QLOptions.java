@@ -3,7 +3,10 @@ package com.alibaba.qlexpress4;
 import com.alibaba.qlexpress4.parser.ImportManager;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Author: DQinYuan
@@ -26,7 +29,8 @@ public class QLOptions {
     private final boolean polluteUserContext;
 
     /**
-     * allowAccessPrivateMethod default false
+     * allowAccessPrivateMethod
+     * default false
      */
     private final boolean allowAccessPrivateMethod;
 
@@ -36,22 +40,50 @@ public class QLOptions {
     /**
      * script timeout millisecond, default is -1, namely time unlimited
      * <= 0, time unlimited
+     * default -1
      */
     private final long timeoutMillis;
 
     /**
      * default import java packages for script
+     * default         ImportManager.importPack("java.lang"),
+     *                 ImportManager.importPack("java.util"),
+     *                 ImportManager.importPack("java.util.stream")
      */
     private final List<ImportManager.Import> defaultImport;
 
+    /**
+     * attachments will be carried to user defined function/operator/macro
+     * only used to pass data, not as variable value
+     *
+     * default empty map
+     */
+    private final Map<String, Object> attachments;
+
+    /**
+     * open debug mode
+     * default false
+     */
+    private final boolean debug;
+
+    /**
+     * consume all debug info, valid when debug is true
+     * default is print in standard output, can not be null
+     */
+    private final Consumer<String> debugInfoConsumer;
+
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
-                      List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod) {
+                      List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
+                      Map<String, Object> attachments, boolean debug, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
+        this.attachments = attachments;
+        this.debug = debug;
+        this.debugInfoConsumer = debugInfoConsumer;
     }
 
     public static Builder builder() {
@@ -82,9 +114,21 @@ public class QLOptions {
         return defaultImport;
     }
 
+    public Map<String, Object> getAttachments() {
+        return attachments;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public Consumer<String> getDebugInfoConsumer() {
+        return debugInfoConsumer;
+    }
+
     public static class Builder {
 
-        private boolean precise = true;
+        private boolean precise = false;
 
         private boolean polluteUserContext = false;
 
@@ -94,6 +138,12 @@ public class QLOptions {
 
         private long timeoutMillis = -1;
 
+        private Map<String, Object> attachments = Collections.emptyMap();
+
+        private boolean debug = false;
+
+        private Consumer<String> debugInfoConsumer = System.out::println;
+
         private List<ImportManager.Import> defaultImport = Arrays.asList(
                 ImportManager.importPack("java.lang"),
                 ImportManager.importPack("java.util"),
@@ -102,6 +152,11 @@ public class QLOptions {
 
         public Builder precise(boolean precise) {
             this.precise = precise;
+            return this;
+        }
+
+        public Builder polluteUserContext(boolean polluteUserContext) {
+            this.polluteUserContext = polluteUserContext;
             return this;
         }
 
@@ -125,8 +180,24 @@ public class QLOptions {
             return this;
         }
 
+        public Builder attachments(Map<String, Object> attachments) {
+            this.attachments = attachments;
+            return this;
+        }
+
+        public Builder debug(boolean debug) {
+            this.debug = debug;
+            return this;
+        }
+
+        public Builder debugInfoConsumer(Consumer<String> debugInfoConsumer) {
+            this.debugInfoConsumer = debugInfoConsumer;
+            return this;
+        }
+
         public QLOptions build() {
-            return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis, defaultImport, allowAccessPrivateMethod);
+            return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, debugInfoConsumer);
         }
     }
 

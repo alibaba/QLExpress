@@ -29,7 +29,7 @@ public class ListItemValue implements LeftValue {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return Object.class;
     }
 }

@@ -14,4 +14,9 @@ public class TestParametersParentClass implements Parameters {
         ParentClass parent = new ParentClass();
         return parent;
     }
+
+    @Override
+    public int size() {
+        return 0;
+    }
 }

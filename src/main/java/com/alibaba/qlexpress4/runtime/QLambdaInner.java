@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class QLambdaInner implements QLambda {
 
-    private final QLambdaDefinition lambdaDefinition;
+    private final QLambdaDefinitionInner lambdaDefinition;
 
     private final QRuntime qRuntime;
 
@@ -21,7 +21,7 @@ public class QLambdaInner implements QLambda {
 
     private final boolean newEnv;
 
-    public QLambdaInner(QLambdaDefinition lambdaDefinition, QRuntime qRuntime, QLOptions qlOptions,
+    public QLambdaInner(QLambdaDefinitionInner lambdaDefinition, QRuntime qRuntime, QLOptions qlOptions,
                         boolean newEnv) {
         this.lambdaDefinition = lambdaDefinition;
         this.qRuntime = qRuntime;
@@ -47,13 +47,13 @@ public class QLambdaInner implements QLambda {
 
     private QRuntime inheritRuntime(Object[] params) {
         Map<String, Value> initSymbolTable = new HashMap<>();
-        List<QLambdaDefinition.Param> paramsDefinition = lambdaDefinition.getParamsType();
+        List<QLambdaDefinitionInner.Param> paramsDefinition = lambdaDefinition.getParamsType();
         for (int i = 0; i < params.length; i++) {
-            QLambdaDefinition.Param paramDefinition = paramsDefinition.get(i);
+            QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);
             initSymbolTable.put(paramDefinition.getName(),
                     new AssignableDataValue(params[i], paramDefinition.getClazz()));
         }
-        return new QvmRuntime(qRuntime, initSymbolTable, lambdaDefinition.getMaxStackSize(),
-                qRuntime.scriptStartTimeStamp());
+        return new QvmRuntime(qRuntime, initSymbolTable, qRuntime.attachment(),
+                lambdaDefinition.getMaxStackSize(), qRuntime.scriptStartTimeStamp());
     }
 }

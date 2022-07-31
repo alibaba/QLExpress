@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.cache.*;
 
+import java.util.Map;
+
 /**
  * Author: DQinYuan
  */
@@ -39,6 +41,20 @@ public interface QRuntime {
     void defineLocalSymbol(String varName, Class<?> varClz, Object value);
 
     /**
+     * define local function in scope
+     * @param functionName
+     * @param function
+     */
+    void defineFunction(String functionName, QFunction function);
+
+    /**
+     * get function or lambda define
+     * @param functionName
+     * @return null if not exist
+     */
+    QFunction getFunction(String functionName);
+
+    /**
      * push value on the top of stack
      * @param value pushed element
      */
@@ -63,6 +79,13 @@ public interface QRuntime {
      */
     long scriptStartTimeStamp();
 
+    /**
+     * populate define global symbol
+     * @return
+     */
+    boolean isPopulate();
+
+    Map<String, Object> attachment();
     /**
      * get instance cache from qvm
      * @return ICache

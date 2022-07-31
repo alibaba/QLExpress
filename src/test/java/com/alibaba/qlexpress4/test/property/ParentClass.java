@@ -15,7 +15,7 @@ public class ParentClass implements Value {
     }
 
     @Override
-    public Class<?> getDefineType() {
+    public Class<?> getDefinedType() {
         return Parent.class;
     }
 }

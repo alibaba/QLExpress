@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: new a List with top ${initLength} stack element
@@ -34,5 +37,10 @@ public class NewListInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "NewList " + initLength, debug);
     }
 }

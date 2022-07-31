@@ -10,10 +10,12 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @Operation: get specified method of object on the top of stack
@@ -53,6 +55,11 @@ public class GetMethodInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "GetMethod " + methodName, debug);
     }
 
     public DataValue getClazzMethod(QLCaches qlCaches, Object bean, boolean enableAllowAccessPrivateMethod){

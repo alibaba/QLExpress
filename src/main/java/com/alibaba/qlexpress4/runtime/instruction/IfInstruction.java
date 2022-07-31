@@ -5,6 +5,9 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
+
+import java.util.function.Consumer;
 
 /**
  * @Operation: if top of stack is true, execute ${thenBody}, else execute ${elseBody}
@@ -19,10 +22,14 @@ public class IfInstruction extends QLInstruction {
 
     private final QLambdaDefinition elseBody;
 
-    public IfInstruction(ErrorReporter errorReporter, QLambdaDefinition thenBody, QLambdaDefinition elseBody) {
+    private final boolean newEnv;
+
+    public IfInstruction(ErrorReporter errorReporter, QLambdaDefinition thenBody, QLambdaDefinition elseBody,
+                         boolean newEnv) {
         super(errorReporter);
         this.thenBody = thenBody;
         this.elseBody = elseBody;
+        this.newEnv = newEnv;
     }
 
     @Override
@@ -33,8 +40,12 @@ public class IfInstruction extends QLInstruction {
                     "if condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
-        QLambda lambda = new QLambdaInner(conditionBool? thenBody: elseBody, qRuntime,
-                qlOptions, true);
+        QLambdaDefinition bodyDefinition = conditionBool? thenBody: elseBody;
+        if (bodyDefinition == null) {
+            qRuntime.push(Value.NULL_VALUE);
+            return QResult.CONTINUE_RESULT;
+        }
+        QLambda lambda = bodyDefinition.toLambda(qRuntime, qlOptions, newEnv);
         return callBody(qRuntime, lambda);
     }
 
@@ -46,6 +57,19 @@ public class IfInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "If", debug);
+        PrintlnUtils.printlnByCurDepth(depth+1,
+                "Then " + thenBody.getName(), debug);
+        thenBody.println(depth+2, debug);
+        if (elseBody != null) {
+            PrintlnUtils.printlnByCurDepth(depth+1,
+                    "Else " + elseBody.getName(), debug);
+            elseBody.println(depth+2, debug);
+        }
     }
 
     private QResult callBody(QRuntime qRuntime, QLambda target) {

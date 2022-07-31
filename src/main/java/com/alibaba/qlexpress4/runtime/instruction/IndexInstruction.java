@@ -7,9 +7,11 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
 import com.alibaba.qlexpress4.runtime.data.ListItemValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @Operation: extract value with index, like a[0], m['a']
@@ -34,7 +36,7 @@ public class IndexInstruction extends QLInstruction {
                     "list can only be indexed by int");
             qRuntime.push(new ListItemValue((List<? super Object>) indexAble, indexInt));
         } else if (indexAble instanceof Map) {
-            qRuntime.push(new MapItemValue((Map<? super Object, ? super Object>) indexAble, index));
+            qRuntime.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             Integer indexInt = assertType(index, Integer.class, "ARRAY_INVALID_INDEX",
                     "array can only be indexed by int");
@@ -54,6 +56,11 @@ public class IndexInstruction extends QLInstruction {
     @Override
     public int stackOutput() {
         return 1;
+    }
+
+    @Override
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Index", debug);
     }
 
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {
