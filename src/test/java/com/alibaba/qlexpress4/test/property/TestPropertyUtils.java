@@ -2,7 +2,6 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.member.MemberHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.data.convert.NumberConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
