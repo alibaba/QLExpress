@@ -15,7 +15,7 @@ public class QLFunctionConvertChecker implements TypeConvertChecker<QLConvertRes
 
     @Override
     public boolean typeCheck(Object value, Class<?> type) {
-        return CacheUtil.isFunctionInterface(type);
+        return (value instanceof QLambda) && CacheUtil.isFunctionInterface(type);
     }
 
     @Override

@@ -15,6 +15,7 @@ public class QLNullParametersChecker implements TypeConvertChecker<ParametersCon
 
     @Override
     public ParametersConversion.QLMatchConversation typeReturn(Class<?> source, Class<?> target) {
-        return target == boolean.class ? ParametersConversion.QLMatchConversation.EXTEND : ParametersConversion.QLMatchConversation.NOT_MATCH;
+        return ParametersConversion.QLMatchConversation.NOT_MATCH;
+//        return target == boolean.class ? ParametersConversion.QLMatchConversation.EXTEND : ParametersConversion.QLMatchConversation.NOT_MATCH;
     }
 }

@@ -103,54 +103,54 @@ public class TestTransferCases {
      * child1 method3(boolean)
      * return child1.method3
      */
-    @Test
-    public void testCastTransferNullToFalse() {
-        ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod3",1);
-        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child1());
-        parentParameters.push((Integer)null);
-        testQRuntimeParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        Assert.assertEquals(testQRuntimeParent.getValue().get(),false);
-    }
+//    @Test
+//    public void testCastTransferNullToFalse() {
+//        ErrorReporter errorReporter = new TestErrorReporter();
+//        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod3",1);
+//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+//        ParentParameters parentParameters = new ParentParameters();
+//        parentParameters.push(new Child1());
+//        parentParameters.push((Integer)null);
+//        testQRuntimeParent.setParameters(parentParameters);
+//        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+//        Assert.assertEquals(testQRuntimeParent.getValue().get(),false);
+//    }
     /**
      * NewInstruction null obj trans to (boolean)false
      * type1:null
      * child1 new(boolean)
      * return child1
      */
-    @Test
-    public void testNewTransferNullToFalse() {
-        ErrorReporter errorReporter = new TestErrorReporter();
-        NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 1);
-        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(null);
-        testQRuntimeParent.pushParameter(parentParameters);
-        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
-    }
+//    @Test
+//    public void testNewTransferNullToFalse() {
+//        ErrorReporter errorReporter = new TestErrorReporter();
+//        NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 1);
+//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+//        ParentParameters parentParameters = new ParentParameters();
+//        parentParameters.push(null);
+//        testQRuntimeParent.pushParameter(parentParameters);
+//        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+//        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
+//    }
 
     /**
      * type1:int type2:null
      * child1 method4(Object,boolean)
      * return child1.method4
      */
-    @Test
-    public void testCaseTransferObject(){
-        ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod4",2);
-        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Child1());
-        parentParameters.push(1);
-        parentParameters.push((Integer)null);
-        testQRuntimeParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        Assert.assertEquals(testQRuntimeParent.getValue().get(),2);
-    }
+//    @Test
+//    public void testCaseTransferObject(){
+//        ErrorReporter errorReporter = new TestErrorReporter();
+//        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod4",2);
+//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+//        ParentParameters parentParameters = new ParentParameters();
+//        parentParameters.push(new Child1());
+//        parentParameters.push(1);
+//        parentParameters.push((Integer)null);
+//        testQRuntimeParent.setParameters(parentParameters);
+//        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+//        Assert.assertEquals(testQRuntimeParent.getValue().get(),2);
+//    }
 
     /**
      * NewInstruction null obj trans to (boolean)false
@@ -158,18 +158,18 @@ public class TestTransferCases {
      * child2 new(Object,boolean)
      * return child2
      */
-    @Test
-    public void testNewTransferObject() {
-        ErrorReporter errorReporter = new TestErrorReporter();
-        NewInstruction newInstruction = new NewInstruction(errorReporter, Child2.class, 2);
-        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(1);
-        parentParameters.push(null);
-        testQRuntimeParent.pushParameter(parentParameters);
-        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child2);
-    }
+//    @Test
+//    public void testNewTransferObject() {
+//        ErrorReporter errorReporter = new TestErrorReporter();
+//        NewInstruction newInstruction = new NewInstruction(errorReporter, Child2.class, 2);
+//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+//        ParentParameters parentParameters = new ParentParameters();
+//        parentParameters.push(1);
+//        parentParameters.push(null);
+//        testQRuntimeParent.pushParameter(parentParameters);
+//        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+//        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child2);
+//    }
 
     /**
      * type1:Child3

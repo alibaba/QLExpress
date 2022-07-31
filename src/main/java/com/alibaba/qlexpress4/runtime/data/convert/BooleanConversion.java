@@ -10,9 +10,8 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
  */
 public class BooleanConversion {
     public static QLConvertResult trans(Object object) {
-        if (object == null) {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS,false);
-        }else if (object.getClass() == Boolean.class) {
+        //delete null to boolean
+        if (object.getClass() == boolean.class || object.getClass() == Boolean.class) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS,(Boolean) object);
         }
         return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
