@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.member.MemberHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
+import com.alibaba.qlexpress4.runtime.data.convert.StringConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
@@ -28,8 +29,11 @@ public class TestPropertyUtils {
 //        defaultContext.put("a",Parent.class);
 //        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
 //        System.out.println(a);
-         Optional<Integer> targetOp = Optional.ofNullable(1);
-         System.out.println(targetOp.orElse(3));
+//         Optional<Integer> targetOp = Optional.ofNullable(1);
+//         System.out.println(targetOp.orElse(3));
+          Object a = null;
+          System.out.println(Child7.class.toString());
+          System.out.println(StringConversion.trans(Child7.class).getCastValue());
 //        BigInteger b = new BigInteger("6");
 //        QLConvertResult q = NumberConversion.trans(b,Integer.class);
 //        System.out.println(q.getCastValue());

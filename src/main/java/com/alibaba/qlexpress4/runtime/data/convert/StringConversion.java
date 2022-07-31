@@ -15,19 +15,6 @@ public class StringConversion {
         if (object == null) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, BasicUtil.NULL_SIGN);
         }
-        Class<?> beanClass;
-        String methodName = "toString";
-
-        if (object instanceof Class) {
-            beanClass = (Class<?>) object;
-        } else {
-            beanClass = object.getClass();
-        }
-        try {
-            Method method = beanClass.getMethod(methodName, null);
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, method.invoke(object, null).toString());
-        } catch (Exception e) {
-            return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
-        }
+        return new QLConvertResult(QLConvertResultType.CAN_TRANS, object.toString());
     }
 }
