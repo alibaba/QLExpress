@@ -34,7 +34,7 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
  */
 public class OperatorFactory {
     /**
-     * 获取二院操作符
+     * 获取二元操作符
      *
      * @param operatorLexeme +, =, *, /
      * @return

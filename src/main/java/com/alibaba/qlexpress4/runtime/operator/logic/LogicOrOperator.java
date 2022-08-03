@@ -1,9 +1,9 @@
 package com.alibaba.qlexpress4.runtime.operator.logic;
 
+import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 
 /**
  * TODO bingo null 如何处理？
@@ -40,6 +40,6 @@ public class LogicOrOperator extends BaseBinaryOperator {
 
     @Override
     public int getPriority() {
-        return OperatorPriority.PRIORITY_2;
+        return QLPrecedences.OR;
     }
 }

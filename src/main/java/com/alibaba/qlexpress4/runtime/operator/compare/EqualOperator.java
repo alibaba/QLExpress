@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.runtime.operator.compare;
 
-import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
+import com.alibaba.qlexpress4.QLPrecedences;
 
 /**
  * @author 冰够
@@ -18,6 +18,6 @@ public class EqualOperator extends CompareOperator {
 
     @Override
     public int getPriority() {
-        return OperatorPriority.PRIORITY_7;
+        return QLPrecedences.EQUAL;
     }
 }

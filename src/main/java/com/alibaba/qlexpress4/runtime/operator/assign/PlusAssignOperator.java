@@ -1,10 +1,10 @@
 package com.alibaba.qlexpress4.runtime.operator.assign;
 
+import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 
 /**
  * @author 冰够
@@ -27,6 +27,6 @@ public class PlusAssignOperator extends BaseBinaryOperator {
 
     @Override
     public int getPriority() {
-        return OperatorPriority.PRIORITY_0;
+        return QLPrecedences.ASSIGN;
     }
 }

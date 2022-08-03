@@ -1,9 +1,9 @@
 package com.alibaba.qlexpress4.runtime.operator.logic;
 
+import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.constant.OperatorPriority;
 
 /**
  * @author 冰够
@@ -29,6 +29,6 @@ public class LogicNotOperator extends BaseUnaryOperator {
 
     @Override
     public int getPriority() {
-        return OperatorPriority.PRIORITY_13;
+        return QLPrecedences.UNARY;
     }
 }
