@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class Express4Runner {
 
-    // TODO: bingou OperatorManager?
+    // TODO: bingou OperatorManager？一元操作符（不考虑）
     private Map<String, BinaryOperator> userDefineOperator = Collections.emptyMap();
 
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
