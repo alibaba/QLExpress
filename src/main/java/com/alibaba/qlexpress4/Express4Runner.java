@@ -1,27 +1,21 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.qlexpress4.annotation.QLField;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.data.lambda.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
-import com.alibaba.qlexpress4.utils.CacheUtil;
-import com.alibaba.qlexpress4.utils.QLAliasUtil;
-import com.alibaba.qlexpress4.utils.QLFieldUtil;
-import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+import com.alibaba.qlexpress4.utils.*;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -56,32 +50,30 @@ public class Express4Runner {
         }
     }
 
+
     public void addFunction(String name, QFunction function) {
         userDefineFunction.put(name, function);
     }
-//
-//    public <T,R> void addFunction(String name, QLFunctional<T,R> t) {
-//        userDefineFunction.put(name, function);
-//    }
-//
-//    public <T> void addFunction(String name, Supplier<T> t) {
-//        userDefineFunction.put(name, function);
-//    }
-//
-//    public <T> void addFunction(String name, Predicate<T> t) {
-//        userDefineFunction.put(name, function);
-//    }
-//
-//    public <T,R> void addFunction(String name, Function<T,R> function) {
-//        userDefineFunction.put(name, function);
-//    }
-//
-//
-//    public void addFunction(String name, Runnable t) {
-//        userDefineFunction.put(name, function);
-//    }
 
+    public <T,R> void addFunction(String name, QLFunctional<T,R> functional) {
+        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterFunctional(functional)));
+    }
 
+    public <T,R> void addFunction(String name, QLFunctionalVarargs<T,R> functionalVarargs, Class<?> type) {
+        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterFunctionalVarargs(functionalVarargs,type)));
+    }
+
+    public <T> void addFunction(String name, Predicate<T> predicate) {
+        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterPredicate(predicate)));
+    }
+
+    public void addFunction(String name, Runnable runnable) {
+        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterRunnable(runnable)));
+    }
+
+    public <T> void addFunction(String name, Consumer<T> consumer) {
+        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterConsumer(consumer)));
+    }
 
     public void addField(String name, QFunction function) {
         userDefineField.put(name, function);
@@ -103,6 +95,24 @@ public class Express4Runner {
         addFunctionByAnnotation(clazz, clazz);
     }
 
+//    public void addFunction(String name, Object obj, String methodName) {
+//        if(obj instanceof Class){
+//            addFunctionByClass(name,(Class<?>) obj,methodName);
+//        }else {
+//            addFunctionByObject(name,obj,methodName);
+//        }
+//    }
+//
+//    private void addFunctionByObject(String name,  Object object, String methodName){
+//        List<Method> methods = PropertiesUtil.getMethod(object.getClass(), methodName, false);
+//        userDefineField.put(name, new QFunctionInner(new QLambdaMethod(methods,object,false)));
+//    }
+//
+//    private void addFunctionByClass(String name,  Class<?> clazz, String methodName){
+//        List<Method> methods = PropertiesUtil.getClzMethod(clazz, methodName, false);
+//        QLambdaMethod qLambdaMethod = new QLambdaMethod(methods, clazz,false);
+//        userDefineField.put(name, new QFunctionInner(new QLambdaMethod(methods, clazz,false)));
+//    }
 
     private void addFunctionByAnnotation(Class<?> clazz, Object object){
         Method[] methods = clazz.getDeclaredMethods();

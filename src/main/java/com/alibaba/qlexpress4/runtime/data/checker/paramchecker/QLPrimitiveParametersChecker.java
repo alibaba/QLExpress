@@ -15,7 +15,7 @@ public class QLPrimitiveParametersChecker implements TypeConvertChecker<Paramete
     public boolean typeCheck(Class<?> source, Class<?> target) {
         Class<?> sourcePrimitive = source.isPrimitive() ? source : BasicUtil.transToPrimitive(source);
         Class<?> targetPrimitive = target.isPrimitive() ? target : BasicUtil.transToPrimitive(target);
-        return sourcePrimitive != null && targetPrimitive != null && (sourcePrimitive == targetPrimitive || BasicUtil.classMatchImplicit(targetPrimitive, sourcePrimitive));
+        return sourcePrimitive != null && targetPrimitive != null && BasicUtil.classMatchImplicit(targetPrimitive, sourcePrimitive);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.data.lambda;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
@@ -47,8 +48,9 @@ public class QLambdaMethod implements QLambda {
             if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
                 return new QResult(null, QResult.ResultType.RETURN);
             }
-            Object result = method.invoke(this.bean, convertResult.getCastValue());
-            return new QResult(new DataValue(result), QResult.ResultType.RETURN);
+            Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
+                    (Object[]) convertResult.getCastValue(),allowAccessPrivate);
+            return new QResult(new DataValue(value), QResult.ResultType.RETURN);
         } else {
             if (!allowAccessPrivate) {
                 throw new RuntimeException("QLambdaMethod not accessible");

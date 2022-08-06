@@ -95,7 +95,7 @@ public class MethodHandler extends MemberHandler {
             if(before == null){
                 return 0;
             }
-            if(after.getClass().isAssignableFrom(before.getClass())){
+            if(before.getClass().isAssignableFrom(after.getClass())){
                 return 1;
             }
             return 0;
