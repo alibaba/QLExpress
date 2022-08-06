@@ -87,7 +87,7 @@ public class MethodHandler extends MemberHandler {
             }
             QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
             return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
-                    new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans());
+                    new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
         }
 
 

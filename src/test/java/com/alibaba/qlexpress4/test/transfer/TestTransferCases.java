@@ -390,4 +390,131 @@ public class TestTransferCases {
         testQRuntimeParent.pushParameter(parentParameters);
         newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
     }
+
+
+    /**
+     * type1:int,String,String
+     * Child9 addField(int,string...)
+     * return child9.addField
+     */
+    @Test
+    public void testCaseTransferVars1(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField",3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child9());
+        parentParameters.push(5);
+        parentParameters.push("5.0");
+        parentParameters.push("5.0");
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),"1");
+    }
+
+    /**
+     * type1:int,String,String
+     * Child9 new(int,string...)
+     * return Child9
+     */
+    @Test
+    public void testNewTransferVars1(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        NewInstruction newInstruction = new NewInstruction(errorReporter, Child9.class, 3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(5);
+        parentParameters.push("5.0");
+        parentParameters.push("5.0");
+        testQRuntimeParent.pushParameter(parentParameters);
+        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+    }
+
+
+    /**
+     * type1:int,String,String
+     * Child9 addField1(Object...)
+     * return child9.addField1
+     */
+    @Test
+    public void testCaseTransferVars2(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField1",3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child9());
+        parentParameters.push(5);
+        parentParameters.push("5.0");
+        parentParameters.push("5.0");
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),"1");
+    }
+
+    /**
+     * type1:int,String,String
+     * Child9 addField2(object,object...)
+     * return child9.addField2
+     */
+    @Test
+    public void testCaseTransferVars3(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField2",3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child9());
+        parentParameters.push(5);
+        parentParameters.push("5.0");
+        parentParameters.push("5.0");
+        testQRuntimeParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals(testQRuntimeParent.getValue().get(),"1");
+    }
+
+    /**
+     * type1:int,String,String
+     * Child9 addField3(object,Integer...)
+     * return child9.addField3
+     */
+    @Test
+    public void testCaseTransferVars4(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField3",3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child9());
+        parentParameters.push(5);
+        parentParameters.push("asd");
+        parentParameters.push("sss");
+        testQRuntimeParent.setParameters(parentParameters);
+        try {
+            methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        }catch (Exception e){
+            Assert.assertTrue(e != null);
+        }
+    }
+
+
+    /**
+     * type1:int,int,int
+     * Child9 addField3(object,String...)
+     * return child9.addField3
+     */
+    @Test
+    public void testCaseTransferVars5(){
+        ErrorReporter errorReporter = new TestErrorReporter();
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField",3);
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        ParentParameters parentParameters = new ParentParameters();
+        parentParameters.push(new Child9());
+        parentParameters.push(5);
+        parentParameters.push(1);
+        parentParameters.push(1);
+        testQRuntimeParent.setParameters(parentParameters);
+        try {
+            methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        }catch (Exception e){
+            Assert.assertTrue(e != null);
+        }
+    }
 }

@@ -5,7 +5,10 @@ import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.QLLambdaFuncti
 import com.alibaba.qlexpress4.runtime.data.checker.paramchecker.*;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitVars;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
+
+import java.lang.reflect.Array;
 
 /**
  * @Author TaoKan
@@ -57,19 +60,49 @@ public class ParametersConversion {
     }
 
 
-    public static QLConvertResult convert(Object[] oriParams, Class<?>[] oriTypes, Class<?>[] goalTypes, boolean needImplicitTrans){
-        if(!needImplicitTrans){
+    public static QLConvertResult convert(Object[] oriParams, Class<?>[] oriTypes, Class<?>[] goalTypes,
+                                          boolean needImplicitTrans, QLImplicitVars vars){
+        if(!needImplicitTrans && !vars.needVarsConvert()){
             return new QLConvertResult(QLConvertResultType.CAN_TRANS,oriParams);
         }
-        for(int i = 0; i < oriTypes.length; i++){
-            if(oriTypes[i] != goalTypes[i]){
-                QLConvertResult paramResult = InstanceConversion.castObject(oriParams[i],goalTypes[i]);
-                if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
-                    return paramResult;
+        if(vars.needVarsConvert()){
+            int afterMergeLength = vars.getVarsIndex() + 1;
+            Object[] objects = new Object[afterMergeLength];
+            for(int i = 0; i < afterMergeLength; i++){
+                if(i < vars.getVarsIndex()) {
+                    //not change
+                    objects[i] = oriParams[i];
+                    if(oriTypes[i] != goalTypes[i]){
+                        QLConvertResult paramResult = InstanceConversion.castObject(objects[i],goalTypes[i]);
+                        if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                            return paramResult;
+                        }
+                        objects[i] = paramResult.getCastValue();
+                    }
+                }else {
+                    int mergeLength = oriParams.length - vars.getVarsIndex();
+                    Object r = new Object[mergeLength];
+                    System.arraycopy(oriParams,vars.getVarsIndex(),r,0,mergeLength);
+                    QLConvertResult paramResult = InstanceConversion.castObject(r,goalTypes[i]);
+                    if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                        return paramResult;
+                    }
+                    objects[i] = paramResult.getCastValue();
                 }
-                oriParams[i] = paramResult.getCastValue();
+            }
+            return new QLConvertResult(QLConvertResultType.CAN_TRANS,objects);
+        }else {
+            for(int i = 0; i < oriTypes.length; i++){
+                if(oriTypes[i] != goalTypes[i]){
+                    QLConvertResult paramResult = InstanceConversion.castObject(oriParams[i],goalTypes[i]);
+                    if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+                        return paramResult;
+                    }
+                    oriParams[i] = paramResult.getCastValue();
+                }
             }
         }
+
         return new QLConvertResult(QLConvertResultType.CAN_TRANS,oriParams);
     }
 

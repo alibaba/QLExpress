@@ -9,10 +9,12 @@ import java.lang.reflect.Constructor;
 public class QLImplicitConstructor {
     private final Constructor<?> constructor;
     private final boolean needImplicitTrans;
+    private final QLImplicitVars vars;
 
-    public QLImplicitConstructor(Constructor<?> constructor, boolean needImplicitTrans){
+    public QLImplicitConstructor(Constructor<?> constructor, boolean needImplicitTrans, QLImplicitVars vars){
         this.constructor = constructor;
         this.needImplicitTrans = needImplicitTrans;
+        this.vars = vars;
     }
 
     public Constructor<?> getConstructor() {
@@ -22,4 +24,9 @@ public class QLImplicitConstructor {
     public boolean needImplicitTrans() {
         return needImplicitTrans;
     }
+
+    public QLImplicitVars getVars() {
+        return vars;
+    }
+
 }

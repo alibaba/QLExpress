@@ -59,7 +59,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
 
-        QLConvertResult convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes(),implicitMethod.needImplicitTrans());
+        QLConvertResult convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes()
+                ,implicitMethod.needImplicitTrans(),implicitMethod.getVars());
         if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not cast param");
         }

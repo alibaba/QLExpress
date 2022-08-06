@@ -63,7 +63,8 @@ public class NewInstruction extends QLInstruction {
             }
             CacheUtil.setConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes, cacheElement);
         }
-        QLConvertResult convertResult = ParametersConversion.convert(objs, paramTypes, cacheElement.getConstructor().getParameterTypes(), cacheElement.needImplicitTrans());
+        QLConvertResult convertResult = ParametersConversion.convert(objs, paramTypes, cacheElement.getConstructor().getParameterTypes(),
+                cacheElement.needImplicitTrans(),cacheElement.getVars());
         if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
             throw errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not cast param");
         }

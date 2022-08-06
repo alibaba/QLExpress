@@ -9,10 +9,12 @@ import java.lang.reflect.Method;
 public class QLImplicitMethod {
     private final Method method;
     private final boolean needImplicitTrans;
+    private final QLImplicitVars vars;
 
-    public QLImplicitMethod(Method method, boolean needImplicitTrans){
+    public QLImplicitMethod(Method method, boolean needImplicitTrans, QLImplicitVars vars){
         this.method = method;
         this.needImplicitTrans = needImplicitTrans;
+        this.vars = vars;
     }
 
     public Method getMethod() {
@@ -22,5 +24,10 @@ public class QLImplicitMethod {
     public boolean needImplicitTrans() {
         return needImplicitTrans;
     }
+
+    public QLImplicitVars getVars() {
+        return vars;
+    }
+
 
 }

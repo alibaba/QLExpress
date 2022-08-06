@@ -23,10 +23,19 @@ public class ConstructorHandler extends MemberHandler {
                 if (constructorParameters.length == types.length) {
                     listClass.add(constructorParameters);
                     constructorList.add(constructor);
+                }else {
+                    if(constructorParameters.length > 0){
+                        Class<?> endClazz = constructorParameters[constructorParameters.length - 1];
+                        if(endClazz.isArray()){
+                            listClass.add(constructorParameters);
+                            constructorList.add(constructor);
+                        }
+                    }
                 }
             }
             QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignatureForConstructor(types, listClass.toArray(new Class[0][]));
-            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :  new QLImplicitConstructor(constructorList.get(matcher.getMatchIndex()),matcher.needImplicitTrans());
+            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
+                    new QLImplicitConstructor(constructorList.get(matcher.getMatchIndex()),matcher.needImplicitTrans(), matcher.getVars());
         }
     }
 }

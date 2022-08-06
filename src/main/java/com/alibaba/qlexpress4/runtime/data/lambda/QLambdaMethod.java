@@ -42,7 +42,8 @@ public class QLambdaMethod implements QLambda {
             return new QResult(null, QResult.ResultType.RETURN);
         }
         if (BasicUtil.isPublic(method)) {
-            QLConvertResult convertResult = ParametersConversion.convert(params, type, method.getParameterTypes(), implicitMethod.needImplicitTrans());
+            QLConvertResult convertResult = ParametersConversion.convert(params, type,
+                    method.getParameterTypes(), implicitMethod.needImplicitTrans(), implicitMethod.getVars());
             if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
                 return new QResult(null, QResult.ResultType.RETURN);
             }

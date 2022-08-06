@@ -18,6 +18,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +59,29 @@ public class Express4Runner {
     public void addFunction(String name, QFunction function) {
         userDefineFunction.put(name, function);
     }
+//
+//    public <T,R> void addFunction(String name, QLFunctional<T,R> t) {
+//        userDefineFunction.put(name, function);
+//    }
+//
+//    public <T> void addFunction(String name, Supplier<T> t) {
+//        userDefineFunction.put(name, function);
+//    }
+//
+//    public <T> void addFunction(String name, Predicate<T> t) {
+//        userDefineFunction.put(name, function);
+//    }
+//
+//    public <T,R> void addFunction(String name, Function<T,R> function) {
+//        userDefineFunction.put(name, function);
+//    }
+//
+//
+//    public void addFunction(String name, Runnable t) {
+//        userDefineFunction.put(name, function);
+//    }
+
+
 
     public void addField(String name, QFunction function) {
         userDefineField.put(name, function);
@@ -84,7 +111,7 @@ public class Express4Runner {
                 for (String value : QLFunctionUtil.getQLFunctionValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods,object,true)));
+                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods,object,false)));
                 }
             }
         }
@@ -97,7 +124,7 @@ public class Express4Runner {
                 for (String value : QLFieldUtil.getQLFieldValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods,object,true)));
+                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods,object,false)));
                 }
             }
         }

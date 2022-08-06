@@ -10,6 +10,7 @@ public class QLParametersMatcher {
     private int matchWeight;
     private int index;
     private Class<?>[] parametersClassType;
+    private QLImplicitVars qlImplicitVars;
 
     public QLParametersMatcher() {
         this.matchWeight = BasicUtil.DEFAULT_WEIGHT;
@@ -39,4 +40,13 @@ public class QLParametersMatcher {
     public void setParametersClassType(Class<?>[] parametersClassType) {
         this.parametersClassType = parametersClassType;
     }
+
+    public QLImplicitVars getQlImplicitVars() {
+        return qlImplicitVars;
+    }
+
+    public void setQlImplicitVars(QLImplicitVars qlImplicitVars) {
+        this.qlImplicitVars = qlImplicitVars;
+    }
+
 }

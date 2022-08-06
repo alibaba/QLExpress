@@ -16,7 +16,7 @@ public interface LeftValue extends Value {
         Class<?> defineType = getDefinedType();
         QLConvertResult result = InstanceConversion.castObject(newValue, defineType);
         if(result.getResultType().equals(QLConvertResultType.NOT_TRANS)){
-            throw errorReporter.report("SET_TRANS_ERROR","can not trans to:"+defineType.getName());
+            throw errorReporter.report("TRANS_OBJECT_ERROR","can not trans to:"+defineType.getName());
         }
         setInner(result.getCastValue());
         return result;
