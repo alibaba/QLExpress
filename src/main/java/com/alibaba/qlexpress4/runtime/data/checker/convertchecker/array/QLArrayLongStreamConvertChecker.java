@@ -11,7 +11,7 @@ import java.util.stream.LongStream;
  * @Author TaoKan
  * @Date 2022/7/21 上午6:40
  */
-public class QLArrayLongStreamConvertChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLArrayLongStreamConvertChecker implements TypeConvertChecker<Object> {
 
     private final Map<Class<?>,TypeConvertChecker> longSteamMap;
 

@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
  * @Author TaoKan
  * @Date 2022/7/21 上午7:16
  */
-public class QLArrayIntStreamToPrimitiveLongChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLArrayIntStreamToPrimitiveLongChecker implements TypeConvertChecker<Object> {
 
     @Override
     public QLConvertResult typeReturn(Object value, Class<?> type) {

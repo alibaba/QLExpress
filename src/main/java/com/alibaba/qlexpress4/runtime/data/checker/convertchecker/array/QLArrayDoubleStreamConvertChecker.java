@@ -10,7 +10,7 @@ import java.util.stream.DoubleStream;
  * @Author TaoKan
  * @Date 2022/7/21 上午6:40
  */
-public class QLArrayDoubleStreamConvertChecker  implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLArrayDoubleStreamConvertChecker  implements TypeConvertChecker<Object> {
 
     private final Map<Class<?>,TypeConvertChecker> doubleSteamMap;
 

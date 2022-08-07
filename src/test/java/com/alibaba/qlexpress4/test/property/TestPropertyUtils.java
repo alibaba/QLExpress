@@ -2,25 +2,6 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
-import com.alibaba.qlexpress4.member.MemberHandler;
-import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.runtime.QLFunctional;
-import com.alibaba.qlexpress4.runtime.QLFunctionalVarargs;
-import com.alibaba.qlexpress4.runtime.data.convert.StringConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.utils.CacheUtil;
-import com.alibaba.qlexpress4.utils.PropertiesUtil;
-import com.ql.util.express.DefaultContext;
-import com.ql.util.express.ExpressRunner;
-import org.junit.Assert;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @Author TaoKan
@@ -43,8 +24,9 @@ public class TestPropertyUtils {
 //          System.out.println(StringConversion.trans(Child7.class).getCastValue());
 //
           Express4Runner express4Runner = new Express4Runner(InitOptions.builder().build());
+          Child10 as = new Child10();
 //         express4Runner.addFunction("test", as::setAA);
-//        express4Runner.addFunction("test", (QLFunctionalVarargs<Integer, Integer>) as::setAAA, Integer.class);
+//        express4Runner.addFunction("test", (Function<Integer[], Integer>) as::setAAA, Integer.class);
 //        express4Runner.addFunction("test", (QLFunctionalVarargs<Object, Object>) as::setAAAA, String.class,Integer.class);
 //        express4Runner.addFunction("test", as, "setAAAA");
 //        express4Runner.addFunction("test", Math.class, "max");

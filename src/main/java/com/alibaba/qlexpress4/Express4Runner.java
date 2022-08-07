@@ -114,24 +114,23 @@ public class Express4Runner {
         addFunctionByAnnotation(clazz, clazz);
     }
 
-//    public void addFunction(String name, Object obj, String methodName) {
-//        if(obj instanceof Class){
-//            addFunctionByClass(name,(Class<?>) obj,methodName);
-//        }else {
-//            addFunctionByObject(name,obj,methodName);
-//        }
-//    }
-//
-//    private void addFunctionByObject(String name,  Object object, String methodName){
-//        List<Method> methods = PropertiesUtil.getMethod(object.getClass(), methodName, false);
-//        userDefineField.put(name, new QFunctionInner(new QLambdaMethod(methods,object,false)));
-//    }
-//
-//    private void addFunctionByClass(String name,  Class<?> clazz, String methodName){
-//        List<Method> methods = PropertiesUtil.getClzMethod(clazz, methodName, false);
-//        QLambdaMethod qLambdaMethod = new QLambdaMethod(methods, clazz,false);
-//        userDefineField.put(name, new QFunctionInner(new QLambdaMethod(methods, clazz,false)));
-//    }
+    public void addFunction(String name, Object obj, String methodName) {
+        if(obj instanceof Class){
+            addFunctionByClass(name,(Class<?>) obj,methodName);
+        }else {
+            addFunctionByObject(name,obj,methodName);
+        }
+    }
+
+    private void addFunctionByObject(String name,  Object object, String methodName){
+        List<Method> methods = PropertiesUtil.getMethod(object.getClass(), methodName, false);
+        addFunction(name,new QFunctionInner(new QLambdaMethod(methods,object,false)));
+    }
+
+    private void addFunctionByClass(String name,  Class<?> clazz, String methodName){
+        List<Method> methods = PropertiesUtil.getClzMethod(clazz, methodName, false);
+        addFunction(name,new QFunctionInner(new QLambdaMethod(methods,clazz,false)));
+    }
 
     private void addFunctionByAnnotation(Class<?> clazz, Object object){
         Method[] methods = clazz.getDeclaredMethods();

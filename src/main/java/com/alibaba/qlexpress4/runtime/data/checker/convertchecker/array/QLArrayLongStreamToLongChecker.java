@@ -10,7 +10,7 @@ import java.util.stream.LongStream;
  * @Author TaoKan
  * @Date 2022/7/21 上午7:52
  */
-public class QLArrayLongStreamToLongChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLArrayLongStreamToLongChecker implements TypeConvertChecker<Object> {
 
     @Override
     public QLConvertResult typeReturn(Object value, Class<?> type) {

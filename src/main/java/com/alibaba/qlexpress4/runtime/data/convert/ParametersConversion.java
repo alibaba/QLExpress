@@ -1,24 +1,22 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.runtime.data.checker.*;
-import com.alibaba.qlexpress4.runtime.data.checker.convertchecker.QLLambdaFunctionalChecker;
+import com.alibaba.qlexpress4.runtime.data.checker.paramchecker.QLLambdaFunctionalChecker;
 import com.alibaba.qlexpress4.runtime.data.checker.paramchecker.*;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitVars;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
 
-import java.lang.reflect.Array;
-
 /**
  * @Author TaoKan
  * @Date 2022/6/25 下午7:01
  */
 public class ParametersConversion {
-    private static final TypeConvertChecker[] typeParametersChecker;
+    private static final MatchChecker[] typeParametersChecker;
 
     static {
-        typeParametersChecker = new TypeConvertChecker[]{
+        typeParametersChecker = new MatchChecker[]{
                 new QLNullParametersChecker(),
                 new QLEqualsParametersChecker(),
                 new QLPrimitiveParametersChecker(),
@@ -34,11 +32,11 @@ public class ParametersConversion {
     }
 
     public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate, QLWeighter weighter) {
-        int matchConversionWeight = QLMatchConversation.EQUALS.getWeight();
+        int matchConversionWeight = QLMatchConverter.EQUALS.getWeight();
         for (int i = 0; i < goal.length; i++) {
-            QLMatchConversation result = compareParametersTypes(candidate[i], goal[i]);
-            if (QLMatchConversation.NOT_MATCH == result) {
-                return QLMatchConversation.NOT_MATCH.getWeight();
+            QLMatchConverter result = compareParametersTypes(candidate[i], goal[i]);
+            if (QLMatchConverter.NOT_MATCH == result) {
+                return QLMatchConverter.NOT_MATCH.getWeight();
             }
             int weight = weighter.addWeight(result.getWeight());
             if (matchConversionWeight < weight) {
@@ -50,13 +48,13 @@ public class ParametersConversion {
     }
 
 
-    public static QLMatchConversation compareParametersTypes(Class<?> target, Class<?> source) {
-        for (TypeConvertChecker checker : typeParametersChecker){
-            if(checker.typeCheck(source,target)){
-                return (QLMatchConversation)checker.typeReturn(source,target);
+    public static QLMatchConverter compareParametersTypes(Class<?> target, Class<?> source) {
+        for (MatchChecker checker : typeParametersChecker){
+            if(checker.typeMatch(source,target)){
+                return checker.typeReturn(source,target);
             }
         }
-        return QLMatchConversation.NOT_MATCH;
+        return QLMatchConverter.NOT_MATCH;
     }
 
 
@@ -82,6 +80,7 @@ public class ParametersConversion {
                 }else {
                     int mergeLength = oriParams.length - vars.getVarsIndex();
                     Object r = new Object[mergeLength];
+                    //TODO lingxiang
                     System.arraycopy(oriParams,vars.getVarsIndex(),r,0,mergeLength);
                     QLConvertResult paramResult = InstanceConversion.castObject(r,goalTypes[i]);
                     if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
@@ -107,13 +106,13 @@ public class ParametersConversion {
     }
 
     //weight less = level higher
-    public enum QLMatchConversation {
+    public enum QLMatchConverter {
 
         NOT_MATCH(-1), EXTEND(8), IMPLICIT(3), ASSIGN(2), EQUALS(1);
 
         private final int weight;
 
-        QLMatchConversation(int weight) {
+        QLMatchConverter(int weight) {
             this.weight = weight;
         }
 

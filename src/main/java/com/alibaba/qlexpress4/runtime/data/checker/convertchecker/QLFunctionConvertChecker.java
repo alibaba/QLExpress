@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy;
  * @Author TaoKan
  * @Date 2022/7/20 下午11:07
  */
-public class QLFunctionConvertChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLFunctionConvertChecker implements TypeConvertChecker<Object> {
 
     @Override
     public boolean typeCheck(Object value, Class<?> type) {

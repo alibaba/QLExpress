@@ -9,7 +9,7 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  * @Author TaoKan
  * @Date 2022/7/21 上午8:04
  */
-public class QLNumberToBigIntegerConvertChecker implements TypeConvertChecker<QLConvertResult, Number, Class<?>> {
+public class QLNumberToBigIntegerConvertChecker implements TypeConvertChecker<Number> {
 
     @Override
     public QLConvertResult typeReturn(Number n, Class<?> type) {

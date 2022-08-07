@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
  * @Author TaoKan
  * @Date 2022/7/20 下午10:50
  */
-public class QLNullConvertChecker implements TypeConvertChecker<QLConvertResult, Object, Class<?>> {
+public class QLNullConvertChecker implements TypeConvertChecker<Object> {
     @Override
     public boolean typeCheck(Object value, Class<?> type) {
         return type == Object.class;

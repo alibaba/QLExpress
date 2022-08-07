@@ -54,7 +54,7 @@ public class MemberHandler {
                     return result;
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
                     ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
 
@@ -72,7 +72,7 @@ public class MemberHandler {
                     return result;
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConversation.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
                     ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
     }
@@ -113,7 +113,7 @@ public class MemberHandler {
                                                         QLParametersMatcher bestMatcher, int i, QLImplicitVars needVars){
         int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
         if (weight != BasicUtil.DEFAULT_WEIGHT){
-            if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConversation.NOT_MATCH.getWeight()) {
+            if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConverter.NOT_MATCH.getWeight()) {
                 bestMatcher.setParametersClassType(targetMatch);
                 bestMatcher.setMatchWeight(weight);
                 bestMatcher.setIndex(i);
