@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 
@@ -92,5 +93,10 @@ public class QvmRootRuntime implements QRuntime {
     @Override
     public Map<String, Object> attachment() {
         return attachments;
+    }
+
+    @Override
+    public QLCaches getQLCaches() {
+        return null;
     }
 }

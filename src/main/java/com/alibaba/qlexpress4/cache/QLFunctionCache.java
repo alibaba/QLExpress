@@ -4,14 +4,15 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 
 /**
  * @Author TaoKan
- * @Date 2022/4/7 下午7:58
+ * @Date 2022/6/26 下午4:46
  */
-public class FunctionCacheElement implements ICacheElement<Object> {
+public class QLFunctionCache implements IBizCache<Object,QLFunctionCache> {
     private ICache<Object, Boolean> FUNCTION_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean enableUseCacheClear) {
+    public QLFunctionCache initCache(int size, boolean enableUseCacheClear) {
         FUNCTION_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
+        return this;
     }
 
     @Override
@@ -22,7 +23,6 @@ public class FunctionCacheElement implements ICacheElement<Object> {
     @Override
     public void setCacheElement(String key, Object value) {
     }
-
 
     public boolean cacheFunctionInterface(Class<?> clazz) {
         Boolean cacheRes = FUNCTION_CACHE.get(clazz);

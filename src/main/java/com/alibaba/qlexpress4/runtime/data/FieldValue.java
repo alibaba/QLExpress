@@ -21,9 +21,15 @@ public class FieldValue implements LeftValue {
         this.defineType = Object.class;
     }
 
+    public FieldValue(Supplier<Object> getOp, Consumer<Object> setOp, Class<?> defineType) {
+        this.getOp = getOp;
+        this.setOp = setOp;
+        this.defineType = defineType;
+    }
+
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         setOp.accept(newValue);
     }
 

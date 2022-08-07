@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.cache.*;
+
 import java.util.Map;
 
 /**
@@ -84,4 +86,9 @@ public interface QRuntime {
     boolean isPopulate();
 
     Map<String, Object> attachment();
+    /**
+     * get instance cache from qvm
+     * @return ICache
+     */
+    QLCaches getQLCaches();
 }

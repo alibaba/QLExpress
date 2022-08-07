@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.QLambda;
@@ -38,9 +39,10 @@ public class GetMethodInstruction extends QLInstruction {
         if (bean == null) {
             throw this.errorReporter.report("GET_METHOD_ERROR", "can not get method from null");
         }
+        QLCaches qlCaches = qRuntime.getQLCaches();
         DataValue dataMethod = bean instanceof MetaClass?
-                getClazzMethod(((MetaClass) bean).getClz(), qlOptions.enableAllowAccessPrivateMethod()):
-                getInstanceMethod(bean, qlOptions.enableAllowAccessPrivateMethod());
+                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), qlOptions.enableAllowAccessPrivateMethod()):
+                getInstanceMethod(qlCaches, bean, qlOptions.enableAllowAccessPrivateMethod());
         qRuntime.push(dataMethod);
         return QResult.CONTINUE_RESULT;
     }
@@ -60,8 +62,8 @@ public class GetMethodInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "GetMethod " + methodName, debug);
     }
 
-    public DataValue getClazzMethod(Object bean, boolean enableAllowAccessPrivateMethod){
-        List<Method> cacheElement = CacheUtil.getMethodCacheElement((Class<?>) bean , this.methodName);
+    public DataValue getClazzMethod(QLCaches qlCaches, Object bean, boolean enableAllowAccessPrivateMethod){
+        List<Method> cacheElement = CacheUtil.getMethodCacheElement(qlCaches.getQlMethodCache(), (Class<?>) bean , this.methodName);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             if (methods.size() == 0) {
@@ -69,7 +71,7 @@ public class GetMethodInstruction extends QLInstruction {
             }
             QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
             DataValue dataMethod = new DataValue(qLambda, QLambda.class);
-            CacheUtil.setMethodCacheElement((Class<?>) bean, this.methodName, methods);
+            CacheUtil.setMethodCacheElement(qlCaches.getQlMethodCache(), (Class<?>) bean, this.methodName, methods);
             return dataMethod;
         }else {
             QLambda qLambda = new QLambdaMethod(cacheElement, bean, enableAllowAccessPrivateMethod);
@@ -77,8 +79,8 @@ public class GetMethodInstruction extends QLInstruction {
         }
     }
 
-    public DataValue getInstanceMethod(Object bean, boolean enableAllowAccessPrivateMethod) {
-        List<Method> cacheElement = CacheUtil.getMethodCacheElement(bean.getClass(), this.methodName);
+    public DataValue getInstanceMethod(QLCaches qlCaches, Object bean, boolean enableAllowAccessPrivateMethod) {
+        List<Method> cacheElement = CacheUtil.getMethodCacheElement(qlCaches.getQlMethodCache(), bean.getClass(), this.methodName);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
             if (methods.size() == 0) {
@@ -86,7 +88,7 @@ public class GetMethodInstruction extends QLInstruction {
             }
             QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
             DataValue dataMethod = new DataValue(qLambda, QLambda.class);
-            CacheUtil.setMethodCacheElement(bean.getClass(), this.methodName, methods);
+            CacheUtil.setMethodCacheElement(qlCaches.getQlMethodCache(), bean.getClass(), this.methodName, methods);
             return dataMethod;
         } else {
             QLambda qLambda = new QLambdaMethod(cacheElement, bean, enableAllowAccessPrivateMethod);

@@ -18,7 +18,7 @@ public class AssignOperator extends BaseBinaryOperator {
         }
         LeftValue leftValue = (LeftValue) left;
         Object newValue = right.get();
-        leftValue.set(newValue);
+        leftValue.setInner(newValue);
         return newValue;
     }
 

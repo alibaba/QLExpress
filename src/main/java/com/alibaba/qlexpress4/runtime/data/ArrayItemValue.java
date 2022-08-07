@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data;
 
 import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
 
 import java.lang.reflect.Array;
 
@@ -19,7 +20,7 @@ public class ArrayItemValue implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         Array.set(array, index, newValue);
     }
 

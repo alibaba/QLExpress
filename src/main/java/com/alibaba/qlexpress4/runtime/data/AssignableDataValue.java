@@ -22,7 +22,7 @@ public class AssignableDataValue implements LeftValue {
     }
 
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         this.value = newValue;
     }
 

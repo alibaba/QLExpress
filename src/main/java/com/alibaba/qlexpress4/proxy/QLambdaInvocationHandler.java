@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.proxy;
 
 
 import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -19,16 +21,16 @@ public class QLambdaInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) {
+    public QLConvertResult invoke(Object proxy, Method method, Object[] args) {
         try {
             if(Modifier.isAbstract(method.getModifiers())){
                 Object rs = qLambda.call(args);
-                return rs;
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS ,rs);
             }else {
-                return method.getReturnType() == String.class ? "QLambdaProxy" : null;
+                return new QLConvertResult(QLConvertResultType.CAN_TRANS, method.getReturnType() == String.class ? "QLambdaProxy" : null);
             }
         }catch (Exception e){
+            return new QLConvertResult(QLConvertResultType.NOT_TRANS,null);
         }
-        return null;
     }
 }

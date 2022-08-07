@@ -7,8 +7,10 @@ public class MockLeftValue extends MockValue implements LeftValue {
         super(value, declaredClass);
     }
 
+
     @Override
-    public void set(Object newValue) {
+    public void setInner(Object newValue) {
         this.value = newValue;
+
     }
 }

@@ -20,11 +20,12 @@ public class TestCastInstruction {
     @Test
     public void testCastInstruction() {
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         CastInstruction newInstructionForParent0 = new CastInstruction(errorReporter);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        TestCastParameters testCastParameters = new TestCastParameters(Integer.class,5L);
+        testQRuntimeParent.setParameters(testCastParameters);
         newInstructionForParent0.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         Object s = testQRuntimeParent.getValue().get();
-        Assert.assertTrue(s instanceof Parent);
+        Assert.assertEquals(s,5);
     }
 }

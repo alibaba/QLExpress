@@ -2,14 +2,14 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.Parent;
-import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.test.property.TestEnum;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,16 +27,12 @@ public class TestFieldInstruction {
     @Test
     public void case1() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
-        try {
-            getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        }catch (Exception e){
-            Assert.assertTrue(e != null);
-        }
-    }
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticGet1");
+     }
 
 
     /**
@@ -48,12 +44,11 @@ public class TestFieldInstruction {
     @Test
     public void case2() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        ((LeftValue)testQRuntimeParent.getValue()).set("staticSet1");
+        ((LeftValue)testQRuntimeParent.getValue()).set("staticSet1",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSet1");
     }
 
@@ -66,15 +61,16 @@ public class TestFieldInstruction {
     @Test
     public void case3() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         try {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
     /**
@@ -86,10 +82,9 @@ public class TestFieldInstruction {
     @Test
     public void case4() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSetPrivate");
     }
@@ -103,10 +98,9 @@ public class TestFieldInstruction {
     @Test
     public void case5() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-        testQRuntimeParent.push(new DataValue(Parent.class));
+        testQRuntimeParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticSetPrivate");
     }
@@ -121,12 +115,11 @@ public class TestFieldInstruction {
     @Test
     public void case6() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticFinal");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue)testQRuntimeParent.getValue()).set("111");
+        ((LeftValue)testQRuntimeParent.getValue()).set("111",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"staticFinal");
     }
 
@@ -140,7 +133,6 @@ public class TestFieldInstruction {
     @Test
     public void case7() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
@@ -158,12 +150,11 @@ public class TestFieldInstruction {
     @Test
     public void case8() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-        ((LeftValue)testQRuntimeParent.getValue()).set(35);
+        ((LeftValue)testQRuntimeParent.getValue()).set(35,errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),35);
     }
 
@@ -176,12 +167,11 @@ public class TestFieldInstruction {
     @Test
     public void case9() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+        ((LeftValue)testQRuntimeParent.getValue()).set("name1",errorReporter);
         Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
     }
 
@@ -195,17 +185,18 @@ public class TestFieldInstruction {
     @Test
     public void case10() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Parent());
         try {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
-            ((LeftValue)testQRuntimeParent.getValue()).set("name1");
+            ((LeftValue)testQRuntimeParent.getValue()).set("name1",errorReporter);
             Assert.assertEquals((testQRuntimeParent.getValue()).get(),"name1");
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
     /**
@@ -217,7 +208,6 @@ public class TestFieldInstruction {
     @Test
     public void case11() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());
@@ -236,7 +226,6 @@ public class TestFieldInstruction {
     @Test
     public void case12() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "birth");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());
@@ -255,7 +244,6 @@ public class TestFieldInstruction {
     @Test
     public void case13() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "method1");
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         testQRuntimeParent.push(new Child());
@@ -263,8 +251,28 @@ public class TestFieldInstruction {
             getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         }catch (Exception e){
             Assert.assertTrue(e != null);
+            return;
         }
+        Assert.assertTrue(false);
     }
 
+
+    /**
+     * enum attr get
+     * TestEnum.skt.getValue()
+     *
+     * @throws Exception
+     */
+    @Test
+    public void case14() throws Exception{
+        ErrorReporter errorReporter = new TestErrorReporter();
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "SKT");
+        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
+        testQRuntimeParent.push(new DataValue(new MetaClass(TestEnum.class)));
+        getFieldInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        GetFieldInstruction getFieldInstruction1 = new GetFieldInstruction(errorReporter, "value");
+        getFieldInstruction1.execute(testQRuntimeParent,QLOptions.builder().allowAccessPrivateMethod(true).build());
+        Assert.assertEquals((testQRuntimeParent.getValue()).get(),-1);
+    }
 
 }

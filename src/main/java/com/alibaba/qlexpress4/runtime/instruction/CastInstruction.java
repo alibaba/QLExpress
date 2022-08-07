@@ -3,14 +3,14 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
-
 import java.util.function.Consumer;
+import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 /**
  * @Operation: force cast value to specified type
@@ -29,17 +29,16 @@ public class CastInstruction extends QLInstruction {
     public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
         Object value = qRuntime.pop().get();
         Class<?> targetClz = (Class<?>) qRuntime.pop().get();
-        try {
-            if (value == null) {
-                qRuntime.push(Value.NULL_VALUE);
-                return QResult.CONTINUE_RESULT;
-            }
-            Object targetValue = BasicUtil.castObject(value, targetClz, true);
-            Value dataCast = new DataValue(targetValue);
-            qRuntime.push(dataCast);
-        } catch (Exception e) {
+        if (value == null) {
+            qRuntime.push(Value.NULL_VALUE);
+            return QResult.CONTINUE_RESULT;
+        }
+        QLConvertResult result = InstanceConversion.castObject(value, targetClz);
+        if(result.getResultType().equals(QLConvertResultType.NOT_TRANS)){
             throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this class");
         }
+        Value dataCast = new DataValue(result.getCastValue());
+        qRuntime.push(dataCast);
         return QResult.CONTINUE_RESULT;
     }
 

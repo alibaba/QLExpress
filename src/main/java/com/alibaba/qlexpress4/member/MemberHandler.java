@@ -1,13 +1,14 @@
 package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.enums.AccessMode;
-import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.*;
 import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * @Author TaoKan
@@ -41,115 +42,87 @@ public class MemberHandler {
 
     public static class Preferred {
 
-
-        public static int findMostSpecificSignature(Class<?>[] idealMatch, Class<?>[][] candidates) {
-            Class<?>[] bestMatch = null;
-            int bestMatchIndex = -1;
+        public static QLImplicitMatcher findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {
+            QLParametersMatcher bestMatcher = new QLParametersMatcher();
 
             for (int i = candidates.length - 1; i >= 0; i--) {
                 Class<?>[] targetMatch = candidates[i];
-                if (isSignatureAssignable(idealMatch, targetMatch) && ((bestMatch == null)
-                        || isSignatureAssignable(targetMatch, bestMatch))) {
-                    bestMatch = targetMatch;
-                    bestMatchIndex = i;
+                Optional<QLImplicitMatcher> optional = Optional.ofNullable(doParamsConversion(targetMatch,
+                        goalMatch,0,bestMatcher,i,new QLImplicitVars(false,0)));
+                QLImplicitMatcher result = optional.orElse(doParamsConversionSplit(targetMatch,goalMatch,0,bestMatcher,i));
+                if(result != null){
+                    return result;
                 }
             }
-
-            if (bestMatch != null) {
-                return bestMatchIndex;
-            } else {
-                return -1;
-            }
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
+                    ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
 
-        private static boolean isSignatureAssignable(Class<?>[] from, Class<?>[] to) {
-            for (int i = 0; i < from.length; i++) {
-                if (!isAssignable(to[i], from[i])) {
-                    return false;
+
+        public static QLImplicitMatcher findMostSpecificSignature(Class<?>[] goalMatch, QLCandidateMethodAttr[] candidates) {
+            QLParametersMatcher bestMatcher = new QLParametersMatcher();
+            for (int i = candidates.length - 1; i >= 0; i--) {
+                Class<?>[] targetMatch = candidates[i].getParamClass();
+                //parent first
+                int assignLevel = candidates[i].getLevel();
+                Optional<QLImplicitMatcher> optional = Optional.ofNullable(doParamsConversion(targetMatch,
+                        goalMatch,assignLevel,bestMatcher,i,new QLImplicitVars(false,0)));
+                QLImplicitMatcher result = optional.orElse(doParamsConversionSplit(targetMatch,goalMatch,assignLevel,bestMatcher,i));
+                if(result != null){
+                    return result;
                 }
             }
-            return true;
+            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
+                    ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
+    }
 
-        private static boolean isAssignable(Class<?> target, Class<?> source) {
-            if (target == source) {
-                return true;
-            }
-            if (target.isArray() && source.isArray()) {
-                return isAssignable(target.getComponentType(), source.getComponentType());
-            }
-            return isAssignablePrivate(target, source);
+
+    private static QLImplicitMatcher doParamsConversionSplit(Class<?>[] targetMatch, Class<?>[] goalMatch,
+                    int assignLevel, QLParametersMatcher bestMatcher, int i){
+        if(targetMatch.length >= goalMatch.length){
+            return null;
         }
-
-        private static boolean isAssignablePrivate(Class<?> target, Class<?> source) {
-            if (target == source) {
-                return true;
-            }
-
-            if (target == null) {
-                return false;
-            }
-
-            if (source == null) {
-                return !target.isPrimitive();
-            }
-
-            if (target.isAssignableFrom(source)) {
-                return true;
-            }
-            if (source.isPrimitive() && target == Object.class) {
-                return true;
-            }
-
-            if (!target.isPrimitive()) {
-                if (target == Byte.class) {
-                    target = byte.class;
-                } else if (target == Short.class) {
-                    target = short.class;
-                } else if (target == Integer.class) {
-                    target = int.class;
-                } else if (target == Long.class) {
-                    target = long.class;
-                } else if (target == Float.class) {
-                    target = float.class;
-                } else if (target == Double.class) {
-                    target = double.class;
+        Class<?>[] mergeTargetMatch = new Class[goalMatch.length];
+        int index = 0;
+        int varsIndex = 0;
+        int length = goalMatch.length - targetMatch.length + 1;
+        for(int j = 0; j < targetMatch.length;j++){
+            Class<?> clazz = targetMatch[j];
+            if(clazz.isArray()){
+                if(clazz == goalMatch[j]){
+                    mergeTargetMatch[index] = clazz;
+                    index++;
+                }else {
+                    Class<?> arrayItemClazz = clazz.getComponentType();
+                    varsIndex = index;
+                    for(int k = 0; k < length; k++,index++){
+                        mergeTargetMatch[index] = arrayItemClazz;
+                    }
                 }
+            }else {
+                mergeTargetMatch[index] = targetMatch[j];
+                index++;
             }
-            if (!source.isPrimitive()) {
-                if (source == Byte.class) {
-                    source = byte.class;
-                } else if (source == Short.class) {
-                    source = short.class;
-                } else if (source == Integer.class) {
-                    source = int.class;
-                } else if (source == Long.class) {
-                    source = long.class;
-                } else if (source == Float.class) {
-                    source = float.class;
-                } else if (source == Double.class) {
-                    source = double.class;
-                }
-            }
-
-            if (target == source) {
-                return true;
-            }
-
-            if ((source == QLambda.class || source.isAssignableFrom(QLambda.class))
-                    && CacheUtil.isFunctionInterface(target)) {
-                return true;
-            }
-
-            for (Class<?>[] classMatch : BasicUtil.CLASS_MATCHES) {
-                if (target == classMatch[0] && source == classMatch[1]) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+        return doParamsConversion(mergeTargetMatch,goalMatch,assignLevel,bestMatcher,i,new QLImplicitVars(true,varsIndex));
+    }
 
+
+    private static QLImplicitMatcher doParamsConversion(Class<?>[] targetMatch, Class<?>[] goalMatch, int assignLevel,
+                                                        QLParametersMatcher bestMatcher, int i, QLImplicitVars needVars){
+        int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
+        if (weight != BasicUtil.DEFAULT_WEIGHT){
+            if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConverter.NOT_MATCH.getWeight()) {
+                bestMatcher.setParametersClassType(targetMatch);
+                bestMatcher.setMatchWeight(weight);
+                bestMatcher.setIndex(i);
+                bestMatcher.setQlImplicitVars(needVars);
+            } else if (weight == bestMatcher.getMatchWeight()) {
+                return new QLImplicitMatcher(false,BasicUtil.DEFAULT_MATCH_INDEX);
+            }
+        }
+        return null;
     }
 
 }

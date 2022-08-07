@@ -19,7 +19,6 @@ public class TestNewInstruction {
     @Test
     public void testNewInstruction() throws Exception{
         ErrorReporter errorReporter = new TestErrorReporter();
-        CacheUtil.initCache(128, true);
         NewInstruction newInstructionForParent0 = new NewInstruction(errorReporter, Parent.class, 0);
         TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
         newInstructionForParent0.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);

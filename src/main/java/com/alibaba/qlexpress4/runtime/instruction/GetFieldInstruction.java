@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.cache.QLFieldCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.member.FieldHandler;
@@ -50,6 +51,16 @@ public class GetFieldInstruction extends QLInstruction {
             if (BasicUtil.CLASS.equals(this.fieldName)) {
                 Value dataClazz = new DataValue(metaClass.getClz());
                 qRuntime.push(dataClazz);
+            } else if(metaClass.getClz().isEnum()){
+                Object[] enums = metaClass.getClz().getEnumConstants();
+                for(Object enumObj: enums){
+                    if(this.fieldName.equals(enumObj.toString())){
+                        Value dataEnum = new DataValue(enumObj);
+                        qRuntime.push(dataEnum);
+                        return QResult.CONTINUE_RESULT;
+                    }
+                }
+                throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get enum from null");
             } else {
                 getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qRuntime);
             }
@@ -86,7 +97,8 @@ public class GetFieldInstruction extends QLInstruction {
      * @param qRuntime
      */
     private void getCacheFieldValue(QLOptions qlOptions, Class<?> clazz, Object bean, QRuntime qRuntime) {
-        CacheFieldValue cacheElement = CacheUtil.getFieldCacheElement(clazz, this.fieldName);
+        QLFieldCache qlFieldCache = qRuntime.getQLCaches().getQlFieldCache();
+        CacheFieldValue cacheElement = CacheUtil.getFieldCacheElement(qlFieldCache, clazz, this.fieldName);
         if (cacheElement == null) {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
@@ -94,7 +106,7 @@ public class GetFieldInstruction extends QLInstruction {
             Value dataField = getDataField(getMethod,setMethod,field,bean,qlOptions.enableAllowAccessPrivateMethod());
             qRuntime.push(dataField);
             CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
-            CacheUtil.setFieldCacheElement(clazz, this.fieldName, cacheFieldValue);
+            CacheUtil.setFieldCacheElement(qlFieldCache, clazz, this.fieldName, cacheFieldValue);
         } else {
             Value dataField = getDataField(cacheElement.getGetMethod(), cacheElement.getSetMethod(),
                     cacheElement.getField(),bean,qlOptions.enableAllowAccessPrivateMethod());
@@ -122,7 +134,7 @@ public class GetFieldInstruction extends QLInstruction {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
         }
         if (setterOp == null) {
-            return new DataValue(getterOp);
+            return new DataValue(getterOp.get());
         }
         return new FieldValue(getterOp, setterOp);
     }

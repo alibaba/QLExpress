@@ -1,18 +1,18 @@
 package com.alibaba.qlexpress4.cache;
 
-
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
 
 /**
  * @Author TaoKan
- * @Date 2022/4/7 下午5:20
+ * @Date 2022/6/26 下午4:45
  */
-public class FieldCacheElement implements ICacheElement<CacheFieldValue> {
+public class QLFieldCache implements IBizCache<CacheFieldValue,QLFieldCache> {
     private ICache<String, CacheFieldValue> FIELD_CACHE = null;
 
     @Override
-    public void initCache(int size, boolean enableUseCacheClear) {
+    public QLFieldCache initCache(int size, boolean enableUseCacheClear) {
         FIELD_CACHE = CacheFactory.cacheBuilder(size, enableUseCacheClear);
+        return this;
     }
 
     @Override

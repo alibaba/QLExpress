@@ -1,16 +1,7 @@
 package com.alibaba.qlexpress4.test.property;
 
-import com.alibaba.qlexpress4.member.MemberHandler;
-import com.alibaba.qlexpress4.member.MethodHandler;
-import com.alibaba.qlexpress4.utils.CacheUtil;
-import com.alibaba.qlexpress4.utils.PropertiesUtil;
-import com.ql.util.express.DefaultContext;
-import com.ql.util.express.ExpressRunner;
-import org.junit.Assert;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
+import com.alibaba.qlexpress4.Express4Runner;
+import com.alibaba.qlexpress4.InitOptions;
 
 /**
  * @Author TaoKan
@@ -19,12 +10,37 @@ import java.util.List;
 
 
 public class TestPropertyUtils {
+
     public static void main(String[] args) throws Exception {
-        ExpressRunner expressRunner = new ExpressRunner();
-        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
-        defaultContext.put("a",Parent.class);
-        Object a = expressRunner.execute("a.staticSetPrivate = \"1\"",defaultContext,null, false, false);
-        System.out.println(a);
+//        ExpressRunner expressRunner = new ExpressRunner();
+//        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
+//        defaultContext.put("a",new Child9());
+//        Object a = expressRunner.execute("return a.addField(1,\"5.5\",\"6\");",defaultContext,null, false, false);
+//        System.out.println(a);
+//         Optional<Integer> targetOp = Optional.ofNullable(1);
+//         System.out.println(targetOp.orElse(3));
+//          Object a = null;
+//          System.out.println(Child7.class.toString());
+//          System.out.println(StringConversion.trans(Child7.class).getCastValue());
+//
+          Express4Runner express4Runner = new Express4Runner(InitOptions.builder().build());
+          Child10 as = new Child10();
+//         express4Runner.addFunction("test", as::setAA);
+//        express4Runner.addFunction("test", (Function<Integer[], Integer>) as::setAAA, Integer.class);
+//        express4Runner.addFunction("test", (QLFunctionalVarargs<Object, Object>) as::setAAAA, String.class,Integer.class);
+//        express4Runner.addFunction("test", as, "setAAAA");
+//        express4Runner.addFunction("test", Math.class, "max");
+
+//        express4Runner.addFunction("test",as::add);
+
+//        BigInteger b = new BigInteger("6");
+//        QLConvertResult q = NumberConversion.trans(b,Integer.class);
+//        System.out.println(q.getCastValue());
+//         Integer a = 5;
+//        Child5 parent = new Child5();
+//
+//          Method method = parent.getClass().getMethod("getMethod8",double.class);
+//        System.out.println(method.invoke(parent,5));
 //        CacheUtil.initCache(128, false);
 //
 //        Child child = new Child();

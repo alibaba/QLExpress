@@ -1,5 +1,8 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
@@ -73,15 +76,30 @@ public class MethodHandler extends MemberHandler {
          * @param methods
          * @return
          */
-        public static Method findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
-            Class<?>[][] candidates = new Class[methods.length][];
+        public static QLImplicitMethod findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
+            QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[methods.length];
+            Method compareMethod = null;
+            int level = 1;
             for (int i = 0; i < methods.length; i++) {
-                candidates[i] = methods[i].getParameterTypes();
+                level += compareLevelOfMethod(compareMethod,methods[i]);
+                compareMethod = methods[i];
+                candidates[i] = new QLCandidateMethodAttr(methods[i].getParameterTypes(),level);
             }
-            int match = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
-            return match == -1 ? null : methods[match];
+            QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
+            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
+                    new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
         }
 
+
+        public static int compareLevelOfMethod(Method before, Method after){
+            if(before == null){
+                return 0;
+            }
+            if(before.getClass().isAssignableFrom(after.getClass())){
+                return 1;
+            }
+            return 0;
+        }
 
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate) {
             return gatherMethodsRecursive(baseClass, methodName, false, null, !isAllowAccessPrivate, false, null);
