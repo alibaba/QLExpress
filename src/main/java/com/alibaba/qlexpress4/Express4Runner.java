@@ -6,15 +6,18 @@ import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.utils.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -55,24 +58,40 @@ public class Express4Runner {
         userDefineFunction.put(name, function);
     }
 
-    public <T,R> void addFunction(String name, QLFunctional<T,R> functional) {
-        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterFunctional(functional)));
+    public <T,R> void addFunction(String name, Function<T,R> function) {
+        addFunction(name,new QFunctionInner(params -> {
+            R result = function.apply((T)params[0]);
+            return new QResult(new DataValue(result,result.getClass()), QResult.ResultType.RETURN);
+        }));
     }
 
     public <T,R> void addFunction(String name, QLFunctionalVarargs<T,R> functionalVarargs, Class<?> type) {
-        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterFunctionalVarargs(functionalVarargs,type)));
+        addFunction(name,new QFunctionInner(params -> {
+            Object array = Array.newInstance(type, params.length);
+            for(int i = 0; i < params.length; i++){
+                Array.set(array, i, params[i]);
+            }
+            R result = functionalVarargs.call((T[])array);
+            return new QResult(new DataValue(result,result.getClass()), QResult.ResultType.RETURN);
+        }));
     }
 
     public <T> void addFunction(String name, Predicate<T> predicate) {
-        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterPredicate(predicate)));
+        addFunction(name,new QFunctionInner(params -> new QResult(new DataValue(predicate.test((T) params[0])),QResult.ResultType.RETURN)));
     }
 
     public void addFunction(String name, Runnable runnable) {
-        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterRunnable(runnable)));
+        addFunction(name,new QFunctionInner(params -> {
+            runnable.run();
+            return new QResult(null,QResult.ResultType.RETURN);
+        }));
     }
 
     public <T> void addFunction(String name, Consumer<T> consumer) {
-        userDefineFunction.put(name, new QFunctionInner(new QLambdaRegisterConsumer(consumer)));
+        addFunction(name,new QFunctionInner(params -> {
+            consumer.accept((T) params[0]);
+            return new QResult(null,QResult.ResultType.RETURN);
+        }));
     }
 
     public void addField(String name, QFunction function) {
