@@ -45,6 +45,12 @@ public class TestSuiteRunner {
         handleDirectory(testSuiteRoot, "");
     }
 
+    @Test
+    public void featureDebug() throws URISyntaxException, IOException {
+        Path filePath = getTestSuiteRoot().resolve("independent/comment/comment.ql");
+        handleFile(filePath, filePath.toString(), true);
+    }
+
     private void handleDirectory(Path dir, String pathPrefix) throws IOException {
         Files.list(dir).forEach(path -> {
             try {
@@ -52,7 +58,7 @@ public class TestSuiteRunner {
                 if (Files.isDirectory(path)) {
                     handleDirectory(path, newPrefix);
                 } else {
-                    handleFile(path, newPrefix);
+                    handleFile(path, newPrefix, false);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -60,10 +66,11 @@ public class TestSuiteRunner {
         });
     }
 
-    private void handleFile(Path qlFile, String path) throws IOException {
+    private void handleFile(Path qlFile, String path, boolean debug) throws IOException {
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
         QLOptions qlOptions = QLOptions.builder()
+                .debug(debug)
                 .attachments(attachments)
                 .build();
 
