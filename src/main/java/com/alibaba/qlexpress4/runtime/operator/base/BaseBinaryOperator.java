@@ -154,6 +154,24 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return NumberMath.rightShiftUnsigned(leftValue, rightValue);
     }
 
+    protected int compare(Value left, Value right, ErrorReporter errorReporter) {
+        if (Objects.equals(left.get(), right.get())) {
+            return 0;
+        }
+
+        // null TODO 参考 groovy
+        if (isSameType(left, right) && isInstanceofComparable(left)) {
+            return ((Comparable)left).compareTo(right);
+        }
+
+        // TODO 两个都实现Comparable接口，参考groovy
+        if (isBothNumbers(left, right)) {
+            return NumberMath.compareTo((Number)left.get(), (Number)right.get());
+        }
+
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
+    }
+
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
         ErrorReporter errorReporter) {
         // 错误码统一规范

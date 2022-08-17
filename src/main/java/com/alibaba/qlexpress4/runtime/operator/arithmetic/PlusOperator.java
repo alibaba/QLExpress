@@ -11,6 +11,11 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class PlusOperator extends BaseBinaryOperator {
+    private static final PlusOperator INSTANCE = new PlusOperator();
+
+    private PlusOperator() {
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return plus(left, right, errorReporter);
@@ -24,5 +29,9 @@ public class PlusOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.ADD;
+    }
+
+    public static PlusOperator getInstance() {
+        return INSTANCE;
     }
 }

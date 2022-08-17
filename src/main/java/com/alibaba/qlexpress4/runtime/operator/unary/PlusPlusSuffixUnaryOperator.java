@@ -11,6 +11,15 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  * @author 冰够
  */
 public class PlusPlusSuffixUnaryOperator extends BaseUnaryOperator {
+    private static final PlusPlusSuffixUnaryOperator INSTANCE = new PlusPlusSuffixUnaryOperator();
+
+    private PlusPlusSuffixUnaryOperator() {
+    }
+
+    public static PlusPlusSuffixUnaryOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return "++";

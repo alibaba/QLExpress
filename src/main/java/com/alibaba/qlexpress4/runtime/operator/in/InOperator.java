@@ -7,12 +7,20 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.EqualOperator;
 
 /**
  * @author 冰够
  */
 public class InOperator extends BaseBinaryOperator {
+    private static final InOperator INSTANCE = new InOperator();
+
+    private InOperator() {
+    }
+
+    public static InOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object rightOperand = right.get();
@@ -24,10 +32,8 @@ public class InOperator extends BaseBinaryOperator {
         }
 
         Collection<?> rightCollection = (Collection<?>)right;
-        // TODO bingo 这样处理？ 抽取公共逻辑
-        EqualOperator equalOperator = new EqualOperator();
         for (Object rightElement : rightCollection) {
-            boolean executeResult = (boolean)equalOperator.execute(left, new DataValue(rightElement), errorReporter);
+            boolean executeResult = compare(left, new DataValue(rightElement), errorReporter) == 0;
             if (executeResult) {
                 return true;
             }

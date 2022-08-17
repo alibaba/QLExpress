@@ -9,6 +9,15 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
  * @author 冰够
  */
 public class LogicNotOperator extends BaseUnaryOperator {
+    private static final LogicNotOperator INSTANCE = new LogicNotOperator();
+
+    private LogicNotOperator() {
+    }
+
+    public static LogicNotOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value value, ErrorReporter errorReporter) {
         Object operand = value.get();

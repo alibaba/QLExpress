@@ -9,6 +9,10 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
+    private static final BitwiseRightShiftUnsignedOperator INSTANCE = new BitwiseRightShiftUnsignedOperator();
+
+    private BitwiseRightShiftUnsignedOperator() {
+    }
     @Override
     public String getOperator() {
         return ">>>";
@@ -22,5 +26,9 @@ public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return rightShiftUnsigned(left, right, errorReporter);
+    }
+
+    public static BitwiseRightShiftUnsignedOperator getInstance() {
+        return INSTANCE;
     }
 }

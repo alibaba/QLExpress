@@ -10,6 +10,11 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  * @author 冰够
  */
 public class BitwiseXorOperator extends BaseBinaryOperator {
+    private static final BitwiseXorOperator INSTANCE = new BitwiseXorOperator();
+
+    private BitwiseXorOperator() {
+    }
+
     @Override
     public String getOperator() {
         return "^";
@@ -30,5 +35,9 @@ public class BitwiseXorOperator extends BaseBinaryOperator {
         Number rightValue = (Number)right.get();
         // TODO 需要统一考虑下NumberMath抛出的异常如何处理
         return NumberMath.xor(leftValue, rightValue);
+    }
+
+    public static BitwiseXorOperator getInstance() {
+        return INSTANCE;
     }
 }

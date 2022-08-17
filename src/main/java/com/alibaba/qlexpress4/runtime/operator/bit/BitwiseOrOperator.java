@@ -9,6 +9,10 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class BitwiseOrOperator extends BaseBinaryOperator {
+    private static final BitwiseOrOperator INSTANCE = new BitwiseOrOperator();
+
+    private BitwiseOrOperator() {
+    }
     @Override
     public String getOperator() {
         return "|";
@@ -22,5 +26,9 @@ public class BitwiseOrOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return bitwiseOr(left, right, errorReporter);
+    }
+
+    public static BitwiseOrOperator getInstance() {
+        return INSTANCE;
     }
 }

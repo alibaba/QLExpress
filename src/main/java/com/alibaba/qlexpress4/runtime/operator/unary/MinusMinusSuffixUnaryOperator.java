@@ -11,6 +11,15 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  * @author 冰够
  */
 public class MinusMinusSuffixUnaryOperator extends BaseUnaryOperator {
+    private static final MinusMinusSuffixUnaryOperator INSTANCE = new MinusMinusSuffixUnaryOperator();
+
+    private MinusMinusSuffixUnaryOperator() {
+    }
+
+    public static MinusMinusSuffixUnaryOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return "--";
@@ -30,7 +39,7 @@ public class MinusMinusSuffixUnaryOperator extends BaseUnaryOperator {
 
         Number result = NumberMath.subtract((Number)operand, 1);
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(result,errorReporter);
+            ((LeftValue)value).set(result, errorReporter);
         }
         return result;
     }

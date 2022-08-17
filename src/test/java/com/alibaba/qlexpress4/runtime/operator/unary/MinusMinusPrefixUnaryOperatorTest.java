@@ -13,7 +13,7 @@ import org.junit.Assert;
 public class MinusMinusPrefixUnaryOperatorTest extends TestCase {
     public void testExecute() {
         ErrorReporter errorReporter = new MockErrorReporter();
-        MinusMinusPrefixUnaryOperator minusMinusPrefixUnaryOperator = new MinusMinusPrefixUnaryOperator();
+        MinusMinusPrefixUnaryOperator minusMinusPrefixUnaryOperator = MinusMinusPrefixUnaryOperator.getInstance();
 
         Value value = new MockValue(10L, null);
         Object result = minusMinusPrefixUnaryOperator.execute(value, errorReporter);

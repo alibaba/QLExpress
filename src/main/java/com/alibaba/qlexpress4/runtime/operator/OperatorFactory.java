@@ -19,6 +19,7 @@ import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
+import com.alibaba.qlexpress4.runtime.operator.in.InOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
@@ -31,60 +32,66 @@ import com.alibaba.qlexpress4.runtime.operator.unary.PlusUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 
 /**
- * Author: DQinYuan
+ * @author 冰够
  */
 public class OperatorFactory {
     /**
      * 获取二元操作符
-     *
+     * TODO: 这个不能是静态方法，需要考虑用户自定义操作符
+     * TODO: 缺少赋值操作符
      * @param operatorLexeme +, =, *, /
      * @return
      */
     public static BinaryOperator getBinaryOperator(String operatorLexeme) {
         switch (operatorLexeme) {
             case "=":
-                return new AssignOperator();
+                return AssignOperator.getInstance();
             case "+":
-                return new PlusOperator();
+                return PlusOperator.getInstance();
             case "-":
-                return new MinusOperator();
+                return MinusOperator.getInstance();
             case "*":
-                return new MultiplyOperator();
+                return MultiplyOperator.getInstance();
             case "/":
-                return new DivideOperator();
+                return DivideOperator.getInstance();
             case "%":
+                return ModOperator.getInstance("%");
             case "mod":
-                return new ModOperator();
+                return ModOperator.getInstance("mod");
             case "&":
-                return new BitwiseAndOperator();
+                return BitwiseAndOperator.getInstance();
             case "|":
-                return new BitwiseOrOperator();
+                return BitwiseOrOperator.getInstance();
             case "^":
-                return new BitwiseXorOperator();
+                return BitwiseXorOperator.getInstance();
             case "<<":
-                return new BitwiseLeftShiftOperator();
+                return BitwiseLeftShiftOperator.getInstance();
             case ">>":
-                return new BitwiseRightShiftOperator();
+                return BitwiseRightShiftOperator.getInstance();
             case ">>>":
-                return new BitwiseRightShiftUnsignedOperator();
+                return BitwiseRightShiftUnsignedOperator.getInstance();
             case "&&":
+                return LogicAndOperator.getInstance("&&");
             case "and":
-                return new LogicAndOperator();
+                return LogicAndOperator.getInstance("and");
             case "||":
+                return LogicOrOperator.getInstance("||");
             case "or":
-                return new LogicOrOperator();
+                return LogicOrOperator.getInstance("or");
             case "==":
-                return new EqualOperator();
+                return EqualOperator.getInstance();
             case "!=":
-                return new UnequalOperator();
+                return UnequalOperator.getInstance();
             case ">":
-                return new GreaterOperator();
+                return GreaterOperator.getInstance();
             case ">=":
-                return new GreaterEqualOperator();
+                return GreaterEqualOperator.getInstance();
             case "<":
-                return new LessOperator();
+                return LessOperator.getInstance();
             case "<=":
-                return new LessEqualOperator();
+                return LessEqualOperator.getInstance();
+            case "in":
+                return InOperator.getInstance();
             default:
                 return null;
         }
@@ -99,17 +106,17 @@ public class OperatorFactory {
     public static UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {
         switch (operatorLexeme) {
             case "+":
-                return new PlusUnaryOperator();
+                return PlusUnaryOperator.getInstance();
             case "-":
-                return new MinusUnaryOperator();
+                return MinusUnaryOperator.getInstance();
             case "++":
-                return new PlusPlusPrefixUnaryOperator();
+                return PlusPlusPrefixUnaryOperator.getInstance();
             case "--":
-                return new MinusMinusPrefixUnaryOperator();
+                return MinusMinusPrefixUnaryOperator.getInstance();
             case "~":
-                return new BitwiseInvertOperator();
+                return BitwiseInvertOperator.getInstance();
             case "!":
-                return new LogicNotOperator();
+                return LogicNotOperator.getInstance();
             default:
                 return null;
         }
@@ -124,9 +131,9 @@ public class OperatorFactory {
     public static UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
         switch (operatorLexeme) {
             case "++":
-                return new PlusPlusSuffixUnaryOperator();
+                return PlusPlusSuffixUnaryOperator.getInstance();
             case "--":
-                return new MinusMinusSuffixUnaryOperator();
+                return MinusMinusSuffixUnaryOperator.getInstance();
             default:
                 return null;
         }

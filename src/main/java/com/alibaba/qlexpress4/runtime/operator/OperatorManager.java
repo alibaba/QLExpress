@@ -24,6 +24,7 @@ import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
+import com.alibaba.qlexpress4.runtime.operator.in.InOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
 
@@ -33,37 +34,39 @@ import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
  * @author 冰够
  */
 public class OperatorManager {
-    private static final Map<String, BinaryOperator> defaultBinaryOperatorMap = new ConcurrentHashMap<>();
+    private static final Map<String, BinaryOperator> DEFAULT_BINARY_OPERATOR_MAP = new ConcurrentHashMap<>();
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
     static {
+        // TODO: 缺少赋值操作符
         List<BinaryOperator> binaryOperatorList = new ArrayList<>(32);
-        binaryOperatorList.add(new AssignOperator());
-        binaryOperatorList.add(new PlusOperator());
-        binaryOperatorList.add(new MinusOperator());
-        binaryOperatorList.add(new MultiplyOperator());
-        binaryOperatorList.add(new DivideOperator());
-        binaryOperatorList.add(new ModOperator());
-        binaryOperatorList.add(new BitwiseAndOperator());
-        binaryOperatorList.add(new BitwiseOrOperator());
-        binaryOperatorList.add(new BitwiseXorOperator());
-        binaryOperatorList.add(new BitwiseLeftShiftOperator());
-        binaryOperatorList.add(new BitwiseRightShiftOperator());
-        binaryOperatorList.add(new BitwiseRightShiftUnsignedOperator());
-        binaryOperatorList.add(new LogicAndOperator());
-        binaryOperatorList.add(new LogicOrOperator());
-        binaryOperatorList.add(new EqualOperator());
-        binaryOperatorList.add(new UnequalOperator());
-        binaryOperatorList.add(new GreaterOperator());
-        binaryOperatorList.add(new GreaterEqualOperator());
-        binaryOperatorList.add(new LessOperator());
-        binaryOperatorList.add(new LessEqualOperator());
+        binaryOperatorList.add(AssignOperator.getInstance());
+        binaryOperatorList.add(PlusOperator.getInstance());
+        binaryOperatorList.add(MinusOperator.getInstance());
+        binaryOperatorList.add(MultiplyOperator.getInstance());
+        binaryOperatorList.add(DivideOperator.getInstance());
+        binaryOperatorList.add(ModOperator.getInstance("%"));
+        binaryOperatorList.add(ModOperator.getInstance("mod"));
+        binaryOperatorList.add(BitwiseAndOperator.getInstance());
+        binaryOperatorList.add(BitwiseOrOperator.getInstance());
+        binaryOperatorList.add(BitwiseXorOperator.getInstance());
+        binaryOperatorList.add(BitwiseLeftShiftOperator.getInstance());
+        binaryOperatorList.add(BitwiseRightShiftOperator.getInstance());
+        binaryOperatorList.add(BitwiseRightShiftUnsignedOperator.getInstance());
+        binaryOperatorList.add(LogicAndOperator.getInstance("&&"));
+        binaryOperatorList.add(LogicAndOperator.getInstance("and"));
+        binaryOperatorList.add(LogicOrOperator.getInstance("||"));
+        binaryOperatorList.add(LogicOrOperator.getInstance("or"));
+        binaryOperatorList.add(EqualOperator.getInstance());
+        binaryOperatorList.add(UnequalOperator.getInstance());
+        binaryOperatorList.add(GreaterOperator.getInstance());
+        binaryOperatorList.add(GreaterEqualOperator.getInstance());
+        binaryOperatorList.add(LessOperator.getInstance());
+        binaryOperatorList.add(LessEqualOperator.getInstance());
+        binaryOperatorList.add(InOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
-            defaultBinaryOperatorMap.put(binaryOperator.getOperator(), binaryOperator);
+            DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
-        defaultBinaryOperatorMap.put("mod", defaultBinaryOperatorMap.get("%"));
-        defaultBinaryOperatorMap.put("and", defaultBinaryOperatorMap.get("&&"));
-        defaultBinaryOperatorMap.put("or", defaultBinaryOperatorMap.get("||"));
     }
 
     public void addOperator(String operator, BinaryOperator binaryOperator) {
@@ -74,8 +77,17 @@ public class OperatorManager {
         Map<String, Integer> operatorPrecedenceMap = new HashMap<>(32);
         customBinaryOperatorMap.forEach(
             (operator, binaryOperator) -> operatorPrecedenceMap.putIfAbsent(operator, binaryOperator.getPriority()));
-        defaultBinaryOperatorMap.forEach(
+        DEFAULT_BINARY_OPERATOR_MAP.forEach(
             (operator, binaryOperator) -> operatorPrecedenceMap.putIfAbsent(operator, binaryOperator.getPriority()));
         return operatorPrecedenceMap;
+    }
+
+    public BinaryOperator getBinaryOperator(String operatorLexeme) {
+        BinaryOperator customBinaryOperator = customBinaryOperatorMap.get(operatorLexeme);
+        if (customBinaryOperator != null) {
+            return customBinaryOperator;
+        }
+
+        return DEFAULT_BINARY_OPERATOR_MAP.get(operatorLexeme);
     }
 }

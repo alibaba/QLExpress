@@ -10,6 +10,15 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class AssignOperator extends BaseBinaryOperator {
+    private static final AssignOperator INSTANCE = new AssignOperator();
+
+    private AssignOperator() {
+    }
+
+    public static AssignOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
