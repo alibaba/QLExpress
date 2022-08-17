@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.runtime.operator.assign.AssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseInvertOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseLeftShiftOperator;
+import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseOrOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorOperator;
@@ -57,7 +58,7 @@ public class OperatorFactory {
             case "&":
                 return new BitwiseAndOperator();
             case "|":
-                return new BitwiseAndOperator();
+                return new BitwiseOrOperator();
             case "^":
                 return new BitwiseXorOperator();
             case "<<":
