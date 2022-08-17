@@ -2,10 +2,8 @@ package com.alibaba.qlexpress4.runtime.operator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideOperator;
@@ -79,17 +77,5 @@ public class OperatorManager {
         defaultBinaryOperatorMap.forEach(
             (operator, binaryOperator) -> operatorPrecedenceMap.putIfAbsent(operator, binaryOperator.getPriority()));
         return operatorPrecedenceMap;
-    }
-
-    /**
-     * TODO 一元操作符？
-     *
-     * @return
-     */
-    public Set<String> getOperatorSet() {
-        Set<String> operatorSet = new HashSet<>();
-        operatorSet.addAll(customBinaryOperatorMap.keySet());
-        operatorSet.addAll(defaultBinaryOperatorMap.keySet());
-        return operatorSet;
     }
 }
