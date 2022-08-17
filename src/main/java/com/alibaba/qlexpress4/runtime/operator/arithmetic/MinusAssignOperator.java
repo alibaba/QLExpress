@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.runtime.operator.assign;
+package com.alibaba.qlexpress4.runtime.operator.arithmetic;
 
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
@@ -9,19 +9,20 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 /**
  * @author 冰够
  */
-public class AssignOperator extends BaseBinaryOperator {
+public class MinusAssignOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object newValue = right.get();
-        leftValue.setInner(newValue);
-        return newValue;
+        Object result = minus(left, right, errorReporter);
+        leftValue.set(result, errorReporter);
+        // TODO: return result or leftValue
+        return result;
     }
 
     @Override
     public String getOperator() {
-        return "=";
+        return "-=";
     }
 
     @Override

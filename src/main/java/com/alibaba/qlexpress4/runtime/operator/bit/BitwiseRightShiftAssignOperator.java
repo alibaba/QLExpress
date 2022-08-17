@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.runtime.operator.assign;
+package com.alibaba.qlexpress4.runtime.operator.bit;
 
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
@@ -9,21 +9,20 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 /**
  * @author 冰够
  */
-public class PlusAssignOperator extends BaseBinaryOperator {
+public class BitwiseRightShiftAssignOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
-        // TODO left 是否是LeftValue
+        assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        // TODO bingo parse阶段实现？不然我的new PlusOperator，然后把left和right传入进行计算
-        //int newValue = left.get() + right.get();
-        //leftValue.set(newValue);
-        //return newValue;
-        return null;
+        Object result = rightShift(left, right, errorReporter);
+        leftValue.set(result, errorReporter);
+        // TODO: return result or leftValue
+        return result;
     }
 
     @Override
     public String getOperator() {
-        return "+=";
+        return ">>=";
     }
 
     @Override

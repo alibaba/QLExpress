@@ -4,7 +4,6 @@ import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
  * @author 冰够
@@ -12,18 +11,7 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 public class DivideOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
-        Object leftValue = left.get();
-        Object rightValue = right.get();
-
-        if (isBothNumbers(left, right)) {
-            try {
-                return NumberMath.divide((Number)leftValue, (Number)rightValue);
-            } catch (ArithmeticException arithmeticException) {
-                throw errorReporter.report("INVALID_ARITHMETIC", arithmeticException.getMessage());
-            }
-        }
-
-        throw buildInvalidOperandTypeException(left, right, errorReporter);
+        return divide(left, right, errorReporter);
     }
 
     @Override
