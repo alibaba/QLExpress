@@ -14,6 +14,10 @@ public class BitwiseRightShiftOperator extends BaseBinaryOperator {
     private BitwiseRightShiftOperator() {
     }
 
+    public static BitwiseRightShiftOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return ">>";
@@ -27,9 +31,5 @@ public class BitwiseRightShiftOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return rightShift(left, right, errorReporter);
-    }
-
-    public static BitwiseRightShiftOperator getInstance() {
-        return INSTANCE;
     }
 }

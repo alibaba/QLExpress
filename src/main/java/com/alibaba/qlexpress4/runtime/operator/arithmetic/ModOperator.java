@@ -25,6 +25,10 @@ public class ModOperator extends BaseBinaryOperator {
         this.operator = operator;
     }
 
+    public static ModOperator getInstance(String operator) {
+        return INSTANCE_CACHE.get(operator);
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return mod(left, right, errorReporter);
@@ -38,9 +42,5 @@ public class ModOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.MULTI;
-    }
-
-    public static ModOperator getInstance(String operator) {
-        return INSTANCE_CACHE.get(operator);
     }
 }

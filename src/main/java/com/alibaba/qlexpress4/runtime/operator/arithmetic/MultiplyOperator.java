@@ -14,6 +14,10 @@ public class MultiplyOperator extends BaseBinaryOperator {
     private MultiplyOperator() {
     }
 
+    public static MultiplyOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return multiply(left, right, errorReporter);
@@ -27,9 +31,5 @@ public class MultiplyOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.MULTI;
-    }
-
-    public static MultiplyOperator getInstance() {
-        return INSTANCE;
     }
 }

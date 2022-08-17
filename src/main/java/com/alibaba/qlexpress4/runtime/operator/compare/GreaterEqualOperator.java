@@ -14,6 +14,10 @@ public class GreaterEqualOperator extends BaseBinaryOperator {
     private GreaterEqualOperator() {
     }
 
+    public static GreaterEqualOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return ">=";
@@ -22,10 +26,6 @@ public class GreaterEqualOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.COMPARE;
-    }
-
-    public static GreaterEqualOperator getInstance() {
-        return INSTANCE;
     }
 
     @Override

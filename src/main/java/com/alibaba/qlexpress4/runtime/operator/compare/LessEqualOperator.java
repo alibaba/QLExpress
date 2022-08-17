@@ -14,6 +14,10 @@ public class LessEqualOperator extends BaseBinaryOperator {
     private LessEqualOperator() {
     }
 
+    public static LessEqualOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return "<=";
@@ -22,10 +26,6 @@ public class LessEqualOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.COMPARE;
-    }
-
-    public static LessEqualOperator getInstance() {
-        return INSTANCE;
     }
 
     @Override

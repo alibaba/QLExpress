@@ -39,6 +39,7 @@ public class OperatorFactory {
      * 获取二元操作符
      * TODO: 这个不能是静态方法，需要考虑用户自定义操作符
      * TODO: 缺少赋值操作符
+     *
      * @param operatorLexeme +, =, *, /
      * @return
      */

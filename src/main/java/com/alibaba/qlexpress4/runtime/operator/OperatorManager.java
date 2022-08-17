@@ -35,7 +35,6 @@ import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
  */
 public class OperatorManager {
     private static final Map<String, BinaryOperator> DEFAULT_BINARY_OPERATOR_MAP = new ConcurrentHashMap<>();
-    private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
     static {
         // TODO: 缺少赋值操作符
@@ -68,6 +67,8 @@ public class OperatorManager {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
     }
+
+    private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
     public void addOperator(String operator, BinaryOperator binaryOperator) {
         customBinaryOperatorMap.put(operator, binaryOperator);

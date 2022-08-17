@@ -14,6 +14,10 @@ public class BitwiseAndOperator extends BaseBinaryOperator {
     private BitwiseAndOperator() {
     }
 
+    public static BitwiseAndOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return "&";
@@ -27,9 +31,5 @@ public class BitwiseAndOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return bitwiseAnd(left, right, errorReporter);
-    }
-
-    public static BitwiseAndOperator getInstance() {
-        return INSTANCE;
     }
 }

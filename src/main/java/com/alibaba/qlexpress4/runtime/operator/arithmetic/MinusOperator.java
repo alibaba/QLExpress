@@ -14,6 +14,10 @@ public class MinusOperator extends BaseBinaryOperator {
     private MinusOperator() {
     }
 
+    public static MinusOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return minus(left, right, errorReporter);
@@ -27,9 +31,5 @@ public class MinusOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.ADD;
-    }
-
-    public static MinusOperator getInstance() {
-        return INSTANCE;
     }
 }

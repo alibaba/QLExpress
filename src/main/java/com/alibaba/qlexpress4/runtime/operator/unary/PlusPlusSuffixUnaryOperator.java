@@ -39,7 +39,7 @@ public class PlusPlusSuffixUnaryOperator extends BaseUnaryOperator {
 
         Number result = NumberMath.add((Number)operand, 1);
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(result,errorReporter);
+            ((LeftValue)value).set(result, errorReporter);
         }
         return result;
     }

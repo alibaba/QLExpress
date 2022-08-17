@@ -13,6 +13,11 @@ public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
 
     private BitwiseRightShiftUnsignedOperator() {
     }
+
+    public static BitwiseRightShiftUnsignedOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return ">>>";
@@ -26,9 +31,5 @@ public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return rightShiftUnsigned(left, right, errorReporter);
-    }
-
-    public static BitwiseRightShiftUnsignedOperator getInstance() {
-        return INSTANCE;
     }
 }

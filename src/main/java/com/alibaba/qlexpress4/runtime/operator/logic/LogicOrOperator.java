@@ -29,6 +29,10 @@ public class LogicOrOperator extends BaseBinaryOperator {
         this.operator = operator;
     }
 
+    public static LogicOrOperator getInstance(String operator) {
+        return INSTANCE_CACHE.get(operator);
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object leftValue = left.get();
@@ -57,9 +61,5 @@ public class LogicOrOperator extends BaseBinaryOperator {
     @Override
     public int getPriority() {
         return QLPrecedences.OR;
-    }
-
-    public static LogicOrOperator getInstance(String operator) {
-        return INSTANCE_CACHE.get(operator);
     }
 }

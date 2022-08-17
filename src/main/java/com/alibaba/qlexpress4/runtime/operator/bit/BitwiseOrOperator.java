@@ -13,6 +13,11 @@ public class BitwiseOrOperator extends BaseBinaryOperator {
 
     private BitwiseOrOperator() {
     }
+
+    public static BitwiseOrOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public String getOperator() {
         return "|";
@@ -26,9 +31,5 @@ public class BitwiseOrOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         return bitwiseOr(left, right, errorReporter);
-    }
-
-    public static BitwiseOrOperator getInstance() {
-        return INSTANCE;
     }
 }
