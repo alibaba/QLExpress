@@ -121,6 +121,17 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return NumberMath.or(leftValue, rightValue);
     }
 
+    protected Object bitwiseXor(Value left, Value right, ErrorReporter errorReporter) {
+        if (!isBothNumbers(left, right)) {
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        }
+
+        Number leftValue = (Number)left.get();
+        Number rightValue = (Number)right.get();
+        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+        return NumberMath.xor(leftValue, rightValue);
+    }
+
     protected Object leftShift(Value left, Value right, ErrorReporter errorReporter) {
         if (!isBothNumbers(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);

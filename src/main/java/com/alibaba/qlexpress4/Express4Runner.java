@@ -1,27 +1,44 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.cache.*;
-import com.alibaba.qlexpress4.parser.*;
-import com.alibaba.qlexpress4.parser.Scanner;
-import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.lambda.*;
-import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
-import com.alibaba.qlexpress4.utils.*;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import com.alibaba.qlexpress4.cache.QLConstructorCache;
+import com.alibaba.qlexpress4.cache.QLFieldCache;
+import com.alibaba.qlexpress4.cache.QLMethodCache;
+import com.alibaba.qlexpress4.cache.QLMethodInvokeCache;
+import com.alibaba.qlexpress4.cache.QLScriptCache;
+import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.parser.AstPrinter;
+import com.alibaba.qlexpress4.parser.GeneratorScope;
+import com.alibaba.qlexpress4.parser.ImportManager;
+import com.alibaba.qlexpress4.parser.QLParser;
+import com.alibaba.qlexpress4.parser.QvmInstructionGenerator;
+import com.alibaba.qlexpress4.parser.Scanner;
+import com.alibaba.qlexpress4.parser.tree.Program;
+import com.alibaba.qlexpress4.runtime.QFunction;
+import com.alibaba.qlexpress4.runtime.QFunctionInner;
+import com.alibaba.qlexpress4.runtime.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
+import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.QvmRootRuntime;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
+import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.utils.PropertiesUtil;
+import com.alibaba.qlexpress4.utils.QLFieldUtil;
+import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 
 /**
  * Author: DQinYuan
@@ -174,7 +191,7 @@ public class Express4Runner {
             program.accept(astPrinter, null);
         }
 
-        QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator("", script);
+        QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
         QRuntime rootRuntime = new QvmRootRuntime(context, userDefineFunction,
             qlOptions.getAttachments(), qlOptions.isPolluteUserContext(), System.currentTimeMillis());

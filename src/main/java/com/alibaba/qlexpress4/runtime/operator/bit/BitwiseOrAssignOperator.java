@@ -10,19 +10,27 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class BitwiseOrAssignOperator extends BaseBinaryOperator {
+    private static final BitwiseOrAssignOperator INSTANCE = new BitwiseOrAssignOperator();
+
+    private BitwiseOrAssignOperator() {
+    }
+
+    public static BitwiseOrAssignOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
         Object result = bitwiseOr(left, right, errorReporter);
         leftValue.set(result, errorReporter);
-        // TODO: return result or leftValue
         return result;
     }
 
     @Override
     public String getOperator() {
-        return "&=";
+        return "|=";
     }
 
     @Override

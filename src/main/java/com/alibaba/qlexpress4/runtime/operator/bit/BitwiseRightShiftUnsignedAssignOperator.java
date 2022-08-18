@@ -10,13 +10,22 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class BitwiseRightShiftUnsignedAssignOperator extends BaseBinaryOperator {
+    private static final BitwiseRightShiftUnsignedAssignOperator INSTANCE
+        = new BitwiseRightShiftUnsignedAssignOperator();
+
+    private BitwiseRightShiftUnsignedAssignOperator() {
+    }
+
+    public static BitwiseRightShiftUnsignedAssignOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
         Object result = rightShiftUnsigned(left, right, errorReporter);
         leftValue.set(result, errorReporter);
-        // TODO: return result or leftValue
         return result;
     }
 
