@@ -30,15 +30,15 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QFunction function = qRuntime.getFunction(functionName);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        QFunction function = qContext.getFunction(functionName);
         if (function == null) {
-            callLambda(qRuntime);
+            callLambda(qContext);
             return QResult.CONTINUE_RESULT;
         }
-        Parameters parameters = qRuntime.pop(argNum);
+        Parameters parameters = qContext.pop(argNum);
         try {
-            qRuntime.push(new DataValue(function.call(qRuntime, parameters)));
+            qContext.push(new DataValue(function.call(qContext, parameters)));
             return QResult.CONTINUE_RESULT;
         } catch (UserDefineException e) {
             throw errorReporter.report("CALL_FUNCTION_BIZ_EXCEPTION", e.getMessage());
@@ -48,20 +48,20 @@ public class CallFunctionInstruction extends QLInstruction {
         }
     }
 
-    private void callLambda(QRuntime qRuntime) {
-        Object lambdaSymbol = qRuntime.getSymbolValue(functionName);
+    private void callLambda(QContext qContext) {
+        Object lambdaSymbol = qContext.getSymbolValue(functionName);
         if (!(lambdaSymbol instanceof QLambda)) {
             throw errorReporter.report("CAN_NOT_FIND_FUNCTION", "can not find function %s",
                     functionName);
         }
-        Parameters parameters = qRuntime.pop(argNum);
+        Parameters parameters = qContext.pop(argNum);
         Object[] parametersArr = new Object[parameters.size()];
         for (int i = 0; i < parametersArr.length; i++) {
             parametersArr[i] = parameters.get(i);
         }
         try {
             Value resultValue = ((QLambda) lambdaSymbol).call(parametersArr).getResult();
-            qRuntime.push(ValueUtils.toImmutable(resultValue));
+            qContext.push(ValueUtils.toImmutable(resultValue));
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");

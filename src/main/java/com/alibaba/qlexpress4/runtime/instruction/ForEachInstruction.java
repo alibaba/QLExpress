@@ -25,14 +25,14 @@ public class ForEachInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object mayBeIterable = qRuntime.pop().get();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Object mayBeIterable = qContext.pop().get();
         if (!(mayBeIterable instanceof Iterable)) {
             throw errorReporter.report("FOR_EACH_NOT_ITERABLE",
                     "for-each can only be applied to iterable");
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;
-        QLambda bodyLambda = body.toLambda(qRuntime, qlOptions, true);
+        QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
         forEachBody:
         for (Object item : iterable) {
             try {

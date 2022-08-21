@@ -38,37 +38,37 @@ public class GetFieldInstruction extends QLInstruction {
 
     @SuppressWarnings("unchecked")
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object bean = qRuntime.pop().get();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Object bean = qContext.pop().get();
         if (bean == null) {
             throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field from null");
         }
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(this.fieldName)) {
             Value dataArray = new DataValue(((Object[]) bean).length);
-            qRuntime.push(dataArray);
+            qContext.push(dataArray);
         } else if (bean instanceof MetaClass) {
             MetaClass metaClass = (MetaClass) bean;
             if (BasicUtil.CLASS.equals(this.fieldName)) {
                 Value dataClazz = new DataValue(metaClass.getClz());
-                qRuntime.push(dataClazz);
+                qContext.push(dataClazz);
             } else if(metaClass.getClz().isEnum()){
                 Object[] enums = metaClass.getClz().getEnumConstants();
                 for(Object enumObj: enums){
                     if(this.fieldName.equals(enumObj.toString())){
                         Value dataEnum = new DataValue(enumObj);
-                        qRuntime.push(dataEnum);
+                        qContext.push(dataEnum);
                         return QResult.CONTINUE_RESULT;
                     }
                 }
                 throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get enum from null");
             } else {
-                getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qRuntime);
+                getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qContext);
             }
         } else if (bean instanceof Map) {
             LeftValue dataMap = new MapItemValue((Map<?, ?>) bean, this.fieldName);
-            qRuntime.push(dataMap);
+            qContext.push(dataMap);
         } else {
-            getCacheFieldValue(qlOptions, bean.getClass(), bean, qRuntime);
+            getCacheFieldValue(qlOptions, bean.getClass(), bean, qContext);
         }
         return QResult.CONTINUE_RESULT;
     }
@@ -94,23 +94,23 @@ public class GetFieldInstruction extends QLInstruction {
      * @param qlOptions
      * @param clazz
      * @param bean
-     * @param qRuntime
+     * @param qContext
      */
-    private void getCacheFieldValue(QLOptions qlOptions, Class<?> clazz, Object bean, QRuntime qRuntime) {
-        QLFieldCache qlFieldCache = qRuntime.getQLCaches().getQlFieldCache();
+    private void getCacheFieldValue(QLOptions qlOptions, Class<?> clazz, Object bean, QContext qContext) {
+        QLFieldCache qlFieldCache = qContext.getQLCaches().getQlFieldCache();
         CacheFieldValue cacheElement = CacheUtil.getFieldCacheElement(qlFieldCache, clazz, this.fieldName);
         if (cacheElement == null) {
             Method getMethod = MethodHandler.getGetter(clazz, this.fieldName);
             Method setMethod = MethodHandler.getSetter(clazz, this.fieldName);
             Field field = FieldHandler.Preferred.gatherFieldRecursive(clazz, this.fieldName);
             Value dataField = getDataField(getMethod,setMethod,field,bean,qlOptions.enableAllowAccessPrivateMethod());
-            qRuntime.push(dataField);
+            qContext.push(dataField);
             CacheFieldValue cacheFieldValue = new CacheFieldValue(getMethod, setMethod, field);
             CacheUtil.setFieldCacheElement(qlFieldCache, clazz, this.fieldName, cacheFieldValue);
         } else {
             Value dataField = getDataField(cacheElement.getGetMethod(), cacheElement.getSetMethod(),
                     cacheElement.getField(),bean,qlOptions.enableAllowAccessPrivateMethod());
-            qRuntime.push(dataField);
+            qContext.push(dataField);
         }
     }
 

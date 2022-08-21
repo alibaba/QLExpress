@@ -37,9 +37,9 @@ public class TryCatchInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QResult tryCatchResult = tryCatchResult(qRuntime, qlOptions);
-        QResult finalResult = finalResult(qRuntime, qlOptions);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        QResult tryCatchResult = tryCatchResult(qContext, qlOptions);
+        QResult finalResult = finalResult(qContext, qlOptions);
         if (finalResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
             return finalResult;
         }
@@ -47,7 +47,7 @@ public class TryCatchInstruction extends QLInstruction {
             return tryCatchResult;
         }
         Value resultValue = finalBody == null? tryCatchResult.getResult(): finalResult.getResult();
-        qRuntime.push(ValueUtils.toImmutable(resultValue));
+        qContext.push(ValueUtils.toImmutable(resultValue));
         return QResult.CONTINUE_RESULT;
     }
 
@@ -73,11 +73,11 @@ public class TryCatchInstruction extends QLInstruction {
         finalBody.println(depth+1, debug);
     }
 
-    private QResult finalResult(QRuntime qRuntime, QLOptions qlOptions) {
+    private QResult finalResult(QContext qContext, QLOptions qlOptions) {
         if (finalBody == null) {
             return QResult.CONTINUE_RESULT;
         }
-        QLambda finalLambda = finalBody.toLambda(qRuntime, qlOptions, true);
+        QLambda finalLambda = finalBody.toLambda(qContext, qlOptions, true);
         try {
             return finalLambda.call();
         } catch (Exception e) {
@@ -86,9 +86,9 @@ public class TryCatchInstruction extends QLInstruction {
         }
     }
 
-    private QResult tryCatchResult(QRuntime qRuntime, QLOptions qlOptions) {
+    private QResult tryCatchResult(QContext qContext, QLOptions qlOptions) {
         try {
-            QLambda bodyLambda = body.toLambda(qRuntime, qlOptions, true);
+            QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
             return bodyLambda.call();
         } catch (QLRuntimeException e) {
             Optional<QLambdaDefinition> exceptionHandlerOp = Optional.ofNullable(e.getAttachment())
@@ -97,7 +97,7 @@ public class TryCatchInstruction extends QLInstruction {
                 throw e;
             }
             QLambda catchHandlerLambda = exceptionHandlerOp.get()
-                    .toLambda(qRuntime, qlOptions, true);
+                    .toLambda(qContext, qlOptions, true);
 
             Object attachment = e.getAttachment();
             try {

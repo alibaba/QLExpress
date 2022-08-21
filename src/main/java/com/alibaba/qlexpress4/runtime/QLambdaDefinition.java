@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  */
 public interface QLambdaDefinition {
 
-    QLambda toLambda(QRuntime qRuntime, QLOptions qlOptions,
+    QLambda toLambda(QContext qContext, QLOptions qlOptions,
                             boolean newEnv);
 
     void println(int depth, Consumer<String> debug);

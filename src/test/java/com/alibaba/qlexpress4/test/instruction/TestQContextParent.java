@@ -10,7 +10,7 @@ import java.util.Map;
  * @Author TaoKan
  * @Date 2022/5/15 上午11:03
  */
-public class TestQRuntimeParent implements QRuntime {
+public class TestQContextParent implements QContext {
     private Value value;
     private Parameters parameters;
 
@@ -78,11 +78,6 @@ public class TestQRuntimeParent implements QRuntime {
     }
 
     @Override
-    public boolean isPopulate() {
-        return true;
-    }
-
-    @Override
     public Map<String, Object> attachment() {
         return null;
     }
@@ -91,12 +86,10 @@ public class TestQRuntimeParent implements QRuntime {
     public QLCaches getQLCaches() {
         int size = 128;
         boolean enableUseCacheClear = false;
-        QLCaches qlCaches = new QLCaches();
-        qlCaches.setQlConstructorCache(CacheUtil.initConstructorCache(size,enableUseCacheClear));
-        qlCaches.setQlFieldCache(CacheUtil.initFieldCache(size,enableUseCacheClear));
-        qlCaches.setQlMethodCache(CacheUtil.initMethodCache(size,enableUseCacheClear));
-        qlCaches.setQlMethodInvokeCache(CacheUtil.initMethodInvokeCache(size,enableUseCacheClear));
-        qlCaches.setQlScriptCache(CacheUtil.initScriptCache(size,true));
-        return qlCaches;
+        return new QLCaches(CacheUtil.initConstructorCache(size,enableUseCacheClear),
+                CacheUtil.initFieldCache(size,enableUseCacheClear),
+                CacheUtil.initMethodCache(size,enableUseCacheClear),
+                CacheUtil.initMethodInvokeCache(size,enableUseCacheClear),
+                CacheUtil.initScriptCache(size,true));
     }
 }

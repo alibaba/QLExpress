@@ -25,9 +25,9 @@ public class LoadLambdaInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QLambda lambdaInstance = lambdaDefinition.toLambda(qRuntime, qlOptions, true);
-        qRuntime.push(new DataValue(lambdaInstance));
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        QLambda lambdaInstance = lambdaDefinition.toLambda(qContext, qlOptions, true);
+        qContext.push(new DataValue(lambdaInstance));
         return QResult.CONTINUE_RESULT;
     }
 

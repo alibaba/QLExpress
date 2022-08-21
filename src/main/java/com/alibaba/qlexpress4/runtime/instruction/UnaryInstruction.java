@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
@@ -28,10 +28,10 @@ public class UnaryInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Value value = qRuntime.pop();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Value value = qContext.pop();
         Object result = unaryOperator.execute(value, errorReporter);
-        qRuntime.push(new DataValue(result));
+        qContext.push(new DataValue(result));
         return QResult.CONTINUE_RESULT;
     }
 

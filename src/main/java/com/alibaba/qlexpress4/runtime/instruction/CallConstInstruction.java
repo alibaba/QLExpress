@@ -26,14 +26,14 @@ public class CallConstInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QLambda lambda = constLambda.toLambda(qRuntime, qlOptions, true);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        QLambda lambda = constLambda.toLambda(qContext, qlOptions, true);
         try {
             QResult result = lambda.call();
             if (QResult.ResultType.CASCADE_RETURN == result.getResultType()) {
                 return result;
             }
-            qRuntime.push(ValueUtils.toImmutable(result.getResult()));
+            qContext.push(ValueUtils.toImmutable(result.getResult()));
             return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");

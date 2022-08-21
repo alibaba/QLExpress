@@ -2,10 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.LeftValue;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -27,8 +24,8 @@ public class LoadInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        qRuntime.push(getOrCreateSymbol(qRuntime));
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        qContext.push(getOrCreateSymbol(qContext));
         return QResult.CONTINUE_RESULT;
     }
 
@@ -47,10 +44,10 @@ public class LoadInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "Load " + name, debug);
     }
 
-    private Value getOrCreateSymbol(QRuntime qRuntime) {
-        Value symbol = qRuntime.getSymbol(name);
+    private Value getOrCreateSymbol(QContext qContext) {
+        Value symbol = qContext.getSymbol(name);
         if (symbol == null) {
-            symbol = qRuntime.defineSymbol(name, Object.class);
+            symbol = qContext.defineSymbol(name, Object.class);
         }
         return symbol;
     }

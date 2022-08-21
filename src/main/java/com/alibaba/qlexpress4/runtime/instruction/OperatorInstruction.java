@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
@@ -28,11 +28,11 @@ public class OperatorInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Value rightValue = qRuntime.pop();
-        Value leftValue = qRuntime.pop();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Value rightValue = qContext.pop();
+        Value leftValue = qContext.pop();
         Object result = operator.execute(leftValue, rightValue, errorReporter);
-        qRuntime.push(new DataValue(result));
+        qContext.push(new DataValue(result));
         return QResult.CONTINUE_RESULT;
     }
 

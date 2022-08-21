@@ -28,11 +28,11 @@ public class WhileInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         whileBody:
-        while (evalCondition(qRuntime, qlOptions)) {
+        while (evalCondition(qContext, qlOptions)) {
             try {
-                QLambda bodyLambda = body.toLambda(qRuntime, qlOptions, true);
+                QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
                 QResult bodyResult = bodyLambda.call();
                 switch (bodyResult.getResultType()) {
                     case CASCADE_RETURN:
@@ -65,9 +65,9 @@ public class WhileInstruction extends QLInstruction {
         body.println(depth+1, debug);
     }
 
-    private boolean evalCondition(QRuntime qRuntime, QLOptions qlOptions) {
+    private boolean evalCondition(QContext qContext, QLOptions qlOptions) {
         try {
-            QLambda conditionLambda = condition.toLambda(qRuntime, qlOptions, false);
+            QLambda conditionLambda = condition.toLambda(qContext, qlOptions, false);
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
                 throw errorReporter.report("WHILE_CONDITION_NOT_BOOL",

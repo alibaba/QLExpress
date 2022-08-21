@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
 import com.alibaba.qlexpress4.runtime.data.ListItemValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
@@ -28,19 +28,19 @@ public class IndexInstruction extends QLInstruction {
 
     @SuppressWarnings("unchecked")
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object index = qRuntime.pop().get();
-        Object indexAble = qRuntime.pop().get();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Object index = qContext.pop().get();
+        Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
             Integer indexInt = assertType(index, Integer.class, "LIST_INVALID_INDEX",
                     "list can only be indexed by int");
-            qRuntime.push(new ListItemValue((List<? super Object>) indexAble, indexInt));
+            qContext.push(new ListItemValue((List<? super Object>) indexAble, indexInt));
         } else if (indexAble instanceof Map) {
-            qRuntime.push(new MapItemValue((Map<?, ?>) indexAble, index));
+            qContext.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             Integer indexInt = assertType(index, Integer.class, "ARRAY_INVALID_INDEX",
                     "array can only be indexed by int");
-            qRuntime.push(new ArrayItemValue(indexAble, indexInt));
+            qContext.push(new ArrayItemValue(indexAble, indexInt));
         } else {
             throw errorReporter.report("INVALID_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());

@@ -17,7 +17,7 @@ public class ConstLambdaDefinition implements QLambdaDefinition {
     }
 
     @Override
-    public QLambda toLambda(QRuntime qRuntime, QLOptions qlOptions, boolean newEnv) {
+    public QLambda toLambda(QContext qContext, QLOptions qlOptions, boolean newEnv) {
         return new ConstLambda(constValue);
     }
 

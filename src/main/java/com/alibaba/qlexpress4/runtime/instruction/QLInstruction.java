@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 
 import java.util.function.Consumer;
 
@@ -24,7 +24,7 @@ public abstract class QLInstruction {
         this.errorReporter = errorReporter;
     }
 
-    public abstract QResult execute(QRuntime qRuntime, QLOptions qlOptions);
+    public abstract QResult execute(QContext qContext, QLOptions qlOptions);
 
     /**
      * @return input size

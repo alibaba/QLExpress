@@ -33,8 +33,8 @@ public class IfInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object condition = qRuntime.pop().get();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Object condition = qContext.pop().get();
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("IF_CONDITION_NOT_BOOL",
                     "if condition expression result must be bool");
@@ -42,11 +42,11 @@ public class IfInstruction extends QLInstruction {
         boolean conditionBool = (boolean) condition;
         QLambdaDefinition bodyDefinition = conditionBool? thenBody: elseBody;
         if (bodyDefinition == null) {
-            qRuntime.push(Value.NULL_VALUE);
+            qContext.push(Value.NULL_VALUE);
             return QResult.CONTINUE_RESULT;
         }
-        QLambda lambda = bodyDefinition.toLambda(qRuntime, qlOptions, newEnv);
-        return callBody(qRuntime, lambda);
+        QLambda lambda = bodyDefinition.toLambda(qContext, qlOptions, newEnv);
+        return callBody(qContext, lambda);
     }
 
     @Override
@@ -72,13 +72,13 @@ public class IfInstruction extends QLInstruction {
         }
     }
 
-    private QResult callBody(QRuntime qRuntime, QLambda target) {
+    private QResult callBody(QContext qContext, QLambda target) {
         try {
             QResult ifResult = target.call();
             if (ifResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
                 return ifResult;
             }
-            qRuntime.push(ValueUtils.toImmutable(ifResult.getResult()));
+            qContext.push(ValueUtils.toImmutable(ifResult.getResult()));
             return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,

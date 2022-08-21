@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -26,11 +26,11 @@ public class CastInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Object value = qRuntime.pop().get();
-        Class<?> targetClz = (Class<?>) qRuntime.pop().get();
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Object value = qContext.pop().get();
+        Class<?> targetClz = (Class<?>) qContext.pop().get();
         if (value == null) {
-            qRuntime.push(Value.NULL_VALUE);
+            qContext.push(Value.NULL_VALUE);
             return QResult.CONTINUE_RESULT;
         }
         QLConvertResult result = InstanceConversion.castObject(value, targetClz);
@@ -38,7 +38,7 @@ public class CastInstruction extends QLInstruction {
             throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this class");
         }
         Value dataCast = new DataValue(result.getCastValue());
-        qRuntime.push(dataCast);
+        qContext.push(dataCast);
         return QResult.CONTINUE_RESULT;
     }
 

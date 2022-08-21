@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
@@ -26,8 +26,8 @@ public class ReturnInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        return new QResult(new DataValue(qRuntime.pop()), resultType);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        return new QResult(new DataValue(qContext.pop()), resultType);
     }
 
     @Override

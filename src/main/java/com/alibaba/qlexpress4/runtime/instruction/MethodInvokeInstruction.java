@@ -10,7 +10,6 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
-import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
@@ -41,8 +40,8 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(this.argNum + 1);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Class<?>[] type = new Class[this.argNum];
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
@@ -54,7 +53,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         if (bean == null) {
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
         }
-        QLCaches qlCaches = qRuntime.getQLCaches();
+        QLCaches qlCaches = qContext.getQLCaches();
         QLImplicitMethod implicitMethod = bean instanceof MetaClass?
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
@@ -68,7 +67,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
                     (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
-            qRuntime.push(dataValue);
+            qContext.push(dataValue);
         }catch (Exception e){
             throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not allow access method");
         }

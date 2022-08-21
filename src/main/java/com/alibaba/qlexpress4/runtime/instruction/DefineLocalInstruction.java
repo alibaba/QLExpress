@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -28,8 +28,8 @@ public class DefineLocalInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        qRuntime.defineLocalSymbol(variableName, defineClz, qRuntime.pop().get());
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        qContext.defineLocalSymbol(variableName, defineClz, qContext.pop().get());
         return QResult.CONTINUE_RESULT;
     }
 

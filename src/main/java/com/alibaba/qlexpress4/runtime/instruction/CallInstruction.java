@@ -2,10 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -29,8 +26,8 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = qRuntime.pop(this.argNum + 1);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Object[] params = new Object[this.argNum];
         for (int i = 0; i < this.argNum; i++) {
@@ -42,7 +39,7 @@ public class CallInstruction extends QLInstruction {
         }
         try {
             QLambda qLambda = (QLambda) bean;
-            qRuntime.push(ValueUtils.toImmutable(qLambda.call(params).getResult()));
+            qContext.push(ValueUtils.toImmutable(qLambda.call(params).getResult()));
             return QResult.CONTINUE_RESULT;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,

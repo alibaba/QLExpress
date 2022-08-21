@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,22 +16,22 @@ public class QLambdaInner implements QLambda {
 
     private final QLambdaDefinitionInner lambdaDefinition;
 
-    private final QRuntime qRuntime;
+    private final QContext qContext;
 
     private final QLOptions qlOptions;
 
     private final boolean newEnv;
 
-    public QLambdaInner(QLambdaDefinitionInner lambdaDefinition, QRuntime qRuntime, QLOptions qlOptions,
+    public QLambdaInner(QLambdaDefinitionInner lambdaDefinition, QContext qContext, QLOptions qlOptions,
                         boolean newEnv) {
         this.lambdaDefinition = lambdaDefinition;
-        this.qRuntime = qRuntime;
+        this.qContext = qContext;
         this.qlOptions = qlOptions;
         this.newEnv = newEnv;
     }
 
     public QResult call(Object... params) throws Exception {
-        QRuntime newRuntime = newEnv? inheritRuntime(params): qRuntime;
+        QContext newRuntime = newEnv? inheritScope(params): qContext;
 
         List<QLInstruction> instructionList = lambdaDefinition.getInstructionList();
         for (QLInstruction qlInstruction : instructionList) {
@@ -45,7 +46,7 @@ public class QLambdaInner implements QLambda {
         return QResult.CONTINUE_RESULT;
     }
 
-    private QRuntime inheritRuntime(Object[] params) {
+    private QContext inheritScope(Object[] params) {
         Map<String, Value> initSymbolTable = new HashMap<>();
         List<QLambdaDefinitionInner.Param> paramsDefinition = lambdaDefinition.getParamsType();
         for (int i = 0; i < params.length; i++) {
@@ -53,7 +54,7 @@ public class QLambdaInner implements QLambda {
             initSymbolTable.put(paramDefinition.getName(),
                     new AssignableDataValue(params[i], paramDefinition.getClazz()));
         }
-        return new QvmRuntime(qRuntime, initSymbolTable, qRuntime.attachment(),
-                lambdaDefinition.getMaxStackSize(), qRuntime.scriptStartTimeStamp());
+        QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize());
+        return new DelegateQContext(qContext, newScope);
     }
 }

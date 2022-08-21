@@ -5,10 +5,7 @@ import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.cache.QLConstructorCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.member.ConstructorHandler;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
@@ -19,7 +16,6 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 
@@ -43,8 +39,8 @@ public class NewInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        Parameters parameters = this.argNum == 0 ? null : qRuntime.pop(this.argNum);
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Parameters parameters = this.argNum == 0 ? null : qContext.pop(this.argNum);
         Class<?>[] paramTypes = new Class[this.argNum];
         Object[] objs = new Object[this.argNum];
 
@@ -53,7 +49,7 @@ public class NewInstruction extends QLInstruction {
             objs[i] = v.get();
             paramTypes[i] = v.getType();
         }
-        QLCaches qlCaches = qRuntime.getQLCaches();
+        QLCaches qlCaches = qContext.getQLCaches();
         QLConstructorCache qlConstructorCache = qlCaches.getQlConstructorCache();
         QLImplicitConstructor cacheElement = CacheUtil.getConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes);
         if (cacheElement == null) {
@@ -74,7 +70,7 @@ public class NewInstruction extends QLInstruction {
             throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object");
         }
         Value dataInstruction = new DataValue(constructorAccessible);
-        qRuntime.push(dataInstruction);
+        qContext.push(dataInstruction);
         return QResult.CONTINUE_RESULT;
     }
 

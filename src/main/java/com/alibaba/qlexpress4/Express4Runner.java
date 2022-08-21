@@ -11,11 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.alibaba.qlexpress4.cache.QLConstructorCache;
-import com.alibaba.qlexpress4.cache.QLFieldCache;
-import com.alibaba.qlexpress4.cache.QLMethodCache;
-import com.alibaba.qlexpress4.cache.QLMethodInvokeCache;
-import com.alibaba.qlexpress4.cache.QLScriptCache;
+import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.AstPrinter;
 import com.alibaba.qlexpress4.parser.GeneratorScope;
@@ -24,14 +20,7 @@ import com.alibaba.qlexpress4.parser.QLParser;
 import com.alibaba.qlexpress4.parser.QvmInstructionGenerator;
 import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.runtime.QFunction;
-import com.alibaba.qlexpress4.runtime.QFunctionInner;
-import com.alibaba.qlexpress4.runtime.QLFunctionalVarargs;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.QRuntime;
-import com.alibaba.qlexpress4.runtime.QvmRootRuntime;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
@@ -49,14 +38,14 @@ public class Express4Runner {
 
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
     private final Map<String, QFunction> userDefineField = new ConcurrentHashMap<>();
+    private final QLCaches qlCaches;
 
     public Express4Runner(InitOptions initOptions) {
-        QLConstructorCache qlConstructorCache = CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear());
-        QLScriptCache qlScriptCache = CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear());
-        QLFieldCache qlFieldCache = CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear());
-        QLMethodCache qlMethodCache = CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear());
-        QLMethodInvokeCache qlMethodInvokeCache = CacheUtil.initMethodInvokeCache(10,
-            initOptions.enableUseCacheClear());
+        qlCaches = new QLCaches(CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear()),
+                CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear()),
+                CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear()),
+                CacheUtil.initMethodInvokeCache(10, initOptions.enableUseCacheClear()),
+                CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear()));
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
@@ -193,8 +182,8 @@ public class Express4Runner {
 
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
-        QRuntime rootRuntime = new QvmRootRuntime(context, userDefineFunction,
-            qlOptions.getAttachments(), qlOptions.isPolluteUserContext(), System.currentTimeMillis());
+        QContext rootContext = new QvmRuntime(context, userDefineFunction,
+                qlOptions.getAttachments(), qlCaches, qlOptions.isPolluteUserContext(), System.currentTimeMillis());
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
             qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
@@ -203,6 +192,6 @@ public class Express4Runner {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
-        return mainLambdaDefine.toLambda(rootRuntime, qlOptions, true);
+        return mainLambdaDefine.toLambda(rootContext, qlOptions, true);
     }
 }

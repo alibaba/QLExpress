@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.exception.UserDefineException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -79,11 +78,15 @@ public class Express4RunnerTest {
         assertEquals(11, populatedMap.get("b"));
 
         // no population
-        assertErrorCode(express4Runner, populatedMap, "a = 19", "INVALID_ASSIGNMENT");
-
         Map<String, Object> populatedMap2 = new HashMap<>();
         express4Runner.execute("a = 11", populatedMap2, QLOptions.DEFAULT_OPTIONS);
         assertFalse(populatedMap2.containsKey("a"));
+
+        Map<String, Object> populatedMap3 = new HashMap<>();
+        populatedMap3.put("a", 10);
+        assertEquals(19, express4Runner
+                .execute("a = 19;a", populatedMap3, QLOptions.DEFAULT_OPTIONS));
+        assertEquals(10, populatedMap3.get("a"));
     }
 
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
@@ -99,6 +102,7 @@ public class Express4RunnerTest {
                                  String script, String errCode) {
         try {
             express4Runner.execute(script, existMap, QLOptions.DEFAULT_OPTIONS);
+            fail("no errCode:" + errCode);
         } catch (QLException e) {
             assertEquals(errCode, e.getErrorCode());
         }

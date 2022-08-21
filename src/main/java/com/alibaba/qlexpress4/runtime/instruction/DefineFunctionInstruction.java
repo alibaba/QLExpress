@@ -27,9 +27,9 @@ public class DefineFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QRuntime qRuntime, QLOptions qlOptions) {
-        QLambda lambda = lambdaDefinition.toLambda(qRuntime, qlOptions, true);
-        qRuntime.defineFunction(name, new QFunctionInner(lambda));
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
+        QLambda lambda = lambdaDefinition.toLambda(qContext, qlOptions, true);
+        qContext.defineFunction(name, new QFunctionInner(lambda));
         return QResult.CONTINUE_RESULT;
     }
 
