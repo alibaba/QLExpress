@@ -40,7 +40,7 @@ public class OperatorIn extends Operator {
                 for (int i = 0; i < len; i++) {
                     boolean f = OperatorEqualsLessMore.executeInner("==", obj, Array.get(list[1], i));
                     if (f) {
-                        return Boolean.TRUE;
+                        return true;
                     }
                 }
             } else if (list[1] instanceof List) {
@@ -49,7 +49,7 @@ public class OperatorIn extends Operator {
                 for (Object o : array) {
                     boolean f = OperatorEqualsLessMore.executeInner("==", obj, o);
                     if (f) {
-                        return Boolean.TRUE;
+                        return true;
                     }
                 }
             }
@@ -58,10 +58,10 @@ public class OperatorIn extends Operator {
             for (int i = 1; i < list.length; i++) {
                 boolean f = OperatorEqualsLessMore.executeInner("==", obj, list[i]);
                 if (f) {
-                    return Boolean.TRUE;
+                    return true;
                 }
             }
-            return Boolean.FALSE;
+            return false;
         }
     }
 }
