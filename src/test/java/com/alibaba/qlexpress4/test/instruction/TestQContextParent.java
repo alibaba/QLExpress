@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.scope.QScope;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.util.Map;
@@ -91,5 +92,10 @@ public class TestQContextParent implements QContext {
                 CacheUtil.initMethodCache(size,enableUseCacheClear),
                 CacheUtil.initMethodInvokeCache(size,enableUseCacheClear),
                 CacheUtil.initScriptCache(size,true));
+    }
+
+    @Override
+    public QScope getQScope() {
+        return this;
     }
 }

@@ -342,7 +342,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(FunctionStmt functionStmt, GeneratorScope generatorScope) {
         String functionName = functionStmt.getName().getId();
-        QLambdaDefinition functionLambda = generateLambdaNewScope(functionName, functionStmt.getBody(), generatorScope);
+        QLambdaDefinition functionLambda = generateLambdaNewScope(functionName, functionStmt.getBody().getStmtList(),
+                generatorScope, functionStmt.getParams().stream()
+                        .map(varDecl ->new QLambdaDefinitionInner.Param(
+                                varDecl.getVariable().getId(),
+                                varDecl.getType() == null? Object.class: varDecl.getType().getClz()
+                        ))
+                        .collect(Collectors.toList()));
         ErrorReporter errorReporter = newReporterByNode(functionStmt);
         addInstruction(new DefineFunctionInstruction(errorReporter, functionName, functionLambda));
         return null;
@@ -398,10 +404,24 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
             .map(varDecl -> new QLambdaDefinitionInner.Param(varDecl.getVariable().getId(),
                 varDecl.getType().getClz()))
             .collect(Collectors.toList());
-        QLambdaDefinition qLambda = generateLambdaNewScope(lambdaName(), lambdaExpr.getBody(),
-            generatorScope, paramClzes);
-        addInstruction(new LoadLambdaInstruction(newReporterByNode(lambdaExpr), qLambda));
+        Expr lambdaBody = lambdaExpr.getBody();
+        ErrorReporter errorReporter = newReporterByNode(lambdaExpr);
+        QLambdaDefinition qLambda = lambdaBodyDefinition(lambdaBody, generatorScope, paramClzes, errorReporter);
+        addInstruction(new LoadLambdaInstruction(errorReporter, qLambda));
         return null;
+    }
+
+    private QLambdaDefinition lambdaBodyDefinition(Expr lambdaBody, GeneratorScope generatorScope,
+                                                   List<QLambdaDefinitionInner.Param> paramClzes,
+                                                   ErrorReporter errorReporter) {
+        return lambdaBody instanceof Block?
+                generateLambdaNewScope(lambdaName(),
+                        ((Block) lambdaBody).getStmtList(),
+                        generatorScope, paramClzes):
+                generateLambdaNewScope(lambdaName(), lambdaBody, generatorScope, paramClzes,
+                        new NodeInstructions(Collections.singletonList(
+                                new ReturnInstruction(errorReporter, QResult.ResultType.RETURN)), 0)
+                );
     }
 
     @Override

@@ -47,7 +47,7 @@ public class QLambdaInner implements QLambda {
     }
 
     private QContext inheritScope(Object[] params) {
-        Map<String, Value> initSymbolTable = new HashMap<>();
+        Map<String, Value> initSymbolTable = new HashMap<>(params.length);
         List<QLambdaDefinitionInner.Param> paramsDefinition = lambdaDefinition.getParamsType();
         for (int i = 0; i < params.length; i++) {
             QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);

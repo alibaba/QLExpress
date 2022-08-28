@@ -22,7 +22,7 @@ public class AssignOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
-        LeftValue leftValue = (LeftValue)left;
+        LeftValue leftValue = (LeftValue) left;
         Object newValue = right.get();
         leftValue.setInner(newValue);
         return newValue;

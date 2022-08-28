@@ -47,7 +47,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/comment/comment.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/lambda/simpleLambda.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
