@@ -82,9 +82,6 @@ public class ExpressUtil {
     }
 
     public static Class<?> getSimpleDataType(Class<?> clazz) {
-        if (clazz.isPrimitive()) {
-            return clazz;
-        }
         if (Integer.class.equals(clazz)) {
             return Integer.TYPE;
         }
@@ -108,6 +105,9 @@ public class ExpressUtil {
         }
         if (Boolean.class.equals(clazz)) {
             return Boolean.TYPE;
+        }
+        if (clazz.isPrimitive()) {
+            return clazz;
         }
         return clazz;
     }
