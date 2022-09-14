@@ -748,7 +748,10 @@ public class QLParser {
             if (curOpPrecedence != null && curOpPrecedence >= precedence) {
                 advance();
                 left = parseMiddleAndAdvance(left);
-            } else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
+            } else {
+                break;
+            }
+            /*else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
                     cur.getType() == TokenType.RPAREN || cur.getType() == TokenType.RBRACE ||
                     // list literal
                     cur.getType() == TokenType.RBRACK ||
@@ -760,7 +763,7 @@ public class QLParser {
             } else {
                 throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_EXPRESSION",
                         "invalid expression");
-            }
+            }*/
         }
         return left;
     }

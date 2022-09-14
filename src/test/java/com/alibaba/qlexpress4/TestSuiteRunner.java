@@ -47,7 +47,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/lambda/simpleLambda.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/array/array_literal.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -86,7 +86,7 @@ public class TestSuiteRunner {
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (Exception e) {
-            throw new RuntimeException(path + " unknown error", e);
+            throw new RuntimeException(path + " error", e);
         }
     }
 

@@ -16,6 +16,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -50,6 +51,8 @@ public class GetFieldInstruction extends QLInstruction {
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(this.fieldName)) {
             Value dataArray = new DataValue(((Object[]) bean).length);
             qContext.push(dataArray);
+        } else if (bean instanceof List) {
+            qContext.push(new DataValue(((List<?>) bean).size()));
         } else if (bean instanceof MetaClass) {
             MetaClass metaClass = (MetaClass) bean;
             if (BasicUtil.CLASS.equals(this.fieldName)) {
