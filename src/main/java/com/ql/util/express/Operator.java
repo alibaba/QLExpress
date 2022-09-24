@@ -64,6 +64,8 @@ public abstract class Operator extends OperatorBase {
             } else if (op2 instanceof Number) {
                 compareResult = OperatorOfNumber.compareNumber((int)(Character)op1, (Number)op2);
                 return compareResult == 0;
+            }else {
+                return op1.toString().equals(op2.toString());
             }
         }
         //数值的值比较
