@@ -57,7 +57,7 @@ public class CallFunctionInstruction extends QLInstruction {
         Parameters parameters = qContext.pop(argNum);
         Object[] parametersArr = new Object[parameters.size()];
         for (int i = 0; i < parametersArr.length; i++) {
-            parametersArr[i] = parameters.get(i);
+            parametersArr[i] = parameters.get(i).get();
         }
         try {
             Value resultValue = ((QLambda) lambdaSymbol).call(parametersArr).getResult();

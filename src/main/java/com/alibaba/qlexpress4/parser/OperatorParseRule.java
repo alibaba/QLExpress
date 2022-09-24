@@ -271,8 +271,8 @@ class LBrackRule extends OperatorParseRule {
                         keyToken, "CAN_NOT_FIND_RBRACK_TO_MATCH", "can not find ']' to match");
             }
             if (!elements.isEmpty()) {
-                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ELEMENTS",
-                        "expect ',' between elements");
+                parser.advanceOrReportError(TokenType.COMMA, "MISS_COMMA_BETWEEN_ELEMENTS",
+                        "miss ',' between elements");
             }
             elements.add(parser.expr(contextType));
         }

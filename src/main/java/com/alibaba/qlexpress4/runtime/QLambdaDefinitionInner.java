@@ -51,7 +51,8 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
     @Override
     public QLambda toLambda(QContext qContext, QLOptions qlOptions,
                             boolean newEnv) {
-        return new QLambdaInner(this, qContext, qlOptions, newEnv);
+        return new QLambdaInner(this, new DelegateQContext(qContext, qContext.getQScope()),
+                qlOptions, newEnv);
     }
 
     @Override

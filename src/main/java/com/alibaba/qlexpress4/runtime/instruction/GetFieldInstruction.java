@@ -16,6 +16,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -41,11 +42,17 @@ public class GetFieldInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object bean = qContext.pop().get();
         if (bean == null) {
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field from null");
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+                return QResult.CONTINUE_RESULT;
+            }
+            throw errorReporter.report("GET_FIELD_FROM_NULL", "can not get field from null");
         }
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(this.fieldName)) {
             Value dataArray = new DataValue(((Object[]) bean).length);
             qContext.push(dataArray);
+        } else if (bean instanceof List) {
+            qContext.push(new DataValue(((List<?>) bean).size()));
         } else if (bean instanceof MetaClass) {
             MetaClass metaClass = (MetaClass) bean;
             if (BasicUtil.CLASS.equals(this.fieldName)) {
@@ -60,7 +67,7 @@ public class GetFieldInstruction extends QLInstruction {
                         return QResult.CONTINUE_RESULT;
                     }
                 }
-                throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get enum from null");
+                throw errorReporter.report("ENUM_NOT_EXIST", "enum not exist");
             } else {
                 getCacheFieldValue(qlOptions, metaClass.getClz(), bean, qContext);
             }

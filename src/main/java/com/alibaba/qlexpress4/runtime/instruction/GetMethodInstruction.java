@@ -34,7 +34,11 @@ public class GetMethodInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object bean = qContext.pop().get();
         if (bean == null) {
-            throw this.errorReporter.report("GET_METHOD_ERROR", "can not get method from null");
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+                return QResult.CONTINUE_RESULT;
+            }
+            throw this.errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
         }
         QLCaches qlCaches = qContext.getQLCaches();
         DataValue dataMethod = bean instanceof MetaClass?

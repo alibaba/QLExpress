@@ -2,10 +2,14 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -26,6 +30,13 @@ public class NewListInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
+        Parameters initItems = qContext.pop(initLength);
+        List<? super Object> l = new ArrayList<>(initLength);
+        // TODO: 遍历逻辑优化
+        for (int i = 0; i < initLength; i++) {
+            l.add(initItems.getValue(i));
+        }
+        qContext.push(new DataValue(l));
         return QResult.CONTINUE_RESULT;
     }
 

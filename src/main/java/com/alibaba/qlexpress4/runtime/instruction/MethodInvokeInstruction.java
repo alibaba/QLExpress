@@ -43,6 +43,7 @@ public class MethodInvokeInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
+        // TODO: 数组遍历优化
         Class<?>[] type = new Class[this.argNum];
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {
@@ -51,7 +52,11 @@ public class MethodInvokeInstruction extends QLInstruction {
             type[i] = v.getType();
         }
         if (bean == null) {
-            throw errorReporter.report("GET_METHOD_VALUE_ERROR", "can not get method value from null");
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+                return QResult.CONTINUE_RESULT;
+            }
+            throw errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
         }
         QLCaches qlCaches = qContext.getQLCaches();
         QLImplicitMethod implicitMethod = bean instanceof MetaClass?

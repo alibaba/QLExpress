@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime;
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.scope.QScope;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,5 +109,10 @@ public class QvmRuntime implements QContext {
     @Override
     public QLCaches getQLCaches() {
         return qlCaches;
+    }
+
+    @Override
+    public QScope getQScope() {
+        return this;
     }
 }

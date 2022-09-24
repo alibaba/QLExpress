@@ -34,7 +34,10 @@ public class QLOptions {
      */
     private final boolean allowAccessPrivateMethod;
 
-
+    /**
+     * custom classLoader
+     * default is QLOptions' ClassLoader
+     */
     private final ClassLoader classLoader;
 
     /**
@@ -67,6 +70,12 @@ public class QLOptions {
     private final boolean debug;
 
     /**
+     * avoid null pointer
+     * default false
+     */
+    private final boolean avoidNullPointer;
+
+    /**
      * consume all debug info, valid when debug is true
      * default is print in standard output, can not be null
      */
@@ -74,7 +83,8 @@ public class QLOptions {
 
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
-                      Map<String, Object> attachments, boolean debug, Consumer<String> debugInfoConsumer) {
+                      Map<String, Object> attachments, boolean debug,
+                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -83,6 +93,7 @@ public class QLOptions {
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
         this.attachments = attachments;
         this.debug = debug;
+        this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
     }
 
@@ -122,6 +133,10 @@ public class QLOptions {
         return debug;
     }
 
+    public boolean isAvoidNullPointer() {
+        return avoidNullPointer;
+    }
+
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
     }
@@ -141,6 +156,8 @@ public class QLOptions {
         private Map<String, Object> attachments = Collections.emptyMap();
 
         private boolean debug = false;
+
+        private boolean avoidNullPointer = false;
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
@@ -190,6 +207,11 @@ public class QLOptions {
             return this;
         }
 
+        public Builder avoidNullPointer(boolean avoidNullPointer) {
+            this.avoidNullPointer = avoidNullPointer;
+            return this;
+        }
+
         public Builder debugInfoConsumer(Consumer<String> debugInfoConsumer) {
             this.debugInfoConsumer = debugInfoConsumer;
             return this;
@@ -197,7 +219,7 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
-                    defaultImport, allowAccessPrivateMethod, attachments, debug, debugInfoConsumer);
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
         }
     }
 

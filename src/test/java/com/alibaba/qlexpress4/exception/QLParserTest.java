@@ -260,7 +260,9 @@ public class QLParserTest {
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program1.getStmtList().get(0);
         assertEquals("Integer", ((GroupExpr) binaryOpExpr.getLeft()).getExpr().getKeyToken().getLexeme());
 
-        assertErrReport("(int)i+++(Long)++i", "[Error: invalid expression]\n" +
+        // "(long) ++i" is valid and "(Long) ++i" is invalid, just like java
+        // "(Long) ++i" equals to "((Long)++) i", so it is invalid
+        assertErrReport("(int)i+++(Long)++i", "[Error: statement must end with ';']\n" +
                 "[Near: ++(Long)++i]\n" +
                 "                 ^\n" +
                 "[Line: 1, Column: 18]");

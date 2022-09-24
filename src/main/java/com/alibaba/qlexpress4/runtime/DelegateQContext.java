@@ -78,4 +78,9 @@ public class DelegateQContext implements QContext {
     public Value pop() {
         return qScope.pop();
     }
+
+    @Override
+    public QScope getQScope() {
+        return qScope;
+    }
 }
