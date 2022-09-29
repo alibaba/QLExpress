@@ -1,0 +1,2 @@
+a = Long.MIN_VALUE;
+assert(a == -9223372036854775808L);

@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,53 +64,107 @@ public class ScannerTest {
 
     @Test
     public void number() {
-        Scanner scanner = new Scanner("12323 777", QLOptions.DEFAULT_OPTIONS);
-        Token token = scanner.next();
-        assertEquals("12323", token.getLexeme());
-        assertEquals(0, ((BigDecimal) token.getLiteral()).compareTo(new BigDecimal("12323")));
-        assertEquals(5, token.getPos());
-        assertEquals(6, token.getCol());
+        // precise
+        // int, int max value, long max value, value exceed long
+        String scriptInt = "12323\n 2147483647 9223372036854775807 18446744073709552000";
+        // double value, double max value, value exceed double,min ,.1, 1.,
+        String scriptDouble = "1.1 1.7976931348623157E308 2.7976931348623157E308*1.-.1";
+        // hex, binary, oct, e notation,
+        String scriptHex = "0xfff 0b11 072 12e1 12.1E2";
+        // 10l, 10L, 10d, 10.313D, 10.2f 10F
+        String scriptNumSuffix = "10l 10L 10d 10.313D 10.2f 10F";
 
-        Token token1 = scanner.next();
-        assertEquals("777", token1.getLexeme());
-        assertEquals(0, ((BigDecimal) token1.getLiteral()).compareTo(new BigDecimal("777")));
-        assertEquals(9, token1.getPos());
-        assertEquals(10, token1.getCol());
+        List<Token> intTokens = scanner2List(new Scanner(scriptInt, QLOptions.builder().precise(true).build()));
+        assertEquals("12323", intTokens.get(0).getLexeme());
+        assertEquals(0, ((BigInteger) intTokens.get(0).getLiteral()).compareTo(new BigInteger("12323")));
+        assertEquals(5, intTokens.get(0).getPos());
+        assertEquals(1, intTokens.get(0).getLine());
+        assertEquals(6, intTokens.get(0).getCol());
+
+        assertEquals("2147483647", intTokens.get(1).getLexeme());
+        assertEquals(0, ((BigInteger) intTokens.get(1).getLiteral()).compareTo(new BigInteger("2147483647")));
+        assertEquals(17, intTokens.get(1).getPos());
+        assertEquals(2, intTokens.get(1).getLine());
+        assertEquals(12, intTokens.get(1).getCol());
+
+        assertEquals("9223372036854775807", intTokens.get(2).getLexeme());
+        assertEquals(0, ((BigInteger) intTokens.get(2).getLiteral())
+                .compareTo(new BigInteger("9223372036854775807")));
+
+        assertEquals("18446744073709552000", intTokens.get(3).getLexeme());
+        assertEquals(0, ((BigInteger) intTokens.get(3).getLiteral())
+                .compareTo(new BigInteger("18446744073709552000")));
+
+        List<Token> doubleTokens = scanner2List(new Scanner(scriptDouble, QLOptions.builder().precise(true).build()));
+        assertEquals("1.1", doubleTokens.get(0).getLexeme());
+        assertEquals(0, ((BigDecimal) doubleTokens.get(0).getLiteral()).compareTo(new BigDecimal("1.1")));
+        assertEquals("1.7976931348623157E308", doubleTokens.get(1).getLexeme());
+        assertEquals(0, ((BigDecimal) doubleTokens.get(1).getLiteral())
+                .compareTo(BigDecimal.valueOf(Double.MAX_VALUE)));
+        assertEquals("2.7976931348623157E308", doubleTokens.get(2).getLexeme());
+        assertEquals(0, ((BigDecimal) doubleTokens.get(2).getLiteral())
+                .compareTo(new BigDecimal("2.7976931348623157E308")));
+        assertEquals("1.", doubleTokens.get(4).getLexeme());
+        assertEquals(0, ((BigDecimal) doubleTokens.get(4).getLiteral())
+                .compareTo(new BigDecimal("1.0")));
+        assertEquals(".1", doubleTokens.get(6).getLexeme());
+        assertEquals(0, ((BigDecimal) doubleTokens.get(6).getLiteral()).compareTo(new BigDecimal("0.1")));
+
+        List<Token> hexTokens = scanner2List(new Scanner(scriptHex, QLOptions.builder().precise(true).build()));
+        assertEquals("0xfff", hexTokens.get(0).getLexeme());
+        assertEquals(0, ((BigInteger) hexTokens.get(0).getLiteral()).compareTo(new BigInteger("4095")));
+        assertEquals("0b11", hexTokens.get(1).getLexeme());
+        assertEquals(0, ((BigInteger) hexTokens.get(1).getLiteral()).compareTo(new BigInteger("3")));
+        assertEquals("072", hexTokens.get(2).getLexeme());
+        assertEquals(0, ((BigInteger) hexTokens.get(2).getLiteral()).compareTo(new BigInteger("58")));
+        assertEquals("12e1", hexTokens.get(3).getLexeme());
+        assertEquals(0, ((BigDecimal) hexTokens.get(3).getLiteral()).compareTo(new BigDecimal("120")));
+        assertEquals("12.1E2", hexTokens.get(4).getLexeme());
+        assertEquals(0, ((BigDecimal) hexTokens.get(4).getLiteral()).compareTo(new BigDecimal("1210")));
+
+        List<Token> suffixTokens = scanner2List(new Scanner(scriptNumSuffix, QLOptions.builder()
+                .precise(true).build()));
+        assertEquals("10l", suffixTokens.get(0).getLexeme());
+        assertEquals(10L, suffixTokens.get(0).getLiteral());
+        assertEquals("10L", suffixTokens.get(1).getLexeme());
+        assertEquals(10L, suffixTokens.get(1).getLiteral());
+        assertEquals(10d, suffixTokens.get(2).getLiteral());
+        assertEquals(10.313d, suffixTokens.get(3).getLiteral());
+        assertEquals(10.2f, suffixTokens.get(4).getLiteral());
+        assertEquals(10f, suffixTokens.get(5).getLiteral());
 
         // not precise
-        QLOptions qlOptions = QLOptions.builder().precise(false).build();
-        Scanner scanner1 = new Scanner("123 7.77\n 3.4f 3.4F 3.5d 3.5D", qlOptions);
-        Token token11 = scanner1.next();
-        assertEquals("123", token11.getLexeme());
-        assertTrue(token11.getLiteral() instanceof Integer);
-        assertEquals(123, token11.getLiteral());
+        List<Token> intTokensNoPrecise = scanner2List(new Scanner(scriptInt, QLOptions.builder().precise(false).build()));
+        assertEquals(12323, intTokensNoPrecise.get(0).getLiteral());
+        assertEquals(2147483647, intTokensNoPrecise.get(1).getLiteral());
+        assertEquals(9223372036854775807L, intTokensNoPrecise.get(2).getLiteral());
+        assertEquals(0, ((BigInteger) intTokensNoPrecise.get(3).getLiteral())
+                .compareTo(new BigInteger("18446744073709552000")));
 
-        Token token12 = scanner1.next();
-        assertEquals("7.77", token12.getLexeme());
-        assertTrue(token12.getLiteral() instanceof Double);
-        assertEquals(7.77, token12.getLiteral());
+        List<Token> doubleTokensNoPrecise = scanner2List(new Scanner(scriptDouble,
+                QLOptions.builder().precise(false).build()));
+        assertEquals(1.1d, doubleTokensNoPrecise.get(0).getLiteral());
+        assertEquals(Double.MAX_VALUE, doubleTokensNoPrecise.get(1).getLiteral());
+        assertEquals(0, ((BigDecimal) doubleTokensNoPrecise.get(2).getLiteral())
+                .compareTo(new BigDecimal("2.7976931348623157E308")));
+        assertEquals(1., doubleTokensNoPrecise.get(4).getLiteral());
+        assertEquals(.1, doubleTokensNoPrecise.get(6).getLiteral());
 
-        Token token13 = scanner1.next();
-        assertEquals("3.4f", token13.getLexeme());
-        assertTrue(token13.getLiteral() instanceof Float);
-        assertEquals(3.4f, token13.getLiteral());
-        assertEquals(2, token13.getLine());
-        assertEquals(6, token13.getCol());
+        List<Token> hexTokensNoPrecise = scanner2List(new Scanner(scriptHex, QLOptions.builder().precise(false).build()));
+        assertEquals(4095, hexTokensNoPrecise.get(0).getLiteral());
+        assertEquals(3, hexTokensNoPrecise.get(1).getLiteral());
+        assertEquals(58, hexTokensNoPrecise.get(2).getLiteral());
+        assertEquals(120d, hexTokensNoPrecise.get(3).getLiteral());
+        assertEquals(1210d, hexTokensNoPrecise.get(4).getLiteral());
 
-        Token token14 = scanner1.next();
-        assertEquals("3.4F", token14.getLexeme());
-        assertTrue(token14.getLiteral() instanceof Float);
-        assertEquals(3.4f, token14.getLiteral());
-
-        Token token15 = scanner1.next();
-        assertEquals("3.5d", token15.getLexeme());
-        assertTrue(token15.getLiteral() instanceof Double);
-        assertEquals(3.5d, token15.getLiteral());
-
-        Token token16 = scanner1.next();
-        assertEquals("3.5D", token16.getLexeme());
-        assertTrue(token16.getLiteral() instanceof Double);
-        assertEquals(3.5d, token16.getLiteral());
+        List<Token> suffixTokensNoPrecise = scanner2List(new Scanner(scriptNumSuffix, QLOptions.builder()
+                .precise(true).build()));
+        assertEquals(10L, suffixTokensNoPrecise.get(0).getLiteral());
+        assertEquals(10L, suffixTokensNoPrecise.get(1).getLiteral());
+        assertEquals(10d, suffixTokensNoPrecise.get(2).getLiteral());
+        assertEquals(10.313d, suffixTokensNoPrecise.get(3).getLiteral());
+        assertEquals(10.2f, suffixTokensNoPrecise.get(4).getLiteral());
+        assertEquals(10f, suffixTokensNoPrecise.get(5).getLiteral());
 
         // split char test
         Scanner scanner2 = new Scanner("1+2*(4+5)", QLOptions.DEFAULT_OPTIONS);
@@ -124,6 +179,14 @@ public class ScannerTest {
         assertErrReport("5.1a", "[Error: invalid number]\n" +
                 "[Near: 5.1a]\n" +
                 "       ^^^^\n" +
+                "[Line: 1, Column: 1]");
+        assertErrReport("1e", "[Error: invalid e-notation number]\n" +
+                "[Near: 1e]\n" +
+                "       ^^\n" +
+                "[Line: 1, Column: 1]");
+        assertErrReport("10.2l", "[Error: invalid number]\n" +
+                "[Near: 10.2l]\n" +
+                "       ^^^^^\n" +
                 "[Line: 1, Column: 1]");
 
         Scanner scanner3 = new Scanner("3.", QLOptions.builder().precise(false).build());

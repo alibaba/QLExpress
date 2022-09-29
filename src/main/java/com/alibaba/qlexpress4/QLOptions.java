@@ -18,7 +18,7 @@ public class QLOptions {
 
     /**
      * precise evaluate based on BigDecimal
-     * default true
+     * default false
      */
     private final boolean precise;
 
