@@ -9,6 +9,15 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author 冰够
  */
 public class InstanceOfOperator extends BaseBinaryOperator {
+    private static final InstanceOfOperator INSTANCE = new InstanceOfOperator();
+
+    private InstanceOfOperator() {
+    }
+
+    public static InstanceOfOperator getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public Object execute(Value left, Value right, ErrorReporter errorReporter) {
         Object sourceObject = left.get();

@@ -95,6 +95,7 @@ public class OperatorManager {
         binaryOperatorList.add(LessOperator.getInstance());
         binaryOperatorList.add(LessEqualOperator.getInstance());
         binaryOperatorList.add(InOperator.getInstance());
+        binaryOperatorList.add(InstanceOfOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
