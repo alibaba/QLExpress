@@ -165,6 +165,16 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return NumberMath.rightShiftUnsigned(leftValue, rightValue);
     }
 
+    /**
+     * 参考groovy
+     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareEqual
+     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareToWithEqualityCheck
+     *
+     * @param left
+     * @param right
+     * @param errorReporter
+     * @return
+     */
     protected int compare(Value left, Value right, ErrorReporter errorReporter) {
         if (Objects.equals(left.get(), right.get())) {
             return 0;
