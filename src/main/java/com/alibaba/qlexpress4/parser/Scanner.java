@@ -350,16 +350,16 @@ public class Scanner {
                 lexemeBuilder.toString(), "STRING_NOT_CLOSE", "\"\"(string) not close");
     }
 
-    private Token number() {
-        final byte perhapsHex = 1;
-        final byte hex = 2;
-        final byte bin = 3;
-        final byte oct = 4;
-        final byte intPart = 5;
-        final byte decimalPart = 6;
-        final byte perhapsENotation = 7;
-        final byte eNotation = 8;
+    static final byte perhapsHex = 1;
+    static final byte hex = 2;
+    static final byte bin = 3;
+    static final byte oct = 4;
+    static final byte intPart = 5;
+    static final byte decimalPart = 6;
+    static final byte perhapsENotation = 7;
+    static final byte eNotation = 8;
 
+    private Token number() {
         char prev = previous();
         StringBuilder lexemeBuilder = new StringBuilder().append(prev);
         StringBuilder numberBuilder = new StringBuilder().append(prev);
@@ -368,7 +368,7 @@ public class Scanner {
         // auto
         char numType = 'a';
         loop:
-        while (!isNumberEnd()) {
+        while (!isNumberEnd(state)) {
             char cur = advance();
             lexemeBuilder.append(cur);
             switch (state) {
@@ -378,10 +378,14 @@ public class Scanner {
                     } else if (cur == 'B' || cur == 'b') {
                         state = bin;
                     } else if (isDigit(cur)) {
+                        if (!isOctDigit(cur)) {
+                            throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                    lexemeBuilder.toString(), "INVALID_OCT_NUMBER", "invalid oct number");
+                        }
                         numberBuilder.append(cur);
                         state = oct;
                     } else if (cur == '.') {
-                        numberBuilder.append(previous()).append(cur);
+                        numberBuilder.append(cur);
                         state = decimalPart;
                     } else {
                         throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
@@ -406,11 +410,11 @@ public class Scanner {
                     }
                     break;
                 case oct:
-                    if (cur >= '0' && cur <= '7') {
+                    if (isOctDigit(cur)) {
                         numberBuilder.append(cur);
                     } else {
                         throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
-                                lexemeBuilder.toString(), "INVALID_BIN_NUMBER", "invalid oct number");
+                                lexemeBuilder.toString(), "INVALID_OCT_NUMBER", "invalid oct number");
                     }
                     break;
                 case intPart:
@@ -445,7 +449,7 @@ public class Scanner {
                     }
                     break;
                 case perhapsENotation:
-                    if (isDigit(cur)) {
+                    if (isDigit(cur) || cur == '-' || cur == '+') {
                         state = eNotation;
                         numberBuilder.append(cur);
                     } else {
@@ -530,27 +534,36 @@ public class Scanner {
                     } else {
                         literal = value;
                     }
-                } else if (preciseNumber instanceof BigDecimal) {
+                } else {
                     BigDecimal value = (BigDecimal) preciseNumber;
                     if (value.compareTo(MAX_DOUBLE) <= 0) {
                         literal = value.doubleValue();
                     } else {
                         literal = value;
                     }
-                } else {
-                    throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
-                            lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                 }
         }
         return newTokenWithLiteral(TokenType.NUMBER, lexemeBuilder.toString(), literal);
+    }
+
+    private boolean isOctDigit(char cur) {
+        return cur >= '0' && cur <= '7';
     }
 
     private boolean isHexDigit(char cur) {
         return isDigit(cur) || (cur >= 'a' && cur <= 'f') || (cur >= 'A' && cur <= 'F');
     }
 
-    private boolean isNumberEnd() {
-        return isEnd() || isInVisible(peek()) || (peek() != '.' && SplitCharsSet.isSplitChar(peek()));
+    private boolean isNumberEnd(byte state) {
+        if (isEnd()) {
+            return true;
+        }
+        char peek = peek();
+        if (state == perhapsENotation && (peek == '-' || peek == '+')) {
+            // e can be followed by '-'
+            return false;
+        }
+        return isInVisible(peek) || (peek != '.' && SplitCharsSet.isSplitChar(peek));
     }
 
     private boolean isNumType(char cur) {

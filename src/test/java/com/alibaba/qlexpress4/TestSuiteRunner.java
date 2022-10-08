@@ -47,7 +47,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/array/array_literal.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/number/invalid_oct_number.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

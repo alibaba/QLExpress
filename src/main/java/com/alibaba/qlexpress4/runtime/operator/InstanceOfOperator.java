@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.operator;
 
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
@@ -25,7 +26,9 @@ public class InstanceOfOperator extends BaseBinaryOperator {
         if (targetClass == null) {
             throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is null");
         }
-        if (!(targetClass instanceof Class)) {
+        if (targetClass instanceof MetaClass) {
+            targetClass = ((MetaClass) targetClass).getClz();
+        } else if (!(targetClass instanceof Class)) {
             throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is not Class");
         }
         if (sourceObject == null) {
