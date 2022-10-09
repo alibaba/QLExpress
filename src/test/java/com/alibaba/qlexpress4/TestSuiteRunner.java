@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.Value;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 public class TestSuiteRunner {
 
     private static final String ASSERT_FUNCTION_NAME = "assert";
+    private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
     private Express4Runner testRunner;
@@ -37,6 +39,7 @@ public class TestSuiteRunner {
     public void before() {
         this.testRunner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         testRunner.addFunction(ASSERT_FUNCTION_NAME, new AssertFunction());
+        testRunner.addFunction(PRINT_FUNCTION_NAME, new PrintFunction());
     }
 
     @Test
@@ -47,7 +50,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/number/invalid_oct_number.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/if/simple_if.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -152,6 +155,16 @@ public class TestSuiteRunner {
         } catch (QLException e) {
             assertEquals(errCode, e.getErrorCode());
             assertEquals(reason, e.getReason());
+        }
+    }
+
+    private static class PrintFunction implements QFunction {
+        @Override
+        public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
+            for (int i = 0; i < parameters.size(); i++) {
+                System.out.println(parameters.get(i).get());
+            }
+            return null;
         }
     }
 
