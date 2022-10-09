@@ -52,13 +52,21 @@ class IfExprRule extends OperatorParseRule {
         parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
                 "expect ')' after if condition");
 
-        Stmt thenBranch = parser.statement(contextType);
+        Stmt thenBranch = parseBranchBody(parser, contextType);
 
         if (parser.matchKeyWordAndAdvance(KeyWordsSet.ELSE)) {
-            Stmt elseBranch = parser.statement(contextType);
+            Stmt elseBranch = parseBranchBody(parser, contextType);
             return new IfExpr(keyToken, condition, thenBranch, elseBranch);
         } else {
             return new IfExpr(keyToken, condition, thenBranch, null);
+        }
+    }
+
+    private Stmt parseBranchBody(QLParser parser, QLParser.ContextType contextType) {
+        if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
+            return parser.block(contextType);
+        } else {
+            return parser.expr(contextType);
         }
     }
 }

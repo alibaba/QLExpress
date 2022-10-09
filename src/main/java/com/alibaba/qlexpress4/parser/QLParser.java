@@ -737,9 +737,6 @@ public class QLParser {
 
     protected Expr parsePrecedence(int precedence, ContextType contextType) {
         Expr left = ParseRuleRegister.parsePrefixAndAdvance(this, contextType);
-        if (left instanceof IfExpr || left instanceof Block || left instanceof TryCatch) {
-            return left;
-        }
 
         while (true) {
             // union bit move op
@@ -751,19 +748,6 @@ public class QLParser {
             } else {
                 break;
             }
-            /*else if (curOpPrecedence != null || isEnd() || cur.getType() == TokenType.SEMI ||
-                    cur.getType() == TokenType.RPAREN || cur.getType() == TokenType.RBRACE ||
-                    // list literal
-                    cur.getType() == TokenType.RBRACK ||
-                    // expression in argument list, list literal etc.
-                    cur.getType() == TokenType.COMMA ||
-                    // ?:
-                    cur.getType() == TokenType.COLON) {
-                break;
-            } else {
-                throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_EXPRESSION",
-                        "invalid expression");
-            }*/
         }
         return left;
     }

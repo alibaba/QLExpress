@@ -50,7 +50,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/if/simple_if.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/if/if_as_expr.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
