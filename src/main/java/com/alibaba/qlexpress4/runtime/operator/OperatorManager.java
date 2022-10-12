@@ -130,7 +130,7 @@ public class OperatorManager {
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
         if (customBinaryOperatorMap.containsKey(operator)) {
-            // TODO 自定义异常
+            // TODO bingo 自定义异常
             throw new RuntimeException("can not over write existed custom binary operator");
         }
         BinaryOperator binaryOperator = new BinaryOperator() {
