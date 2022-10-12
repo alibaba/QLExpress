@@ -23,6 +23,7 @@ import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
@@ -42,10 +43,10 @@ public class Express4Runner {
 
     public Express4Runner(InitOptions initOptions) {
         qlCaches = new QLCaches(CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear()),
-                CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear()),
-                CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear()),
-                CacheUtil.initMethodInvokeCache(10, initOptions.enableUseCacheClear()),
-                CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear()));
+            CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear()),
+            CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear()),
+            CacheUtil.initMethodInvokeCache(10, initOptions.enableUseCacheClear()),
+            CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear()));
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
@@ -183,7 +184,7 @@ public class Express4Runner {
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
         QContext rootContext = new QvmRuntime(context, userDefineFunction,
-                qlOptions.getAttachments(), qlCaches, qlOptions.isPolluteUserContext(), System.currentTimeMillis());
+            qlOptions.getAttachments(), qlCaches, qlOptions.isPolluteUserContext(), System.currentTimeMillis());
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
             qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
@@ -193,5 +194,13 @@ public class Express4Runner {
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
         return mainLambdaDefine.toLambda(rootContext, qlOptions, true);
+    }
+
+    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
+        return operatorManager.addOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
+    }
+
+    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
+        return operatorManager.addOperator(operator, customBinaryOperator, priority);
     }
 }
