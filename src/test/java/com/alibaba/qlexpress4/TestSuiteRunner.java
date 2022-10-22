@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
+import com.alibaba.qlexpress4.parser.ImportManager;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
@@ -46,7 +47,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/if/if_as_expr.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/avoidnullpointer/get_method_from_null.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -68,19 +69,23 @@ public class TestSuiteRunner {
     private void handleFile(Path qlFile, String path, boolean debug) throws IOException {
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
-        QLOptions qlOptions = QLOptions.builder()
-                .debug(debug)
-                .attachments(attachments)
-                .build();
 
         String qlScript = new String(Files.readAllBytes(qlFile));
         // parse testsuite option first
-        Optional<ScriptOption> scriptOption = parseOption(qlScript);
-        Optional<String> errCodeOp = scriptOption.map(ScriptOption::getErrCode);
+        Optional<Map<String, Object>> scriptOptionOp = parseOption(qlScript);
+        Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String) scriptOption.get("errCode"));
         if (errCodeOp.isPresent()) {
-            assertErrCode(path, qlScript, qlOptions, errCodeOp.get());
+            assertErrCode(path, qlScript, QLOptions.builder()
+                    .debug(debug)
+                    .attachments(attachments)
+                    .build(), errCodeOp.get());
             return;
         }
+        Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
+                (QLOptions.Builder) scriptOption.get("qlOptions"));
+        QLOptions qlOptions = optionsBuilder.isPresent()?
+                optionsBuilder.get().debug(debug).attachments(attachments).build():
+                QLOptions.builder().debug(debug).attachments(attachments).build();
 
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
@@ -100,7 +105,7 @@ public class TestSuiteRunner {
         }
     }
 
-    private Optional<ScriptOption> parseOption(String qlScript) {
+    private Optional<Map<String, Object>> parseOption(String qlScript) {
         if (!qlScript.startsWith("/*")) {
             return Optional.empty();
         }
@@ -110,9 +115,13 @@ public class TestSuiteRunner {
         }
         String configJson = qlScript.substring(2, endIndex);
         try {
-            JSONObject jObj = JSON.parseObject(configJson);
-            String errCode = jObj.getString("errCode");
-            return Optional.of(new ScriptOption(errCode));
+            QLOptions qlOptions = QLOptions.builder()
+                    .defaultImport(Collections.singletonList(
+                            ImportManager.importCls("com.alibaba.qlexpress4.QLOptions")))
+                    .build();
+            Map<String, Object> scriptOptions = (Map<String, Object>) testRunner
+                    .execute(configJson, Collections.emptyMap(), qlOptions);
+            return Optional.of(scriptOptions);
         } catch (JSONException e) {
             return Optional.empty();
         }
@@ -190,19 +199,6 @@ public class TestSuiteRunner {
 
         private String wrap(Map<String, Object> attachments, String originErrInfo) {
             return attachments.get(TEST_PATH_ATT) + ": " + originErrInfo;
-        }
-    }
-
-    private static class ScriptOption {
-
-        private final String errCode;
-
-        private ScriptOption(String errCode) {
-            this.errCode = errCode;
-        }
-
-        public String getErrCode() {
-            return errCode;
         }
     }
 }

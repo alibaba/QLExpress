@@ -329,6 +329,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     @Override
     public Void visit(GetMethodExpr getMethodExpr, GeneratorScope context) {
+        getMethodExpr.getExpr().accept(this, context);
         addInstruction(new GetMethodInstruction(newReporterByNode(getMethodExpr),
             getMethodExpr.getAttribute().getId()));
         return null;
