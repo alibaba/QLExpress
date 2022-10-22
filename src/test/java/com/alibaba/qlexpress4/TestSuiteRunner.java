@@ -47,7 +47,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/avoidnullpointer/get_method_from_null.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/avoidnullpointer/avoid_null_pointer.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
