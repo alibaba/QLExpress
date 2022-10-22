@@ -70,4 +70,6 @@ public interface QLProgramVisitor<R, C> {
     R visit(IfExpr ifExpr, C context);
 
     R visit(GetMethodExpr getMethodExpr, C context);
+
+    R visit(MapExpr mapExpr, C context);
 }

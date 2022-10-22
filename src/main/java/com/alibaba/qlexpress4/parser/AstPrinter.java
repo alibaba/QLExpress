@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.parser.tree.*;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import static com.alibaba.qlexpress4.utils.PrintlnUtils.printlnByCurDepth;
@@ -315,6 +316,17 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
         visitNode(getMethodExpr, expr -> {
             expr.getExpr().accept(this, context);
             expr.getAttribute().accept(this, context);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visit(MapExpr mapExpr, Void context) {
+        visitNode(mapExpr, expr -> {
+            for (Map.Entry<String, Expr> entry : expr.getEntries()) {
+                printByCurDepth(entry.getKey());
+                entry.getValue().accept(this, context);
+            }
         });
         return null;
     }

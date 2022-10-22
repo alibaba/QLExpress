@@ -204,6 +204,10 @@ public class Scanner {
         return null;
     }
 
+    /**
+     * must {@link #back()} after lookAhead
+     * @return
+     */
     public Token lookAhead() {
         Token lookAheadToken = next();
         lookAheadQueue.add(lookAheadToken);

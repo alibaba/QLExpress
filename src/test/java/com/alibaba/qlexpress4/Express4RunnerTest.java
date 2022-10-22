@@ -89,6 +89,15 @@ public class Express4RunnerTest {
         assertEquals(10, populatedMap3.get("a"));
     }
 
+    @Test
+    public void mapLiteralTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> result = (Map<String, Object>) express4Runner
+                .execute("{a:123,'b':'test'}", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(123, result.get("a"));
+        assertEquals("test", result.get("b"));
+    }
+
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
         try {
             express4Runner.execute(script, Collections.emptyMap(),

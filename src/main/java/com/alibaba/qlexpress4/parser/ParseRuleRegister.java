@@ -10,7 +10,7 @@ class ParseRuleRegister {
 
     private final static List<OperatorParseRule> rules = Arrays.asList(
             new IfExprRule(),
-            new BlockExprRule(),
+            new BlockOrMapExprRule(),
             new TryCatchFinalRule(),
             new LParenRule(),
             new NewRule(),

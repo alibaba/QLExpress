@@ -694,6 +694,12 @@ public class QLParser {
                 GroupType.LAMBDA: GroupType.GROUP;
     }
 
+    protected Token lookAheadNextToken() {
+        Token nextToken = scanner.lookAhead();
+        scanner.back();
+        return nextToken;
+    }
+
     private Token lookAheadRParenNextToken(boolean preLParen) {
         Token lParen = preLParen? pre: cur;
         if (parenNextToken.containsKey(lParen.getPos())) {

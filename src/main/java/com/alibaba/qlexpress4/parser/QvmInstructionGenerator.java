@@ -9,74 +9,12 @@ import java.util.stream.Collectors;
 
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.parser.tree.AssignExpr;
-import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.Break;
-import com.alibaba.qlexpress4.parser.tree.CallExpr;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
-import com.alibaba.qlexpress4.parser.tree.ConstExpr;
-import com.alibaba.qlexpress4.parser.tree.Continue;
-import com.alibaba.qlexpress4.parser.tree.DeclType;
-import com.alibaba.qlexpress4.parser.tree.Expr;
-import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
-import com.alibaba.qlexpress4.parser.tree.ForStmt;
-import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
-import com.alibaba.qlexpress4.parser.tree.GetFieldExpr;
-import com.alibaba.qlexpress4.parser.tree.GetMethodExpr;
-import com.alibaba.qlexpress4.parser.tree.GroupExpr;
-import com.alibaba.qlexpress4.parser.tree.IdExpr;
-import com.alibaba.qlexpress4.parser.tree.Identifier;
-import com.alibaba.qlexpress4.parser.tree.IfExpr;
-import com.alibaba.qlexpress4.parser.tree.ImportStmt;
-import com.alibaba.qlexpress4.parser.tree.IndexCallExpr;
-import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.ListExpr;
-import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
-import com.alibaba.qlexpress4.parser.tree.MacroStmt;
-import com.alibaba.qlexpress4.parser.tree.NewExpr;
-import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.parser.tree.QLProgramVisitor;
-import com.alibaba.qlexpress4.parser.tree.ReturnStmt;
-import com.alibaba.qlexpress4.parser.tree.Stmt;
-import com.alibaba.qlexpress4.parser.tree.StmtList;
-import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.SyntaxNode;
-import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
-import com.alibaba.qlexpress4.parser.tree.TryCatch;
-import com.alibaba.qlexpress4.parser.tree.TypeExpr;
-import com.alibaba.qlexpress4.parser.tree.VarDecl;
-import com.alibaba.qlexpress4.parser.tree.WhileStmt;
+import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.ConstLambdaDefinition;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.instruction.BreakContinueInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallConstInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallFunctionInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CastInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ConstInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.DefineFunctionInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.DefineLocalInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ForEachInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.GetMethodInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.IfInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.IndexInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.LoadInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.LoadLambdaInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.MethodInvokeInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.NewInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.NewListInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.OperatorInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.PopInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ReturnInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.TryCatchInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.UnaryInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.WhileInstruction;
+import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 
 /**
@@ -393,6 +331,17 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(GetMethodExpr getMethodExpr, GeneratorScope context) {
         addInstruction(new GetMethodInstruction(newReporterByNode(getMethodExpr),
             getMethodExpr.getAttribute().getId()));
+        return null;
+    }
+
+    @Override
+    public Void visit(MapExpr mapExpr, GeneratorScope context) {
+        List<String> keys = new ArrayList<>(mapExpr.getEntries().size());
+        for (Map.Entry<String, Expr> entry : mapExpr.getEntries()) {
+            keys.add(entry.getKey());
+            entry.getValue().accept(this, context);
+        }
+        addInstruction(new NewMapInstruction(newReporterByNode(mapExpr), keys));
         return null;
     }
 
