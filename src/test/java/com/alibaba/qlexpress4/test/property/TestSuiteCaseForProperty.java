@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @Author TaoKan
@@ -15,8 +17,10 @@ public class TestSuiteCaseForProperty {
     public void test() throws IOException, URISyntaxException {
         TestSuiteRunner testSuiteRunner = new TestSuiteRunner();
         testSuiteRunner.before();
+        Path testPath = Paths.get(getClass().getClassLoader()
+                .getResource("testsuite").toURI()).resolve("java/implicit_convertion/test.ql");
 //        testSuiteRunner.testFilePath("java/property/public_static.ql");
-        testSuiteRunner.testFilePath("java/implicit_convertion/test.ql");
+        testSuiteRunner.handleFile(testPath,testPath.toString(),true);
 //        testSuiteRunner.testFilePath("java/property/private_member_attr_getter.ql");
 
     }

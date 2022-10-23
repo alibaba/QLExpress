@@ -33,7 +33,7 @@ public class TestTransferCases {
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        Assert.assertEquals(testQContextParent.getValue().get(),3L);
+        Assert.assertEquals(testQContextParent.getValue().get(),4L);
     }
     /**
      * type1:int type2:int

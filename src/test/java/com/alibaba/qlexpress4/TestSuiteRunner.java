@@ -66,7 +66,7 @@ public class TestSuiteRunner {
         });
     }
 
-    private void handleFile(Path qlFile, String path, boolean debug) throws IOException {
+    public void handleFile(Path qlFile, String path, boolean debug) throws IOException {
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
 
