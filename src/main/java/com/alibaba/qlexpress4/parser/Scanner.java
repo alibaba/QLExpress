@@ -4,9 +4,16 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.QLException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.LinkedList;
 
 public class Scanner {
+
+    private static final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+
+    private static final BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
+
+    private static final BigDecimal MAX_DOUBLE = new BigDecimal(String.valueOf(Double.MAX_VALUE));
 
     private final String script;
 
@@ -71,6 +78,10 @@ public class Scanner {
                 case ',':
                     return newToken(TokenType.COMMA, ",");
                 case '.':
+                    if (isNextDigit()) {
+                        // float number
+                        return number();
+                    }
                     return newToken(TokenType.DOT, ".");
                 // two-char-tokens
                 case '+':
@@ -193,6 +204,10 @@ public class Scanner {
         return null;
     }
 
+    /**
+     * must {@link #back()} after lookAhead
+     * @return
+     */
     public Token lookAhead() {
         Token lookAheadToken = next();
         lookAheadQueue.add(lookAheadToken);
@@ -339,110 +354,244 @@ public class Scanner {
                 lexemeBuilder.toString(), "STRING_NOT_CLOSE", "\"\"(string) not close");
     }
 
-    private Token number() {
-        final byte init = 0;
-        final byte decimalPart = 1;
-        final byte numTypePart = 2;
-        final byte end = 3;
+    static final byte perhapsHex = 1;
+    static final byte hex = 2;
+    static final byte bin = 3;
+    static final byte oct = 4;
+    static final byte intPart = 5;
+    static final byte decimalPart = 6;
+    static final byte perhapsENotation = 7;
+    static final byte eNotation = 8;
 
-        byte state = init;
-        StringBuilder lexemeBuilder = new StringBuilder().append(previous());
-        StringBuilder numberBuilder = new StringBuilder().append(previous());
-        char numType = 0;
-        while (!isEnd() && state != end) {
-            char cur = peek();
+    private Token number() {
+        char prev = previous();
+        StringBuilder lexemeBuilder = new StringBuilder().append(prev);
+        StringBuilder numberBuilder = new StringBuilder().append(prev);
+        byte state = prev == '0'? perhapsHex:
+                prev == '.'? decimalPart: intPart;
+        // auto
+        char numType = 'a';
+        loop:
+        while (!isNumberEnd(state)) {
+            char cur = advance();
+            lexemeBuilder.append(cur);
             switch (state) {
-                case init:
-                    if (isDigit(cur)) {
-                        lexemeBuilder.append(cur);
+                case perhapsHex:
+                    if (cur == 'X' || cur == 'x') {
+                        state = hex;
+                    } else if (cur == 'B' || cur == 'b') {
+                        state = bin;
+                    } else if (isDigit(cur)) {
+                        if (!isOctDigit(cur)) {
+                            throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                    lexemeBuilder.toString(), "INVALID_OCT_NUMBER", "invalid oct number");
+                        }
                         numberBuilder.append(cur);
-                        advance();
+                        state = oct;
                     } else if (cur == '.') {
-                        lexemeBuilder.append('.');
-                        numberBuilder.append('.');
-                        advance();
-                        numType = 'd';
+                        numberBuilder.append(cur);
                         state = decimalPart;
-                    } else if (isInVisible(cur) || SplitCharsSet.isSplitChar(cur)) {
-                        state = end;
-                    } else if (isNumberTypeFlag(cur)) {
-                        lexemeBuilder.append(cur);
-                        advance();
-                        numType = cur;
-                        state = numTypePart;
                     } else {
-                        lexemeBuilder.append(cur);
-                        advance();
                         throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
                                 lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                     }
-                    continue;
+                    break;
+                case hex:
+                    if (isHexDigit(cur)) {
+                        numberBuilder.append(cur);
+                    } else {
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_HEX_NUMBER",
+                                "invalid hexadecimal number");
+                    }
+                    break;
+                case bin:
+                    if (cur == '0' || cur == '1') {
+                        numberBuilder.append(cur);
+                    } else {
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_BIN_NUMBER", "invalid binary number");
+                    }
+                    break;
+                case oct:
+                    if (isOctDigit(cur)) {
+                        numberBuilder.append(cur);
+                    } else {
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_OCT_NUMBER", "invalid oct number");
+                    }
+                    break;
+                case intPart:
+                    if (isDigit(cur)) {
+                        numberBuilder.append(cur);
+                    } else if (cur == '.') {
+                        numberBuilder.append(cur);
+                        state = decimalPart;
+                    } else if (cur == 'e' || cur == 'E') {
+                        numberBuilder.append(cur);
+                        state = perhapsENotation;
+                    } else if (isNumType(cur)) {
+                        numType = cur;
+                        break loop;
+                    } else {
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
+                    }
+                    break;
                 case decimalPart:
                     if (isDigit(cur)) {
-                        lexemeBuilder.append(cur);
                         numberBuilder.append(cur);
-                        advance();
-                    } else if (isInVisible(cur) || SplitCharsSet.isSplitChar(cur)) {
-                        state = end;
-                    } else if (isNumberTypeFlag(cur)) {
-                        lexemeBuilder.append(cur);
-                        advance();
+                    } else if (cur == 'e' || cur == 'E') {
+                        numberBuilder.append(cur);
+                        state = perhapsENotation;
+                    } else if (isDecimalNumType(cur)) {
                         numType = cur;
-                        state = numTypePart;
+                        break loop;
                     } else {
-                        lexemeBuilder.append(cur);
-                        advance();
                         throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
                                 lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
                     }
-                    continue;
-                case numTypePart:
-                    if (isInVisible(cur)) {
-                        state = end;
+                    break;
+                case perhapsENotation:
+                    if (isDigit(cur) || cur == '-' || cur == '+') {
+                        state = eNotation;
+                        numberBuilder.append(cur);
                     } else {
-                        lexemeBuilder.append(cur);
-                        advance();
                         throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
-                                lexemeBuilder.toString(), "INVALID_NUMBER", "invalid number");
+                                lexemeBuilder.toString(), "INVALID_E_NOTATION_NUMBER",
+                                "invalid e-notation number");
                     }
-                    continue;
+                    break;
+                case eNotation:
+                    if (isDigit(cur)) {
+                        numberBuilder.append(cur);
+                    } else {
+                        throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                                lexemeBuilder.toString(), "INVALID_E_NOTATION_NUMBER",
+                                "invalid e-notation number");
+                    }
             }
         }
 
-        String lexeme = lexemeBuilder.toString();
+        Number preciseNumber = null;
         String numberStr = numberBuilder.toString();
-        Number literal;
-        if (qlOptions.isPrecise()) {
-            literal = new BigDecimal(numberStr);
-        } else if (numType == 0) {
-            literal = Integer.parseInt(numberStr);
-        } else {
-            switch (numType) {
-                case 'f':
-                case 'F':
-                    literal = Float.parseFloat(numberStr);
-                    break;
-                case 'd':
-                case 'D':
-                    literal = Double.parseDouble(numberStr);
-                    break;
-                case 'l':
-                case 'L':
-                    literal = Long.parseLong(numberStr);
-                    break;
-                default:
+        switch (state) {
+            case perhapsHex:
+                preciseNumber = BigInteger.ZERO;
+                break;
+            case hex:
+                if (numberStr.isEmpty()) {
                     throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
-                            lexeme, "INVALID_NUMBER", "invalid number");
-            }
+                            lexemeBuilder.toString(), "INVALID_HEX_NUMBER",
+                            "invalid hexadecimal number");
+                }
+                preciseNumber = new BigInteger(numberStr, 16);
+                break;
+            case bin:
+                if (numberStr.isEmpty()) {
+                    throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                            lexemeBuilder.toString(), "INVALID_HEX_NUMBER",
+                            "invalid hexadecimal number");
+                }
+                preciseNumber = new BigInteger(numberStr, 2);
+                break;
+            case oct:
+                preciseNumber = new BigInteger(numberStr, 8);
+                break;
+            case intPart:
+                preciseNumber = new BigInteger(numberStr);
+                break;
+            case perhapsENotation:
+                throw QLException.reportScannerErr(script, pos, currentLine, currentCol,
+                        lexemeBuilder.toString(), "INVALID_E_NOTATION_NUMBER",
+                        "invalid e-notation number");
+            case eNotation:
+            case decimalPart:
+                preciseNumber = new BigDecimal(numberStr);
+                break;
         }
 
-        return newTokenWithLiteral(TokenType.NUMBER, lexeme, literal);
+        Number literal = null;
+        switch (numType) {
+            case 'f':
+            case 'F':
+                literal = preciseNumber.floatValue();
+                break;
+            case 'd':
+            case 'D':
+                literal = preciseNumber.doubleValue();
+                break;
+            case 'l':
+            case 'L':
+                literal = preciseNumber.longValue();
+                break;
+            case 'a':
+                // auto
+                if (qlOptions.isPrecise()) {
+                    literal = preciseNumber;
+                } else if (preciseNumber instanceof BigInteger) {
+                    BigInteger value = (BigInteger) preciseNumber;
+                    if (value.compareTo(MAX_INTEGER) <= 0) {
+                        literal = value.intValue();
+                    } else if (value.compareTo(MAX_LONG) <= 0) {
+                        literal = value.longValue();
+                    } else {
+                        literal = value;
+                    }
+                } else {
+                    BigDecimal value = (BigDecimal) preciseNumber;
+                    if (value.compareTo(MAX_DOUBLE) <= 0) {
+                        literal = value.doubleValue();
+                    } else {
+                        literal = value;
+                    }
+                }
+        }
+        return newTokenWithLiteral(TokenType.NUMBER, lexemeBuilder.toString(), literal);
     }
 
-    private boolean isNumberTypeFlag(char c) {
-        return c == 'd' || c == 'D' ||
-                c == 'f' || c == 'F' ||
-                  c == 'l' || c == 'L';
+    private boolean isOctDigit(char cur) {
+        return cur >= '0' && cur <= '7';
+    }
+
+    private boolean isHexDigit(char cur) {
+        return isDigit(cur) || (cur >= 'a' && cur <= 'f') || (cur >= 'A' && cur <= 'F');
+    }
+
+    private boolean isNumberEnd(byte state) {
+        if (isEnd()) {
+            return true;
+        }
+        char peek = peek();
+        if (state == perhapsENotation && (peek == '-' || peek == '+')) {
+            // e can be followed by '-'
+            return false;
+        }
+        return isInVisible(peek) || (peek != '.' && SplitCharsSet.isSplitChar(peek));
+    }
+
+    private boolean isNumType(char cur) {
+        switch (cur) {
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+            case 'l':
+            case 'L':
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isDecimalNumType(char cur) {
+        switch (cur) {
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return true;
+        }
+        return false;
     }
 
     private void advanceLineComment() {
@@ -522,5 +671,12 @@ public class Scanner {
             currentCol++;
         }
         return curChar;
+    }
+
+    private boolean isNextDigit() {
+        if (pos > script.length() - 1) {
+            return false;
+        }
+        return isDigit(script.charAt(pos));
     }
 }

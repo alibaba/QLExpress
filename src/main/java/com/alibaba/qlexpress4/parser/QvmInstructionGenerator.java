@@ -9,74 +9,12 @@ import java.util.stream.Collectors;
 
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.parser.tree.AssignExpr;
-import com.alibaba.qlexpress4.parser.tree.BinaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Block;
-import com.alibaba.qlexpress4.parser.tree.Break;
-import com.alibaba.qlexpress4.parser.tree.CallExpr;
-import com.alibaba.qlexpress4.parser.tree.CastExpr;
-import com.alibaba.qlexpress4.parser.tree.ConstExpr;
-import com.alibaba.qlexpress4.parser.tree.Continue;
-import com.alibaba.qlexpress4.parser.tree.DeclType;
-import com.alibaba.qlexpress4.parser.tree.Expr;
-import com.alibaba.qlexpress4.parser.tree.ForEachStmt;
-import com.alibaba.qlexpress4.parser.tree.ForStmt;
-import com.alibaba.qlexpress4.parser.tree.FunctionStmt;
-import com.alibaba.qlexpress4.parser.tree.GetFieldExpr;
-import com.alibaba.qlexpress4.parser.tree.GetMethodExpr;
-import com.alibaba.qlexpress4.parser.tree.GroupExpr;
-import com.alibaba.qlexpress4.parser.tree.IdExpr;
-import com.alibaba.qlexpress4.parser.tree.Identifier;
-import com.alibaba.qlexpress4.parser.tree.IfExpr;
-import com.alibaba.qlexpress4.parser.tree.ImportStmt;
-import com.alibaba.qlexpress4.parser.tree.IndexCallExpr;
-import com.alibaba.qlexpress4.parser.tree.LambdaExpr;
-import com.alibaba.qlexpress4.parser.tree.ListExpr;
-import com.alibaba.qlexpress4.parser.tree.LocalVarDeclareStmt;
-import com.alibaba.qlexpress4.parser.tree.MacroStmt;
-import com.alibaba.qlexpress4.parser.tree.NewExpr;
-import com.alibaba.qlexpress4.parser.tree.PrefixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.Program;
-import com.alibaba.qlexpress4.parser.tree.QLProgramVisitor;
-import com.alibaba.qlexpress4.parser.tree.ReturnStmt;
-import com.alibaba.qlexpress4.parser.tree.Stmt;
-import com.alibaba.qlexpress4.parser.tree.StmtList;
-import com.alibaba.qlexpress4.parser.tree.SuffixUnaryOpExpr;
-import com.alibaba.qlexpress4.parser.tree.SyntaxNode;
-import com.alibaba.qlexpress4.parser.tree.TernaryExpr;
-import com.alibaba.qlexpress4.parser.tree.TryCatch;
-import com.alibaba.qlexpress4.parser.tree.TypeExpr;
-import com.alibaba.qlexpress4.parser.tree.VarDecl;
-import com.alibaba.qlexpress4.parser.tree.WhileStmt;
+import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.ConstLambdaDefinition;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.instruction.BreakContinueInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallConstInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallFunctionInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CallInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.CastInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ConstInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.DefineFunctionInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.DefineLocalInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ForEachInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.GetMethodInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.IfInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.IndexInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.LoadInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.LoadLambdaInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.MethodInvokeInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.NewInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.NewListInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.OperatorInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.PopInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.ReturnInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.TryCatchInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.UnaryInstruction;
-import com.alibaba.qlexpress4.runtime.instruction.WhileInstruction;
+import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 
 /**
@@ -310,11 +248,11 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         forEachStmt.getTarget().accept(this, generatorScope);
         ErrorReporter forEachErrReporter = newReporterByNode(forEachStmt);
         VarDecl itVar = forEachStmt.getItVar();
-        QLambdaDefinition bodyLambda = generateLambdaNewScope(prefix + FOR_LAMBDA_NAME_PREFIX + forCount(),
-            forEachStmt.getBody() instanceof Block ? ((Block)forEachStmt.getBody()).getStmtList() :
-                forEachStmt.getBody(),
-            generatorScope, Collections.singletonList(
-                new QLambdaDefinitionInner.Param(itVar.getVariable().getId(), itVar.getType().getClz())));
+        QLambdaDefinition bodyLambda = lambdaBodyDefinition(prefix + FOR_LAMBDA_NAME_PREFIX + forCount(),
+                forEachStmt.getBody(), generatorScope,
+                Collections.singletonList(
+                        new QLambdaDefinitionInner.Param(itVar.getVariable().getId(), itVar.getType().getClz())
+                ), forEachErrReporter);;
         addInstruction(new ForEachInstruction(forEachErrReporter, bodyLambda));
         return null;
     }
@@ -376,19 +314,35 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(IfExpr ifExpr, GeneratorScope generatorScope) {
         ifExpr.getCondition().accept(this, generatorScope);
 
+        ErrorReporter ifErrReporter = newReporterByNode(ifExpr);
         int ifCount = ifCount();
-        QLambdaDefinition thenLambda = generateLambdaNewScope(prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX,
-            ifExpr.getThenBranch(), generatorScope);
+        QLambdaDefinition thenLambda = lambdaBodyDefinition(
+                prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX, ifExpr.getThenBranch(),
+                generatorScope, Collections.emptyList(), ifErrReporter);
         addInstruction(new IfInstruction(newReporterByNode(ifExpr), thenLambda,
-            ifExpr.getElseBranch() != null ? generateLambdaNewScope(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
-                ifExpr.getElseBranch(), generatorScope) : null, true));
+            ifExpr.getElseBranch() != null ?
+                    lambdaBodyDefinition(prefix + IF_LAMBDA_PREFIX + ifCount + ELSE_SUFFIX,
+                            ifExpr.getElseBranch(), generatorScope, Collections.emptyList(), ifErrReporter) : null,
+                true));
         return null;
     }
 
     @Override
     public Void visit(GetMethodExpr getMethodExpr, GeneratorScope context) {
+        getMethodExpr.getExpr().accept(this, context);
         addInstruction(new GetMethodInstruction(newReporterByNode(getMethodExpr),
             getMethodExpr.getAttribute().getId()));
+        return null;
+    }
+
+    @Override
+    public Void visit(MapExpr mapExpr, GeneratorScope context) {
+        List<String> keys = new ArrayList<>(mapExpr.getEntries().size());
+        for (Map.Entry<String, Expr> entry : mapExpr.getEntries()) {
+            keys.add(entry.getKey());
+            entry.getValue().accept(this, context);
+        }
+        addInstruction(new NewMapInstruction(newReporterByNode(mapExpr), keys));
         return null;
     }
 
@@ -406,19 +360,17 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
             .collect(Collectors.toList());
         Expr lambdaBody = lambdaExpr.getBody();
         ErrorReporter errorReporter = newReporterByNode(lambdaExpr);
-        QLambdaDefinition qLambda = lambdaBodyDefinition(lambdaBody, generatorScope, paramClzes, errorReporter);
+        QLambdaDefinition qLambda = lambdaBodyDefinition(lambdaName(), lambdaBody, generatorScope, paramClzes, errorReporter);
         addInstruction(new LoadLambdaInstruction(errorReporter, qLambda));
         return null;
     }
 
-    private QLambdaDefinition lambdaBodyDefinition(Expr lambdaBody, GeneratorScope generatorScope,
+    private QLambdaDefinition lambdaBodyDefinition(String name, Stmt lambdaBody, GeneratorScope generatorScope,
                                                    List<QLambdaDefinitionInner.Param> paramClzes,
                                                    ErrorReporter errorReporter) {
         return lambdaBody instanceof Block?
-                generateLambdaNewScope(lambdaName(),
-                        ((Block) lambdaBody).getStmtList(),
-                        generatorScope, paramClzes):
-                generateLambdaNewScope(lambdaName(), lambdaBody, generatorScope, paramClzes,
+                generateLambdaNewScope(name, ((Block) lambdaBody).getStmtList(), generatorScope, paramClzes):
+                generateLambdaNewScope(name, lambdaBody, generatorScope, paramClzes,
                         new NodeInstructions(Collections.singletonList(
                                 new ReturnInstruction(errorReporter, QResult.ResultType.RETURN)), 0)
                 );

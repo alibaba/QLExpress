@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.qlexpress4.QLPrecedences;
+import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideAssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.MinusAssignOperator;
@@ -95,6 +98,7 @@ public class OperatorManager {
         binaryOperatorList.add(LessOperator.getInstance());
         binaryOperatorList.add(LessEqualOperator.getInstance());
         binaryOperatorList.add(InOperator.getInstance());
+        binaryOperatorList.add(InstanceOfOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
@@ -120,8 +124,33 @@ public class OperatorManager {
 
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
-    public void addOperator(String operator, BinaryOperator binaryOperator) {
+    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
+        return addOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
+    }
+
+    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
+        if (customBinaryOperatorMap.containsKey(operator)) {
+            // TODO bingo 自定义异常
+            throw new RuntimeException("can not over write existed custom binary operator");
+        }
+        BinaryOperator binaryOperator = new BinaryOperator() {
+            @Override
+            public Object execute(Value left, Value right, ErrorReporter errorReporter) {
+                return customBinaryOperator.execute(left.get(), right.get());
+            }
+
+            @Override
+            public String getOperator() {
+                return operator;
+            }
+
+            @Override
+            public int getPriority() {
+                return priority;
+            }
+        };
         customBinaryOperatorMap.put(operator, binaryOperator);
+        return DEFAULT_BINARY_OPERATOR_MAP.containsKey(operator);
     }
 
     public Map<String, Integer> getOperatorPrecedenceMap() {

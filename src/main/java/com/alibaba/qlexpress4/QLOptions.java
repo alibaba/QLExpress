@@ -18,7 +18,7 @@ public class QLOptions {
 
     /**
      * precise evaluate based on BigDecimal
-     * default true
+     * default false
      */
     private final boolean precise;
 
@@ -51,6 +51,7 @@ public class QLOptions {
      * default import java packages for script
      * default         ImportManager.importPack("java.lang"),
      *                 ImportManager.importPack("java.util"),
+     *                 ImportManager.importPack("java.math"),
      *                 ImportManager.importPack("java.util.stream")
      */
     private final List<ImportManager.Import> defaultImport;
@@ -164,6 +165,7 @@ public class QLOptions {
         private List<ImportManager.Import> defaultImport = Arrays.asList(
                 ImportManager.importPack("java.lang"),
                 ImportManager.importPack("java.util"),
+                ImportManager.importPack("java.math"),
                 ImportManager.importPack("java.util.stream")
         );
 

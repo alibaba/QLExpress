@@ -50,7 +50,7 @@ public class LogicAndOperator extends BaseBinaryOperator {
 
     @Override
     public String getOperator() {
-        return "&&";
+        return operator;
     }
 
     @Override

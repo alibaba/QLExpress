@@ -22,7 +22,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return value.get() instanceof Comparable;
     }
 
-    protected boolean isBothNumbers(Value left, Value right) {
+    protected boolean isBothNumber(Value left, Value right) {
         return left.get() instanceof Number && right.get() instanceof Number;
     }
 
@@ -44,7 +44,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return leftValue + (String)rightValue;
         }
 
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             return NumberMath.add((Number)leftValue, (Number)rightValue);
         }
 
@@ -55,7 +55,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             return NumberMath.subtract((Number)leftValue, (Number)rightValue);
         }
 
@@ -66,7 +66,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             return NumberMath.multiply((Number)leftValue, (Number)rightValue);
         }
 
@@ -77,7 +77,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             try {
                 return NumberMath.divide((Number)leftValue, (Number)rightValue);
             } catch (ArithmeticException arithmeticException) {
@@ -92,7 +92,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             return NumberMath.mod((Number)leftValue, (Number)rightValue);
         }
 
@@ -100,7 +100,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object bitwiseAnd(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -111,7 +111,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object bitwiseOr(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -122,7 +122,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object bitwiseXor(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -133,7 +133,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object leftShift(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -144,7 +144,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object rightShift(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -155,7 +155,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object rightShiftUnsigned(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumbers(left, right)) {
+        if (!isBothNumber(left, right)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
@@ -165,6 +165,16 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return NumberMath.rightShiftUnsigned(leftValue, rightValue);
     }
 
+    /**
+     * 参考groovy
+     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareEqual
+     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareToWithEqualityCheck
+     *
+     * @param left
+     * @param right
+     * @param errorReporter
+     * @return
+     */
     protected int compare(Value left, Value right, ErrorReporter errorReporter) {
         if (Objects.equals(left.get(), right.get())) {
             return 0;
@@ -176,11 +186,19 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         }
 
         // TODO 两个都实现Comparable接口，参考groovy
-        if (isBothNumbers(left, right)) {
+        if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get());
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
+    }
+
+    protected boolean equals(Value left, Value right) {
+        if (isBothNumber(left, right)) {
+            return NumberMath.compareTo((Number)left.get(), (Number)right.get()) == 0;
+        } else {
+            return Objects.equals(left.get(), right.get());
+        }
     }
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,

@@ -632,14 +632,6 @@ public class QLParserTest {
     }
 
     @Test
-    public void numberTest() {
-        assertErrReport("int a = .5", "[Error: invalid expression]\n" +
-                "[Near: int a = .5]\n" +
-                "               ^\n" +
-                "[Line: 1, Column: 9]");
-    }
-
-    @Test
     public void methodRefTest() {
         Program program = parse("Math::abs testOp s::charAt");
         BinaryOpExpr binaryOpExpr = (BinaryOpExpr) program.getStmtList().get(0);
@@ -709,6 +701,13 @@ public class QLParserTest {
                 "} else {\n" +
                 "    1\n" +
                 "};");
+    }
+
+    @Test
+    public void precedenceTest() {
+        Program ifExprProgram = parse("a = if (1==1) {1} else {2} + 1");
+        AssignExpr assignExpr = (AssignExpr) ifExprProgram.getStmtList().get(0);
+        assertTrue(assignExpr.getRight() instanceof BinaryOpExpr);
     }
 
     @Test

@@ -5,10 +5,7 @@ import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 abstract class OperatorParseRule {
 
@@ -52,18 +49,26 @@ class IfExprRule extends OperatorParseRule {
         parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
                 "expect ')' after if condition");
 
-        Stmt thenBranch = parser.statement(contextType);
+        Stmt thenBranch = parseBranchBody(parser, contextType);
 
         if (parser.matchKeyWordAndAdvance(KeyWordsSet.ELSE)) {
-            Stmt elseBranch = parser.statement(contextType);
+            Stmt elseBranch = parseBranchBody(parser, contextType);
             return new IfExpr(keyToken, condition, thenBranch, elseBranch);
         } else {
             return new IfExpr(keyToken, condition, thenBranch, null);
         }
     }
+
+    private Stmt parseBranchBody(QLParser parser, QLParser.ContextType contextType) {
+        if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
+            return parser.block(contextType);
+        } else {
+            return parser.expr(contextType);
+        }
+    }
 }
 
-class BlockExprRule extends OperatorParseRule {
+class BlockOrMapExprRule extends OperatorParseRule {
     @Override
     boolean prefixCondition(Token cur) {
         return cur.getType() == TokenType.LBRACE;
@@ -71,7 +76,41 @@ class BlockExprRule extends OperatorParseRule {
 
     @Override
     Expr prefixParse(QLParser parser, QLParser.ContextType contextType) {
-        return parser.block(contextType);
+        Token keyToken = parser.pre;
+        if (parser.matchTypeAndAdvance(TokenType.RBRACE)) {
+            // {} in expr is empty map
+            return new MapExpr(keyToken, Collections.emptyList());
+        }
+        Token nextToken = parser.lookAheadNextToken();
+        if (nextToken != null && nextToken.getType() == TokenType.COLON) {
+            // map literal
+            List<Map.Entry<String, Expr>> entries  = new ArrayList<>();
+            entries.add(parseMapEntry(parser, contextType));
+            while (!parser.matchTypeAndAdvance(TokenType.RBRACE)) {
+                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_MAP_ENTRY",
+                        "expect ',' between map entry");
+                entries.add(parseMapEntry(parser, contextType));
+            }
+            return new MapExpr(keyToken, entries);
+        } else {
+            // Block
+            return parser.block(contextType);
+        }
+    }
+
+    private Map.Entry<String, Expr> parseMapEntry(QLParser parser, QLParser.ContextType contextType) {
+        if (parser.matchAndAdvance(cur -> cur.getType() == TokenType.ID || cur.getType() == TokenType.STRING)) {
+            Token keyToken = parser.pre;
+            if (parser.matchTypeAndAdvance(TokenType.COLON)) {
+                Expr valueExpr = parser.expr(contextType);
+                return new AbstractMap.SimpleEntry<>(keyToken.getType() == TokenType.STRING?
+                        keyToken.getLiteral().toString(): keyToken.getLexeme(), valueExpr);
+            }
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "EXPECT_COLON_BETWEEN_KEY_VALUE", "expect ':' between map key and value");
+        }
+        throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                "INVALID_MAP_KEY", "invalid map key; map key can only be string literal or id");
     }
 }
 

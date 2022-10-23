@@ -33,7 +33,7 @@ public class CallFunctionInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         QFunction function = qContext.getFunction(functionName);
         if (function == null) {
-            callLambda(qContext);
+            callLambda(qContext, qlOptions);
             return QResult.CONTINUE_RESULT;
         }
         Parameters parameters = qContext.pop(argNum);
@@ -48,11 +48,15 @@ public class CallFunctionInstruction extends QLInstruction {
         }
     }
 
-    private void callLambda(QContext qContext) {
+    private void callLambda(QContext qContext, QLOptions qlOptions) {
         Object lambdaSymbol = qContext.getSymbolValue(functionName);
+        if (lambdaSymbol == null && qlOptions.isAvoidNullPointer()) {
+            qContext.push(DataValue.NULL_VALUE);
+            return;
+        }
         if (!(lambdaSymbol instanceof QLambda)) {
-            throw errorReporter.report("CAN_NOT_FIND_FUNCTION", "can not find function %s",
-                    functionName);
+            throw errorReporter.report(
+                    "CAN_NOT_FIND_FUNCTION", "can not find function " + functionName);
         }
         Parameters parameters = qContext.pop(argNum);
         Object[] parametersArr = new Object[parameters.size()];
