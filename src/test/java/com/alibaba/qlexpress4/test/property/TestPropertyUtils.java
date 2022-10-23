@@ -12,6 +12,8 @@ import com.alibaba.qlexpress4.InitOptions;
 public class TestPropertyUtils {
 
     public static void main(String[] args) throws Exception {
+          Integer a = Integer.MAX_VALUE;
+          System.out.println(a);
 //        ExpressRunner expressRunner = new ExpressRunner();
 //        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
 //        defaultContext.put("a",new Child9());
@@ -23,8 +25,8 @@ public class TestPropertyUtils {
 //          System.out.println(Child7.class.toString());
 //          System.out.println(StringConversion.trans(Child7.class).getCastValue());
 //
-          Express4Runner express4Runner = new Express4Runner(InitOptions.builder().build());
-          Child10 as = new Child10();
+//          Express4Runner express4Runner = new Express4Runner(InitOptions.builder().build());
+//          Child10 as = new Child10();
 //         express4Runner.addFunction("test", as::setAA);
 //        express4Runner.addFunction("test", (Function<Integer[], Integer>) as::setAAA, Integer.class);
 //        express4Runner.addFunction("test", (QLFunctionalVarargs<Object, Object>) as::setAAAA, String.class,Integer.class);

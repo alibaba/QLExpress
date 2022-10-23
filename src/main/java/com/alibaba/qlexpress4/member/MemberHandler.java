@@ -111,7 +111,10 @@ public class MemberHandler {
 
     private static QLImplicitMatcher doParamsConversion(Class<?>[] targetMatch, Class<?>[] goalMatch, int assignLevel,
                                                         QLParametersMatcher bestMatcher, int i, QLImplicitVars needVars){
-        int weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
+        int weight = ParametersConversion.QLMatchConverter.NOT_MATCH.getWeight();
+        if(!(targetMatch.length != goalMatch.length && (targetMatch.length == 0 || goalMatch.length == 0))){
+            weight = ParametersConversion.calculatorMatchConversionWeight(goalMatch, targetMatch, new QLWeighter(assignLevel));
+        }
         if (weight != BasicUtil.DEFAULT_WEIGHT){
             if (weight < bestMatcher.getMatchWeight() && weight != ParametersConversion.QLMatchConverter.NOT_MATCH.getWeight()) {
                 bestMatcher.setParametersClassType(targetMatch);

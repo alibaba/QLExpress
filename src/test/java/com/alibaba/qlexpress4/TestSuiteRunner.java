@@ -47,7 +47,11 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/array/array_literal.ql");
+        testFilePath("independent/array/array_literal.ql");
+    }
+
+    public void testFilePath(String qlFilePath) throws URISyntaxException, IOException {
+        Path filePath = getTestSuiteRoot().resolve(qlFilePath);
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -155,7 +159,7 @@ public class TestSuiteRunner {
         }
     }
 
-    private static class AssertFunction implements QFunction {
+    public static class AssertFunction implements QFunction {
         @Override
         public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
             int pSize = parameters.size();
