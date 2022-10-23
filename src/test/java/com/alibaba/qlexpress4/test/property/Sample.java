@@ -8,7 +8,7 @@ public class Sample {
 
     private int count;
 
-    Sample(int count){
+    public Sample(int count){
         this.count = count;
     }
 
