@@ -18,8 +18,10 @@ public class TestSuiteCaseForProperty {
     public void test() throws IOException, URISyntaxException {
         TestSuiteRunner testSuiteRunner = new TestSuiteRunner();
         testSuiteRunner.before();
+//        Path publicStatic = Paths.get(getClass().getClassLoader()
+//                .getResource("testsuite").toURI()).resolve("java/property/class_get.ql");
         Path publicStatic = Paths.get(getClass().getClassLoader()
-                .getResource("testsuite").toURI()).resolve("java/property/class_get.ql");
+                .getResource("testsuite").toURI()).resolve("java/method.get/object_method.ql");
 //        testSuiteRunner.testFilePath("java/property/public_static.ql");
         testSuiteRunner.handleFile(publicStatic,publicStatic.toString(),true);
 //        testSuiteRunner.testFilePath("java/property/private_member_attr_getter.ql");
