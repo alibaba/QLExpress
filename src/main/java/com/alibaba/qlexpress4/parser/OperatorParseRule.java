@@ -45,6 +45,10 @@ class IfExprRule extends OperatorParseRule {
         Token keyToken = parser.pre;
         parser.advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_IF_CONDITION",
                 "expect '(' before if condition");
+        if (parser.isEnd() || parser.cur.getType() == TokenType.RPAREN) {
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "EXPECT_IF_CONDITION", "expect if condition");
+        }
         Expr condition = parser.expr(contextType);
         parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
                 "expect ')' after if condition");
@@ -62,7 +66,10 @@ class IfExprRule extends OperatorParseRule {
     private Stmt parseBranchBody(QLParser parser, QLParser.ContextType contextType) {
         if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
             return parser.block(contextType);
-        } else {
+        } else if (parser.isEnd()) {
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "EXPECT_IF_BODY", "expect if/else body");
+        } else  {
             return parser.expr(contextType);
         }
     }
@@ -310,8 +317,8 @@ class LBrackRule extends OperatorParseRule {
                         keyToken, "CAN_NOT_FIND_RBRACK_TO_MATCH", "can not find ']' to match");
             }
             if (!elements.isEmpty()) {
-                parser.advanceOrReportError(TokenType.COMMA, "MISS_COMMA_BETWEEN_ELEMENTS",
-                        "miss ',' between elements");
+                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ELEMENTS",
+                        "expect ',' between elements");
             }
             elements.add(parser.expr(contextType));
         }
