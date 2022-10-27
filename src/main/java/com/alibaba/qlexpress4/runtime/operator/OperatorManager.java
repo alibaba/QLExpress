@@ -129,10 +129,6 @@ public class OperatorManager {
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
-        if (customBinaryOperatorMap.containsKey(operator)) {
-            // TODO bingo 自定义异常
-            throw new RuntimeException("can not over write existed custom binary operator");
-        }
         BinaryOperator binaryOperator = new BinaryOperator() {
             @Override
             public Object execute(Value left, Value right, ErrorReporter errorReporter) {
@@ -149,8 +145,8 @@ public class OperatorManager {
                 return priority;
             }
         };
-        customBinaryOperatorMap.put(operator, binaryOperator);
-        return DEFAULT_BINARY_OPERATOR_MAP.containsKey(operator);
+        BinaryOperator preBinaryOperator = customBinaryOperatorMap.put(operator, binaryOperator);
+        return preBinaryOperator != null || DEFAULT_BINARY_OPERATOR_MAP.containsKey(operator);
     }
 
     public Map<String, Integer> getOperatorPrecedenceMap() {

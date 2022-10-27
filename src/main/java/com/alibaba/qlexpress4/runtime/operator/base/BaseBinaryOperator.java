@@ -197,6 +197,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get()) == 0;
         } else {
+            // TODO 如果实现了Comparable接口，是否考虑通过compareTo方法比较
             return Objects.equals(left.get(), right.get());
         }
     }
