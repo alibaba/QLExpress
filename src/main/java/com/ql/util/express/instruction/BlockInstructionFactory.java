@@ -18,18 +18,18 @@ public class BlockInstructionFactory extends InstructionFactory {
             result.addInstruction(new InstructionClearDataStack().setLine(node.getLine()));
         }
 
-        int tmpPoint = result.getCurrentPoint() + 1;
+        boolean needOpenNewArea = !isRoot && "STAT_BLOCK".equals(node.getNodeType().getName());
+        if (needOpenNewArea) {
+            result.addInstruction(new InstructionOpenNewArea().setLine(node.getLine()));
+        }
         boolean returnVal;
         boolean hasDef = false;
         for (ExpressNode tmpNode : node.getChildrenArray()) {
             boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, tmpNode, false);
             hasDef = hasDef || tmpHas;
         }
-        if (hasDef && !isRoot
-            && node.getTreeType().isEqualsOrChild("STAT_BLOCK")) {
-            result.insertInstruction(tmpPoint, new InstructionOpenNewArea().setLine(node.getLine()));
-            result.insertInstruction(result.getCurrentPoint() + 1,
-                new InstructionCloseNewArea().setLine(node.getLine()));
+        if (needOpenNewArea) {
+            result.addInstruction(new InstructionCloseNewArea().setLine(node.getLine()));
             returnVal = false;
         } else {
             returnVal = hasDef;
