@@ -864,7 +864,7 @@ public class QLParser {
             return new IndexCallExpr(keyToken, left, indexExpr);
         } else if (pre.getType() == TokenType.DOT) {
             // get field
-            if (matchTypeAndAdvance(TokenType.ID)) {
+            if (matchTypeAndAdvance(TokenType.ID) || matchKeyWordAndAdvance(KeyWordsSet.CLASS)) {
                 return new GetFieldExpr(pre, left, new Identifier(pre));
             }
             throw QLException.reportParserErr(scanner.getScript(),
