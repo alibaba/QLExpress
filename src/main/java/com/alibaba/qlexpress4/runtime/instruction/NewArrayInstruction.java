@@ -40,8 +40,8 @@ public class NewArrayInstruction extends QLInstruction {
         for (int i = 0; i < initItems.size(); i++) {
             QLConvertResult qlConvertResult = InstanceConversion.castObject(initItems.get(i).get(), clz);
             if (QLConvertResultType.NOT_TRANS == qlConvertResult.getResultType()) {
-                throw errorReporter.report("INVALID_ARRAY_ITEM",
-                        "can not trans to array item type:" + clz.getName());
+                throw errorReporter.reportFormat("INVALID_ARRAY_ITEM",
+                        "item %s can not trans to array item type '%s'", i, clz.getName());
             }
             Array.set(array, i, qlConvertResult.getCastValue());
         }

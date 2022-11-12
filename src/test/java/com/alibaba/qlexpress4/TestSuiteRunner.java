@@ -48,7 +48,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/array/arr_with_init_item.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/array/invalid_arr_item.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

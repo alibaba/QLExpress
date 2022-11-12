@@ -37,7 +37,8 @@ public class MultiNewArrayInstruction extends QLInstruction {
         for (int i = 0; i < dims; i++) {
             Object dimValue = dimValues.get(i).get();
             if (!(dimValue instanceof Number)) {
-                throw errorReporter.report("ARRAY_INVALID_SIZE", "array size must be number");
+                throw errorReporter.reportFormat("ARRAY_INVALID_SIZE_TYPE",
+                        "array size must be number, %s dim is invalid", i);
             }
             dimArray[i] = ((Number) dimValue).intValue();
         }
