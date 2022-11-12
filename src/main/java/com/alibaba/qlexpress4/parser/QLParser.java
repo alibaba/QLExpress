@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -140,9 +141,9 @@ public class QLParser {
         advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_CATCH_EXCEPTION",
                 "expect '(' before catch exception");
         List<DeclType> exceptions = new ArrayList<>(3);
-        exceptions.add(declType());
+        exceptions.add(declType(true));
         while (matchTypeAndAdvance(TokenType.BITOR)) {
-            exceptions.add(declType());
+            exceptions.add(declType(true));
         }
         Identifier variable = idOrReportError("INVALID_CATCH_VARIABLE_NAME",
                 "invalid catch variable name");
@@ -179,13 +180,34 @@ public class QLParser {
 
             if (isTokenType(maybeVarToken, TokenType.LT)) {
                 return lookAheadGtNextToken(maybeVarToken);
+            } else if (isTokenType(maybeVarToken, TokenType.LBRACK)) {
+                // array type
+                return lookAheadArrayDeclareNextToken();
             } else {
                 return maybeVarToken;
             }
         } else if (isTokenType(cur, TokenType.TYPE)) {
-            return scanner.lookAhead();
+            Token maybeVarToken = scanner.lookAhead();
+            if (isTokenType(maybeVarToken, TokenType.LBRACK)) {
+                // array type
+                return lookAheadArrayDeclareNextToken();
+            }
+            return maybeVarToken;
         } else {
             return null;
+        }
+    }
+
+    private Token lookAheadArrayDeclareNextToken() {
+        while (true) {
+            if (!isTokenType(scanner.lookAhead(), TokenType.RBRACK)) {
+                // invalid array
+                return null;
+            }
+            Token next = scanner.lookAhead();
+            if (!isTokenType(next, TokenType.LBRACK)) {
+                return next;
+            }
         }
     }
 
@@ -255,7 +277,7 @@ public class QLParser {
     private LocalVarDeclareStmt localVarDeclareStmt() {
         // first three token has been determined
         Token keyToken = cur;
-        DeclType type = declType();
+        DeclType type = declType(true);
         Identifier varName;
         if (matchTypeAndAdvance(TokenType.ID)) {
             varName = new Identifier(pre);
@@ -281,7 +303,7 @@ public class QLParser {
         scanner.back();
         if (isTokenType(typeDeclNextToken, TokenType.ID)) {
             // variable with type declare
-            DeclType declType = declType();
+            DeclType declType = declType(true);
             Token variable = cur;
             advance();
             return new VarDecl(declType, new Identifier(variable));
@@ -292,9 +314,14 @@ public class QLParser {
         }
     }
 
-    protected DeclType declType() {
+    protected DeclType declType(boolean parseArray) {
         if (matchTypeAndAdvance(TokenType.TYPE)) {
-            return new DeclType(pre, mustLoadQualifiedCls((String) pre.getLiteral(), pre), Collections.emptyList());
+            Token typeKeyToken = pre;
+            Class<?> baseType = mustLoadQualifiedCls((String) pre.getLiteral(), pre);
+            if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
+                return arrayDeclType(typeKeyToken, baseType);
+            }
+            return new DeclType(typeKeyToken, baseType, Collections.emptyList());
         } else if (matchTypeAndAdvance(TokenType.ID)) {
             List<String> clsPartName = new ArrayList<>(5);
             clsPartName.add(pre.getLexeme());
@@ -314,12 +341,27 @@ public class QLParser {
             if (matchTypeAndAdvance(TokenType.LT)) {
                 // generic type arguments
                 return new DeclType(typeKeyToken, clz, typeArgumentList());
+            } else if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
+                // array
+                return arrayDeclType(typeKeyToken, clz);
             } else {
                 return new DeclType(typeKeyToken, clz, Collections.emptyList());
             }
         }
         throw QLException.reportParserErr(scanner.getScript(), lastToken(),
                 "INVALID_TYPE_DECLARE", "invalid type declare");
+    }
+
+    private DeclType arrayDeclType(Token typeKeyToken, Class<?> originClz) {
+        Class<?> clz = originClz;
+        while (true) {
+            if (matchTypeAndAdvance(TokenType.RBRACK)) {
+                clz = Array.newInstance(clz, 0).getClass();
+            }
+            if (!matchTypeAndAdvance(TokenType.LBRACK)) {
+                return new DeclType(typeKeyToken, clz, Collections.emptyList());
+            }
+        }
     }
 
     private Class<?> mustLoadSimpleCls(Token simpleNameToken) {
@@ -364,7 +406,7 @@ public class QLParser {
                 DeclTypeArgument.Bound bound = KeyWordsSet.EXTENDS.equals(pre.getLexeme())?
                         DeclTypeArgument.Bound.EXTENDS: DeclTypeArgument.Bound.SUPER;
                 if (!isEnd() && cur.getType() == TokenType.ID) {
-                    return new DeclTypeArgument(declType(), bound);
+                    return new DeclTypeArgument(declType(true), bound);
                 } else {
                     throw QLException.reportParserErr(scanner.getScript(),
                             lastToken(), "INVALID_TYPE_BOUND",
@@ -375,7 +417,7 @@ public class QLParser {
                         DeclTypeArgument.Bound.NONE);
             }
         } else if (!isEnd() && (cur.getType() == TokenType.ID || cur.getType() == TokenType.TYPE)) {
-            return new DeclTypeArgument(declType(), DeclTypeArgument.Bound.NONE);
+            return new DeclTypeArgument(declType(true), DeclTypeArgument.Bound.NONE);
         }
         throw QLException.reportParserErr(scanner.getScript(),
                 lastToken(), "INVALID_TYPE_ARGUMENT", "invalid type argument");

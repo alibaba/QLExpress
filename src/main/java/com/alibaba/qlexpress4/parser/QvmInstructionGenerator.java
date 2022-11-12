@@ -347,6 +347,26 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     }
 
     @Override
+    public Void visit(MultiNewArrayExpr newArrayDimsExpr, GeneratorScope context) {
+        for (Expr dim : newArrayDimsExpr.getDims()) {
+            dim.accept(this, context);
+        }
+        addInstruction(new MultiNewArrayInstruction(newReporterByNode(newArrayDimsExpr),
+                newArrayDimsExpr.getClz(), newArrayDimsExpr.getDims().size()));
+        return null;
+    }
+
+    @Override
+    public Void visit(NewArrayExpr newArrayExpr, GeneratorScope context) {
+        for (Expr value : newArrayExpr.getValues()) {
+            value.accept(this, context);
+        }
+        addInstruction(new NewArrayInstruction(newReporterByNode(newArrayExpr),
+                newArrayExpr.getClz(), newArrayExpr.getValues().size()));
+        return null;
+    }
+
+    @Override
     public Void visit(ImportStmt importStmt, GeneratorScope generatorScope) {
         // import statement has been handled in parser
         return null;

@@ -24,6 +24,47 @@ import static org.junit.Assert.*;
 public class QLParserTest {
 
     @Test
+    public void arrayTypeTest() {
+        Program p0 = parse("Object[] a;");
+        assertEquals(Object[].class,
+                ((LocalVarDeclareStmt) p0.getStmtList().get(0)).getVarDecl().getType().getClz());
+        Program p1 = parse("Object[][][] a;");
+        assertEquals(Object[][][].class,
+                ((LocalVarDeclareStmt) p1.getStmtList().get(0)).getVarDecl().getType().getClz());
+
+        Program p2 = parse("Map<int[][][], long[]> a;");
+        List<DeclTypeArgument> typeArguments = ((LocalVarDeclareStmt) p2.getStmtList().get(0)).getVarDecl()
+                .getType().getTypeArguments();
+        assertEquals(Integer[][][].class, typeArguments.get(0).getType().getClz());
+        assertEquals(Long[].class, typeArguments.get(1).getType().getClz());
+    }
+
+    @Test
+    public void arrayInitTest() {
+        Program p0 = parse("Object[] a = new Object[10];");
+        LocalVarDeclareStmt localVarDeclareStmt = (LocalVarDeclareStmt) p0.getStmtList().get(0);
+        MultiNewArrayExpr newArrayExpr = (MultiNewArrayExpr) localVarDeclareStmt.getInitializer();
+        assertEquals(Collections.singletonList(10), newArrayExpr.getDims().stream()
+                .map(ConstExpr.class::cast)
+                .map(ConstExpr::getConstValue)
+                .collect(Collectors.toList()));
+        assertEquals(Object.class, newArrayExpr.getClz());
+
+        Program p1 = parse("new Object[10][3][4][][]");
+        MultiNewArrayExpr newArrayExpr1 = (MultiNewArrayExpr) p1.getStmtList().get(0);
+        assertEquals(Arrays.asList(10, 3, 4), newArrayExpr1.getDims().stream()
+                .map(ConstExpr.class::cast)
+                .map(ConstExpr::getConstValue)
+                .collect(Collectors.toList()));
+        assertEquals(Object[][].class, newArrayExpr1.getClz());
+
+        Program p2 = parse("new int[] {1,2,3,4}");
+        NewArrayExpr newArrayExpr2 = (NewArrayExpr) p2.getStmtList().get(0);
+        assertEquals(Integer.class, newArrayExpr2.getClz());
+        assertEquals(4, newArrayExpr2.getValues().size());
+    }
+
+    @Test
     public void assignTest() {
         // assign is right-associative
         Program p0 = parse("a = b += 10");

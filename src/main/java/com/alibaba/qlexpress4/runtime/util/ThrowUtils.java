@@ -11,7 +11,7 @@ public class ThrowUtils {
     public static QLRuntimeException wrapException(Exception e, ErrorReporter errorReporter, String errCode,
                                                    String errMsg, String... args) {
         return e instanceof QLRuntimeException? (QLRuntimeException) e :
-                errorReporter.report(errCode, errMsg, (Object[]) args);
+                errorReporter.reportFormat(errCode, errMsg, (Object[]) args);
     }
 
 }

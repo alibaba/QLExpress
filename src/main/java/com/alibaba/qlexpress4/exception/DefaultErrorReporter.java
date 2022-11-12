@@ -27,7 +27,7 @@ public class DefaultErrorReporter implements ErrorReporter {
     }
 
     @Override
-    public QLRuntimeException report(String errorCode, String format, Object... args) {
+    public QLRuntimeException reportFormat(String errorCode, String format, Object... args) {
         return report(errorCode, String.format(format, args));
     }
 }

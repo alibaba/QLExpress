@@ -331,6 +331,28 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(MultiNewArrayExpr newArrayDimsExpr, Void context) {
+        visitNode(newArrayDimsExpr, expr -> {
+            printByCurDepth(expr.getClz().getSimpleName());
+            for (Expr dim : expr.getDims()) {
+                dim.accept(this, context);
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visit(NewArrayExpr newArrayExpr, Void context) {
+        visitNode(newArrayExpr, expr -> {
+            printByCurDepth(expr.getClz().getSimpleName());
+            for (Expr value : expr.getValues()) {
+                value.accept(this, context);
+            }
+        });
+        return null;
+    }
+
     private void printByCurDepth(String str) {
         printlnByCurDepth(depth, str, debug);
     }

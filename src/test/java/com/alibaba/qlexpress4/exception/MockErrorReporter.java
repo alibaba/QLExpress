@@ -13,7 +13,7 @@ public class MockErrorReporter implements ErrorReporter {
     }
 
     @Override
-    public QLRuntimeException report(String errorCode, String format, Object... args) {
+    public QLRuntimeException reportFormat(String errorCode, String format, Object... args) {
         return new QLRuntimeException(null, String.format(format, args), errorCode);
     }
 }

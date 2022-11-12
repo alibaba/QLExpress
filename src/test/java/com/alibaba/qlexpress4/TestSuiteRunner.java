@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Author: DQinYuan
@@ -47,7 +48,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/avoidnullpointer/avoid_null_pointer.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/array/arr_with_init_item.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

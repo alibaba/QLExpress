@@ -32,17 +32,17 @@ public class IndexInstruction extends QLInstruction {
         Object index = qContext.pop().get();
         Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
-            Integer indexInt = assertType(index, Integer.class, "LIST_INVALID_INDEX",
-                    "list can only be indexed by int");
-            qContext.push(new ListItemValue((List<? super Object>) indexAble, indexInt));
+            Number indexNumber = assertType(index, Number.class, "LIST_INVALID_INDEX",
+                    "list can only be indexed by number");
+            qContext.push(new ListItemValue((List<? super Object>) indexAble, indexNumber.intValue()));
         } else if (indexAble instanceof Map) {
             qContext.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
-            Integer indexInt = assertType(index, Integer.class, "ARRAY_INVALID_INDEX",
-                    "array can only be indexed by int");
-            qContext.push(new ArrayItemValue(indexAble, indexInt));
+            Number indexNumber = assertType(index, Number.class, "ARRAY_INVALID_INDEX",
+                    "array can only be indexed by number");
+            qContext.push(new ArrayItemValue(indexAble, indexNumber.intValue()));
         } else {
-            throw errorReporter.report("INVALID_INDEX", "%s not support index",
+            throw errorReporter.reportFormat("INVALID_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());
         }
         return QResult.CONTINUE_RESULT;
