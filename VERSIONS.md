@@ -122,6 +122,8 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (2)安全审核方法:InvokeSecurityRiskMethodsTest
 
 (3)区分异常类型：ThrowExceptionTest
+
+(4)**引入了不兼容的修改**, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 `1=="1"` 为 true, 但是 3.3.3 及以后版本都是 false，升级时需要注意
 ## 3.2.4版本[2019-12-6]
 (1)增加null的数字比较方案"1>null"":NullCompareTest
 
