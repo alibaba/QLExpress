@@ -34,22 +34,26 @@ public class IfInstructionFactory extends InstructionFactory {
         if (point == 2) {
             children[2] = new ExpressNode(expressRunner.getNodeTypeManager().findNodeType("STAT_BLOCK"), null);
         }
-        int[] finishPoint = new int[children.length];
+
         //condition
         boolean r1 = expressRunner.createInstructionSetPrivate(result, forStack, children[0], false);
-        finishPoint[0] = result.getCurrentPoint();
+        InstructionGoToWithCondition goToFalseBody = new InstructionGoToWithCondition(false, 0, true);
+        goToFalseBody.setLine(node.getLine());
+        result.addInstruction(goToFalseBody);
+        int conditionEndPoint = result.getCurrentPoint();
 
         //true
         boolean r2 = expressRunner.createInstructionSetPrivate(result, forStack, children[1], false);
-        result.insertInstruction(finishPoint[0] + 1,
-            new InstructionGoToWithCondition(false, result.getCurrentPoint() - finishPoint[0] + 2, true).setLine(
-                node.getLine()));
-        finishPoint[1] = result.getCurrentPoint();
+        InstructionGoTo goToEnd = new InstructionGoTo(0);
+        goToEnd.setLine(node.getLine());
+        result.addInstruction(goToEnd);
+        goToFalseBody.setOffset(result.getCurrentPoint() - conditionEndPoint + 1);
+
+        int trueBodyEndPoint = result.getCurrentPoint();
 
         //false
         boolean r3 = expressRunner.createInstructionSetPrivate(result, forStack, children[2], false);
-        result.insertInstruction(finishPoint[1] + 1,
-            new InstructionGoTo(result.getCurrentPoint() - finishPoint[1] + 1).setLine(node.getLine()));
+        goToEnd.setOffset(result.getCurrentPoint() - trueBodyEndPoint + 1);
         return r1 || r2 || r3;
     }
 }
