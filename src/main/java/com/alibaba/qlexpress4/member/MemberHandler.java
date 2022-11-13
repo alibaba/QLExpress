@@ -54,7 +54,7 @@ public class MemberHandler {
                     return result;
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(QLWeighter.calNeedImplicitTrans(bestMatcher.getMatchWeight()) ? true : false
                     ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
 
@@ -72,7 +72,7 @@ public class MemberHandler {
                     return result;
                 }
             }
-            return new QLImplicitMatcher(bestMatcher.getMatchWeight()%BasicUtil.LEVEL_FACTOR == ParametersConversion.QLMatchConverter.EXTEND.getWeight() ? true : false
+            return new QLImplicitMatcher(QLWeighter.calNeedImplicitTrans(bestMatcher.getMatchWeight()) ? true : false
                     ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
     }

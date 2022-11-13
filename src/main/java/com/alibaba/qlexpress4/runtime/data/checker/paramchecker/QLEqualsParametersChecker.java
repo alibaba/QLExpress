@@ -14,9 +14,10 @@ public class QLEqualsParametersChecker implements MatchChecker {
         if (target == source){
             return true;
         }
-        Class<?> sourcePrimitive = source.isPrimitive() ? source : BasicUtil.transToPrimitive(source);
-        Class<?> targetPrimitive = target.isPrimitive() ? target : BasicUtil.transToPrimitive(target);
-        return sourcePrimitive != null && targetPrimitive != null && sourcePrimitive == targetPrimitive;
+        return false;
+//        Class<?> sourcePrimitive = source.isPrimitive() ? source : BasicUtil.transToPrimitive(source);
+//        Class<?> targetPrimitive = target.isPrimitive() ? target : BasicUtil.transToPrimitive(target);
+//        return sourcePrimitive != null && targetPrimitive != null && sourcePrimitive == targetPrimitive;
     }
 
     @Override

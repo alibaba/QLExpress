@@ -16,6 +16,6 @@ public class QLArrayParametersChecker implements MatchChecker {
 
     @Override
     public ParametersConversion.QLMatchConverter typeReturn(Class<?> source, Class<?> target) {
-        return ParametersConversion.compareParametersTypes(target, source);
+        return ParametersConversion.compareParametersTypes(target.getComponentType(), source.getComponentType());
     }
 }

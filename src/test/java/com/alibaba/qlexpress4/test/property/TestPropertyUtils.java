@@ -3,6 +3,9 @@ package com.alibaba.qlexpress4.test.property;
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
 /**
  * @Author TaoKan
  * @Date 2022/4/9 上午10:51
@@ -12,8 +15,12 @@ import com.alibaba.qlexpress4.InitOptions;
 public class TestPropertyUtils {
 
     public static void main(String[] args) throws Exception {
-          Integer a = Integer.MAX_VALUE;
-          System.out.println(a);
+        Integer[][]os = new Integer[][]{new Integer[]{1,2}, new Integer[]{3,4}};
+        assert(Arrays.equals(os[0],new Integer[]{1,2}));
+        Method a = Arrays.class.getMethod("equals", Integer[].class, Integer[].class);
+        a.invoke(Arrays.class,os[0], new Integer[]{1,2});
+//          Integer a = Integer.MAX_VALUE;
+//          System.out.println(a);
 //        ExpressRunner expressRunner = new ExpressRunner();
 //        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
 //        defaultContext.put("a",new Child9());

@@ -6,20 +6,20 @@ import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
  * @Author TaoKan
- * @Date 2022/7/20 下午10:38
+ * @Date 2022/11/13 下午1:50
  */
-public class QLPrimitiveParametersChecker implements MatchChecker {
+public class QLPrimitiveImplicitParametersChecker implements MatchChecker {
 
 
     @Override
     public boolean typeMatch(Class<?> source, Class<?> target) {
         Class<?> sourcePrimitive = source.isPrimitive() ? source : BasicUtil.transToPrimitive(source);
         Class<?> targetPrimitive = target.isPrimitive() ? target : BasicUtil.transToPrimitive(target);
-        return sourcePrimitive != null && targetPrimitive != null && sourcePrimitive == targetPrimitive;
+        return sourcePrimitive != null && targetPrimitive != null && BasicUtil.classMatchImplicit(targetPrimitive, sourcePrimitive);
     }
 
     @Override
     public ParametersConversion.QLMatchConverter typeReturn(Class<?> source, Class<?> target) {
-        return ParametersConversion.QLMatchConverter.PRIMITIVE;
+        return ParametersConversion.QLMatchConverter.IMPLICIT;
     }
 }
