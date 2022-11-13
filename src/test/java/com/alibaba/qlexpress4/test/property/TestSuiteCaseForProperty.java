@@ -21,7 +21,7 @@ public class TestSuiteCaseForProperty {
 //        Path publicStatic = Paths.get(getClass().getClassLoader()
 //                .getResource("testsuite").toURI()).resolve("java/property/class_get.ql");
         Path publicStatic = Paths.get(getClass().getClassLoader()
-                .getResource("testsuite").toURI()).resolve("java/implicit_convertion/test.ql");
+                .getResource("testsuite").toURI()).resolve("java/convertion/assignable.ql");
 //        testSuiteRunner.testFilePath("java/property/public_static.ql");
         testSuiteRunner.handleFile(publicStatic,publicStatic.toString(),true);
 //        testSuiteRunner.testFilePath("java/property/private_member_attr_getter.ql");

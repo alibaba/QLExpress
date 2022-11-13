@@ -15,10 +15,8 @@ import java.util.Arrays;
 public class TestPropertyUtils {
 
     public static void main(String[] args) throws Exception {
-        Integer[][]os = new Integer[][]{new Integer[]{1,2}, new Integer[]{3,4}};
-        assert(Arrays.equals(os[0],new Integer[]{1,2}));
-        Method a = Arrays.class.getMethod("equals", Integer[].class, Integer[].class);
-        a.invoke(Arrays.class,os[0], new Integer[]{1,2});
+        Integer a = null;
+        assert((Integer)a == null);
 //          Integer a = Integer.MAX_VALUE;
 //          System.out.println(a);
 //        ExpressRunner expressRunner = new ExpressRunner();
