@@ -197,6 +197,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get()) == 0;
         } else {
+            // TODO 如果实现了Comparable接口，是否考虑通过compareTo方法比较
             return Objects.equals(left.get(), right.get());
         }
     }
@@ -204,7 +205,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
         ErrorReporter errorReporter) {
         // 错误码统一规范
-        return errorReporter.report("InvalidOperandType",
+        return errorReporter.reportFormat("InvalidOperandType",
             "Cannot use %s operator on leftType:%s with leftValue:%s and rightType:%s with rightValue:%s",
             getOperator(), left.getTypeName(), left.get(), right.getTypeName(), right.get());
     }

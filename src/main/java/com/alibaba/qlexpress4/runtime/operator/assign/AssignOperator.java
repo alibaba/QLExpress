@@ -24,7 +24,7 @@ public class AssignOperator extends BaseBinaryOperator {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue) left;
         Object newValue = right.get();
-        leftValue.setInner(newValue);
+        leftValue.set(newValue, errorReporter);
         return newValue;
     }
 

@@ -19,7 +19,7 @@ public class TestErrorReporter implements ErrorReporter {
     }
 
     @Override
-    public QLRuntimeException report(String errorCode, String format, Object... args) {
+    public QLRuntimeException reportFormat(String errorCode, String format, Object... args) {
         return null;
     }
 }

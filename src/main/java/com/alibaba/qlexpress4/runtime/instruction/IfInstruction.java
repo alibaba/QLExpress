@@ -36,7 +36,7 @@ public class IfInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object condition = qContext.pop().get();
         if (!(condition instanceof Boolean)) {
-            throw errorReporter.report("IF_CONDITION_NOT_BOOL",
+            throw errorReporter.report("IF_CONDITION_EXPECT_BOOL",
                     "if condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;

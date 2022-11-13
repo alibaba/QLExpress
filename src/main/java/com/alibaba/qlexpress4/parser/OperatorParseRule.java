@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 abstract class OperatorParseRule {
@@ -45,6 +46,10 @@ class IfExprRule extends OperatorParseRule {
         Token keyToken = parser.pre;
         parser.advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_IF_CONDITION",
                 "expect '(' before if condition");
+        if (parser.isEnd() || parser.cur.getType() == TokenType.RPAREN) {
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "EXPECT_IF_CONDITION", "expect if condition");
+        }
         Expr condition = parser.expr(contextType);
         parser.advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_IF_CONDITION",
                 "expect ')' after if condition");
@@ -62,7 +67,10 @@ class IfExprRule extends OperatorParseRule {
     private Stmt parseBranchBody(QLParser parser, QLParser.ContextType contextType) {
         if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
             return parser.block(contextType);
-        } else {
+        } else if (parser.isEnd()) {
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "EXPECT_IF_BODY", "expect if/else body");
+        } else  {
             return parser.expr(contextType);
         }
     }
@@ -190,12 +198,56 @@ class NewRule extends OperatorParseRule {
     @Override
     public Expr prefixParse(QLParser parser, QLParser.ContextType contextType) {
         Token newToken = parser.pre;
-        DeclType newType = parser.declType();
+        DeclType newType = parser.declType(false);
+        if (parser.matchTypeAndAdvance(TokenType.LBRACK)) {
+            // array
 
-        parser.advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_ARGUMENTS",
-                "expect '(' before arguments");
+            // confirm baseClz and lengths
+            boolean fixedDimensionOver = false;
+            Class<?> baseClz = newType.getClz();
+            List<Expr> lengths = new ArrayList<>(3);
+            do {
+                if (parser.matchTypeAndAdvance(TokenType.RBRACK)) {
+                    if (!fixedDimensionOver) {
+                        fixedDimensionOver = true;
+                    }
+                    baseClz = Array.newInstance(baseClz, 0).getClass();
+                } else if (fixedDimensionOver) {
+                    throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                            "INVALID_ARRAY_SIZE_DEFINE", "invalid array size define");
+                } else {
+                    Expr expr = parser.expr(contextType);
+                    parser.advanceOrReportError(TokenType.RBRACK, "RBRACK_ABSENT_FOR_ARRAY_SIZE",
+                            "']' expected for array size define");
+                    lengths.add(expr);
+                }
+            } while (parser.matchTypeAndAdvance(TokenType.LBRACK));
 
-        return new NewExpr(newToken, newType, parser.argumentList());
+            // construct final expr
+            if (!lengths.isEmpty()) {
+                // array with dim sizes
+                return new MultiNewArrayExpr(newToken, baseClz, lengths);
+            } else if (parser.matchTypeAndAdvance(TokenType.LBRACE)) {
+                // array with init value
+                List<Expr> itemValues = new ArrayList<>(3);
+                while (true) {
+                    itemValues.add(parser.expr(contextType));
+                    if (parser.matchTypeAndAdvance(TokenType.RBRACE)) {
+                        return new NewArrayExpr(newToken, baseClz.getComponentType(), itemValues);
+                    } else {
+                        parser.advanceOrReportError(TokenType.COMMA, "COMMA_ABSENT_BETWEEN_ARRAY_ITEMS",
+                                "expected ',' between array items");
+                    }
+                }
+            }
+            throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
+                    "INVALID_ARRAY_DEFINE", "invalid array define");
+        } else {
+            // Object
+            parser.advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_ARGUMENTS",
+                    "expect '(' before arguments");
+            return new NewExpr(newToken, newType, parser.argumentList());
+        }
     }
 }
 
@@ -310,8 +362,8 @@ class LBrackRule extends OperatorParseRule {
                         keyToken, "CAN_NOT_FIND_RBRACK_TO_MATCH", "can not find ']' to match");
             }
             if (!elements.isEmpty()) {
-                parser.advanceOrReportError(TokenType.COMMA, "MISS_COMMA_BETWEEN_ELEMENTS",
-                        "miss ',' between elements");
+                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_ELEMENTS",
+                        "expect ',' between elements");
             }
             elements.add(parser.expr(contextType));
         }

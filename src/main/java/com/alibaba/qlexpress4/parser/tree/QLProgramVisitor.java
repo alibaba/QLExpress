@@ -72,4 +72,8 @@ public interface QLProgramVisitor<R, C> {
     R visit(GetMethodExpr getMethodExpr, C context);
 
     R visit(MapExpr mapExpr, C context);
+
+    R visit(MultiNewArrayExpr newArrayDimsExpr, C context);
+
+    R visit(NewArrayExpr newArrayExpr, C context);
 }

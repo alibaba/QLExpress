@@ -6,6 +6,6 @@ public interface ErrorReporter {
 
     QLRuntimeException report(String errorCode, String reason);
 
-    QLRuntimeException report(String errorCode, String format, Object... args);
+    QLRuntimeException reportFormat(String errorCode, String format, Object... args);
 
 }

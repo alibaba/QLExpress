@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -96,6 +97,14 @@ public class Express4RunnerTest {
                 .execute("{a:123,'b':'test'}", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(123, result.get("a"));
         assertEquals("test", result.get("b"));
+    }
+
+    @Test
+    public void classFieldTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("List.class", Collections.emptyMap(),
+                QLOptions.DEFAULT_OPTIONS);
+        assertEquals(List.class, result);
     }
 
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
