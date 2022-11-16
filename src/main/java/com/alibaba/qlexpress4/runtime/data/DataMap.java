@@ -13,19 +13,10 @@ public class DataMap implements LeftValue {
 
     private final String fieldName;
     private final Map map;
-    private final Class<?> defineType;
-
 
     public DataMap(Map map, String fieldName) {
         this.map = map;
         this.fieldName = fieldName;
-        this.defineType = Map.class;
-    }
-
-    public DataMap(Map map, String fieldName, Class<?> defineType) {
-        this.map = map;
-        this.fieldName = fieldName;
-        this.defineType = defineType;
     }
 
     @Override
