@@ -1,26 +1,27 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.fastjson2.JSON;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import com.alibaba.fastjson2.JSONException;
-import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.parser.ImportManager;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Author: DQinYuan
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertNull;
 public class TestSuiteRunner {
 
     private static final String ASSERT_FUNCTION_NAME = "assert";
+    private static final String ASSERT_FALSE_FUNCTION_NAME = "assertFalse";
     private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
@@ -37,6 +39,7 @@ public class TestSuiteRunner {
     public void before() {
         this.testRunner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         testRunner.addFunction(ASSERT_FUNCTION_NAME, new AssertFunction());
+        testRunner.addFunction(ASSERT_FALSE_FUNCTION_NAME, new AssertFalseFunction());
         testRunner.addFunction(PRINT_FUNCTION_NAME, new PrintFunction());
     }
 
@@ -95,8 +98,7 @@ public class TestSuiteRunner {
         }
     }
 
-    private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode)
-            throws IOException {
+    private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode) {
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (QLException qlException) {
@@ -156,8 +158,7 @@ public class TestSuiteRunner {
                                         QLOptions qlOptions,
                                         String errCode, String reason) {
         try {
-            express4Runner.execute(script, Collections.emptyMap(),
-                    qlOptions);
+            express4Runner.execute(script, Collections.emptyMap(), qlOptions);
         } catch (QLException e) {
             assertEquals(errCode, e.getErrorCode());
             assertEquals(reason, e.getReason());
@@ -182,15 +183,40 @@ public class TestSuiteRunner {
                 case 1:
                     Boolean b = (Boolean) parameters.getValue(0);
                     if (b == null || !b) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(),
-                                "assert fail"));
+                        throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
                     }
                     return null;
                 case 2:
                     Boolean b0 = (Boolean) parameters.getValue(0);
                     if (b0 == null || !b0) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(),
-                                (String) parameters.getValue(1)));
+                        throw new UserDefineException(wrap(qRuntime.attachment(), (String) parameters.getValue(1)));
+                    }
+                    return null;
+                default:
+                    throw new UserDefineException("invalid parameter size");
+            }
+        }
+
+        private String wrap(Map<String, Object> attachments, String originErrInfo) {
+            return attachments.get(TEST_PATH_ATT) + ": " + originErrInfo;
+        }
+    }
+
+    private static class AssertFalseFunction implements QFunction {
+        @Override
+        public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
+            int pSize = parameters.size();
+            switch (pSize) {
+                case 1:
+                    Boolean b = (Boolean) parameters.getValue(0);
+                    if (b == null || b) {
+                        throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
+                    }
+                    return null;
+                case 2:
+                    Boolean b0 = (Boolean) parameters.getValue(0);
+                    if (b0 == null || b0) {
+                        throw new UserDefineException(wrap(qRuntime.attachment(), (String) parameters.getValue(1)));
                     }
                     return null;
                 default:

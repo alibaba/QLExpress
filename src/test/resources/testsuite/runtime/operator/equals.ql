@@ -13,4 +13,4 @@ assert(512F == 512D);
 
 assert(512D == 512D);
 
-// assert(false, 512 == 513);
+assertFalse(512 == 513);
