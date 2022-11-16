@@ -11,6 +11,9 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
  * Author: DQinYuan
  */
 public interface LeftValue extends Value {
+
+    Class<?> getDefinedType();
+
     default QLConvertResult set(Object newValue, ErrorReporter errorReporter) {
         Class<?> defineType = getDefinedType();
         QLConvertResult result = InstanceConversion.castObject(newValue, defineType);

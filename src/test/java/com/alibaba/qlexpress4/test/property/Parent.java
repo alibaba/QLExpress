@@ -78,11 +78,6 @@ public class Parent implements Value {
         return this;
     }
 
-    @Override
-    public Class<?> getDefinedType() {
-        return Parent.class;
-    }
-
 //    public String getMethod2(long a,long b){return "b";}
 
     public String getMethod2(long a){return "b";}

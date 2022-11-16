@@ -68,7 +68,7 @@ public class Express4Runner {
     public <T, R> void addFunction(String name, Function<T, R> function) {
         addFunction(name, new QFunctionInner(params -> {
             R result = function.apply((T)params[0]);
-            return new QResult(new DataValue(result, result.getClass()), QResult.ResultType.RETURN);
+            return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
 
@@ -79,7 +79,7 @@ public class Express4Runner {
                 Array.set(array, i, params[i]);
             }
             R result = functionalVarargs.call((T[])array);
-            return new QResult(new DataValue(result, result.getClass()), QResult.ResultType.RETURN);
+            return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
 

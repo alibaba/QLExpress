@@ -13,9 +13,4 @@ public class ParentClass implements Value {
         parent.setAge(35);
         return parent.getClass();
     }
-
-    @Override
-    public Class<?> getDefinedType() {
-        return Parent.class;
-    }
 }

@@ -40,7 +40,7 @@ public class DataMap implements LeftValue {
 
     @Override
     public Class<?> getDefinedType() {
-        return Map.class;
+        return Object.class;
     }
 
 }

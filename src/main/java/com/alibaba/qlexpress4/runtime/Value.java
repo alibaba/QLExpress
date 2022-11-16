@@ -10,8 +10,6 @@ public interface Value {
 
     Object get();
 
-    Class<?> getDefinedType();
-
     default Class<?> getType() {
         Object value = get();
         if (value == null) {

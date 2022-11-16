@@ -71,9 +71,4 @@ public class Child extends Parent implements Value {
     public Object get() {
         return this;
     }
-
-    @Override
-    public Class<?> getDefinedType() {
-        return Child.class;
-    }
 }

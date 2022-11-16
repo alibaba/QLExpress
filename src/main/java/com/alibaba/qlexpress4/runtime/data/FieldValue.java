@@ -18,13 +18,8 @@ public class FieldValue implements LeftValue {
     public FieldValue(Supplier<Object> getOp, Consumer<Object> setOp) {
         this.getOp = getOp;
         this.setOp = setOp;
+        // TODO: 需要改成 Java 字段的声明类型
         this.defineType = Object.class;
-    }
-
-    public FieldValue(Supplier<Object> getOp, Consumer<Object> setOp, Class<?> defineType) {
-        this.getOp = getOp;
-        this.setOp = setOp;
-        this.defineType = defineType;
     }
 
 
