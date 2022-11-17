@@ -1,6 +1,7 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -69,16 +70,20 @@ public class ExpressCacheTest {
         context.put("英语", 95);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
-        IntStream.range(1, 100)
+        CountDownLatch cnt = new CountDownLatch(100);
+
+        IntStream.range(0, 100)
             .forEach(i -> {
                 executor.submit(() -> {
                     try {
                         testOnInvokeSingleScriptCalc(context);
+                        cnt.countDown();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 });
             });
+        cnt.await();
         System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
