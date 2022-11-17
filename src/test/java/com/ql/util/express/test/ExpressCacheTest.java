@@ -1,7 +1,15 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
+import cn.hutool.core.thread.ThreadFactoryBuilder;
+import com.google.common.base.Stopwatch;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
@@ -17,6 +25,13 @@ import org.junit.Test;
 public class ExpressCacheTest {
     private final ExpressRunner runner = new ExpressRunner();
 
+    private final ExecutorService executor = new ThreadPoolExecutor(2, 25, 5L,
+        TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), ThreadFactoryBuilder.create()
+        .setNamePrefix("Concurrent-Cache-").build(), new AbortPolicy());
+
+    /**
+     * Single td invoke
+     */
     @Test
     public void testScriptCache() throws Exception {
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
@@ -39,6 +54,36 @@ public class ExpressCacheTest {
         }
         end = new Date().getTime();
         echo("做缓存耗时：" + (end - start) + " ms");
+    }
+
+    /**
+     * can use jmh for accurate statistics
+     * @throws Exception
+     */
+    @Test
+    public void testScriptWithConcurrentHashMap() throws Exception {
+        runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        context.put("语文", 88);
+        context.put("数学", 99);
+        context.put("英语", 95);
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        IntStream.range(1, 100)
+            .forEach(i -> {
+                executor.submit(() -> {
+                    try {
+                        testOnInvokeSingleScriptCalc(context);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            });
+        System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    private void testOnInvokeSingleScriptCalc(IExpressContext ctx) throws Exception {
+        calculateTask(false, ctx);
     }
 
     @Test

@@ -651,7 +651,7 @@ public class ExpressRunner {
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {
-                expressInstructionSetCache.putIfAbsent(expressString, this.parseInstructionSet(expressString));
+                expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
             }
         } else {
             parseResult = this.parseInstructionSet(expressString);
@@ -724,7 +724,7 @@ public class ExpressRunner {
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
         InstructionSet parseResult = expressInstructionSetCache.get(expressString);
         if (parseResult == null) {
-            expressInstructionSetCache.putIfAbsent(expressString, this.parseInstructionSet(expressString));
+            expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
         }
         return parseResult;
     }
