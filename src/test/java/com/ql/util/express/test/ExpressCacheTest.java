@@ -59,11 +59,15 @@ public class ExpressCacheTest {
 
     /**
      * can use jmh for accurate statistics
+     * output: 360ms ~ 400ms
      * @throws Exception
      */
     @Test
     public void testScriptWithConcurrentHashMap() throws Exception {
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
+
+        // set self define with eviction policy to avoid
+        //runner.setWrapCacheMap(null);
         IExpressContext<String, Object> context = new DefaultContext<>();
         context.put("语文", 88);
         context.put("数学", 99);
@@ -76,7 +80,7 @@ public class ExpressCacheTest {
             .forEach(i -> {
                 executor.submit(() -> {
                     try {
-                        testOnInvokeSingleScriptCalc(context);
+                        testOnBatchInvokeSingleScriptCalc(context);
                         cnt.countDown();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -87,8 +91,11 @@ public class ExpressCacheTest {
         System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    private void testOnInvokeSingleScriptCalc(IExpressContext ctx) throws Exception {
-        calculateTask(false, ctx);
+    private void testOnBatchInvokeSingleScriptCalc(IExpressContext ctx) throws Exception {
+        for (int i = 0; i < 10000; i ++) {
+            // enable cache
+            calculateTask(true, ctx);
+        }
     }
 
     @Test
