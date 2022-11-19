@@ -95,7 +95,7 @@ class BlockOrMapExprRule extends OperatorParseRule {
             List<Map.Entry<String, Expr>> entries  = new ArrayList<>();
             entries.add(parseMapEntry(parser, contextType));
             while (!parser.matchTypeAndAdvance(TokenType.RBRACE)) {
-                parser.advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_MAP_ENTRY",
+                parser.advanceOrReportError(TokenType.COMMA, "COMMA_ABSENT_BETWEEN_MAP_ENTRY",
                         "expect ',' between map entry");
                 entries.add(parseMapEntry(parser, contextType));
             }
@@ -107,7 +107,8 @@ class BlockOrMapExprRule extends OperatorParseRule {
     }
 
     private Map.Entry<String, Expr> parseMapEntry(QLParser parser, QLParser.ContextType contextType) {
-        if (parser.matchAndAdvance(cur -> cur.getType() == TokenType.ID || cur.getType() == TokenType.STRING)) {
+        if (parser.matchAndAdvance(cur -> cur.getType() == TokenType.ID || cur.getType() == TokenType.KEY_WORD
+                || cur.getType() == TokenType.STRING || cur.getType() == TokenType.TYPE)) {
             Token keyToken = parser.pre;
             if (parser.matchTypeAndAdvance(TokenType.COLON)) {
                 Expr valueExpr = parser.expr(contextType);
@@ -115,10 +116,10 @@ class BlockOrMapExprRule extends OperatorParseRule {
                         keyToken.getLiteral().toString(): keyToken.getLexeme(), valueExpr);
             }
             throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
-                    "EXPECT_COLON_BETWEEN_KEY_VALUE", "expect ':' between map key and value");
+                    "COLON_ABSENT_BETWEEN_KEY_VALUE", "expect ':' between map key and value");
         }
         throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
-                "INVALID_MAP_KEY", "invalid map key; map key can only be string literal or id");
+                "INVALID_MAP_KEY", "invalid map key, map key can only be string literal or id");
     }
 }
 
