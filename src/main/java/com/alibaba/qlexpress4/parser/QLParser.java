@@ -179,7 +179,7 @@ public class QLParser {
             }
 
             if (isTokenType(maybeVarToken, TokenType.LT)) {
-                return lookAheadGtNextToken(maybeVarToken);
+                return lookAheadGtNextTokenWithCache(maybeVarToken, false);
             } else if (isTokenType(maybeVarToken, TokenType.LBRACK)) {
                 // array type
                 return lookAheadArrayDeclareNextToken();
@@ -211,13 +211,15 @@ public class QLParser {
         }
     }
 
-    public Token lookAheadGtNextTokenWithCache(Token ltToken) {
+    public Token lookAheadGtNextTokenWithCache(Token ltToken, boolean back) {
         if (gtNextToken.containsKey(ltToken.getPos())) {
             return gtNextToken.get(ltToken.getPos()).orElse(null);
         }
 
         Token res = lookAheadGtNextToken(ltToken);
-        scanner.back();
+        if (back) {
+            scanner.back();
+        }
         return res;
     }
 
@@ -388,11 +390,11 @@ public class QLParser {
         while (!matchTypeAndAdvance(TokenType.GT)) {
             if (isEnd()) {
                 throw QLException.reportParserErr(scanner.getScript(), ltToken,
-                        "CAN_NOT_FIND_GT_TO_MATCH", "can not find '>' to match");
+                        "MISSING_MATCHING_GT", "missing matching '>'");
             }
             if (!typeArguments.isEmpty()) {
-                advanceOrReportError(TokenType.COMMA, "EXPECT_COMMA_BETWEEN_TYPE_ARGUMENT",
-                        "expect ',' between type argument");
+                advanceOrReportError(TokenType.COMMA, "MISSING_COMMA_BETWEEN_TYPE_ARGUMENT",
+                        "missing ',' between type argument");
             }
             typeArguments.add(typeArgument());
         }
@@ -537,7 +539,7 @@ public class QLParser {
         Token keyToken = pre;
         StmtList stmtList = stmtList(contextType);
         // block end
-        advanceOrReportErrorWithToken(TokenType.RBRACE, "MISSING_RBRACE_AT_BLOCK",
+        advanceOrReportErrorWithToken(TokenType.RBRACE, "MISSING_MATCHING_RBRACE",
                 "missing '}' at block", keyToken);
 
         return new Block(keyToken, stmtList);

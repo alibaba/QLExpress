@@ -313,7 +313,7 @@ class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
         Expr idExpr = parser.parseIdOrQualifiedCls();
         if (idExpr instanceof ConstExpr && !parser.isEnd() && parser.cur.getType() == TokenType.LT) {
             // generic type
-            Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur);
+            Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur, true);
             if (gtNextToken != null && gtNextToken.getType() == TokenType.RPAREN) {
                 // generic type argument
                 parser.advance();

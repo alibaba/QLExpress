@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_RBRACE_AT_BLOCK"
+  "errCode": "MISSING_MATCHING_RBRACE"
 }
 */
 {

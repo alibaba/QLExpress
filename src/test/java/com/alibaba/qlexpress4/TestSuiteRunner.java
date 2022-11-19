@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/block/lambda_with_block.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/generics/missing_comma_between_type_argument.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
