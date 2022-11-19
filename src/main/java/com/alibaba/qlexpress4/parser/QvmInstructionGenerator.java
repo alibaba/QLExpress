@@ -199,7 +199,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                 attribute.getId(), callExpr.getArguments().size()));
         } else if (target instanceof IdExpr) {
             callExpr.getArguments().forEach(arg -> arg.accept(this, generatorScope));
-            addInstruction(new CallFunctionInstruction(newReporterByNode(callExpr),
+            addInstruction(new CallFunctionInstruction(newReporterByNode(target),
                 target.getKeyToken().getLexeme(), callExpr.getArguments().size()));
         } else {
             // evaluated lambda
