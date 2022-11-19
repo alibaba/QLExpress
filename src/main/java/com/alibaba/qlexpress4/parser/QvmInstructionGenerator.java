@@ -376,7 +376,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(LambdaExpr lambdaExpr, GeneratorScope generatorScope) {
         List<QLambdaDefinitionInner.Param> paramClzes = lambdaExpr.getParameters().stream()
             .map(varDecl -> new QLambdaDefinitionInner.Param(varDecl.getVariable().getId(),
-                varDecl.getType().getClz()))
+                varDecl.getType() == null? Object.class: varDecl.getType().getClz()))
             .collect(Collectors.toList());
         Expr lambdaBody = lambdaExpr.getBody();
         ErrorReporter errorReporter = newReporterByNode(lambdaExpr);

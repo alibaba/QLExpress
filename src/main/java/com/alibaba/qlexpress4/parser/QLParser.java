@@ -537,8 +537,8 @@ public class QLParser {
         Token keyToken = pre;
         StmtList stmtList = stmtList(contextType);
         // block end
-        advanceOrReportErrorWithToken(TokenType.RBRACE, "CAN_NOT_FIND_RBRACE_TO_MATCH",
-                "can not find '}' to match", keyToken);
+        advanceOrReportErrorWithToken(TokenType.RBRACE, "MISSING_RBRACE_AT_BLOCK",
+                "missing '}' at block", keyToken);
 
         return new Block(keyToken, stmtList);
     }

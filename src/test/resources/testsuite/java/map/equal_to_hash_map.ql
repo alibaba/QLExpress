@@ -7,3 +7,7 @@ assert(dict == map);
 assert(dict.get('a') == 123);
 assert(dict.a == 123);
 assert(dict['a'] == 123);
+dict.d = 100;
+dict['e'] = 200;
+assert(dict.d == 100);
+assert(dict.e == 200);

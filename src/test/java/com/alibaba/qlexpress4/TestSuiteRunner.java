@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/number/min_value_not_equal_to_hex.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/block/lambda_with_block.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
