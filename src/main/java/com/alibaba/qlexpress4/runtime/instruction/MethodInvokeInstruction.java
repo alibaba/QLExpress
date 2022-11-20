@@ -74,7 +74,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);
         }catch (Exception e){
-            throw errorReporter.report("GET_METHOD_VALUE_ACCESS_ERROR", "can not allow access method");
+            throw errorReporter.report("GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
         }
         return QResult.CONTINUE_RESULT;
     }

@@ -108,7 +108,6 @@ public class MemberHandler {
         return doParamsConversion(mergeTargetMatch,goalMatch,assignLevel,bestMatcher,i,new QLImplicitVars(true,varsIndex));
     }
 
-
     private static QLImplicitMatcher doParamsConversion(Class<?>[] targetMatch, Class<?>[] goalMatch, int assignLevel,
                                                         QLParametersMatcher bestMatcher, int i, QLImplicitVars needVars){
         int weight = ParametersConversion.QLMatchConverter.NOT_MATCH.getWeight();

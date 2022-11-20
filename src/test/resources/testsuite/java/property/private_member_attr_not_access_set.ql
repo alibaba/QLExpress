@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "GET_FIELD_VALUE_ACCESS_ERROR",
+  "errCode": "GET_FIELD_VALUE_CAN_NOT_ACCESS",
   "qlOptions": QLOptions.builder().allowAccessPrivateMethod(false)
 }
 */
