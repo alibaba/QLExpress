@@ -1,6 +1,8 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,6 +15,7 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import com.ql.util.express.InstructionSet;
 import com.ql.util.express.LocalExpressCacheRunner;
 import org.apache.commons.lang.time.StopWatch;
 import org.junit.Assert;
@@ -55,6 +58,23 @@ public class ExpressCacheTest {
         }
         end = new Date().getTime();
         echo("做缓存耗时：" + (end - start) + " ms");
+    }
+
+    /**
+     * validate local cache not null
+     * @throws Exception
+     */
+    @Test
+    public void testOnInvokeCacheNotNull() throws Exception {
+        Assert.assertTrue(Objects.nonNull(new ExpressRunner()
+            .getExpressInstructionSetCache()));
+        Assert.assertTrue(Objects.nonNull(new ExpressRunner(false, false,
+            (ConcurrentHashMap<String, InstructionSet>)null)
+            .getExpressInstructionSetCache()));
+        Assert.assertTrue(Objects.nonNull(new ExpressRunner(false, false,
+            new ConcurrentHashMap<>())
+            .getExpressInstructionSetCache()));
+
     }
 
     /**

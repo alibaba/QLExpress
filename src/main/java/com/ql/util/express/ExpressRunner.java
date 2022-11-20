@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,7 +63,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache;
+    private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -217,6 +216,10 @@ public class ExpressRunner {
 
     public IExpressResourceLoader getExpressResourceLoader() {
         return this.expressResourceLoader;
+    }
+
+    public ConcurrentHashMap<String, InstructionSet> getExpressInstructionSetCache() {
+        return this.expressInstructionSetCache;
     }
 
     /**
@@ -794,18 +797,6 @@ public class ExpressRunner {
 
     public void setShortCircuit(boolean isShortCircuit) {
         this.isShortCircuit = isShortCircuit;
-    }
-
-
-    /**
-     * allow set cache with security and eviction policy based on ConcurrentHashMap
-     * @param map
-     */
-    public void setWrapCacheMap(ConcurrentHashMap<String, InstructionSet> map) {
-        if (Objects.isNull(map)) {
-            return;
-        }
-        expressInstructionSetCache = map;
     }
 
     /**
