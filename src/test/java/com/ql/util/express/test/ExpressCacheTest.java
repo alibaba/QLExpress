@@ -3,19 +3,19 @@ package com.ql.util.express.test;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
-
-import cn.hutool.core.thread.ThreadFactoryBuilder;
-import com.google.common.base.Stopwatch;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import com.ql.util.express.LocalExpressCacheRunner;
+import org.apache.commons.lang.time.StopWatch;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -26,9 +26,9 @@ import org.junit.Test;
 public class ExpressCacheTest {
     private final ExpressRunner runner = new ExpressRunner();
 
-    private final ExecutorService executor = new ThreadPoolExecutor(2, 25, 5L,
-        TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), ThreadFactoryBuilder.create()
-        .setNamePrefix("Concurrent-Cache-").build(), new AbortPolicy());
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 25, 5L,
+        TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
+        new AbortPolicy());
 
     /**
      * Single td invoke
@@ -59,7 +59,7 @@ public class ExpressCacheTest {
 
     /**
      * can use jmh for accurate statistics
-     * output: 360ms ~ 400ms
+     * avg output: 360ms ~ 400ms
      * @throws Exception
      */
     @Test
@@ -73,7 +73,8 @@ public class ExpressCacheTest {
         context.put("数学", 99);
         context.put("英语", 95);
 
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         CountDownLatch cnt = new CountDownLatch(100);
 
         IntStream.range(0, 100)
@@ -88,7 +89,8 @@ public class ExpressCacheTest {
                 });
             });
         cnt.await();
-        System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        stopWatch.stop();
+        Assert.assertTrue(executor.getCompletedTaskCount() == 100);
     }
 
     private void testOnBatchInvokeSingleScriptCalc(IExpressContext ctx) throws Exception {

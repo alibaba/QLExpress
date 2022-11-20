@@ -64,7 +64,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -126,6 +126,12 @@ public class ExpressRunner {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null);
     }
 
+    public ExpressRunner(boolean isPrecise, boolean isTrace,
+        ConcurrentHashMap<String, InstructionSet> cacheMap) {
+        this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
+    }
+
+
     public ExpressRunner(boolean isPrecise, boolean isStrace, NodeTypeManager nodeTypeManager) {
         this(isPrecise, isStrace, new DefaultExpressResourceLoader(), nodeTypeManager);
     }
@@ -137,6 +143,18 @@ public class ExpressRunner {
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
         NodeTypeManager nodeTypeManager) {
+        this(isPrecise, isTrace, iExpressResourceLoader,
+            nodeTypeManager, null);
+    }
+
+    /**
+     * @param isPrecise              是否需要高精度计算支持
+     * @param isTrace                是否跟踪执行指令的过程
+     * @param iExpressResourceLoader 表达式的资源装载器
+     * @param cacheMap 指令集缓存
+     */
+    public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
+        NodeTypeManager nodeTypeManager, ConcurrentHashMap<String, InstructionSet> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -144,6 +162,12 @@ public class ExpressRunner {
             manager = new NodeTypeManager();
         } else {
             manager = nodeTypeManager;
+        }
+
+        if (cacheMap == null) {
+            expressInstructionSetCache = new ConcurrentHashMap<>();
+        } else {
+            expressInstructionSetCache = cacheMap;
         }
         this.operatorManager = new OperatorFactory(this.isPrecise);
         this.loader = new ExpressLoader(this);
