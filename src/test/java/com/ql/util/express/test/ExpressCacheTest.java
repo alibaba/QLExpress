@@ -1,6 +1,8 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -9,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import com.ql.util.express.DefaultContext;
@@ -31,7 +34,7 @@ public class ExpressCacheTest {
 
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 25, 5L,
         TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
-        new AbortPolicy());
+        new CallerRunsPolicy());
 
     /**
      * Single td invoke
@@ -66,14 +69,9 @@ public class ExpressCacheTest {
      */
     @Test
     public void testOnInvokeCacheNotNull() throws Exception {
-        Assert.assertTrue(Objects.nonNull(new ExpressRunner()
-            .getExpressInstructionSetCache()));
-        Assert.assertTrue(Objects.nonNull(new ExpressRunner(false, false,
-            (ConcurrentHashMap<String, InstructionSet>)null)
-            .getExpressInstructionSetCache()));
-        Assert.assertTrue(Objects.nonNull(new ExpressRunner(false, false,
-            new ConcurrentHashMap<>())
-            .getExpressInstructionSetCache()));
+        Assert.assertNotNull(new ExpressRunner().getExpressInstructionSetCache());
+        Assert.assertNotNull(new ExpressRunner(false, false, (Map<String, InstructionSet>)null).getExpressInstructionSetCache());
+        Assert.assertNotNull(new ExpressRunner(false, false, new ConcurrentHashMap<>()).getExpressInstructionSetCache());
 
     }
 
@@ -93,11 +91,21 @@ public class ExpressCacheTest {
         context.put("数学", 99);
         context.put("英语", 95);
 
+        // text on invoke hashTable compare default cache
+        ExpressRunner syncRunner = new ExpressRunner(false, false, new Hashtable<>());
+        syncRunner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
+
+        long a = invokeCacheAndRecordRt(runner, context);
+        long b = invokeCacheAndRecordRt(syncRunner, context);
+        Assert.assertTrue(a < b);
+    }
+
+    private long invokeCacheAndRecordRt(ExpressRunner runner, IExpressContext<String, Object> context) throws InterruptedException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         CountDownLatch cnt = new CountDownLatch(100);
 
-        IntStream.range(0, 100)
+        IntStream.range(0, 1000)
             .forEach(i -> {
                 executor.submit(() -> {
                     try {
@@ -110,7 +118,7 @@ public class ExpressCacheTest {
             });
         cnt.await();
         stopWatch.stop();
-        Assert.assertTrue(executor.getCompletedTaskCount() == 100);
+        return stopWatch.getTime();
     }
 
     private void testOnBatchInvokeSingleScriptCalc(IExpressContext ctx) throws Exception {

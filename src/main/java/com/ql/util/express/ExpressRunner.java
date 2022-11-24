@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,7 +64,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private final ConcurrentHashMap<String, InstructionSet> expressInstructionSetCache;
+    private final Map<String, InstructionSet> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -125,8 +126,14 @@ public class ExpressRunner {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null);
     }
 
+    /**
+     *
+     * @param isPrecise
+     * @param isTrace
+     * @param cacheMap user can define safe and efficient cache or use default concurrentMap
+     */
     public ExpressRunner(boolean isPrecise, boolean isTrace,
-        ConcurrentHashMap<String, InstructionSet> cacheMap) {
+        Map<String, InstructionSet> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
 
@@ -153,7 +160,7 @@ public class ExpressRunner {
      * @param cacheMap 指令集缓存
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-        NodeTypeManager nodeTypeManager, ConcurrentHashMap<String, InstructionSet> cacheMap) {
+        NodeTypeManager nodeTypeManager, Map<String, InstructionSet> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -163,7 +170,7 @@ public class ExpressRunner {
             manager = nodeTypeManager;
         }
 
-        if (cacheMap == null) {
+        if (Objects.isNull(cacheMap)) {
             expressInstructionSetCache = new ConcurrentHashMap<>();
         } else {
             expressInstructionSetCache = cacheMap;
@@ -218,7 +225,7 @@ public class ExpressRunner {
         return this.expressResourceLoader;
     }
 
-    public ConcurrentHashMap<String, InstructionSet> getExpressInstructionSetCache() {
+    public Map<String, InstructionSet> getExpressInstructionSetCache() {
         return this.expressInstructionSetCache;
     }
 
@@ -678,7 +685,13 @@ public class ExpressRunner {
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {
-                expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
+                parseResult = expressInstructionSetCache.computeIfAbsent(expressString, k -> {
+                    try {
+                        return this.parseInstructionSet(k);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             }
         } else {
             parseResult = this.parseInstructionSet(expressString);
@@ -751,7 +764,13 @@ public class ExpressRunner {
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
         InstructionSet parseResult = expressInstructionSetCache.get(expressString);
         if (parseResult == null) {
-            expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
+            parseResult = expressInstructionSetCache.computeIfAbsent(expressString, k -> {
+                try {
+                    return this.parseInstructionSet(k);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
         return parseResult;
     }
