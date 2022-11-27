@@ -25,7 +25,7 @@ public class BasicUtil {
     public static final String SPLIT_NAME = ";";
     public static final String SPLIT_COLLECTOR = ",";
 
-    public static final int LEVEL_FACTOR = 10;
+    public static final int LEVEL_FACTOR = 10000;
     public static final int DEFAULT_MATCH_INDEX = -1;
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 

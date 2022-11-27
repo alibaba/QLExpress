@@ -11,7 +11,7 @@ public class QLNullParametersChecker implements MatchChecker {
 
     @Override
     public boolean typeMatch(Class<?> source, Class<?> target) {
-        return source == null;
+        return source == null || target == null;
     }
 
     @Override

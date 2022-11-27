@@ -8,12 +8,7 @@ public class QLImplicitMatcher {
     private final Boolean needImplicitTrans;
     private final Integer matchIndex;
     private QLImplicitVars vars;
-
-    public QLImplicitMatcher(Boolean needImplicitTrans, Integer matchIndex) {
-        this.needImplicitTrans = needImplicitTrans;
-        this.matchIndex = matchIndex;
-        this.vars = new QLImplicitVars(false,0);
-    }
+    private QLParametersMatcher qlParametersMatcher;
 
     public QLImplicitMatcher(Boolean needImplicitTrans, Integer matchIndex, QLImplicitVars vars) {
         this.needImplicitTrans = needImplicitTrans;
@@ -42,6 +37,12 @@ public class QLImplicitMatcher {
         this.vars = vars;
     }
 
+    public QLParametersMatcher getQlParametersMatcher() {
+        return qlParametersMatcher;
+    }
 
+    public void setQlParametersMatcher(QLParametersMatcher qlParametersMatcher) {
+        this.qlParametersMatcher = qlParametersMatcher;
+    }
 
 }

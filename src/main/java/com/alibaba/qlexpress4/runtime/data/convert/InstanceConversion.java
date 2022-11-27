@@ -15,8 +15,8 @@ public class InstanceConversion {
 
     static {
         typeConvertChecker = new TypeConvertChecker[]{
-                new QLNullConvertChecker(),
                 new QLObjectConvertChecker(),
+                new QLNullConvertChecker(),
                 new QLAssignableConvertChecker(),
                 new QLEnumConvertChecker(),
                 new QLStringConvertChecker(),

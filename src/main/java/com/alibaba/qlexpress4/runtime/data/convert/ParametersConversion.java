@@ -20,6 +20,7 @@ public class ParametersConversion {
                 new QLNullParametersChecker(),
                 new QLEqualsParametersChecker(),
                 new QLPrimitiveParametersChecker(),
+                new QLPrimitiveImplicitParametersChecker(),
                 new QLAssignableParametersChecker(),
                 new QLObjectParametersChecker(),
                 new QLLambdaFunctionalChecker(),
@@ -38,7 +39,7 @@ public class ParametersConversion {
             if (QLMatchConverter.NOT_MATCH == result) {
                 return QLMatchConverter.NOT_MATCH.getWeight();
             }
-            int weight = weighter.addWeight(result.getWeight());
+            int weight = weighter.addWeight(result);
             if (matchConversionWeight < weight) {
                 matchConversionWeight = weight;
             }
@@ -80,7 +81,6 @@ public class ParametersConversion {
                 }else {
                     int mergeLength = oriParams.length - vars.getVarsIndex();
                     Object r = new Object[mergeLength];
-                    //TODO lingxiang
                     System.arraycopy(oriParams,vars.getVarsIndex(),r,0,mergeLength);
                     QLConvertResult paramResult = InstanceConversion.castObject(r,goalTypes[i]);
                     if(paramResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
@@ -108,7 +108,7 @@ public class ParametersConversion {
     //weight less = level higher
     public enum QLMatchConverter {
 
-        NOT_MATCH(-1), EXTEND(8), IMPLICIT(3), ASSIGN(2), EQUALS(1);
+        NOT_MATCH(-1), EXTEND(8), IMPLICIT(4), ASSIGN(3), PRIMITIVE(2), EQUALS(1);
 
         private final int weight;
 

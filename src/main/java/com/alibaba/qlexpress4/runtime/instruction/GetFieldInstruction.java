@@ -138,12 +138,12 @@ public class GetFieldInstruction extends QLInstruction {
                 setMethod, field, enableAllowAccessPrivateMethod);
 
         if (getterOp == null) {
-            throw errorReporter.report("GET_FIELD_VALUE_ERROR", "can not get field accessible");
+            throw errorReporter.report("GET_FIELD_VALUE_CAN_NOT_ACCESS", "can not get field accessible");
         }
         if (setterOp == null) {
-            return new DataValue(getterOp.get());
+            return new DataValue(getterOp.get(),field.getType());
         }
-        return new FieldValue(getterOp, setterOp);
+        return new FieldValue(getterOp, setterOp, field.getType());
     }
 
     private <T> T process(T functional){

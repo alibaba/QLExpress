@@ -45,10 +45,12 @@ public class QLNumberConvertChecker implements TypeConvertChecker<Object> {
 
     @Override
     public QLConvertResult typeReturn(Object value, Class<?> type) {
-        Number n = (Number) value;
-        TypeConvertChecker typeConvertChecker = numberConvertMap.get(type);
-        if(typeConvertChecker != null){
-            return (QLConvertResult) typeConvertChecker.typeReturn(n,type);
+        if(value instanceof Number){
+            Number n = (Number) value;
+            TypeConvertChecker typeConvertChecker = numberConvertMap.get(type);
+            if(typeConvertChecker != null){
+                return (QLConvertResult) typeConvertChecker.typeReturn(n,type);
+            }
         }
         return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
     }
