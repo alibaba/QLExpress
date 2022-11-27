@@ -29,7 +29,7 @@ public class CastInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object value = qContext.pop().get();
-        Class<?> targetClz = ((MetaClass) qContext.pop().get()).getClz();
+        Class<?> targetClz = popTargetClz(qContext.pop().get());
         if (value == null) {
             qContext.push(Value.NULL_VALUE);
             return QResult.CONTINUE_RESULT;
@@ -41,6 +41,17 @@ public class CastInstruction extends QLInstruction {
         Value dataCast = new DataValue(result.getCastValue());
         qContext.push(dataCast);
         return QResult.CONTINUE_RESULT;
+    }
+
+    private Class<?> popTargetClz(Object target) {
+        if (target instanceof MetaClass) {
+            return ((MetaClass) target).getClz();
+        } else if (target instanceof Class) {
+            return (Class<?>) target;
+        }
+        throw errorReporter.reportFormat("INVALID_CAST_TARGET",
+                "cast target must be a class, but accept %s",
+                target == null? "null": target.getClass().getName());
     }
 
     @Override

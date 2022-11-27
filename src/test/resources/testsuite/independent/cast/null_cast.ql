@@ -1,3 +1,3 @@
 Integer a = null;
 assert(!(boolean) a);
-assert((Integer) a == null);
+assert((int) a == null);

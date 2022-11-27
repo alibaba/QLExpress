@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Author: DQinYuan
@@ -51,7 +52,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/generics/missing_comma_between_type_argument.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/cast/string_cast.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -94,7 +95,8 @@ public class TestSuiteRunner {
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (Exception e) {
-            throw new RuntimeException(path + " error", e);
+            System.out.println(path + " error");
+            throw e;
         }
     }
 

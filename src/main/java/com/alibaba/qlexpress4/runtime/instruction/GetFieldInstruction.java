@@ -141,9 +141,9 @@ public class GetFieldInstruction extends QLInstruction {
             throw errorReporter.report("GET_FIELD_VALUE_CAN_NOT_ACCESS", "can not get field accessible");
         }
         if (setterOp == null) {
-            return new DataValue(getterOp.get(),field.getType());
+            return new DataValue(getterOp.get());
         }
-        return new FieldValue(getterOp, setterOp, field.getType());
+        return new FieldValue(getterOp, setterOp);
     }
 
     private <T> T process(T functional){

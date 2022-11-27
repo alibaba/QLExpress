@@ -10,10 +10,7 @@ import java.util.stream.Collectors;
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.parser.tree.*;
-import com.alibaba.qlexpress4.runtime.ConstLambdaDefinition;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
-import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 
@@ -514,7 +511,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(TypeExpr typeExpr, GeneratorScope generatorScope) {
         addInstruction(new ConstInstruction(newReporterByNode(typeExpr),
-            typeExpr.getDeclType().getClz()));
+            new MetaClass(typeExpr.getDeclType().getClz())));
         return null;
     }
 

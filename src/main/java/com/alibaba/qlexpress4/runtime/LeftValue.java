@@ -14,6 +14,11 @@ public interface LeftValue extends Value {
 
     Class<?> getDefinedType();
 
+    @Override
+    default Class<?> getType() {
+        return getDefinedType();
+    }
+
     default QLConvertResult set(Object newValue, ErrorReporter errorReporter) {
         Class<?> defineType = getDefinedType();
         QLConvertResult result = InstanceConversion.castObject(newValue, defineType);
