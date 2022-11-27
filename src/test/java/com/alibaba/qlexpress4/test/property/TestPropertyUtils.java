@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
+import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 
 import java.lang.reflect.Method;
@@ -16,28 +17,14 @@ import java.util.Objects;
 
 public class TestPropertyUtils {
 
-    private static volatile ExpressRunner runner;
-    public static ExpressRunner newInstance() {
-        if (Objects.nonNull(runner)) {
-            return runner;
-        }
-        if (Objects.isNull(runner)) {
-            if (Objects.isNull(runner)) {
-                return new ExpressRunner(true, false);
-            }
-        }
-        return runner;
-    }
 
     public static void main(String[] args) throws Exception {
-        newInstance();
 //          Integer a = Integer.MAX_VALUE;
 //          System.out.println(a);
-//        ExpressRunner expressRunner = new ExpressRunner();
-//        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
-//        defaultContext.put("a",new Child9());
-//        Object a = expressRunner.execute("return a.addField(1,\"5.5\",\"6\");",defaultContext,null, false, false);
-//        System.out.println(a);
+        ExpressRunner expressRunner = new ExpressRunner();
+        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
+        Object a = expressRunner.execute("Import java.net.URLEncoder; return URLEncoder.encode(\"5\");",defaultContext,null, false, false);
+        System.out.println(a);
 //         Optional<Integer> targetOp = Optional.ofNullable(1);
 //         System.out.println(targetOp.orElse(3));
 //          Object a = null;

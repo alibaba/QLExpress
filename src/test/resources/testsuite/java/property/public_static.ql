@@ -1,2 +1,2 @@
-a = Integer.MIN_VALUE;
-assert(a == 0x80000000);
+a = Integer.MAX_VALUE;
+assert(a == 0x7fffffff);
