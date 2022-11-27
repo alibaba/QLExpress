@@ -105,7 +105,7 @@ public class ExpressCacheTest {
         // warm up executor
         executor.prestartAllCoreThreads();
 
-        // text on invoke hashTable compare default cache
+        // invoke hashTable compare default cache
         long a = executeScriptWithTimeRecord(syncRunner, context);
         long b = executeScriptWithTimeRecord(defaultRunner, context);
         System.out.println(a);
