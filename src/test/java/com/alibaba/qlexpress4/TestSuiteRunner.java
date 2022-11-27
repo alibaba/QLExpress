@@ -52,7 +52,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/cast/string_cast.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

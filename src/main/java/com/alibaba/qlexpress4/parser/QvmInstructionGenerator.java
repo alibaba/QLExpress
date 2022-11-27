@@ -35,6 +35,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     private static final String WHILE_PREFIX = "WHILE_";
     private static final String SHORT_CIRCUIT = "SHORT_CIRCUIT";
 
+    public enum Context {
+        BLOCK, MACRO
+    }
+
     private final String prefix;
 
     private final String script;
@@ -42,6 +46,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     private final OperatorManager operatorManager;
 
     private final List<QLInstruction> instructionList = new ArrayList<>();
+
+    private final Context context;
 
     private int stackSize;
 
@@ -60,6 +66,14 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         this.operatorManager = operatorManager;
         this.prefix = prefix;
         this.script = script;
+        this.context = Context.BLOCK;
+    }
+
+    public QvmInstructionGenerator(OperatorManager operatorManager, String prefix, String script, Context context) {
+        this.operatorManager = operatorManager;
+        this.prefix = prefix;
+        this.script = script;
+        this.context = context;
     }
 
     @Override
@@ -81,7 +95,9 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
             preStmt = stmt;
         }
         if (preStmt instanceof Expr) {
-            addInstruction(new ReturnInstruction(newReporterByNode(preStmt), QResult.ResultType.RETURN));
+            addInstruction(context == Context.BLOCK?
+                    new ReturnInstruction(newReporterByNode(preStmt), QResult.ResultType.RETURN):
+                    new PopInstruction(newReporterByNode(preStmt)));
         }
         return null;
     }
@@ -418,7 +434,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(MacroStmt macroStmt, GeneratorScope generatorScope) {
         NodeInstructions macroInstructions = generateNodeInstructions(macroLambdaName(),
-            macroStmt.getBody().getStmtList(), generatorScope);
+            macroStmt.getBody().getStmtList(), generatorScope, Context.MACRO);
         generatorScope.defineMacro(macroStmt.getName().getId(), macroInstructions);
         return null;
     }
@@ -595,11 +611,16 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     private NodeInstructions generateNodeInstructions(String name, SyntaxNode targetNode,
         GeneratorScope generatorScope) {
+        return generateNodeInstructions(name, targetNode, generatorScope, Context.BLOCK);
+    }
+
+    private NodeInstructions generateNodeInstructions(String name, SyntaxNode targetNode,
+                                                      GeneratorScope generatorScope, Context context) {
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager,
-            name + "_", script);
+                name + "_", script, context);
         targetNode.accept(qvmInstructionGenerator, generatorScope);
         return new NodeInstructions(qvmInstructionGenerator.getInstructionList(),
-            qvmInstructionGenerator.getMaxStackSize());
+                qvmInstructionGenerator.getMaxStackSize());
     }
 
     private String blockLambdaName() {
