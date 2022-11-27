@@ -24,6 +24,7 @@ public class ImportStmt extends Stmt {
 
     /**
      * import static
+     * always false now
      */
     private final boolean staticImport;
 

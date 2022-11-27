@@ -462,22 +462,26 @@ public class QLParser {
 
     private ImportStmt importStmt() {
         Token importToken = pre;
-        boolean staticImport = matchKeyWordAndAdvance(KeyWordsSet.STATIC);
+        if (matchKeyWordAndAdvance(KeyWordsSet.STATIC)) {
+            throw QLException.reportParserErr(scanner.getScript(), importToken,
+                    "NOT_SUPPORT_IMPORT_STATIC", "not support 'import static'");
+        }
         Token prePackToken = null;
         StringBuilder pathBuilder = new StringBuilder();
 
         while (!isEnd()) {
             if (matchTypeAndAdvance(TokenType.MUL)) {
-                advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
-                        "statement must end with ';'");
+                Token starToken = pre;
+                advanceOrReportError(TokenType.SEMI, "MISSING_SEMI_AT_STATEMENT",
+                        "missing ';' at the end of statement");
                 if (prePackToken == null) {
-                    throw QLException.reportParserErr(scanner.getScript(), importToken,
-                            "INVALID_IMPORT_STATEMENT", "invalid import statement");
+                    throw QLException.reportParserErr(scanner.getScript(), starToken,
+                            "INVALID_PACKAGE_AT_IMPORT", "invalid package at import");
                 }
 
                 String path = pathBuilder.toString();
                 importManager.addImport(ImportManager.importPack(path));
-                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path, staticImport);
+                return new ImportStmt(prePackToken, ImportStmt.ImportType.PREFIX, path, false);
             } else if (matchTypeAndAdvance(TokenType.ID) || matchTypeAndAdvance(TokenType.KEY_WORD)) {
                 if (prePackToken != null) {
                     pathBuilder.append('.');
@@ -487,20 +491,19 @@ public class QLParser {
                 if (matchTypeAndAdvance(TokenType.SEMI)) {
                     String path = pathBuilder.toString();
                     importManager.addImport(ImportManager.importCls(path));
-                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path, staticImport);
+                    return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path, false);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
                     throw QLException.reportParserErr(scanner.getScript(), lastToken(),
-                            "STATEMENT_MUST_END_WITH_SEMI",
-                            "statement must end with ';'");
+                            "MISSING_SEMI_AT_STATEMENT", "missing ';' at the end of statement");
                 }
             } else {
-                throw QLException.reportParserErr(scanner.getScript(), lastToken(), "INVALID_IMPORT_PACKAGE",
-                        "invalid import package");
+                throw QLException.reportParserErr(scanner.getScript(), lastToken(),
+                        "INVALID_PACKAGE_AT_IMPORT", "invalid package at import");
             }
         }
 
         throw QLException.reportParserErr(scanner.getScript(), importToken,
-                "INVALID_IMPORT_STATEMENT", "invalid import statement");
+                "INCOMPLETE_IMPORT_STATEMENT", "incomplete import statement");
     }
 
     private FunctionStmt functionStmt() {

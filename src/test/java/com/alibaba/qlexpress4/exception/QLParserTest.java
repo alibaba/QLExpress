@@ -130,10 +130,10 @@ public class QLParserTest {
         assertEquals("bb", importStmt1.getKeyToken().getLexeme());
         assertFalse(importStmt1.isStaticImport());
 
-        Program p2 = parse("import static ab.Assert.*;");
-        StmtList stmtList2 = p2.getStmtList();
-        ImportStmt importStmt2 = (ImportStmt) stmtList2.get(0);
-        assertTrue(importStmt2.isStaticImport());
+        assertErrReport("import static ab.Assert.*;", "[Error: not support 'import static']\n" +
+                "[Near: import static ab]\n" +
+                "       ^^^^^^\n" +
+                "[Line: 1, Column: 1]");
 
         assertErrReport("import a.b.cc\n" +
                 "int d;", "[Error: statement must end with ';']\n" +
@@ -648,7 +648,7 @@ public class QLParserTest {
                 "   1+1" +
                 "}");
 
-        assertErrReport("{a=123+34", "[Error: can not find '}' to match]\n" +
+        assertErrReport("{a=123+34", "[Error: missing '}' at block]\n" +
                 "[Near: {a=123+34]\n" +
                 "       ^\n" +
                 "[Line: 1, Column: 1]");
