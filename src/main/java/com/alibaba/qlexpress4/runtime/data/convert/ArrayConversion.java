@@ -21,7 +21,6 @@ public class ArrayConversion {
 
     static {
         typeConvertArrayChecker = new TypeConvertChecker[]{
-                new QLArrayAssignableConvertChecker(),
                 new QLArrayIntStreamConvertChecker(),
                 new QLArrayLongStreamConvertChecker(),
                 new QLArrayDoubleStreamConvertChecker()};

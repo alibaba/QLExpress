@@ -2,9 +2,11 @@ package com.alibaba.qlexpress4.test.property;
 
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
+import com.ql.util.express.ExpressRunner;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @Author TaoKan
@@ -14,9 +16,21 @@ import java.util.Arrays;
 
 public class TestPropertyUtils {
 
+    private static volatile ExpressRunner runner;
+    public static ExpressRunner newInstance() {
+        if (Objects.nonNull(runner)) {
+            return runner;
+        }
+        if (Objects.isNull(runner)) {
+            if (Objects.isNull(runner)) {
+                return new ExpressRunner(true, false);
+            }
+        }
+        return runner;
+    }
+
     public static void main(String[] args) throws Exception {
-        Integer a = null;
-        assert((Integer)a == null);
+        newInstance();
 //          Integer a = Integer.MAX_VALUE;
 //          System.out.println(a);
 //        ExpressRunner expressRunner = new ExpressRunner();
