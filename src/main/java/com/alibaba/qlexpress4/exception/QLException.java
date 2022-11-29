@@ -95,12 +95,21 @@ public class QLException extends RuntimeException {
         int endReportPos = Math.min(tokenPos + 10, script.length());
 
         StringBuilder snippetBuilder = new StringBuilder();
+        if (startReportPos > 0) {
+            snippetBuilder.append("...");
+        }
         for (int i = startReportPos; i < endReportPos; i++) {
             char codeChar = script.charAt(i);
             snippetBuilder.append(codeChar < ' '? ' ': codeChar);
         }
+        if (endReportPos < script.length()) {
+            snippetBuilder.append("...");
+        }
 
         StringBuilder carteBuilder = new StringBuilder().append("       ");
+        if (startReportPos > 0) {
+            carteBuilder.append("   ");
+        }
         for (int i = startReportPos; i < tokenStartPos; i++) {
             carteBuilder.append(' ');
         }

@@ -108,7 +108,7 @@ public class QLParserTest {
         // ?: take precedence over assign, so equals to `(10>9? a)=(10: b)=99`, which can not find match `:` to `?`
         // this expression is also invalid in Java
         assertErrReport("10>9? a=10: b=99", "[Error: can not find ':' to match '?']\n" +
-                "[Near: 10>9? a=10: b=9]\n" +
+                "[Near: 10>9? a=10: b=9...]\n" +
                 "           ^\n" +
                 "[Line: 1, Column: 5]");
     }
@@ -131,27 +131,27 @@ public class QLParserTest {
         assertFalse(importStmt1.isStaticImport());
 
         assertErrReport("import static ab.Assert.*;", "[Error: not support 'import static']\n" +
-                "[Near: import static ab]\n" +
+                "[Near: import static ab...]\n" +
                 "       ^^^^^^\n" +
                 "[Line: 1, Column: 1]");
 
         assertErrReport("import a.b.cc\n" +
-                "int d;", "[Error: statement must end with ';']\n" +
-                "[Near: rt a.b.cc int d;]\n" +
-                "                 ^^^\n" +
+                "int d;", "[Error: missing ';' at the end of statement]\n" +
+                "[Near: ...rt a.b.cc int d;]\n" +
+                "                    ^^^\n" +
                 "[Line: 2, Column: 1]");
-        assertErrReport("import;", "[Error: invalid import package]\n" +
+        assertErrReport("import;", "[Error: invalid package at import]\n" +
                 "[Near: import;]\n" +
                 "             ^\n" +
                 "[Line: 1, Column: 7]");
-        assertErrReport("import a.b.c", "[Error: statement must end with ';']\n" +
-                "[Near: mport a.b.c]\n" +
-                "                 ^\n" +
+        assertErrReport("import a.b.c", "[Error: missing ';' at the end of statement]\n" +
+                "[Near: ...mport a.b.c]\n" +
+                "                    ^\n" +
                 "[Line: 1, Column: 12]");
-        assertErrReport("import *;", "[Error: invalid import statement]\n" +
+        assertErrReport("import *;", "[Error: invalid package at import]\n" +
                 "[Near: import *;]\n" +
-                "       ^^^^^^\n" +
-                "[Line: 1, Column: 1]");
+                "              ^\n" +
+                "[Line: 1, Column: 8]");
 
         // import 语句必须在开头
         assertErrReport("1+1;import *;", "[Error: import statement must at the beginning of script]\n" +
@@ -164,13 +164,13 @@ public class QLParserTest {
     public void functionStmtTest() {
         assertErrReport("function test(weew",
                 "[Error: can not find ')' to match it]\n" +
-                        "[Near: ction test(weew]\n" +
-                        "                 ^\n" +
+                        "[Near: ...ction test(weew]\n" +
+                        "                    ^\n" +
                         "[Line: 1, Column: 14]");
         assertErrReport("function ttt(int if)",
                 "[Error: expect ',' between parameters]\n" +
-                        "[Near: n ttt(int if)]\n" +
-                        "                 ^^\n" +
+                        "[Near: ...n ttt(int if)]\n" +
+                        "                    ^^\n" +
                         "[Line: 1, Column: 18]");
 
         Program program = parse("function myTest(int a, boolean b, String myC) {}");
@@ -303,9 +303,9 @@ public class QLParserTest {
 
         // "(long) ++i" is valid and "(Long) ++i" is invalid, just like java
         // "(Long) ++i" equals to "((Long)++) i", so it is invalid
-        assertErrReport("(int)i+++(Long)++i", "[Error: statement must end with ';']\n" +
-                "[Near: ++(Long)++i]\n" +
-                "                 ^\n" +
+        assertErrReport("(int)i+++(Long)++i", "[Error: missing ';' at the end of statement]\n" +
+                "[Near: ...++(Long)++i]\n" +
+                "                    ^\n" +
                 "[Line: 1, Column: 18]");
 
         Program program2 = parse("+(int)3L");
@@ -376,7 +376,7 @@ public class QLParserTest {
         assertEquals(1, varDecl.getType().getTypeArguments().size());
 
         assertErrReport("cc (a, b, c) -> c+d", "[Error: invalid expression]\n" +
-                "[Near: cc (a, b, c) -]\n" +
+                "[Near: cc (a, b, c) -...]\n" +
                 "          ^\n" +
                 "[Line: 1, Column: 4]");
     }
@@ -605,11 +605,11 @@ public class QLParserTest {
         assertTrue(program1.getStmtList().get(0) instanceof AssignExpr);
         assertTrue(program1.getStmtList().get(1) instanceof BinaryOpExpr);
 
-        assertErrReport("1+1)", "[Error: statement must end with ';']\n" +
+        assertErrReport("1+1)", "[Error: missing ';' at the end of statement]\n" +
                 "[Near: 1+1)]\n" +
                 "          ^\n" +
                 "[Line: 1, Column: 4]");
-        assertErrReport("int a = 2", "[Error: statement must end with ';']\n" +
+        assertErrReport("int a = 2", "[Error: missing ';' at the end of statement]\n" +
                 "[Near: int a = 2]\n" +
                 "               ^\n" +
                 "[Line: 1, Column: 9]");
@@ -694,8 +694,8 @@ public class QLParserTest {
                 .getConstValue()).getClz());
 
         assertErrReport("Map<java.cc.String, Integer> m;", "[Error: can not find class: java.cc.String]\n" +
-                "[Near: p<java.cc.String, Integer>]\n" +
-                "                 ^^^^^^\n" +
+                "[Near: ...p<java.cc.String, Integer>...]\n" +
+                "                    ^^^^^^\n" +
                 "[Line: 1, Column: 13]");
         assertErrReport("com.util.ArrayList l;", "[Error: can not find class: com.util.ArrayList]\n" +
                 "[Near: com.util.ArrayList l;]\n" +
@@ -768,18 +768,18 @@ public class QLParserTest {
                 "       ^^^^^^^^\n" +
                 "[Line: 1, Column: 1]");
         assertErrReport("if (true) {continue}", "[Error: 'continue' keyword must in loop]\n" +
-                "[Near: f (true) {continue}]\n" +
-                "                 ^^^^^^^^\n" +
+                "[Near: ...f (true) {continue}]\n" +
+                "                    ^^^^^^^^\n" +
                 "[Line: 1, Column: 12]");
         assertErrReport("for (i = 0; i < 3; i++) {a = () -> {break;}}",
                 "[Error: 'break' keyword must in loop]\n" +
-                        "[Near:  = () -> {break;}}]\n" +
-                        "                 ^^^^^\n" +
+                        "[Near: ... = () -> {break;}}]\n" +
+                        "                    ^^^^^\n" +
                         "[Line: 1, Column: 37]");
         assertErrReport("for (i = 0; i < 3; i++) {1+if (a>1) {break;} else {continue;}}",
                 "[Error: 'break' keyword must in loop]\n" +
-                        "[Near: if (a>1) {break;} else {c]\n" +
-                        "                 ^^^^^\n" +
+                        "[Near: ...if (a>1) {break;} else {c...]\n" +
+                        "                    ^^^^^\n" +
                         "[Line: 1, Column: 38]");
         parse("for (i = 0; i < 3; i++) {if (a>1) {break;} else {continue;}}");
     }

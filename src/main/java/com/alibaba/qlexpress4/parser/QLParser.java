@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.ClassSupplier;
 import com.alibaba.qlexpress4.QLPrecedences;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.tree.*;
 import com.alibaba.qlexpress4.runtime.MetaClass;
@@ -292,8 +293,8 @@ public class QLParser {
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
         } else if (matchTypeAndAdvance(TokenType.ASSIGN)) {
             Expr expr = expr(ContextType.BLOCK);
-            advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
-                    "statement must end with ';'");
+            advanceOrReportError(TokenType.SEMI, QLErrorCodes.MISSING_SEMI_AT_STATEMENT.name(),
+                    QLErrorCodes.MISSING_SEMI_AT_STATEMENT.getErrorMsg());
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), expr);
         }
         throw QLException.reportParserErr(scanner.getScript(), keyToken, "INVALID_VARIABLE_DECLARE",
@@ -472,8 +473,8 @@ public class QLParser {
         while (!isEnd()) {
             if (matchTypeAndAdvance(TokenType.MUL)) {
                 Token starToken = pre;
-                advanceOrReportError(TokenType.SEMI, "MISSING_SEMI_AT_STATEMENT",
-                        "missing ';' at the end of statement");
+                advanceOrReportError(TokenType.SEMI, QLErrorCodes.MISSING_SEMI_AT_STATEMENT.name(),
+                        QLErrorCodes.MISSING_SEMI_AT_STATEMENT.getErrorMsg());
                 if (prePackToken == null) {
                     throw QLException.reportParserErr(scanner.getScript(), starToken,
                             "INVALID_PACKAGE_AT_IMPORT", "invalid package at import");
@@ -494,7 +495,8 @@ public class QLParser {
                     return new ImportStmt(prePackToken, ImportStmt.ImportType.FIXED, path, false);
                 } else if (!matchTypeAndAdvance(TokenType.DOT)) {
                     throw QLException.reportParserErr(scanner.getScript(), lastToken(),
-                            "MISSING_SEMI_AT_STATEMENT", "missing ';' at the end of statement");
+                            QLErrorCodes.MISSING_SEMI_AT_STATEMENT.name(),
+                            QLErrorCodes.MISSING_SEMI_AT_STATEMENT.getErrorMsg());
                 }
             } else {
                 throw QLException.reportParserErr(scanner.getScript(), lastToken(),
@@ -571,8 +573,8 @@ public class QLParser {
             return false;
         }
         if (statement instanceof Expr) {
-            advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
-                    "statement must end with ';'");
+            advanceOrReportError(TokenType.SEMI, QLErrorCodes.MISSING_SEMI_AT_STATEMENT.name(),
+                    QLErrorCodes.MISSING_SEMI_AT_STATEMENT.getErrorMsg());
             return true;
         }
         return false;
