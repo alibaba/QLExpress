@@ -454,8 +454,8 @@ public class QLParser {
 
     private MacroStmt macroStmt() {
         Identifier macroName = idOrReportError("INVALID_MACRO_NAME", "invalid macro name");
-        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_MACRO_DECLARE",
-                "expect '{' in macro declaration");
+        advanceOrReportError(TokenType.LBRACE, "MISSING_LBRACE_AT_MACRO",
+                "missing '{' at macro definition");
         Block body = block(ContextType.BLOCK);
         return new MacroStmt(macroName.getKeyToken(), macroName, body);
     }

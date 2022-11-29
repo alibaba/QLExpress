@@ -71,7 +71,7 @@ class IfExprRule extends OperatorParseRule {
             throw QLException.reportParserErr(parser.getScript(), parser.lastToken(),
                     "EXPECT_IF_BODY", "expect if/else body");
         } else  {
-            return parser.expr(contextType);
+            return parser.statement(contextType);
         }
     }
 }
