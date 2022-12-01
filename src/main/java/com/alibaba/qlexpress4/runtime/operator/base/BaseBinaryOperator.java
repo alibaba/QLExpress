@@ -26,6 +26,19 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return left.get() instanceof Number && right.get() instanceof Number;
     }
 
+    protected boolean isNumberCharacter(Object leftValue, Object rightValue) {
+        return (leftValue instanceof Character && rightValue instanceof Number)
+            || (leftValue instanceof Number && rightValue instanceof Character);
+    }
+
+    protected boolean isCharacter(Object value) {
+        return value instanceof Character;
+    }
+
+    protected boolean isNumber(Object value) {
+        return value instanceof Number;
+    }
+
     protected void assertLeftValue(Value left, ErrorReporter errorReporter) {
         if (!(left instanceof LeftValue)) {
             throw errorReporter.report("INVALID_ASSIGNMENT", "value on the left side of '=' is not assignable");
@@ -194,11 +207,18 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected boolean equals(Value left, Value right) {
+        Object leftValue = left.get();
+        Object rightValue = right.get();
         if (isBothNumber(left, right)) {
-            return NumberMath.compareTo((Number)left.get(), (Number)right.get()) == 0;
+            return NumberMath.compareTo((Number)leftValue, (Number)rightValue) == 0;
+        } else if (isNumberCharacter(leftValue, rightValue)) {
+            if (isNumber(leftValue)) {
+                return NumberMath.compareTo((Number)leftValue, (int)rightValue) == 0;
+            } else {
+                return NumberMath.compareTo((int)leftValue, (Number)rightValue) == 0;
+            }
         } else {
-            // TODO 如果实现了Comparable接口，是否考虑通过compareTo方法比较
-            return Objects.equals(left.get(), right.get());
+            return Objects.equals(leftValue, rightValue);
         }
     }
 

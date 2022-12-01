@@ -14,3 +14,7 @@ assert(512F == 512D);
 assert(512D == 512D);
 
 assertFalse(512 == 513);
+
+// character
+assert(97 == 'b');
+assert('a' == '97');
