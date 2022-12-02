@@ -66,22 +66,24 @@
             <artifactId>commons-beanutils</artifactId>
             <version>1.8.2</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--不依赖？-->
+        <!--<dependency>-->
+        <!--    <groupId>log4j</groupId>-->
+        <!--    <artifactId>log4j</artifactId>-->
+        <!--    <version>1.2.16</version>-->
+        <!--    <scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.1.1</version>
         </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.4</version>
-        </dependency>
+        <!--不依赖？-->
+        <!--<dependency>-->
+        <!--    <groupId>commons-lang</groupId>-->
+        <!--    <artifactId>commons-lang</artifactId>-->
+        <!--    <version>2.4</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
