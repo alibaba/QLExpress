@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Author: DQinYuan
@@ -52,7 +51,8 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
+        //Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
+        Path filePath = getTestSuiteRoot().resolve("runtime/operator/equals.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
