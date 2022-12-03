@@ -84,6 +84,7 @@ public class TestSuiteRunner {
                     .debug(debug)
                     .attachments(attachments)
                     .build(), errCodeOp.get());
+            printOk(path);
             return;
         }
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
@@ -94,10 +95,16 @@ public class TestSuiteRunner {
 
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
+            printOk(path);
         } catch (Exception e) {
+            System.out.printf("%1$-95s %2$s\n",path, "error");
             System.out.println(path + " error");
             throw e;
         }
+    }
+
+    private void printOk(String path) {
+        System.out.printf("%1$-98s %2$s\n",path, "ok");
     }
 
     private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode) {
