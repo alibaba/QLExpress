@@ -226,9 +226,6 @@ public class ExpressRunner {
         return this.expressResourceLoader;
     }
 
-    public Map<String, Entry<InstructionSet, Exception>> getExpressInstructionSetCache() {
-        return this.expressInstructionSetCache;
-    }
 
     /**
      * 添加宏定义

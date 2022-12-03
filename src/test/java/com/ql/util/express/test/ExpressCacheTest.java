@@ -70,20 +70,6 @@ public class ExpressCacheTest {
     }
 
     /**
-     * validate local cache not null
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testOnInvokeCacheNotNull() throws Exception {
-        Assert.assertNotNull(new ExpressRunner().getExpressInstructionSetCache());
-        Assert.assertNotNull(new ExpressRunner(false, false,
-            (Map<String, Entry<InstructionSet, Exception>>)null).getExpressInstructionSetCache());
-        Assert.assertNotNull(
-            new ExpressRunner(false, false, new ConcurrentHashMap<>()).getExpressInstructionSetCache());
-    }
-
-    /**
      * can use jmh for accurate statistics
      * @throws Exception
      */
