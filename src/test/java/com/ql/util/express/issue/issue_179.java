@@ -67,4 +67,11 @@ public class issue_179 extends IssueBase {
         Object result = execute(script, context);
         Assert.assertTrue(!(Boolean)result);
     }
+    @Test
+    public void test8() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return '[1006]' like '[1%]'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
 }
