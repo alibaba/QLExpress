@@ -45,7 +45,7 @@ public class IndexInstruction extends QLInstruction {
             throw errorReporter.reportFormat("INVALID_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

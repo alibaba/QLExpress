@@ -52,7 +52,7 @@ public class ForEachInstruction extends QLInstruction {
                         "for each unknown exception");
             }
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

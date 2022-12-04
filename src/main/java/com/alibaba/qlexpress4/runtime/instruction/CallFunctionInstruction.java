@@ -34,12 +34,12 @@ public class CallFunctionInstruction extends QLInstruction {
         QFunction function = qContext.getFunction(functionName);
         if (function == null) {
             callLambda(qContext, qlOptions);
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         Parameters parameters = qContext.pop(argNum);
         try {
             qContext.push(new DataValue(function.call(qContext, parameters)));
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw errorReporter.report("CALL_FUNCTION_BIZ_EXCEPTION", e.getMessage());
         } catch (Exception e) {

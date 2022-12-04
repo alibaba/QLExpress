@@ -33,7 +33,7 @@ public class OperatorInstruction extends QLInstruction {
         Value leftValue = qContext.pop();
         Object result = operator.execute(leftValue, rightValue, errorReporter);
         qContext.push(new DataValue(result));
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

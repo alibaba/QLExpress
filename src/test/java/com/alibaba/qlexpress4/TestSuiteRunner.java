@@ -51,8 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        //Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
-        Path filePath = getTestSuiteRoot().resolve("runtime/operator/equals.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/for/break_continue.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -98,7 +97,6 @@ public class TestSuiteRunner {
             printOk(path);
         } catch (Exception e) {
             System.out.printf("%1$-95s %2$s\n",path, "error");
-            System.out.println(path + " error");
             throw e;
         }
     }

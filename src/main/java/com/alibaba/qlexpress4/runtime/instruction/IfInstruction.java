@@ -43,7 +43,7 @@ public class IfInstruction extends QLInstruction {
         QLambdaDefinition bodyDefinition = conditionBool? thenBody: elseBody;
         if (bodyDefinition == null) {
             qContext.push(Value.NULL_VALUE);
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         QLambda lambda = bodyDefinition.toLambda(qContext, qlOptions, newEnv);
         return callBody(qContext, lambda);
@@ -75,11 +75,14 @@ public class IfInstruction extends QLInstruction {
     private QResult callBody(QContext qContext, QLambda target) {
         try {
             QResult ifResult = target.call();
-            if (ifResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
-                return ifResult;
+            switch (ifResult.getResultType()) {
+                case CASCADE_RETURN:
+                case BREAK:
+                case CONTINUE:
+                    return ifResult;
             }
             qContext.push(ValueUtils.toImmutable(ifResult.getResult()));
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,
                     "IF_BODY_EXECUTE_ERROR", "if statement body execute error");

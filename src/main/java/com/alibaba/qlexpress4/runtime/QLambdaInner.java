@@ -39,11 +39,13 @@ public class QLambdaInner implements QLambda {
             switch (qResult.getResultType()) {
                 case RETURN:
                 case CASCADE_RETURN:
+                case BREAK:
+                case CONTINUE:
                     return qResult;
             }
         }
 
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     private QContext inheritScope(Object[] params) {

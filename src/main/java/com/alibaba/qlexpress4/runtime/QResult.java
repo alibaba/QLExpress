@@ -5,8 +5,9 @@ package com.alibaba.qlexpress4.runtime;
  */
 public class QResult {
 
-    public static final QResult BREAK_RESULT = new QResult(Value.NULL_VALUE, ResultType.BREAK);
-    public static final QResult CONTINUE_RESULT = new QResult(Value.NULL_VALUE, ResultType.CONTINUE);
+    public static final QResult LOOP_BREAK_RESULT = new QResult(Value.NULL_VALUE, ResultType.BREAK);
+    public static final QResult LOOP_CONTINUE_RESULT = new QResult(Value.NULL_VALUE, ResultType.CONTINUE);
+    public static final QResult NEXT_INSTRUCTION = new QResult(Value.NULL_VALUE, ResultType.NEXT_INSTRUCTION);
 
     public enum ResultType {
         // break
@@ -16,7 +17,9 @@ public class QResult {
         // return
         RETURN,
         // cascade return parent lambda
-        CASCADE_RETURN
+        CASCADE_RETURN,
+        // execute next instruction
+        NEXT_INSTRUCTION
     }
 
     public QResult(Value result, ResultType rType) {

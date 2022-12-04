@@ -37,7 +37,7 @@ public class NewListInstruction extends QLInstruction {
             l.add(initItems.getValue(i));
         }
         qContext.push(new DataValue(l));
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

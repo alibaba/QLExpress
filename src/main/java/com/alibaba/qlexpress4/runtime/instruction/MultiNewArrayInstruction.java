@@ -43,7 +43,7 @@ public class MultiNewArrayInstruction extends QLInstruction {
             dimArray[i] = ((Number) dimValue).intValue();
         }
         qContext.push(new DataValue(Array.newInstance(clz, dimArray)));
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override
