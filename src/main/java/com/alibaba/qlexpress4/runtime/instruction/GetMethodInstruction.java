@@ -68,7 +68,7 @@ public class GetMethodInstruction extends QLInstruction {
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             if (methods.size() == 0) {
-                throw this.errorReporter.report("GET_METHOD_NOT_FOUND_ERROR", "method not exists");
+                throw this.errorReporter.report("METHOD_NOT_FOUND", "method not exists");
             }
             QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
             DataValue dataMethod = new DataValue(qLambda);
@@ -85,7 +85,7 @@ public class GetMethodInstruction extends QLInstruction {
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
             if (methods.size() == 0) {
-                throw this.errorReporter.report("GET_METHOD_NOT_FOUND_ERROR", "method not exists");
+                throw this.errorReporter.report("METHOD_NOT_FOUND", "method not exists");
             }
             QLambda qLambda = new QLambdaMethod(methods, bean, enableAllowAccessPrivateMethod);
             DataValue dataMethod = new DataValue(qLambda);

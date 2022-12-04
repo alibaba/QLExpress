@@ -74,7 +74,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);
         }catch (Exception e){
-            throw errorReporter.report("GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
+            throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
         }
         return QResult.CONTINUE_RESULT;
     }
@@ -101,7 +101,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
             if(implicitMethod == null || implicitMethod.getMethod() == null){
-                throw errorReporter.report("GET_METHOD_VALUE_METHOD_NOT_FOUND_ERROR", "method not exists");
+                throw errorReporter.report("PARAM_NOT_MATCH", "method not exists");
             }
             CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, implicitMethod, type);
             return implicitMethod;
@@ -116,7 +116,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
             if(implicitMethod == null || implicitMethod.getMethod() == null){
-                throw errorReporter.report("GET_METHOD_VALUE_METHOD_NOT_FOUND_ERROR", "method not exists");
+                throw errorReporter.report("PARAM_NOT_MATCH", "method not exists");
             }
             CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, implicitMethod, type);
             return implicitMethod;

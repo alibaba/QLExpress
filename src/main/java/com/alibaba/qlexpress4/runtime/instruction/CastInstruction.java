@@ -36,7 +36,7 @@ public class CastInstruction extends QLInstruction {
         }
         QLConvertResult result = InstanceConversion.castObject(value, targetClz);
         if(result.getResultType().equals(QLConvertResultType.NOT_TRANS)){
-            throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this class");
+            throw errorReporter.report("CAST_OBJECT_ERROR", "can not cast from this type");
         }
         Value dataCast = new DataValue(result.getCastValue());
         qContext.push(dataCast);

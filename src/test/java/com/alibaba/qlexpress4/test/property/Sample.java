@@ -20,4 +20,8 @@ public class Sample {
         this.count = count;
     }
 
+    private int notAllow(){
+        return 1;
+    }
+
 }
