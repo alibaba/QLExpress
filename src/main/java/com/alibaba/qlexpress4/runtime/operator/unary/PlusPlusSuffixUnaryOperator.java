@@ -37,10 +37,9 @@ public class PlusPlusSuffixUnaryOperator extends BaseUnaryOperator {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
 
-        Number result = NumberMath.add((Number)operand, 1);
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(result, errorReporter);
+            ((LeftValue)value).set(NumberMath.add((Number)operand, 1), errorReporter);
         }
-        return result;
+        return operand;
     }
 }

@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/for/break_continue.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/array/array_item_type_convert.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

@@ -19,16 +19,19 @@ public class ForEachInstruction extends QLInstruction {
 
     private final QLambdaDefinition body;
 
-    public ForEachInstruction(ErrorReporter errorReporter, QLambdaDefinition body) {
+    private final ErrorReporter targetErrorReporter;
+
+    public ForEachInstruction(ErrorReporter errorReporter, QLambdaDefinition body, ErrorReporter targetErrorReporter) {
         super(errorReporter);
         this.body = body;
+        this.targetErrorReporter = targetErrorReporter;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object mayBeIterable = qContext.pop().get();
         if (!(mayBeIterable instanceof Iterable)) {
-            throw errorReporter.report("FOR_EACH_NOT_ITERABLE",
+            throw targetErrorReporter.report("FOR_EACH_NOT_ITERABLE",
                     "for-each can only be applied to iterable");
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;

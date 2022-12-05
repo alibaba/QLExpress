@@ -18,12 +18,21 @@ import java.util.function.Consumer;
  */
 public class ForInstruction extends QLInstruction {
 
+    /**
+     * nullable
+     */
     private final QLambdaDefinition forInit;
 
+    /**
+     * nullable
+     */
     private final QLambdaDefinition condition;
 
     private final ErrorReporter conditionErrorReporter;
 
+    /**
+     * nullable
+     */
     private final QLambdaDefinition forUpdate;
 
     private final int forScopeMaxStackSize;
@@ -46,19 +55,26 @@ public class ForInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         // TODO: map 容量根据编译时变量数目决定
-        DelegateQContext forScopeContext = new DelegateQContext(qContext,
-                new QvmBlockScope(qContext, new HashMap<>(1), forScopeMaxStackSize));
-        QLambda initLambda = forInit.toLambda(forScopeContext, qlOptions, false);
-        QLambda conditionLambda = condition.toLambda(forScopeContext, qlOptions, false);
-        QLambda updateLambda = forUpdate.toLambda(forScopeContext, qlOptions, false);
-        QLambda bodyLambda = forBody.toLambda(forScopeContext, qlOptions, true);
-        try {
-            initLambda.call();
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "FOR_INIT_ERROR", "for init error");
+        QContext forScopeContext = needForScope()? new DelegateQContext(qContext,
+                new QvmBlockScope(qContext, new HashMap<>(1), forScopeMaxStackSize)):
+                qContext;
+        if (forInit != null) {
+            QLambda initLambda = forInit.toLambda(forScopeContext, qlOptions, false);
+            try {
+                initLambda.call();
+            } catch (Exception e) {
+                throw ThrowUtils.wrapException(e, errorReporter, "FOR_INIT_ERROR", "for init error");
+            }
         }
+
+        QLambda conditionLambda = condition != null?
+                condition.toLambda(forScopeContext, qlOptions, false): null;
+        QLambda updateLambda = forUpdate != null?
+                forUpdate.toLambda(forScopeContext, qlOptions, false): null;
+        QLambda bodyLambda = forBody.toLambda(forScopeContext, qlOptions, true);
+
         forBody:
-        while (evalCondition(conditionLambda)) {
+        while (conditionLambda == null || evalCondition(conditionLambda)) {
             try {
                 QResult bodyResult = bodyLambda.call();
                 switch (bodyResult.getResultType()) {
@@ -70,9 +86,15 @@ public class ForInstruction extends QLInstruction {
             } catch (Exception e) {
                 throw ThrowUtils.wrapException(e, errorReporter, "FOR_BODY_EXECUTE_ERROR", "for body execute error");
             }
-            runUpdate(updateLambda);
+            if (updateLambda != null) {
+                runUpdate(updateLambda);
+            }
         }
         return QResult.NEXT_INSTRUCTION;
+    }
+
+    private boolean needForScope() {
+        return forInit != null || condition != null || forUpdate != null;
     }
 
     private void runUpdate(QLambda updateLambda) {
