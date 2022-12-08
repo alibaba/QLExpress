@@ -6,6 +6,9 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 /**
@@ -30,7 +33,9 @@ public class ForEachInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object mayBeIterable = qContext.pop().get();
-        if (!(mayBeIterable instanceof Iterable)) {
+        if (mayBeIterable != null && mayBeIterable.getClass().isArray()) {
+            mayBeIterable = new ReflectArrayIterable(mayBeIterable);
+        } else if (!(mayBeIterable instanceof Iterable)) {
             throw targetErrorReporter.report("FOR_EACH_NOT_ITERABLE",
                     "for-each can only be applied to iterable");
         }
@@ -73,4 +78,34 @@ public class ForEachInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "ForEach", debug);
         body.println(depth+1, debug);
     }
+
+    private static class ReflectArrayIterable implements Iterable<Object> {
+
+        private final Object arrObj;
+
+        private ReflectArrayIterable(Object arrObj) {
+            this.arrObj = arrObj;
+        }
+
+        @Override
+        public Iterator<Object> iterator() {
+            return new ReflectArrayIterator();
+        }
+
+        private class ReflectArrayIterator implements Iterator<Object> {
+
+            private int cursor;
+
+            @Override
+            public boolean hasNext() {
+                return cursor < Array.getLength(arrObj);
+            }
+
+            @Override
+            public Object next() {
+                return Array.get(arrObj, cursor++);
+            }
+        }
+    }
+
 }
