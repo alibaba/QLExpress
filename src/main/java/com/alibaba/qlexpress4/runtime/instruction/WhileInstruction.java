@@ -72,7 +72,7 @@ public class WhileInstruction extends QLInstruction {
             QLambda conditionLambda = condition.toLambda(qContext, qlOptions, false);
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
-                throw errorReporter.report("CONDITION_NOT_BOOL",
+                throw errorReporter.report("WHILE_CONDITION_NOT_BOOL",
                         "condition must be bool");
             }
             return (boolean) conditionResult;

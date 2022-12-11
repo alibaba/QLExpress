@@ -583,11 +583,11 @@ public class QLParser {
     private WhileStmt whileStmt() {
         Token keyToken = pre;
 
-        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_WHILE_CONDITION",
-                "expect '(' before while condition");
+        advanceOrReportError(TokenType.LPAREN, "MISSING_LPAREN_BEFORE_WHILE_CONDITION",
+                "missing '(' before while condition");
         Expr condition = expr(ContextType.BLOCK);
-        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_WHILE_CONDITION",
-                "expect ')' after while statement");
+        advanceOrReportError(TokenType.RPAREN, "MISSING_RPAREN_AFTER_WHILE_CONDITION",
+                "missing ')' after while statement");
 
         Stmt body = statement(ContextType.LOOP);
         return new WhileStmt(keyToken, condition, body);

@@ -539,11 +539,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(WhileStmt whileStmt, GeneratorScope generatorScope) {
         int whileCount = whileCount();
-        QLambdaDefinition conditionLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + CONDITION_SUFFIX,
+        QLambdaDefinitionInner conditionLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + CONDITION_SUFFIX,
             toStmtList(whileStmt.getCondition()), generatorScope);
         QLambdaDefinition bodyLambda = generateLambdaNewScope(prefix + WHILE_PREFIX + whileCount + BODY_SUFFIX,
             toStmtList(whileStmt.getBody()), generatorScope);
         addInstruction(new WhileInstruction(newReporterByNode(whileStmt), conditionLambda, bodyLambda));
+        // condition lambda run in current scope
+        expandStackSize(conditionLambda.getMaxStackSize());
         return null;
     }
 
@@ -557,11 +559,15 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     private void addInstruction(QLInstruction qlInstruction) {
         int stackExpandSize = qlInstruction.stackOutput() - qlInstruction.stackInput();
+        expandStackSize(stackExpandSize);
+        instructionList.add(qlInstruction);
+    }
+
+    private void expandStackSize(int stackExpandSize) {
         stackSize += stackExpandSize;
         if (stackSize > maxStackSize) {
             maxStackSize = stackSize;
         }
-        instructionList.add(qlInstruction);
     }
 
     private void addInstructions(NodeInstructions instructions) {
