@@ -599,21 +599,6 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
             nodeInstructions.getMaxStackSize());
     }
 
-    private QLambdaDefinitionInner generateLambdaNewScope(String name, StmtList stmtList, GeneratorScope generatorScope,
-                                                          List<QLambdaDefinitionInner.Param> paramsType,
-                                                          NodeInstructions extra) {
-        return generateLambda(name, stmtList, new GeneratorScope(generatorScope), paramsType, extra);
-    }
-
-    private QLambdaDefinitionInner generateLambda(String name, StmtList stmtList, GeneratorScope generatorScope,
-                                                  List<QLambdaDefinitionInner.Param> paramsType, NodeInstructions extra) {
-        NodeInstructions nodeInstructions = generateNodeInstructions(name, stmtList, generatorScope);
-        List<QLInstruction> instructions = nodeInstructions.getInstructions();
-        instructions.addAll(extra.getInstructions());
-        return new QLambdaDefinitionInner(name, instructions, paramsType,
-                Math.max(nodeInstructions.getMaxStackSize(), extra.getMaxStackSize()));
-    }
-
     private NodeInstructions generateNodeInstructionsNewScope(String name, StmtList stmtList,
                                                               GeneratorScope generatorScope) {
         return generateNodeInstructions(name, stmtList, new GeneratorScope(generatorScope));
