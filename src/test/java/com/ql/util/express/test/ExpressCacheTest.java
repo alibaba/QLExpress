@@ -94,9 +94,7 @@ public class ExpressCacheTest {
         // invoke hashTable compare default cache
         long a = executeScriptWithTimeRecord(syncRunner, context);
         long b = executeScriptWithTimeRecord(defaultRunner, context);
-        System.out.println(a);
-        System.out.println(b);
-        Assert.assertTrue(a > b);
+        Assert.assertTrue(b < a);
     }
 
     private void initExpressRunner(ExpressRunner runner) throws Exception {

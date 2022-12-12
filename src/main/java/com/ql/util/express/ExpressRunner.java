@@ -65,7 +65,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private final Map<String, Entry<InstructionSet, Exception>> expressInstructionSetCache;
+    private final Map<String, InstructionSet> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -134,7 +134,7 @@ public class ExpressRunner {
      * @param cacheMap user can define safe and efficient cache or use default concurrentMap
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace,
-        Map<String, Entry<InstructionSet, Exception>> cacheMap) {
+        Map<String, InstructionSet> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
 
@@ -161,7 +161,7 @@ public class ExpressRunner {
      * @param cacheMap 指令集缓存
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-        NodeTypeManager nodeTypeManager, Map<String, Entry<InstructionSet, Exception>> cacheMap) {
+        NodeTypeManager nodeTypeManager, Map<String, InstructionSet> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -681,18 +681,11 @@ public class ExpressRunner {
         boolean isCache, boolean isTrace, Log log) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
-            Entry<InstructionSet, Exception> parseResultEntry = expressInstructionSetCache.computeIfAbsent(
-                expressString, k -> {
-                    try {
-                        return new MapEntry<>(this.parseInstructionSet(k), null);
-                    } catch (Exception exp) {
-                        return new MapEntry<>(null, exp);
-                    }
-                });
-            if (parseResultEntry.getValue() instanceof Exception) {
-                throw parseResultEntry.getValue();
+            parseResult = expressInstructionSetCache.get(expressString);
+            if (parseResult == null) {
+                expressInstructionSetCache.putIfAbsent(expressString,
+                    parseResult = this.parseInstructionSet(expressString));
             }
-            parseResult = parseResultEntry.getKey();
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
@@ -762,18 +755,11 @@ public class ExpressRunner {
      * @throws Exception
      */
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
-        Entry<InstructionSet, Exception> parseResultEntry = expressInstructionSetCache.computeIfAbsent(expressString,
-            k -> {
-                try {
-                    return new MapEntry<>(this.parseInstructionSet(k), null);
-                } catch (Exception exp) {
-                    return new MapEntry<>(null, exp);
-                }
-            });
-        if (parseResultEntry.getValue() instanceof Exception) {
-            throw parseResultEntry.getValue();
+        InstructionSet parseResult = expressInstructionSetCache.get(expressString);
+        if (parseResult == null) {
+            expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
         }
-        return parseResultEntry.getKey();
+        return parseResult;
     }
 
     public InstructionSet createInstructionSet(ExpressNode root, String type) throws Exception {
