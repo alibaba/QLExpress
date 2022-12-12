@@ -428,12 +428,32 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         String varName = localVarDeclareStmt.getVarDecl().getVariable().getId();
         Class<?> declareClz = localVarDeclareStmt.getVarDecl().getType().getClz();
         if (localVarDeclareStmt.getInitializer() != null) {
-            localVarDeclareStmt.getInitializer().accept(this, generatorScope);
+            if (declareClz.isArray() && localVarDeclareStmt.getInitializer() instanceof ListExpr) {
+                // opt array init, not support embed
+                ListExpr listExpr = (ListExpr) localVarDeclareStmt.getInitializer();
+                newArrWithExprs(localVarDeclareStmt.getInitializer(), declareClz.getComponentType(),
+                        listExpr.getElements(), generatorScope);
+            } else if (declareClz == Character.class && localVarDeclareStmt.getInitializer() instanceof ConstExpr &&
+                isCharConst((ConstExpr) localVarDeclareStmt.getInitializer())) {
+                String constString = (String)
+                        ((ConstExpr) localVarDeclareStmt.getInitializer()).getConstValue();
+                addInstruction(new ConstInstruction(
+                        newReporterByNode(localVarDeclareStmt.getInitializer()),
+                        constString.charAt(0))
+                );
+            } else {
+                localVarDeclareStmt.getInitializer().accept(this, generatorScope);
+            }
         } else {
             addInstruction(new ConstInstruction(errorReporter, null));
         }
         addInstruction(new DefineLocalInstruction(errorReporter, varName, declareClz));
         return null;
+    }
+
+    private boolean isCharConst(ConstExpr constExpr) {
+        Object constValue = constExpr.getConstValue();
+        return constValue instanceof String && ((String) constValue).length() == 1;
     }
 
     @Override

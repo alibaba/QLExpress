@@ -22,7 +22,7 @@ public class CharacterConversion {
         if (text.length() == 1) {
             return new QLConvertResult(QLConvertResultType.CAN_TRANS, text.charAt(0));
         } else {
-            return new QLConvertResult(QLConvertResultType.CAN_TRANS, null);
+            return new QLConvertResult(QLConvertResultType.NOT_TRANS, null);
         }
     }
 }
