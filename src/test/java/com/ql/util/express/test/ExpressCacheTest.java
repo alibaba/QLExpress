@@ -1,33 +1,13 @@
 package com.ql.util.express.test;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
-import com.ql.util.express.InstructionSet;
 import com.ql.util.express.LocalExpressCacheRunner;
-import org.apache.commons.lang.time.StopWatch;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.StringUtils;
 
 /**
  * 关于ExpressRunner的脚本缓存管理方案
@@ -109,40 +89,5 @@ public class ExpressCacheTest {
 
     private void calculateTask(boolean isCache, IExpressContext<String, Object> context) throws Exception {
         runner.execute("计算平均成绩", context, null, isCache, false);
-    }
-
-    private void calculateBizRuleTask(ExpressRunner runner, boolean isCache, IExpressContext<String, Object> ctx) throws Exception {
-        final String expression = "equals(hotel_confirm_failed_convoy_type_235,\"AmapNegotiateRefund\") && "
-            + "equals(caseTemplateId_252,\"300710201\") &&"
-            + "commaContains(cooperateCaseCategoryId_253,\"22961021,75136015,75108009,75016043,75184007,75098039,"
-            + "84532001,85635013,75818016,84037001\") && "
-            + "((caseIdFlowControl_256 < 90) && (amapNegotiateRefundCaseCount_257 < 2))";
-        runner.execute(expression, ctx, null, isCache, false);
-    }
-
-    public static class FunctionTools {
-
-        public static boolean contains(final String str, final String searchStr) {
-            if (str == null || searchStr == null) {
-                return false;
-            }
-            return str.contains(searchStr);
-        }
-
-        public static boolean notEquals(final Object source, final Object target) {
-            return !Objects.equals(source, target);
-        }
-
-        public static boolean equals(final Object source, final Object target) {
-            return Objects.equals(source, target);
-        }
-
-        public static boolean commaContains(final String str, final String searchStr) {
-            if (!StringUtils.hasText(str) || !StringUtils.hasText(searchStr)) {
-                return false;
-            }
-            final List<String> elements = Arrays.asList(searchStr.split(","));
-            return elements.contains(str);
-        }
     }
 }
