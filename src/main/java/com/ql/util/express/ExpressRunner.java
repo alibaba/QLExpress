@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
@@ -60,8 +62,9 @@ public class ExpressRunner {
 
     /**
      * 一段文本对应的指令集的缓存
+     * default: ConcurrentHashMap with no eviction policy
      */
-    private final Map<String, InstructionSet> expressInstructionSetCache = new HashMap<>();
+    private final Map<String, InstructionSet> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -123,6 +126,18 @@ public class ExpressRunner {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null);
     }
 
+    /**
+     *
+     * @param isPrecise
+     * @param isTrace
+     * @param cacheMap user can define safe and efficient cache or use default concurrentMap
+     */
+    public ExpressRunner(boolean isPrecise, boolean isTrace,
+        Map<String, InstructionSet> cacheMap) {
+        this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
+    }
+
+
     public ExpressRunner(boolean isPrecise, boolean isStrace, NodeTypeManager nodeTypeManager) {
         this(isPrecise, isStrace, new DefaultExpressResourceLoader(), nodeTypeManager);
     }
@@ -134,6 +149,18 @@ public class ExpressRunner {
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
         NodeTypeManager nodeTypeManager) {
+        this(isPrecise, isTrace, iExpressResourceLoader,
+            nodeTypeManager, null);
+    }
+
+    /**
+     * @param isPrecise              是否需要高精度计算支持
+     * @param isTrace                是否跟踪执行指令的过程
+     * @param iExpressResourceLoader 表达式的资源装载器
+     * @param cacheMap 指令集缓存
+     */
+    public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
+        NodeTypeManager nodeTypeManager, Map<String, InstructionSet> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -141,6 +168,12 @@ public class ExpressRunner {
             manager = new NodeTypeManager();
         } else {
             manager = nodeTypeManager;
+        }
+
+        if (Objects.isNull(cacheMap)) {
+            expressInstructionSetCache = new ConcurrentHashMap<>();
+        } else {
+            expressInstructionSetCache = cacheMap;
         }
         this.operatorManager = new OperatorFactory(this.isPrecise);
         this.loader = new ExpressLoader(this);
@@ -191,6 +224,7 @@ public class ExpressRunner {
     public IExpressResourceLoader getExpressResourceLoader() {
         return this.expressResourceLoader;
     }
+
 
     /**
      * 添加宏定义
@@ -531,9 +565,7 @@ public class ExpressRunner {
      * 清除缓存
      */
     public void clearExpressCache() {
-        synchronized (expressInstructionSetCache) {
-            this.expressInstructionSetCache.clear();
-        }
+        expressInstructionSetCache.clear();
     }
 
     /**
@@ -650,13 +682,8 @@ public class ExpressRunner {
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {
-                synchronized (expressInstructionSetCache) {
-                    parseResult = expressInstructionSetCache.get(expressString);
-                    if (parseResult == null) {
-                        parseResult = this.parseInstructionSet(expressString);
-                        expressInstructionSetCache.put(expressString, parseResult);
-                    }
-                }
+                expressInstructionSetCache.putIfAbsent(expressString,
+                    parseResult = this.parseInstructionSet(expressString));
             }
         } else {
             parseResult = this.parseInstructionSet(expressString);
@@ -729,13 +756,7 @@ public class ExpressRunner {
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
         InstructionSet parseResult = expressInstructionSetCache.get(expressString);
         if (parseResult == null) {
-            synchronized (expressInstructionSetCache) {
-                parseResult = expressInstructionSetCache.get(expressString);
-                if (parseResult == null) {
-                    parseResult = this.parseInstructionSet(expressString);
-                    expressInstructionSetCache.put(expressString, parseResult);
-                }
-            }
+            expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
         }
         return parseResult;
     }
