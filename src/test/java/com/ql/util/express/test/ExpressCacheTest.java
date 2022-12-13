@@ -37,11 +37,6 @@ import org.springframework.util.StringUtils;
 public class ExpressCacheTest {
     private final ExpressRunner runner = new ExpressRunner();
 
-    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 25, 5L,
-        TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024), Executors.defaultThreadFactory(),
-        new CallerRunsPolicy());
-
-
     /**
      * Single td invoke
      */
@@ -57,83 +52,17 @@ public class ExpressCacheTest {
         while (times-- > 0) {
             calculateTask(false, context);
         }
-        long end = new Date().getTime();
-        echo("不做缓存耗时：" + (end - start) + " ms");
+        long a = new Date().getTime() - start;
+        echo("不做缓存耗时：" + a + " ms");
 
         times = 10000;
         start = new Date().getTime();
         while (times-- > 0) {
             calculateTask(true, context);
         }
-        end = new Date().getTime();
-        echo("做缓存耗时：" + (end - start) + " ms");
-    }
-
-    /**
-     * can use jmh for accurate statistics
-     * @throws Exception
-     */
-    @Test
-    public void testScriptWithMultiCache() throws Exception {
-        ExpressRunner defaultRunner = new ExpressRunner(false, false, new ConcurrentHashMap<>());
-        ExpressRunner syncRunner = new ExpressRunner(false, false, new HashMap<>());
-        initExpressRunner(defaultRunner);
-        initExpressRunner(syncRunner);
-
-        // set self define with eviction policy to avoid
-        IExpressContext<String, Object> context = new DefaultContext<>();
-        context.put("hotel_confirm_failed_convoy_type_235", "AmapNegotiateRefund");
-        context.put("caseTemplateId_252", "300710201");
-        context.put("commaContains", 22961021);
-        context.put("caseIdFlowControl_256", 53);
-        context.put("amapNegotiateRefundCaseCount_257", 0);
-
-        // warm up executor
-        executor.prestartAllCoreThreads();
-
-        // invoke hashTable compare default cache
-        long a = executeScriptWithTimeRecord(syncRunner, context);
-        long b = executeScriptWithTimeRecord(defaultRunner, context);
+        long b = new Date().getTime() - start;
+        echo("做缓存耗时：" + b + " ms");
         Assert.assertTrue(b < a);
-    }
-
-    private void initExpressRunner(ExpressRunner runner) throws Exception {
-        runner.addFunctionOfClassMethod("contains", FunctionTools.class.getName(),
-            "contains", new Class<?>[] {String.class, String.class}, null);
-        runner.addFunctionOfClassMethod("equals", FunctionTools.class.getName(),
-            "equals", new Class<?>[] {Object.class, Object.class}, null);
-        runner.addFunctionOfClassMethod("commaContains", FunctionTools.class.getName(),
-            "commaContains", new Class<?>[] {String.class, String.class}, null);
-        runner.addFunctionOfClassMethod("notEquals", FunctionTools.class.getName(),
-            "notEquals", new Class<?>[] {Object.class, Object.class}, null);
-    }
-
-    private long executeScriptWithTimeRecord(ExpressRunner runner, IExpressContext<String, Object> context) throws InterruptedException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        CountDownLatch cnt = new CountDownLatch(100);
-
-        IntStream.range(0, 100)
-            .forEach(i -> {
-                executor.submit(() -> {
-                    try {
-                        testOnBatchInvokeSingleScriptCalc(runner, context);
-                        cnt.countDown();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            });
-        cnt.await();
-        stopWatch.stop();
-        return stopWatch.getTime();
-    }
-
-    private void testOnBatchInvokeSingleScriptCalc(ExpressRunner runner, IExpressContext ctx) throws Exception {
-        for (int i = 0; i < 10000; i ++) {
-            // enable cache
-            calculateBizRuleTask(runner, true, ctx);
-        }
     }
 
     @Test

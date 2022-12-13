@@ -859,33 +859,4 @@ public class ExpressRunner {
             return false;
         }
     }
-
-    static final class MapEntry<K, V> implements Entry<K, V> {
-
-        private K key;
-
-        private V val;
-
-        public MapEntry(K key, V val) {
-            this.key = key;
-            this.val = val;
-        }
-
-        @Override
-        public K getKey() {
-            return this.key;
-        }
-
-        @Override
-        public V getValue() {
-            return this.val;
-        }
-
-        @Override
-        public V setValue(V value) {
-            V old = this.val;
-            this.val = value;
-            return old;
-        }
-    }
 }
