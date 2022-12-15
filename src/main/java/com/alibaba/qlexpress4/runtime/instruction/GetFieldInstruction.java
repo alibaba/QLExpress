@@ -44,7 +44,7 @@ public class GetFieldInstruction extends QLInstruction {
         if (bean == null) {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.push(DataValue.NULL_VALUE);
-                return QResult.CONTINUE_RESULT;
+                return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.report("GET_FIELD_FROM_NULL", "can not get field from null");
         }
@@ -64,7 +64,7 @@ public class GetFieldInstruction extends QLInstruction {
                     if(this.fieldName.equals(enumObj.toString())){
                         Value dataEnum = new DataValue(enumObj);
                         qContext.push(dataEnum);
-                        return QResult.CONTINUE_RESULT;
+                        return QResult.NEXT_INSTRUCTION;
                     }
                 }
                 throw errorReporter.report("ENUM_NOT_EXIST", "enum not exist");
@@ -77,7 +77,7 @@ public class GetFieldInstruction extends QLInstruction {
         } else {
             getCacheFieldValue(qlOptions, bean.getClass(), bean, qContext);
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

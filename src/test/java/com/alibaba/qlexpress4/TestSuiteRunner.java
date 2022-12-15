@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Author: DQinYuan
@@ -52,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/string/invalid_char.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -84,6 +83,7 @@ public class TestSuiteRunner {
                     .debug(debug)
                     .attachments(attachments)
                     .build(), errCodeOp.get());
+            printOk(path);
             return;
         }
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
@@ -94,10 +94,15 @@ public class TestSuiteRunner {
 
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
+            printOk(path);
         } catch (Exception e) {
-            System.out.println(path + " error");
+            System.out.printf("%1$-95s %2$s\n",path, "error");
             throw e;
         }
+    }
+
+    private void printOk(String path) {
+        System.out.printf("%1$-98s %2$s\n",path, "ok");
     }
 
     private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode) {

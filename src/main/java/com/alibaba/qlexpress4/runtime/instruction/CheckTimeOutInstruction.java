@@ -23,14 +23,14 @@ public class CheckTimeOutInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         if (qlOptions.getTimeoutMillis() <= 0) {
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         if (System.currentTimeMillis() - qContext.scriptStartTimeStamp() > qlOptions.getTimeoutMillis()) {
             // timeout
             throw errorReporter.report("SCRIPT_TIME_OUT",
                     "script exceeds timeout milliseconds, which is " + qlOptions.getTimeoutMillis() + " ms");
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

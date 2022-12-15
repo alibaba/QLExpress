@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
+import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
@@ -39,11 +41,13 @@ public class QLambdaInner implements QLambda {
             switch (qResult.getResultType()) {
                 case RETURN:
                 case CASCADE_RETURN:
+                case BREAK:
+                case CONTINUE:
                     return qResult;
             }
         }
 
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     private QContext inheritScope(Object[] params) {

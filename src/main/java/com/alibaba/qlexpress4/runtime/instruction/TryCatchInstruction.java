@@ -48,7 +48,7 @@ public class TryCatchInstruction extends QLInstruction {
         }
         Value resultValue = finalBody == null? tryCatchResult.getResult(): finalResult.getResult();
         qContext.push(ValueUtils.toImmutable(resultValue));
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class TryCatchInstruction extends QLInstruction {
 
     private QResult finalResult(QContext qContext, QLOptions qlOptions) {
         if (finalBody == null) {
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         QLambda finalLambda = finalBody.toLambda(qContext, qlOptions, true);
         try {

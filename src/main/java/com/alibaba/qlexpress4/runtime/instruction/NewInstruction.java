@@ -71,7 +71,7 @@ public class NewInstruction extends QLInstruction {
         }
         Value dataInstruction = new DataValue(constructorAccessible);
         qContext.push(dataInstruction);
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
 

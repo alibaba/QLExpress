@@ -36,7 +36,7 @@ public class GetMethodInstruction extends QLInstruction {
         if (bean == null) {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.push(DataValue.NULL_VALUE);
-                return QResult.CONTINUE_RESULT;
+                return QResult.NEXT_INSTRUCTION;
             }
             throw this.errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
         }
@@ -45,7 +45,7 @@ public class GetMethodInstruction extends QLInstruction {
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, qlOptions.enableAllowAccessPrivateMethod());
         qContext.push(dataMethod);
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

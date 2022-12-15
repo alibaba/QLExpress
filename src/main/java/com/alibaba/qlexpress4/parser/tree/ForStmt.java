@@ -6,11 +6,18 @@ public class ForStmt extends Stmt {
 
     /**
      * {@link LocalVarDeclareStmt} or {@link Expr}
+     * nullable
      */
     private final Stmt forInit;
 
+    /**
+     * nullable
+     */
     private final Expr condition;
 
+    /**
+     * nullable
+     */
     private final Expr forUpdate;
 
     private final Stmt body;

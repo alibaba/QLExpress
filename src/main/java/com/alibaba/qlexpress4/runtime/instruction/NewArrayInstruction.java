@@ -46,7 +46,7 @@ public class NewArrayInstruction extends QLInstruction {
             Array.set(array, i, qlConvertResult.getCastValue());
         }
         qContext.push(new DataValue(array));
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

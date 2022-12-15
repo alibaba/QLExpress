@@ -32,7 +32,7 @@ public class CallInstruction extends QLInstruction {
         Object bean = parameters.get(0).get();
         if (bean == null && qlOptions.isAvoidNullPointer()) {
             qContext.push(DataValue.NULL_VALUE);
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         if (!(bean instanceof QLambda)) {
             throw this.errorReporter.report("OBJECT_NOT_CALLABLE",
@@ -45,7 +45,7 @@ public class CallInstruction extends QLInstruction {
         try {
             QLambda qLambda = (QLambda) bean;
             qContext.push(ValueUtils.toImmutable(qLambda.call(params).getResult()));
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");

@@ -32,7 +32,7 @@ public class CastInstruction extends QLInstruction {
         Class<?> targetClz = popTargetClz(qContext.pop().get());
         if (value == null) {
             qContext.push(Value.NULL_VALUE);
-            return QResult.CONTINUE_RESULT;
+            return QResult.NEXT_INSTRUCTION;
         }
         QLConvertResult result = InstanceConversion.castObject(value, targetClz);
         if(result.getResultType().equals(QLConvertResultType.NOT_TRANS)){
@@ -40,7 +40,7 @@ public class CastInstruction extends QLInstruction {
         }
         Value dataCast = new DataValue(result.getCastValue());
         qContext.push(dataCast);
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     private Class<?> popTargetClz(Object target) {

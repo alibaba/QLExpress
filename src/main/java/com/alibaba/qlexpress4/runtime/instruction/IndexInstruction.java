@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
@@ -9,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.ListItemValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -32,20 +34,29 @@ public class IndexInstruction extends QLInstruction {
         Object index = qContext.pop().get();
         Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
-            Number indexNumber = assertType(index, Number.class, "LIST_INVALID_INDEX",
-                    "list can only be indexed by number");
-            qContext.push(new ListItemValue((List<? super Object>) indexAble, indexNumber.intValue()));
+            Number indexNumber = assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
+                    QLErrorCodes.INVALID_INDEX.getErrorMsg());
+            int intIndex = indexNumber.intValue();
+            List<? super Object> list = (List<? super Object>) indexAble;
+            if (intIndex < 0 || intIndex >= list.size()) {
+                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
+            }
+            qContext.push(new ListItemValue(list, intIndex));
         } else if (indexAble instanceof Map) {
             qContext.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
-            Number indexNumber = assertType(index, Number.class, "ARRAY_INVALID_INDEX",
-                    "array can only be indexed by number");
-            qContext.push(new ArrayItemValue(indexAble, indexNumber.intValue()));
+            Number indexNumber = assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
+                    QLErrorCodes.INVALID_INDEX.getErrorMsg());
+            int intIndex = indexNumber.intValue();
+            if (intIndex < 0 || intIndex >= Array.getLength(indexAble)) {
+                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
+            }
+            qContext.push(new ArrayItemValue(indexAble, intIndex));
         } else {
-            throw errorReporter.reportFormat("INVALID_INDEX", "%s not support index",
+            throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override
@@ -64,7 +75,7 @@ public class IndexInstruction extends QLInstruction {
     }
 
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {
-        if (obj != null && obj.getClass().isAssignableFrom(obj.getClass())) {
+        if (obj != null && assertType.isAssignableFrom(obj.getClass())) {
             return assertType.cast(obj);
         }
         throw errorReporter.report(errCode, errMsg);

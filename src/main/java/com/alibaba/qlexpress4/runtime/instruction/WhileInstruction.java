@@ -45,7 +45,7 @@ public class WhileInstruction extends QLInstruction {
                         "WHILE_BODY_EXECUTE_ERROR", "while body execute error");
             }
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override
@@ -61,8 +61,10 @@ public class WhileInstruction extends QLInstruction {
     @Override
     public void println(int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, "While", debug);
-        condition.println(depth+1, debug);
-        body.println(depth+1, debug);
+        PrintlnUtils.printlnByCurDepth(depth+1, "Condition", debug);
+        condition.println(depth+2, debug);
+        PrintlnUtils.printlnByCurDepth(depth+1, "Body", debug);
+        body.println(depth+2, debug);
     }
 
     private boolean evalCondition(QContext qContext, QLOptions qlOptions) {
@@ -71,12 +73,12 @@ public class WhileInstruction extends QLInstruction {
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
                 throw errorReporter.report("WHILE_CONDITION_NOT_BOOL",
-                        "while condition must be bool");
+                        "condition must be bool");
             }
             return (boolean) conditionResult;
         } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "WHILE_CONDITION_EVAL_ERROR",
-                    "while statement condition evaluate error");
+            throw ThrowUtils.wrapException(e, errorReporter, "CONDITION_EVAL_ERROR",
+                    "condition evaluate error");
         }
     }
 }

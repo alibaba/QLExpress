@@ -40,7 +40,7 @@ public class DefineLocalInstruction extends QLInstruction {
                     defineClz.getName(), initValue.getClass().getName());
         }
         qContext.defineLocalSymbol(variableName, defineClz, qlConvertResult.getCastValue());
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

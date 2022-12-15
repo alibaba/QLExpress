@@ -54,7 +54,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         if (bean == null) {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.push(DataValue.NULL_VALUE);
-                return QResult.CONTINUE_RESULT;
+                return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
         }
@@ -76,7 +76,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         }catch (Exception e){
             throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
         }
-        return QResult.CONTINUE_RESULT;
+        return QResult.NEXT_INSTRUCTION;
     }
 
     @Override

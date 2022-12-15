@@ -293,8 +293,8 @@ public class QLParser {
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), null);
         } else if (matchTypeAndAdvance(TokenType.ASSIGN)) {
             Expr expr = expr(ContextType.BLOCK);
-            advanceOrReportError(TokenType.SEMI, QLErrorCodes.MISSING_SEMI_AT_STATEMENT.name(),
-                    QLErrorCodes.MISSING_SEMI_AT_STATEMENT.getErrorMsg());
+            advanceOrReportError(TokenType.SEMI, "MISSING_SEMI_AT_VAR_DECLARE",
+                    "missing ';' at variable declare");
             return new LocalVarDeclareStmt(keyToken, new VarDecl(type, varName), expr);
         }
         throw QLException.reportParserErr(scanner.getScript(), keyToken, "INVALID_VARIABLE_DECLARE",
@@ -583,11 +583,11 @@ public class QLParser {
     private WhileStmt whileStmt() {
         Token keyToken = pre;
 
-        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_BEFORE_WHILE_CONDITION",
-                "expect '(' before while condition");
+        advanceOrReportError(TokenType.LPAREN, "MISSING_LPAREN_BEFORE_WHILE_CONDITION",
+                "missing '(' before while condition");
         Expr condition = expr(ContextType.BLOCK);
-        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_WHILE_CONDITION",
-                "expect ')' after while statement");
+        advanceOrReportError(TokenType.RPAREN, "MISSING_RPAREN_AFTER_WHILE_CONDITION",
+                "missing ')' after while statement");
 
         Stmt body = statement(ContextType.LOOP);
         return new WhileStmt(keyToken, condition, body);
@@ -595,19 +595,17 @@ public class QLParser {
 
     private Stmt forStmt() {
         Token forToken = pre;
-        advanceOrReportError(TokenType.LPAREN, "EXPECT_LPAREN_AFTER_FOR", "expect '(' after 'for'");
+        advanceOrReportError(TokenType.LPAREN, "MISSING_LPAREN_AT_FOR", "missing '(' at 'for' statement");
         return isForEach()? forEachStmt(forToken): traditionalForStmt(forToken);
     }
 
     private ForEachStmt forEachStmt(Token forToken) {
         VarDecl itVar;
         itVar = varDecl();
-        advanceOrReportError(TokenType.COLON, "EXPECT_COLON_AFTER_FOR_EACH_VARIABLE_DECLARE",
-                "expect ':' after for-each variable declare");
+        advanceOrReportError(TokenType.COLON, "MISSING_COLON_AT_FOR_EACH", "missing ':' at for-each");
 
         Expr target = expr(ContextType.BLOCK);
-        advanceOrReportError(TokenType.RPAREN, "EXPECT_RPAREN_AFTER_FOR_EACH_EXPRESSION",
-                "expect ')' after for-each expression");
+        advanceOrReportError(TokenType.RPAREN, "MISSING_RPAREN_AT_FOR_EACH", "missing ')' at for-each");
 
         Stmt body = statement(ContextType.LOOP);
         return new ForEachStmt(forToken, itVar, target, body);
@@ -620,22 +618,22 @@ public class QLParser {
                 forInit = localVarDeclareStmt();
             } else {
                 forInit = expr(ContextType.BLOCK);
-                advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_INIT",
-                        "expect ';' after 'for' init expression");
+                advanceOrReportError(TokenType.SEMI, "MISSING_SEMI_AFTER_FOR_INIT",
+                        "missing ';' after 'for' init expression");
             }
         }
         Expr condition = null;
         if (!matchTypeAndAdvance(TokenType.SEMI)) {
             condition = expr(ContextType.BLOCK);
-            advanceOrReportError(TokenType.SEMI, "EXPECT_SEMI_AFTER_FOR_CONDITION",
-                    "expect ';' after 'for' condition expression");
+            advanceOrReportError(TokenType.SEMI, "MISSING_SEMI_AFTER_FOR_CONDITION",
+                    "missing ';' after 'for' condition expression");
         }
         Expr forUpdate = null;
-        if (!matchTypeAndAdvance(TokenType.SEMI)) {
+        if (!matchTypeAndAdvance(TokenType.RPAREN)) {
             forUpdate = expr(ContextType.BLOCK);
+            advanceOrReportError(TokenType.RPAREN, "MISSING_RPAREN_AFTER_FOR_UPDATE",
+                    "missing ')' after 'for' update expression");
         }
-        advanceOrReportError(TokenType.RPAREN, "EXPECT_SEMI_AFTER_FOR_UPDATE",
-                "expect ')' after 'for' update expression");
 
         Stmt body = statement(ContextType.LOOP);
         return new ForStmt(forToken, forInit, condition, forUpdate, body);
