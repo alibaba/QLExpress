@@ -180,7 +180,11 @@ public class QLParser {
             }
 
             if (isTokenType(maybeVarToken, TokenType.LT)) {
-                return lookAheadGtNextTokenWithCache(maybeVarToken, false);
+                Token gtNextToken = lookAheadGtNextTokenWithCache(maybeVarToken);
+                if (isTokenType(gtNextToken, TokenType.LBRACK)) {
+                    return lookAheadArrayDeclareNextToken();
+                }
+                return gtNextToken;
             } else if (isTokenType(maybeVarToken, TokenType.LBRACK)) {
                 // array type
                 return lookAheadArrayDeclareNextToken();
@@ -212,16 +216,12 @@ public class QLParser {
         }
     }
 
-    public Token lookAheadGtNextTokenWithCache(Token ltToken, boolean back) {
+    public Token lookAheadGtNextTokenWithCache(Token ltToken) {
         if (gtNextToken.containsKey(ltToken.getPos())) {
             return gtNextToken.get(ltToken.getPos()).orElse(null);
         }
 
-        Token res = lookAheadGtNextToken(ltToken);
-        if (back) {
-            scanner.back();
-        }
-        return res;
+        return lookAheadGtNextToken(ltToken);
     }
 
     private Token lookAheadGtNextToken(Token ltToken) {
@@ -319,12 +319,7 @@ public class QLParser {
 
     protected DeclType declType(boolean parseArray) {
         if (matchTypeAndAdvance(TokenType.TYPE)) {
-            Token typeKeyToken = pre;
-            Class<?> baseType = mustLoadQualifiedCls((String) pre.getLiteral(), pre);
-            if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
-                return arrayDeclType(typeKeyToken, baseType);
-            }
-            return new DeclType(typeKeyToken, baseType, Collections.emptyList());
+            return primitiveType(parseArray);
         } else if (matchTypeAndAdvance(TokenType.ID)) {
             List<String> clsPartName = new ArrayList<>(5);
             clsPartName.add(pre.getLexeme());
@@ -341,18 +336,33 @@ public class QLParser {
                     mustLoadSimpleCls(pre):
                     mustLoadQualifiedCls(String.join(".", clsPartName), pre);
 
-            if (matchTypeAndAdvance(TokenType.LT)) {
-                // generic type arguments
-                return new DeclType(typeKeyToken, clz, typeArgumentList());
-            } else if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
-                // array
-                return arrayDeclType(typeKeyToken, clz);
-            } else {
-                return new DeclType(typeKeyToken, clz, Collections.emptyList());
-            }
+            return expandCls(typeKeyToken, clz, parseArray);
         }
         throw QLException.reportParserErr(scanner.getScript(), lastToken(),
                 "INVALID_TYPE_DECLARE", "invalid type declare");
+    }
+
+    protected DeclType expandCls(Token typeKeyToken, Class<?> clz, boolean parseArray) {
+        List<DeclTypeArgument> typeArguments = Collections.emptyList();
+        if (matchTypeAndAdvance(TokenType.LT)) {
+            // generic type arguments
+            typeArguments = typeArgumentList();
+        }
+        if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
+            // array
+            return arrayDeclType(typeKeyToken, clz);
+        } else {
+            return new DeclType(typeKeyToken, clz, typeArguments);
+        }
+    }
+
+    protected DeclType primitiveType(boolean parseArray) {
+        Token typeKeyToken = pre;
+        Class<?> baseType = mustLoadQualifiedCls((String) pre.getLiteral(), pre);
+        if (parseArray && matchTypeAndAdvance(TokenType.LBRACK)) {
+            return arrayDeclType(typeKeyToken, baseType);
+        }
+        return new DeclType(typeKeyToken, baseType, Collections.emptyList());
     }
 
     private DeclType arrayDeclType(Token typeKeyToken, Class<?> originClz) {

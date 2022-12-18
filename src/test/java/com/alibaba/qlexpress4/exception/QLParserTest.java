@@ -104,13 +104,6 @@ public class QLParserTest {
         TernaryExpr elseNestParentTernary = (TernaryExpr) p3.getStmtList().get(0);
         assertTrue(elseNestParentTernary.getThenExpr() instanceof ConstExpr);
         assertTrue(elseNestParentTernary.getElseExpr() instanceof TernaryExpr);
-
-        // ?: take precedence over assign, so equals to `(10>9? a)=(10: b)=99`, which can not find match `:` to `?`
-        // this expression is also invalid in Java
-        assertErrReport("10>9? a=10: b=99", "[Error: can not find ':' to match '?']\n" +
-                "[Near: 10>9? a=10: b=9...]\n" +
-                "           ^\n" +
-                "[Line: 1, Column: 5]");
     }
 
     @Test
@@ -315,7 +308,7 @@ public class QLParserTest {
 
         Program program3 = parse("(Integer) a.test");
         CastExpr castFieldCallExpr = (CastExpr) program3.getStmtList().get(0);
-        assertTrue(castFieldCallExpr.getTypeExpr() instanceof ConstExpr);
+        assertTrue(castFieldCallExpr.getTypeExpr() instanceof TypeExpr);
         assertTrue(castFieldCallExpr.getTarget() instanceof GetFieldExpr);
     }
 
@@ -609,7 +602,7 @@ public class QLParserTest {
                 "[Near: 1+1)]\n" +
                 "          ^\n" +
                 "[Line: 1, Column: 4]");
-        assertErrReport("int a = 2", "[Error: missing ';' at the end of statement]\n" +
+        assertErrReport("int a = 2", "[Error: missing ';' at variable declare]\n" +
                 "[Near: int a = 2]\n" +
                 "               ^\n" +
                 "[Line: 1, Column: 9]");
