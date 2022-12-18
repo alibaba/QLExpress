@@ -896,10 +896,10 @@ public class QLParser {
         } else if (pre.getType() == TokenType.QUESTION) {
             // ?:
             Token keyToken = pre;
-            Expr thenExpr = parsePrecedence(QLPrecedences.TERNARY, ContextType.BLOCK);
-            advanceOrReportErrorWithToken(TokenType.COLON, "CAN_NOT_FIND_COLON_TO_MATCH_QUESTION",
-                    "can not find ':' to match '?'", keyToken);
-            Expr elseExpr = parsePrecedence(QLPrecedences.TERNARY, ContextType.BLOCK);
+            Expr thenExpr = parsePrecedence(QLPrecedences.ASSIGN, ContextType.BLOCK);
+            advanceOrReportErrorWithToken(TokenType.COLON, "MISSING_COLON_AT_TERNARY",
+                    "missing ':' to match '?', at ternary", keyToken);
+            Expr elseExpr = parsePrecedence(QLPrecedences.ASSIGN, ContextType.BLOCK);
             return new TernaryExpr(keyToken, left, thenExpr, elseExpr);
         } else if (getMiddleOpPrecedence(pre) != null) {
             // normal binary operator is left-associative

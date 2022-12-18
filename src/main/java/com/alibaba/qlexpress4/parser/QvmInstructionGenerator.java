@@ -339,7 +339,6 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(IfExpr ifExpr, GeneratorScope generatorScope) {
         ifExpr.getCondition().accept(this, generatorScope);
 
-        ErrorReporter ifErrReporter = newReporterByNode(ifExpr);
         int ifCount = ifCount();
         QLambdaDefinition thenLambda = generateLambdaNewScope(
                 prefix + IF_LAMBDA_PREFIX + ifCount + THEN_SUFFIX, toStmtList(ifExpr.getThenBranch()),
@@ -510,11 +509,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         ternaryExpr.getCondition().accept(this, generatorScope);
 
         int ternaryCount = ternaryCount();
-        QLambdaDefinition thenLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + THEN_SUFFIX,
+        QLambdaDefinitionInner thenLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + THEN_SUFFIX,
             toStmtList(ternaryExpr.getThenExpr()), generatorScope);
-        QLambdaDefinition elseLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + ELSE_SUFFIX,
+        QLambdaDefinitionInner elseLambda = generateLambda(prefix + TERNARY_PREFIX + ternaryCount + ELSE_SUFFIX,
             toStmtList(ternaryExpr.getElseExpr()), generatorScope);
         addInstruction(new IfInstruction(newReporterByNode(ternaryExpr), thenLambda, elseLambda, false));
+        expandStackSize(thenLambda.getMaxStackSize());
+        expandStackSize(elseLambda.getMaxStackSize());
         return null;
     }
 
