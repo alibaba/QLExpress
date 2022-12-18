@@ -41,7 +41,7 @@ public class CallFunctionInstruction extends QLInstruction {
             qContext.push(new DataValue(function.call(qContext, parameters)));
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
-            throw errorReporter.report("CALL_FUNCTION_BIZ_EXCEPTION", e.getMessage());
+            throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
                     "call function unknown exception");
@@ -66,6 +66,8 @@ public class CallFunctionInstruction extends QLInstruction {
         try {
             Value resultValue = ((QLambda) lambdaSymbol).call(parametersArr).getResult();
             qContext.push(ValueUtils.toImmutable(resultValue));
+        } catch (UserDefineException e) {
+            throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");

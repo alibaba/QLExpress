@@ -259,7 +259,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                 Collections.singletonList(
                         new QLambdaDefinitionInner.Param(itVar.getVariable().getId(), itVarClas)
                 ));
-        addInstruction(new ForEachInstruction(forEachErrReporter, bodyLambda,
+        addInstruction(new ForEachInstruction(forEachErrReporter, bodyLambda, itVarClas,
                 newReporterByNode(forEachStmt.getTarget())));
         return null;
     }

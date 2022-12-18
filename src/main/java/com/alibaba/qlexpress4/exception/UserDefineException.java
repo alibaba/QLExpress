@@ -6,8 +6,22 @@ package com.alibaba.qlexpress4.exception;
  */
 public class UserDefineException extends Exception {
 
+    public static final String INVALID_PARAM = "INVALID_PARAM";
+
+    public static final String BIZ_EXCEPTION = "BIZ_EXCEPTION";
+
+    private final String type;
+
     public UserDefineException(String message) {
-        super(message);
+        this(BIZ_EXCEPTION, message);
     }
 
+    public UserDefineException(String type, String message) {
+        super(message);
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

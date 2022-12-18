@@ -53,6 +53,7 @@ public class QLOptions {
      *                 ImportManager.importPack("java.util"),
      *                 ImportManager.importPack("java.math"),
      *                 ImportManager.importPack("java.util.stream")
+     *                 ImportManager.importPack("java.util.function")
      */
     private final List<ImportManager.Import> defaultImport;
 
@@ -166,7 +167,8 @@ public class QLOptions {
                 ImportManager.importPack("java.lang"),
                 ImportManager.importPack("java.util"),
                 ImportManager.importPack("java.math"),
-                ImportManager.importPack("java.util.stream")
+                ImportManager.importPack("java.util.stream"),
+                ImportManager.importPack("java.util.function")
         );
 
         public Builder precise(boolean precise) {

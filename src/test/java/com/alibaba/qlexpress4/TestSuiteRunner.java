@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/string/invalid_char.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/lambda/functional_interface.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
