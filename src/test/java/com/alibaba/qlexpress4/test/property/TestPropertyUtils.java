@@ -21,10 +21,10 @@ public class TestPropertyUtils {
     public static void main(String[] args) throws Exception {
 //          Integer a = Integer.MAX_VALUE;
 //          System.out.println(a);
-        ExpressRunner expressRunner = new ExpressRunner();
-        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
-        Object a = expressRunner.execute("Import java.net.URLEncoder; return URLEncoder.encode(\"5\");",defaultContext,null, false, false);
-        System.out.println(a);
+//        ExpressRunner expressRunner = new ExpressRunner();
+//        DefaultContext<String,Object> defaultContext = new DefaultContext<>();
+//        Object a = expressRunner.execute("Import java.net.URLEncoder; return URLEncoder.encode(\"5\");",defaultContext,null, false, false);
+//        System.out.println(a);
 //         Optional<Integer> targetOp = Optional.ofNullable(1);
 //         System.out.println(targetOp.orElse(3));
 //          Object a = null;

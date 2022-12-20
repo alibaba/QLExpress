@@ -105,6 +105,11 @@ public class BasicUtil {
         return Modifier.isPublic(member.getModifiers());
     }
 
+    public static boolean isFinal(Member member) {
+        return Modifier.isFinal(member.getModifiers());
+    }
+
+
     public static boolean isStatic(Member member) {
         return Modifier.isStatic(member.getModifiers());
     }

@@ -175,7 +175,7 @@ public class MethodHandler extends MemberHandler {
         public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 IllegalArgumentException, InvocationTargetException, IllegalAccessException {
             Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod)) {
+            if (BasicUtil.isPublic(accessMethod) && !BasicUtil.isFinal(accessMethod)) {
                 return accessMethod.invoke(bean, params);
             } else {
                 if(!allowAccessPrivateMethod){
