@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.runtime.QLambdaInner;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitLambda;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
@@ -90,6 +92,19 @@ public class MethodHandler extends MemberHandler {
                     new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
         }
 
+        /**
+         * @param idealMatch
+         * @param paramTypes
+         * @return
+         */
+        public static QLImplicitLambda findMostSpecificLambda(Class<?>[] idealMatch, Class<?>[] paramTypes, QLambdaInner qLambdaInner) {
+            QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[1];
+            int level = 1;
+            candidates[0] = new QLCandidateMethodAttr(paramTypes,level);
+            QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
+            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
+                    new QLImplicitLambda(qLambdaInner,matcher.needImplicitTrans(), matcher.getVars());
+        }
 
         public static int compareLevelOfMethod(Method before, Method after){
             if(before == null){
