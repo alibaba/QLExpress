@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
@@ -35,6 +36,8 @@ public class CallConstInstruction extends QLInstruction {
             }
             qContext.push(ValueUtils.toImmutable(result.getResult()));
             return QResult.NEXT_INSTRUCTION;
+        } catch (UserDefineException e) {
+            throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Exception e) {
             throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
         }

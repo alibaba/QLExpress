@@ -3,10 +3,13 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
+import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Array;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -24,9 +27,13 @@ public class ForEachInstruction extends QLInstruction {
 
     private final ErrorReporter targetErrorReporter;
 
-    public ForEachInstruction(ErrorReporter errorReporter, QLambdaDefinition body, ErrorReporter targetErrorReporter) {
+    private final Class<?> itCls;
+
+    public ForEachInstruction(ErrorReporter errorReporter, QLambdaDefinition body,
+            Class<?> itCls, ErrorReporter targetErrorReporter) {
         super(errorReporter);
         this.body = body;
+        this.itCls = itCls;
         this.targetErrorReporter = targetErrorReporter;
     }
 
@@ -51,13 +58,17 @@ public class ForEachInstruction extends QLInstruction {
                     case BREAK:
                         break forEachBody;
                 }
+            } catch (UserDefineException e) {
+                throw errorReporter.report("FOR_EACH_ACCEPT_INVALID_TYPE",
+                        MessageFormat.format("for-each accept invalid type, required {0}, but {1} provided",
+                                itCls.getName(), item == null? "null": item.getClass().getName()));
             } catch (Exception e) {
                 if (e instanceof QLRuntimeException) {
                     throw (QLRuntimeException) e;
                 }
                 // should not run there
                 throw errorReporter.report("FOR_EACH_UNKNOWN_EXCEPTION",
-                        "for each unknown exception");
+                        "for-each unknown exception");
             }
         }
         return QResult.NEXT_INSTRUCTION;

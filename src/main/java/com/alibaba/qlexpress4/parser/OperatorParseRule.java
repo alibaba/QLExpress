@@ -311,18 +311,13 @@ class IdOrLambdaOrQualifiedClsRule extends OperatorParseRule {
         }
 
         Expr idExpr = parser.parseIdOrQualifiedCls();
-        if (idExpr instanceof ConstExpr && !parser.isEnd() && parser.cur.getType() == TokenType.LT) {
+        // TODO 处理 array 类型
+        if (idExpr instanceof ConstExpr && !parser.isEnd()) {
             // generic type
-            Token gtNextToken = parser.lookAheadGtNextTokenWithCache(parser.cur, true);
-            if (gtNextToken != null && gtNextToken.getType() == TokenType.RPAREN) {
-                // generic type argument
-                parser.advance();
-                List<DeclTypeArgument> typeArguments = parser.typeArgumentList();
-                ConstExpr typeConstExpr = (ConstExpr) idExpr;
-                return new TypeExpr(idToken, new DeclType(typeConstExpr.getKeyToken(),
-                        ((MetaClass) typeConstExpr.getConstValue()).getClz(),
-                        typeArguments));
-            }
+            ConstExpr typeConstExpr = (ConstExpr) idExpr;
+            DeclType declType = parser.expandCls(idExpr.getKeyToken(), ((MetaClass) typeConstExpr.getConstValue())
+                            .getClz(), true);
+            return new TypeExpr(idToken, declType);
         }
         return idExpr;
     }
@@ -337,9 +332,7 @@ class TypeRule extends OperatorParseRule {
 
     @Override
     public Expr prefixParse(QLParser parser, QLParser.ContextType contextType) {
-        return new TypeExpr(parser.pre, new DeclType(parser.pre,
-                parser.mustLoadQualifiedCls((String) parser.pre.getLiteral(), parser.pre),
-                Collections.emptyList()));
+        return new TypeExpr(parser.pre, parser.primitiveType(true));
     }
 }
 
