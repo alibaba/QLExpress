@@ -6,7 +6,8 @@ package com.alibaba.qlexpress4.exception;
 public enum QLErrorCodes {
     INVALID_INDEX("index can only be number"),
     INDEX_OUT_BOUND("index out of bound"),
-    MISSING_SEMI_AT_STATEMENT("missing ';' at the end of statement");
+    MISSING_SEMI_AT_STATEMENT("missing ';' at the end of statement"),
+    BREAK_CONTINUE_OUTSIDE_LOOP("break/continue must in loop");
 
     private final String errorMsg;
 

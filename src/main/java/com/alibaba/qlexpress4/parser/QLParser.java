@@ -16,7 +16,8 @@ public class QLParser {
     enum ContextType {
         // break, continue
         LOOP,
-        BLOCK
+        BLOCK,
+        MACRO
     }
 
     /**
@@ -94,11 +95,13 @@ public class QLParser {
             return macroStmt();
         } else if (matchKeyWordAndAdvance(KeyWordsSet.BREAK) ||
                 matchKeyWordAndAdvance(KeyWordsSet.CONTINUE)) {
-            if (contextType != ContextType.LOOP) {
+            if (contextType != ContextType.LOOP &&
+                    // break/continue check at macro will delay to instruction generator
+                    contextType != ContextType.MACRO) {
                 // break continue are only enable in loop context
                 throw QLException.reportParserErr(scanner.getScript(), pre,
-                        "BREAK_CONTINUE_NOT_IN_LOOP",
-                        String.format("'%s' keyword must in loop", pre.getLexeme())
+                        QLErrorCodes.BREAK_CONTINUE_OUTSIDE_LOOP.name(),
+                        QLErrorCodes.BREAK_CONTINUE_OUTSIDE_LOOP.getErrorMsg()
                 );
             }
             // single token statement
@@ -467,7 +470,7 @@ public class QLParser {
         Identifier macroName = idOrReportError("INVALID_MACRO_NAME", "invalid macro name");
         advanceOrReportError(TokenType.LBRACE, "MISSING_LBRACE_AT_MACRO",
                 "missing '{' at macro definition");
-        Block body = block(ContextType.BLOCK);
+        Block body = block(ContextType.MACRO);
         return new MacroStmt(macroName.getKeyToken(), macroName, body);
     }
 

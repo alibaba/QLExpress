@@ -1,14 +1,12 @@
-/*
-{
-  "errCode": "BREAK_CONTINUE_NOT_IN_LOOP"
-}
-*/
 macro bc {
   if (i < 5) {
     continue;
   }
 }
 
+s = 0;
 for (int i = 0; i < 10; i++) {
   bc;
+  s++;
 }
+assert(s == 5)
