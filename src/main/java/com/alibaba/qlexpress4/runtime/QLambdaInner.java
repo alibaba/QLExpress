@@ -84,4 +84,13 @@ public class QLambdaInner implements QLambda {
         return lambdaDefinition;
     }
 
+    public Class<?>[] getLambdaParam(){
+        List<QLambdaDefinitionInner.Param> paramsList = lambdaDefinition.getParamsType();
+        Class<?>[] classes = new Class[paramsList.size()];
+        for(int i = 0 ; i < paramsList.size(); i++){
+            classes[i] = paramsList.get(i).getClazz();
+        }
+        return classes;
+    }
+
 }

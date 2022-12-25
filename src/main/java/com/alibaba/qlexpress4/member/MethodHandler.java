@@ -94,16 +94,18 @@ public class MethodHandler extends MemberHandler {
 
         /**
          * @param idealMatch
-         * @param paramTypes
+         * @param qLambdaInners
          * @return
          */
-        public static QLImplicitLambda findMostSpecificLambda(Class<?>[] idealMatch, Class<?>[] paramTypes, QLambdaInner qLambdaInner) {
+        public static QLImplicitLambda findMostSpecificLambda(Class<?>[] idealMatch, List<QLambdaInner> qLambdaInners) {
             QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[1];
             int level = 1;
-            candidates[0] = new QLCandidateMethodAttr(paramTypes,level);
+            for (int i = 0; i < qLambdaInners.size(); i++) {
+                candidates[i] = new QLCandidateMethodAttr(qLambdaInners.get(i).getLambdaParam(),level);
+            }
             QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
             return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
-                    new QLImplicitLambda(qLambdaInner,matcher.needImplicitTrans(), matcher.getVars());
+                    new QLImplicitLambda(qLambdaInners.get(matcher.getMatchIndex()),matcher.needImplicitTrans(), matcher.getVars());
         }
 
         public static int compareLevelOfMethod(Method before, Method after){

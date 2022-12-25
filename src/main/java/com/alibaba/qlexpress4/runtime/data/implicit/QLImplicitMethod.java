@@ -6,28 +6,15 @@ import java.lang.reflect.Method;
  * @Author TaoKan
  * @Date 2022/6/29 下午4:21
  */
-public class QLImplicitMethod {
+public class QLImplicitMethod extends QLImplicitBase{
     private final Method method;
-    private final boolean needImplicitTrans;
-    private final QLImplicitVars vars;
 
     public QLImplicitMethod(Method method, boolean needImplicitTrans, QLImplicitVars vars){
+        super(needImplicitTrans, vars);
         this.method = method;
-        this.needImplicitTrans = needImplicitTrans;
-        this.vars = vars;
     }
 
     public Method getMethod() {
         return method;
     }
-
-    public boolean needImplicitTrans() {
-        return needImplicitTrans;
-    }
-
-    public QLImplicitVars getVars() {
-        return vars;
-    }
-
-
 }

@@ -13,10 +13,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -65,25 +62,25 @@ public class MethodInvokeInstruction extends QLInstruction {
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod(), params);
         if(implicitMethod == null){
-            QLambdaInnerMethod qLambdaInnerMethod = findQLambdaInstance(bean);
-            if(qLambdaInnerMethod.isEnableParseMethod()){
-                Class<?>[] paramQLambdaTypes = qLambdaInnerMethod.getLambdaParam();
+            List<QLambdaInner> qLambdaInnerMethods = findQLambdaInstance(bean);
+            if(qLambdaInnerMethods != null && qLambdaInnerMethods.size() > 0){
                 QLImplicitLambda qlImplicitLambda = MethodHandler.Preferred.findMostSpecificLambda(type,
-                                    paramQLambdaTypes, qLambdaInnerMethod.getQLambdaInner());
-                convertResult = ParametersConversion.convert(params, type, paramQLambdaTypes
+                        qLambdaInnerMethods);
+                convertResult = ParametersConversion.convert(params, type, qlImplicitLambda.getQLambdaInner().getLambdaParam()
                         , qlImplicitLambda.needImplicitTrans(),qlImplicitLambda.getVars());
                 if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
                     throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
                 }
                 try {
-                    QResult qResult = qLambdaInnerMethod.getQLambdaInner().call((Object[]) convertResult.getCastValue());
+                    QResult qResult = qlImplicitLambda.getQLambdaInner().call((Object[]) convertResult.getCastValue());
                     Value dataValue = new DataValue(qResult.getResult());
                     qContext.push(dataValue);
                 }catch (Exception e){
                     throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
                 }
+            }else {
+                throw errorReporter.report("PARAM_NOT_MATCH", "method not exists");
             }
-            throw errorReporter.report("PARAM_NOT_MATCH", "method not exists");
         }else {
             convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes()
                     ,implicitMethod.needImplicitTrans(),implicitMethod.getVars());
@@ -135,20 +132,21 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
 
-    protected QLambdaInnerMethod findQLambdaInstance(Object bean){
+    protected List<QLambdaInner> findQLambdaInstance(Object bean){
         if(bean instanceof Map) {
             Map map = (Map) bean;
             Iterator iterator = map.entrySet().iterator();
+            List<QLambdaInner> qLambdaInnerMethodList = new ArrayList();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 if(entry.getValue() instanceof QLambda && entry.getKey().toString().equals(methodName)){
-                    QLambdaInnerMethod qLambdaInnerMethod = new QLambdaInnerMethod(true);
-                    qLambdaInnerMethod.setQLambdaInner((QLambdaInner) entry.getValue());
-                    return qLambdaInnerMethod;
+                    QLambdaInner qLambdaInnerMethod = (QLambdaInner) entry.getValue();
+                    qLambdaInnerMethodList.add(qLambdaInnerMethod);
                 }
             }
+            return qLambdaInnerMethodList;
         }
-        return new QLambdaInnerMethod(false);
+        return null;
     }
 
     public QLImplicitMethod getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod, Object[] params){
@@ -163,48 +161,6 @@ public class MethodInvokeInstruction extends QLInstruction {
             return implicitMethod;
         }else {
             return cacheElement;
-        }
-    }
-
-
-    public class QLambdaInnerMethod {
-        private boolean enableParseMethod;
-        private QLambdaInner qLambdaInner;
-
-        public QLambdaInnerMethod(boolean enableParseMethod){
-            this.enableParseMethod = enableParseMethod;
-        }
-
-        public QLambdaInnerMethod(boolean enableParseMethod, QLambdaInner qLambdaInner){
-            this.enableParseMethod = enableParseMethod;
-            this.qLambdaInner = qLambdaInner;
-        }
-
-
-        public boolean isEnableParseMethod() {
-            return enableParseMethod;
-        }
-
-        public void setEnableParseMethod(boolean enableParseMethod) {
-            this.enableParseMethod = enableParseMethod;
-        }
-
-
-        public QLambdaInner getQLambdaInner() {
-            return qLambdaInner;
-        }
-
-        public void setQLambdaInner(QLambdaInner qLambdaInner) {
-            this.qLambdaInner = qLambdaInner;
-        }
-
-        public Class<?>[] getLambdaParam(){
-            List<QLambdaDefinitionInner.Param> paramsList = qLambdaInner.getLambdaDefinition().getParamsType();
-            Class<?>[] classes = new Class[paramsList.size()];
-            for(int i = 0 ; i < paramsList.size(); i++){
-                classes[i] = paramsList.get(i).getClazz();
-            }
-            return classes;
         }
     }
 }
