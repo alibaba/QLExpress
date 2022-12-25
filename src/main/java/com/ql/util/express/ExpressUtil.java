@@ -688,16 +688,26 @@ public class ExpressUtil {
             Class<?> valueType = value.getClass().getComponentType();
             Class<?> declareType = type.getComponentType();
             if (declareType != valueType) {
-                Object[] values = (Object[])value;
-                boolean allBlank = true;
-                for (Object o : values) {
-                    if (o != null) {
-                        allBlank = false;
-                        break;
+                if(Number.class.isAssignableFrom(valueType)
+                        && (declareType.isPrimitive() || Number.class.isAssignableFrom(declareType))){
+                    Object[] values = (Object[])value;
+                    Object array = Array.newInstance(declareType, values.length);
+                    for (int i = 0; i < values.length; i++) {
+                        Array.set(array, i, OperatorOfNumber.transfer((Number)values[i], declareType, isForce));
                     }
-                }
-                if (allBlank) {
-                    return Array.newInstance(declareType, values.length);
+                    return array;
+                }else {
+                    Object[] values = (Object[])value;
+                    boolean allBlank = true;
+                    for (Object o : values) {
+                        if (o != null) {
+                            allBlank = false;
+                            break;
+                        }
+                    }
+                    if (allBlank) {
+                        return Array.newInstance(declareType, values.length);
+                    }
                 }
             }
             return value;
