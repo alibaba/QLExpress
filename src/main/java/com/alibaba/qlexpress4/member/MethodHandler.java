@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -187,6 +188,12 @@ public class MethodHandler extends MemberHandler {
     }
 
     public static class Access {
+        public static MethodHandle getMethodHandle(Object receiver) throws Throwable {
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            MethodType methodType = MethodType.methodType(void.class, Object.class);
+            return lookup.findVirtual(receiver.getClass(), "println", methodType).bindTo(receiver);
+        }
+
         public static Class<?> accessMethodType(Member accessMember) {
             Method accessMethod = ((Method) accessMember);
             return accessMethod.getReturnType();
