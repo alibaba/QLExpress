@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/array/list_cast_arr.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/implicit_convertion/functional_qlambda_implicit.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
