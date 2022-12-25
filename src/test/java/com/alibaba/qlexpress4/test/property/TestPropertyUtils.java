@@ -6,7 +6,11 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,8 +21,17 @@ import java.util.Objects;
 
 public class TestPropertyUtils {
 
+    public static String getActualType(Object o,int index) {
+        Type clazz = o.getClass().getGenericSuperclass();
+        ParameterizedType pt = (ParameterizedType)clazz;
+        return pt.getActualTypeArguments()[index].toString();
+    }
 
     public static void main(String[] args) throws Exception {
+        //下边这组大括号非常重要
+        List<Object> list = new ArrayList<Object>();
+        list.add(1);
+        System.out.println(getActualType(list,0));
 //          Integer a = Integer.MAX_VALUE;
 //          System.out.println(a);
 //        ExpressRunner expressRunner = new ExpressRunner();

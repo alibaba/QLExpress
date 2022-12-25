@@ -8,6 +8,8 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -20,6 +22,7 @@ import java.util.List;
  * @Date 2022/4/7 下午6:05
  */
 public class MethodHandler extends MemberHandler {
+    public static MethodHandles.Lookup LOOK_UP = MethodHandles.lookup();
 
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
@@ -190,7 +193,7 @@ public class MethodHandler extends MemberHandler {
         }
 
         public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
-                IllegalArgumentException, InvocationTargetException, IllegalAccessException {
+                Throwable {
             Method accessMethod = ((Method) accessMember);
             if (BasicUtil.isPublic(accessMethod) && !BasicUtil.isFinal(accessMethod)) {
                 return accessMethod.invoke(bean, params);

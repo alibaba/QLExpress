@@ -48,9 +48,13 @@ public class QLambdaMethod implements QLambda {
             if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
                 return new QResult(null, QResult.ResultType.RETURN);
             }
-            Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
-                    (Object[]) convertResult.getCastValue(),allowAccessPrivate);
-            return new QResult(new DataValue(value), QResult.ResultType.RETURN);
+            try {
+                Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
+                        (Object[]) convertResult.getCastValue(),allowAccessPrivate);
+                return new QResult(new DataValue(value), QResult.ResultType.RETURN);
+            }catch (Throwable t){
+                throw new RuntimeException(t);
+            }
         } else {
             if (!allowAccessPrivate) {
                 throw new RuntimeException("QLambdaMethod not accessible");

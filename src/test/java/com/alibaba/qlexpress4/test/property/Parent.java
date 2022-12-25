@@ -3,6 +3,8 @@ package com.alibaba.qlexpress4.test.property;
 import com.alibaba.qlexpress4.annotation.QLAlias;
 import com.alibaba.qlexpress4.runtime.Value;
 
+import java.util.List;
+
 /**
  * @Author TaoKan
  * @Date 2022/4/9 上午10:55
@@ -89,6 +91,10 @@ public class Parent implements Value {
 
     private long getMethod12(int a, int b) {
         return a+b;
+    }
+
+    public Object checkList(List<String> list){
+        return 1;
     }
 
 }

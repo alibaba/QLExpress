@@ -142,6 +142,12 @@ public class BasicUtil {
     }
 
 
+    public static String getActualType(Object o,int index) {
+        Type clazz = o.getClass().getGenericSuperclass();
+        ParameterizedType pt = (ParameterizedType)clazz;
+        return pt.getActualTypeArguments()[index].toString();
+    }
+
 
     public static int hashAlgorithmWithNoForNumber(int h){
         h += (h << 15) ^ 0xffffcd7d;

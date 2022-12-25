@@ -64,7 +64,7 @@ public class PropertiesUtil {
      * @param name
      * @return Object
      */
-    public static Object getPropertyValue(Object bean, String name, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
+    public static Object getPropertyValue(Object bean, String name, boolean allowAccessPrivate) throws Throwable {
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
@@ -115,7 +115,7 @@ public class PropertiesUtil {
      * @param name
      * @return
      */
-    public static Object getClzField(Class<?> clazz, String name, boolean allowAccessPrivate) throws InvocationTargetException, IllegalAccessException {
+    public static Object getClzField(Class<?> clazz, String name, boolean allowAccessPrivate) throws Throwable {
         Member accessMember = MemberHandler.Access.getAccessMember(clazz, name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
