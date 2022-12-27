@@ -9,4 +9,5 @@ public interface QContext extends QScope, QRuntime {
 
     QScope getQScope();
 
+    void closeScope();
 }

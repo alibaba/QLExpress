@@ -38,12 +38,14 @@ public class QLambdaInner implements QLambda {
     public QResult call(Object... params) throws Exception {
         QContext newRuntime = newEnv? inheritScope(params): qContext;
 
-        List<QLInstruction> instructionList = lambdaDefinition.getInstructionList();
-        for (QLInstruction qlInstruction : instructionList) {
-            QResult qResult = qlInstruction.execute(newRuntime, qlOptions);
+        QLInstruction[] instructions = lambdaDefinition.getInstructions();
+        for (int i = 0; i < instructions.length; i++) {
+            QResult qResult = instructions[i].execute(newRuntime, qlOptions);
             switch (qResult.getResultType()) {
+                case JUMP:
+                    i += (int) qResult.getResult().get();
+                    break;
                 case RETURN:
-                case CASCADE_RETURN:
                 case BREAK:
                 case CONTINUE:
                     return qResult;

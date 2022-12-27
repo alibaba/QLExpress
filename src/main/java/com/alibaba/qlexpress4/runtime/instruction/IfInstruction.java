@@ -76,7 +76,7 @@ public class IfInstruction extends QLInstruction {
         try {
             QResult ifResult = target.call();
             switch (ifResult.getResultType()) {
-                case CASCADE_RETURN:
+                case RETURN:
                 case BREAK:
                 case CONTINUE:
                     return ifResult;

@@ -183,8 +183,6 @@ public class Express4Runner {
 
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
-        QContext rootContext = new QvmRuntime(context, userDefineFunction,
-            qlOptions.getAttachments(), qlCaches, qlOptions.isPolluteUserContext(), System.currentTimeMillis());
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
             qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
@@ -193,7 +191,12 @@ public class Express4Runner {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
-        return mainLambdaDefine.toLambda(rootContext, qlOptions, true);
+
+        QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), qlCaches, System.currentTimeMillis());
+        QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction,
+                qlOptions.isPolluteUserContext());
+        return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
+                qlOptions, true);
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {

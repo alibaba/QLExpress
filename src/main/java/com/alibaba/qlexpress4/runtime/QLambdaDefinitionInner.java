@@ -17,16 +17,16 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
      */
     private final String name;
 
-    private final List<QLInstruction> instructionList;
+    private final QLInstruction[] instructions;
 
     private final List<Param> paramsType;
 
     private final int maxStackSize;
 
-    public QLambdaDefinitionInner(String name, List<QLInstruction> instructionList, List<Param> paramsType,
+    public QLambdaDefinitionInner(String name, List<QLInstruction> instructions, List<Param> paramsType,
                                   int maxStackSize) {
         this.name = name;
-        this.instructionList = instructionList;
+        this.instructions = instructions.toArray(new QLInstruction[0]);
         this.paramsType = paramsType;
         this.maxStackSize = maxStackSize;
     }
@@ -36,8 +36,8 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
         return name;
     }
 
-    public List<QLInstruction> getInstructionList() {
-        return instructionList;
+    public QLInstruction[] getInstructions() {
+        return instructions;
     }
 
     public List<Param> getParamsType() {
@@ -57,7 +57,7 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        for (QLInstruction qlInstruction : instructionList) {
+        for (QLInstruction qlInstruction : instructions) {
             qlInstruction.println(depth, debug);
         }
     }

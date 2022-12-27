@@ -3,18 +3,20 @@ package com.alibaba.qlexpress4.parser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.alibaba.qlexpress4.DefaultClassSupplier;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.parser.tree.Program;
+import com.alibaba.qlexpress4.runtime.instruction.ConstInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.NewArrayInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.runtime.instruction.ReturnInstruction;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Author: DQinYuan
@@ -38,6 +40,24 @@ public class QvmInstructionGeneratorTest {
         QvmInstructionGenerator qvmInstructionGenerator = generateInstructions("int[] a = [];");
         List<QLInstruction> instructions = qvmInstructionGenerator.getInstructionList();
         assertTrue(instructions.get(0) instanceof NewArrayInstruction);
+    }
+
+    @Test
+    public void ifTest() {
+        QvmInstructionGenerator qvmInstructionGenerator = generateInstructions("if (a==3) {return 1;}");
+        List<QLInstruction> instructionList = qvmInstructionGenerator.getInstructionList();
+        int returnIndex = findIndex(instructionList, qlInstruction -> qlInstruction instanceof ReturnInstruction);
+        assertTrue(returnIndex != -1);
+        assertFalse(instructionList.get(returnIndex + 1) instanceof ConstInstruction);
+    }
+
+    private int findIndex(List<QLInstruction> instructionList, Predicate<QLInstruction> test) {
+        for (int i = 0; i < instructionList.size(); i++) {
+            if (test.test(instructionList.get(i))) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public QvmInstructionGenerator generateInstructions(String script) {

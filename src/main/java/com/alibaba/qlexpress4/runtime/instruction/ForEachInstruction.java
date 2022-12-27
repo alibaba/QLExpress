@@ -5,12 +5,10 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
@@ -53,7 +51,7 @@ public class ForEachInstruction extends QLInstruction {
             try {
                 QResult bodyResult = bodyLambda.call(item);
                 switch (bodyResult.getResultType()) {
-                    case CASCADE_RETURN:
+                    case RETURN:
                         return bodyResult;
                     case BREAK:
                         break forEachBody;

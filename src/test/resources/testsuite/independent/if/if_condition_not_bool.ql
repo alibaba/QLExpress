@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "IF_CONDITION_EXPECT_BOOL"
+  "errCode": "CONDITION_EXPECT_BOOL"
 }
 */
 if (1) {
