@@ -1,4 +1,4 @@
-package com.ql.util.express.test;
+package com.ql.util.express.test.issue;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
@@ -7,9 +7,9 @@ import org.junit.Test;
 
 /**
  * @Author TaoKan
- * @Date 2022/12/25 下午4:35
+ * @Date 2022/12/30 下午8:13
  */
-public class CaseTest {
+public class Issue_182 {
     @Test
     public void elTest() throws Exception {
         ExpressRunner runner = new ExpressRunner();
