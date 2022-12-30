@@ -2,7 +2,9 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
+import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,16 +14,11 @@ public class DelegateQContext implements QContext {
 
     private final QRuntime qRuntime;
 
-    private final QScope qScope;
+    private QScope qScope;
 
     public DelegateQContext(QRuntime qRuntime, QScope qScope) {
         this.qRuntime = qRuntime;
         this.qScope = qScope;
-    }
-
-    @Override
-    public LeftValue defineSymbol(String varName, Class<?> varClz) {
-        return qRuntime.defineSymbol(varName, varClz);
     }
 
     @Override
@@ -80,7 +77,27 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
+    public Value peek() {
+        return qScope.peek();
+    }
+
+    @Override
+    public QScope getParent() {
+        return qScope.getParent();
+    }
+
+    @Override
     public QScope getQScope() {
         return qScope;
+    }
+
+    @Override
+    public QScope newScope() {
+        return qScope = qScope.newScope();
+    }
+
+    @Override
+    public void closeScope() {
+        qScope = qScope.getParent();
     }
 }

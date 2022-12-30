@@ -7,6 +7,9 @@ public class FixedSizeStack {
 
     private final Value[] elements;
 
+    /**
+     * next element to push
+     */
     private int cursor = 0;
 
     public FixedSizeStack(int size){
@@ -19,6 +22,10 @@ public class FixedSizeStack {
 
     public Value pop() {
         return elements[--cursor];
+    }
+
+    public Value peak() {
+        return elements[cursor - 1];
     }
 
     public Parameters pop(int n) {

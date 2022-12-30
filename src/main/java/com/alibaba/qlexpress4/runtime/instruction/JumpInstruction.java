@@ -2,31 +2,32 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
 
 /**
- * @Operation: load variable from local to global scope, create when not exist
+ * @Operation: jump to a position
  * @Input: 0
- * @Output: 1 left value of local variable
+ * @Output: 0
  *
  * Author: DQinYuan
  */
-public class LoadInstruction extends QLInstruction {
+public class JumpInstruction extends QLInstruction {
 
-    private final String name;
+    private final int position;
 
-    public LoadInstruction(ErrorReporter errorReporter, String name) {
+    public JumpInstruction(ErrorReporter errorReporter, int position) {
         super(errorReporter);
-        this.name = name;
+        this.position = position;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        qContext.push(qContext.getSymbol(name));
-        return QResult.NEXT_INSTRUCTION;
+        return new QResult(new DataValue(position), QResult.ResultType.JUMP);
     }
 
     @Override
@@ -36,11 +37,11 @@ public class LoadInstruction extends QLInstruction {
 
     @Override
     public int stackOutput() {
-        return 1;
+        return 0;
     }
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "Load " + name, debug);
+        PrintlnUtils.printlnByCurDepth(depth, "Jump " + position, debug);
     }
 }

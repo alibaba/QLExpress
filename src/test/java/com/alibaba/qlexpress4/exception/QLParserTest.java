@@ -752,25 +752,25 @@ public class QLParserTest {
                 "  } catch (Exception e) {" +
                 "  }" +
                 "}");
-        assertErrReport("break", "[Error: 'break' keyword must in loop]\n" +
+        assertErrReport("break", "[Error: break/continue must in loop]\n" +
                 "[Near: break]\n" +
                 "       ^^^^^\n" +
                 "[Line: 1, Column: 1]");
-        assertErrReport("continue", "[Error: 'continue' keyword must in loop]\n" +
+        assertErrReport("continue", "[Error: break/continue must in loop]\n" +
                 "[Near: continue]\n" +
                 "       ^^^^^^^^\n" +
                 "[Line: 1, Column: 1]");
-        assertErrReport("if (true) {continue}", "[Error: 'continue' keyword must in loop]\n" +
+        assertErrReport("if (true) {continue}", "[Error: break/continue must in loop]\n" +
                 "[Near: ...f (true) {continue}]\n" +
                 "                    ^^^^^^^^\n" +
                 "[Line: 1, Column: 12]");
         assertErrReport("for (i = 0; i < 3; i++) {a = () -> {break;}}",
-                "[Error: 'break' keyword must in loop]\n" +
+                "[Error: break/continue must in loop]\n" +
                         "[Near: ... = () -> {break;}}]\n" +
                         "                    ^^^^^\n" +
                         "[Line: 1, Column: 37]");
         assertErrReport("for (i = 0; i < 3; i++) {1+if (a>1) {break;} else {continue;}}",
-                "[Error: 'break' keyword must in loop]\n" +
+                "[Error: break/continue must in loop]\n" +
                         "[Near: ...if (a>1) {break;} else {c...]\n" +
                         "                    ^^^^^\n" +
                         "[Line: 1, Column: 38]");

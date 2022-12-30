@@ -11,15 +11,6 @@ import java.util.Map;
 public interface QRuntime {
 
     /**
-     * define a symbol in global scope
-     * for example, `Number a = 10`
-     *              define("a", Number.class, new Value(10))
-     * @param varName symbol name
-     * @param varClz symbol clz, declare clz, not real clz
-     */
-    LeftValue defineSymbol(String varName, Class<?> varClz);
-
-    /**
      * get script start time
      * @return start time
      */

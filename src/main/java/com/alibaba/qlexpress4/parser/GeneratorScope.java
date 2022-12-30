@@ -1,10 +1,7 @@
 package com.alibaba.qlexpress4.parser;
 
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
-
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,24 +11,23 @@ public class GeneratorScope {
 
     private final GeneratorScope parent;
 
-    private Map<String, QvmInstructionGenerator.NodeInstructions> macroInstructions;
+    private Map<String, MacroDefine> macroInstructions;
 
     public GeneratorScope(GeneratorScope parent) {
         this.parent = parent;
         this.macroInstructions = Collections.emptyMap();
     }
 
-    public void defineMacro(String name, QvmInstructionGenerator.NodeInstructions instructions) {
-        if (macroInstructions == Collections.
-                <String, QvmInstructionGenerator.NodeInstructions>emptyMap()) {
+    public void defineMacro(String name, MacroDefine macroDefine) {
+        if (macroInstructions == Collections.<String, MacroDefine>emptyMap()) {
             // optimize performance
             macroInstructions = new HashMap<>();
         }
-        macroInstructions.put(name, instructions);
+        macroInstructions.put(name, macroDefine);
     }
 
-    public QvmInstructionGenerator.NodeInstructions getMacroInstructions(String macroName) {
-        QvmInstructionGenerator.NodeInstructions qlInstructions = macroInstructions.get(macroName);
+    public MacroDefine getMacroInstructions(String macroName) {
+        MacroDefine qlInstructions = macroInstructions.get(macroName);
         return qlInstructions != null? qlInstructions:
                 parent != null? parent.getMacroInstructions(macroName): null;
     }

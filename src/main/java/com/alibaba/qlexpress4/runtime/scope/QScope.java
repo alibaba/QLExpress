@@ -1,12 +1,8 @@
 package com.alibaba.qlexpress4.runtime.scope;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
 import com.alibaba.qlexpress4.runtime.Value;
-
-import java.util.Map;
 
 /**
  * Author: DQinYuan
@@ -70,4 +66,21 @@ public interface QScope {
      * @return popped element
      */
     Value pop();
+
+    /**
+     * return top element of stack without pop
+     * @return
+     */
+    Value peek();
+
+    /**
+     * get parent scope
+     * @return
+     */
+    QScope getParent();
+
+    /**
+     * new scope base origin stack
+     */
+    QScope newScope();
 }

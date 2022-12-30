@@ -35,7 +35,7 @@ public class WhileInstruction extends QLInstruction {
                 QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
                 QResult bodyResult = bodyLambda.call();
                 switch (bodyResult.getResultType()) {
-                    case CASCADE_RETURN:
+                    case RETURN:
                         return bodyResult;
                     case BREAK:
                         break whileBody;

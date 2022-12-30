@@ -31,7 +31,7 @@ public class CallConstInstruction extends QLInstruction {
         QLambda lambda = constLambda.toLambda(qContext, qlOptions, true);
         try {
             QResult result = lambda.call();
-            if (QResult.ResultType.CASCADE_RETURN == result.getResultType()) {
+            if (QResult.ResultType.RETURN == result.getResultType()) {
                 return result;
             }
             qContext.push(ValueUtils.toImmutable(result.getResult()));

@@ -14,10 +14,11 @@ public class QResult {
         BREAK,
         // without return, different with return null
         CONTINUE,
-        // return
+        // jump to other instruction position.
+        // in this case, result is Value of int, which is the position to be jumped
+        JUMP,
+        // return from function/lambda/script
         RETURN,
-        // cascade return parent lambda
-        CASCADE_RETURN,
         // execute next instruction
         NEXT_INSTRUCTION
     }

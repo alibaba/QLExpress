@@ -78,7 +78,7 @@ public class ForInstruction extends QLInstruction {
             try {
                 QResult bodyResult = bodyLambda.call();
                 switch (bodyResult.getResultType()) {
-                    case CASCADE_RETURN:
+                    case RETURN:
                         return bodyResult;
                     case BREAK:
                         break forBody;
@@ -139,6 +139,6 @@ public class ForInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth + 1, "Update", debug);
         forUpdate.println(depth + 2, debug);
         PrintlnUtils.printlnByCurDepth(depth + 1, "Body", debug);
-        forBody.println(depth + 1, debug);
+        forBody.println(depth + 2, debug);
     }
 }

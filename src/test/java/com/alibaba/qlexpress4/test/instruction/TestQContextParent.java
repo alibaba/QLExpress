@@ -34,11 +34,6 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
-    public LeftValue defineSymbol(String varName, Class<?> varClz) {
-        return null;
-    }
-
-    @Override
     public void defineLocalSymbol(String varName, Class<?> varClz, Object value) {
 
     }
@@ -74,6 +69,21 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
+    public Value peek() {
+        return this.value;
+    }
+
+    @Override
+    public QScope getParent() {
+        return null;
+    }
+
+    @Override
+    public QScope newScope() {
+        return null;
+    }
+
+    @Override
     public long scriptStartTimeStamp() {
         return 0;
     }
@@ -97,5 +107,9 @@ public class TestQContextParent implements QContext {
     @Override
     public QScope getQScope() {
         return this;
+    }
+
+    @Override
+    public void closeScope() {
     }
 }

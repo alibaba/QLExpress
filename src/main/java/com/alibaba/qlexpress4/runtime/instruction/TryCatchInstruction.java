@@ -40,10 +40,10 @@ public class TryCatchInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         QResult tryCatchResult = tryCatchResult(qContext, qlOptions);
         QResult finalResult = finalResult(qContext, qlOptions);
-        if (finalResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
+        if (finalResult.getResultType() == QResult.ResultType.RETURN) {
             return finalResult;
         }
-        if (tryCatchResult.getResultType() == QResult.ResultType.CASCADE_RETURN) {
+        if (tryCatchResult.getResultType() == QResult.ResultType.RETURN) {
             return tryCatchResult;
         }
         Value resultValue = finalBody == null? tryCatchResult.getResult(): finalResult.getResult();
