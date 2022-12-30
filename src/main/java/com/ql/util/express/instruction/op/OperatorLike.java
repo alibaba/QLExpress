@@ -1,6 +1,6 @@
 package com.ql.util.express.instruction.op;
 
-import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import com.ql.util.express.Operator;
 
@@ -21,51 +21,31 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        boolean result = true;
         String s1 = op1.toString();
         String s2 = op2.toString();
-        if (s2.contains("%")) {
-            String[] list = split(s2, "%");
-            int index = 0;
-            for (String s : list) {
-                if (index >= s1.length()) {
-                    result = false;
-                    break;
-                }
-                index = s1.indexOf(s, index);
-                if (index < 0) {
-                    result = false;
-                    break;
-                }
-                index = index + 1;
-            }
-        } else {
-            result = s1.equals(s2);
+        if(!s2.contains("%")){
+            return s1.equals(s2);
+        }else {
+            String regex = quotaMeta(s2);
+            regex = regex.replace("_",".").replace("%",".*?");
+            Pattern p = Pattern.compile(regex,Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            return p.matcher(s1).matches();
         }
-
-        return result;
     }
 
-    public String[] split(String str, String s) {
-        int start = 0;
-        int end;
-        String tmpStr;
-        ArrayList<String> list = new ArrayList<>();
-        do {
-            end = str.indexOf(s, start);
-            if (end < 0) {
-                tmpStr = str.substring(start);
-            } else {
-                tmpStr = str.substring(start, end);
+    private String quotaMeta(String s){
+        int len = s.length();
+        if(len == 0){
+            return "";
+        }
+        StringBuilder stringBuilder = new StringBuilder(len*2);
+        for(int i = 0; i < len; i++){
+            char c = s.charAt(i);
+            if("[](){}.*+?$^|#\\".indexOf(c) != -1){
+                stringBuilder.append("\\");
             }
-            if (tmpStr.length() > 0) {
-                list.add(tmpStr);
-            }
-            start = end + 1;
-            if (start >= str.length()) {
-                break;
-            }
-        } while (end >= 0);
-        return list.toArray(new String[0]);
+            stringBuilder.append(c);
+        }
+        return stringBuilder.toString();
     }
 }
