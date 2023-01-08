@@ -9,7 +9,6 @@ import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +28,7 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         if (bean == null && qlOptions.isAvoidNullPointer()) {
@@ -50,8 +49,8 @@ public class CallInstruction extends QLInstruction {
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter,
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
         }
     }
@@ -67,7 +66,7 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "Call with argNum " + argNum, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "Call with argNum " + argNum, debug);
     }
 }

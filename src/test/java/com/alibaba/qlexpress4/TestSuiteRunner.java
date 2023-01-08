@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/for/c_for.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -71,6 +71,7 @@ public class TestSuiteRunner {
     }
 
     public void handleFile(Path qlFile, String path, boolean debug) throws IOException {
+        printRunning(path);
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
 
@@ -99,6 +100,10 @@ public class TestSuiteRunner {
             System.out.printf("%1$-95s %2$s\n",path, "error");
             throw e;
         }
+    }
+
+    private void printRunning(String path) {
+        System.out.printf("%1$-98s %2$s\n",path, "running");
     }
 
     private void printOk(String path) {

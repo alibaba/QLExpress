@@ -2,9 +2,7 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
-import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,6 +32,11 @@ public class DelegateQContext implements QContext {
     @Override
     public QLCaches getQLCaches() {
         return qRuntime.getQLCaches();
+    }
+
+    @Override
+    public int getBaseIndex() {
+        return qScope.getBaseIndex();
     }
 
     @Override
@@ -87,13 +90,37 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public QScope getQScope() {
+    public QScope getCurrentScope() {
         return qScope;
     }
 
     @Override
-    public QScope newScope() {
-        return qScope = qScope.newScope();
+    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
+        return qScope = qScope.newScope(exceptionTable, baseIndex);
+    }
+
+    @Override
+    public int absoluteJump(int relativeJump) {
+        return relativeJump + qScope.getBaseIndex();
+    }
+
+    @Override
+    public Integer toHandlerScope(Object catchObj, QScope until) {
+        while (true) {
+            Integer relativePos = qScope.exceptionTable().getRelativePos(catchObj);
+            if (relativePos != null) {
+                return relativePos + qScope.getBaseIndex();
+            }
+            if (qScope == until) {
+                return null;
+            }
+            closeScope();
+        }
+    }
+
+    @Override
+    public ExceptionTable exceptionTable() {
+        return qScope.exceptionTable();
     }
 
     @Override

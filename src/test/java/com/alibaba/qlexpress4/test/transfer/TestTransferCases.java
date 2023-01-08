@@ -32,7 +32,7 @@ public class TestTransferCases {
         parentParameters.push(1);
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),4L);
     }
     /**
@@ -51,7 +51,7 @@ public class TestTransferCases {
         parentParameters.push(1);
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),3L);
     }
     /**
@@ -70,7 +70,7 @@ public class TestTransferCases {
         parentParameters.push(3);
         testQContextParent.pushParameter(parentParameters);
         try {
-            newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+            newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         }catch (Exception e){
             Assert.assertTrue(e != null);
             return;
@@ -92,7 +92,7 @@ public class TestTransferCases {
         parentParameters.push(2);
         parentParameters.push(3);
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child1);
     }
 
@@ -185,7 +185,7 @@ public class TestTransferCases {
         parentParameters.push(new Child3());
         parentParameters.push(new Child3());
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),0);
     }
 
@@ -202,7 +202,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child3());
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child3);
     }
 
@@ -221,7 +221,7 @@ public class TestTransferCases {
         parentParameters.push(new Child3());
         parentParameters.push(new Integer[]{5,6});
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),10);
     }
 
@@ -238,7 +238,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Integer[]{5,6});
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child3);
     }
 
@@ -256,7 +256,7 @@ public class TestTransferCases {
         parentParameters.push(new Child4());
         parentParameters.push(new Integer(5));
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),5);
     }
 
@@ -273,7 +273,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Integer(5));
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child4);
     }
 
@@ -300,7 +300,7 @@ public class TestTransferCases {
         parentParameters.push(new Child5());
         parentParameters.push(5);
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),5.0);
     }
 
@@ -317,7 +317,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(5);
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child5);
     }
 
@@ -335,7 +335,7 @@ public class TestTransferCases {
         parentParameters.push(new Child6());
         parentParameters.push(5);
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),5);
     }
 
@@ -352,7 +352,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(5);
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child6);
     }
 
@@ -370,7 +370,7 @@ public class TestTransferCases {
         parentParameters.push(new Child6());
         parentParameters.push(new BigDecimal("5.0"));
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),new BigDecimal("5.0"));
     }
 
@@ -388,7 +388,7 @@ public class TestTransferCases {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(5.0);
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
     }
 
 
@@ -408,7 +408,7 @@ public class TestTransferCases {
         parentParameters.push("5.0");
         parentParameters.push("5.0");
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),"1");
     }
 
@@ -427,7 +427,7 @@ public class TestTransferCases {
         parentParameters.push("5.0");
         parentParameters.push("5.0");
         testQContextParent.pushParameter(parentParameters);
-        newInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
     }
 
 
@@ -447,7 +447,7 @@ public class TestTransferCases {
         parentParameters.push("5.0");
         parentParameters.push("5.0");
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),"1");
     }
 
@@ -467,7 +467,7 @@ public class TestTransferCases {
         parentParameters.push("5.0");
         parentParameters.push("5.0");
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),"1");
     }
 
@@ -488,7 +488,7 @@ public class TestTransferCases {
         parentParameters.push("sss");
         testQContextParent.setParameters(parentParameters);
         try {
-            methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+            methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         }catch (Exception e){
             Assert.assertTrue(e != null);
         }
@@ -512,7 +512,7 @@ public class TestTransferCases {
         parentParameters.push(1);
         testQContextParent.setParameters(parentParameters);
         try {
-            methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+            methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         }catch (Exception e){
             Assert.assertTrue(e != null);
         }

@@ -6,7 +6,7 @@ package com.alibaba.qlexpress4.exception;
  */
 public class UserDefineException extends Exception {
 
-    public static final String INVALID_PARAM = "INVALID_PARAM";
+    public static final String INVALID_ARGUMENT = "INVALID_ARGUMENT";
 
     public static final String BIZ_EXCEPTION = "BIZ_EXCEPTION";
 

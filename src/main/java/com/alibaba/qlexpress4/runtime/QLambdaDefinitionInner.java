@@ -1,8 +1,9 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.runtime.instruction.CloseScopeInstruction;
+import com.alibaba.qlexpress4.runtime.instruction.NewScopeInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
-import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,6 +32,14 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
         this.maxStackSize = maxStackSize;
     }
 
+    public QLambdaDefinitionInner(String name, QLInstruction[] instructions, List<Param> paramsType,
+                                  int maxStackSize) {
+        this.name = name;
+        this.instructions = instructions;
+        this.paramsType = paramsType;
+        this.maxStackSize = maxStackSize;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -51,15 +60,26 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
     @Override
     public QLambda toLambda(QContext qContext, QLOptions qlOptions,
                             boolean newEnv) {
-        return new QLambdaInner(this, new DelegateQContext(qContext, qContext.getQScope()),
+        return new QLambdaInner(this, new DelegateQContext(qContext, qContext.getCurrentScope()),
                 qlOptions, newEnv);
     }
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        for (QLInstruction qlInstruction : instructions) {
-            qlInstruction.println(depth, debug);
+        printlnInner(0, depth, debug);
+    }
+
+    private int printlnInner(int start, int depth, Consumer<String> debug) {
+        for (int i = start; i < instructions.length; i++) {
+            QLInstruction instruction = instructions[i];
+            instruction.println(i - start, depth, debug);
+            if (instruction instanceof NewScopeInstruction) {
+                i = printlnInner(i + 1, depth + 1, debug);
+            } else if (instruction instanceof CloseScopeInstruction) {
+                return i;
+            }
         }
+        return instructions.length;
     }
 
     public static class Param {

@@ -17,8 +17,8 @@ public class DefaultErrorReporter implements ErrorReporter {
     }
 
     @Override
-    public QLRuntimeException report(Object attachment, String errorCode, String reason) {
-        return QLException.reportRuntimeErrWithAttach(script, reportToken, errorCode, reason, attachment);
+    public QLRuntimeException report(Object catchObj, String errorCode, String reason) {
+        return QLException.reportRuntimeErrWithAttach(script, reportToken, errorCode, reason, catchObj);
     }
 
     @Override

@@ -11,15 +11,15 @@ import java.util.Objects;
  */
 public class ThrowUtils {
 
-    public static QLRuntimeException wrapException(Exception e, ErrorReporter errorReporter, String errCode,
+    public static QLRuntimeException wrapThrowable(Throwable t, ErrorReporter errorReporter, String errCode,
                                                    String errMsg, String... args) {
-        return e instanceof QLRuntimeException? (QLRuntimeException) e :
+        return t instanceof QLRuntimeException? (QLRuntimeException) t :
                 errorReporter.reportFormat(errCode, errMsg, (Object[]) args);
     }
 
     public static QLRuntimeException reportUserDefinedException(ErrorReporter errorReporter, UserDefineException e) {
-        if (Objects.equals(e.getType(), UserDefineException.INVALID_PARAM)) {
-            throw errorReporter.report("INVALID_ARGUMENT", e.getMessage());
+        if (Objects.equals(e.getType(), UserDefineException.INVALID_ARGUMENT)) {
+            throw errorReporter.report(UserDefineException.INVALID_ARGUMENT, e.getMessage());
         } else {
             throw errorReporter.report("BIZ_EXCEPTION", e.getMessage());
         }

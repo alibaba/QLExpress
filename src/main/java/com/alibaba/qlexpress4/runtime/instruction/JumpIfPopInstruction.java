@@ -18,25 +18,31 @@ import java.util.function.Consumer;
  */
 public class JumpIfPopInstruction extends QLInstruction {
 
+    /**
+     * instance to expand stack at instruction generator
+     */
+    public static final JumpIfPopInstruction INSTANCE = new JumpIfPopInstruction(null,
+            false, -1);
+
     private final boolean expect;
 
-    private final int gap;
+    private final int position;
 
-    public JumpIfPopInstruction(ErrorReporter errorReporter, boolean expect, int gap) {
+    public JumpIfPopInstruction(ErrorReporter errorReporter, boolean expect, int position) {
         super(errorReporter);
         this.expect = expect;
-        this.gap = gap;
+        this.position = position;
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         Object condition = qContext.pop().get();
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("CONDITION_EXPECT_BOOL",
                     "condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
-        return conditionBool == expect? new QResult(new DataValue(gap), QResult.ResultType.JUMP):
+        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
                 QResult.NEXT_INSTRUCTION;
     }
 
@@ -51,7 +57,7 @@ public class JumpIfPopInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "JumpIfPop " + expect + " " + gap, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "JumpIfPop " + expect + " " + position, debug);
     }
 }

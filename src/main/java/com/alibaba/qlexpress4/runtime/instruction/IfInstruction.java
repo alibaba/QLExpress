@@ -33,7 +33,7 @@ public class IfInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         Object condition = qContext.pop().get();
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("IF_CONDITION_EXPECT_BOOL",
@@ -60,13 +60,13 @@ public class IfInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "If", debug);
-        PrintlnUtils.printlnByCurDepth(depth+1,
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "If", debug);
+        PrintlnUtils.printlnByCurDepth(index, depth+1,
                 "Then " + thenBody.getName(), debug);
         thenBody.println(depth+2, debug);
         if (elseBody != null) {
-            PrintlnUtils.printlnByCurDepth(depth+1,
+            PrintlnUtils.printlnByCurDepth(index, depth+1,
                     "Else " + elseBody.getName(), debug);
             elseBody.println(depth+2, debug);
         }
@@ -83,8 +83,8 @@ public class IfInstruction extends QLInstruction {
             }
             qContext.push(ValueUtils.toImmutable(ifResult.getResult()));
             return QResult.NEXT_INSTRUCTION;
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter,
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter,
                     "IF_BODY_EXECUTE_ERROR", "if statement body execute error");
         }
     }

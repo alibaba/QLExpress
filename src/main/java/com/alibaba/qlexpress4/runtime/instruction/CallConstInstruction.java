@@ -27,7 +27,7 @@ public class CallConstInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         QLambda lambda = constLambda.toLambda(qContext, qlOptions, true);
         try {
             QResult result = lambda.call();
@@ -38,8 +38,8 @@ public class CallConstInstruction extends QLInstruction {
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
         }
     }
 
@@ -54,8 +54,8 @@ public class CallConstInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CallConst " + constLambda.getName(), debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "CallConst " + constLambda.getName(), debug);
         constLambda.println(depth+1, debug);
     }
 }

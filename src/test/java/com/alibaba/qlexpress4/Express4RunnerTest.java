@@ -54,6 +54,17 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void ifTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions debugOptions = QLOptions.builder()
+                .debug(true)
+                .build();
+        Object result = express4Runner.execute("if (2==3) {if (2==2) 10} else 4",
+                Collections.emptyMap(), debugOptions);
+        assertEquals(4, result);
+    }
+
+    @Test
     public void debugExample() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
@@ -90,6 +101,7 @@ public class Express4RunnerTest {
         assertEquals(10, populatedMap3.get("a"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void mapLiteralTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);

@@ -139,9 +139,15 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
     @Override
     public Void visit(ForStmt forStmt, Void context) {
         visitNode(forStmt, stmt -> {
-            stmt.getForInit().accept(this, context);
-            stmt.getCondition().accept(this, context);
-            stmt.getForUpdate().accept(this, context);
+            if (stmt.getForInit() != null) {
+                stmt.getForInit().accept(this, context);
+            }
+            if (stmt.getCondition() != null) {
+                stmt.getCondition().accept(this, context);
+            }
+            if (stmt.getForUpdate() != null) {
+                stmt.getForUpdate().accept(this, context);
+            }
             stmt.getBody().accept(this, context);
         });
         return null;
@@ -354,6 +360,6 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
     }
 
     private void printByCurDepth(String str) {
-        printlnByCurDepth(depth, str, debug);
+        printlnByCurDepth(-1, depth, str, debug);
     }
 }

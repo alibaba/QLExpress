@@ -37,7 +37,7 @@ public class TryCatchInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         QResult tryCatchResult = tryCatchResult(qContext, qlOptions);
         QResult finalResult = finalResult(qContext, qlOptions);
         if (finalResult.getResultType() == QResult.ResultType.RETURN) {
@@ -62,11 +62,11 @@ public class TryCatchInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "TryCatch", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "TryCatch", debug);
         body.println(depth+1, debug);
         for (Map.Entry<Class<?>, QLambdaDefinition> clsLambdaEn : exceptionTable.entrySet()) {
-            PrintlnUtils.printlnByCurDepth(depth+1, clsLambdaEn.getKey().getSimpleName(),
+            PrintlnUtils.printlnByCurDepth(index, depth+1, clsLambdaEn.getKey().getSimpleName(),
                     debug);
             clsLambdaEn.getValue().println(depth+2, debug);
         }
@@ -80,8 +80,8 @@ public class TryCatchInstruction extends QLInstruction {
         QLambda finalLambda = finalBody.toLambda(qContext, qlOptions, true);
         try {
             return finalLambda.call();
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
                     "try...catch...final... execute error");
         }
     }
@@ -91,7 +91,7 @@ public class TryCatchInstruction extends QLInstruction {
             QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
             return bodyLambda.call();
         } catch (QLRuntimeException e) {
-            Optional<QLambdaDefinition> exceptionHandlerOp = Optional.ofNullable(e.getAttachment())
+            Optional<QLambdaDefinition> exceptionHandlerOp = Optional.ofNullable(e.getCatchObj())
                     .map(attach -> exceptionTable.get(attach.getClass()));
             if (!exceptionHandlerOp.isPresent()) {
                 throw e;
@@ -99,16 +99,16 @@ public class TryCatchInstruction extends QLInstruction {
             QLambda catchHandlerLambda = exceptionHandlerOp.get()
                     .toLambda(qContext, qlOptions, true);
 
-            Object attachment = e.getAttachment();
+            Object attachment = e.getCatchObj();
             try {
                 // call exceptionHandler
                 return catchHandlerLambda.call(attachment);
-            } catch (Exception ex) {
-                throw ThrowUtils.wrapException(ex, errorReporter, "CATCH_HANDLER_EXECUTE_ERROR",
+            } catch (Throwable th) {
+                throw ThrowUtils.wrapThrowable(th, errorReporter, "CATCH_HANDLER_EXECUTE_ERROR",
                         "try...catch... handler of '%s' execute error", attachment.getClass().getName());
             }
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "TRY_CATCH_BODY_EXECUTE_ERROR",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "TRY_CATCH_BODY_EXECUTE_ERROR",
                     "try... body execute error");
         }
     }

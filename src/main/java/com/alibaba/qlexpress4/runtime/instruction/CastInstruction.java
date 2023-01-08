@@ -27,7 +27,7 @@ public class CastInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         Object value = qContext.pop().get();
         Class<?> targetClz = popTargetClz(qContext.pop().get());
         if (value == null) {
@@ -65,7 +65,7 @@ public class CastInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "Cast", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "Cast", debug);
     }
 }

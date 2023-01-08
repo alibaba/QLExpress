@@ -30,7 +30,7 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         QFunction function = qContext.getFunction(functionName);
         if (function == null) {
             callLambda(qContext, qlOptions);
@@ -42,8 +42,8 @@ public class CallFunctionInstruction extends QLInstruction {
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
                     "call function unknown exception");
         }
     }
@@ -68,8 +68,8 @@ public class CallFunctionInstruction extends QLInstruction {
             qContext.push(ValueUtils.toImmutable(resultValue));
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter,
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
         }
     }
@@ -85,7 +85,7 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CallFunction " + functionName + " " + argNum, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "CallFunction " + functionName + " " + argNum, debug);
     }
 }

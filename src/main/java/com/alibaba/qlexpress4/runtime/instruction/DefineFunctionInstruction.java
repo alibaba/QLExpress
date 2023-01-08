@@ -27,7 +27,7 @@ public class DefineFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         QLambda lambda = lambdaDefinition.toLambda(qContext, qlOptions, true);
         qContext.defineFunction(name, new QFunctionInner(lambda));
         return QResult.NEXT_INSTRUCTION;
@@ -44,8 +44,8 @@ public class DefineFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth,
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth,
                 "DefineFunction " + name, debug);
         lambdaDefinition.println(depth+1, debug);
     }

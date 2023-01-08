@@ -28,7 +28,7 @@ public class TestMethodInvokeInstruction {
         parentParameters.push(1);
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),3);
     }
 }

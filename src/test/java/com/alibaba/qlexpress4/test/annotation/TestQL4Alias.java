@@ -25,7 +25,7 @@ public class TestQL4Alias {
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试字段");
         TestQContextParent testQContextParent = new TestQContextParent();
         testQContextParent.push(new DataValue(new Child7()));
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         ((LeftValue) testQContextParent.getValue()).set("111",errorReporter);
         Assert.assertEquals((testQContextParent.getValue()).get(),9);
     }
@@ -36,7 +36,7 @@ public class TestQL4Alias {
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试静态字段");
         TestQContextParent testQContextParent = new TestQContextParent();
         testQContextParent.push(new DataValue(new MetaClass(Child7.class)));
-        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        getFieldInstruction.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),8);
     }
 
@@ -49,7 +49,7 @@ public class TestQL4Alias {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new MetaClass(Child7.class));
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),11);
     }
 
@@ -61,7 +61,7 @@ public class TestQL4Alias {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child7());
         testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        methodInvokeInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),10);
     }
 }

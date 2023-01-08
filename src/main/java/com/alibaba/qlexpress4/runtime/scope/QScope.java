@@ -1,13 +1,13 @@
 package com.alibaba.qlexpress4.runtime.scope;
 
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QFunction;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 
 /**
  * Author: DQinYuan
  */
 public interface QScope {
+
+    int getBaseIndex();
 
     /**
      * get assignable symbol variable by name
@@ -74,13 +74,19 @@ public interface QScope {
     Value peek();
 
     /**
-     * get parent scope
-     * @return
+     * @return parent scope
      */
     QScope getParent();
 
     /**
-     * new scope base origin stack
+     * @param exceptionTable catch exception in this scope
+     * @param baseIndex scope jump base index
+     * @return new scope base origin stack
      */
-    QScope newScope();
+    QScope newScope(ExceptionTable exceptionTable, int baseIndex);
+
+    /**
+     * @return exception table for this scope
+     */
+    ExceptionTable exceptionTable();
 }

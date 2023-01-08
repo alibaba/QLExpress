@@ -28,7 +28,7 @@ public class WhileInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         whileBody:
         while (evalCondition(qContext, qlOptions)) {
             try {
@@ -40,8 +40,8 @@ public class WhileInstruction extends QLInstruction {
                     case BREAK:
                         break whileBody;
                 }
-            } catch (Exception e) {
-                throw ThrowUtils.wrapException(e, errorReporter,
+            } catch (Throwable t) {
+                throw ThrowUtils.wrapThrowable(t, errorReporter,
                         "WHILE_BODY_EXECUTE_ERROR", "while body execute error");
             }
         }
@@ -59,11 +59,11 @@ public class WhileInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "While", debug);
-        PrintlnUtils.printlnByCurDepth(depth+1, "Condition", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "While", debug);
+        PrintlnUtils.printlnByCurDepth(index, depth+1, "Condition", debug);
         condition.println(depth+2, debug);
-        PrintlnUtils.printlnByCurDepth(depth+1, "Body", debug);
+        PrintlnUtils.printlnByCurDepth(index, depth+1, "Body", debug);
         body.println(depth+2, debug);
     }
 
@@ -76,8 +76,8 @@ public class WhileInstruction extends QLInstruction {
                         "condition must be bool");
             }
             return (boolean) conditionResult;
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "CONDITION_EVAL_ERROR",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "CONDITION_EVAL_ERROR",
                     "condition evaluate error");
         }
     }

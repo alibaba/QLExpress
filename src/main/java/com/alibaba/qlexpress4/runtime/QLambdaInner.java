@@ -1,12 +1,14 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.runtime.scope.QScope;
 import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
 import java.text.MessageFormat;
@@ -35,24 +37,48 @@ public class QLambdaInner implements QLambda {
         this.newEnv = newEnv;
     }
 
-    public QResult call(Object... params) throws Exception {
+    public QResult call(Object... params) throws Throwable {
         QContext newRuntime = newEnv? inheritScope(params): qContext;
+        QScope lambdaScope = newRuntime.getCurrentScope();
 
         QLInstruction[] instructions = lambdaDefinition.getInstructions();
-        for (int i = 0; i < instructions.length; i++) {
-            QResult qResult = instructions[i].execute(newRuntime, qlOptions);
-            switch (qResult.getResultType()) {
-                case JUMP:
-                    i += (int) qResult.getResult().get();
-                    break;
-                case RETURN:
-                case BREAK:
-                case CONTINUE:
-                    return qResult;
+        int i = 0;
+        while (i < instructions.length) {
+            try {
+                QResult qResult = instructions[i].execute(i, newRuntime, qlOptions);
+                switch (qResult.getResultType()) {
+                    case JUMP:
+                        i = newRuntime.absoluteJump((int) qResult.getResult().get());
+                        continue;
+                    case RETURN:
+                    case BREAK:
+                    case CONTINUE:
+                        return qResult;
+                }
+            } catch (QLRuntimeException qlRuntimeException) {
+                i = handleCatchObj(newRuntime, lambdaScope, qlRuntimeException,
+                        qlRuntimeException.getCatchObj());
+                continue;
+            } catch (Throwable t) {
+                i = handleCatchObj(newRuntime, lambdaScope, t, t);
+                continue;
             }
+            i++;
         }
 
         return QResult.NEXT_INSTRUCTION;
+    }
+
+    private int handleCatchObj(QContext lambdaRuntime, QScope lambdaScope,
+                                Throwable originThrowable, Object catchObj) throws Throwable {
+        if (!newEnv) {
+            throw originThrowable;
+        }
+        Integer jumpPos = lambdaRuntime.toHandlerScope(catchObj, lambdaScope);
+        if (jumpPos == null) {
+            throw originThrowable;
+        }
+        return jumpPos;
     }
 
     private QContext inheritScope(Object[] params) throws UserDefineException {
@@ -64,7 +90,7 @@ public class QLambdaInner implements QLambda {
             Class<?> targetCls = paramDefinition.getClazz();
             QLConvertResult qlConvertResult = InstanceConversion.castObject(originParamI, targetCls);
             if (QLConvertResultType.NOT_TRANS == qlConvertResult.getResultType()) {
-                throw new UserDefineException(UserDefineException.INVALID_PARAM,
+                throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
                         MessageFormat.format(
                                 "invalid argument at index {0} (start from 0), required type {1}, but {2} provided",
                                 i, targetCls.getName(),
@@ -73,12 +99,14 @@ public class QLambdaInner implements QLambda {
             }
             initSymbolTable.put(paramDefinition.getName(), new AssignableDataValue(originParamI, targetCls));
         }
+        // null for rest params
         for (int i = params.length; i < paramsDefinition.size(); i++) {
             QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);
             initSymbolTable.put(paramDefinition.getName(),
                     new AssignableDataValue(null, paramDefinition.getClazz()));
         }
-        QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize());
+        QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize(),
+                ExceptionTable.EMPTY);
         return new DelegateQContext(qContext, newScope);
     }
 }

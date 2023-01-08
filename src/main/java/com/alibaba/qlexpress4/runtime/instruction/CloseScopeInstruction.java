@@ -25,7 +25,7 @@ public class CloseScopeInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         qContext.closeScope();
         return QResult.NEXT_INSTRUCTION;
     }
@@ -41,7 +41,7 @@ public class CloseScopeInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CloseScope " + scopeName, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "CloseScope " + scopeName, debug);
     }
 }

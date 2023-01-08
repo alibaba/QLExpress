@@ -19,7 +19,7 @@ public class TestCastInstruction {
         TestQContextParent testQContextParent = new TestQContextParent();
         TestCastParameters testCastParameters = new TestCastParameters(Integer.class,5L);
         testQContextParent.setParameters(testCastParameters);
-        newInstructionForParent0.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstructionForParent0.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Object s = testQContextParent.getValue().get();
         Assert.assertEquals(s,5);
     }

@@ -36,7 +36,7 @@ public class ForEachInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         Object mayBeIterable = qContext.pop().get();
         if (mayBeIterable != null && mayBeIterable.getClass().isArray()) {
             mayBeIterable = new ReflectArrayIterable(mayBeIterable);
@@ -60,9 +60,9 @@ public class ForEachInstruction extends QLInstruction {
                 throw errorReporter.report("FOR_EACH_ACCEPT_INVALID_TYPE",
                         MessageFormat.format("for-each accept invalid type, required {0}, but {1} provided",
                                 itCls.getName(), item == null? "null": item.getClass().getName()));
-            } catch (Exception e) {
-                if (e instanceof QLRuntimeException) {
-                    throw (QLRuntimeException) e;
+            } catch (Throwable t) {
+                if (t instanceof QLRuntimeException) {
+                    throw (QLRuntimeException) t;
                 }
                 // should not run there
                 throw errorReporter.report("FOR_EACH_UNKNOWN_EXCEPTION",
@@ -83,8 +83,8 @@ public class ForEachInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "ForEach", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "ForEach", debug);
         body.println(depth+1, debug);
     }
 

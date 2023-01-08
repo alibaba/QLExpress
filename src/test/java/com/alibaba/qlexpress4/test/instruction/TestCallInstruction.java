@@ -26,7 +26,7 @@ public class TestCallInstruction {
         GetMethodInstruction getMethodInstruction = new GetMethodInstruction(errorReporter, "getMethod1");
         TestQContextParent testQContextParent = new TestQContextParent();
         testQContextParent.push(new Child());
-        getMethodInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getMethodInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertTrue(testQContextParent.getValue().get() instanceof QLambda);
         QLambda qLambda = (QLambda) testQContextParent.getValue().get();
 
@@ -36,7 +36,7 @@ public class TestCallInstruction {
         parentParameters.push(1);
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
-        callInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        callInstruction.execute(0, testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
         Assert.assertEquals(testQContextParent.getValue().get(),3);
 
     }

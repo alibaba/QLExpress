@@ -198,7 +198,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(Block block, GeneratorScope generatorScope) {
         String blockScopeName = blockScopeName();
         ErrorReporter blockErrReporter = newReporterByNode(block);
-        addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName));
+        addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName, ExceptionTable.EMPTY));
 
         List<QLInstruction> blockInstructions = generateNodeInstructionsEmbed(blockScopeName,
                 toStmtList(block), new GeneratorScope(generatorScope)).getInstructions();
@@ -366,7 +366,8 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
         ErrorReporter ifErrorReporter = newReporterByNode(ifExpr);
         String ifScopeName = prefix + IF_LAMBDA_PREFIX + ifCount;
-        addInstruction(new NewScopeInstruction(ifErrorReporter, ifScopeName));
+        addInstruction(new NewScopeInstruction(ifErrorReporter, ifScopeName,
+                ExceptionTable.EMPTY));
 
         // then body
         List<QLInstruction> thenInstructionList = generateNodeInstructionsEmbed(
@@ -387,10 +388,14 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions,
                                     List<QLInstruction> elseInstructions) {
         addInstruction(new JumpIfPopInstruction(conditionReporter, false,
-                thenInstructions.size() + 1));
+                jumpBase() + thenInstructions.size() + 1));
         thenInstructions.forEach(this::addInstruction);
-        addInstruction(new JumpInstruction(conditionReporter, elseInstructions.size()));
+        addInstruction(new JumpInstruction(conditionReporter, jumpBase() + elseInstructions.size()));
         elseInstructions.forEach(this::addInstruction);
+    }
+
+    private int jumpBase() {
+        return instructionList.size();
     }
 
     @Override

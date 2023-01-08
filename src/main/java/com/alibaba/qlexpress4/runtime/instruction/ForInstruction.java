@@ -53,17 +53,18 @@ public class ForInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(QContext qContext, QLOptions qlOptions) {
+    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
         // TODO: map 容量根据编译时变量数目决定
         QContext forScopeContext = needForScope()? new DelegateQContext(qContext,
-                new QvmBlockScope(qContext, new HashMap<>(1), forScopeMaxStackSize)):
+                new QvmBlockScope(qContext, new HashMap<>(1),
+                        forScopeMaxStackSize, ExceptionTable.EMPTY)):
                 qContext;
         if (forInit != null) {
             QLambda initLambda = forInit.toLambda(forScopeContext, qlOptions, false);
             try {
                 initLambda.call();
-            } catch (Exception e) {
-                throw ThrowUtils.wrapException(e, errorReporter, "FOR_INIT_ERROR", "for init error");
+            } catch (Throwable t) {
+                throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_INIT_ERROR", "for init error");
             }
         }
 
@@ -83,8 +84,8 @@ public class ForInstruction extends QLInstruction {
                     case BREAK:
                         break forBody;
                 }
-            } catch (Exception e) {
-                throw ThrowUtils.wrapException(e, errorReporter, "FOR_BODY_EXECUTE_ERROR", "for body execute error");
+            } catch (Throwable t) {
+                throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_BODY_EXECUTE_ERROR", "for body execute error");
             }
             if (updateLambda != null) {
                 runUpdate(updateLambda);
@@ -100,8 +101,8 @@ public class ForInstruction extends QLInstruction {
     private void runUpdate(QLambda updateLambda) {
         try {
             updateLambda.call();
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "FOR_UPDATE_ERROR", "for update error");
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_UPDATE_ERROR", "for update error");
         }
     }
 
@@ -113,8 +114,8 @@ public class ForInstruction extends QLInstruction {
                         "for condition must return bool");
             }
             return (boolean) conditionResult;
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, conditionErrorReporter, "FOR_CONDITION_EVAL_ERROR",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, conditionErrorReporter, "FOR_CONDITION_EVAL_ERROR",
                     "for condition evaluate error");
         }
     }
@@ -130,15 +131,21 @@ public class ForInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "For", debug);
-        PrintlnUtils.printlnByCurDepth(depth + 1, "Init", debug);
-        forInit.println(depth + 2, debug);
-        PrintlnUtils.printlnByCurDepth(depth + 1, "Condition", debug);
-        condition.println(depth + 2, debug);
-        PrintlnUtils.printlnByCurDepth(depth + 1, "Update", debug);
-        forUpdate.println(depth + 2, debug);
-        PrintlnUtils.printlnByCurDepth(depth + 1, "Body", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(index, depth, "For", debug);
+        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Init", debug);
+        if (forInit != null) {
+            forInit.println(depth + 2, debug);
+        }
+        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Condition", debug);
+        if (condition != null) {
+            condition.println(depth + 2, debug);
+        }
+        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Update", debug);
+        if (forUpdate != null) {
+            forUpdate.println(depth + 2, debug);
+        }
+        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Body", debug);
         forBody.println(depth + 2, debug);
     }
 }

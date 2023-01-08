@@ -9,9 +9,9 @@ public interface QFunction {
      * @param qRuntime
      * @param parameters
      * @return
-     * @throws Exception
+     * @throws Throwable
      *        {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
-    Object call(QRuntime qRuntime, Parameters parameters) throws Exception;
+    Object call(QRuntime qRuntime, Parameters parameters) throws Throwable;
 
 }

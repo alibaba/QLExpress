@@ -11,6 +11,11 @@ import java.util.Map;
  */
 public class QvmBlockScope implements QScope {
 
+    /**
+     * base instruction index
+     */
+    private final int baseIndex;
+
     private final QScope parent;
 
     private final Map<String, Value> symbolTable;
@@ -20,22 +25,28 @@ public class QvmBlockScope implements QScope {
     // TODO: stack 优化, 只有一个总的 stack, 不需要每个 scope 一个
     private final FixedSizeStack opStack;
 
-    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, int maxStackSize) {
-        this.parent = parent;
-        // TODO: 优化成 fixedArrayMap
-        this.symbolTable = symbolTable;
-        // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
-        this.functionTable = new HashMap<>();
-        this.opStack = new FixedSizeStack(maxStackSize);
+    private final ExceptionTable exceptionTable;
+
+    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, int maxStackSize,
+                         ExceptionTable exceptionTable) {
+        this(0, parent, symbolTable, new FixedSizeStack(maxStackSize), exceptionTable);
     }
 
-    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack) {
+    public QvmBlockScope(int baseIndex, QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
+                         ExceptionTable exceptionTable) {
+        this.baseIndex = baseIndex;
         this.parent = parent;
         // TODO: 优化成 fixedArrayMap
         this.symbolTable = symbolTable;
         // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
         this.functionTable = new HashMap<>();
         this.opStack = reuseStack;
+        this.exceptionTable = exceptionTable;
+    }
+
+    @Override
+    public int getBaseIndex() {
+        return baseIndex;
     }
 
     @Override
@@ -86,7 +97,13 @@ public class QvmBlockScope implements QScope {
     }
 
     @Override
-    public QScope newScope() {
-        return new QvmBlockScope(this, new HashMap<>(), opStack);
+    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
+        return new QvmBlockScope(baseIndex, this, new HashMap<>(), opStack, exceptionTable);
     }
+
+    @Override
+    public ExceptionTable exceptionTable() {
+        return exceptionTable;
+    }
+
 }

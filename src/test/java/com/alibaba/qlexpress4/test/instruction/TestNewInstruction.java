@@ -19,7 +19,7 @@ public class TestNewInstruction {
         ErrorReporter errorReporter = new TestErrorReporter();
         NewInstruction newInstructionForParent0 = new NewInstruction(errorReporter, Parent.class, 0);
         TestQContextParent testQContextParent = new TestQContextParent();
-        newInstructionForParent0.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+        newInstructionForParent0.execute(0, testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Object s = testQContextParent.getValue().get();
         Assert.assertTrue(s instanceof Parent);
 
@@ -28,7 +28,7 @@ public class TestNewInstruction {
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(6);
         testQContextParent1.pushParameter(parentParameters);
-        newInstructionForParentWithAge.execute(testQContextParent1, QLOptions.DEFAULT_OPTIONS);
+        newInstructionForParentWithAge.execute(0, testQContextParent1, QLOptions.DEFAULT_OPTIONS);
         Object result = testQContextParent1.getValue().get();
         Assert.assertTrue(result instanceof Parent && ((Parent) result).getAge() == 6);
     }
