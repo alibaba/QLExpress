@@ -23,8 +23,6 @@ import java.util.List;
  * @Date 2022/4/7 下午6:05
  */
 public class MethodHandler extends MemberHandler {
-    public static MethodHandles.Lookup LOOK_UP = MethodHandles.lookup();
-
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
@@ -188,12 +186,6 @@ public class MethodHandler extends MemberHandler {
     }
 
     public static class Access {
-        public static MethodHandle getMethodHandle(Object receiver) throws Throwable {
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            MethodType methodType = MethodType.methodType(void.class, Object.class);
-            return lookup.findVirtual(receiver.getClass(), "println", methodType).bindTo(receiver);
-        }
-
         public static Class<?> accessMethodType(Member accessMember) {
             Method accessMethod = ((Method) accessMember);
             return accessMethod.getReturnType();
