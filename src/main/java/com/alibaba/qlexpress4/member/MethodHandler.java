@@ -1,16 +1,10 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.runtime.QLambdaInner;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitLambda;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -92,22 +86,6 @@ public class MethodHandler extends MemberHandler {
             QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
             return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
                     new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
-        }
-
-        /**
-         * @param idealMatch
-         * @param qLambdaInners
-         * @return
-         */
-        public static QLImplicitLambda findMostSpecificLambda(Class<?>[] idealMatch, List<QLambdaInner> qLambdaInners) {
-            QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[1];
-            int level = 1;
-            for (int i = 0; i < qLambdaInners.size(); i++) {
-                candidates[i] = new QLCandidateMethodAttr(qLambdaInners.get(i).getLambdaParam(),level);
-            }
-            QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
-            return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
-                    new QLImplicitLambda(qLambdaInners.get(matcher.getMatchIndex()),matcher.needImplicitTrans(), matcher.getVars());
         }
 
         public static int compareLevelOfMethod(Method before, Method after){

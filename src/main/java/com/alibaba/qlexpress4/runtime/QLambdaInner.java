@@ -81,18 +81,4 @@ public class QLambdaInner implements QLambda {
         QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize());
         return new DelegateQContext(qContext, newScope);
     }
-
-    public QLambdaDefinitionInner getLambdaDefinition() {
-        return lambdaDefinition;
-    }
-
-    public Class<?>[] getLambdaParam(){
-        List<QLambdaDefinitionInner.Param> paramsList = lambdaDefinition.getParamsType();
-        Class<?>[] classes = new Class[paramsList.size()];
-        for(int i = 0 ; i < paramsList.size(); i++){
-            classes[i] = paramsList.get(i).getClazz();
-        }
-        return classes;
-    }
-
 }

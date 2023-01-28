@@ -2,10 +2,7 @@ package com.alibaba.qlexpress4;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,12 +26,16 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 import com.alibaba.qlexpress4.utils.QLFieldUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Author: DQinYuan
  * date 2022/1/12 2:28 下午
  */
 public class Express4Runner {
+    private static final Log log = LogFactory.getLog(Express4Runner.class);
+
     private final OperatorManager operatorManager = new OperatorManager();
 
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
@@ -174,6 +175,15 @@ public class Express4Runner {
     }
 
     private QLambda parseToLambda(String script, Map<String, Object> context, QLOptions qlOptions) {
+        QLambdaDefinitionInner mainLambdaDefine = parseSyntaxAndInstructions(script, qlOptions);
+        QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), qlCaches, System.currentTimeMillis());
+        QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction,
+                qlOptions.isPolluteUserContext());
+        return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
+                qlOptions, true);
+    }
+
+    private QLambdaDefinitionInner parseSyntaxAndInstructions(String script, QLOptions qlOptions){
         Program program = parseToSyntaxTree(script, qlOptions);
         if (qlOptions.isDebug()) {
             qlOptions.getDebugInfoConsumer().accept("\nAST:");
@@ -185,18 +195,30 @@ public class Express4Runner {
         program.accept(qvmInstructionGenerator, new GeneratorScope(null));
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
-            qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
-            qvmInstructionGenerator.getMaxStackSize());
+                qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
+                qvmInstructionGenerator.getMaxStackSize());
         if (qlOptions.isDebug()) {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
+        return mainLambdaDefine;
+    }
 
-        QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), qlCaches, System.currentTimeMillis());
-        QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction,
-                qlOptions.isPolluteUserContext());
-        return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
-                qlOptions, true);
+    /**
+     * 预热接口，提供复杂的语法检查，(比如检查自定义的java类)，不保证运行期在本地环境可以编译成指令
+     *
+     * @param script
+     * @param qlOptions
+     * @return
+     */
+    public boolean checkSyntax(String script, QLOptions qlOptions) {
+        try {
+            parseSyntaxAndInstructions(script, qlOptions);
+            return true;
+        } catch (Exception e) {
+            log.error("checkSyntax has Exception", e);
+            return false;
+        }
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {

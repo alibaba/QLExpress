@@ -62,17 +62,10 @@ public class MethodInvokeInstruction extends QLInstruction {
                 getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
                 getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod(), params);
         if(implicitMethod == null){
-            List<QLambdaInner> qLambdaInnerMethods = findQLambdaInstance(bean);
-            if(qLambdaInnerMethods != null && qLambdaInnerMethods.size() > 0){
-                QLImplicitLambda qlImplicitLambda = MethodHandler.Preferred.findMostSpecificLambda(type,
-                        qLambdaInnerMethods);
-                convertResult = ParametersConversion.convert(params, type, qlImplicitLambda.getQLambdaInner().getLambdaParam()
-                        , qlImplicitLambda.needImplicitTrans(),qlImplicitLambda.getVars());
-                if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
-                    throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
-                }
+            QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
+            if(qLambdaInnerMethod != null){
                 try {
-                    QResult qResult = qlImplicitLambda.getQLambdaInner().call((Object[]) convertResult.getCastValue());
+                    QResult qResult = qLambdaInnerMethod.call(params);
                     Value dataValue = new DataValue(qResult.getResult());
                     qContext.push(dataValue);
                 }catch (Exception e){
@@ -132,19 +125,17 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
 
-    protected List<QLambdaInner> findQLambdaInstance(Object bean){
+    protected QLambda findQLambdaInstance(Object bean){
         if(bean instanceof Map) {
             Map map = (Map) bean;
             Iterator iterator = map.entrySet().iterator();
-            List<QLambdaInner> qLambdaInnerMethodList = new ArrayList();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 if(entry.getValue() instanceof QLambda && entry.getKey().toString().equals(methodName)){
-                    QLambdaInner qLambdaInnerMethod = (QLambdaInner) entry.getValue();
-                    qLambdaInnerMethodList.add(qLambdaInnerMethod);
+                    QLambda qLambdaInnerMethod = (QLambda) entry.getValue();
+                    return qLambdaInnerMethod;
                 }
             }
-            return qLambdaInnerMethodList;
         }
         return null;
     }
