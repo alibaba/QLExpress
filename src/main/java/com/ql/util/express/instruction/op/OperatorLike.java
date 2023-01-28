@@ -1,10 +1,11 @@
 package com.ql.util.express.instruction.op;
 
-import java.util.regex.Pattern;
-
+import com.ql.util.express.LikeStateMachine;
 import com.ql.util.express.Operator;
 
 public class OperatorLike extends Operator {
+    public static final char PERCENT_SIGN = '%';
+
     public OperatorLike(String name) {
         this.name = name;
     }
@@ -21,31 +22,71 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        String s1 = op1.toString();
-        String s2 = op2.toString();
-        if(!s2.contains("%")){
-            return s1.equals(s2);
-        }else {
-            String regex = quotaMeta(s2);
-            regex = regex.replace("_",".").replace("%",".*?");
-            Pattern p = Pattern.compile(regex,Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-            return p.matcher(s1).matches();
-        }
+        LikeStateMachine machine = LikeStateMachine.builder().loadPattern(op2.toString()).build();
+        return machine.match(op1.toString());
+//        return likeMatch(op1.toString(),op2.toString());
     }
 
-    private String quotaMeta(String s){
-        int len = s.length();
-        if(len == 0){
-            return "";
-        }
-        StringBuilder stringBuilder = new StringBuilder(len*2);
-        for(int i = 0; i < len; i++){
-            char c = s.charAt(i);
-            if("[](){}.*+?$^|#\\".indexOf(c) != -1){
-                stringBuilder.append("\\");
+    public boolean likeMatch(String dest, String pattern){
+        int i = 0, j = 0;
+        int patternLen = pattern.length();
+        int destLen = dest.length();
+        char prePatternChar = 0;
+        for(;i < destLen;){
+            if(j == patternLen){
+                break;
             }
-            stringBuilder.append(c);
+            char patternWord = pattern.charAt(j);
+            char descWord = dest.charAt(i);
+            if(patternWord == descWord){
+                j++;
+                i++;
+                prePatternChar = patternWord;
+                continue;
+            }
+            if(patternWord == PERCENT_SIGN){
+                if(j != patternLen - 1){
+                    j++;
+                }else {
+                    i++;
+                }
+                prePatternChar = patternWord;
+                continue;
+            }
+            if(prePatternChar == PERCENT_SIGN){
+                i++;
+                continue;
+            }
+            return false;
         }
-        return stringBuilder.toString();
+        if(j != patternLen){
+            if(notEndOfCharWord(pattern,PERCENT_SIGN,j)){
+                return false;
+            }else {
+                return true;
+            }
+        }
+        if(i != destLen){
+            if(prePatternChar == dest.charAt(destLen-1)){
+                return true;
+            }
+            if(notEndOfCharWord(dest,prePatternChar,i)){
+                return false;
+            }else {
+                return true;
+            }
+        }
+        return true;
     }
+
+    protected boolean notEndOfCharWord(String charWord, char compareWord, int index){
+        for(int i = index; i < charWord.length(); i++){
+            char thisWord = charWord.charAt(i);
+            if(thisWord != compareWord){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

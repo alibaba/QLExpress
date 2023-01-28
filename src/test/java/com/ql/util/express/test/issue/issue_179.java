@@ -74,4 +74,103 @@ public class issue_179 extends IssueBase {
         Object result = execute(script, context);
         Assert.assertTrue((Boolean)result);
     }
+
+    @Test
+    public void test9() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'acc' like 'a%c'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test10() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'acdc' like 'a%c'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test11() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like 'ABE'";
+        Object result = execute(script, context);
+        Assert.assertTrue(!(Boolean)result);
+    }
+
+    @Test
+    public void test12() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like 'ABCD'";
+        Object result = execute(script, context);
+        Assert.assertTrue(!(Boolean)result);
+    }
+
+    @Test
+    public void test13() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like 'AB%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+    @Test
+    public void test14() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like 'ABC%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+    @Test
+    public void test15() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like '%AB'";
+        Object result = execute(script, context);
+        Assert.assertTrue(!(Boolean)result);
+    }
+    @Test
+    public void test16() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABC' like 'A%B'";
+        Object result = execute(script, context);
+        Assert.assertTrue(!(Boolean)result);
+    }
+    @Test
+    public void test17() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABCD' like 'A%B%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+    @Test
+    public void test18() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'ABCD' like 'A%B%D'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test19() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CCDD' like '%B%D'";
+        Object result = execute(script, context);
+        Assert.assertTrue(!(Boolean)result);
+    }
+
+    @Test
+    public void test20() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBD' like '%B%D'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test21() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%B%D'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
 }
