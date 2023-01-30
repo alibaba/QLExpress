@@ -7,7 +7,6 @@ package com.ql.util.express;
 public class LikeStateMachine{
     private LikeState start;
     private LikeState current;
-    private char lastWord = 0;
     private int size;
 
     private LikeStateMachine(){
@@ -45,36 +44,16 @@ public class LikeStateMachine{
 
     public boolean match(String dest){
         int destLen = dest.length();
+        LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
         for(int i = 0; i < destLen; i++){
             char word = dest.charAt(i);
-            if(!findState(word, i == destLen - 1)){
+            if(!likeStateMatcher.findState(word, i == destLen - 1)){
                 return false;
             }
         }
-        return notEndOfCharWord(this.current);
+        return notEndOfCharWord(likeStateMatcher.getCurrent());
     }
 
-    protected boolean findState(char word, boolean isEndWord){
-        if(this.current == null){
-            return false;
-        }
-        LikeStateStatus stateStatus = this.current.matchWords(word, this.lastWord, isEndWord);
-        if(!stateStatus.getResult()){
-            return false;
-        }
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.DEST_STAY)){
-            this.current = this.current.next();
-            return findState(word,isEndWord);
-        }
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
-            this.current = this.current.next();
-        }
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_PREV)){
-            this.current = this.current.prev();
-        }
-        this.lastWord = word;
-        return true;
-    }
 
     protected boolean notEndOfCharWord(LikeState likeState){
         while (likeState != null){
