@@ -18,13 +18,13 @@ public class ArrayLenCheckTest {
         ExpressRunner runner = new ExpressRunner();
         String code = "byte[] a = new byte[11];";
         try {
-            runner.execute(code, new DefaultContext<>(), null, false, false);
+            runner.execute(code, new DefaultContext<>(), null, false, false, 20);
             Assert.fail();
         } catch (QLException e) {
         }
 
         QLExpressRunStrategy.setMaxArrLength(-1);
-        runner.execute(code, new DefaultContext<>(), null, false, false);
+        runner.execute(code, new DefaultContext<>(), null, false, false, 20);
     }
 
 }
