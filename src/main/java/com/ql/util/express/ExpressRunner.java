@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
@@ -95,6 +96,11 @@ public class ExpressRunner {
      */
     private final ThreadLocal<Integer> threadReentrantCount = ThreadLocal.withInitial(() -> 0);
 
+    /**
+     * 自动生成临时参数序号
+     */
+    private final AtomicLong tempAttrNo = new AtomicLong(0);
+
     public AppendingClassMethodManager getAppendingClassMethodManager() {
         return appendingClassMethodManager;
     }
@@ -112,6 +118,10 @@ public class ExpressRunner {
 
     public IOperateDataCache getOperateDataCache() {
         return this.operateDataCacheThreadLocal.get();
+    }
+
+    public long nextTempAttrNo(){
+        return tempAttrNo.getAndIncrement();
     }
 
     public ExpressRunner() {
