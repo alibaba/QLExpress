@@ -144,3 +144,12 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (1)高精度计算下的溢出问题修复 com.ql.util.express.test.NumberOperatorCalculatorTest
 
 (2)多级别安全控制与沙箱模式 com.ql.util.express.example.MultiLevelSecurityTest
+
+## 3.3.1版本[2023-02-03]
+
+(1) #188 break/continue 问题修复
+(2)内置脚本 cache 改成 concurrentHashMap
+(3)去除 log4j 和 apache common log 的依赖， 原先部分 `execute` 参数中含有 common log ，所以部分 `execute` 签名有不兼容变更。可能会导致升级后编译不通过
+(4)#233 相关安全增强
+    a. 扩充默认黑名单
+    b. 支持通过 com.ql.util.express.config.QLExpressRunStrategy#setMaxArrLength 限制脚本一次最多申请数组的大小
