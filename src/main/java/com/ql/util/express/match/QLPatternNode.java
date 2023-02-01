@@ -15,7 +15,6 @@ enum MatchMode {
 }
 
 public class QLPatternNode {
-    private static final Log log = LogFactory.getLog(QLPatternNode.class);
 
     private final INodeTypeManager nodeTypeManager;
 
@@ -88,7 +87,7 @@ public class QLPatternNode {
     private final List<QLPatternNode> children = new ArrayList<>();
 
     public boolean canMergeDetail() {
-        return QLPattern.optimizeStackDepth && this.matchMode == MatchMode.DETAIL && "ANONY_PATTERN".equals(this.name)
+        return this.matchMode == MatchMode.DETAIL && "ANONY_PATTERN".equals(this.name)
             && this.nodeType.getPatternNode() != null
             && !this.isSkip
             && !this.blame
@@ -126,13 +125,6 @@ public class QLPatternNode {
     }
 
     public void splitChild() throws Exception {
-        if (log.isTraceEnabled()) {
-            StringBuilder str = new StringBuilder();
-            for (int i = 0; i < this.level; i++) {
-                str.append("  ");
-            }
-            //log.trace("分解匹配模式[LEVEL="+ this.level +"]START:" + str + this.originalContent);
-        }
         String originalStr = this.originalContent;
         if ("(".equals(originalStr) || ")".equals(originalStr) || "|".equals(originalStr) || "||".equals(originalStr)
             || "/**".equals(originalStr) || "**/".equals(originalStr) || "*".equals(originalStr)

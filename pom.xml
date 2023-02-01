@@ -6,7 +6,7 @@
     <groupId>com.alibaba</groupId>
     <artifactId>QLExpress</artifactId>
     <packaging>jar</packaging>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>3.3.1</version>
     <name>QLExpress</name>
     <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving developers’ productivity in different business scenes.
     </description>
@@ -65,17 +65,6 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

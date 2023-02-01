@@ -18,15 +18,11 @@ public class InstructionCallMacro extends Instruction {
 
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
-        if (environment.isTrace() && log.isDebugEnabled()) {
-            log.debug(this);
-        }
-
         InstructionSetContext context = environment.getContext();
         Object functionSet = context.getSymbol(this.name);
 
         Object result = InstructionSetRunner.execute(context.getExpressRunner(), (InstructionSet)functionSet,
-            context.getExpressLoader(), context, errorList, environment.isTrace(), false, false, log,
+            context.getExpressLoader(), context, errorList, environment.isTrace(), false, false,
             environment.getContext().isSupportDynamicFieldName());
         if (result instanceof OperateData) {
             environment.push((OperateData)result);

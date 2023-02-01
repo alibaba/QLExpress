@@ -17,13 +17,10 @@ public class QLambda {
 
     private final List<String> errorList;
 
-    private final Log log;
-
-    public QLambda(InstructionSet functionSet, RunEnvironment environment, List<String> errorList, Log log) {
+    public QLambda(InstructionSet functionSet, RunEnvironment environment, List<String> errorList) {
         this.functionSet = functionSet;
         this.environment = environment;
         this.errorList = errorList;
-        this.log = log;
     }
 
     public Object call(Object... params) throws Exception {
@@ -39,7 +36,7 @@ public class QLambda {
             operateDataLocalVar.setObject(context, params.length > i ? params[i] : null);
         }
 
-        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false, true, log);
+        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false, true);
     }
 
     /**

@@ -48,6 +48,13 @@ public class QLExpressRunStrategy {
      */
     private static Set<String> SECURE_METHOD_LIST = new HashSet<>();
 
+    /**
+     * 最大申请的数组大小, 默认没有限制
+     * 防止用户一次性申请过多的内存
+     * -1 表示没有限制
+     */
+    private static int maxArrLength = -1;
+
     static {
         // 系统退出
         SECURITY_RISK_METHOD_LIST.add(System.class.getName() + "." + "exit");
@@ -68,6 +75,12 @@ public class QLExpressRunStrategy {
         SECURITY_RISK_METHOD_LIST.add("javax.naming.InitialContext.lookup");
         SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setDataSourceName");
         SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setAutoCommit");
+
+        // QLE 自身开关
+        SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName()+".setForbidInvokeSecurityRiskMethods");
+        SECURITY_RISK_METHOD_LIST.add("jdk.jshell.JShell.create");
+        SECURITY_RISK_METHOD_LIST.add("javax.script.ScriptEngineManager.getEngineByName");
+        SECURITY_RISK_METHOD_LIST.add("org.springframework.jndi.JndiLocatorDelegate.lookup");
     }
 
     private QLExpressRunStrategy() {
@@ -161,5 +174,13 @@ public class QLExpressRunStrategy {
 
     public static void setCompileWhiteCheckerList(List<WhiteChecker> compileWhiteCheckerList) {
         QLExpressRunStrategy.compileWhiteCheckerList = compileWhiteCheckerList;
+    }
+
+    public static void setMaxArrLength(int maxArrLength) {
+        QLExpressRunStrategy.maxArrLength = maxArrLength;
+    }
+
+    public static boolean checkArrLength(int arrLen) {
+        return QLExpressRunStrategy.maxArrLength == -1 || arrLen <= QLExpressRunStrategy.maxArrLength;
     }
 }

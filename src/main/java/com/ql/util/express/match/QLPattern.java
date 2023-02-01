@@ -5,23 +5,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.ql.util.express.exception.QLCompileException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class QLPattern {
-    private static final Log log = LogFactory.getLog(QLPattern.class);
-
-    /**
-     * 优化栈的递归深度
-     * TODO public field
-     */
-    public static boolean optimizeStackDepth = true;
-
-    /**
-     * 打印栈的最大深度
-     * TODO public field
-     */
-    public static boolean printStackDepth = false;
 
     private QLPattern() {
         throw new IllegalStateException("Utility class");
@@ -41,10 +26,6 @@ public class QLPattern {
         MatchParamsPack staticParams = new MatchParamsPack(iNodeTypeManager, nodes, maxDeep, maxMatchPoint, resultCache,
             arrayListCache);
         QLMatchResult result = findMatchStatementWithAddRootOptimizeStack(staticParams, pattern, point, 1);
-        if (printStackDepth) {
-            log.warn("递归堆栈深度:" + maxDeep.longValue() + " 重用QLMatchResult次数:" + resultCache.fetchCount
-                + " 新建QLMatchResult次数:" + resultCache.newCount + " 新建ArrayList数量:" + arrayListCache.newCount);
-        }
         if (result == null || result.getMatchSize() == 0) {
             throw new QLCompileException("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配致[0:" + (maxMatchPoint.longValue() - 1) + "]");
         } else if (result.getMatchSize() != 1) {
@@ -101,8 +82,6 @@ public class QLPattern {
                             new QLMatchResultTree(tempNodeType, nodes.get(pointDetail), pattern.targetNodeType));
                         pointDetail = pointDetail + 1;
                         resultDetail.setMatchLastIndex(pointDetail);
-
-                        traceLog(pattern, resultDetail, pointDetail - 1, 1);
                     } else if (pattern.nodeType.getPatternNode() != null) {
                         resultDetail = findMatchStatementWithAddRootOptimizeStack(staticParams,
                             pattern.nodeType.getPatternNode(), pointDetail, deep);
@@ -194,7 +173,6 @@ public class QLPattern {
                 if (!isBreak) {
                     tempResult = staticParams.resultCache.fetch().addQLMatchResultTreeList(tempListAnd);
                     tempResult.setMatchLastIndex(pointAnd);
-                    traceLog(pattern, tempResult, lastPoint, matchCount);
                 } else {
                     tempResult = null;
                 }
@@ -280,13 +258,6 @@ public class QLPattern {
             staticParams.arrayListCache.sendBack(tempList);
         }
         return result;
-    }
-
-    public static void traceLog(QLPatternNode pattern, QLMatchResult result, int point, int matchCount) {
-        if (log.isTraceEnabled() && (pattern.matchMode == MatchMode.DETAIL
-            || pattern.matchMode == MatchMode.AND && matchCount > 1 && !"ANONY_PATTERN".equals(pattern.name))) {
-            log.trace("匹配--" + pattern.name + "[" + point + ":" + (result.getMatchLastIndex() - 1) + "]:" + pattern);
-        }
     }
 
     public static class MatchParamsPack {

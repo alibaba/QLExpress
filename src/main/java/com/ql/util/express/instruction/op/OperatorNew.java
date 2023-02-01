@@ -7,6 +7,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
@@ -29,6 +30,11 @@ public class OperatorNew extends OperatorBase {
             for (int index = 0; index < dim; index++) {
                 dimLength[index] = ((Number)(list.get(index + 1).getObject(parent)))
                     .intValue();
+            }
+            if (dimLength.length > 0) {
+                if (!QLExpressRunStrategy.checkArrLength(dimLength[0])) {
+                    throw new QLException("超过了最大的数组申请限制");
+                }
             }
             return OperateDataCacheManager.fetchOperateData(Array.newInstance(tmpClass, dimLength), obj);
         }

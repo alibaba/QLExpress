@@ -28,23 +28,6 @@ public class InstructionOperator extends Instruction {
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
         InstructionSetContext instructionSetContext = environment.getContext();
         ArraySwap parameters = environment.popArray(this.opDataNumber);
-        if (environment.isTrace() && log.isDebugEnabled()) {
-            StringBuilder stringBuilder = new StringBuilder(this.operator.toString() + "(");
-            OperateData operateData;
-            for (int i = 0; i < parameters.length; i++) {
-                operateData = parameters.get(i);
-                if (i > 0) {
-                    stringBuilder.append(",");
-                }
-                if (operateData instanceof OperateDataAttr) {
-                    stringBuilder.append(operateData).append(":").append(operateData.getObject(instructionSetContext));
-                } else {
-                    stringBuilder.append(operateData);
-                }
-            }
-            stringBuilder.append(")");
-            log.debug(stringBuilder.toString());
-        }
         try {
             OperateData result = this.operator.execute(instructionSetContext, parameters, errorList);
             environment.push(result);

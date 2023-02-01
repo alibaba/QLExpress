@@ -26,12 +26,9 @@ import org.apache.commons.logging.LogFactory;
  * @author qhlhl2010@gmail.com
  */
 public class InstructionSet {
-    private static final transient Log log = LogFactory.getLog(InstructionSet.class);
     public static final String TYPE_CLASS = "VClass";
     public static final String TYPE_FUNCTION = "function";
     public static final String TYPE_MACRO = "macro";
-
-    public static final boolean PRINT_INSTRUCTION_ERROR = false;
 
     private final String type;
     private String name;
@@ -149,12 +146,11 @@ public class InstructionSet {
      * @param context
      * @param errorList
      * @param isReturnLastData 是否最后的结果，主要是在执行宏定义的时候需要
-     * @param log
      * @return
      * @throws Exception
      */
     public CallResult execute(RunEnvironment environment, InstructionSetContext context, List<String> errorList,
-        boolean isReturnLastData, Log log) throws Exception {
+        boolean isReturnLastData) throws Exception {
         //将函数export到上下文中,这儿就是重入也没有关系，不需要考虑并发
         if (cacheFunctionSet == null) {
             Map<String, Object> tempMap = new HashMap<>();
@@ -166,7 +162,7 @@ public class InstructionSet {
 
         context.addSymbol(cacheFunctionSet);
 
-        this.executeInnerOriginalInstruction(environment, errorList, log);
+        this.executeInnerOriginalInstruction(environment, errorList);
         // 是在执行完所有的指令后结束的代码
         if (!environment.isExit()) {
             if (environment.getDataStackSize() > 0) {
@@ -192,23 +188,16 @@ public class InstructionSet {
         return OperateDataCacheManager.fetchCallResult(environment.getReturnValue(), environment.isExit());
     }
 
-    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList, Log log)
+    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList)
         throws Exception {
         Instruction instruction = null;
         try {
             while (environment.programPoint < this.instructionList.length) {
                 QLExpressTimer.assertTimeOut();
                 instruction = this.instructionList[environment.programPoint];
-                // 设置log
-                instruction.setLog(log);
                 instruction.execute(environment, errorList);
             }
         } catch (Exception e) {
-            if (PRINT_INSTRUCTION_ERROR) {
-                InstructionSet.log.error("当前ProgramPoint = " + environment.programPoint);
-                InstructionSet.log.error("当前指令" + instruction);
-                InstructionSet.log.error(e);
-            }
             throw e;
         }
     }

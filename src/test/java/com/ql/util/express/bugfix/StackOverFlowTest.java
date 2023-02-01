@@ -21,20 +21,15 @@ public class StackOverFlowTest {
         };
 
         for (String express : expressList) {
-            QLPattern.printStackDepth = true;
-            QLPattern.optimizeStackDepth = false;
             ExpressRunner runner = new ExpressRunner();
             IExpressContext<String, Object> context = new DefaultContext<>();
             Object result = runner.execute(express, context, null, true, false);
             System.out.println(express + " = " + result);
 
             System.out.println("优化栈深度之后:");
-            QLPattern.printStackDepth = true;
-            QLPattern.optimizeStackDepth = true;
             ExpressRunner runner2 = new ExpressRunner();
             Object result2 = runner2.execute(express, context, null, true, false);
             System.out.println(express + " = " + result2);
-            QLPattern.printStackDepth = false;
         }
     }
 }

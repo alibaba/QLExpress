@@ -106,7 +106,7 @@ public class WorkflowTest {
         expressContext.put("申请人", "小强");
         expressContext.put("金额", 5000);
 
-        runner.executeByExpressName("example/approve1", expressContext, null, false, false, null);
+        runner.executeByExpressName("example/approve1", expressContext, null, false, false);
     }
 
     /**
@@ -135,7 +135,7 @@ public class WorkflowTest {
         expressContext.put("申请人", "小强");
         expressContext.put("金额", 6000);
 
-        runner.executeByExpressName("example/approve", expressContext, null, false, false, null);
+        runner.executeByExpressName("example/approve", expressContext, null, false, false);
     }
 
     /**
@@ -165,6 +165,6 @@ public class WorkflowTest {
         expressContext.put("申请人", "小强");
         expressContext.put("金额", 7000);
 
-        runner.executeByExpressName("example/approve1", expressContext, null, false, false, null);
+        runner.executeByExpressName("example/approve1", expressContext, null, false, false);
     }
 }

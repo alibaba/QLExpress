@@ -20,7 +20,7 @@ public class InstructionLoadLambda extends Instruction {
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) {
         environment.push(
-            OperateDataCacheManager.fetchOperateData(new QLambda(lambdaSet, environment, errorList, log), null)
+            OperateDataCacheManager.fetchOperateData(new QLambda(lambdaSet, environment, errorList), null)
         );
         environment.programPointAddOne();
     }
