@@ -3,8 +3,6 @@ package com.ql.util.express.instruction.detail;
 import java.util.List;
 
 import com.ql.util.express.RunEnvironment;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public abstract class Instruction {
     private Integer line = 0;

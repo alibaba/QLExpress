@@ -77,7 +77,7 @@ public class QLExpressRunStrategy {
         SECURITY_RISK_METHOD_LIST.add("com.sun.rowset.JdbcRowSetImpl.setAutoCommit");
 
         // QLE 自身开关
-        SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName()+".setForbidInvokeSecurityRiskMethods");
+        SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName() + ".setForbidInvokeSecurityRiskMethods");
         SECURITY_RISK_METHOD_LIST.add("jdk.jshell.JShell.create");
         SECURITY_RISK_METHOD_LIST.add("javax.script.ScriptEngineManager.getEngineByName");
         SECURITY_RISK_METHOD_LIST.add("org.springframework.jndi.JndiLocatorDelegate.lookup");

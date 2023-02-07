@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ql.util.express.exception.QLCompileException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 enum MatchMode {
     AND,

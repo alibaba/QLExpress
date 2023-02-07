@@ -8,7 +8,6 @@ import com.ql.util.express.InstructionSetRunner;
 import com.ql.util.express.OperateData;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-import org.apache.commons.logging.Log;
 
 /**
  * 虚拟Class的内存对象

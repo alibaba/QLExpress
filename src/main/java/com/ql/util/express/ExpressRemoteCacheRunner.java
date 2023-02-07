@@ -2,8 +2,6 @@ package com.ql.util.express;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-
 /**
  * 远程缓存对象
  *
@@ -61,5 +59,3 @@ public abstract class ExpressRemoteCacheRunner {
      */
     public abstract void putCache(String key, Object object);
 }
-
-

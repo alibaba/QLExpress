@@ -3,7 +3,6 @@ package com.ql.util.express.bugfix;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
-import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
 public class StackOverFlowTest {

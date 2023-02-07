@@ -10,9 +10,7 @@ import com.ql.util.express.OperateData;
 import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-import com.ql.util.express.instruction.opdata.OperateDataAttr;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
-import org.apache.commons.logging.Log;
 
 public class InstructionCallSelfDefineFunction extends Instruction {
     private final String functionName;
@@ -37,7 +35,8 @@ public class InstructionCallSelfDefineFunction extends Instruction {
 
         Object function = environment.getContext().getSymbol(functionName);
         if (!(function instanceof InstructionSet)) {
-            throw new QLException(getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到" + this.functionName + "的定义");
+            throw new QLException(
+                getExceptionPrefix() + "在Runner的操作符定义和自定义函数中都没有找到" + this.functionName + "的定义");
         }
         InstructionSet functionSet = (InstructionSet)function;
         OperateData result = InstructionCallSelfDefineFunction.executeSelfFunction(environment, functionSet, parameters,
@@ -59,8 +58,8 @@ public class InstructionCallSelfDefineFunction extends Instruction {
             context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
             operateDataLocalVar.setObject(context, parameters.get(i).getObject(environment.getContext()));
         }
-        Object result = InstructionSetRunner.execute(functionSet,
-            context, errorList, environment.isTrace(), false, true);
+        Object result = InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false,
+            true);
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 

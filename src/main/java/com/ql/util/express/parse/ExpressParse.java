@@ -14,8 +14,6 @@ import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.exception.QLSecurityRiskException;
 import com.ql.util.express.match.QLMatchResult;
 import com.ql.util.express.match.QLPattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class ExpressParse {
 
@@ -435,4 +433,3 @@ public class ExpressParse {
         return stringBuilder.toString();
     }
 }
-

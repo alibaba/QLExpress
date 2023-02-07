@@ -3,7 +3,6 @@ package com.ql.util.express.test;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExportItem;
 import com.ql.util.express.ExpressRunner;
-import org.apache.commons.logging.Log;
 import org.junit.Test;
 
 public class LoadExpressFromFileTest {

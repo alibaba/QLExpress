@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class InstructionSetRunner {
 

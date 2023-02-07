@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
-import org.apache.commons.logging.Log;
 
 /**
  * 代表一个 lambda 表达式

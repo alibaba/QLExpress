@@ -17,8 +17,6 @@ import com.ql.util.express.instruction.detail.InstructionLoadAttr;
 import com.ql.util.express.instruction.detail.InstructionNewVirClass;
 import com.ql.util.express.instruction.detail.InstructionOperator;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * 表达式执行编译后形成的指令集合

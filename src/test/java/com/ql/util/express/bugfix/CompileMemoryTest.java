@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
-import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
 public class CompileMemoryTest {
