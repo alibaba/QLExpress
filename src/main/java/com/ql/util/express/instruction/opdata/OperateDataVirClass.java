@@ -8,7 +8,6 @@ import com.ql.util.express.InstructionSetRunner;
 import com.ql.util.express.OperateData;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-import org.apache.commons.logging.Log;
 
 /**
  * 虚拟Class的内存对象
@@ -28,16 +27,13 @@ public class OperateDataVirClass extends OperateDataAttr {
 
     private boolean isTrace;
 
-    private Log log;
-
     public OperateDataVirClass(String name) {
         super(name, null);
     }
 
     public void initialInstance(InstructionSetContext parent, OperateData[] parameters, List<String> errorList,
-        boolean isTrace, Log log) throws Exception {
+        boolean isTrace) throws Exception {
         this.isTrace = isTrace;
-        this.log = log;
         this.context = OperateDataCacheManager.fetchInstructionSetContext(false, parent.getExpressRunner(), parent,
             parent.getExpressLoader(), parent.isSupportDynamicFieldName());
         Object functionSet = parent.getSymbol(this.name);
@@ -54,7 +50,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             this.context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
             operateDataLocalVar.setObject(context, parameters[i].getObject(parent));
         }
-        InstructionSetRunner.execute(virClassInstructionSet, context, errorList, isTrace, false, false, this.log);
+        InstructionSetRunner.execute(virClassInstructionSet, context, errorList, isTrace, false, false);
     }
 
     public OperateData callSelfFunction(String functionName, OperateData[] parameters) throws Exception {
@@ -75,8 +71,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             tempContext.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
             operateDataLocalVar.setObject(tempContext, parameters[i].getObject(this.context));
         }
-        Object result = InstructionSetRunner.execute(functionSet, tempContext, null, this.isTrace, false, true,
-            this.log);
+        Object result = InstructionSetRunner.execute(functionSet, tempContext, null, this.isTrace, false, true);
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 
@@ -93,7 +88,7 @@ public class OperateDataVirClass extends OperateDataAttr {
                 this.context.getExpressRunner(), this.context, this.context.getExpressLoader(),
                 this.context.isSupportDynamicFieldName());
             Object result = InstructionSetRunner.execute(this.context.getExpressRunner(), (InstructionSet)o,
-                this.context.getExpressLoader(), tempContext, null, this.isTrace, false, false, this.log,
+                this.context.getExpressLoader(), tempContext, null, this.isTrace, false, false,
                 this.context.isSupportDynamicFieldName());
             if (result instanceof OperateData) {
                 return ((OperateData)result).getObject(this.context);

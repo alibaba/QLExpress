@@ -14,12 +14,9 @@ import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.exception.QLSecurityRiskException;
 import com.ql.util.express.match.QLMatchResult;
 import com.ql.util.express.match.QLPattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class ExpressParse {
 
-    private static final Log log = LogFactory.getLog(ExpressParse.class);
     final NodeTypeManager nodeTypeManager;
     final IExpressResourceLoader expressResourceLoader;
 
@@ -336,13 +333,13 @@ public class ExpressParse {
 
     public Word[] splitWords(String express, boolean isTrace, Map<String, String> selfDefineClass) throws Exception {
         Word[] words = WordSplit.parse(this.nodeTypeManager.splitWord, express);
-        if (isTrace && log.isDebugEnabled()) {
-            log.debug("执行的表达式:" + express);
-            log.debug("单词分解结果:" + WordSplit.getPrintInfo(words, ","));
+        if (isTrace) {
+            System.out.println("执行的表达式:" + express);
+            System.out.println("单词分解结果:" + WordSplit.getPrintInfo(words, ","));
         }
         words = this.dealInclude(words);
-        if (isTrace && log.isDebugEnabled()) {
-            log.debug("预处理后结果:" + WordSplit.getPrintInfo(words, ","));
+        if (isTrace) {
+            System.out.println("预处理后结果:" + WordSplit.getPrintInfo(words, ","));
         }
 
         //提取自定义Class
@@ -366,8 +363,8 @@ public class ExpressParse {
 
         List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage, words, selfDefineClass,
                 !QLExpressRunStrategy.isSandboxMode());
-        if (isTrace && log.isDebugEnabled()) {
-            log.debug("单词分析结果:" + printInfo(tempList, ","));
+        if (isTrace) {
+            System.out.println("单词分析结果:" + printInfo(tempList, ","));
         }
         //比如用在远程配置脚本，本地jvm并不包含这个java类，可以
         if (mockRemoteJavaClass) {
@@ -395,8 +392,8 @@ public class ExpressParse {
                 }
             }
             tempList = tempList2;
-            if (isTrace && log.isDebugEnabled()) {
-                log.debug("修正后单词分析结果:" + printInfo(tempList, ","));
+            if (isTrace) {
+                System.out.println("修正后单词分析结果:" + printInfo(tempList, ","));
             }
         }
 
@@ -418,8 +415,8 @@ public class ExpressParse {
         //为了生成代码时候进行判断，需要设置每个节点的父亲
         resetParent(root, null);
 
-        if (isTrace && log.isDebugEnabled()) {
-            log.debug("最后的语法树:");
+        if (isTrace) {
+            System.out.println("最后的语法树:");
             printTreeNode(root, 1);
         }
         return root;
@@ -436,4 +433,3 @@ public class ExpressParse {
         return stringBuilder.toString();
     }
 }
-

@@ -32,8 +32,6 @@ import com.ql.util.express.parse.ExpressParse;
 import com.ql.util.express.parse.NodeType;
 import com.ql.util.express.parse.NodeTypeManager;
 import com.ql.util.express.parse.Word;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * 语法分析和计算的入口类
@@ -41,7 +39,6 @@ import org.apache.commons.logging.LogFactory;
  * @author xuannan
  */
 public class ExpressRunner {
-    private static final Log log = LogFactory.getLog(ExpressRunner.class);
 
     private static final String GLOBAL_DEFINE_NAME = "全局定义";
 
@@ -127,16 +124,14 @@ public class ExpressRunner {
     }
 
     /**
-     *
      * @param isPrecise
      * @param isTrace
-     * @param cacheMap user can define safe and efficient cache or use default concurrentMap
+     * @param cacheMap  user can define safe and efficient cache or use default concurrentMap
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace,
         Map<String, InstructionSet> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
-
 
     public ExpressRunner(boolean isPrecise, boolean isStrace, NodeTypeManager nodeTypeManager) {
         this(isPrecise, isStrace, new DefaultExpressResourceLoader(), nodeTypeManager);
@@ -157,7 +152,7 @@ public class ExpressRunner {
      * @param isPrecise              是否需要高精度计算支持
      * @param isTrace                是否跟踪执行指令的过程
      * @param iExpressResourceLoader 表达式的资源装载器
-     * @param cacheMap 指令集缓存
+     * @param cacheMap               指令集缓存, 必须是线程安全的集合
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
         NodeTypeManager nodeTypeManager, Map<String, InstructionSet> cacheMap) {
@@ -224,7 +219,6 @@ public class ExpressRunner {
     public IExpressResourceLoader getExpressResourceLoader() {
         return this.expressResourceLoader;
     }
-
 
     /**
      * 添加宏定义
@@ -537,7 +531,8 @@ public class ExpressRunner {
         }
         boolean isExist = this.operatorManager.isExistOperator(realNodeType.getName());
         if (!isExist && errorInfo != null) {
-            throw new QLException("关键字：" + realKeyWordName + "是通过指令来实现的，不能设置错误的提示信息，errorInfo 必须是 null");
+            throw new QLException(
+                "关键字：" + realKeyWordName + "是通过指令来实现的，不能设置错误的提示信息，errorInfo 必须是 null");
         }
         if (!isExist || errorInfo == null) {
             //不需要新增操作符号，只需要建立一个关键子即可
@@ -576,36 +571,14 @@ public class ExpressRunner {
      * @param errorList
      * @param isTrace
      * @param isCatchException
-     * @param log
      * @return
      * @throws Exception
      */
     public Object executeByExpressName(String name, IExpressContext<String, Object> context, List<String> errorList,
-        boolean isTrace, boolean isCatchException, Log log) throws Exception {
+        boolean isTrace, boolean isCatchException) throws Exception {
         return InstructionSetRunner.executeOuter(this, this.loader.getInstructionSet(name), this.loader, context,
-            errorList, isTrace, isCatchException, log, false);
+            errorList, isTrace, isCatchException, false);
     }
-
-    ///**
-    // * 执行指令集(兼容老接口,请不要自己管理指令缓存，直接使用execute(InstructionSet instructionSet,....... )
-    // * 清理缓存可以使用clearExpressCache()函数
-    // *
-    // * @param instructionSets
-    // * @param context
-    // * @param errorList
-    // * @param isTrace
-    // * @param isCatchException
-    // * @param log
-    // * @return
-    // * @throws Exception
-    // * @deprecated
-    // */
-    //@Deprecated
-    //public Object execute(InstructionSet[] instructionSets, IExpressContext<String, Object> context,
-    //    List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
-    //    return InstructionSetRunner.executeOuter(this, instructionSets[0], this.loader, context, errorList,
-    //        isTrace, isCatchException, log, false);
-    //}
 
     /**
      * 执行指令集
@@ -615,14 +588,12 @@ public class ExpressRunner {
      * @param errorList
      * @param isTrace
      * @param isCatchException
-     * @param log
      * @return
      * @throws Exception
      */
     public Object execute(InstructionSet instructionSet, IExpressContext<String, Object> context,
-        List<String> errorList, boolean isTrace, boolean isCatchException, Log log) throws Exception {
-        return InstructionSetRunner.executeOuter(this, instructionSet, this.loader, context, errorList,
-            isTrace, isCatchException, log, false);
+        List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
+        return executeReentrant(instructionSet, context, errorList, isTrace, isCatchException);
     }
 
     /**
@@ -642,7 +613,7 @@ public class ExpressRunner {
         //设置超时毫秒时间
         QLExpressTimer.setTimer(timeoutMillis);
         try {
-            return this.execute(expressString, context, errorList, isCache, isTrace, null);
+            return this.execute(expressString, context, errorList, isCache, isTrace);
         } finally {
             QLExpressTimer.reset();
         }
@@ -661,48 +632,38 @@ public class ExpressRunner {
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
         boolean isCache, boolean isTrace) throws Exception {
-        return this.execute(expressString, context, errorList, isCache, isTrace, null);
-    }
-
-    /**
-     * 执行一段文本
-     *
-     * @param expressString 程序文本
-     * @param context       执行上下文
-     * @param errorList     输出的错误信息List
-     * @param isCache       是否使用Cache中的指令集
-     * @param isTrace       是否输出详细的执行指令信息
-     * @param log           输出的log
-     * @return
-     * @throws Exception
-     */
-    public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
-        boolean isCache, boolean isTrace, Log log) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
             parseResult = expressInstructionSetCache.get(expressString);
             if (parseResult == null) {
-                expressInstructionSetCache.putIfAbsent(expressString,
-                    parseResult = this.parseInstructionSet(expressString));
+                synchronized (expressInstructionSetCache) {
+                    // 防止在第一次执行时多次计算 parseInstructionSet, 所以需要加锁
+                    // 可以优化成分段锁, 而不是锁整个 cache, 进一步优化可以使用定制的 concurrentMap
+                    parseResult = expressInstructionSetCache.get(expressString);
+                    if (parseResult == null) {
+                        expressInstructionSetCache.put(expressString,
+                            parseResult = this.parseInstructionSet(expressString));
+                    }
+                }
             }
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
-        return executeReentrant(parseResult, context, errorList, isTrace, log);
+        return executeReentrant(parseResult, context, errorList, isTrace, false);
     }
 
     private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> iExpressContext,
-        List<String> errorList, boolean isTrace, Log log) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
         try {
             int reentrantCount = threadReentrantCount.get() + 1;
             threadReentrantCount.set(reentrantCount);
 
             return reentrantCount > 1 ?
                 // 线程重入
-                InstructionSetRunner.execute(this, sets, this.loader, iExpressContext, errorList, isTrace, false, true,
-                    log, false) :
-                InstructionSetRunner.executeOuter(this, sets, this.loader, iExpressContext, errorList, isTrace, false,
-                    log, false);
+                InstructionSetRunner.execute(this, sets, this.loader, iExpressContext, errorList, isTrace,
+                    isCatchException, true, false) :
+                InstructionSetRunner.executeOuter(this, sets, this.loader, iExpressContext, errorList, isTrace,
+                    isCatchException, false);
         } finally {
             threadReentrantCount.set(threadReentrantCount.get() - 1);
         }
@@ -726,8 +687,8 @@ public class ExpressRunner {
 
             ExpressNode root = this.parse.parse(this.rootExpressPackage, text, isTrace, selfDefineClass);
             InstructionSet result = createInstructionSet(root, "main");
-            if (this.isTrace && log.isDebugEnabled()) {
-                log.debug(result);
+            if (this.isTrace) {
+                System.out.println(result);
             }
             return result;
         } catch (QLCompileException e) {
@@ -756,7 +717,8 @@ public class ExpressRunner {
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
         InstructionSet parseResult = expressInstructionSetCache.get(expressString);
         if (parseResult == null) {
-            expressInstructionSetCache.putIfAbsent(expressString, parseResult = this.parseInstructionSet(expressString));
+            expressInstructionSetCache.putIfAbsent(expressString,
+                parseResult = this.parseInstructionSet(expressString));
         }
         return parseResult;
     }
@@ -846,15 +808,14 @@ public class ExpressRunner {
             ExpressNode root = this.parse.parse(this.rootExpressPackage, words, text, isTrace, selfDefineClass,
                 mockRemoteJavaClass);
             InstructionSet result = createInstructionSet(root, "main");
-            if (this.isTrace && log.isDebugEnabled()) {
-                log.debug(result);
+            if (this.isTrace) {
+                System.out.println(result);
             }
             if (mockRemoteJavaClass && remoteJavaClassNames != null) {
                 remoteJavaClassNames.addAll(Arrays.asList(result.getVirClasses()));
             }
             return true;
         } catch (Exception e) {
-            log.error("checkSyntax has Exception", e);
             return false;
         }
     }

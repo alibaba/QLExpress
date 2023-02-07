@@ -21,7 +21,7 @@ public class AClassDefineSingleTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         expressRunner.loadMultiExpress("", expressDefine);
         expressRunner.loadMultiExpress("ClassTest", express);
-        Object result = expressRunner.executeByExpressName("ClassTest", context, null, true, false, null);
+        Object result = expressRunner.executeByExpressName("ClassTest", context, null, true, false);
         System.out.println("result = " + result);
     }
 }

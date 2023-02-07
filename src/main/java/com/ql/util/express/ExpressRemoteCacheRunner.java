@@ -2,8 +2,6 @@ package com.ql.util.express;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-
 /**
  * 远程缓存对象
  *
@@ -25,14 +23,14 @@ public abstract class ExpressRemoteCacheRunner {
     }
 
     public Object execute(String name, IExpressContext<String, Object> context, List<String> errorList, boolean isTrace,
-        boolean isCatchException, Log log) {
+        boolean isCatchException) {
         try {
             CacheObject cache = (CacheObject)this.getCache(name);
             if (cache == null) {
                 throw new RuntimeException("未获取到缓存对象.");
             }
             ExpressRunner expressRunner = getExpressRunner();
-            return expressRunner.execute(cache.getInstructionSet(), context, errorList, isTrace, isCatchException, log);
+            return expressRunner.execute(cache.getInstructionSet(), context, errorList, isTrace, isCatchException);
         } catch (Exception e) {
             throw new RuntimeException("获取缓存信息，并且执行指令集出现错误.", e);
         }
@@ -61,5 +59,3 @@ public abstract class ExpressRemoteCacheRunner {
      */
     public abstract void putCache(String key, Object object);
 }
-
-

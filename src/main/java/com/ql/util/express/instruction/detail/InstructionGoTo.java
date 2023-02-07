@@ -17,9 +17,6 @@ public class InstructionGoTo extends Instruction {
 
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) {
-        if (environment.isTrace() && log.isDebugEnabled()) {
-            log.debug(this);
-        }
         environment.gotoWithOffset(this.offset);
     }
 

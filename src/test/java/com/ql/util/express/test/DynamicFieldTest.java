@@ -7,13 +7,10 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
 import com.ql.util.express.InstructionSetRunner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DynamicFieldTest {
-    private static final Log log = LogFactory.getLog(DynamicFieldTest.class);
 
     @Test
     public void testField() throws Exception {
@@ -28,7 +25,7 @@ public class DynamicFieldTest {
         Map<String, Object> fee = new HashMap<>();
         context.put("费用", fee);
         InstructionSet set = runner.parseInstructionSet(express);
-        InstructionSetRunner.executeOuter(runner, set, null, context, null, true, false, null, true);
+        InstructionSetRunner.executeOuter(runner, set, null, context, null, true, false, true);
         runner.execute(express, context, null, false, true);
         System.out.println(context.get("费用"));
         Assert.assertEquals("动态属性错误", "100", fee.get("张三").toString());
@@ -41,8 +38,7 @@ public class DynamicFieldTest {
         runner.loadExpress("testFunctionParameterType");
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("auctionUtil", new BeanExample());
-        context.put("log", log);
-        Object r = runner.executeByExpressName("testFunctionParameterType", context, null, false, false, null);
+        Object r = runner.executeByExpressName("testFunctionParameterType", context, null, false, false);
         System.out.println(r);
         System.out.println(context);
     }

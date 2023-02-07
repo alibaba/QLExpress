@@ -70,14 +70,14 @@ public class ExpressCacheTest {
         context.put("数学", 99);
         context.put("英语", 95);
         //ExpressRemoteCacheRunner都只能执行自己原有的脚本内容，而且相互之间隔离，保证最高的脚本安全性
-        echo(cacheRunner.execute("计算平均成绩", context, null, false, false, null));
+        echo(cacheRunner.execute("计算平均成绩", context, null, false, false));
         try {
-            echo(cacheRunner.execute("计算平均成绩>90", context, null, false, false, null));
+            echo(cacheRunner.execute("计算平均成绩>90", context, null, false, false));
         } catch (Exception e) {
             echo("ExpressRemoteCacheRunner只支持预先加载的脚本内容");
         }
         try {
-            echo(cacheRunner.execute("是否优秀", context, null, false, false, null));
+            echo(cacheRunner.execute("是否优秀", context, null, false, false));
         } catch (Exception e) {
             echo("ExpressRemoteCacheRunner不支持脚本间的相互调用");
         }

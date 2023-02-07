@@ -20,7 +20,7 @@ QLExpress脚本引擎被广泛应用在阿里的电商业务场景，具有以�
 <dependency>
   <groupId>com.alibaba</groupId>
   <artifactId>QLExpress</artifactId>
-  <version>3.3.0</version>
+  <version>3.3.1</version>
 </dependency>
 ```
 
@@ -371,7 +371,7 @@ private boolean isTrace = false;
  * @return
  * @throws Exception
  */
-Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList, boolean isCache, boolean isTrace, Log aLog);
+Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList, boolean isCache, boolean isTrace);
 ```
 
 ## 3、功能扩展API列表
@@ -809,6 +809,27 @@ assertEquals("t", expressRunner.execute("test.a", context,
                                         null, false, true));
 ```
 
+在沙箱模式下，为了进一步保障内存的安全，建议同时限制脚本能够申请的最大数组长度以及超时时间，设置方法如下：
+
+`com.ql.util.express.test.ArrayLenCheckTest`
+
+```java
+// 限制最大申请数组长度为10, 默认没有限制
+QLExpressRunStrategy.setMaxArrLength(10);
+ExpressRunner runner = new ExpressRunner();
+String code = "byte[] a = new byte[11];";
+try {
+    // 20ms 超时时间
+    runner.execute(code, new DefaultContext<>(), null, false, false, 20);
+    Assert.fail();
+} catch (QLException e) {
+}
+
+QLExpressRunStrategy.setMaxArrLength(-1);
+// 20ms 超时时间
+runner.execute(code, new DefaultContext<>(), null, false, false, 20);
+```
+
 附录：
 [版本更新列表](VERSIONS.md)
 
@@ -816,4 +837,3 @@ assertEquals("t", expressRunner.execute("test.a", context,
 -  Gitter channel - Online chat room with QLExpress developers. [Gitter channel ](https://gitter.im/QLExpress/Lobby)
 -  email:tianqiao@alibaba-inc.com,baoxingjie@126.com
 -  wechart:371754252
--  QLExpress blogs: https://yq.aliyun.com/album/130

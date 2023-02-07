@@ -5,13 +5,11 @@ import java.util.List;
 
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
-import com.ql.util.express.match.QLPattern;
 import org.junit.Test;
 
 public class CompileMemoryTest {
     @Test
     public void test() throws Exception {
-        QLPattern.printStackDepth = true;
         List<String> expressList = new ArrayList<>();
 
         String demo = "fieldList = formDO.getFieldList();\n" +
@@ -123,6 +121,5 @@ public class CompileMemoryTest {
             InstructionSet result2 = runner2.parseInstructionSet(express);
             System.out.println(express + " 编译结果如下:\n" + result2);
         }
-        QLPattern.printStackDepth = false;
     }
 }
