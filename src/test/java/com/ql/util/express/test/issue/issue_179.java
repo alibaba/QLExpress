@@ -173,4 +173,44 @@ public class issue_179 extends IssueBase {
         Object result = execute(script, context);
         Assert.assertTrue((Boolean)result);
     }
+
+    @Test
+    public void test22() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test23() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%%%%%%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test24() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%%%%%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test25() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%%E%%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
+
+    @Test
+    public void test26() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%%E%D'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
 }
