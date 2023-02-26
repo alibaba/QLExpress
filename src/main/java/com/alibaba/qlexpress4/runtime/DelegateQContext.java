@@ -35,11 +35,6 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public int getBaseIndex() {
-        return qScope.getBaseIndex();
-    }
-
-    @Override
     public Value getSymbol(String varName) {
         return qScope.getSymbol(varName);
     }
@@ -95,32 +90,8 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
-        return qScope = qScope.newScope(exceptionTable, baseIndex);
-    }
-
-    @Override
-    public int absoluteJump(int relativeJump) {
-        return relativeJump + qScope.getBaseIndex();
-    }
-
-    @Override
-    public Integer toHandlerScope(Object catchObj, QScope until) {
-        while (true) {
-            Integer relativePos = qScope.exceptionTable().getRelativePos(catchObj);
-            if (relativePos != null) {
-                return relativePos + qScope.getBaseIndex();
-            }
-            if (qScope == until) {
-                return null;
-            }
-            closeScope();
-        }
-    }
-
-    @Override
-    public ExceptionTable exceptionTable() {
-        return qScope.exceptionTable();
+    public QScope newScope() {
+        return qScope = qScope.newScope();
     }
 
     @Override

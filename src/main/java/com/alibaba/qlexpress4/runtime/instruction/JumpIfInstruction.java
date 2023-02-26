@@ -32,7 +32,7 @@ public class JumpIfInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object condition = qContext.peek().get();
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("CONDITION_EXPECT_BOOL",
@@ -54,7 +54,7 @@ public class JumpIfInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "JumpIf " + expect + " " + position, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "JumpIf " + expect + " " + position, debug);
     }
 }

@@ -11,11 +11,6 @@ import java.util.Map;
  */
 public class QvmBlockScope implements QScope {
 
-    /**
-     * base instruction index
-     */
-    private final int baseIndex;
-
     private final QScope parent;
 
     private final Map<String, Value> symbolTable;
@@ -29,12 +24,11 @@ public class QvmBlockScope implements QScope {
 
     public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, int maxStackSize,
                          ExceptionTable exceptionTable) {
-        this(0, parent, symbolTable, new FixedSizeStack(maxStackSize), exceptionTable);
+        this(parent, symbolTable, new FixedSizeStack(maxStackSize), exceptionTable);
     }
 
-    public QvmBlockScope(int baseIndex, QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
+    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
                          ExceptionTable exceptionTable) {
-        this.baseIndex = baseIndex;
         this.parent = parent;
         // TODO: 优化成 fixedArrayMap
         this.symbolTable = symbolTable;
@@ -42,11 +36,6 @@ public class QvmBlockScope implements QScope {
         this.functionTable = new HashMap<>();
         this.opStack = reuseStack;
         this.exceptionTable = exceptionTable;
-    }
-
-    @Override
-    public int getBaseIndex() {
-        return baseIndex;
     }
 
     @Override
@@ -97,13 +86,8 @@ public class QvmBlockScope implements QScope {
     }
 
     @Override
-    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
-        return new QvmBlockScope(baseIndex, this, new HashMap<>(), opStack, exceptionTable);
-    }
-
-    @Override
-    public ExceptionTable exceptionTable() {
-        return exceptionTable;
+    public QScope newScope() {
+        return new QvmBlockScope(this, new HashMap<>(), opStack, exceptionTable);
     }
 
 }

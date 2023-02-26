@@ -1,10 +1,6 @@
 package com.alibaba.qlexpress4.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.alibaba.qlexpress4.exception.DefaultErrorReporter;
@@ -37,9 +33,19 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     private static final String SHORT_CIRCUIT = "SHORT_CIRCUIT";
     private static final String TERNARY = "TERNARY";
 
-    public enum Context {
+    /**
+     * context which will propagate to children
+     */
+    public enum PropagateContext {
         // recursive and cover each other
         BLOCK, LOOP, MACRO
+    }
+
+    /**
+     * context which only valid in current scope
+     */
+    public enum TempContext {
+        BLOCK, FINALLY
     }
 
     private final String prefix;
@@ -50,12 +56,12 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     private final List<QLInstruction> instructionList = new ArrayList<>();
 
-    private final Context context;
+    private final PropagateContext context;
 
     /**
-     * true when generate embed instructions
+     * Nullable
      */
-    private final boolean embed;
+    private final TempContext tempContext;
 
     private int stackSize;
 
@@ -73,17 +79,17 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         this.operatorManager = operatorManager;
         this.prefix = prefix;
         this.script = script;
-        this.context = Context.BLOCK;
-        this.embed = false;
+        this.context = PropagateContext.BLOCK;
+        this.tempContext = null;
     }
 
-    public QvmInstructionGenerator(OperatorManager operatorManager, String prefix, String script, Context context,
-                                   boolean embed) {
+    public QvmInstructionGenerator(OperatorManager operatorManager, String prefix, String script, PropagateContext context,
+                                   TempContext tempContext) {
         this.operatorManager = operatorManager;
         this.prefix = prefix;
         this.script = script;
         this.context = context;
-        this.embed = embed;
+        this.tempContext = tempContext;
     }
 
     @Override
@@ -102,7 +108,9 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
             }
             preStmt = handleStmt(stmt, generatorScope);
         }
-        if (embed) {
+        if (tempContext == TempContext.FINALLY) {
+            return null;
+        } else if (tempContext == TempContext.BLOCK) {
             if (preStmt instanceof Expr || preStmt instanceof ReturnStmt || preStmt instanceof Break ||
                     preStmt instanceof Continue) {
                 return null;
@@ -112,13 +120,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                             preStmt == null? stmtList: preStmt
                     ), null)
             );
-        } else if (context == Context.BLOCK) {
+        } else if (context == PropagateContext.BLOCK) {
             if (preStmt instanceof Expr) {
                 addInstruction(
-                        new ReturnInstruction(newReporterByNode(preStmt), QResult.ResultType.RETURN)
+                        new ReturnInstruction(newReporterByNode(preStmt), QResult.ResultType.IMPLICIT_RETURN)
                 );
             }
-        } else if (context == Context.LOOP) {
+        } else if (context == PropagateContext.LOOP) {
             if (preStmt instanceof ReturnStmt || preStmt instanceof Break || preStmt instanceof Continue) {
                 return null;
             }
@@ -143,7 +151,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     }
 
     private void checkBreakContinueInLoop(QLInstruction qlInstruction) {
-        if (qlInstruction instanceof BreakContinueInstruction && context != Context.LOOP) {
+        if (qlInstruction instanceof BreakContinueInstruction && context != PropagateContext.LOOP) {
             throw qlInstruction.getErrorReporter().reportFormat(QLErrorCodes.BREAK_CONTINUE_OUTSIDE_LOOP.name(),
                     QLErrorCodes.BREAK_CONTINUE_OUTSIDE_LOOP.getErrorMsg());
         }
@@ -198,7 +206,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     public Void visit(Block block, GeneratorScope generatorScope) {
         String blockScopeName = blockScopeName();
         ErrorReporter blockErrReporter = newReporterByNode(block);
-        addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName, ExceptionTable.EMPTY));
+        addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName));
 
         List<QLInstruction> blockInstructions = generateNodeInstructionsEmbed(blockScopeName,
                 toStmtList(block), new GeneratorScope(generatorScope)).getInstructions();
@@ -280,7 +288,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                 toStmtList(forEachStmt.getBody()), generatorScope,
                 Collections.singletonList(
                         new QLambdaDefinitionInner.Param(itVar.getVariable().getId(), itVarClas)
-                ), Context.LOOP);
+                ), PropagateContext.LOOP);
         addInstruction(new ForEachInstruction(forEachErrReporter, bodyLambda,
                 itVarClas, newReporterByNode(forEachStmt.getTarget())
         ));
@@ -311,7 +319,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         // for body
         QLambdaDefinitionInner forBodyLambda = generateLambdaNewScopeContext(
                 prefix + FOR_LAMBDA_NAME_PREFIX + forCount + BODY_SUFFIX,
-                toStmtList(forStmt.getBody()), generatorScope, Context.LOOP);
+                toStmtList(forStmt.getBody()), generatorScope, PropagateContext.LOOP);
 
         int forInitSize = forInitLambda == null? 0: forInitLambda.getMaxStackSize();
         int forConditionSize = forConditionLambda == null? 0: forConditionLambda.getMaxStackSize();
@@ -366,8 +374,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
         ErrorReporter ifErrorReporter = newReporterByNode(ifExpr);
         String ifScopeName = prefix + IF_LAMBDA_PREFIX + ifCount;
-        addInstruction(new NewScopeInstruction(ifErrorReporter, ifScopeName,
-                ExceptionTable.EMPTY));
+        addInstruction(new NewScopeInstruction(ifErrorReporter, ifScopeName));
 
         // then body
         List<QLInstruction> thenInstructionList = generateNodeInstructionsEmbed(
@@ -388,14 +395,10 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions,
                                     List<QLInstruction> elseInstructions) {
         addInstruction(new JumpIfPopInstruction(conditionReporter, false,
-                jumpBase() + thenInstructions.size() + 1));
+                thenInstructions.size() + 1));
         thenInstructions.forEach(this::addInstruction);
-        addInstruction(new JumpInstruction(conditionReporter, jumpBase() + elseInstructions.size()));
+        addInstruction(new JumpInstruction(conditionReporter, elseInstructions.size()));
         elseInstructions.forEach(this::addInstruction);
-    }
-
-    private int jumpBase() {
-        return instructionList.size();
     }
 
     @Override
@@ -430,6 +433,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(NewArrayExpr newArrayExpr, GeneratorScope context) {
         newArrWithExprs(newArrayExpr, newArrayExpr.getClz(), newArrayExpr.getValues(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(ThrowStmt throwStmt, GeneratorScope context) {
+        throwStmt.getExpr().accept(this, context);
+        addInstruction(new ThrowInstruction(newReporterByNode(throwStmt)));
         return null;
     }
 
@@ -505,7 +515,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     @Override
     public Void visit(MacroStmt macroStmt, GeneratorScope generatorScope) {
         NodeInstructions macroInstructions = generateNodeInstructions(macroLambdaName(),
-            macroStmt.getBody().getStmtList(), generatorScope, Context.MACRO, false);
+            macroStmt.getBody().getStmtList(), generatorScope, PropagateContext.MACRO, null);
         List<Stmt> macroStmtList = macroStmt.getBody().getStmtList().getStmts();
         Stmt macroLastStmt = macroStmtList.isEmpty()? macroStmt: macroStmtList.get(macroStmtList.size() - 1);
         generatorScope.defineMacro(macroStmt.getName().getId(),
@@ -575,8 +585,9 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         QLambdaDefinition bodyLambda = generateLambdaNewScope(prefix + TRY_LAMBDA_PREFIX + tryCount,
             toStmtList(tryCatchExpr.getBody()), generatorScope);
 
-        Map<Class<?>, QLambdaDefinition> exceptionTable = new HashMap<>();
-        for (int catchCount = 0; catchCount < tryCatchExpr.getTryCatch().size(); catchCount++) {
+        int catchSize = tryCatchExpr.getTryCatch().size();
+        List<Map.Entry<Class<?>, QLambdaDefinition>> exceptionTable = new ArrayList<>(catchSize);
+        for (int catchCount = 0; catchCount < catchSize; catchCount++) {
             TryCatch.CatchClause tryCatch = tryCatchExpr.getTryCatch().get(catchCount);
             String eName = tryCatch.getVariable().getId();
             String lambdaName = prefix + TRY_LAMBDA_PREFIX + catchCount + CATCH_SUFFIX;
@@ -588,7 +599,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
                 QLambdaDefinition exceptionHandlerDefinition = new QLambdaDefinitionInner(lambdaName,
                     catchBody.getInstructions(), Collections.singletonList(eParam),
                     catchBody.getMaxStackSize());
-                exceptionTable.put(exceptionType.getClz(), exceptionHandlerDefinition);
+                exceptionTable.add(new AbstractMap.SimpleEntry<>(exceptionType.getClz(), exceptionHandlerDefinition));
             }
         }
 
@@ -613,7 +624,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
         QLambdaDefinitionInner conditionLambda = generateLambda(prefix + WHILE_PREFIX + whileCount + CONDITION_SUFFIX,
             toStmtList(whileStmt.getCondition()), generatorScope);
         QLambdaDefinition bodyLambda = generateLambdaNewScopeContext(prefix + WHILE_PREFIX + whileCount + BODY_SUFFIX,
-            toStmtList(whileStmt.getBody()), generatorScope, Context.LOOP);
+            toStmtList(whileStmt.getBody()), generatorScope, PropagateContext.LOOP);
         addInstruction(new WhileInstruction(newReporterByNode(whileStmt), conditionLambda, bodyLambda));
         // condition lambda run in current scope
         expandStackSize(conditionLambda.getMaxStackSize());
@@ -663,16 +674,16 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
     }
 
     private QLambdaDefinitionInner generateLambdaNewScopeContext(String name, StmtList stmtList, GeneratorScope generatorScope,
-                                                     List<QLambdaDefinitionInner.Param> paramsType, Context context) {
+                                                     List<QLambdaDefinitionInner.Param> paramsType, PropagateContext context) {
         NodeInstructions nodeInstructions = generateNodeInstructions(name, stmtList,
-                new GeneratorScope(generatorScope), context, false);
+                new GeneratorScope(generatorScope), context, null);
         return new QLambdaDefinitionInner(name, nodeInstructions.getInstructions(), paramsType,
                 nodeInstructions.getMaxStackSize());
     }
 
     private QLambdaDefinitionInner generateLambdaNewScopeContext(String name, StmtList stmtList,
                                                           GeneratorScope generatorScope,
-                                                          Context context) {
+                                                          PropagateContext context) {
         return generateLambdaNewScopeContext(name, stmtList, generatorScope, Collections.emptyList(), context);
     }
 
@@ -690,7 +701,7 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     private NodeInstructions generateNodeInstructionsEmbed(String name, StmtList stmtList,
                                                            GeneratorScope generatorScope) {
-        return generateNodeInstructions(name, stmtList, generatorScope, context, true);
+        return generateNodeInstructions(name, stmtList, generatorScope, context, TempContext.BLOCK);
     }
 
     private NodeInstructions generateNodeInstructionsNewScope(String name, StmtList stmtList,
@@ -700,13 +711,13 @@ public class QvmInstructionGenerator implements QLProgramVisitor<Void, Generator
 
     private NodeInstructions generateNodeInstructions(String name, StmtList stmtList,
         GeneratorScope generatorScope) {
-        return generateNodeInstructions(name, stmtList, generatorScope, context,false);
+        return generateNodeInstructions(name, stmtList, generatorScope, context,null);
     }
 
     private NodeInstructions generateNodeInstructions(String name, StmtList stmtList, GeneratorScope generatorScope,
-                                                      Context context, boolean embed) {
+                                                      PropagateContext context, TempContext tempContext) {
         QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager,
-                name + "_", script, context, embed);
+                name + "_", script, context, tempContext);
         stmtList.accept(qvmInstructionGenerator, generatorScope);
         return new NodeInstructions(qvmInstructionGenerator.getInstructionList(),
                 qvmInstructionGenerator.getMaxStackSize());

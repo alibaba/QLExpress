@@ -28,7 +28,7 @@ public class UnaryInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Value value = qContext.pop();
         Object result = unaryOperator.execute(value, errorReporter);
         qContext.push(new DataValue(result));
@@ -46,7 +46,7 @@ public class UnaryInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "UnaryOp " + unaryOperator.getOperator(), debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "UnaryOp " + unaryOperator.getOperator(), debug);
     }
 }

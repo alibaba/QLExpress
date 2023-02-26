@@ -28,7 +28,7 @@ public class OperatorInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Value rightValue = qContext.pop();
         Value leftValue = qContext.pop();
         Object result = operator.execute(leftValue, rightValue, errorReporter);
@@ -47,7 +47,7 @@ public class OperatorInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "Operator " + operator.getOperator(), debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Operator " + operator.getOperator(), debug);
     }
 }

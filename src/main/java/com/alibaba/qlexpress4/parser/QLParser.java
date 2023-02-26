@@ -77,6 +77,12 @@ public class QLParser {
     protected Stmt statement(ContextType contextType) {
         if (matchTypeAndAdvance(TokenType.SEMI)) {
             return new EmptyStmt(pre);
+        } else if (matchKeyWordAndAdvance(KeyWordsSet.THROW)) {
+            Token keyToken = this.pre;
+            Expr expr = expr(contextType);
+            advanceOrReportError(TokenType.SEMI, "STATEMENT_MUST_END_WITH_SEMI",
+                    "statement must end with ';'");
+            return new ThrowStmt(keyToken, expr);
         } else if (matchKeyWordAndAdvance(KeyWordsSet.WHILE)) {
             // while
             return whileStmt();
@@ -117,7 +123,7 @@ public class QLParser {
         }
     }
 
-    protected TryCatch tryCatchStmt(ContextType contextType) {
+    protected TryCatch tryCatch(ContextType contextType) {
         Token tryToken = pre;
         advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_DECLARE",
                 "expect '{' in try declaration");
@@ -132,7 +138,7 @@ public class QLParser {
             catchClauses.add(catchClause(contextType));
         }
 
-        if (matchKeyWordAndAdvance(KeyWordsSet.FINAL)) {
+        if (matchKeyWordAndAdvance(KeyWordsSet.FINALLY)) {
             advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_FINAL_DECLARE",
                     "expect '{' in try...final... declaration");
             return new TryCatch(tryToken, body, block(contextType), catchClauses);

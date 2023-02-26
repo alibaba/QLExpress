@@ -30,7 +30,7 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         QFunction function = qContext.getFunction(functionName);
         if (function == null) {
             callLambda(qContext, qlOptions);
@@ -50,8 +50,13 @@ public class CallFunctionInstruction extends QLInstruction {
 
     private void callLambda(QContext qContext, QLOptions qlOptions) {
         Object lambdaSymbol = qContext.getSymbolValue(functionName);
-        if (lambdaSymbol == null && qlOptions.isAvoidNullPointer()) {
-            qContext.push(DataValue.NULL_VALUE);
+        if (lambdaSymbol == null) {
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+            } else {
+                throw errorReporter.report(new NullPointerException(), "CALL_FUNCTION_FROM_NULL",
+                        "can not call function from null" + functionName);
+            }
             return;
         }
         if (!(lambdaSymbol instanceof QLambda)) {
@@ -85,7 +90,7 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "CallFunction " + functionName + " " + argNum, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "CallFunction " + functionName + " " + argNum, debug);
     }
 }

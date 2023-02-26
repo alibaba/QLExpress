@@ -24,7 +24,7 @@ public abstract class QLInstruction {
         this.errorReporter = errorReporter;
     }
 
-    public abstract QResult execute(int index, QContext qContext, QLOptions qlOptions);
+    public abstract QResult execute(QContext qContext, QLOptions qlOptions);
 
     /**
      * @return input size
@@ -36,7 +36,7 @@ public abstract class QLInstruction {
      */
     public abstract int stackOutput();
 
-    public abstract void println(int index, int depth, Consumer<String> debug);
+    public abstract void println(int depth, Consumer<String> debug);
 
     public ErrorReporter getErrorReporter() {
         return errorReporter;

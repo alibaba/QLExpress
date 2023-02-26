@@ -25,7 +25,7 @@ public class BreakContinueInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         return result;
     }
 
@@ -40,8 +40,8 @@ public class BreakContinueInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
+    public void println(int depth, Consumer<String> debug) {
         String breakContinue = result == QResult.LOOP_BREAK_RESULT? "Break": "Continue";
-        PrintlnUtils.printlnByCurDepth(index, depth, breakContinue, debug);
+        PrintlnUtils.printlnByCurDepth(depth, breakContinue, debug);
     }
 }

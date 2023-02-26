@@ -53,7 +53,7 @@ public class ForInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         // TODO: map 容量根据编译时变量数目决定
         QContext forScopeContext = needForScope()? new DelegateQContext(qContext,
                 new QvmBlockScope(qContext, new HashMap<>(1),
@@ -131,21 +131,21 @@ public class ForInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "For", debug);
-        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Init", debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "For", debug);
+        PrintlnUtils.printlnByCurDepth(depth + 1, "Init", debug);
         if (forInit != null) {
             forInit.println(depth + 2, debug);
         }
-        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Condition", debug);
+        PrintlnUtils.printlnByCurDepth(depth + 1, "Condition", debug);
         if (condition != null) {
             condition.println(depth + 2, debug);
         }
-        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Update", debug);
+        PrintlnUtils.printlnByCurDepth(depth + 1, "Update", debug);
         if (forUpdate != null) {
             forUpdate.println(depth + 2, debug);
         }
-        PrintlnUtils.printlnByCurDepth(index, depth + 1, "Body", debug);
+        PrintlnUtils.printlnByCurDepth(depth + 1, "Body", debug);
         forBody.println(depth + 2, debug);
     }
 }

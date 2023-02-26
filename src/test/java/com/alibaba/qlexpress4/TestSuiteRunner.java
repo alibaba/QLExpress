@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/macro/macro.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/trycatch/ql_npe.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

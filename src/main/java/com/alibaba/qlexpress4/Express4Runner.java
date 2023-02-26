@@ -177,13 +177,12 @@ public class Express4Runner {
             program.accept(astPrinter, null);
         }
 
-        QvmInstructionGeneratorV2 qvmInstructionGenerator = new QvmInstructionGeneratorV2(script, operatorManager,
-                new GeneratorScopeV2(null, GeneratorScopeV2.ScopeType.FUNCTION), "ROOT");
-        QList<QLInstruction> instructions = program.accept(qvmInstructionGenerator, null);
+        QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
+        program.accept(qvmInstructionGenerator, new GeneratorScope(null));
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
-                instructions.toArray(new QLInstruction[qvmInstructionGenerator.getInstructionSize()]),
-                Collections.emptyList(), qvmInstructionGenerator.getMaxStackSize());
+                qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
+                qvmInstructionGenerator.getMaxStackSize());
         if (qlOptions.isDebug()) {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());

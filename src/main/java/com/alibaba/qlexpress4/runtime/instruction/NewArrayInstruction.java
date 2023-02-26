@@ -34,7 +34,7 @@ public class NewArrayInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object array = Array.newInstance(clz, length);
         Parameters initItems = qContext.pop(length);
         for (int i = 0; i < initItems.size(); i++) {
@@ -60,8 +60,7 @@ public class NewArrayInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth,
-                "NewArray with length " + length, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "NewArray with length " + length, debug);
     }
 }

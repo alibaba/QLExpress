@@ -30,7 +30,7 @@ public class IndexInstruction extends QLInstruction {
 
     @SuppressWarnings("unchecked")
     @Override
-    public QResult execute(int ignore, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object index = qContext.pop().get();
         Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
@@ -70,8 +70,8 @@ public class IndexInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "Index", debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Index", debug);
     }
 
     private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {

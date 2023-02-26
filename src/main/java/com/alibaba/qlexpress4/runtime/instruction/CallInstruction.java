@@ -28,16 +28,21 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
-        if (bean == null && qlOptions.isAvoidNullPointer()) {
-            qContext.push(DataValue.NULL_VALUE);
-            return QResult.NEXT_INSTRUCTION;
+        if (bean == null) {
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+                return QResult.NEXT_INSTRUCTION;
+            } else {
+                throw this.errorReporter.report(new NullPointerException(), "NULL_NOT_CALLABLE",
+                        "null is not callable");
+            }
         }
         if (!(bean instanceof QLambda)) {
             throw this.errorReporter.report("OBJECT_NOT_CALLABLE",
-                    "left side is not callable object");
+                    "left side is not callable");
         }
         Object[] params = new Object[this.argNum];
         for (int i = 0; i < this.argNum; i++) {
@@ -66,7 +71,7 @@ public class CallInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "Call with argNum " + argNum, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Call with argNum " + argNum, debug);
     }
 }

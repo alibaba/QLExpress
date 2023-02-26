@@ -70,7 +70,9 @@ public class KeyWordsSet {
 
     public static final String CATCH = "catch";
 
-    public static final String FINAL = "final";
+    public static final String FINALLY = "finally";
+
+    public static final String THROW = "throw";
 
     // unuseful now, but reserve them for future
     public static final String CLASS = "class";
@@ -112,7 +114,8 @@ public class KeyWordsSet {
             case SUPER:
             case TRY:
             case CATCH:
-            case FINAL:
+            case FINALLY:
+            case THROW:
                 return true;
             default:
                 return false;

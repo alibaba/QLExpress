@@ -14,6 +14,7 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Consumer;
@@ -40,7 +41,7 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         // TODO: 数组遍历优化
@@ -56,7 +57,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
+            throw errorReporter.report(new NullPointerException(),
+                    "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         QLCaches qlCaches = qContext.getQLCaches();
         QLImplicitMethod implicitMethod = bean instanceof MetaClass?
@@ -73,8 +75,11 @@ public class MethodInvokeInstruction extends QLInstruction {
                     (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);
-        }catch (Exception e){
-            throw errorReporter.report("GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
+        } catch (InvocationTargetException e) {
+            throw errorReporter.report(e.getTargetException(), "METHOD_INNER_EXCEPTION", "method inner exception");
+        } catch (Exception e) {
+            //TODO: 测试会走到这里的情况
+            throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
         }
         return QResult.NEXT_INSTRUCTION;
     }
@@ -90,9 +95,8 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth,
-                "MethodInvoke " + methodName + " with argNum " + argNum, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "MethodInvoke " + methodName + " with argNum " + argNum, debug);
     }
 
     public QLImplicitMethod getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){

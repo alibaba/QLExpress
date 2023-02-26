@@ -91,17 +91,7 @@ public class QvmGlobalScope implements QScope {
     }
 
     @Override
-    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ExceptionTable exceptionTable() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getBaseIndex() {
+    public QScope newScope() {
         throw new UnsupportedOperationException();
     }
 }

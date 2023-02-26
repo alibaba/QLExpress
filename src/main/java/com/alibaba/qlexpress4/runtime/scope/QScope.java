@@ -7,8 +7,6 @@ import com.alibaba.qlexpress4.runtime.*;
  */
 public interface QScope {
 
-    int getBaseIndex();
-
     /**
      * get assignable symbol variable by name
      * @param varName variable name
@@ -79,14 +77,7 @@ public interface QScope {
     QScope getParent();
 
     /**
-     * @param exceptionTable catch exception in this scope
-     * @param baseIndex scope jump base index
      * @return new scope base origin stack
      */
-    QScope newScope(ExceptionTable exceptionTable, int baseIndex);
-
-    /**
-     * @return exception table for this scope
-     */
-    ExceptionTable exceptionTable();
+    QScope newScope();
 }

@@ -39,14 +39,15 @@ public class GetFieldInstruction extends QLInstruction {
 
     @SuppressWarnings("unchecked")
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object bean = qContext.pop().get();
         if (bean == null) {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report("GET_FIELD_FROM_NULL", "can not get field from null");
+            throw errorReporter.report(new NullPointerException(),
+                    "GET_FIELD_FROM_NULL", "can not get field from null");
         }
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(this.fieldName)) {
             Value dataArray = new DataValue(((Object[]) bean).length);
@@ -91,8 +92,8 @@ public class GetFieldInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "GetField " + fieldName, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "GetField " + fieldName, debug);
     }
 
     /**

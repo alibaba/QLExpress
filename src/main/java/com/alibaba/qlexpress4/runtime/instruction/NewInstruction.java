@@ -39,7 +39,7 @@ public class NewInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = this.argNum == 0 ? null : qContext.pop(this.argNum);
         Class<?>[] paramTypes = new Class[this.argNum];
         Object[] objs = new Object[this.argNum];
@@ -126,8 +126,8 @@ public class NewInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "New cls " + newClz.getSimpleName()
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "New cls " + newClz.getSimpleName()
                 + " with argNum " + argNum, debug);
     }
 }

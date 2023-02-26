@@ -94,7 +94,8 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             try {
                 return NumberMath.divide((Number)leftValue, (Number)rightValue);
             } catch (ArithmeticException arithmeticException) {
-                throw errorReporter.report("INVALID_ARITHMETIC", arithmeticException.getMessage());
+                throw errorReporter.report(arithmeticException,
+                        "INVALID_ARITHMETIC", arithmeticException.getMessage());
             }
         }
 

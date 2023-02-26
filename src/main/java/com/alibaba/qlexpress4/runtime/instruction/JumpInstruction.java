@@ -28,7 +28,7 @@ public class JumpInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         return new QResult(new DataValue(position), QResult.ResultType.JUMP);
     }
 
@@ -43,7 +43,7 @@ public class JumpInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "Jump " + position, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "Jump " + position, debug);
     }
 }

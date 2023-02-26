@@ -39,46 +39,23 @@ public class QLambdaInner implements QLambda {
 
     public QResult call(Object... params) throws Throwable {
         QContext newRuntime = newEnv? inheritScope(params): qContext;
-        QScope lambdaScope = newRuntime.getCurrentScope();
 
         QLInstruction[] instructions = lambdaDefinition.getInstructions();
-        int i = 0;
-        while (i < instructions.length) {
-            try {
-                QResult qResult = instructions[i].execute(i, newRuntime, qlOptions);
-                switch (qResult.getResultType()) {
-                    case JUMP:
-                        i = newRuntime.absoluteJump((int) qResult.getResult().get());
-                        continue;
-                    case RETURN:
-                    case BREAK:
-                    case CONTINUE:
-                        return qResult;
-                }
-            } catch (QLRuntimeException qlRuntimeException) {
-                i = handleCatchObj(newRuntime, lambdaScope, qlRuntimeException,
-                        qlRuntimeException.getCatchObj());
-                continue;
-            } catch (Throwable t) {
-                i = handleCatchObj(newRuntime, lambdaScope, t, t);
-                continue;
+        for (int i = 0; i < instructions.length; i++) {
+            QResult qResult = instructions[i].execute(newRuntime, qlOptions);
+            switch (qResult.getResultType()) {
+                case JUMP:
+                    i += (int) qResult.getResult().get();
+                    continue;
+                case RETURN:
+                case IMPLICIT_RETURN:
+                case BREAK:
+                case CONTINUE:
+                    return qResult;
             }
-            i++;
         }
 
         return QResult.NEXT_INSTRUCTION;
-    }
-
-    private int handleCatchObj(QContext lambdaRuntime, QScope lambdaScope,
-                                Throwable originThrowable, Object catchObj) throws Throwable {
-        if (!newEnv) {
-            throw originThrowable;
-        }
-        Integer jumpPos = lambdaRuntime.toHandlerScope(catchObj, lambdaScope);
-        if (jumpPos == null) {
-            throw originThrowable;
-        }
-        return jumpPos;
     }
 
     private QContext inheritScope(Object[] params) throws UserDefineException {

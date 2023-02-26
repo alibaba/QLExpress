@@ -66,20 +66,9 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        printlnInner(0, depth, debug);
-    }
-
-    private int printlnInner(int start, int depth, Consumer<String> debug) {
-        for (int i = start; i < instructions.length; i++) {
-            QLInstruction instruction = instructions[i];
-            instruction.println(i - start, depth, debug);
-            if (instruction instanceof NewScopeInstruction) {
-                i = printlnInner(i + 1, depth + 1, debug);
-            } else if (instruction instanceof CloseScopeInstruction) {
-                return i;
-            }
+        for (QLInstruction qlInstruction : instructions) {
+            qlInstruction.println(depth, debug);
         }
-        return instructions.length;
     }
 
     public static class Param {

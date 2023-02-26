@@ -24,11 +24,6 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
-    public int getBaseIndex() {
-        return 0;
-    }
-
-    @Override
     public LeftValue getSymbol(String varName) {
         return null;
     }
@@ -84,12 +79,7 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
-    public QScope newScope(ExceptionTable exceptionTable, int baseIndex) {
-        return null;
-    }
-
-    @Override
-    public ExceptionTable exceptionTable() {
+    public QScope newScope() {
         return null;
     }
 
@@ -117,16 +107,6 @@ public class TestQContextParent implements QContext {
     @Override
     public QScope getCurrentScope() {
         return this;
-    }
-
-    @Override
-    public int absoluteJump(int relativeJump) {
-        return 0;
-    }
-
-    @Override
-    public Integer toHandlerScope(Object catchObj, QScope until) {
-        return null;
     }
 
     @Override

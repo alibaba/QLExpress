@@ -29,7 +29,7 @@ public class NewListInstruction extends QLInstruction {
     }
 
     @Override
-    public QResult execute(int index, QContext qContext, QLOptions qlOptions) {
+    public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters initItems = qContext.pop(initLength);
         List<? super Object> l = new ArrayList<>(initLength);
         // TODO: 遍历逻辑优化
@@ -51,7 +51,7 @@ public class NewListInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(index, depth, "NewList " + initLength, debug);
+    public void println(int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, "NewList " + initLength, debug);
     }
 }
