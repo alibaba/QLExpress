@@ -85,6 +85,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                         (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(value);
                 qContext.push(dataValue);
+            }catch (Exception e){
+                throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method:"+e.getCause());
             }catch (Throwable e){
                 throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
             }
