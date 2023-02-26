@@ -213,4 +213,12 @@ public class issue_179 extends IssueBase {
         Object result = execute(script, context);
         Assert.assertTrue((Boolean)result);
     }
+
+    @Test
+    public void test27() {
+        Map<String, Object> context = new HashMap<>();
+        String script = "return 'CBEED' like '%B%E%D%'";
+        Object result = execute(script, context);
+        Assert.assertTrue((Boolean)result);
+    }
 }

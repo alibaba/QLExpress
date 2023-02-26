@@ -30,7 +30,7 @@ public class LikeStateMachine{
     }
 
     private LikeStateMachine execute(String pattern){
-        int patternLen = pattern.length();
+        final int patternLen = pattern.length();
         LikeStateMachine likeStateMachine = new LikeStateMachine();
         for(int i = 0; i < patternLen; i++){
             LikeState likeState = new LikeState();
@@ -43,7 +43,7 @@ public class LikeStateMachine{
     }
 
     public boolean match(String dest){
-        int destLen = dest.length();
+        final int destLen = dest.length();
         LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
         for(int i = 0; i < destLen; i++){
             char word = dest.charAt(i);

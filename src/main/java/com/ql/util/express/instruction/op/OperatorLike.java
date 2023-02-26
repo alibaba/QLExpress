@@ -22,9 +22,9 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        LikeStateMachine machine = LikeStateMachine.builder().loadPattern(op2.toString()).build();
-        return machine.match(op1.toString());
-//        return likeMatch(op1.toString(),op2.toString());
+//        LikeStateMachine machine = LikeStateMachine.builder().loadPattern(op2.toString()).build();
+//        return machine.match(op1.toString());
+        return likeMatch(op1.toString(),op2.toString());
     }
 
     public boolean likeMatch(String dest, String pattern){
