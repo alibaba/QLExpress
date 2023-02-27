@@ -175,8 +175,8 @@ public class PropertiesUtil {
 
     public static List<Method> getClzMethod(Class<?> clazz, String name, Object[] params, boolean isAllowAccessPrivate) {
         if (params == null) {
-            return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null, !isAllowAccessPrivate, true, null);
+            return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, false, null, false, true, null);
         }
-        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, true, params.length, !isAllowAccessPrivate, true, null);
+        return MethodHandler.Preferred.gatherMethodsRecursive(clazz, name, true, params.length, false, true, null);
     }
 }

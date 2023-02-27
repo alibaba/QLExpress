@@ -99,19 +99,19 @@ public class MethodHandler extends MemberHandler {
         }
 
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate) {
-            return gatherMethodsRecursive(baseClass, methodName, false, null, !isAllowAccessPrivate, false, null);
+            return gatherMethodsRecursive(baseClass, methodName, false, null, false, false, null);
         }
 
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate, List<Method> candidates) {
-            return gatherMethodsRecursive(baseClass, methodName, false, null, !isAllowAccessPrivate, false, candidates);
+            return gatherMethodsRecursive(baseClass, methodName, false, null, false, false, candidates);
         }
 
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate, Object[] args) {
-            return gatherMethodsRecursive(baseClass, methodName, true, args.length, !isAllowAccessPrivate, false, null);
+            return gatherMethodsRecursive(baseClass, methodName, true, args.length, false, false, null);
         }
 
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean isAllowAccessPrivate, Object[] args, List<Method> candidates) {
-            return gatherMethodsRecursive(baseClass, methodName, true, args.length, !isAllowAccessPrivate, false, candidates);
+            return gatherMethodsRecursive(baseClass, methodName, true, args.length, false, false, candidates);
         }
 
 
