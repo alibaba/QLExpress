@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "PARAM_NOT_MATCH"
+  "errCode": "LAMBDA_EXECUTE_EXCEPTION"
 }
 */
 import com.alibaba.qlexpress4.test.property.Sample;

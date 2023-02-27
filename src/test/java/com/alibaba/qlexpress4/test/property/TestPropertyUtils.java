@@ -28,6 +28,9 @@ public class TestPropertyUtils {
     }
 
     public static void main(String[] args) throws Exception {
+
+        SampleEnum s = SampleEnum.NORMAL;
+        assert(s.equals(SampleEnum.NORMAL));
         //下边这组大括号非常重要
         List<Object> list = new ArrayList<Object>();
         list.add(1);

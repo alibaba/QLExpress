@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/for/c_for.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/enum_get.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

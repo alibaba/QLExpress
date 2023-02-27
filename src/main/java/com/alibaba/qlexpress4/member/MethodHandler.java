@@ -172,7 +172,7 @@ public class MethodHandler extends MemberHandler {
         public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 Throwable {
             Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod) && !BasicUtil.isFinal(accessMethod)) {
+            if (BasicUtil.isPublic(accessMethod)) {
                 return accessMethod.invoke(bean, params);
             } else {
                 if(!allowAccessPrivateMethod){
