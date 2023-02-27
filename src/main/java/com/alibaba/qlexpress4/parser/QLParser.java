@@ -125,12 +125,12 @@ public class QLParser {
 
     protected TryCatch tryCatch(ContextType contextType) {
         Token tryToken = pre;
-        advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_DECLARE",
-                "expect '{' in try declaration");
+        advanceOrReportError(TokenType.LBRACE, "MISSING_LBRACE_AT_TRY",
+                "missing '{' at try");
         Block body = block(contextType);
         if (!matchKeyWordAndAdvance(KeyWordsSet.CATCH)) {
             throw QLException.reportParserErr(scanner.getScript(), lastToken(),
-                    "TRY_MISS_CATCH", "can not find 'catch' to match 'try'");
+                    "MISSING_CATCH_AFTER_TRY", "missing 'catch' after try");
         }
         List<TryCatch.CatchClause> catchClauses = new ArrayList<>(3);
         catchClauses.add(catchClause(contextType));
@@ -139,8 +139,8 @@ public class QLParser {
         }
 
         if (matchKeyWordAndAdvance(KeyWordsSet.FINALLY)) {
-            advanceOrReportError(TokenType.LBRACE, "EXPECT_LBRACE_IN_TRY_FINAL_DECLARE",
-                    "expect '{' in try...final... declaration");
+            advanceOrReportError(TokenType.LBRACE, "MISSING_LBRACE_AT_TRY_FINALLY",
+                    "missing '{' at try...finally...");
             return new TryCatch(tryToken, body, block(contextType), catchClauses);
         } else {
             return new TryCatch(tryToken, body, null, catchClauses);
