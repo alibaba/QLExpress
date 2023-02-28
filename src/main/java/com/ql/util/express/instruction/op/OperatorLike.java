@@ -29,16 +29,15 @@ public class OperatorLike extends Operator {
 
     public boolean likeMatch(String dest, String pattern){
         int i = 0, j = 0;
-        int patternLen = pattern.length();
-        int destLen = dest.length();
+        final int patternLen = pattern.length();
+        final int destLen = dest.length();
         char prePatternChar = 0;
         for(;i < destLen;){
             if(j == patternLen){
                 break;
             }
             char patternWord = pattern.charAt(j);
-            char descWord = dest.charAt(i);
-            if(patternWord == descWord){
+            if(patternWord == dest.charAt(i)){
                 j++;
                 i++;
                 prePatternChar = patternWord;
@@ -60,21 +59,13 @@ public class OperatorLike extends Operator {
             return false;
         }
         if(j != patternLen){
-            if(notEndOfCharWord(pattern,PERCENT_SIGN,j)){
-                return false;
-            }else {
-                return true;
-            }
+            return !notEndOfCharWord(pattern,PERCENT_SIGN,j);
         }
         if(i != destLen){
             if(prePatternChar == dest.charAt(destLen-1)){
                 return true;
             }
-            if(notEndOfCharWord(dest,prePatternChar,i)){
-                return false;
-            }else {
-                return true;
-            }
+            return !notEndOfCharWord(dest,prePatternChar,i);
         }
         return true;
     }
