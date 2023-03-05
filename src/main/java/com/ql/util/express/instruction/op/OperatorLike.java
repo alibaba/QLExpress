@@ -21,29 +21,35 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        boolean result = true;
-        String s1 = op1.toString();
-        String s2 = op2.toString();
-        if (s2.contains("%")) {
-            String[] list = split(s2, "%");
-            int index = 0;
-            for (String s : list) {
-                if (index >= s1.length()) {
-                    result = false;
-                    break;
-                }
-                index = s1.indexOf(s, index);
-                if (index < 0) {
-                    result = false;
-                    break;
-                }
-                index = index + 1;
-            }
-        } else {
-            result = s1.equals(s2);
-        }
+        String s = op1.toString();
+        String pattern = op2.toString();
 
-        return result;
+        return matchPattern(s, pattern);
+    }
+
+    protected static boolean matchPattern(String s, String pattern) {
+        int i = 0, j = 0;
+        int sLen = s.length(), pLen = pattern.length();
+        int iStar = -1, jStar = -1;
+        while (i < sLen) {
+            if (j < pLen && (s.charAt(i) == pattern.charAt(j))) {
+                i++;
+                j++;
+            } else if (j < pLen && pattern.charAt(j) == '%') {
+                iStar = i;
+                jStar = j;
+                j++;
+            } else if (iStar >= 0) {
+                i = ++iStar;
+                j = jStar + 1;
+            } else {
+                return false;
+            }
+        }
+        while (j < pLen && pattern.charAt(j) == '%') {
+            j++;
+        }
+        return j == pLen;
     }
 
     public String[] split(String str, String s) {
