@@ -705,7 +705,7 @@ public class QLParserTest {
         Program program = parse("try {" +
                 "    100" +
                 "} catch (IllegalStateException | IndexOutOfBoundsException e) {" +
-                "} final {" +
+                "} finally {" +
                 "}");
         TryCatch tryCatch = (TryCatch) program.getStmtList().get(0);
         assertEquals(1, tryCatch.getBody().getStmtList().getStmts().size());

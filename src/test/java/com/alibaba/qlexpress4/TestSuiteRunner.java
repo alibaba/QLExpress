@@ -152,10 +152,10 @@ public class TestSuiteRunner {
                 .build();
         testRunner.execute("assert(true)", Collections.emptyMap(), attachOptions);
         assertErrCodeAndReason(testRunner, "assert(false)", attachOptions,
-                "CALL_FUNCTION_BIZ_EXCEPTION",
+                "BIZ_EXCEPTION",
                 "a/b.ql: assert fail");
         assertErrCodeAndReason(testRunner, "assert(false, 'my test')", attachOptions,
-                "CALL_FUNCTION_BIZ_EXCEPTION", "a/b.ql: my test");
+                "BIZ_EXCEPTION", "a/b.ql: my test");
         // variable can be the same name with function
         testRunner.execute("assert = 4;assert(assert == 4)",
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
