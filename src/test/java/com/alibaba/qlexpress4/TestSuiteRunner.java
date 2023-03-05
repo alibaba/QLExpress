@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/trycatch/ql_npe.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/equals.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

@@ -15,7 +15,6 @@ assert(512D == 512D);
 
 assertFalse(512 == 513);
 
-// assertFalse(97 == 'b');
-// 单字符解析为了字符串"a"
-// assert('a' == 97);
+// assertFalse(97 == (char) 'b');
+// assert((char) 'a' == 97);
 // assert(new Character('a') == 97);

@@ -225,8 +225,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
         ErrorReporter errorReporter) {
-        // 错误码统一规范
-        return errorReporter.reportFormat("InvalidOperandType",
+        return errorReporter.reportFormat("INVALID_OPERAND_TYPE",
             "Cannot use %s operator on leftType:%s with leftValue:%s and rightType:%s with rightValue:%s",
             getOperator(), left.getTypeName(), left.get(), right.getTypeName(), right.get());
     }
