@@ -1,7 +1,5 @@
 package com.ql.util.express.instruction.op;
 
-import java.util.ArrayList;
-
 import com.ql.util.express.Operator;
 
 public class OperatorLike extends Operator {
@@ -44,28 +42,5 @@ public class OperatorLike extends Operator {
             pPointer++;
         }
         return pPointer == pLen;
-    }
-
-    public String[] split(String str, String s) {
-        int start = 0;
-        int end;
-        String tmpStr;
-        ArrayList<String> list = new ArrayList<>();
-        do {
-            end = str.indexOf(s, start);
-            if (end < 0) {
-                tmpStr = str.substring(start);
-            } else {
-                tmpStr = str.substring(start, end);
-            }
-            if (tmpStr.length() > 0) {
-                list.add(tmpStr);
-            }
-            start = end + 1;
-            if (start >= str.length()) {
-                break;
-            }
-        } while (end >= 0);
-        return list.toArray(new String[0]);
     }
 }
