@@ -9,12 +9,6 @@ public class OperatorLike extends Operator {
         this.name = name;
     }
 
-    public OperatorLike(String aliasName, String name, String errorInfo) {
-        this.name = name;
-        this.aliasName = aliasName;
-        this.errorInfo = errorInfo;
-    }
-
     @Override
     public Object executeInner(Object[] list) throws Exception {
         return executeInner(list[0], list[1]);
@@ -28,28 +22,28 @@ public class OperatorLike extends Operator {
     }
 
     protected static boolean matchPattern(String s, String pattern) {
-        int i = 0, j = 0;
+        int sPointer = 0, pPointer = 0;
         int sLen = s.length(), pLen = pattern.length();
-        int iStar = -1, jStar = -1;
-        while (i < sLen) {
-            if (j < pLen && (s.charAt(i) == pattern.charAt(j))) {
-                i++;
-                j++;
-            } else if (j < pLen && pattern.charAt(j) == '%') {
-                iStar = i;
-                jStar = j;
-                j++;
-            } else if (iStar >= 0) {
-                i = ++iStar;
-                j = jStar + 1;
+        int sRecall = -1, pRecall = -1;
+        while (sPointer < sLen) {
+            if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
+                sPointer++;
+                pPointer++;
+            } else if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+                sRecall = sPointer;
+                pRecall = pPointer;
+                pPointer++;
+            } else if (sRecall >= 0) {
+                sPointer = ++sRecall;
+                pPointer = pRecall + 1;
             } else {
                 return false;
             }
         }
-        while (j < pLen && pattern.charAt(j) == '%') {
-            j++;
+        while (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+            pPointer++;
         }
-        return j == pLen;
+        return pPointer == pLen;
     }
 
     public String[] split(String str, String s) {
