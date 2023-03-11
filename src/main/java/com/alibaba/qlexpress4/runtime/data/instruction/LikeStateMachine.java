@@ -9,9 +9,9 @@ import com.ql.util.express.ExpressUtil;
 public class LikeStateMachine{
     private LikeState start;
     private LikeState current;
-    private int size;
     private LikeStateMatchType likeStateMatchType;
     private String resultPattern;
+    private int size;
 
     private LikeStateMachine(){
     }
