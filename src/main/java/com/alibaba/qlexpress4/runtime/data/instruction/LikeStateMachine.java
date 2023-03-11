@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.instruction;
 
+import com.ql.util.express.ExpressUtil;
+
 /**
  * @Author TaoKan
  * @Date 2023/1/25 上午11:26
@@ -39,10 +41,11 @@ public class LikeStateMachine{
         int index = 0, percentCount = 0;
         for(int i = 0; i < patternLen; i++){
             char word = pattern.charAt(i);
-            if(i < patternLen - 1 && pattern.charAt(i) != '%' && pattern.charAt(i+1) == '%'){
+            if(i < patternLen - 1 && pattern.charAt(i) != ExpressUtil.LIKE_PERCENT_SIGN
+                    && pattern.charAt(i+1) == ExpressUtil.LIKE_PERCENT_SIGN){
                 isRight = true;
             }
-            if(word == '%'){
+            if(word == ExpressUtil.LIKE_PERCENT_SIGN){
                 if(i == patternLen - 1){
                     endOfPercentSign = true;
                 }
