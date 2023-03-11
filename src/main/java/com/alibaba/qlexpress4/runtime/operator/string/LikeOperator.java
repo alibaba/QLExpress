@@ -28,9 +28,9 @@ public class LikeOperator extends BaseBinaryOperator {
         if (!(target instanceof String) || !(pattern instanceof String)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
-        LikeStateMachine likeStateMachine = LikeStateMachine.builder().loadPattern((String)pattern).build();
-        return likeStateMachine.match((String) target);
-        //return matchPattern((String) target, (String) pattern);
+//        LikeStateMachine likeStateMachine = LikeStateMachine.builder().loadPattern((String)pattern).build();
+//        return likeStateMachine.match((String) target);
+        return matchPattern((String) target, (String) pattern);
     }
 
     private static boolean matchPattern(String s, String pattern) {

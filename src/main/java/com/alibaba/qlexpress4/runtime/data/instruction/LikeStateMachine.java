@@ -35,10 +35,10 @@ public class LikeStateMachine{
     private boolean matchComplex(String dest){
         final int destLen = dest.length();
         LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
-        int stayJumpNum = 0;
+        int gotoOffSet = 0;
         for(int i = 0; i < destLen; i++){
-            if(stayJumpNum > 0){
-                stayJumpNum --;
+            if(gotoOffSet > 0){
+                gotoOffSet --;
                 continue;
             }
             char word = dest.charAt(i);
@@ -50,10 +50,24 @@ public class LikeStateMachine{
                 //中断
                 return true;
             }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
-                stayJumpNum = likeStateStatus.getStayJumpNum();
+                gotoOffSet = likeStateStatus.getStayJumpNum();
             }
         }
         return true;
+    }
+
+    public boolean match(String dest){
+        if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
+            return matchEquals(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.CONTAINS)){
+            return matchContains(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.START_WITH)){
+            return matchStartsWith(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.END_WITH)){
+            return matchEndsWith(dest);
+        }else {
+            return matchComplex(dest);
+        }
     }
 
     private LikeStateMachine compile(String pattern){
@@ -113,19 +127,6 @@ public class LikeStateMachine{
         return likeStateMachine;
     }
 
-    public boolean match(String dest){
-        if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
-            return matchEquals(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.CONTAINS)){
-            return matchContains(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.START_WITH)){
-            return matchStartsWith(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.END_WITH)){
-            return matchEndsWith(dest);
-        }else {
-            return matchComplex(dest);
-        }
-    }
 
     private void setMatchTypeOfMachine(LikeStateMachine likeStateMachine,LikeStateMatchType likeStateMatchType){
         if(likeStateMachine.likeStateMatchType == null){

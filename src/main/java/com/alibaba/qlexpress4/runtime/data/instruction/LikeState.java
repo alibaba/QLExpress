@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.instruction;
 
+import com.ql.util.express.ExpressUtil;
+
 /**
  * @Author TaoKan
  * @Date 2023/1/25 上午11:20
@@ -39,7 +41,8 @@ public class LikeState {
         if(remainWords < this.info.getCharWords().length() - index){
             return gotoBreak(false);
         }
-        if("".equals(this.info.getCharWords())){
+        if(ExpressUtil.BLANK_STRING.equals(this.info.getCharWords())){
+            //only exist '%'
             return gotoBreak(true);
         }
         if(this.next() == null){
