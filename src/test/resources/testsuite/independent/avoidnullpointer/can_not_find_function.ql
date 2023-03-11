@@ -1,4 +1,4 @@
 /*{
-  "errCode": "CAN_NOT_FIND_FUNCTION"
+  "errCode": "CALL_FUNCTION_FROM_NULL"
 }*/
 mmm()

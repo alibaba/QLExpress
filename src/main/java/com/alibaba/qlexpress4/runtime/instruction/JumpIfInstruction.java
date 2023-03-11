@@ -18,14 +18,17 @@ import java.util.function.Consumer;
  */
 public class JumpIfInstruction extends QLInstruction {
 
+    public static final JumpIfInstruction INSTANCE = new JumpIfInstruction(null,
+            false, -1);
+
     private final boolean expect;
 
-    private final int gap;
+    private final int position;
 
-    public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int gap) {
+    public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int position) {
         super(errorReporter);
         this.expect = expect;
-        this.gap = gap;
+        this.position = position;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class JumpIfInstruction extends QLInstruction {
                     "condition expression result must be bool");
         }
         boolean conditionBool = (boolean) condition;
-        return conditionBool == expect? new QResult(new DataValue(gap), QResult.ResultType.JUMP):
+        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
                 QResult.NEXT_INSTRUCTION;
     }
 
@@ -52,6 +55,6 @@ public class JumpIfInstruction extends QLInstruction {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "JumpIf " + expect + " " + gap, debug);
+        PrintlnUtils.printlnByCurDepth(depth, "JumpIf " + expect + " " + position, debug);
     }
 }

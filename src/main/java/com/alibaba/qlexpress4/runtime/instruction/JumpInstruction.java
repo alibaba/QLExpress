@@ -18,6 +18,8 @@ import java.util.function.Consumer;
  */
 public class JumpInstruction extends QLInstruction {
 
+    public static final JumpInstruction INSTANCE = new JumpInstruction(null, -1);
+
     private final int position;
 
     public JumpInstruction(ErrorReporter errorReporter, int position) {

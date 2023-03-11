@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.parser.Token;
 
 public class ReturnStmt extends Stmt {
 
+    /**
+     * Nullable
+     */
     private final Expr expr;
 
     public ReturnStmt(Token keyToken, Expr expr) {

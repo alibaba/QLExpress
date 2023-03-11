@@ -11,18 +11,18 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
     /**
      * @param params
      * @return
-     * @throws Exception
+     * @throws Throwable
      *         {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
-    QResult call(Object... params) throws Exception;
+    QResult call(Object... params) throws Throwable;
 
     @Override
     default Object get() {
         try {
             return call().getResult().get();
-        } catch (Exception e) {
-            throw e instanceof RuntimeException?
-                    (RuntimeException) e: new RuntimeException(e);
+        } catch (Throwable t) {
+            throw t instanceof RuntimeException?
+                    (RuntimeException) t: new RuntimeException(t);
         }
     }
 
@@ -30,9 +30,9 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
     default void accept(Object o) {
         try {
             call(o);
-        } catch (Exception e) {
-            throw e instanceof RuntimeException?
-                    (RuntimeException) e: new RuntimeException(e);
+        } catch (Throwable t) {
+            throw t instanceof RuntimeException?
+                    (RuntimeException) t: new RuntimeException(t);
         }
     }
 
@@ -40,9 +40,9 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
     default void run() {
         try {
             call();
-        } catch (Exception e) {
-            throw e instanceof RuntimeException?
-                    (RuntimeException) e: new RuntimeException(e);
+        } catch (Throwable t) {
+            throw t instanceof RuntimeException?
+                    (RuntimeException) t: new RuntimeException(t);
         }
     }
 
@@ -50,9 +50,9 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
     default boolean test(Object o) {
         try {
             return (boolean) call(o).getResult().get();
-        } catch (Exception e) {
-            throw e instanceof RuntimeException?
-                    (RuntimeException) e: new RuntimeException(e);
+        } catch (Throwable t) {
+            throw t instanceof RuntimeException?
+                    (RuntimeException) t: new RuntimeException(t);
         }
     }
 
@@ -60,9 +60,9 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
     default Object apply(Object o) {
         try {
             return call(o).getResult().get();
-        } catch (Exception e) {
-            throw e instanceof RuntimeException?
-                    (RuntimeException) e: new RuntimeException(e);
+        } catch (Throwable t) {
+            throw t instanceof RuntimeException?
+                    (RuntimeException) t: new RuntimeException(t);
         }
     }
 }

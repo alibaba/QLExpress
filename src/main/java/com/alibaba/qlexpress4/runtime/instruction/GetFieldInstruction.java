@@ -46,7 +46,8 @@ public class GetFieldInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report("GET_FIELD_FROM_NULL", "can not get field from null");
+            throw errorReporter.report(new NullPointerException(),
+                    "GET_FIELD_FROM_NULL", "can not get field from null");
         }
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(this.fieldName)) {
             Value dataArray = new DataValue(((Object[]) bean).length);

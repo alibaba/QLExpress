@@ -46,6 +46,11 @@ public class QvmGlobalScope implements QScope {
     }
 
     @Override
+    public Object getSymbolValue(String varName) {
+        return QScope.super.getSymbolValue(varName);
+    }
+
+    @Override
     public void defineLocalSymbol(String varName, Class<?> varClz, Object value) {
         throw new UnsupportedOperationException();
     }

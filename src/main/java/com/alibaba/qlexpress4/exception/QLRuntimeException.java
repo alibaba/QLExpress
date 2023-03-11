@@ -2,32 +2,35 @@ package com.alibaba.qlexpress4.exception;
 
 public class QLRuntimeException extends QLException {
 
-    private final Object attachment;
+    /**
+     * catchObj can be catched at QLExpress catch clause
+     */
+    private final Object catchObj;
 
     /**
      * Visible for test
-     * @param attachment
+     * @param catchObj
      * @param reason
      * @param errorCode
      */
-    protected QLRuntimeException(Object attachment, String reason, String errorCode) {
+    protected QLRuntimeException(Object catchObj, String reason, String errorCode) {
         super("", 0, 0, "", reason, errorCode, "");
-        this.attachment = attachment;
+        this.catchObj = catchObj;
     }
 
     protected QLRuntimeException(String message, int lineNo, int colNo, String errLexeme,
                                  String reason, String errorCode, String snippet) {
         super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
-        this.attachment = null;
+        this.catchObj = null;
     }
 
-    protected QLRuntimeException(Object attachment, String message, int lineNo, int colNo, String errLexeme,
+    protected QLRuntimeException(Object catchObj, String message, int lineNo, int colNo, String errLexeme,
                                  String reason, String errorCode, String snippet) {
         super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
-        this.attachment = attachment;
+        this.catchObj = catchObj;
     }
 
-    public Object getAttachment() {
-        return attachment;
+    public Object getCatchObj() {
+        return catchObj;
     }
 }

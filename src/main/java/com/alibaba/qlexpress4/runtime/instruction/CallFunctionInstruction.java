@@ -42,16 +42,21 @@ public class CallFunctionInstruction extends QLInstruction {
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
                     "call function unknown exception");
         }
     }
 
     private void callLambda(QContext qContext, QLOptions qlOptions) {
         Object lambdaSymbol = qContext.getSymbolValue(functionName);
-        if (lambdaSymbol == null && qlOptions.isAvoidNullPointer()) {
-            qContext.push(DataValue.NULL_VALUE);
+        if (lambdaSymbol == null) {
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+            } else {
+                throw errorReporter.report(new NullPointerException(), "CALL_FUNCTION_FROM_NULL",
+                        "can not call function from null" + functionName);
+            }
             return;
         }
         if (!(lambdaSymbol instanceof QLambda)) {
@@ -68,8 +73,8 @@ public class CallFunctionInstruction extends QLInstruction {
             qContext.push(ValueUtils.toImmutable(resultValue));
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter,
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter,
                     "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
         }
     }

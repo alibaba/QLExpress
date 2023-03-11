@@ -20,22 +20,22 @@ public class QvmBlockScope implements QScope {
     // TODO: stack 优化, 只有一个总的 stack, 不需要每个 scope 一个
     private final FixedSizeStack opStack;
 
-    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, int maxStackSize) {
-        this.parent = parent;
-        // TODO: 优化成 fixedArrayMap
-        this.symbolTable = symbolTable;
-        // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
-        this.functionTable = new HashMap<>();
-        this.opStack = new FixedSizeStack(maxStackSize);
+    private final ExceptionTable exceptionTable;
+
+    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, int maxStackSize,
+                         ExceptionTable exceptionTable) {
+        this(parent, symbolTable, new FixedSizeStack(maxStackSize), exceptionTable);
     }
 
-    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack) {
+    public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
+                         ExceptionTable exceptionTable) {
         this.parent = parent;
         // TODO: 优化成 fixedArrayMap
         this.symbolTable = symbolTable;
         // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
         this.functionTable = new HashMap<>();
         this.opStack = reuseStack;
+        this.exceptionTable = exceptionTable;
     }
 
     @Override
@@ -87,6 +87,7 @@ public class QvmBlockScope implements QScope {
 
     @Override
     public QScope newScope() {
-        return new QvmBlockScope(this, new HashMap<>(), opStack);
+        return new QvmBlockScope(this, new HashMap<>(), opStack, exceptionTable);
     }
+
 }

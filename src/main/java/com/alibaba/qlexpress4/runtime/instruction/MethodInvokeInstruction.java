@@ -12,6 +12,7 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
@@ -54,7 +55,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report("GET_METHOD_FROM_NULL", "can not get method from null");
+            throw errorReporter.report(new NullPointerException(),
+                    "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         QLCaches qlCaches = qContext.getQLCaches();
         QLConvertResult convertResult;
@@ -85,10 +87,11 @@ public class MethodInvokeInstruction extends QLInstruction {
                         (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
                 Value dataValue = new DataValue(value);
                 qContext.push(dataValue);
-            }catch (Exception e){
-                throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method:"+e.getCause());
-            }catch (Throwable e){
-                throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
+            }catch (InvocationTargetException e) {
+                throw errorReporter.report(e.getTargetException(), "METHOD_INNER_EXCEPTION", "method inner exception");
+            } catch (Exception e) {
+                //TODO: 测试会走到这里的情况
+                throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
             }
         }
 

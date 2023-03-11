@@ -139,9 +139,15 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
     @Override
     public Void visit(ForStmt forStmt, Void context) {
         visitNode(forStmt, stmt -> {
-            stmt.getForInit().accept(this, context);
-            stmt.getCondition().accept(this, context);
-            stmt.getForUpdate().accept(this, context);
+            if (stmt.getForInit() != null) {
+                stmt.getForInit().accept(this, context);
+            }
+            if (stmt.getCondition() != null) {
+                stmt.getCondition().accept(this, context);
+            }
+            if (stmt.getForUpdate() != null) {
+                stmt.getForUpdate().accept(this, context);
+            }
             stmt.getBody().accept(this, context);
         });
         return null;
@@ -244,8 +250,11 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt, Void context) {
-        visitNode(returnStmt, stmt ->
-                stmt.getExpr().accept(this, context));
+        visitNode(returnStmt, stmt -> {
+            if (stmt.getExpr() != null) {
+                stmt.getExpr().accept(this, context);
+            }
+        });
         return null;
     }
 
@@ -350,6 +359,12 @@ public class AstPrinter implements QLProgramVisitor<Void, Void> {
                 value.accept(this, context);
             }
         });
+        return null;
+    }
+
+    @Override
+    public Void visit(ThrowStmt throwStmt, Void context) {
+        visitNode(throwStmt, expr -> expr.getExpr().accept(this, context));
         return null;
     }
 

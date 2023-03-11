@@ -2,9 +2,7 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
-import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -87,7 +85,7 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public QScope getQScope() {
+    public QScope getCurrentScope() {
         return qScope;
     }
 

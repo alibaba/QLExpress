@@ -38,8 +38,8 @@ public class CallConstInstruction extends QLInstruction {
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "BLOCK_EXECUTE_ERROR", "block execute error");
         }
     }
 

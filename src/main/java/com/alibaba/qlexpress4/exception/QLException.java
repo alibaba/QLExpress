@@ -74,10 +74,10 @@ public class QLException extends RuntimeException {
     }
 
     public static QLRuntimeException reportRuntimeErrWithAttach(String script, Token token, String errorCode, String reason,
-                                                                Object attachment) {
-        return reportErrWithToken(script, token, errorCode, reason, (message, lineNo, colNo, errLexeme,
-                                                                     errorCode0, reason0, snippet) -> new QLRuntimeException(attachment, message, lineNo, colNo, errLexeme,
-                errorCode0, reason0, snippet)
+                                                                Object catchObj) {
+        return reportErrWithToken(script, token, errorCode, reason,
+                (message, lineNo, colNo, errLexeme, errorCode0, reason0, snippet) ->
+                        new QLRuntimeException(catchObj, message, lineNo, colNo, errLexeme, errorCode0, reason0, snippet)
         );
     }
 

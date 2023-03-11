@@ -45,8 +45,7 @@ public class DefineFunctionInstruction extends QLInstruction {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth,
-                "DefineFunction " + name, debug);
+        PrintlnUtils.printlnByCurDepth(depth, "DefineFunction " + name, debug);
         lambdaDefinition.println(depth+1, debug);
     }
 }

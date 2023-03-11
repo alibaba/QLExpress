@@ -39,10 +39,11 @@ import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
-import com.alibaba.qlexpress4.runtime.operator.in.InOperator;
+import com.alibaba.qlexpress4.runtime.operator.collection.InOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
+import com.alibaba.qlexpress4.runtime.operator.string.LikeOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusPrefixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusSuffixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusUnaryOperator;
@@ -98,6 +99,7 @@ public class OperatorManager {
         binaryOperatorList.add(LessOperator.getInstance());
         binaryOperatorList.add(LessEqualOperator.getInstance());
         binaryOperatorList.add(InOperator.getInstance());
+        binaryOperatorList.add(LikeOperator.getInstance());
         binaryOperatorList.add(InstanceOfOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);

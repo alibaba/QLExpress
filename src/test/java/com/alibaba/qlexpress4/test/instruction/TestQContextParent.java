@@ -105,7 +105,7 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
-    public QScope getQScope() {
+    public QScope getCurrentScope() {
         return this;
     }
 

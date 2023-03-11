@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/property/enum_get.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/equals.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -71,6 +71,7 @@ public class TestSuiteRunner {
     }
 
     public void handleFile(Path qlFile, String path, boolean debug) throws IOException {
+        printRunning(path);
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
 
@@ -99,6 +100,10 @@ public class TestSuiteRunner {
             System.out.printf("%1$-95s %2$s\n",path, "error");
             throw e;
         }
+    }
+
+    private void printRunning(String path) {
+        System.out.printf("%1$-98s %2$s\n",path, "running");
     }
 
     private void printOk(String path) {
@@ -147,10 +152,10 @@ public class TestSuiteRunner {
                 .build();
         testRunner.execute("assert(true)", Collections.emptyMap(), attachOptions);
         assertErrCodeAndReason(testRunner, "assert(false)", attachOptions,
-                "CALL_FUNCTION_BIZ_EXCEPTION",
+                "BIZ_EXCEPTION",
                 "a/b.ql: assert fail");
         assertErrCodeAndReason(testRunner, "assert(false, 'my test')", attachOptions,
-                "CALL_FUNCTION_BIZ_EXCEPTION", "a/b.ql: my test");
+                "BIZ_EXCEPTION", "a/b.ql: my test");
         // variable can be the same name with function
         testRunner.execute("assert = 4;assert(assert == 4)",
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);

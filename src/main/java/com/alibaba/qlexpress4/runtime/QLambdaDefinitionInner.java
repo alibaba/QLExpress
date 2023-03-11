@@ -1,8 +1,9 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.runtime.instruction.CloseScopeInstruction;
+import com.alibaba.qlexpress4.runtime.instruction.NewScopeInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
-import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,6 +32,14 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
         this.maxStackSize = maxStackSize;
     }
 
+    public QLambdaDefinitionInner(String name, QLInstruction[] instructions, List<Param> paramsType,
+                                  int maxStackSize) {
+        this.name = name;
+        this.instructions = instructions;
+        this.paramsType = paramsType;
+        this.maxStackSize = maxStackSize;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -51,7 +60,7 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
     @Override
     public QLambda toLambda(QContext qContext, QLOptions qlOptions,
                             boolean newEnv) {
-        return new QLambdaInner(this, new DelegateQContext(qContext, qContext.getQScope()),
+        return new QLambdaInner(this, new DelegateQContext(qContext, qContext.getCurrentScope()),
                 qlOptions, newEnv);
     }
 

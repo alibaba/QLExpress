@@ -60,9 +60,9 @@ public class ForEachInstruction extends QLInstruction {
                 throw errorReporter.report("FOR_EACH_ACCEPT_INVALID_TYPE",
                         MessageFormat.format("for-each accept invalid type, required {0}, but {1} provided",
                                 itCls.getName(), item == null? "null": item.getClass().getName()));
-            } catch (Exception e) {
-                if (e instanceof QLRuntimeException) {
-                    throw (QLRuntimeException) e;
+            } catch (Throwable t) {
+                if (t instanceof QLRuntimeException) {
+                    throw (QLRuntimeException) t;
                 }
                 // should not run there
                 throw errorReporter.report("FOR_EACH_UNKNOWN_EXCEPTION",

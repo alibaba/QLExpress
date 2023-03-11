@@ -42,6 +42,6 @@ public class ReturnInstruction extends QLInstruction {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "Return " + resultType.name(), debug);
+        PrintlnUtils.printlnByCurDepth(depth, "Return", debug);
     }
 }

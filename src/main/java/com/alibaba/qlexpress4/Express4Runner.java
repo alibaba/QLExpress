@@ -10,16 +10,12 @@ import java.util.function.Predicate;
 
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.parser.AstPrinter;
-import com.alibaba.qlexpress4.parser.GeneratorScope;
-import com.alibaba.qlexpress4.parser.ImportManager;
-import com.alibaba.qlexpress4.parser.QLParser;
-import com.alibaba.qlexpress4.parser.QvmInstructionGenerator;
-import com.alibaba.qlexpress4.parser.Scanner;
+import com.alibaba.qlexpress4.parser.*;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -56,7 +52,7 @@ public class Express4Runner {
             return mainLambda.call().getResult().get();
         } catch (QLException e) {
             throw e;
-        } catch (Exception nuKnown) {
+        } catch (Throwable nuKnown) {
             // should not run here
             throw new RuntimeException(nuKnown);
         }

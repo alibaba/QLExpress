@@ -29,7 +29,7 @@ public class QLambdaInvocationHandler implements InvocationHandler {
             }else {
                 return new QLConvertResult(QLConvertResultType.CAN_TRANS, method.getReturnType() == String.class ? "QLambdaProxy" : null);
             }
-        }catch (Exception e){
+        }catch (Throwable t){
             return new QLConvertResult(QLConvertResultType.NOT_TRANS,null);
         }
     }

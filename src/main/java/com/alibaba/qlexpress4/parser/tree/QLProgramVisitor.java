@@ -76,4 +76,6 @@ public interface QLProgramVisitor<R, C> {
     R visit(MultiNewArrayExpr newArrayDimsExpr, C context);
 
     R visit(NewArrayExpr newArrayExpr, C context);
+
+    R visit(ThrowStmt throwStmt, C context);
 }

@@ -40,8 +40,8 @@ public class WhileInstruction extends QLInstruction {
                     case BREAK:
                         break whileBody;
                 }
-            } catch (Exception e) {
-                throw ThrowUtils.wrapException(e, errorReporter,
+            } catch (Throwable t) {
+                throw ThrowUtils.wrapThrowable(t, errorReporter,
                         "WHILE_BODY_EXECUTE_ERROR", "while body execute error");
             }
         }
@@ -76,8 +76,8 @@ public class WhileInstruction extends QLInstruction {
                         "condition must be bool");
             }
             return (boolean) conditionResult;
-        } catch (Exception e) {
-            throw ThrowUtils.wrapException(e, errorReporter, "CONDITION_EVAL_ERROR",
+        } catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "CONDITION_EVAL_ERROR",
                     "condition evaluate error");
         }
     }

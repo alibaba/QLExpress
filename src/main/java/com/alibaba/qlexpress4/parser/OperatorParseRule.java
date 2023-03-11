@@ -132,7 +132,7 @@ class TryCatchFinalRule extends OperatorParseRule {
 
     @Override
     Expr prefixParse(QLParser parser, QLParser.ContextType contextType) {
-        return parser.tryCatchStmt(contextType);
+        return parser.tryCatch(contextType);
     }
 }
 
