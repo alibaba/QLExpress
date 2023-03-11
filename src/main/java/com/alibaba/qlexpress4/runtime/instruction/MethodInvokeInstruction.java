@@ -70,7 +70,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                     QResult qResult = qLambdaInnerMethod.call(params);
                     Value dataValue = new DataValue(qResult.getResult());
                     qContext.push(dataValue);
-                }catch (Exception e){
+                }catch (Throwable e){
                     throw errorReporter.report("METHOD_NOT_ACCESS", "can not allow access method");
                 }
             }else {
@@ -89,8 +89,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(dataValue);
             }catch (InvocationTargetException e) {
                 throw errorReporter.report(e.getTargetException(), "METHOD_INNER_EXCEPTION", "method inner exception");
-            } catch (Exception e) {
-                //TODO: 测试会走到这里的情况
+            } catch (Throwable e) {
                 throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
             }
         }
