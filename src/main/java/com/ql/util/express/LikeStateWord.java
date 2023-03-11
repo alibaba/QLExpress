@@ -5,28 +5,20 @@ package com.ql.util.express;
  * @Date 2023/1/25 上午11:20
  */
 public class LikeStateWord {
-    private final int index;
-    private final char charWord;
+    private final String charWords;
+    private final LikeWordPatternEnum likeWordPatternEnum;
 
-    public LikeStateWord(int index, char charWord){
-        this.index = index;
-        this.charWord = charWord;
+    public LikeStateWord(final String charWords, final LikeWordPatternEnum likeWordPatternEnum){
+        this.charWords = charWords;
+        this.likeWordPatternEnum = likeWordPatternEnum;
     }
 
-    public int getIndex() {
-        return index;
+    public String getCharWords() {
+        return charWords;
     }
 
-    public char getCharWord() {
-        return charWord;
-    }
-
-    public boolean equals(char word){
-        return charWord == word;
-    }
-
-    public boolean equalsPercentSign(){
-        return charWord == '%';
+    public LikeWordPatternEnum getLikeWordPatternEnum() {
+        return likeWordPatternEnum;
     }
 
 }
