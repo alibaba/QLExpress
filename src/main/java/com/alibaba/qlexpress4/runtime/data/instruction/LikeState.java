@@ -10,100 +10,114 @@ public class LikeState {
     private LikeState next;
     private int index;
 
+    private boolean isCurrentLikePatternEquals(LikeWordPatternEnum likeWordPatternEnum){
+        return this.info.getLikeWordPatternEnum().equals(likeWordPatternEnum);
+    }
+
+    private boolean isNextLikePatternEquals(LikeWordPatternEnum likeWordPatternEnum){
+        return this.next().info.getLikeWordPatternEnum().equals(likeWordPatternEnum);
+    }
+
+    private boolean isCurrentCharWordIsRight(char charWord){
+        return charWord != info.getCharWords().charAt(index);
+    }
+
+    private LikeStateStatus stay(){
+        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
+    }
+
+    private LikeStateStatus gotoNext(int offSet){
+        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT, offSet);
+    }
+
+    private LikeStateStatus gotoBreak(boolean result){
+        return new LikeStateStatus(result, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+    }
+
 
     public LikeStateStatus matchWords(char charWord, boolean isEndWord, int remainWords){
         if(remainWords < this.info.getCharWords().length() - index){
-            return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+            return gotoBreak(false);
         }
         if("".equals(this.info.getCharWords())){
-            return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+            return gotoBreak(true);
         }
         if(this.next() == null){
             //LAST
-            if(this.info.getLikeWordPatternEnum().equals(LikeWordPatternEnum.LEFT_PERCENT_SIGN)){
+            if(isCurrentLikePatternEquals(LikeWordPatternEnum.LEFT_PERCENT_SIGN)){
                 //left
-                if(charWord != info.getCharWords().charAt(index)){
-                    return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
-                }else {
-                    index++;
-                    return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
+                if(isCurrentCharWordIsRight(charWord)){
+                    return gotoBreak(false);
                 }
+                index++;
+                return stay();
             }else {
                 //surround
-                if(charWord != info.getCharWords().charAt(index)){
+                if(isCurrentCharWordIsRight(charWord)){
                     if(isEndWord){
                         //dest is end
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
-                    }else {
-                        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
+                        return gotoBreak(false);
                     }
+                    return stay();
                 }else {
                     if(index == this.info.getCharWords().length() - 1){
                         //pattern is end
-                        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+                        return gotoBreak(true);
                     }
                     index++;
-                    return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
+                    return stay();
                 }
             }
         }else {
-            if(this.info.getLikeWordPatternEnum().equals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
-                if(this.next.info.getLikeWordPatternEnum().equals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
+            if(isCurrentLikePatternEquals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
+                if(isNextLikePatternEquals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
                     //surround-surround
                     if(isEndWord){
                         //dest is end
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
-                    }else {
-                        if(charWord != info.getCharWords().charAt(index)){
-                            return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
-                        }else {
-                            index++;
-                            return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT, 0);
-                        }
+                        return gotoBreak(false);
                     }
+                    if(isCurrentCharWordIsRight(charWord)){
+                        return stay();
+                    }
+                    index++;
+                    return gotoNext(0);
                 }else {
                     //surround-left
                     if(remainWords < this.next.info.getCharWords().length() + 1){
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+                        return gotoBreak(false);
                     }
-                    if(charWord != info.getCharWords().charAt(index)){
+                    if(isCurrentCharWordIsRight(charWord)){
                         if(isEndWord){
-                            return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+                            return gotoBreak(false);
                         }
-                        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.STAY, 0);
-                    }else {
-                        index++;
-                        int nextLength = this.next.info.getCharWords().length();
-                        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT, remainWords - (nextLength + 1));
-
+                        return stay();
                     }
+                    index++;
+                    return gotoNext(remainWords - (this.next.info.getCharWords().length() + 1));
                 }
-            }else if(this.info.getLikeWordPatternEnum().equals(LikeWordPatternEnum.RIGHT_PERCENT_SIGN)){
-                if(this.next.info.getLikeWordPatternEnum().equals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
+            }else if(isCurrentLikePatternEquals(LikeWordPatternEnum.RIGHT_PERCENT_SIGN)){
+                if(isNextLikePatternEquals(LikeWordPatternEnum.SURROUND_PERCENT_SIGN)){
                     //right-surround
-                    if(charWord != info.getCharWords().charAt(index)){
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
-                    }else {
-                        index++;
-                        return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT, 0);
+                    if(isCurrentCharWordIsRight(charWord)){
+                        return gotoBreak(false);
                     }
+                    index++;
+                    return gotoNext(0);
                 }else {
                     //right-left
-                    if(charWord != info.getCharWords().charAt(index)){
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
-                    }else {
-                        index++;
-                        int nextLength = this.next.info.getCharWords().length();
-                        if(remainWords >= nextLength + 1){
-                            return new LikeStateStatus(true, LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT, remainWords - (nextLength + 1));
-                        }
-                        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+                    if(isCurrentCharWordIsRight(charWord)){
+                        return gotoBreak(false);
                     }
+                    index++;
+                    int nextLength = this.next.info.getCharWords().length();
+                    if(remainWords >= nextLength + 1){
+                        return gotoNext(remainWords - (nextLength + 1));
+                    }
+                    return gotoBreak(false);
                 }
             }
         }
-
-        return new LikeStateStatus(false, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
+        return gotoBreak(false);
     }
 
 

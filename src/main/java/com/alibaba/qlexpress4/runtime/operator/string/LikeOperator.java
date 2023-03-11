@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.string;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.data.instruction.LikeStateMachine;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
@@ -27,7 +28,9 @@ public class LikeOperator extends BaseBinaryOperator {
         if (!(target instanceof String) || !(pattern instanceof String)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
-        return matchPattern((String) target, (String) pattern);
+        LikeStateMachine likeStateMachine = LikeStateMachine.builder().loadPattern((String)pattern).build();
+        return likeStateMachine.match((String) target);
+        //return matchPattern((String) target, (String) pattern);
     }
 
     private static boolean matchPattern(String s, String pattern) {

@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.parser.*;
+import com.alibaba.qlexpress4.parser.Scanner;
 import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
