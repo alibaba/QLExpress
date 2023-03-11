@@ -20,9 +20,6 @@ public class LikeStateMatcher {
         if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
             this.current = this.current.next();
         }
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_PREV)){
-            this.current = this.current.prev();
-        }
         return stateStatus;
     }
 

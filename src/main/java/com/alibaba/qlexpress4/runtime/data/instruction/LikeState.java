@@ -43,16 +43,14 @@ public class LikeState {
             return gotoBreak(true);
         }
         if(this.next() == null){
-            //LAST
+            //is last pattern node
             if(isCurrentLikePatternEquals(LikeWordPatternEnum.LEFT_PERCENT_SIGN)){
-                //left
                 if(isCurrentCharWordIsRight(charWord)){
                     return gotoBreak(false);
                 }
                 index++;
                 return stay();
             }else {
-                //surround
                 if(isCurrentCharWordIsRight(charWord)){
                     if(isEndWord){
                         //dest is end
@@ -61,7 +59,7 @@ public class LikeState {
                     return stay();
                 }else {
                     if(index == this.info.getCharWords().length() - 1){
-                        //pattern is end
+                        //patternWord is end
                         return gotoBreak(true);
                     }
                     index++;
