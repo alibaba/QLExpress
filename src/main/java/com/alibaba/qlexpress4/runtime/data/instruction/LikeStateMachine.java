@@ -20,20 +20,43 @@ public class LikeStateMachine{
         return new LikeStateMachineBuilder();
     }
 
-    private void addLink(LikeState likeState){
-        if(this.size == 0){
-            this.start = likeState;
-            this.current = likeState;
-        }else {
-            LikeState curr = this.current;
-            likeState.setPrev(curr);
-            curr.setNext(likeState);
-            this.current = likeState;
+    private boolean matchEquals(String desc){
+        return desc.equals(this.resultPattern);
+    }
+    private boolean matchContains(String desc){
+        return desc.contains(this.resultPattern);
+    }
+    private boolean matchStartsWith(String desc){
+        return desc.startsWith(this.resultPattern);
+    }
+    private boolean matchEndsWith(String desc){
+        return desc.endsWith(this.resultPattern);
+    }
+    private boolean matchComplex(String dest){
+        final int destLen = dest.length();
+        LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
+        int stayJumpNum = 0;
+        for(int i = 0; i < destLen; i++){
+            if(stayJumpNum > 0){
+                stayJumpNum --;
+                continue;
+            }
+            char word = dest.charAt(i);
+            LikeStateStatus likeStateStatus = likeStateMatcher.findState(word, i == destLen - 1, destLen - i);
+            if(!likeStateStatus.getResult()){
+                //中断
+                return false;
+            }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.BREAK)){
+                //中断
+                return true;
+            }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
+                stayJumpNum = likeStateStatus.getStayJumpNum();
+            }
         }
-        size++;
+        return true;
     }
 
-    private LikeStateMachine execute(String pattern){
+    private LikeStateMachine compile(String pattern){
         LikeStateMachine likeStateMachine = new LikeStateMachine();
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -125,6 +148,20 @@ public class LikeStateMachine{
         return LikeWordPatternEnum.LEFT_PERCENT_SIGN;
     }
 
+
+    private void addLink(LikeState likeState){
+        if(this.size == 0){
+            this.start = likeState;
+            this.current = likeState;
+        }else {
+            LikeState curr = this.current;
+            likeState.setPrev(curr);
+            curr.setNext(likeState);
+            this.current = likeState;
+        }
+        size++;
+    }
+
     private void createLinkNode(LikeStateMachine likeStateMachine, String charWords, LikeWordPatternEnum likeWordPatternEnum){
         LikeStateWord likeStatementWord = new LikeStateWord(charWords, likeWordPatternEnum);
         LikeState likeState = new LikeState();
@@ -133,41 +170,6 @@ public class LikeStateMachine{
         likeStateMachine.resultPattern = charWords;
     }
 
-    private boolean matchEquals(String desc){
-        return desc.equals(this.resultPattern);
-    }
-    private boolean matchContains(String desc){
-        return desc.contains(this.resultPattern);
-    }
-    private boolean matchStartsWith(String desc){
-        return desc.startsWith(this.resultPattern);
-    }
-    private boolean matchEndsWith(String desc){
-        return desc.endsWith(this.resultPattern);
-    }
-    private boolean matchComplex(String dest){
-        final int destLen = dest.length();
-        LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
-        int stayJumpNum = 0;
-        for(int i = 0; i < destLen; i++){
-            if(stayJumpNum > 0){
-                stayJumpNum --;
-                continue;
-            }
-            char word = dest.charAt(i);
-            LikeStateStatus likeStateStatus = likeStateMatcher.findState(word, i == destLen - 1, destLen - i);
-            if(!likeStateStatus.getResult()){
-                //中断
-                return false;
-            }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.BREAK)){
-                //中断
-                return true;
-            }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
-                stayJumpNum = likeStateStatus.getStayJumpNum();
-            }
-        }
-        return true;
-    }
 
 
     public static class LikeStateMachineBuilder {
@@ -179,7 +181,7 @@ public class LikeStateMachine{
         }
 
         public LikeStateMachine build(){
-            return new LikeStateMachine().execute(this.pattern);
+            return new LikeStateMachine().compile(this.pattern);
         }
     }
 
