@@ -54,9 +54,6 @@ public class ExpressUtil {
     public static final String DT_char = "char";
     public static final String DT_boolean = "boolean";
 
-    public static final char LIKE_PERCENT_SIGN = '%';
-    public static final String BLANK_STRING = "";
-
     private static final Map<String, Object> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private static final Class<?>[][] CLASS_MATCHES = new Class[][] {

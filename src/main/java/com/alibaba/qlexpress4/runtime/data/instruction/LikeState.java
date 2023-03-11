@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data.instruction;
 
-import com.ql.util.express.ExpressUtil;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
  * @Author TaoKan
@@ -41,7 +41,7 @@ public class LikeState {
         if(remainWords < this.info.getCharWords().length() - index){
             return gotoBreak(false);
         }
-        if(ExpressUtil.BLANK_STRING.equals(this.info.getCharWords())){
+        if(BasicUtil.BLANK_STRING.equals(this.info.getCharWords())){
             //only exist '%'
             return gotoBreak(true);
         }

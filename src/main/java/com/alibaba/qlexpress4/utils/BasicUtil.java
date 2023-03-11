@@ -25,6 +25,10 @@ public class BasicUtil {
     public static final String SPLIT_NAME = ";";
     public static final String SPLIT_COLLECTOR = ",";
 
+    public static final char LIKE_PERCENT_SIGN = '%';
+    public static final String BLANK_STRING = "";
+
+
     public static final int LEVEL_FACTOR = 10000;
     public static final int DEFAULT_MATCH_INDEX = -1;
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
