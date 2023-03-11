@@ -26,9 +26,6 @@ public class CastInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(0);
-        if(parameters.size() != 2){
-            throw errorReporter.report("CAST_PARAM_GET_ERROR", "cast input param num is error");
-        }
         Object value = parameters.get(1).get();
         Class<?> targetClz = popTargetClz(parameters.get(0).get());
         if (value == null) {
