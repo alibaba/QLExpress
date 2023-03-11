@@ -34,9 +34,10 @@ public class LikeStateMachine{
     }
 
     private LikeStateMachine execute(String pattern){
-        final int patternLen = pattern.length();
         LikeStateMachine likeStateMachine = new LikeStateMachine();
         StringBuilder stringBuilder = new StringBuilder();
+
+        final int patternLen = pattern.length();
         boolean endOfPercentSign = false, isRight = false, noSign = true;
         int index = 0, percentCount = 0;
         for(int i = 0; i < patternLen; i++){
@@ -89,8 +90,21 @@ public class LikeStateMachine{
         return likeStateMachine;
     }
 
+    public boolean match(String dest){
+        if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
+            return matchEquals(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.CONTAINS)){
+            return matchContains(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.START_WITH)){
+            return matchStartsWith(dest);
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.END_WITH)){
+            return matchEndsWith(dest);
+        }else {
+            return matchComplex(dest);
+        }
+    }
 
-    private void setMatchType(LikeStateMachine likeStateMachine,LikeStateMatchType likeStateMatchType){
+    private void setMatchTypeOfMachine(LikeStateMachine likeStateMachine,LikeStateMatchType likeStateMatchType){
         if(likeStateMachine.likeStateMatchType == null){
             likeStateMachine.likeStateMatchType = likeStateMatchType;
         }else {
@@ -101,13 +115,13 @@ public class LikeStateMachine{
     private LikeWordPatternEnum enhanceNormalWordsLikeWordPatternEnum(LikeStateMachine likeStateMachine, int percentCount, int index, boolean isRight){
         if(isRight){
             if(percentCount == 0){
-                setMatchType(likeStateMachine,LikeStateMatchType.START_WITH);
+                setMatchTypeOfMachine(likeStateMachine,LikeStateMatchType.START_WITH);
                 return LikeWordPatternEnum.RIGHT_PERCENT_SIGN;
             }
-            setMatchType(likeStateMachine,LikeStateMatchType.CONTAINS);
+            setMatchTypeOfMachine(likeStateMachine,LikeStateMatchType.CONTAINS);
             return LikeWordPatternEnum.SURROUND_PERCENT_SIGN;
         }
-        setMatchType(likeStateMachine,LikeStateMatchType.END_WITH);
+        setMatchTypeOfMachine(likeStateMachine,LikeStateMatchType.END_WITH);
         return LikeWordPatternEnum.LEFT_PERCENT_SIGN;
     }
 
@@ -131,7 +145,6 @@ public class LikeStateMachine{
     private boolean matchEndsWith(String desc){
         return desc.endsWith(this.resultPattern);
     }
-
     private boolean matchComplex(String dest){
         final int destLen = dest.length();
         LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
@@ -156,19 +169,6 @@ public class LikeStateMachine{
         return true;
     }
 
-    public boolean match(String dest){
-        if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
-            return matchEquals(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.CONTAINS)){
-            return matchContains(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.START_WITH)){
-            return matchStartsWith(dest);
-        }else if(this.likeStateMatchType.equals(LikeStateMatchType.END_WITH)){
-            return matchEndsWith(dest);
-        }else {
-            return matchComplex(dest);
-        }
-    }
 
     public static class LikeStateMachineBuilder {
         private String pattern;
