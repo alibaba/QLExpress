@@ -36,7 +36,6 @@ public class LikeState {
         return new LikeStateStatus(result, LikeStateStatus.LikeStateStatusEnum.BREAK, 0);
     }
 
-
     public LikeStateStatus matchWords(char charWord, boolean isEndWord, int remainWords){
         if(remainWords < this.info.getCharWords().length() - index){
             return gotoBreak(false);

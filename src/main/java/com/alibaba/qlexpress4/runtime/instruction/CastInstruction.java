@@ -2,10 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.runtime.MetaClass;
-import com.alibaba.qlexpress4.runtime.QContext;
-import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
@@ -28,8 +25,10 @@ public class CastInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        Object value = qContext.pop().get();
-        Class<?> targetClz = popTargetClz(qContext.pop().get());
+        Parameters object = qContext.pop(0);
+        Object oriTargetClz = object.get(0).get();
+        Object value = object.get(1).get();
+        Class<?> targetClz = popTargetClz(oriTargetClz);
         if (value == null) {
             qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;
