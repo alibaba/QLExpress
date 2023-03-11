@@ -5,8 +5,8 @@ package com.alibaba.qlexpress4.runtime.data.instruction;
  * @Date 2023/1/30 下午9:13
  */
 public class LikeStateMatcher {
+
     private LikeState current;
-    private int index;
 
     public LikeStateMatcher(LikeState likeState){
         this.current = likeState;
@@ -21,18 +21,5 @@ public class LikeStateMatcher {
             this.current = this.current.next();
         }
         return stateStatus;
-    }
-
-    public LikeState getCurrent() {
-        return current;
-    }
-
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
     }
 }
