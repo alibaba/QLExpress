@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.utils;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.enums.AccessMode;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MemberHandler;
@@ -64,13 +65,13 @@ public class PropertiesUtil {
      * @param name
      * @return Object
      */
-    public static Object getPropertyValue(Object bean, String name, boolean allowAccessPrivate) throws Throwable {
+    public static Object getPropertyValue(Object bean, String name, QLOptions qlOptions) throws Throwable {
         Member accessMember = MemberHandler.Access.getAccessMember(bean.getClass(), name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
-                return MethodHandler.Access.accessMethodValue(accessMember, bean, null, allowAccessPrivate);
+                return MethodHandler.Access.accessMethodValue(accessMember, bean, null, qlOptions);
             } else if (accessMember instanceof Field) {
-                return FieldHandler.Access.accessFieldValue(accessMember, bean, allowAccessPrivate);
+                return FieldHandler.Access.accessFieldValue(accessMember, bean, qlOptions);
             }
         }
         return null;
@@ -115,13 +116,13 @@ public class PropertiesUtil {
      * @param name
      * @return
      */
-    public static Object getClzField(Class<?> clazz, String name, boolean allowAccessPrivate) throws Throwable {
+    public static Object getClzField(Class<?> clazz, String name, QLOptions qlOptions) throws Throwable {
         Member accessMember = MemberHandler.Access.getAccessMember(clazz, name, AccessMode.READ);
         if (accessMember != null) {
             if (accessMember instanceof Method) {
-                return MethodHandler.Access.accessMethodValue(accessMember, null, null, allowAccessPrivate);
+                return MethodHandler.Access.accessMethodValue(accessMember, null, null, qlOptions);
             } else if (accessMember instanceof Field) {
-                return FieldHandler.Access.accessFieldValue(accessMember, null, allowAccessPrivate);
+                return FieldHandler.Access.accessFieldValue(accessMember, null, qlOptions);
             }
         }
         return null;

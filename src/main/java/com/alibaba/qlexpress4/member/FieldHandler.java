@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
@@ -38,12 +39,12 @@ public class FieldHandler extends MemberHandler {
             return accessField.getType();
         }
 
-        public static Object accessFieldValue(Member accessMember, Object bean, boolean allowAccessPrivate) throws IllegalAccessException {
+        public static Object accessFieldValue(Member accessMember, Object bean, QLOptions qlOptions) throws IllegalAccessException {
             Field accessField = ((Field) accessMember);
             if (BasicUtil.isPublic(accessField)) {
                 return accessField.get(bean);
             } else {
-                if(!allowAccessPrivate){
+                if(!qlOptions.enableAllowAccessPrivateMethod()){
                     throw new IllegalAccessException("can not allow access");
                 }else {
                     synchronized (accessField) {

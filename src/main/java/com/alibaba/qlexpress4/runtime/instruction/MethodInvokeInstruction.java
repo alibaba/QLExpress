@@ -84,7 +84,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             }
             try {
                 Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
-                        (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
+                        (Object[]) convertResult.getCastValue(),qlOptions);
                 Value dataValue = new DataValue(value);
                 qContext.push(dataValue);
             }catch (InvocationTargetException e) {

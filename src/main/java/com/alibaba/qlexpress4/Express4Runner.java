@@ -16,7 +16,6 @@ import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -130,12 +129,12 @@ public class Express4Runner {
 
     private void addFunctionByObject(String name, Object object, String methodName) {
         List<Method> methods = PropertiesUtil.getMethod(object.getClass(), methodName, false);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, object, false)));
+        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, object, QLOptions.DEFAULT_OPTIONS)));
     }
 
     private void addFunctionByClass(String name, Class<?> clazz, String methodName) {
         List<Method> methods = PropertiesUtil.getClzMethod(clazz, methodName, false);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, clazz, false)));
+        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, clazz, QLOptions.DEFAULT_OPTIONS)));
     }
 
     private void addFunctionByAnnotation(Class<?> clazz, Object object) {
@@ -145,7 +144,7 @@ public class Express4Runner {
                 for (String value : QLFunctionUtil.getQLFunctionValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, false)));
+                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, QLOptions.DEFAULT_OPTIONS)));
                 }
             }
         }
@@ -158,7 +157,7 @@ public class Express4Runner {
                 for (String value : QLFieldUtil.getQLFieldValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, false)));
+                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, QLOptions.DEFAULT_OPTIONS)));
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime.data.lambda;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
@@ -21,12 +22,12 @@ public class QLambdaMethod implements QLambda {
 
     private final List<Method> methods;
     private final Object bean;
-    private final boolean allowAccessPrivate;
+    private final QLOptions qlOptions;
 
-    public QLambdaMethod(List<Method> methods, Object obj, boolean allowAccessPrivate) {
+    public QLambdaMethod(List<Method> methods, Object obj, QLOptions qlOptions) {
         this.methods = methods;
         this.bean = obj;
-        this.allowAccessPrivate = allowAccessPrivate;
+        this.qlOptions = qlOptions;
     }
 
     @Override
@@ -49,13 +50,13 @@ public class QLambdaMethod implements QLambda {
             }
             try {
                 Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
-                        (Object[]) convertResult.getCastValue(),allowAccessPrivate);
+                        (Object[]) convertResult.getCastValue(),qlOptions);
                 return new QResult(new DataValue(value), QResult.ResultType.RETURN);
             }catch (Throwable t){
                 throw new RuntimeException(t);
             }
         } else {
-            if (!allowAccessPrivate) {
+            if (!qlOptions.enableAllowAccessPrivateMethod()) {
                 throw new RuntimeException("QLambdaMethod not accessible");
             } else {
                 synchronized (method) {

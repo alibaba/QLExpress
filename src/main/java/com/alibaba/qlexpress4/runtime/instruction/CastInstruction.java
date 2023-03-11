@@ -25,9 +25,18 @@ public class CastInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        Parameters parameters = qContext.pop(0);
-        Object value = parameters.get(1).get();
-        Class<?> targetClz = popTargetClz(parameters.get(0).get());
+        Object rs = qContext.pop();
+        Object value;
+        Class<?> targetClz;
+        if(rs != null){
+            Value parameters = (Value) rs;
+            value = parameters.get();
+            targetClz = popTargetClz(parameters.getType());
+        }else {
+            Parameters parameters = qContext.pop(0);
+            value = parameters.get(1).get();
+            targetClz = popTargetClz(parameters.get(0).get());
+        }
         if (value == null) {
             qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;

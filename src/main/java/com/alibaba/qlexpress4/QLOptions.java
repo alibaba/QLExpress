@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.parser.ImportManager;
+import com.alibaba.qlexpress4.protocol.DefaultQLMetaProtocol;
+import com.alibaba.qlexpress4.protocol.QLMetaProtocol;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +35,12 @@ public class QLOptions {
      * default false
      */
     private final boolean allowAccessPrivateMethod;
+
+    /**
+     * qlMetaProtocol
+     * user register meta protocol
+     */
+    private final QLMetaProtocol qlMetaProtocol;
 
     /**
      * custom classLoader
@@ -86,7 +94,7 @@ public class QLOptions {
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer, QLMetaProtocol qlMetaProtocol) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -97,6 +105,7 @@ public class QLOptions {
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
+        this.qlMetaProtocol = qlMetaProtocol;
     }
 
     public static Builder builder() {
@@ -143,6 +152,9 @@ public class QLOptions {
         return debugInfoConsumer;
     }
 
+    public QLMetaProtocol getQLMetaProtocol() { return qlMetaProtocol; }
+
+
     public static class Builder {
 
         private boolean precise = false;
@@ -150,6 +162,8 @@ public class QLOptions {
         private boolean polluteUserContext = false;
 
         private boolean allowAccessPrivateMethod;
+
+        private QLMetaProtocol qlMetaProtocol = new DefaultQLMetaProtocol();
 
         private ClassLoader classLoader = QLOptions.class.getClassLoader();
 
@@ -183,6 +197,11 @@ public class QLOptions {
 
         public Builder allowAccessPrivateMethod(boolean allowAccessPrivateMethod) {
             this.allowAccessPrivateMethod = allowAccessPrivateMethod;
+            return this;
+        }
+
+        public Builder setQLMetaProtocol(QLMetaProtocol qlMetaProtocol){
+            this.qlMetaProtocol = qlMetaProtocol;
             return this;
         }
 
@@ -223,7 +242,7 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
-                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer, qlMetaProtocol);
         }
     }
 

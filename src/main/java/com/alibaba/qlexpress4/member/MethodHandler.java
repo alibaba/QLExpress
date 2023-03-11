@@ -1,10 +1,14 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.Express4Runner;
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
+
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -17,6 +21,7 @@ import java.util.List;
  * @Date 2022/4/7 下午6:05
  */
 public class MethodHandler extends MemberHandler {
+
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
@@ -169,25 +174,26 @@ public class MethodHandler extends MemberHandler {
             return accessMethod.getReturnType();
         }
 
-        public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
+        public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, QLOptions qlOptions) throws
                 Throwable {
-            Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod)) {
-                return accessMethod.invoke(bean, params);
-            } else {
-                if(!allowAccessPrivateMethod){
-                    throw new IllegalAccessException("can not allow access");
-                }else {
-                    synchronized (accessMethod) {
-                        try {
-                            accessMethod.setAccessible(true);
-                            return accessMethod.invoke(bean, params);
-                        } finally {
-                            accessMethod.setAccessible(false);
-                        }
-                    }
-                }
-            }
+              return qlOptions.getQLMetaProtocol().methodInvoke(bean,params,((Method) accessMember),qlOptions.enableAllowAccessPrivateMethod());
+//            Method accessMethod = ((Method) accessMember);
+//            if (BasicUtil.isPublic(accessMethod)) {
+//                return accessMethod.invoke(bean, params);
+//            } else {
+//                if(!qlOptions.enableAllowAccessPrivateMethod()){
+//                    throw new IllegalAccessException("can not allow access");
+//                }else {
+//                    synchronized (accessMethod) {
+//                        try {
+//                            accessMethod.setAccessible(true);
+//                            return accessMethod.invoke(bean, params);
+//                        } finally {
+//                            accessMethod.setAccessible(false);
+//                        }
+//                    }
+//                }
+//            }
         }
 
         public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)

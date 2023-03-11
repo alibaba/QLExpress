@@ -23,6 +23,7 @@ public class InitOptions {
         return useCacheClear;
     }
 
+
     public static class Builder {
         private boolean useCacheClear;
 
