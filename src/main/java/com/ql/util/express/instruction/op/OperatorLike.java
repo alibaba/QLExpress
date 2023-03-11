@@ -1,6 +1,5 @@
 package com.ql.util.express.instruction.op;
 
-import com.ql.util.express.LikeStateMachine;
 import com.ql.util.express.Operator;
 
 public class OperatorLike extends Operator {
