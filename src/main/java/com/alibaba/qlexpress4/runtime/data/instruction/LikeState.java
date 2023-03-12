@@ -40,10 +40,6 @@ public class LikeState {
         if(remainWords < this.info.getCharWords().length() - index){
             return gotoBreak(false);
         }
-        if(BasicUtil.BLANK_STRING.equals(this.info.getCharWords())){
-            //only exist '%'
-            return gotoBreak(true);
-        }
         if(this.next() == null){
             //is last pattern node
             if(isCurrentLikePatternEquals(LikeWordPatternEnum.LEFT_PERCENT_SIGN)){

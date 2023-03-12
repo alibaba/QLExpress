@@ -57,7 +57,9 @@ public class LikeStateMachine{
     }
 
     public boolean match(String dest){
-        if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
+        if(this.likeStateMatchType.equals(LikeStateMatchType.ALL_MATCH)){
+            return true;
+        }else if(this.likeStateMatchType.equals(LikeStateMatchType.EQUALS)){
             return matchEquals(dest);
         }else if(this.likeStateMatchType.equals(LikeStateMatchType.CONTAINS)){
             return matchContains(dest);
@@ -120,6 +122,9 @@ public class LikeStateMachine{
         if(noSign){
             likeStateMachine.likeStateMatchType = LikeStateMatchType.EQUALS;
             likeStateMachine.resultPattern = pattern;
+        }
+        if(percentCount == patternLen){
+            likeStateMachine.likeStateMatchType = LikeStateMatchType.ALL_MATCH;
         }
         if(likeStateMachine.likeStateMatchType == null){
             likeStateMachine.likeStateMatchType = LikeStateMatchType.COMPLEX;
@@ -187,6 +192,6 @@ public class LikeStateMachine{
     }
 
     private enum LikeStateMatchType{
-        START_WITH,END_WITH,CONTAINS,EQUALS,COMPLEX
+        START_WITH,END_WITH,CONTAINS,EQUALS,ALL_MATCH,COMPLEX
     }
 }
