@@ -107,11 +107,6 @@ public class ExpressRunner {
     private final ThreadLocal<IOperateDataCache> operateDataCacheThreadLocal = ThreadLocal.withInitial(
         () -> new OperateDataCacheImpl(30));
 
-    private static final ThreadPoolExecutor PARSER_EXECUTOR = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors()
-            , Runtime.getRuntime().availableProcessors(),
-            0, TimeUnit.MINUTES, new LinkedBlockingDeque<>(1024));
-
-
     public IOperateDataCache getOperateDataCache() {
         return this.operateDataCacheThreadLocal.get();
     }
@@ -645,7 +640,7 @@ public class ExpressRunner {
                 futureTask = expressInstructionSetCache.putIfAbsent(expressString, parseTask);
                 if (futureTask == null) {
                     futureTask = parseTask;
-                    PARSER_EXECUTOR.submit(parseTask);
+                    parseTask.run();
                 }
             }
             parseResult = futureTask.get();
@@ -725,7 +720,7 @@ public class ExpressRunner {
             futureTask = expressInstructionSetCache.putIfAbsent(expressString, parseTask);
             if (futureTask == null) {
                 futureTask = parseTask;
-                PARSER_EXECUTOR.submit(parseTask);
+                parseTask.run();
             }
         }
         return futureTask.get();
