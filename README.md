@@ -667,7 +667,7 @@ try {
 
 ```java
 // 设置编译期白名单
-QLExpressRunStrategy.setCompileWhiteClassList(Arrays.asList(
+QLExpressRunStrategy.setCompileWhiteCheckerList(Arrays.asList(
     // 精确设置
     CheckerFactory.must(Date.class),
     // 子类设置
