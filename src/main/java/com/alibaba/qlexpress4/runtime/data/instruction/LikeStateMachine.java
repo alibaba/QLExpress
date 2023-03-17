@@ -38,7 +38,8 @@ public class LikeStateMachine{
         int gotoOffSet = 0;
         for(int i = 0; i < destLen; i++){
             if(gotoOffSet > 0){
-                gotoOffSet --;
+                i = i+gotoOffSet-1;
+                gotoOffSet = 0;
                 continue;
             }
             char word = dest.charAt(i);
