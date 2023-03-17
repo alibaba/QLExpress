@@ -37,11 +37,6 @@ public class LikeStateMachine{
         LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
         int gotoOffSet = 0;
         for(int i = 0; i < destLen; i++){
-            if(gotoOffSet > 0){
-                i = i+gotoOffSet-1;
-                gotoOffSet = 0;
-                continue;
-            }
             char word = dest.charAt(i);
             LikeStateStatus likeStateStatus = likeStateMatcher.findState(word, i == destLen - 1, destLen - i);
             if(!likeStateStatus.getResult()){
@@ -52,6 +47,10 @@ public class LikeStateMachine{
                 return true;
             }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
                 gotoOffSet = likeStateStatus.getStayJumpNum();
+                if(gotoOffSet > 0){
+                    i = i+gotoOffSet;
+                    continue;
+                }
             }
         }
         return true;
