@@ -38,7 +38,7 @@ public class OperatorEqualsLessMore extends Operator {
 
         // 进行其他大小比较操作
         if (obj1 == null || obj2 == null) {
-            if (isCompareNullLessMoreAsFalse()) {
+            if (!isCompareNullLessMoreAsFalse()) {
                 return false;
             }
             throw new QLException("空操作数无法进行数字比较操作：left = " + obj1 + ",right = " + obj2);
