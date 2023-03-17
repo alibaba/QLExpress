@@ -35,7 +35,6 @@ public class LikeStateMachine{
     private boolean matchComplex(String dest){
         final int destLen = dest.length();
         LikeStateMatcher likeStateMatcher = new LikeStateMatcher(this.start);
-        int gotoOffSet = 0;
         for(int i = 0; i < destLen; i++){
             char word = dest.charAt(i);
             LikeStateStatus likeStateStatus = likeStateMatcher.findState(word, i == destLen - 1, destLen - i);
@@ -46,11 +45,8 @@ public class LikeStateMachine{
                 //中断
                 return true;
             }else if(likeStateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
-                gotoOffSet = likeStateStatus.getStayJumpNum();
-                if(gotoOffSet > 0){
-                    i = i+gotoOffSet;
-                    continue;
-                }
+                i = i+likeStateStatus.getStayJumpNum();
+                continue;
             }
         }
         return true;
