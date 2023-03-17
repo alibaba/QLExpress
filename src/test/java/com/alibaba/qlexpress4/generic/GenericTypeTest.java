@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 public class GenericTypeTest {
     @Test
@@ -28,11 +27,11 @@ public class GenericTypeTest {
         // 获取方法出入参的泛型类型
         Method method1 = Class4GenericType.class.getMethod("method1", List.class);
         Parameter firstParameter = method1.getParameters()[0];
-        ParameterizedTypeImpl firstParameterizedType = (ParameterizedTypeImpl)(firstParameter.getParameterizedType());
+        ParameterizedType firstParameterizedType = (ParameterizedType)(firstParameter.getParameterizedType());
         Assert.assertEquals(Long.class, firstParameterizedType.getActualTypeArguments()[0]);
 
         Type returnType = method1.getGenericReturnType();
-        ParameterizedTypeImpl returnParameterizedType = (ParameterizedTypeImpl)returnType;
+        ParameterizedType returnParameterizedType = (ParameterizedType)returnType;
         Assert.assertEquals(String.class, returnParameterizedType.getActualTypeArguments()[0]);
     }
 

@@ -15,6 +15,6 @@ assert(512D == 512D);
 
 assertFalse(512 == 513);
 
-// assertFalse(97 == (char) 'b');
-// assert((char) 'a' == 97);
-// assert(new Character('a') == 97);
+assertFalse(97 == (char) 'b');
+assert((char) 'a' == 97);
+assert(new Character('a') == 97);
