@@ -8,18 +8,15 @@ public class LikeStateMatcher {
 
     private LikeState current;
 
-    public LikeStateMatcher(LikeState likeState){
+    public LikeStateMatcher(LikeState likeState) {
         this.current = likeState;
     }
 
-    protected LikeStateStatus findState(char word, boolean isEndWord, int remainWords){
-        LikeStateStatus stateStatus = this.current.matchWords(word, isEndWord, remainWords);
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.BREAK)){
-            return stateStatus;
-        }
-        if(stateStatus.getStatus().equals(LikeStateStatus.LikeStateStatusEnum.GOTO_NEXT)){
-            this.current = this.current.next();
-        }
-        return stateStatus;
+    public LikeState getCurrent(){
+        return this.current;
+    }
+
+    public void goNext() {
+        this.current = this.current.next();
     }
 }

@@ -6,9 +6,9 @@ package com.alibaba.qlexpress4.runtime.data.instruction;
  */
 public class LikeStateWord {
     private final String charWords;
-    private final LikeWordPatternEnum likeWordPatternEnum;
+    private final int likeWordPatternEnum;
 
-    public LikeStateWord(final String charWords, final LikeWordPatternEnum likeWordPatternEnum){
+    public LikeStateWord(final String charWords, final int likeWordPatternEnum){
         this.charWords = charWords;
         this.likeWordPatternEnum = likeWordPatternEnum;
     }
@@ -17,7 +17,7 @@ public class LikeStateWord {
         return charWords;
     }
 
-    public LikeWordPatternEnum getLikeWordPatternEnum() {
+    public int getLikeWordPatternEnum() {
         return likeWordPatternEnum;
     }
 
