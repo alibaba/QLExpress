@@ -1,14 +1,5 @@
 package com.ql.util.express;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.exception.QLException;
@@ -16,25 +7,13 @@ import com.ql.util.express.instruction.ForRelBreakContinue;
 import com.ql.util.express.instruction.IOperateDataCache;
 import com.ql.util.express.instruction.InstructionFactory;
 import com.ql.util.express.instruction.OperateDataCacheImpl;
-import com.ql.util.express.instruction.op.OperatorBase;
-import com.ql.util.express.instruction.op.OperatorFactory;
-import com.ql.util.express.instruction.op.OperatorInstanceOf;
-import com.ql.util.express.instruction.op.OperatorMinMax;
-import com.ql.util.express.instruction.op.OperatorPrint;
-import com.ql.util.express.instruction.op.OperatorPrintln;
-import com.ql.util.express.instruction.op.OperatorRound;
-import com.ql.util.express.instruction.op.OperatorSelfDefineClassFunction;
-import com.ql.util.express.instruction.op.OperatorSelfDefineServiceFunction;
-import com.ql.util.express.parse.AppendingClassFieldManager;
-import com.ql.util.express.parse.AppendingClassMethodManager;
-import com.ql.util.express.parse.ExpressNode;
-import com.ql.util.express.parse.ExpressPackage;
-import com.ql.util.express.parse.ExpressParse;
-import com.ql.util.express.parse.NodeType;
-import com.ql.util.express.parse.NodeTypeManager;
-import com.ql.util.express.parse.Word;
+import com.ql.util.express.instruction.op.*;
+import com.ql.util.express.parse.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 语法分析和计算的入口类
@@ -99,7 +78,7 @@ public class ExpressRunner {
     /**
      * 自动生成临时参数序号
      */
-    private final AtomicLong tempAttrNo = new AtomicLong(0);
+    private long tempAttrNo = 0;
 
     public AppendingClassMethodManager getAppendingClassMethodManager() {
         return appendingClassMethodManager;
@@ -121,7 +100,7 @@ public class ExpressRunner {
     }
 
     public long nextTempAttrNo(){
-        return tempAttrNo.getAndIncrement();
+        return tempAttrNo++;
     }
 
     public ExpressRunner() {
