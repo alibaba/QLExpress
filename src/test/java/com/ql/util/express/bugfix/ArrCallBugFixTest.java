@@ -25,8 +25,7 @@ public class ArrCallBugFixTest {
         m.put("a", m1);
         context.put("l", new Object[] {m});
         String express = "l[0].a.b";
-        Object res = runner.execute(express,
-                context, null, false, true);
+        Object res = runner.execute(express, context, null, false, true);
         Assert.assertEquals("bbb", res);
     }
 
