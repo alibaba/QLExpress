@@ -8,6 +8,7 @@ public class LikeState {
     private LikeStateWord info;
     private LikeState prev;
     private LikeState next;
+    private int index;
 
     public boolean isCurrentLikePatternEquals(int likeWordPatternEnum) {
         return this.info.getLikeWordPatternEnum() == likeWordPatternEnum;
@@ -39,6 +40,14 @@ public class LikeState {
 
     public void setInfo(LikeStateWord info) {
         this.info = info;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
 }

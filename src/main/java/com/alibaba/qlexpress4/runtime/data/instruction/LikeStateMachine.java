@@ -46,51 +46,82 @@ public class LikeStateMachine {
         for (int i = 0; i < size; i++) {
             LikeState likeState = likeStateMatcher.getCurrent();
             String currWords = likeState.getWords();
-            if (likeState.isCurrentLikePatternEquals(1)) {
-                //right
-                boolean result = dest.startsWith(currWords);
-                if (result != true) {
-                    return false;
-                }
-                index += currWords.length();
-                likeStateMatcher.goNext();
-            } else if (likeState.isCurrentLikePatternEquals(0)) {
-                //left
-                return dest.endsWith(currWords);
-            } else {
-                if (likeState.next() == null) {
-                    //surround
-                    return dest.substring(index, destLen).contains(currWords);
-                } else if (likeState.isNextLikePatternEquals(0)) {
-                    //surround-left
-                    String t = dest.substring(index, destLen - likeState.next().getWords().length());
-                    boolean result = t.contains(currWords);
-                    if (result != true) {
+            if(likeState.isCurrentLikePatternEquals(1) && likeState.isNextLikePatternEquals(0)){
+                return dest.startsWith(likeState.getWords()) && dest.endsWith(likeState.next().getWords());
+            }else if(likeState.isCurrentLikePatternEquals(2) && likeState.isNextLikePatternEquals(0)){
+                int length = likeState.next().getWords().length();
+                return charEquals(dest,likeState.next().getWords(),destLen - length, length) && charContains(dest,likeState.getWords(),index);
+            }else if(likeState.isCurrentLikePatternEquals(1) && likeState.isNextLikePatternEquals(2)){
+                if(this.size - likeState.getIndex() == 2){
+                    boolean result = charEquals(dest,likeState.getWords(),0, currWords.length());
+                    if(result != true){
                         return false;
+                    }else {
+                        index += currWords.length();
                     }
-                    index += currWords.length();
                     likeStateMatcher.goNext();
-                } else {
-                    int wordIndex = 0;
-                    int length = currWords.length();
-                    for (int j = index; j < destLen; j++) {
-                        if (dest.charAt(j) == currWords.charAt(wordIndex)) {
-                            wordIndex++;
-                        }
-                        if(wordIndex == length){
-                           likeStateMatcher.goNext();
-                           break;
-                        }
-                        index++;
+                    if(this.size - likeState.getIndex() == 1){
+                        return charEquals(dest,likeStateMatcher.getCurrent().getWords(),0, currWords.length());
                     }
-                    if(index >= destLen){
+                }else {
+                    boolean result = charEquals(dest,likeState.getWords(),0, currWords.length());
+                    if(result != true){
                         return false;
+                    }else {
+                        index += currWords.length();
                     }
+                }
+
+            }else if(likeState.isCurrentLikePatternEquals(2) && likeState.isNextLikePatternEquals(2)){
+                boolean result = charContains(dest,likeState.getWords(),index);
+                if(result != true){
+                    return false;
+                }else {
+                    index += currWords.length();
+                }
+                likeStateMatcher.goNext();
+                if(this.size - likeState.getIndex() == 1){
+                    return charContains(dest,likeStateMatcher.getCurrent().getWords(),index);
                 }
             }
         }
         return true;
     }
+
+    private boolean charContains(String dest, String currWords, int index){
+        int destLen = dest.length();
+        int wordIndex = 0;
+        int length = currWords.length();
+        for (int j = index; j < destLen; j++) {
+            if (dest.charAt(j) == currWords.charAt(wordIndex)) {
+                wordIndex++;
+            }
+            if(wordIndex == length){
+                break;
+            }
+            index++;
+        }
+        if(index >= destLen){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean charEquals(String dest, String word, int index, int size){
+        if(word.length() != size){
+            return false;
+        }
+        int wordIndex = 0;
+        for(int i = index; i < index + size; i++){
+            if(dest.charAt(i) != word.charAt(wordIndex)){
+                return false;
+            }else {
+                wordIndex++;
+            }
+        }
+        return true;
+    }
+
 
     public boolean match(String dest) {
         if (LikeStateMatchType.COMPLEX.equals(this.likeStateMatchType)) {
@@ -203,6 +234,7 @@ public class LikeStateMachine {
         LikeState likeState = new LikeState();
         likeState.setInfo(likeStatementWord);
         likeStateMachine.addLink(likeState);
+        likeState.setIndex(likeStateMachine.size);
         likeStateMachine.resultPattern = resultPattern;
     }
 
