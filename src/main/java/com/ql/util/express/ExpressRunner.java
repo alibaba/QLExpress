@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
@@ -61,7 +61,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private final Map<String, InstructionSet> expressInstructionSetCache;
+    private final Map<String, Future<InstructionSet>> expressInstructionSetCache;
 
     private final ExpressLoader loader;
 
@@ -129,7 +129,7 @@ public class ExpressRunner {
      * @param cacheMap  user can define safe and efficient cache or use default concurrentMap
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace,
-        Map<String, InstructionSet> cacheMap) {
+                         Map<String, Future<InstructionSet>> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
 
@@ -143,9 +143,9 @@ public class ExpressRunner {
      * @param iExpressResourceLoader 表达式的资源装载器
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-        NodeTypeManager nodeTypeManager) {
+                         NodeTypeManager nodeTypeManager) {
         this(isPrecise, isTrace, iExpressResourceLoader,
-            nodeTypeManager, null);
+                nodeTypeManager, null);
     }
 
     /**
@@ -155,7 +155,7 @@ public class ExpressRunner {
      * @param cacheMap               指令集缓存, 必须是线程安全的集合
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-        NodeTypeManager nodeTypeManager, Map<String, InstructionSet> cacheMap) {
+                         NodeTypeManager nodeTypeManager, Map<String, Future<InstructionSet>> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -634,18 +634,7 @@ public class ExpressRunner {
         boolean isCache, boolean isTrace) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
-            parseResult = expressInstructionSetCache.get(expressString);
-            if (parseResult == null) {
-                synchronized (expressInstructionSetCache) {
-                    // 防止在第一次执行时多次计算 parseInstructionSet, 所以需要加锁
-                    // 可以优化成分段锁, 而不是锁整个 cache, 进一步优化可以使用定制的 concurrentMap
-                    parseResult = expressInstructionSetCache.get(expressString);
-                    if (parseResult == null) {
-                        expressInstructionSetCache.put(expressString,
-                            parseResult = this.parseInstructionSet(expressString));
-                    }
-                }
-            }
+            parseResult = getInstructionSetFromLocalCache(expressString);
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
@@ -715,12 +704,17 @@ public class ExpressRunner {
      * @throws Exception
      */
     public InstructionSet getInstructionSetFromLocalCache(String expressString) throws Exception {
-        InstructionSet parseResult = expressInstructionSetCache.get(expressString);
-        if (parseResult == null) {
-            expressInstructionSetCache.putIfAbsent(expressString,
-                parseResult = this.parseInstructionSet(expressString));
+        Future<InstructionSet> futureTask = expressInstructionSetCache.get(expressString);
+        if (futureTask == null) {
+            FutureTask<InstructionSet> parseTask = new FutureTask<>(() -> this.parseInstructionSet(expressString));
+            futureTask = expressInstructionSetCache.putIfAbsent(expressString, parseTask);
+            if (futureTask == null) {
+                futureTask = parseTask;
+                parseTask.run();
+            }
         }
-        return parseResult;
+        return futureTask.get();
+
     }
 
     public InstructionSet createInstructionSet(ExpressNode root, String type) throws Exception {
