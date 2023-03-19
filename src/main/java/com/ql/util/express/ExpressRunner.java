@@ -634,17 +634,7 @@ public class ExpressRunner {
         boolean isCache, boolean isTrace) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
-            Future<InstructionSet> futureTask = expressInstructionSetCache.get(expressString);
-            if (futureTask == null) {
-                FutureTask<InstructionSet> parseTask = new FutureTask<>(() -> this.parseInstructionSet(expressString));
-                futureTask = expressInstructionSetCache.putIfAbsent(expressString, parseTask);
-                if (futureTask == null) {
-                    futureTask = parseTask;
-                    parseTask.run();
-                }
-            }
-            parseResult = futureTask.get();
-
+            parseResult = getInstructionSetFromLocalCache(expressString);
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
@@ -724,6 +714,7 @@ public class ExpressRunner {
             }
         }
         return futureTask.get();
+
     }
 
     public InstructionSet createInstructionSet(ExpressNode root, String type) throws Exception {
