@@ -340,7 +340,7 @@ public class issue_179 extends IssueBase {
         String pattern = "bccs%das";
         String target = "bccsdass";
         LikeStateMachine likeStateMachine = LikeStateMachine.builder().loadPattern((String)pattern).build();
-        Assert.assertTrue((Boolean)likeStateMachine.match((String) target));
+        Assert.assertTrue(!(Boolean)likeStateMachine.match((String) target));
     }
 
     /**
@@ -350,7 +350,7 @@ public class issue_179 extends IssueBase {
     public void testBenchMark1RightNormal(){
         String pattern = "bccs%das";
         String target = "bccsdass";
-        Assert.assertTrue((Boolean)matchPattern(target,pattern));
+        Assert.assertTrue(!(Boolean)matchPattern(target,pattern));
     }
 /**
  * 左右型-短
