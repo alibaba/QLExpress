@@ -1,7 +1,7 @@
 name: Maven Central Repo Deployment
 on:
   release:
-    types: [released]
+    types: [released, prereleased]
 jobs:
   publish:
     runs-on: ubuntu-latest
