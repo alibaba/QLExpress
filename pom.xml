@@ -6,7 +6,7 @@
     <groupId>com.alibaba</groupId>
     <artifactId>QLExpress</artifactId>
     <packaging>jar</packaging>
-    <version>3.3.1</version>
+    <version>3.3.2-SNAPSHOT</version>
     <name>QLExpress</name>
     <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving developers’ productivity in different business scenes.
     </description>
