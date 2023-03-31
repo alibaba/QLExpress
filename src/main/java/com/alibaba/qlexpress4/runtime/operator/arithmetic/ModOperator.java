@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.arithmetic;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
@@ -30,7 +31,7 @@ public class ModOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         return mod(left, right, errorReporter);
     }
 

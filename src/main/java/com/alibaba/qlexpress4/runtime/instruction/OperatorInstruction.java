@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
+import java.util.function.Consumer;
+
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QContext;
@@ -8,8 +10,6 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
-
-import java.util.function.Consumer;
 
 /**
  * @Operation: do middle operator +=,>>,>>>,<<,.
@@ -31,7 +31,7 @@ public class OperatorInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Value rightValue = qContext.pop();
         Value leftValue = qContext.pop();
-        Object result = operator.execute(leftValue, rightValue, errorReporter);
+        Object result = operator.execute(leftValue, rightValue, qlOptions, errorReporter);
         qContext.push(new DataValue(result));
         return QResult.NEXT_INSTRUCTION;
     }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
@@ -33,13 +34,13 @@ import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedAssi
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorAssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorOperator;
+import com.alibaba.qlexpress4.runtime.operator.collection.InOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.EqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.GreaterEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
-import com.alibaba.qlexpress4.runtime.operator.collection.InOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
@@ -133,7 +134,7 @@ public class OperatorManager {
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
         BinaryOperator binaryOperator = new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, ErrorReporter errorReporter) {
+            public Object execute(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
                 return customBinaryOperator.execute(left.get(), right.get());
             }
 
