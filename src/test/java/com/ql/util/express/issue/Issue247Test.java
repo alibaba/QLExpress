@@ -35,4 +35,36 @@ public class Issue247Test {
         Object result = runner.execute(expression, context, null, false, false);
         Assert.assertFalse((Boolean)result);
     }
+
+    @Test
+    public void test_java_compare() {
+        Long l1 = null;
+        Long l2 = null;
+        Assert.assertTrue(l1 == l2);
+        Assert.assertFalse(l1 != l2);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void test_null_java_compare_more() {
+        boolean result = ((Long)null) > ((Long)null);
+        System.out.println("result = " + result);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void test_null_java_compare_more_equal() {
+        boolean result = ((Long)null) >= ((Long)null);
+        System.out.println("result = " + result);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void test_null_java_compare_less() {
+        boolean result = ((Long)null) < ((Long)null);
+        System.out.println("result = " + result);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void test_null_java_compare_less_equal() {
+        boolean result = ((Long)null) <= ((Long)null);
+        System.out.println("result = " + result);
+    }
 }
