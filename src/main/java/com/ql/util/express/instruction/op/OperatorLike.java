@@ -1,18 +1,10 @@
 package com.ql.util.express.instruction.op;
 
-import java.util.ArrayList;
-
 import com.ql.util.express.Operator;
 
 public class OperatorLike extends Operator {
     public OperatorLike(String name) {
         this.name = name;
-    }
-
-    public OperatorLike(String aliasName, String name, String errorInfo) {
-        this.name = name;
-        this.aliasName = aliasName;
-        this.errorInfo = errorInfo;
     }
 
     @Override
@@ -21,51 +13,34 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        boolean result = true;
-        String s1 = op1.toString();
-        String s2 = op2.toString();
-        if (s2.contains("%")) {
-            String[] list = split(s2, "%");
-            int index = 0;
-            for (String s : list) {
-                if (index >= s1.length()) {
-                    result = false;
-                    break;
-                }
-                index = s1.indexOf(s, index);
-                if (index < 0) {
-                    result = false;
-                    break;
-                }
-                index = index + 1;
-            }
-        } else {
-            result = s1.equals(s2);
-        }
+        String s = op1.toString();
+        String pattern = op2.toString();
 
-        return result;
+        return matchPattern(s, pattern);
     }
 
-    public String[] split(String str, String s) {
-        int start = 0;
-        int end;
-        String tmpStr;
-        ArrayList<String> list = new ArrayList<>();
-        do {
-            end = str.indexOf(s, start);
-            if (end < 0) {
-                tmpStr = str.substring(start);
+    protected static boolean matchPattern(String s, String pattern) {
+        int sPointer = 0, pPointer = 0;
+        int sLen = s.length(), pLen = pattern.length();
+        int sRecall = -1, pRecall = -1;
+        while (sPointer < sLen) {
+            if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
+                sPointer++;
+                pPointer++;
+            } else if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+                sRecall = sPointer;
+                pRecall = pPointer;
+                pPointer++;
+            } else if (sRecall >= 0) {
+                sPointer = ++sRecall;
+                pPointer = pRecall + 1;
             } else {
-                tmpStr = str.substring(start, end);
+                return false;
             }
-            if (tmpStr.length() > 0) {
-                list.add(tmpStr);
-            }
-            start = end + 1;
-            if (start >= str.length()) {
-                break;
-            }
-        } while (end >= 0);
-        return list.toArray(new String[0]);
+        }
+        while (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+            pPointer++;
+        }
+        return pPointer == pLen;
     }
 }
