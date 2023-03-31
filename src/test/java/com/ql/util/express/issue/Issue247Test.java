@@ -36,7 +36,15 @@ public class Issue247Test {
                 "2 > null",
                 "2 >= null",
                 "2 < null",
-                "2 <= null"
+                "2 <= null",
+                "null > \"string\"",
+                "null >= \"string\"",
+                "null < \"string\"",
+                "null <= \"string\"",
+                "\"string\" > null",
+                "\"string\" >= null",
+                "\"string\" < null",
+                "\"string\" <= null"
             );
 
             for (String expression : expressionList) {
