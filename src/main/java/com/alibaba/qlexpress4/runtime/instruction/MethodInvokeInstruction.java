@@ -91,7 +91,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                 throw errorReporter.report("NOT_FIND_LAMBDA_METHOD", "lambda method not exists:" + methodName);
             }
         } else {
-            //normal method
+            //normal method invoke
             convertResult = ParametersConversion.convert(params, type, implicitMethod.getMethod().getParameterTypes()
                     , implicitMethod.needImplicitTrans(), implicitMethod.getVars());
             if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
