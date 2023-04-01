@@ -83,7 +83,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                 } catch (NullPointerException e) {
                     throw errorReporter.report(e, "GET_METHOD_VALUE_METHOD_NPE", "instance object is null");
                 } catch (ExceptionInInitializerError e) {
-                    throw errorReporter.report(e, "GET_METHOD_VALUE_INITIAL_ERROR", "initialization provoked by this method:" + methodName);
+                    throw errorReporter.report(e.getException(), "GET_METHOD_VALUE_INITIAL_ERROR", "initialization provoked by this method:" + methodName);
                 } catch (Throwable e) {
                     throw errorReporter.report(e, "GET_METHOD_VALUE_UNEXPECT", "unexpect error");
                 }
@@ -111,7 +111,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             } catch (NullPointerException e) {
                 throw errorReporter.report(e, "GET_METHOD_VALUE_METHOD_NPE", "instance object is null");
             } catch (ExceptionInInitializerError e) {
-                throw errorReporter.report(e, "GET_METHOD_VALUE_INITIAL_ERROR", "initialization provoked by this method:" + methodName);
+                throw errorReporter.report(e.getException(), "GET_METHOD_VALUE_INITIAL_ERROR", "initialization provoked by this method:" + methodName);
             } catch (Throwable e) {
                 throw errorReporter.report(e, "GET_METHOD_VALUE_UNEXPECT", "unexpect error");
             }
