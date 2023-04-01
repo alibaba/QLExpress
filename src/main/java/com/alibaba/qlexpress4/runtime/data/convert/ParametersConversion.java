@@ -25,7 +25,8 @@ public class ParametersConversion {
                 new QLObjectParametersChecker(),
                 new QLLambdaFunctionalChecker(),
                 new QLExtendParametersChecker(),
-                new QLArrayParametersChecker()};
+                new QLArrayParametersChecker(),
+                new QLListParametersChecker()};
     }
 
     public static int calculatorMatchConversionWeight(Class<?>[] goal, Class<?>[] candidate) {
