@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.security;
 
-
-import java.util.List;
+import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -13,16 +12,16 @@ public class StrategyFactory {
      * @param list
      * @return
      */
-    public static StrategyBlackList newStrategyBlackList(List<StrategyStruct> list){
-        return new StrategyBlackList(list);
+    public static StrategyBlackList newStrategyBlackList(Map<Class,String> list){
+        return new QLStrategyBlackList(list);
     }
     /**
      * method runtime white list
      * @param list
      * @return
      */
-    public static StrategyWhiteList newStrategyWhiteList(List<StrategyStruct> list){
-        return new StrategyWhiteList(list);
+    public static StrategyWhiteList newStrategyWhiteList(Map<Class,String> list){
+        return new QLStrategyWhiteList(list);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.security;
 
-import java.util.List;
+import com.alibaba.qlexpress4.member.IMethod;
+import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -8,17 +9,20 @@ import java.util.List;
  */
 public class QLStrategyWhiteList extends StrategyWhiteList {
 
-    public QLStrategyWhiteList(List<StrategyStruct> whiteStrategyStructList) {
+    public QLStrategyWhiteList(Map<Class,String> whiteStrategyStructList) {
         super(whiteStrategyStructList);
     }
 
     @Override
-    public boolean check() {
-        return false;
-    }
-
-    @Override
-    public boolean effect() {
+    public boolean checkInRules(IMethod iMethod) {
+        if(this.getWhiteStrategyStructList().containsKey(iMethod.getClazz())){
+            String name = this.getWhiteStrategyStructList().get(iMethod.getClazz());
+            if(name == null || "".equals(name)){
+                return true;
+            }else {
+                return iMethod.getName().equals(name);
+            }
+        }
         return false;
     }
 }

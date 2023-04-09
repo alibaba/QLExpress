@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.security;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @Author TaoKan
@@ -37,15 +37,15 @@ public class SafePointStrategy {
         public SafePointStrategy defaultSystemStrategy() {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = StrategyEnum.BLACKLIST;
-            StrategyFactory.newStrategyBlackList(Arrays.asList(
-                    new StrategyStruct(System.class, "exit"),
-                    new StrategyStruct(Runtime.class, "exec"),
-                    new StrategyStruct(ProcessBuilder.class, "start"),
-                    new StrategyStruct(Method.class, "invoke"),
-                    new StrategyStruct(Class.class, "forName"),
-                    new StrategyStruct(ClassLoader.class, "loadClass"),
-                    new StrategyStruct(ClassLoader.class, "findClass")
-            ));
+            StrategyFactory.newStrategyBlackList(new HashMap<Class, String>() {{
+                put(System.class, "exit");
+                put(Runtime.class, "exec");
+                put(ProcessBuilder.class, "start");
+                put(Method.class, "invoke");
+                put(ClassLoader.class, "loadClass");
+                put(ClassLoader.class, "findClass");
+                put(Class.class, "forName");
+            }});
             systemStrategy.isSandBoxMode = false;
             return systemStrategy;
         }
@@ -66,17 +66,20 @@ public class SafePointStrategy {
             return selfDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, sandBoxMode);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList strategyBlackList,
+        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
+                strategyBlackList,
                                                       boolean sandBoxMode) {
             return selfDefinedStrategy(strategyEnum, strategyBlackList, null, sandBoxMode);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList strategyWhiteList,
+        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList
+                strategyWhiteList,
                                                       boolean sanBoxMode) {
             return selfDefinedStrategy(strategyEnum, null, strategyWhiteList, sanBoxMode);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList strategyBlackList,
+        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
+                strategyBlackList,
                                                       StrategyWhiteList strategyWhiteList,
                                                       boolean isSandBoxMode) {
             SafePointStrategy systemStrategy = new SafePointStrategy();
