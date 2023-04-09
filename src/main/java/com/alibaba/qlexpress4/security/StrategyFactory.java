@@ -24,4 +24,12 @@ public class StrategyFactory {
         return new QLStrategyWhiteList(list);
     }
 
+    /**
+     * sandbox
+     * @param isSandBoxMode
+     * @return
+     */
+    public static StrategySandBox newStrategySandBox(boolean isSandBoxMode){
+        return new QLStrategySandBoxMode(isSandBoxMode);
+    }
 }

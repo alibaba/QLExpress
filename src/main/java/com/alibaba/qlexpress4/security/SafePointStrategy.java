@@ -11,7 +11,7 @@ public class SafePointStrategy {
     private StrategyEnum strategyEnum;
     private StrategyWhiteList strategyWhiteList;
     private StrategyBlackList strategyBlackList;
-    private boolean isSandBoxMode;
+    private StrategySandBox strategySandBox;
 
     public StrategyEnum getStrategyEnum() {
         return strategyEnum;
@@ -25,8 +25,8 @@ public class SafePointStrategy {
         return strategyWhiteList;
     }
 
-    public boolean isSandBoxMode() {
-        return isSandBoxMode;
+    public StrategySandBox getStrategySandBox() {
+        return strategySandBox;
     }
 
     public static Builder builder() {
@@ -37,7 +37,7 @@ public class SafePointStrategy {
         public SafePointStrategy defaultSystemStrategy() {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = StrategyEnum.BLACKLIST;
-            StrategyFactory.newStrategyBlackList(new HashMap<Class, String>() {{
+            systemStrategy.strategyBlackList = StrategyFactory.newStrategyBlackList(new HashMap<Class, String>() {{
                 put(System.class, "exit");
                 put(Runtime.class, "exec");
                 put(ProcessBuilder.class, "start");
@@ -46,47 +46,43 @@ public class SafePointStrategy {
                 put(ClassLoader.class, "findClass");
                 put(Class.class, "forName");
             }});
-            systemStrategy.isSandBoxMode = false;
+            systemStrategy.strategySandBox = StrategyFactory.newStrategySandBox(false);
             return systemStrategy;
         }
 
         public SafePointStrategy selfDefinedStrategy(StrategyWhiteList strategyWhiteList) {
-            return selfDefinedStrategy(strategyWhiteList, false);
+            return selfDefinedStrategy(strategyWhiteList, StrategyFactory.newStrategySandBox(false));
         }
 
         public SafePointStrategy selfDefinedStrategy(StrategyBlackList strategyBlackList) {
-            return selfDefinedStrategy(strategyBlackList, false);
+            return selfDefinedStrategy(strategyBlackList, StrategyFactory.newStrategySandBox(false));
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyBlackList strategyBlackList, boolean sandBoxMode) {
-            return selfDefinedStrategy(StrategyEnum.BLACKLIST, strategyBlackList, sandBoxMode);
+        public SafePointStrategy selfDefinedStrategy(StrategyBlackList strategyBlackList, StrategySandBox strategySandBox) {
+            return selfDefinedStrategy(StrategyEnum.BLACKLIST, strategyBlackList, strategySandBox);
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyWhiteList strategyWhiteList, boolean sandBoxMode) {
-            return selfDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, sandBoxMode);
+        public SafePointStrategy selfDefinedStrategy(StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
+            return selfDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, strategySandBox);
         }
 
         private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
-                strategyBlackList,
-                                                      boolean sandBoxMode) {
-            return selfDefinedStrategy(strategyEnum, strategyBlackList, null, sandBoxMode);
+                strategyBlackList,StrategySandBox strategySandBox) {
+            return selfDefinedStrategy(strategyEnum, strategyBlackList, null, strategySandBox);
         }
 
         private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList
-                strategyWhiteList,
-                                                      boolean sanBoxMode) {
-            return selfDefinedStrategy(strategyEnum, null, strategyWhiteList, sanBoxMode);
+                strategyWhiteList,StrategySandBox strategySandBox) {
+            return selfDefinedStrategy(strategyEnum, null, strategyWhiteList, strategySandBox);
         }
 
         private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
-                strategyBlackList,
-                                                      StrategyWhiteList strategyWhiteList,
-                                                      boolean isSandBoxMode) {
+                strategyBlackList,StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = strategyEnum;
             systemStrategy.strategyBlackList = strategyBlackList;
             systemStrategy.strategyWhiteList = strategyWhiteList;
-            systemStrategy.isSandBoxMode = isSandBoxMode;
+            systemStrategy.strategySandBox = strategySandBox;
             return systemStrategy;
         }
     }
