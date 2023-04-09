@@ -25,8 +25,7 @@ public class InstanceConversion {
                 new QLClassConvertChecker(),
                 new QLFunctionConvertChecker(),
                 new QLNumberConvertChecker(),
-                new QLArrayConvertChecker(),
-                new QLListConvertChecker()};
+                new QLArrayConvertChecker()};
     }
 
     public static QLConvertResult castObject(Object value, Class<?> type) {
