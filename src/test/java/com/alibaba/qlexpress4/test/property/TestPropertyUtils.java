@@ -1,10 +1,5 @@
 package com.alibaba.qlexpress4.test.property;
 
-import com.alibaba.qlexpress4.Express4Runner;
-import com.alibaba.qlexpress4.InitOptions;
-import com.alibaba.qlexpress4.security.StrategyBlackList;
-import com.alibaba.qlexpress4.security.StrategyFactory;
-import com.alibaba.qlexpress4.security.StrategyStruct;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 
