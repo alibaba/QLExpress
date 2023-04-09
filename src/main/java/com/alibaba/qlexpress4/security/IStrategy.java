@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.strategy;
+package com.alibaba.qlexpress4.security;
 
 /**
  * @Author TaoKan

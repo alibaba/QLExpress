@@ -1,7 +1,5 @@
 package com.alibaba.qlexpress4.security;
 
-import com.alibaba.qlexpress4.strategy.IStrategy;
-
 import java.util.List;
 
 /**
