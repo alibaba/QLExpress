@@ -8,21 +8,18 @@ import java.util.List;
  * @Author TaoKan
  * @Date 2023/4/1 下午5:32
  */
-public class StrategyWhiteList implements IStrategy {
+public abstract class StrategyWhiteList implements IStrategy {
     private final List<StrategyStruct> whiteStrategyStructList;
 
-    public StrategyWhiteList(List<StrategyStruct>  whiteStrategyStructList){
+    public StrategyWhiteList(List<StrategyStruct> whiteStrategyStructList) {
         this.whiteStrategyStructList = whiteStrategyStructList;
     }
 
+    public abstract boolean check();
 
-    @Override
-    public boolean check() {
-        return false;
-    }
+    public abstract boolean effect();
 
-    @Override
-    public boolean effect() {
-        return false;
+    protected List<StrategyStruct> getWhiteStrategyStructList() {
+        return whiteStrategyStructList;
     }
 }
