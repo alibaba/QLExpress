@@ -2,6 +2,9 @@ package com.alibaba.qlexpress4.security;
 
 import com.alibaba.qlexpress4.member.IField;
 import com.alibaba.qlexpress4.member.IMethod;
+import com.alibaba.qlexpress4.runtime.QFunction;
+
+import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -14,9 +17,9 @@ public class QLStrategySandBox extends StrategySandBox {
     }
 
     @Override
-    public boolean checkMethodInRules(IMethod iMethod, Class<?> clazz, String name) {
-        if(this.isSandBoxMode()){
-            if(clazz == iMethod.getClazz() && iMethod.getName().equals(name)){
+    public boolean checkMethodInRules(IMethod iMethod, Class<?> clazz, String name, Map<String, QFunction> userDefineFunction) {
+        if (this.isSandBoxMode()) {
+            if (clazz == iMethod.getClazz() && iMethod.getName().equals(name) && !userDefineFunction.containsKey(name)) {
                 return true;
             }
         }
@@ -24,9 +27,9 @@ public class QLStrategySandBox extends StrategySandBox {
     }
 
     @Override
-    public boolean checkFieldInRules(IField iField, Class<?> clazz, String name) {
-        if(this.isSandBoxMode()){
-            if(clazz == iField.getClazz() && iField.getName().equals(name)){
+    public boolean checkFieldInRules(IField iField, Class<?> clazz, String name, Map<String, QFunction> userDefineField) {
+        if (this.isSandBoxMode()) {
+            if (clazz == iField.getClazz() && iField.getName().equals(name) && !userDefineField.containsKey(name)) {
                 return true;
             }
         }

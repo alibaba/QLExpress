@@ -2,6 +2,9 @@ package com.alibaba.qlexpress4.security;
 
 import com.alibaba.qlexpress4.member.IField;
 import com.alibaba.qlexpress4.member.IMethod;
+import com.alibaba.qlexpress4.runtime.QFunction;
+
+import java.util.Map;
 
 /**
  * @Author TaoKan
@@ -14,10 +17,9 @@ public abstract class StrategySandBox implements IStrategy {
         this.isSandBoxMode = isSandBoxMode;
     }
 
-    public abstract boolean checkMethodInRules(IMethod iMethod, Class<?> clazz, String name);
+    public abstract boolean checkMethodInRules(IMethod iMethod, Class<?> clazz, String name, Map<String, QFunction> userDefineFunction);
 
-    public abstract boolean checkFieldInRules(IField iField, Class<?> clazz, String name);
-
+    public abstract boolean checkFieldInRules(IField iField, Class<?> clazz, String name, Map<String, QFunction> userDefineField);
 
     protected boolean isSandBoxMode() {
         return isSandBoxMode;

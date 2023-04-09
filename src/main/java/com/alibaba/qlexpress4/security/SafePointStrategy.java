@@ -50,33 +50,33 @@ public class SafePointStrategy {
             return systemStrategy;
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyWhiteList strategyWhiteList) {
-            return selfDefinedStrategy(strategyWhiteList, StrategyFactory.newStrategySandBox(false));
+        public SafePointStrategy userDefinedStrategy(StrategyWhiteList strategyWhiteList) {
+            return userDefinedStrategy(strategyWhiteList, StrategyFactory.newStrategySandBox(false));
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyBlackList strategyBlackList) {
-            return selfDefinedStrategy(strategyBlackList, StrategyFactory.newStrategySandBox(false));
+        public SafePointStrategy userDefinedStrategy(StrategyBlackList strategyBlackList) {
+            return userDefinedStrategy(strategyBlackList, StrategyFactory.newStrategySandBox(false));
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyBlackList strategyBlackList, StrategySandBox strategySandBox) {
-            return selfDefinedStrategy(StrategyEnum.BLACKLIST, strategyBlackList, strategySandBox);
+        public SafePointStrategy userDefinedStrategy(StrategyBlackList strategyBlackList, StrategySandBox strategySandBox) {
+            return userDefinedStrategy(StrategyEnum.BLACKLIST, strategyBlackList, strategySandBox);
         }
 
-        public SafePointStrategy selfDefinedStrategy(StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
-            return selfDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, strategySandBox);
+        public SafePointStrategy userDefinedStrategy(StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
+            return userDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, strategySandBox);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
+        private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
                 strategyBlackList,StrategySandBox strategySandBox) {
-            return selfDefinedStrategy(strategyEnum, strategyBlackList, null, strategySandBox);
+            return userDefinedStrategy(strategyEnum, strategyBlackList, null, strategySandBox);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList
+        private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList
                 strategyWhiteList,StrategySandBox strategySandBox) {
-            return selfDefinedStrategy(strategyEnum, null, strategyWhiteList, strategySandBox);
+            return userDefinedStrategy(strategyEnum, null, strategyWhiteList, strategySandBox);
         }
 
-        private SafePointStrategy selfDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
+        private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
                 strategyBlackList,StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = strategyEnum;
