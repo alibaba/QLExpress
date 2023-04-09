@@ -167,15 +167,10 @@ public class MethodHandler extends MemberHandler {
     }
 
     public static class Access {
-        public static Class<?> accessMethodType(Member accessMember) {
-            Method accessMethod = ((Method) accessMember);
-            return accessMethod.getReturnType();
-        }
-
-        public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
-                IllegalArgumentException, InvocationTargetException, IllegalAccessException {
-            Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod)) {
+        public static Object accessMethodValue(IMember accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
+                IllegalArgumentException, IllegalAccessException {
+            IMethod accessMethod = ((IMethod) accessMember);
+            if (accessMethod.allowVisitWithOutPermission()) {
                 return accessMethod.invoke(bean, params);
             } else {
                 if(!allowAccessPrivateMethod){
@@ -183,36 +178,14 @@ public class MethodHandler extends MemberHandler {
                 }else {
                     synchronized (accessMethod) {
                         try {
-                            accessMethod.setAccessible(true);
+                            accessMethod.seVisitWithOutPermission(true);
                             return accessMethod.invoke(bean, params);
                         } finally {
-                            accessMethod.setAccessible(false);
+                            accessMethod.seVisitWithOutPermission(false);
                         }
                     }
                 }
             }
-        }
-
-        public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)
-                throws IllegalArgumentException, InvocationTargetException, IllegalAccessException {
-            Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod)) {
-                accessMethod.invoke(bean, value);
-            } else {
-                if(!allowAccessPrivateMethod){
-                    throw new IllegalAccessException("can not allow access");
-                }else {
-                    synchronized (accessMethod) {
-                        try {
-                            accessMethod.setAccessible(true);
-                            accessMethod.invoke(bean, value);
-                        } finally {
-                            accessMethod.setAccessible(false);
-                        }
-                    }
-                }
-            }
-
         }
     }
 

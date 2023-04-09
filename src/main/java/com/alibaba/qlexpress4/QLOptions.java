@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.member.QLMetaProtocol;
 import com.alibaba.qlexpress4.parser.ImportManager;
 
 import java.util.Arrays;
@@ -78,6 +79,11 @@ public class QLOptions {
     private final boolean avoidNullPointer;
 
     /**
+     * provide some functions in diff devices use
+     */
+    private final QLMetaProtocol qlMetaProtocol;
+
+    /**
      * consume all debug info, valid when debug is true
      * default is print in standard output, can not be null
      */
@@ -86,7 +92,7 @@ public class QLOptions {
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, QLMetaProtocol qlMetaProtocol, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -97,6 +103,7 @@ public class QLOptions {
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
+        this.qlMetaProtocol = qlMetaProtocol;
     }
 
     public static Builder builder() {
@@ -139,6 +146,8 @@ public class QLOptions {
         return avoidNullPointer;
     }
 
+    public QLMetaProtocol getQlMetaProtocol() {return qlMetaProtocol;}
+
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
     }
@@ -160,6 +169,8 @@ public class QLOptions {
         private boolean debug = false;
 
         private boolean avoidNullPointer = false;
+
+        private QLMetaProtocol qlMetaProtocol = new QLMetaProtocol();
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
@@ -216,6 +227,11 @@ public class QLOptions {
             return this;
         }
 
+        public Builder qlMetaProtocol(QLMetaProtocol qlMetaProtocol){
+            this.qlMetaProtocol = qlMetaProtocol;
+            return this;
+        }
+
         public Builder debugInfoConsumer(Consumer<String> debugInfoConsumer) {
             this.debugInfoConsumer = debugInfoConsumer;
             return this;
@@ -223,7 +239,7 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
-                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, qlMetaProtocol, debugInfoConsumer);
         }
     }
 

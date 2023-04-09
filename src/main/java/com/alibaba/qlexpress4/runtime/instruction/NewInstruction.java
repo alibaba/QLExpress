@@ -98,23 +98,6 @@ public class NewInstruction extends QLInstruction {
         };
     }
 
-    private Supplier<Object> getConstructorSupplierNotAccessible(Constructor<?> constructor, Object[] params) {
-        return () -> {
-            try {
-                synchronized (constructor) {
-                    try {
-                        constructor.setAccessible(true);
-                        return constructor.newInstance(params);
-                    } finally {
-                        constructor.setAccessible(false);
-                    }
-                }
-            } catch (Exception e) {
-                return null;
-            }
-        };
-    }
-
     @Override
     public int stackInput() {
         return argNum;

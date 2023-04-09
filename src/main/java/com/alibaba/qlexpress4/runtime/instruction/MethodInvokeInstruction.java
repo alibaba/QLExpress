@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
+import com.alibaba.qlexpress4.runtime.util.OptionUtils;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
@@ -61,24 +62,27 @@ public class MethodInvokeInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         QLCaches qlCaches = qContext.getQLCaches();
-        QLImplicitMethod implicitMethod = bean instanceof MetaClass?
-                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()):
-                getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
-
+        Class<?> clazz;
+        QLImplicitMethod implicitMethod;
+        if(bean instanceof MetaClass){
+            clazz = ((MetaClass) bean).getClz();
+            implicitMethod = getClazzMethod(qlCaches, clazz, type, qlOptions.enableAllowAccessPrivateMethod());
+        }else {
+            clazz = bean.getClass();
+            implicitMethod = getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
+        }
         QLConvertResult convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes()
                 ,implicitMethod.needImplicitTrans(),implicitMethod.getVars());
         if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
             throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
         }
         try {
-            Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(),bean,
+            Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(qlOptions,clazz,
+                    implicitMethod.getMethod().getName(),implicitMethod.getMethod()),bean,
                     (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);
-        } catch (InvocationTargetException e) {
-            throw errorReporter.report(e.getTargetException(), "METHOD_INNER_EXCEPTION", "method inner exception");
         } catch (Exception e) {
-            //TODO: 测试会走到这里的情况
             throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
         }
         return QResult.NEXT_INSTRUCTION;
