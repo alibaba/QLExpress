@@ -1,11 +1,8 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.parser.ImportManager;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.alibaba.qlexpress4.security.SystemStrategy;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -83,10 +80,18 @@ public class QLOptions {
      */
     private final Consumer<String> debugInfoConsumer;
 
+    /**
+     * user can choose safePoints about blacklist/whitelist
+     * default is blacklist mode
+     *
+     */
+    private final SystemStrategy systemStrategy;
+
+
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, SystemStrategy systemStrategy, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -97,6 +102,7 @@ public class QLOptions {
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
+        this.systemStrategy = systemStrategy;
     }
 
     public static Builder builder() {
@@ -139,6 +145,8 @@ public class QLOptions {
         return avoidNullPointer;
     }
 
+    public SystemStrategy getSystemStrategy() {return systemStrategy;}
+
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
     }
@@ -160,6 +168,8 @@ public class QLOptions {
         private boolean debug = false;
 
         private boolean avoidNullPointer = false;
+
+        private SystemStrategy systemStrategy = SystemStrategy.builder().defaultSystemStrategy();
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
@@ -206,6 +216,11 @@ public class QLOptions {
             return this;
         }
 
+        public Builder systemStrategy(SystemStrategy systemStrategy){
+            this.systemStrategy = systemStrategy;
+            return this;
+        }
+
         public Builder debug(boolean debug) {
             this.debug = debug;
             return this;
@@ -223,7 +238,8 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
-                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
+                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer,
+                    systemStrategy, debugInfoConsumer);
         }
     }
 

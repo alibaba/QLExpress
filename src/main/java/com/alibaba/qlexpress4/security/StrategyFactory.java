@@ -1,22 +1,28 @@
 package com.alibaba.qlexpress4.security;
 
-import java.util.Set;
+
+import java.util.List;
 
 /**
  * @Author TaoKan
- * @Date 2023/4/1 下午5:29
+ * @Date 2023/4/9 上午9:11
  */
 public class StrategyFactory {
-    public static StrategyBlackList newBlackList(Set<String> blackList){
-        return null;
+    /**
+     * method runtime black list
+     * @param list
+     * @return
+     */
+    public static StrategyBlackList newStrategyBlackList(List<StrategyStruct> list){
+        return new StrategyBlackList(list);
+    }
+    /**
+     * method runtime white list
+     * @param list
+     * @return
+     */
+    public static StrategyWhiteList newStrategyWhiteList(List<StrategyStruct> list){
+        return new StrategyWhiteList(list);
     }
 
-    public static StrategyBlackList newBlackList(){
-        return null;
-    }
-
-
-    public static StrategyBlackList newWhiteList(){
-        return null;
-    }
 }
