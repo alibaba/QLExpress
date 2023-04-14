@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.operator.base;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
@@ -20,6 +21,15 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected boolean isInstanceofComparable(Value value) {
         return value.get() instanceof Comparable;
+    }
+
+    protected boolean isBothBoolean(Value left, Value right) {
+        return left.get() instanceof Boolean && right.get() instanceof Boolean;
+    }
+
+    protected boolean isBooleanAndNull(Value left, Value right) {
+        return (left.get() == null && right.get() instanceof Boolean)
+            || (left.get() instanceof Boolean && right.get() == null);
     }
 
     protected boolean isBothNumber(Value left, Value right) {
@@ -113,69 +123,84 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     }
 
     protected Object bitwiseAnd(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothBoolean(left, right) || isBooleanAndNull(left, right)) {
+            return (Boolean)Optional.ofNullable(left.get()).orElse(Boolean.FALSE)
+                & (Boolean)Optional.ofNullable(right.get()).orElse(Boolean.FALSE);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.and(leftValue, rightValue);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.and(leftValue, rightValue);
+        }
+
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     protected Object bitwiseOr(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothBoolean(left, right) || isBooleanAndNull(left, right)) {
+            return (Boolean)Optional.ofNullable(left.get()).orElse(Boolean.FALSE)
+                | (Boolean)Optional.ofNullable(right.get()).orElse(Boolean.FALSE);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.or(leftValue, rightValue);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.or(leftValue, rightValue);
+        }
+
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     protected Object bitwiseXor(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothBoolean(left, right) || isBooleanAndNull(left, right)) {
+            return (Boolean)Optional.ofNullable(left.get()).orElse(Boolean.FALSE)
+                ^ (Boolean)Optional.ofNullable(right.get()).orElse(Boolean.FALSE);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.xor(leftValue, rightValue);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.xor(leftValue, rightValue);
+        }
+
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     protected Object leftShift(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.leftShift(leftValue, rightValue);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.leftShift(leftValue, rightValue);
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     protected Object rightShift(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.rightShift(leftValue, rightValue);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.rightShift(leftValue, rightValue);
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     protected Object rightShiftUnsigned(Value left, Value right, ErrorReporter errorReporter) {
-        if (!isBothNumber(left, right)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        if (isBothNumber(left, right)) {
+            Number leftValue = (Number)left.get();
+            Number rightValue = (Number)right.get();
+            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
+            return NumberMath.rightShiftUnsigned(leftValue, rightValue);
         }
 
-        Number leftValue = (Number)left.get();
-        Number rightValue = (Number)right.get();
-        // TODO 需要统一考虑下NumberMath抛出的异常如何处理
-        return NumberMath.rightShiftUnsigned(leftValue, rightValue);
+        throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
     /**
