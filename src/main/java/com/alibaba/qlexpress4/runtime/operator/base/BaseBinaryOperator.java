@@ -213,9 +213,9 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return NumberMath.compareTo((Number)leftValue, (Number)rightValue) == 0;
         } else if (isNumberCharacter(leftValue, rightValue)) {
             if (isNumber(leftValue)) {
-                return NumberMath.compareTo((Number)leftValue, (int)rightValue) == 0;
+                return NumberMath.compareTo((Number)leftValue, (int)(Character)rightValue) == 0;
             } else {
-                return NumberMath.compareTo((int)leftValue, (Number)rightValue) == 0;
+                return NumberMath.compareTo((int)(Character)leftValue, (Number)rightValue) == 0;
             }
         } else {
             return Objects.equals(leftValue, rightValue);
