@@ -34,7 +34,8 @@ public class SafePointStrategy {
     }
 
     public static class Builder {
-        public SafePointStrategy defaultSystemStrategy() {
+        private static SafePointStrategy safePointStrategy;
+        static {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = StrategyEnum.BLACKLIST;
             systemStrategy.strategyBlackList = StrategyFactory.newStrategyBlackList(new HashMap<Class, String>() {{
@@ -47,7 +48,11 @@ public class SafePointStrategy {
                 put(Class.class, "forName");
             }});
             systemStrategy.strategySandBox = StrategyFactory.newStrategySandBox(false);
-            return systemStrategy;
+            safePointStrategy = systemStrategy;
+        }
+
+        public SafePointStrategy defaultSystemStrategy() {
+            return safePointStrategy;
         }
 
         public SafePointStrategy userDefinedStrategy(StrategyWhiteList strategyWhiteList) {

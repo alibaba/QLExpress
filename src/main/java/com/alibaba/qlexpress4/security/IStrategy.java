@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.security;
 
-import com.alibaba.qlexpress4.member.IMethod;
 
 /**
  * @Author TaoKan

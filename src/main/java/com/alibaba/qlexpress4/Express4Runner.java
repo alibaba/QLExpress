@@ -119,11 +119,11 @@ public class Express4Runner {
     }
 
     public void addFunction(String name, Object obj, String methodName) {
-        if (obj instanceof Class) {
-            addFunctionByClass(name, (Class<?>) obj, methodName);
-        } else {
-            addFunctionByObject(name, obj, methodName);
-        }
+        addFunctionByObject(name, obj, methodName);
+    }
+
+    public void addClassFunction(String name, Class<?> clazz, String methodName){
+        addFunctionByClass(name, clazz, methodName);
     }
 
     private void addFunctionByObject(String name, Object object, String methodName) {
