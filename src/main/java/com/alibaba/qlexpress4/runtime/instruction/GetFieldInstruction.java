@@ -129,24 +129,24 @@ public class GetFieldInstruction extends QLInstruction {
     private Value getDataField(Method getMethod, Method setMethod, Field field, Object bean, Class<?> clazz, QLOptions qlOptions) {
         Supplier<Object> getterOp = operator(
                 getMethodSupplierAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod.getName(), getMethod), bean),
+                        qlOptions, clazz, getMethod), bean),
                 getMethodSupplierNotAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod.getName(), getMethod), bean),
+                        qlOptions, clazz, getMethod), bean),
                 getFieldSupplierAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field.getName(), field), bean),
+                        qlOptions, clazz, field), bean),
                 getFieldSupplierNotAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field.getName(), field), bean),
+                        qlOptions, clazz, field), bean),
                 getMethod, field, qlOptions.enableAllowAccessPrivateMethod());
 
         Consumer<Object> setterOp = operator(
                 getMethodConsumerAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod.getName(), setMethod), bean),
+                        qlOptions, clazz, setMethod), bean),
                 getMethodConsumerNotAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod.getName(), setMethod), bean),
+                        qlOptions, clazz, setMethod), bean),
                 getFieldConsumerAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field.getName(), field), bean),
+                        qlOptions, clazz, field), bean),
                 getFieldConsumerNotAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field.getName(), field), bean),
+                        qlOptions, clazz, field), bean),
                 setMethod, field, qlOptions.enableAllowAccessPrivateMethod());
 
         if (getterOp == null) {

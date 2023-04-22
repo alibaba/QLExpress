@@ -77,8 +77,8 @@ public class MethodInvokeInstruction extends QLInstruction {
             throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
         }
         try {
-            Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(qlOptions,clazz,
-                    implicitMethod.getMethod().getName(),implicitMethod.getMethod()),bean,
+            Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(qlOptions
+                    ,clazz,implicitMethod.getMethod()),bean,
                     (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);

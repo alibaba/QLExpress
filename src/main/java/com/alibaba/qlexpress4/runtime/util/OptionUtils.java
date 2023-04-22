@@ -13,11 +13,19 @@ import java.lang.reflect.Method;
  */
 public class OptionUtils {
 
-    public static IMethod getMethodFromQLOption(QLOptions options, Class<?> clazz, String name, Method method){
+    public static IMethod getMethodFromQLOption(QLOptions options, Class<?> clazz, Method method){
+        String name = "";
+        if(method != null){
+            name = method.getName();
+        }
         return options.getQlMetaProtocol().getMethod(clazz, name, method);
     }
 
-    public static IField getFieldFromQLOption(QLOptions options, Class<?> clazz, String name, Field field){
+    public static IField getFieldFromQLOption(QLOptions options, Class<?> clazz,Field field){
+        String name = "";
+        if(field != null){
+            name = field.getName();
+        }
         return options.getQlMetaProtocol().getField(clazz, name, field);
     }
 }

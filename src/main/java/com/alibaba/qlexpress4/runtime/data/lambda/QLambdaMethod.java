@@ -61,8 +61,8 @@ public class QLambdaMethod implements QLambda {
         } else {
             clazz = bean.getClass();
         }
-        Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(QLOptions.DEFAULT_OPTIONS, clazz,
-                implicitMethod.getMethod().getName(), implicitMethod.getMethod()), bean,
+        Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(
+                QLOptions.DEFAULT_OPTIONS, clazz, implicitMethod.getMethod()), bean,
                 (Object[]) convertResult.getCastValue(), allowAccessPrivate);
         return new QResult(new DataValue(value), QResult.ResultType.RETURN);
     }
