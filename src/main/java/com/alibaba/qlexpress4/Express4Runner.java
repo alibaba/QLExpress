@@ -210,13 +210,7 @@ public class Express4Runner {
      * @param qlOptions
      * @return
      */
-    public boolean checkSyntax(String script, QLOptions qlOptions) {
-        try {
-            parseSyntaxAndInstructions(script, qlOptions);
-            return true;
-        } catch (Exception e) {
-            qlOptions.getDebugInfoConsumer().accept("checkSyntax has exception:" + ExceptionUtils.getFullStackTrace(e));
-            return false;
-        }
+    public void checkSyntax(String script, QLOptions qlOptions) {
+        parseSyntaxAndInstructions(script, qlOptions);
     }
 }
