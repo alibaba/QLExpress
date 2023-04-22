@@ -10,4 +10,6 @@ public interface IMember {
 
     void seVisitWithOutPermission(boolean allow);
 
+    String getQualifyName();
+
 }

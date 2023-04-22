@@ -127,12 +127,12 @@ public class Express4Runner {
 
     private void addFunctionByObject(String name, Object object, String methodName) {
         List<Method> methods = PropertiesUtil.getMethodWhenAddFunction(object.getClass(), methodName);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, object, true)));
+        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, object)));
     }
 
     private void addFunctionByClass(String name, Class<?> clazz, String methodName) {
         List<Method> methods = PropertiesUtil.getClzMethodWhenAddFunction(clazz, methodName);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, clazz, true)));
+        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, clazz)));
     }
 
     private void addFunctionByAnnotation(Class<?> clazz, Object object) {
@@ -142,7 +142,7 @@ public class Express4Runner {
                 for (String value : QLFunctionUtil.getQLFunctionValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, true)));
+                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods, object)));
                 }
             }
         }
@@ -155,7 +155,7 @@ public class Express4Runner {
                 for (String value : QLFieldUtil.getQLFieldValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, true)));
+                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods, object)));
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.member;
 
-import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Field;
@@ -11,12 +10,9 @@ import java.lang.reflect.Field;
  */
 public class QLMetaProtocolField implements IField {
     private Field field;
-    private ErrorReporter errorReporter;
 
-
-    public QLMetaProtocolField(ErrorReporter errorReporter, Field field) {
+    public QLMetaProtocolField(Field field) {
         this.field = field;
-        this.errorReporter = errorReporter;
     }
 
     @Override
@@ -50,5 +46,10 @@ public class QLMetaProtocolField implements IField {
     @Override
     public void seVisitWithOutPermission(boolean allow) {
         field.setAccessible(allow);
+    }
+
+    @Override
+    public String getQualifyName() {
+        return null;
     }
 }

@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
 
-import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Method;
@@ -12,10 +11,8 @@ import java.lang.reflect.Method;
  */
 public class QLMetaProtocolMethod implements IMethod {
     private Method method;
-    private ErrorReporter errorReporter;
 
-    public QLMetaProtocolMethod(ErrorReporter errorReporter, Method method) {
-        this.errorReporter = errorReporter;
+    public QLMetaProtocolMethod(Method method) {
         this.method = method;
     }
 
@@ -32,5 +29,10 @@ public class QLMetaProtocolMethod implements IMethod {
     @Override
     public void seVisitWithOutPermission(boolean allow) {
         method.setAccessible(allow);
+    }
+
+    @Override
+    public String getQualifyName() {
+        return null;
     }
 }
