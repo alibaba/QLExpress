@@ -8,4 +8,6 @@ public interface IMember {
     Class getClazz();
 
     String getName();
+
+    String getQualifyName();
 }
