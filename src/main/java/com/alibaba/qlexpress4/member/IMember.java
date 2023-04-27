@@ -11,7 +11,7 @@ public interface IMember {
 
     String getQualifyName();
 
-    boolean allowVisitWithOutPermission();
+    boolean directlyAccess();
 
-    void seVisitWithOutPermission(boolean allow);
+    void setAccessible(boolean allow);
 }

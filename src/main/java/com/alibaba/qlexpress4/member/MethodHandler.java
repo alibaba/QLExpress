@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
@@ -170,7 +171,7 @@ public class MethodHandler extends MemberHandler {
         public static Object accessMethodValue(IMember accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
                 IllegalArgumentException, IllegalAccessException {
             IMethod accessMethod = ((IMethod) accessMember);
-            if (accessMethod.allowVisitWithOutPermission()) {
+            if (accessMethod.directlyAccess()) {
                 return accessMethod.invoke(bean, params);
             } else {
                 if(!allowAccessPrivateMethod){
@@ -178,10 +179,10 @@ public class MethodHandler extends MemberHandler {
                 }else {
                     synchronized (accessMethod) {
                         try {
-                            accessMethod.seVisitWithOutPermission(true);
+                            accessMethod.setAccessible(true);
                             return accessMethod.invoke(bean, params);
                         } finally {
-                            accessMethod.seVisitWithOutPermission(false);
+                            accessMethod.setAccessible(false);
                         }
                     }
                 }
@@ -189,6 +190,13 @@ public class MethodHandler extends MemberHandler {
         }
     }
 
+    public static IMethod getMethodFromQLOption(QLOptions options, Class<?> clazz, Method method){
+        String name = "";
+        if(method != null){
+            name = method.getName();
+        }
+        return options.getMetaProtocol().getMethod(clazz, name, method);
+    }
 
     static class GetterCandidateMethod {
         public Method getMethod() {

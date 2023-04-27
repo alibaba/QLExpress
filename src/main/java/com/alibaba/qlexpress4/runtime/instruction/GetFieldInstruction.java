@@ -12,13 +12,15 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.data.cache.CacheFieldValue;
-import com.alibaba.qlexpress4.runtime.util.OptionUtils;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
+import com.alibaba.qlexpress4.utils.SecurityUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -127,27 +129,24 @@ public class GetFieldInstruction extends QLInstruction {
 
 
     private Value getDataField(Method getMethod, Method setMethod, Field field, Object bean, Class<?> clazz, QLOptions qlOptions) {
+        IMethod iGetMethod = MethodHandler.getMethodFromQLOption(qlOptions, clazz, getMethod);
+        IMethod iSetMethod = MethodHandler.getMethodFromQLOption(qlOptions, clazz, setMethod);
+        SecurityUtils.checkSafePointStrategyList(qlOptions, errorReporter, Arrays.asList(iGetMethod,iSetMethod));
+        IField iField = FieldHandler.getFieldFromQLOption(qlOptions, clazz, field);
+
         Supplier<Object> getterOp = operator(
-                getMethodSupplierAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod), bean),
-                getMethodSupplierNotAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, getMethod), bean),
-                getFieldSupplierAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field), bean),
-                getFieldSupplierNotAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field), bean),
-                getMethod, field, qlOptions.enableAllowAccessPrivateMethod());
+                getMethodSupplierAccessible(iGetMethod, bean),
+                getMethodSupplierNotAccessible(iGetMethod, bean),
+                getFieldSupplierAccessible(iField, bean),
+                getFieldSupplierNotAccessible(iField, bean),
+                iGetMethod, iField, qlOptions.enableAllowAccessPrivateMethod());
 
         Consumer<Object> setterOp = operator(
-                getMethodConsumerAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, setMethod), bean),
-                getMethodConsumerNotAccessible(OptionUtils.getMethodFromQLOption(
-                        qlOptions, clazz, setMethod), bean),
-                getFieldConsumerAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field), bean),
-                getFieldConsumerNotAccessible(OptionUtils.getFieldFromQLOption(
-                        qlOptions, clazz, field), bean),
-                setMethod, field, qlOptions.enableAllowAccessPrivateMethod());
+                getMethodConsumerAccessible(iSetMethod, bean),
+                getMethodConsumerNotAccessible(iSetMethod, bean),
+                getFieldConsumerAccessible(iField, bean),
+                getFieldConsumerNotAccessible(iField, bean),
+                iSetMethod, iField, qlOptions.enableAllowAccessPrivateMethod());
 
         if (getterOp == null) {
             throw errorReporter.report("GET_FIELD_VALUE_CAN_NOT_ACCESS", "can not get field accessible");
@@ -162,10 +161,10 @@ public class GetFieldInstruction extends QLInstruction {
         return functional;
     }
 
-    private <T> T operator(T methodAccess, T methodNotAccess, T fieldAccess, T fieldNotAccess, Method method, Field field,
+    private <T> T operator(T methodAccess, T methodNotAccess, T fieldAccess, T fieldNotAccess, IMethod method, IField field,
                            boolean enableAllowAccessPrivateMethod) {
         if (method != null) {
-            if (BasicUtil.isPublic(method)) {
+            if (method.directlyAccess()) {
                 return process(methodAccess);
             }
             if (enableAllowAccessPrivateMethod) {
@@ -173,7 +172,7 @@ public class GetFieldInstruction extends QLInstruction {
             }
         }
         if (field != null) {
-            if (BasicUtil.isPublic(field)) {
+            if (field.directlyAccess()) {
                 return process(fieldAccess);
             }
             if (enableAllowAccessPrivateMethod) {
@@ -199,10 +198,10 @@ public class GetFieldInstruction extends QLInstruction {
             try {
                 synchronized (field) {
                     try {
-                        field.seVisitWithOutPermission(true);
+                        field.setAccessible(true);
                         return field.get(bean);
                     } finally {
-                        field.seVisitWithOutPermission(false);
+                        field.setAccessible(false);
                     }
                 }
             } catch (Exception e) {
@@ -225,10 +224,10 @@ public class GetFieldInstruction extends QLInstruction {
             try {
                 synchronized (field) {
                     try {
-                        field.seVisitWithOutPermission(true);
+                        field.setAccessible(true);
                         field.set(bean, newValue);
                     } finally {
-                        field.seVisitWithOutPermission(false);
+                        field.setAccessible(false);
                     }
                 }
             } catch (Exception e) {
@@ -251,10 +250,10 @@ public class GetFieldInstruction extends QLInstruction {
             try {
                 synchronized (method) {
                     try {
-                        method.seVisitWithOutPermission(true);
+                        method.setAccessible(true);
                         return method.invoke(bean);
                     } finally {
-                        method.seVisitWithOutPermission(false);
+                        method.setAccessible(false);
                     }
                 }
             } catch (Exception e) {
@@ -277,10 +276,10 @@ public class GetFieldInstruction extends QLInstruction {
             try {
                 synchronized (method) {
                     try {
-                        method.seVisitWithOutPermission(true);
+                        method.setAccessible(true);
                         method.invoke(bean, newValue);
                     } finally {
-                        method.seVisitWithOutPermission(false);
+                        method.setAccessible(false);
                     }
                 }
             } catch (Exception e) {

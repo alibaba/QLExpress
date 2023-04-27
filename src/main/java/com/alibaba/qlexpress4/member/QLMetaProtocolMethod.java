@@ -22,17 +22,27 @@ public class QLMetaProtocolMethod implements IMethod {
     }
 
     @Override
-    public boolean allowVisitWithOutPermission() {
+    public boolean directlyAccess() {
         return BasicUtil.isPublic(method);
     }
 
     @Override
-    public void seVisitWithOutPermission(boolean allow) {
+    public void setAccessible(boolean allow) {
         method.setAccessible(allow);
     }
 
     @Override
+    public Class getClazz() {
+        return method.getDeclaringClass();
+    }
+
+    @Override
+    public String getName() {
+        return method.getName();
+    }
+
+    @Override
     public String getQualifyName() {
-        return null;
+        return method.getDeclaringClass() + "," + method.getName() ;
     }
 }

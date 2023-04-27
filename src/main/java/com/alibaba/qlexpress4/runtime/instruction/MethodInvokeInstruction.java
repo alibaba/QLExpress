@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.member.IMethod;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -10,12 +11,11 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
-import com.alibaba.qlexpress4.runtime.util.OptionUtils;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
+import com.alibaba.qlexpress4.utils.SecurityUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Consumer;
@@ -76,9 +76,10 @@ public class MethodInvokeInstruction extends QLInstruction {
         if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
             throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
         }
+        IMethod iMethod = MethodHandler.getMethodFromQLOption(qlOptions,clazz,implicitMethod.getMethod());
+        SecurityUtils.checkSafePointStrategyList(qlOptions, errorReporter, iMethod);
         try {
-            Object value = MethodHandler.Access.accessMethodValue(OptionUtils.getMethodFromQLOption(qlOptions
-                    ,clazz,implicitMethod.getMethod()),bean,
+            Object value = MethodHandler.Access.accessMethodValue(iMethod,bean,
                     (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);

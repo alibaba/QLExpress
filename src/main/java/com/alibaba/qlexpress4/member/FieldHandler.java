@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
 import java.lang.reflect.Field;
@@ -27,8 +28,14 @@ public class FieldHandler extends MemberHandler {
                 return gatherFieldRecursive(superclass, propertyName);
             }
             return null;
-
         }
+    }
 
+    public static IField getFieldFromQLOption(QLOptions options, Class<?> clazz, Field field){
+        String name = "";
+        if(field != null){
+            name = field.getName();
+        }
+        return options.getMetaProtocol().getField(clazz, name, field);
     }
 }

@@ -15,31 +15,6 @@ import java.util.Optional;
  * @Date 2022/4/7 下午6:05
  */
 public class MemberHandler {
-
-    public static class Access {
-        public static Member getAccessMember(Class<?> clazz, String property, AccessMode propertyMode) {
-            //from Method
-            Method method = null;
-            if (AccessMode.READ.equals(propertyMode)) {
-                method = MethodHandler.getGetter(clazz, property);
-            } else {
-                method = MethodHandler.getSetter(clazz, property);
-            }
-            if (method != null) {
-                return method;
-            }
-            //from field
-            Field f = null;
-            try {
-                f = clazz.getField(property);
-                return f;
-            } catch (NoSuchFieldException e) {
-            }
-            //from QLAlias
-            return FieldHandler.Preferred.gatherFieldRecursive(clazz, property);
-        }
-    }
-
     public static class Preferred {
 
         public static QLImplicitMatcher findMostSpecificSignatureForConstructor(Class<?>[] goalMatch, Class<?>[][] candidates) {

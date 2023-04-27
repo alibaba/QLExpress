@@ -39,17 +39,27 @@ public class QLMetaProtocolField implements IField {
     }
 
     @Override
-    public boolean allowVisitWithOutPermission() {
+    public boolean directlyAccess() {
         return BasicUtil.isPublic(field);
     }
 
     @Override
-    public void seVisitWithOutPermission(boolean allow) {
+    public void setAccessible(boolean allow) {
         field.setAccessible(allow);
     }
 
     @Override
+    public Class getClazz() {
+        return field.getDeclaringClass();
+    }
+
+    @Override
+    public String getName() {
+        return field.getName();
+    }
+
+    @Override
     public String getQualifyName() {
-        return null;
+        return field.getDeclaringClass() + "." + field.getName();
     }
 }

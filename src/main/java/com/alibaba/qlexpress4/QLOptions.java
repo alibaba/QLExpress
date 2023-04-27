@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.member.MetaProtocol;
 import com.alibaba.qlexpress4.member.QLMetaProtocol;
 import com.alibaba.qlexpress4.parser.ImportManager;
 import com.alibaba.qlexpress4.security.SafePointStrategy;
@@ -78,7 +79,7 @@ public class QLOptions {
     /**
      * provide some functions in diff devices use
      */
-    private final QLMetaProtocol qlMetaProtocol;
+    private final MetaProtocol metaProtocol;
 
     /**
      * consume all debug info, valid when debug is true
@@ -97,7 +98,7 @@ public class QLOptions {
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, SafePointStrategy safePointStrategy, QLMetaProtocol qlMetaProtocol, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, SafePointStrategy safePointStrategy, MetaProtocol metaProtocol, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -109,7 +110,7 @@ public class QLOptions {
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
         this.safePointStrategy = safePointStrategy;
-        this.qlMetaProtocol = qlMetaProtocol;
+        this.metaProtocol = metaProtocol;
     }
 
     public static Builder builder() {
@@ -154,7 +155,7 @@ public class QLOptions {
 
     public SafePointStrategy getSafePointStrategy() {return safePointStrategy;}
 
-    public QLMetaProtocol getQlMetaProtocol() {return qlMetaProtocol;}
+    public MetaProtocol getMetaProtocol() {return metaProtocol;}
 
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
@@ -180,7 +181,7 @@ public class QLOptions {
 
         private SafePointStrategy safePointStrategy = SafePointStrategy.builder().defaultSystemStrategy();
 
-        private QLMetaProtocol qlMetaProtocol = new QLMetaProtocol();
+        private MetaProtocol metaProtocol = new QLMetaProtocol();
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
@@ -242,8 +243,8 @@ public class QLOptions {
             return this;
         }
 
-        public Builder qlMetaProtocol(QLMetaProtocol qlMetaProtocol){
-            this.qlMetaProtocol = qlMetaProtocol;
+        public Builder metaProtocol(MetaProtocol metaProtocol){
+            this.metaProtocol = metaProtocol;
             return this;
         }
 
@@ -255,8 +256,7 @@ public class QLOptions {
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
                     defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer,
-                    safePointStrategy, debugInfoConsumer);
-                    defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer, qlMetaProtocol, debugInfoConsumer);
+                    safePointStrategy, metaProtocol, debugInfoConsumer);
         }
     }
 
