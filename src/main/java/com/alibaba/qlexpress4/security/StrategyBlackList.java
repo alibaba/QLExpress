@@ -1,7 +1,8 @@
 package com.alibaba.qlexpress4.security;
 
 import com.alibaba.qlexpress4.member.IMethod;
-import java.util.Map;
+
+import java.util.Set;
 
 /**
  * @Author TaoKan
@@ -9,15 +10,15 @@ import java.util.Map;
  */
 public abstract class StrategyBlackList implements IStrategy {
 
-    private final Map<Class,String> blackStrategyStructList;
+    private final Set<String> blackStrategyStructList;
 
-    public StrategyBlackList(Map<Class,String> blackStrategyStructList) {
+    public StrategyBlackList(Set<String> blackStrategyStructList) {
         this.blackStrategyStructList = blackStrategyStructList;
     }
 
     public abstract boolean checkInRules(IMethod iMethod);
 
-    protected Map<Class,String> getBlackStrategyStructList() {
+    protected Set<String> getBlackStrategyStructList() {
         return blackStrategyStructList;
     }
 

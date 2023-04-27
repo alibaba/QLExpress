@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.security;
 
 import com.alibaba.qlexpress4.member.IMethod;
 
-import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author TaoKan
@@ -10,19 +10,14 @@ import java.util.Map;
  */
 public class QLStrategyBlackList extends StrategyBlackList {
 
-    public QLStrategyBlackList(Map<Class,String> blackStrategyStructList) {
+    public QLStrategyBlackList(Set<String> blackStrategyStructList) {
         super(blackStrategyStructList);
     }
 
     @Override
     public boolean checkInRules(IMethod iMethod) {
-        if(this.getBlackStrategyStructList().containsKey(iMethod.getClazz())){
-            String name = this.getBlackStrategyStructList().get(iMethod.getClazz());
-            if(name == null || "".equals(name)){
-                return true;
-            }else {
-                return iMethod.getName().equals(name);
-            }
+        if (this.getBlackStrategyStructList().contains(iMethod.getQualifyName())) {
+            return true;
         }
         return false;
     }

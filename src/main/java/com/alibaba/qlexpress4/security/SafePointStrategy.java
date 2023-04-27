@@ -13,6 +13,10 @@ public class SafePointStrategy {
     private StrategyBlackList strategyBlackList;
     private StrategySandBox strategySandBox;
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public StrategyEnum getStrategyEnum() {
         return strategyEnum;
     }
@@ -29,12 +33,9 @@ public class SafePointStrategy {
         return strategySandBox;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder {
         private static SafePointStrategy safePointStrategy;
+
         static {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = StrategyEnum.BLACKLIST;
@@ -67,22 +68,22 @@ public class SafePointStrategy {
             return userDefinedStrategy(StrategyEnum.BLACKLIST, strategyBlackList, strategySandBox);
         }
 
-        public SafePointStrategy userDefinedStrategy(StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
+        public SafePointStrategy userDefinedStrategy(StrategyWhiteList strategyWhiteList, StrategySandBox strategySandBox) {
             return userDefinedStrategy(StrategyEnum.WHITELIST, strategyWhiteList, strategySandBox);
         }
 
         private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
-                strategyBlackList,StrategySandBox strategySandBox) {
+                strategyBlackList, StrategySandBox strategySandBox) {
             return userDefinedStrategy(strategyEnum, strategyBlackList, null, strategySandBox);
         }
 
         private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyWhiteList
-                strategyWhiteList,StrategySandBox strategySandBox) {
+                strategyWhiteList, StrategySandBox strategySandBox) {
             return userDefinedStrategy(strategyEnum, null, strategyWhiteList, strategySandBox);
         }
 
         private SafePointStrategy userDefinedStrategy(StrategyEnum strategyEnum, StrategyBlackList
-                strategyBlackList,StrategyWhiteList strategyWhiteList,StrategySandBox strategySandBox) {
+                strategyBlackList, StrategyWhiteList strategyWhiteList, StrategySandBox strategySandBox) {
             SafePointStrategy systemStrategy = new SafePointStrategy();
             systemStrategy.strategyEnum = strategyEnum;
             systemStrategy.strategyBlackList = strategyBlackList;
