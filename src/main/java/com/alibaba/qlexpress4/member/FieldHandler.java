@@ -32,10 +32,10 @@ public class FieldHandler extends MemberHandler {
     }
 
     public static IField getFieldFromQLOption(QLOptions options, Class<?> clazz, Field field){
-        String name = "";
         if(field != null){
-            name = field.getName();
+            return options.getMetaProtocol().getField(clazz, field.getName(), field);
+        }else {
+            return null;
         }
-        return options.getMetaProtocol().getField(clazz, name, field);
     }
 }

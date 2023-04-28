@@ -16,7 +16,7 @@ public class QLStrategyBlackList extends StrategyBlackList {
 
     @Override
     public boolean checkInRules(IMethod iMethod) {
-        if (this.getBlackStrategyStructList().contains(iMethod.getQualifyName())) {
+        if (iMethod != null && this.getBlackStrategyStructList().contains(iMethod.getQualifyName())) {
             return true;
         }
         return false;

@@ -12,7 +12,6 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.SecurityUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -40,7 +39,7 @@ public class QLambdaMethod implements QLambda {
     }
 
     @Override
-    public QResult call(Object... params) throws Exception {
+    public QResult call(Object... params) throws Throwable {
         if (methods == null || methods.size() == 0) {
             return new QResult(null, QResult.ResultType.RETURN);
         }
@@ -62,12 +61,9 @@ public class QLambdaMethod implements QLambda {
         } else {
             clazz = bean.getClass();
         }
-//        IMethod iMethod = MethodHandler.getMethodFromQLOption(
-//                QLOptions.DEFAULT_OPTIONS, clazz, implicitMethod.getMethod());
-        //TODO 这里少了运行时QLOption,errorReporter
 
-        Object value = MethodHandler.Access.accessMethodValue(MethodHandler.getMethodFromQLOption(
-                QLOptions.DEFAULT_OPTIONS, clazz, implicitMethod.getMethod()), bean,
+        IMethod iMethod = MethodHandler.getMethodFromQLOption(QLOptions.DEFAULT_OPTIONS, clazz, implicitMethod.getMethod());
+        Object value = MethodHandler.Access.accessMethodValue(iMethod, bean,
                 (Object[]) convertResult.getCastValue(), allowAccessPrivate);
         return new QResult(new DataValue(value), QResult.ResultType.RETURN);
     }

@@ -49,7 +49,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         Class<?>[] type = new Class[this.argNum];
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {
-            Value v =  parameters.get(i + 1);
+            Value v = parameters.get(i + 1);
             params[i] = v.get();
             type[i] = v.getType();
         }
@@ -64,27 +64,35 @@ public class MethodInvokeInstruction extends QLInstruction {
         QLCaches qlCaches = qContext.getQLCaches();
         Class<?> clazz;
         QLImplicitMethod implicitMethod;
-        if(bean instanceof MetaClass){
+        if (bean instanceof MetaClass) {
             clazz = ((MetaClass) bean).getClz();
             implicitMethod = getClazzMethod(qlCaches, clazz, type, qlOptions.enableAllowAccessPrivateMethod());
-        }else {
+        } else {
             clazz = bean.getClass();
             implicitMethod = getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
         }
-        QLConvertResult convertResult = ParametersConversion.convert(params,type,implicitMethod.getMethod().getParameterTypes()
-                ,implicitMethod.needImplicitTrans(),implicitMethod.getVars());
-        if(convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)){
+        QLConvertResult convertResult = ParametersConversion.convert(params, type, implicitMethod.getMethod().getParameterTypes()
+                , implicitMethod.needImplicitTrans(), implicitMethod.getVars());
+        if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
             throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
         }
-        IMethod iMethod = MethodHandler.getMethodFromQLOption(qlOptions,clazz,implicitMethod.getMethod());
+        IMethod iMethod = MethodHandler.getMethodFromQLOption(qlOptions, clazz, implicitMethod.getMethod());
         SecurityUtils.checkSafePointStrategyList(qlOptions, errorReporter, iMethod);
         try {
-            Object value = MethodHandler.Access.accessMethodValue(iMethod,bean,
-                    (Object[]) convertResult.getCastValue(),qlOptions.enableAllowAccessPrivateMethod());
+            Object value = MethodHandler.Access.accessMethodValue(iMethod, bean,
+                    (Object[]) convertResult.getCastValue(), qlOptions.enableAllowAccessPrivateMethod());
             Value dataValue = new DataValue(value);
             qContext.push(dataValue);
-        } catch (Exception e) {
-            throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method");
+        } catch (IllegalAccessException e) {
+            throw errorReporter.report(e, "GET_METHOD_VALUE_CAN_NOT_ACCESS", "can not allow access method:" + methodName);
+        } catch (IllegalArgumentException e) {
+            throw errorReporter.report(e, "GET_METHOD_VALUE_PARAM_ERROR", "param type is not match for method:" + methodName);
+        } catch (NullPointerException e) {
+            throw errorReporter.report(e, "GET_METHOD_VALUE_NULL_ERROR", "specified object or method is null:" + methodName);
+        } catch (ExceptionInInitializerError e) {
+            throw errorReporter.report(e, "GET_METHOD_VALUE_INIT_ERROR", "initialization fail:" + methodName);
+        } catch (Throwable e) {
+            throw errorReporter.report(e, "GET_METHOD_VALUE_UNKNOWN_ERROR", "method:" + methodName + "error msg:" + e.getMessage());
         }
         return QResult.NEXT_INSTRUCTION;
     }
@@ -104,32 +112,32 @@ public class MethodInvokeInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "MethodInvoke " + methodName + " with argNum " + argNum, debug);
     }
 
-    public QLImplicitMethod getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean , this.methodName, type);
+    public QLImplicitMethod getClazzMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod) {
+        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean, this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getClzMethod((Class<?>) bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(implicitMethod == null || implicitMethod.getMethod() == null){
+            if (implicitMethod == null || implicitMethod.getMethod() == null) {
                 throw errorReporter.report("GET_METHOD_VALUE_METHOD_NOT_FOUND_ERROR", "method not exists");
             }
-            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>)bean, this.methodName, implicitMethod, type);
+            CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), (Class<?>) bean, this.methodName, implicitMethod, type);
             return implicitMethod;
-        }else {
+        } else {
             return cacheElement;
         }
     }
 
-    public QLImplicitMethod getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod){
-        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass() , this.methodName, type);
+    public QLImplicitMethod getInstanceMethod(QLCaches qlCaches, Object bean, Class<?>[] type, boolean enableAllowAccessPrivateMethod) {
+        QLImplicitMethod cacheElement = CacheUtil.getMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, type);
         if (cacheElement == null) {
             List<Method> methods = PropertiesUtil.getMethod(bean, this.methodName, enableAllowAccessPrivateMethod);
             QLImplicitMethod implicitMethod = MethodHandler.Preferred.findMostSpecificMethod(type, methods.toArray(new Method[0]));
-            if(implicitMethod == null || implicitMethod.getMethod() == null){
+            if (implicitMethod == null || implicitMethod.getMethod() == null) {
                 throw errorReporter.report("GET_METHOD_VALUE_METHOD_NOT_FOUND_ERROR", "method not exists");
             }
             CacheUtil.setMethodInvokeCacheElement(qlCaches.getQlMethodInvokeCache(), bean.getClass(), this.methodName, implicitMethod, type);
             return implicitMethod;
-        }else {
+        } else {
             return cacheElement;
         }
     }

@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 
 /**
@@ -17,8 +18,10 @@ public class QLMetaProtocolMethod implements IMethod {
     }
 
     @Override
-    public Object invoke(Object bean, Object... params) {
-        return null;
+    public Object invoke(Object bean, Object... params) throws Throwable {
+//        MethodHandle pmh = MethodHandler.LOOK_UP.unreflect(this.method);
+//        return pmh.invokeWithArguments(bean, params);
+        return this.method.invoke(bean, params);
     }
 
     @Override

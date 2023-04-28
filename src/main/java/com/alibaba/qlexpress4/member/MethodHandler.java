@@ -6,9 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ import java.util.List;
  * @Date 2022/4/7 下午6:05
  */
 public class MethodHandler extends MemberHandler {
-
+    public static MethodHandles.Lookup LOOK_UP = MethodHandles.lookup();
     public static Method getGetter(Class<?> clazz, String property) {
         String isGet = BasicUtil.getIsGetter(property);
         String getter = BasicUtil.getGetter(property);
@@ -169,7 +167,7 @@ public class MethodHandler extends MemberHandler {
 
     public static class Access {
         public static Object accessMethodValue(IMember accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
-                IllegalArgumentException, IllegalAccessException {
+                Throwable {
             IMethod accessMethod = ((IMethod) accessMember);
             if (accessMethod.directlyAccess()) {
                 return accessMethod.invoke(bean, params);
@@ -191,11 +189,11 @@ public class MethodHandler extends MemberHandler {
     }
 
     public static IMethod getMethodFromQLOption(QLOptions options, Class<?> clazz, Method method){
-        String name = "";
         if(method != null){
-            name = method.getName();
+            return options.getMetaProtocol().getMethod(clazz, method.getName(), method);
+        }else {
+            return null;
         }
-        return options.getMetaProtocol().getMethod(clazz, name, method);
     }
 
     static class GetterCandidateMethod {

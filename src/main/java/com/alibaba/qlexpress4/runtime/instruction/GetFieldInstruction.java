@@ -239,7 +239,7 @@ public class GetFieldInstruction extends QLInstruction {
         return () -> {
             try {
                 return method.invoke(bean);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 return null;
             }
         };
@@ -256,7 +256,7 @@ public class GetFieldInstruction extends QLInstruction {
                         method.setAccessible(false);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 return null;
             }
         };
@@ -266,7 +266,7 @@ public class GetFieldInstruction extends QLInstruction {
         return (newValue) -> {
             try {
                 method.invoke(bean, newValue);
-            } catch (Exception e) {
+            } catch (Throwable e) {
             }
         };
     }
@@ -282,7 +282,7 @@ public class GetFieldInstruction extends QLInstruction {
                         method.setAccessible(false);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
             }
         };
     }
