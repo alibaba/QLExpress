@@ -1,6 +1,7 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
+
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
@@ -89,5 +90,32 @@ public class ExpressCacheTest {
 
     private void calculateTask(boolean isCache, IExpressContext<String, Object> context) throws Exception {
         runner.execute("计算平均成绩", context, null, isCache, false);
+    }
+
+    @Test
+    public void testExtendedOperator() throws Exception {
+        runner.addOperatorWithAlias("如果", "if", null);
+        runner.addOperatorWithAlias("则", "then", null);
+        runner.addOperatorWithAlias("否则", "else", null);
+
+        DefaultContext<String, Object> context = new DefaultContext<>();
+
+        String express1 = ""
+            + "如果 (语文 + 数学 + 英语 > 270) 则 {" // "nullnullnull" > "270"
+            + "    return 1;"
+            + "} 否则 {"
+            + "    return 0;"
+            + "}";
+        Object result = runner.execute(express1, context, null, false, true);
+        Assert.assertEquals(1, result);
+
+        String express2 = ""
+            + "如果 (语文 > 270) 则 {" // null > 270
+            + "    return 1;"
+            + "} 否则 {"
+            + "    return 0;"
+            + "}";
+        Assert.assertThrows(com.ql.util.express.exception.QLException.class,
+            () -> runner.execute(express2, context, null, false, true));
     }
 }
