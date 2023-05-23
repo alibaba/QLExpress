@@ -15,7 +15,7 @@ public class SecurityUtils {
 
     private static void checkSafePointBlackList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                 IMethod iMethod) throws QLRuntimeException {
-        if (qlOptions.getSafePointStrategy().getStrategyBlackList().checkInRules(iMethod)) {
+        if (qlOptions.getSafePointStrategy().getStrategyBlackList().checkRulesPassed(iMethod)) {
             throw errorReporter.report("BLACK_LIST_CHECK_ERROR", "found method:" +
                     iMethod.getQualifyName() + " in blacklist rules");
         }
@@ -23,7 +23,7 @@ public class SecurityUtils {
 
     private static void checkSafePointWhiteList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                 IMethod iMethod) throws QLRuntimeException {
-        if (!qlOptions.getSafePointStrategy().getStrategyWhiteList().checkInRules(iMethod)) {
+        if (!qlOptions.getSafePointStrategy().getStrategyWhiteList().checkRulesPassed(iMethod)) {
             throw errorReporter.report("WHITE_LIST_CHECK_ERROR", "found method:" +
                     iMethod.getQualifyName() + " not in whitelist rules");
         }
