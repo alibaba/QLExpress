@@ -15,7 +15,7 @@ public class SecurityUtils {
 
     private static void checkSafePointBlackList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                 IMethod iMethod) throws QLRuntimeException {
-        if (qlOptions.getSafePointStrategy().getStrategyBlackList().checkRulesPassed(iMethod)) {
+        if (qlOptions.getSafePointStrategy().checkBlackList().checkRulesPassed(iMethod)) {
             throw errorReporter.report("BLACK_LIST_CHECK_ERROR", "found method:" +
                     iMethod.getQualifyName() + " in blacklist rules");
         }
@@ -23,7 +23,7 @@ public class SecurityUtils {
 
     private static void checkSafePointWhiteList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                 IMethod iMethod) throws QLRuntimeException {
-        if (!qlOptions.getSafePointStrategy().getStrategyWhiteList().checkRulesPassed(iMethod)) {
+        if (!qlOptions.getSafePointStrategy().checkWhiteList().checkRulesPassed(iMethod)) {
             throw errorReporter.report("WHITE_LIST_CHECK_ERROR", "found method:" +
                     iMethod.getQualifyName() + " not in whitelist rules");
         }
@@ -31,20 +31,20 @@ public class SecurityUtils {
 
     public static void checkSafePointStrategyList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                   IMethod iMethod) throws QLRuntimeException {
-        if (qlOptions.getSafePointStrategy().getStrategyBlackList() != null) {
+        if (qlOptions.getSafePointStrategy().checkWhiteList() != null) {
             checkSafePointBlackList(qlOptions, errorReporter, iMethod);
         }
-        if (qlOptions.getSafePointStrategy().getStrategyWhiteList() != null) {
+        if (qlOptions.getSafePointStrategy().checkWhiteList() != null) {
             checkSafePointWhiteList(qlOptions, errorReporter, iMethod);
         }
     }
 
     public static void checkSafePointStrategyList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                   List<IMethod> iMethods) throws QLRuntimeException {
-        if (qlOptions.getSafePointStrategy().getStrategyBlackList() != null) {
+        if (qlOptions.getSafePointStrategy().checkWhiteList() != null) {
             iMethods.forEach((x) -> checkSafePointBlackList(qlOptions, errorReporter, x));
         }
-        if (qlOptions.getSafePointStrategy().getStrategyWhiteList() != null) {
+        if (qlOptions.getSafePointStrategy().checkWhiteList() != null) {
             iMethods.forEach((x) -> checkSafePointWhiteList(qlOptions, errorReporter, x));
         }
     }
