@@ -3,6 +3,7 @@ package com.ql.util.express.test;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import com.ql.util.express.exception.QLException;
 import org.junit.Test;
 
 /**
@@ -14,6 +15,7 @@ public class BitTest {
         assert (~-3 == ~-3L);
         IntBit();
         LongBit();
+        test_bit_and();
     }
 
     public void IntBit() throws Exception {
@@ -50,5 +52,13 @@ public class BitTest {
         Object obj = runner.execute(express, context, null, true, false);
         System.out.println("=" + obj);
         assert (obj == expert || obj.equals(expert));
+    }
+
+    @Test(expected = QLException.class)
+    public void test_bit_and() throws Exception {
+        ExpressRunner runner = new ExpressRunner();
+        IExpressContext<String, Object> context = new DefaultContext<>();
+        Object result = runner.execute("true & true", context, null, true, false);
+        assert (Boolean)result;
     }
 }

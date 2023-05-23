@@ -5,7 +5,13 @@ import com.alibaba.qlexpress4.member.QLMetaProtocol;
 import com.alibaba.qlexpress4.parser.ImportManager;
 import com.alibaba.qlexpress4.security.SafePointStrategy;
 import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+
+import com.alibaba.qlexpress4.parser.ImportManager;
 
 /**
  * Author: DQinYuan
@@ -35,7 +41,7 @@ public class QLOptions {
 
     /**
      * custom classLoader
-     * default is QLOptions' ClassLoader
+     * default is QLOptions ClassLoader
      */
     private final ClassLoader classLoader;
 
@@ -48,11 +54,12 @@ public class QLOptions {
 
     /**
      * default import java packages for script
-     * default         ImportManager.importPack("java.lang"),
-     *                 ImportManager.importPack("java.util"),
-     *                 ImportManager.importPack("java.math"),
-     *                 ImportManager.importPack("java.util.stream")
-     *                 ImportManager.importPack("java.util.function")
+     * default
+     * ImportManager.importPack("java.lang"),
+     * ImportManager.importPack("java.util"),
+     * ImportManager.importPack("java.math"),
+     * ImportManager.importPack("java.util.stream")
+     * ImportManager.importPack("java.util.function")
      */
     private final List<ImportManager.Import> defaultImport;
 
@@ -65,7 +72,7 @@ public class QLOptions {
     private final Map<String, Object> attachments;
 
     /**
-     * open debug mode
+     * enable debug mode
      * default false
      */
     private final boolean debug;
@@ -162,7 +169,6 @@ public class QLOptions {
     }
 
     public static class Builder {
-
         private boolean precise = false;
 
         private boolean polluteUserContext = false;
@@ -186,11 +192,11 @@ public class QLOptions {
         private Consumer<String> debugInfoConsumer = System.out::println;
 
         private List<ImportManager.Import> defaultImport = Arrays.asList(
-                ImportManager.importPack("java.lang"),
-                ImportManager.importPack("java.util"),
-                ImportManager.importPack("java.math"),
-                ImportManager.importPack("java.util.stream"),
-                ImportManager.importPack("java.util.function")
+            ImportManager.importPack("java.lang"),
+            ImportManager.importPack("java.util"),
+            ImportManager.importPack("java.math"),
+            ImportManager.importPack("java.util.stream"),
+            ImportManager.importPack("java.util.function")
         );
 
         public Builder precise(boolean precise) {
@@ -259,5 +265,4 @@ public class QLOptions {
                     safePointStrategy, metaProtocol, debugInfoConsumer);
         }
     }
-
 }

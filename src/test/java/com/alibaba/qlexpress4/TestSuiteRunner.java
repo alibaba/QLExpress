@@ -51,7 +51,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/array/list_cast_arr.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/equals.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -78,36 +78,36 @@ public class TestSuiteRunner {
         String qlScript = new String(Files.readAllBytes(qlFile));
         // parse testsuite option first
         Optional<Map<String, Object>> scriptOptionOp = parseOption(qlScript);
-        Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String) scriptOption.get("errCode"));
+        Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String)scriptOption.get("errCode"));
         if (errCodeOp.isPresent()) {
             assertErrCode(path, qlScript, QLOptions.builder()
-                    .debug(debug)
-                    .attachments(attachments)
-                    .build(), errCodeOp.get());
+                .debug(debug)
+                .attachments(attachments)
+                .build(), errCodeOp.get());
             printOk(path);
             return;
         }
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
-                (QLOptions.Builder) scriptOption.get("qlOptions"));
-        QLOptions qlOptions = optionsBuilder.isPresent()?
-                optionsBuilder.get().debug(debug).attachments(attachments).build():
-                QLOptions.builder().debug(debug).attachments(attachments).build();
+            (QLOptions.Builder)scriptOption.get("qlOptions"));
+        QLOptions qlOptions = optionsBuilder.isPresent() ?
+            optionsBuilder.get().debug(debug).attachments(attachments).build() :
+            QLOptions.builder().debug(debug).attachments(attachments).build();
 
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
             printOk(path);
         } catch (Exception e) {
-            System.out.printf("%1$-95s %2$s\n",path, "error");
+            System.out.printf("%1$-95s %2$s\n", path, "error");
             throw e;
         }
     }
 
     private void printRunning(String path) {
-        System.out.printf("%1$-98s %2$s\n",path, "running");
+        System.out.printf("%1$-98s %2$s\n", path, "running");
     }
 
     private void printOk(String path) {
-        System.out.printf("%1$-98s %2$s\n",path, "ok");
+        System.out.printf("%1$-98s %2$s\n", path, "ok");
     }
 
     private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode) {
@@ -131,11 +131,11 @@ public class TestSuiteRunner {
         String configJson = qlScript.substring(2, endIndex);
         try {
             QLOptions qlOptions = QLOptions.builder()
-                    .defaultImport(Collections.singletonList(
-                            ImportManager.importCls("com.alibaba.qlexpress4.QLOptions")))
-                    .build();
-            Map<String, Object> scriptOptions = (Map<String, Object>) testRunner
-                    .execute(configJson, Collections.emptyMap(), qlOptions);
+                .defaultImport(Collections.singletonList(
+                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions")))
+                .build();
+            Map<String, Object> scriptOptions = (Map<String, Object>)testRunner
+                .execute(configJson, Collections.emptyMap(), qlOptions);
             return Optional.of(scriptOptions);
         } catch (JSONException e) {
             return Optional.empty();
@@ -148,27 +148,27 @@ public class TestSuiteRunner {
         attachment.put(TEST_PATH_ATT, "a/b.ql");
 
         QLOptions attachOptions = QLOptions.builder()
-                .attachments(attachment)
-                .build();
+            .attachments(attachment)
+            .build();
         testRunner.execute("assert(true)", Collections.emptyMap(), attachOptions);
         assertErrCodeAndReason(testRunner, "assert(false)", attachOptions,
-                "BIZ_EXCEPTION",
-                "a/b.ql: assert fail");
+            "BIZ_EXCEPTION",
+            "a/b.ql: assert fail");
         assertErrCodeAndReason(testRunner, "assert(false, 'my test')", attachOptions,
-                "BIZ_EXCEPTION", "a/b.ql: my test");
+            "BIZ_EXCEPTION", "a/b.ql: my test");
         // variable can be the same name with function
         testRunner.execute("assert = 4;assert(assert == 4)",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+            Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
     }
 
     private Path getTestSuiteRoot() throws URISyntaxException {
         return Paths.get(getClass().getClassLoader()
-                .getResource("testsuite").toURI());
+            .getResource("testsuite").toURI());
     }
 
     private void assertErrCodeAndReason(Express4Runner express4Runner, String script,
-                                        QLOptions qlOptions,
-                                        String errCode, String reason) {
+        QLOptions qlOptions,
+        String errCode, String reason) {
         try {
             express4Runner.execute(script, Collections.emptyMap(), qlOptions);
         } catch (QLException e) {
@@ -193,15 +193,15 @@ public class TestSuiteRunner {
             int pSize = parameters.size();
             switch (pSize) {
                 case 1:
-                    Boolean b = (Boolean) parameters.getValue(0);
+                    Boolean b = (Boolean)parameters.getValue(0);
                     if (b == null || !b) {
                         throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
                     }
                     return null;
                 case 2:
-                    Boolean b0 = (Boolean) parameters.getValue(0);
+                    Boolean b0 = (Boolean)parameters.getValue(0);
                     if (b0 == null || !b0) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), (String) parameters.getValue(1)));
+                        throw new UserDefineException(wrap(qRuntime.attachment(), (String)parameters.getValue(1)));
                     }
                     return null;
                 default:
@@ -220,15 +220,15 @@ public class TestSuiteRunner {
             int pSize = parameters.size();
             switch (pSize) {
                 case 1:
-                    Boolean b = (Boolean) parameters.getValue(0);
+                    Boolean b = (Boolean)parameters.getValue(0);
                     if (b == null || b) {
                         throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
                     }
                     return null;
                 case 2:
-                    Boolean b0 = (Boolean) parameters.getValue(0);
+                    Boolean b0 = (Boolean)parameters.getValue(0);
                     if (b0 == null || b0) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), (String) parameters.getValue(1)));
+                        throw new UserDefineException(wrap(qRuntime.attachment(), (String)parameters.getValue(1)));
                     }
                     return null;
                 default:
