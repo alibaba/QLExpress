@@ -14,8 +14,7 @@ public class QLLambdaFunctionalChecker implements MatchChecker {
 
     @Override
     public boolean typeMatch(Class<?> source, Class<?> target) {
-        return ((source == QLambda.class) && CacheUtil.isFunctionInterface(target))
-                || ((target == QLambda.class) && CacheUtil.isFunctionInterface(source));
+        return ((source == QLambda.class) && CacheUtil.isFunctionInterface(target));
     }
 
     @Override
