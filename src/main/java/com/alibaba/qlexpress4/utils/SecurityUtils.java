@@ -12,7 +12,6 @@ import java.util.List;
  * @Date 2023/4/27 下午3:32
  */
 public class SecurityUtils {
-
     private static void checkSafePointBlackList(QLOptions qlOptions, ErrorReporter errorReporter,
                                                 IMethod iMethod) throws QLRuntimeException {
         if (qlOptions.getSafePointStrategy().checkBlackList().checkRulesPassed(iMethod)) {
