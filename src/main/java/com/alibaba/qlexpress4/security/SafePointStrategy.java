@@ -7,7 +7,7 @@ import java.util.HashMap;
  * @Author TaoKan
  * @Date 2023/4/9 上午10:15
  */
-public class SafePointStrategy {
+public class SafePointStrategy implements IStrategy{
     private IStrategyWhiteList strategyWhiteList;
     private IStrategyBlackList strategyBlackList;
     private IStrategySandBox strategySandBox;
@@ -16,16 +16,19 @@ public class SafePointStrategy {
         return new Builder();
     }
 
-    public IStrategyBlackList getStrategyBlackList() {
-        return strategyBlackList;
+    @Override
+    public IStrategyBlackList checkBlackList() {
+        return this.strategyBlackList;
     }
 
-    public IStrategyWhiteList getStrategyWhiteList() {
-        return strategyWhiteList;
+    @Override
+    public IStrategyWhiteList checkWhiteList() {
+        return this.strategyWhiteList;
     }
 
-    public IStrategySandBox getStrategySandBox() {
-        return strategySandBox;
+    @Override
+    public IStrategySandBox checkSandBox() {
+        return this.strategySandBox;
     }
 
     public static class Builder {

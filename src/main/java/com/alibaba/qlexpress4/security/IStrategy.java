@@ -1,14 +1,13 @@
 package com.alibaba.qlexpress4.security;
 
-
 /**
  * @Author TaoKan
  * @Date 2023/4/1 下午5:29
  */
 public interface IStrategy {
-    boolean checkBlackList(IStrategyBlackList iStrategyBlackList);
+    IStrategyBlackList checkBlackList();
 
-    boolean checkWhiteList(IStrategyWhiteList iStrategyWhiteList);
+    IStrategyWhiteList checkWhiteList();
 
-    boolean checkSandBox(IStrategySandBox iStrategySandBox);
+    IStrategySandBox checkSandBox();
 }
