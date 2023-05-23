@@ -10,19 +10,20 @@ import java.util.Map;
  * @Author TaoKan
  * @Date 2023/4/9 上午11:02
  */
-public abstract class StrategySandBox implements IStrategy {
-    private boolean isSandBoxMode;
-
-    public StrategySandBox(boolean isSandBoxMode) {
-        this.isSandBoxMode = isSandBoxMode;
+public class StrategySandBox implements IStrategySandBox {
+    @Override
+    public boolean checkMethodRulesPassed(IMethod iMethod, Class<?> clazz, String name, Map<String, QFunction> userDefineFunction) {
+        if (clazz == iMethod.getClazz() && iMethod.getName().equals(name) && !userDefineFunction.containsKey(name)) {
+            return false;
+        }
+        return true;
     }
 
-    public abstract boolean checkMethodInRules(IMethod iMethod, Class<?> clazz, String name, Map<String, QFunction> userDefineFunction);
-
-    public abstract boolean checkFieldInRules(IField iField, Class<?> clazz, String name, Map<String, QFunction> userDefineField);
-
-    protected boolean isSandBoxMode() {
-        return isSandBoxMode;
+    @Override
+    public boolean checkFieldRulesPassed(IField iField, Class<?> clazz, String name, Map<String, QFunction> userDefineField) {
+        if (clazz == iField.getClazz() && iField.getName().equals(name) && !userDefineField.containsKey(name)) {
+            return false;
+        }
+        return true;
     }
-
 }

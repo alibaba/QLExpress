@@ -8,7 +8,7 @@ import java.util.Set;
  * @Author TaoKan
  * @Date 2023/4/1 下午5:31
  */
-public abstract class StrategyBlackList implements IStrategy {
+public class StrategyBlackList implements IStrategyBlackList {
 
     private final Set<String> blackStrategyStructList;
 
@@ -16,10 +16,15 @@ public abstract class StrategyBlackList implements IStrategy {
         this.blackStrategyStructList = blackStrategyStructList;
     }
 
-    public abstract boolean checkInRules(IMethod iMethod);
-
     protected Set<String> getBlackStrategyStructList() {
         return blackStrategyStructList;
     }
 
+    @Override
+    public boolean checkRulesPassed(IMethod iMethod) {
+        if (this.blackStrategyStructList.contains(iMethod.getQualifyName())) {
+            return false;
+        }
+        return true;
+    }
 }

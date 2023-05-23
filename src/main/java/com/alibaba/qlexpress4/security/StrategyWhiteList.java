@@ -8,16 +8,22 @@ import java.util.Set;
  * @Author TaoKan
  * @Date 2023/4/1 下午5:32
  */
-public abstract class StrategyWhiteList implements IStrategy {
+public class StrategyWhiteList implements IStrategyWhiteList {
     private final Set<String> whiteStrategyStructList;
 
     public StrategyWhiteList(Set<String> whiteStrategyStructList) {
         this.whiteStrategyStructList = whiteStrategyStructList;
     }
 
-    public abstract boolean checkInRules(IMethod iMethod);
-
     protected Set<String> getWhiteStrategyStructList() {
         return whiteStrategyStructList;
+    }
+
+    @Override
+    public boolean checkRulesPassed(IMethod iMethod) {
+        if (this.whiteStrategyStructList.contains(iMethod.getQualifyName())) {
+            return true;
+        }
+        return false;
     }
 }

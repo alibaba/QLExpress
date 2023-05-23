@@ -18,7 +18,7 @@ public class StrategyFactory {
      * @return
      */
     public static StrategyBlackList newStrategyBlackList(Map<Class, String> map) {
-        return new QLStrategyBlackList(mapListTransToSet(map));
+        return new StrategyBlackList(mapListTransToSet(map));
     }
 
     /**
@@ -28,17 +28,16 @@ public class StrategyFactory {
      * @return
      */
     public static StrategyWhiteList newStrategyWhiteList(Map<Class, String> map) {
-        return new QLStrategyWhiteList(mapListTransToSet(map));
+        return new StrategyWhiteList(mapListTransToSet(map));
     }
 
     /**
      * sandbox
      *
-     * @param isSandBoxMode
      * @return
      */
-    public static StrategySandBox newStrategySandBox(boolean isSandBoxMode) {
-        return new QLStrategySandBox(isSandBoxMode);
+    public static StrategySandBox newStrategySandBox() {
+        return new StrategySandBox();
     }
 
 
