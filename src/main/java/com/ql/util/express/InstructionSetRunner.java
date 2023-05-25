@@ -1,9 +1,11 @@
 package com.ql.util.express;
 
-import java.util.List;
-
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.instruction.OperateDataCacheManager;
+import org.apache.commons.math3.fraction.BigFraction;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class InstructionSetRunner {
 
@@ -64,6 +66,9 @@ public class InstructionSetRunner {
             if (!isCatchException) {
                 throw e;
             }
+        }
+        if (result != null && result instanceof BigFraction){
+            return ((BigFraction)result).bigDecimalValue(PreciseNumberOperator.DIVIDE_PRECISION, BigDecimal.ROUND_HALF_UP);
         }
         return result;
     }

@@ -1,9 +1,10 @@
 package com.ql.util.express;
 
+import com.ql.util.express.exception.QLException;
+import org.apache.commons.math3.fraction.BigFraction;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import com.ql.util.express.exception.QLException;
 
 /**
  * 数字运行函数集合
@@ -22,16 +23,6 @@ interface NumberType {
 }
 
 public class OperatorOfNumber {
-    public static final BigDecimal BIG_DECIMAL_LONG_MAX = new BigDecimal(Long.MAX_VALUE);
-    public static final BigDecimal BIG_DECIMAL_LONG_MIN = new BigDecimal(Long.MIN_VALUE);
-    public static final BigDecimal BIG_DECIMAL_INTEGER_MAX = new BigDecimal(Integer.MAX_VALUE);
-    public static final BigDecimal BIG_DECIMAL_INTEGER_MIN = new BigDecimal(Integer.MIN_VALUE);
-
-    //BIG_DECIMAL_COMPARE_LESS
-    public static final Integer LESS = -1;
-    //BIG_DECIMAL_COMPARE_MORE
-    public static final Integer MORE = 1;
-
 
     private OperatorOfNumber() {
         throw new IllegalStateException("Utility class");
@@ -379,96 +370,55 @@ class PreciseNumberOperator {
         throw new IllegalStateException("Utility class");
     }
 
-    public static Number addPrecise(Number op1, Number op2) {
-        BigDecimal result;
-        if (op1 instanceof BigDecimal) {
-            if (op2 instanceof BigDecimal) {
-                result = ((BigDecimal)op1).add((BigDecimal)op2);
-            } else {
-                result = ((BigDecimal)op1).add(new BigDecimal(op2.toString()));
-            }
-        } else {
-            if (op2 instanceof BigDecimal) {
-                result = new BigDecimal(op1.toString()).add((BigDecimal)op2);
-            } else {
-                result = new BigDecimal(op1.toString()).add(new BigDecimal(op2.toString()));
-            }
+    public static Number addPrecise(Number op1, Number op2) throws Exception {
+        if (op1 instanceof BigFraction && op2 instanceof BigFraction){
+            return ((BigFraction)op1).add((BigFraction)op2);
         }
-        return basicNumberFormatTransfer(result);
+        if (op1 instanceof BigFraction){
+            return ((BigFraction)op1).add(new BigFraction(op2.longValue()));
+        }
+        if (op2 instanceof BigFraction){
+            return new BigFraction(op1.longValue()).add((BigFraction)op2);
+        }
+        return new BigFraction(op1.longValue()).add(new BigFraction(op2.longValue()));
     }
 
-    public static Number subtractPrecise(Number op1, Number op2) {
-        BigDecimal result;
-        if (op1 instanceof BigDecimal) {
-            if (op2 instanceof BigDecimal) {
-                result = ((BigDecimal)op1).subtract((BigDecimal)op2);
-            } else {
-                result = ((BigDecimal)op1).subtract(new BigDecimal(op2.toString()));
-            }
-        } else {
-            if (op2 instanceof BigDecimal) {
-                result = new BigDecimal(op1.toString()).subtract((BigDecimal)op2);
-            } else {
-                result = new BigDecimal(op1.toString()).subtract(new BigDecimal(op2.toString()));
-            }
+    public static Number subtractPrecise(Number op1, Number op2) throws Exception {
+        if (op1 instanceof BigFraction && op2 instanceof BigFraction){
+            return ((BigFraction)op1).subtract((BigFraction)op2);
         }
-        return basicNumberFormatTransfer(result);
+        if (op1 instanceof BigFraction){
+            return ((BigFraction)op1).subtract(new BigFraction(op2.longValue()));
+        }
+        if (op2 instanceof BigFraction){
+            return new BigFraction(op1.longValue()).subtract((BigFraction)op2);
+        }
+        return new BigFraction(op1.longValue()).subtract(new BigFraction(op2.longValue()));
     }
 
-    public static Number multiplyPrecise(Number op1, Number op2) {
-        BigDecimal result;
-        if (op1 instanceof BigDecimal) {
-            if (op2 instanceof BigDecimal) {
-                result = ((BigDecimal)op1).multiply((BigDecimal)op2);
-            } else {
-                result = ((BigDecimal)op1).multiply(new BigDecimal(op2.toString()));
-            }
-        } else {
-            if (op2 instanceof BigDecimal) {
-                result = new BigDecimal(op1.toString()).multiply((BigDecimal)op2);
-            } else {
-                result = new BigDecimal(op1.toString()).multiply(new BigDecimal(op2.toString()));
-            }
+    public static Number multiplyPrecise(Number op1, Number op2) throws Exception {
+        if (op1 instanceof BigFraction && op2 instanceof BigFraction){
+            return ((BigFraction)op1).multiply((BigFraction)op2);
         }
-        return basicNumberFormatTransfer(result);
+        if (op1 instanceof BigFraction){
+            return ((BigFraction)op1).multiply(new BigFraction(op2.longValue()));
+        }
+        if (op2 instanceof BigFraction){
+            return new BigFraction(op1.longValue()).multiply((BigFraction)op2);
+        }
+        return new BigFraction(op1.longValue()).multiply(new BigFraction(op2.longValue()));
     }
 
-    public static Number dividePrecise(Number op1, Number op2) {
-        BigDecimal result;
-        if (op1 instanceof BigDecimal) {
-            if (op2 instanceof BigDecimal) {
-                result = ((BigDecimal)op1).divide((BigDecimal)op2, DIVIDE_PRECISION, RoundingMode.HALF_UP);
-            } else {
-                result = ((BigDecimal)op1).divide(new BigDecimal(op2.toString()), DIVIDE_PRECISION,
-                    RoundingMode.HALF_UP);
-            }
-        } else {
-            if (op2 instanceof BigDecimal) {
-                result = new BigDecimal(op1.toString()).divide((BigDecimal)op2, DIVIDE_PRECISION,
-                    RoundingMode.HALF_UP);
-            } else {
-                result = new BigDecimal(op1.toString()).divide(new BigDecimal(op2.toString()), DIVIDE_PRECISION,
-                    RoundingMode.HALF_UP);
-            }
+    public static Number dividePrecise(Number op1, Number op2) throws Exception {
+        if (op1 instanceof BigFraction && op2 instanceof BigFraction){
+            return ((BigFraction)op1).divide((BigFraction)op2);
         }
-        return basicNumberFormatTransfer(result);
-    }
-
-    /**
-     * 格式转化通用
-     * @param number
-     * @return
-     */
-    protected static Number basicNumberFormatTransfer(BigDecimal number){
-        if (number.scale() == 0) {
-            if(number.compareTo(OperatorOfNumber.BIG_DECIMAL_INTEGER_MAX) < OperatorOfNumber.MORE
-                        && number.compareTo(OperatorOfNumber.BIG_DECIMAL_INTEGER_MIN) > OperatorOfNumber.LESS){
-                return number.intValue();
-            }else if(number.compareTo(OperatorOfNumber.BIG_DECIMAL_LONG_MAX) < OperatorOfNumber.MORE
-                            && number.compareTo(OperatorOfNumber.BIG_DECIMAL_LONG_MIN) > OperatorOfNumber.LESS){
-                return number.longValue();
-            }
+        if (op1 instanceof BigFraction){
+            return ((BigFraction)op1).divide(new BigFraction(op2.longValue()));
         }
-        return number;
+        if (op2 instanceof BigFraction){
+            return new BigFraction(op1.longValue()).divide((BigFraction)op2);
+        }
+        return new BigFraction(op1.longValue()).divide(new BigFraction(op2.longValue()));
     }
 }
