@@ -2,7 +2,6 @@ package com.ql.util.express.bugfix;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
-import org.apache.commons.math3.fraction.BigFraction;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -18,11 +17,23 @@ public class PreciseCalculationTest {
         String exp = "a/b*c";
 		ExpressRunner runner = new ExpressRunner(true, false);
 		DefaultContext<String, Object> context = new DefaultContext<String, Object>();
-		context.put("a", new BigFraction(20));
-		context.put("b", new BigFraction(6));
-		context.put("c", new BigFraction(3));
+		context.put("a", 20);
+		context.put("b", 6);
+		context.put("c", 3);
 		Object result = runner.execute(exp, context, null, false, false);
 		System.out.println(result);
+    }
+
+    @Test
+    public void testPrecise2() throws Exception {
+        String exp = "a/b*c";
+        ExpressRunner runner = new ExpressRunner(true, false);
+        DefaultContext<String, Object> context = new DefaultContext<String, Object>();
+        context.put("a", 20.34);
+        context.put("b", 6);
+        context.put("c", 3);
+        Object result = runner.execute(exp, context, null, false, false);
+        System.out.println(result);
     }
 
     @Test

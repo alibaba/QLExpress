@@ -375,12 +375,12 @@ class PreciseNumberOperator {
             return ((BigFraction)op1).add((BigFraction)op2);
         }
         if (op1 instanceof BigFraction){
-            return ((BigFraction)op1).add(new BigFraction(op2.longValue()));
+            return ((BigFraction)op1).add(new BigFraction(op2.doubleValue()));
         }
         if (op2 instanceof BigFraction){
-            return new BigFraction(op1.longValue()).add((BigFraction)op2);
+            return new BigFraction(op1.doubleValue()).add((BigFraction)op2);
         }
-        return new BigFraction(op1.longValue()).add(new BigFraction(op2.longValue()));
+        return new BigFraction(op1.doubleValue()).add(new BigFraction(op2.doubleValue()));
     }
 
     public static Number subtractPrecise(Number op1, Number op2) throws Exception {
@@ -388,12 +388,12 @@ class PreciseNumberOperator {
             return ((BigFraction)op1).subtract((BigFraction)op2);
         }
         if (op1 instanceof BigFraction){
-            return ((BigFraction)op1).subtract(new BigFraction(op2.longValue()));
+            return ((BigFraction)op1).subtract(new BigFraction(op2.doubleValue()));
         }
         if (op2 instanceof BigFraction){
-            return new BigFraction(op1.longValue()).subtract((BigFraction)op2);
+            return new BigFraction(op1.doubleValue()).subtract((BigFraction)op2);
         }
-        return new BigFraction(op1.longValue()).subtract(new BigFraction(op2.longValue()));
+        return new BigFraction(op1.doubleValue()).subtract(new BigFraction(op2.doubleValue()));
     }
 
     public static Number multiplyPrecise(Number op1, Number op2) throws Exception {
@@ -401,12 +401,12 @@ class PreciseNumberOperator {
             return ((BigFraction)op1).multiply((BigFraction)op2);
         }
         if (op1 instanceof BigFraction){
-            return ((BigFraction)op1).multiply(new BigFraction(op2.longValue()));
+            return ((BigFraction)op1).multiply(new BigFraction(op2.doubleValue()));
         }
         if (op2 instanceof BigFraction){
-            return new BigFraction(op1.longValue()).multiply((BigFraction)op2);
+            return new BigFraction(op1.doubleValue()).multiply((BigFraction)op2);
         }
-        return new BigFraction(op1.longValue()).multiply(new BigFraction(op2.longValue()));
+        return new BigFraction(op1.doubleValue()).multiply(new BigFraction(op2.doubleValue()));
     }
 
     public static Number dividePrecise(Number op1, Number op2) throws Exception {
@@ -414,11 +414,11 @@ class PreciseNumberOperator {
             return ((BigFraction)op1).divide((BigFraction)op2);
         }
         if (op1 instanceof BigFraction){
-            return ((BigFraction)op1).divide(new BigFraction(op2.longValue()));
+            return ((BigFraction)op1).divide(new BigFraction(op2.doubleValue()));
         }
         if (op2 instanceof BigFraction){
-            return new BigFraction(op1.longValue()).divide((BigFraction)op2);
+            return new BigFraction(op1.doubleValue()).divide((BigFraction)op2);
         }
-        return new BigFraction(op1.longValue()).divide(new BigFraction(op2.longValue()));
+        return new BigFraction(op1.doubleValue()).divide(new BigFraction(op2.doubleValue()));
     }
 }
