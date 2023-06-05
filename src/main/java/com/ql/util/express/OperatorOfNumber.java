@@ -1,7 +1,6 @@
 package com.ql.util.express;
 
 import com.ql.util.express.exception.QLException;
-import org.apache.commons.math3.fraction.BigFraction;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

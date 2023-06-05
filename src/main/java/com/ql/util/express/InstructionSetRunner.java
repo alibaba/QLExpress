@@ -2,7 +2,6 @@ package com.ql.util.express;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.instruction.OperateDataCacheManager;
-import org.apache.commons.math3.fraction.BigFraction;
 
 import java.math.BigDecimal;
 import java.util.List;
