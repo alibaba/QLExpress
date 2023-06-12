@@ -2,6 +2,7 @@ package com.ql.util.express.bugfix;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -21,7 +22,7 @@ public class PreciseCalculationTest {
 		context.put("b", 6);
 		context.put("c", 3);
 		Object result = runner.execute(exp, context, null, false, false);
-		System.out.println(result);
+        Assert.assertTrue(((BigDecimal)result).doubleValue() == 10d);
     }
 
     @Test
@@ -33,7 +34,7 @@ public class PreciseCalculationTest {
         context.put("b", 6);
         context.put("c", 3);
         Object result = runner.execute(exp, context, null, false, false);
-        System.out.println(result);
+        Assert.assertTrue(((BigDecimal)result).doubleValue() == 10.1700000000d);
     }
 
     @Test
@@ -42,8 +43,8 @@ public class PreciseCalculationTest {
         final ExpressRunner runner = new ExpressRunner(true, false);
         DefaultContext<String, Object> nameMap = new DefaultContext<String, Object>();
         nameMap.put("a", new BigDecimal(Long.MAX_VALUE));
-        Object obj = runner.execute(evalExpress, nameMap, null, false, false);
-        System.out.println(obj);
+        Object result = runner.execute(evalExpress, nameMap, null, false, false);
+        Assert.assertTrue(((BigDecimal)result).doubleValue() == 18446744073709551616.0000000000d);
     }
 }
 
