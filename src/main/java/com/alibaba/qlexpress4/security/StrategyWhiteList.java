@@ -8,7 +8,7 @@ import java.util.Set;
  * @Author TaoKan
  * @Date 2023/4/1 下午5:32
  */
-public class StrategyWhiteList implements IStrategyWhiteList {
+public class StrategyWhiteList implements IStrategy {
     private final Set<String> whiteStrategyStructList;
 
     public StrategyWhiteList(Set<String> whiteStrategyStructList) {
@@ -20,8 +20,8 @@ public class StrategyWhiteList implements IStrategyWhiteList {
     }
 
     @Override
-    public boolean checkRulesPassed(IMethod iMethod) {
-        if (this.whiteStrategyStructList.contains(iMethod.getQualifyName())) {
+    public boolean check(IMethod iMethod) {
+        if (this.whiteStrategyStructList != null && this.whiteStrategyStructList.contains(iMethod.getQualifyName())) {
             return true;
         }
         return false;

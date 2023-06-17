@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.parser.ImportManager;
-import com.alibaba.qlexpress4.security.SafePointStrategy;
+import com.alibaba.qlexpress4.security.IStrategy;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -85,13 +85,17 @@ public class QLOptions {
      * default is blacklist mode
      *
      */
-    private final SafePointStrategy safePointStrategy;
+    private final IStrategy strategySandBox;
+    private final IStrategy strategyBlackList;
+    private final IStrategy strategyWhiteList;
+
 
 
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, SafePointStrategy safePointStrategy, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, IStrategy strategyBlackList, IStrategy strategyWhiteList,
+                      IStrategy strategySandBox, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -102,7 +106,9 @@ public class QLOptions {
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
-        this.safePointStrategy = safePointStrategy;
+        this.strategyBlackList = strategyBlackList;
+        this.strategyWhiteList = strategyWhiteList;
+        this.strategySandBox = strategySandBox;
     }
 
     public static Builder builder() {
@@ -145,7 +151,10 @@ public class QLOptions {
         return avoidNullPointer;
     }
 
-    public SafePointStrategy getSafePointStrategy() {return safePointStrategy;}
+    public IStrategy getStrategyWhiteList() {return strategyWhiteList;}
+    public IStrategy getStrategyBlackList() {return strategyBlackList;}
+    public IStrategy getStrategySandBox() {return strategySandBox;}
+
 
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
@@ -169,7 +178,12 @@ public class QLOptions {
 
         private boolean avoidNullPointer = false;
 
-        private SafePointStrategy safePointStrategy = SafePointStrategy.builder().defaultSystemStrategy();
+        private IStrategy strategyBlackList = IStrategy.defaultBlackList;
+
+        private IStrategy strategyWhiteList = null;
+
+        private IStrategy strategySandBox = IStrategy.defaultSandBox;
+
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
@@ -216,8 +230,18 @@ public class QLOptions {
             return this;
         }
 
-        public Builder safePointStrategy(SafePointStrategy safePointStrategy){
-            this.safePointStrategy = safePointStrategy;
+        public Builder strategyBlackList(IStrategy strategyBlackList){
+            this.strategyBlackList = strategyBlackList;
+            return this;
+        }
+
+        public Builder strategySandBox(IStrategy strategySandBox){
+            this.strategySandBox = strategySandBox;
+            return this;
+        }
+
+        public Builder strategyWhiteList(IStrategy strategyWhiteList){
+            this.strategyWhiteList = strategyWhiteList;
             return this;
         }
 
@@ -239,7 +263,7 @@ public class QLOptions {
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
                     defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer,
-                    safePointStrategy, debugInfoConsumer);
+                    strategyBlackList, strategyWhiteList, strategySandBox, debugInfoConsumer);
         }
     }
 
