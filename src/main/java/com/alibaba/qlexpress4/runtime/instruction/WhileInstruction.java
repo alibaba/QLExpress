@@ -3,9 +3,12 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -21,18 +24,25 @@ public class WhileInstruction extends QLInstruction {
 
     private final QLambdaDefinition body;
 
-    public WhileInstruction(ErrorReporter errorReporter, QLambdaDefinition condition, QLambdaDefinition body) {
+    private final int whileScopeMaxStackSize;
+
+    public WhileInstruction(ErrorReporter errorReporter, QLambdaDefinition condition, QLambdaDefinition body,
+                            int whileScopeMaxStackSize) {
         super(errorReporter);
         this.condition = condition;
         this.body = body;
+        this.whileScopeMaxStackSize = whileScopeMaxStackSize;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
+        DelegateQContext whileScopeContext = new DelegateQContext(qContext,
+                new QvmBlockScope(qContext, Collections.emptyMap(), whileScopeMaxStackSize, ExceptionTable.EMPTY));
+        QLambda conditionLambda = condition.toLambda(whileScopeContext, qlOptions, false);
+        QLambda bodyLambda = body.toLambda(whileScopeContext, qlOptions, true);
         whileBody:
-        while (evalCondition(qContext, qlOptions)) {
+        while (evalCondition(conditionLambda)) {
             try {
-                QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
                 QResult bodyResult = bodyLambda.call();
                 switch (bodyResult.getResultType()) {
                     case RETURN:
@@ -67,9 +77,8 @@ public class WhileInstruction extends QLInstruction {
         body.println(depth+2, debug);
     }
 
-    private boolean evalCondition(QContext qContext, QLOptions qlOptions) {
+    private boolean evalCondition(QLambda conditionLambda) {
         try {
-            QLambda conditionLambda = condition.toLambda(qContext, qlOptions, false);
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
                 throw errorReporter.report("WHILE_CONDITION_NOT_BOOL",

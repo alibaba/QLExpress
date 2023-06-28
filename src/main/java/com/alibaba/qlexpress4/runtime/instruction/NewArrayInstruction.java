@@ -49,6 +49,10 @@ public class NewArrayInstruction extends QLInstruction {
         return QResult.NEXT_INSTRUCTION;
     }
 
+    public Class<?> getClz() {
+        return clz;
+    }
+
     @Override
     public int stackInput() {
         return length;

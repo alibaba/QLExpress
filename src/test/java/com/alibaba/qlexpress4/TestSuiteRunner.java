@@ -5,15 +5,12 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import com.alibaba.fastjson2.JSONException;
+import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
-import com.alibaba.qlexpress4.parser.ImportManager;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
@@ -51,7 +48,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/cast/qlambda_implicit_functional.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/function/multi_call.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -83,7 +80,7 @@ public class TestSuiteRunner {
             assertErrCode(path, qlScript, QLOptions.builder()
                 .debug(debug)
                 .attachments(attachments)
-                .build(), errCodeOp.get());
+                .build(), errCodeOp.get(), debug);
             printOk(path);
             return;
         }
@@ -110,10 +107,14 @@ public class TestSuiteRunner {
         System.out.printf("%1$-98s %2$s\n", path, "ok");
     }
 
-    private void assertErrCode(String path, String qlScript, QLOptions qlOptions, String expectErrCode) {
+    private void assertErrCode(String path, String qlScript, QLOptions qlOptions,
+                               String expectErrCode, boolean printE) {
         try {
             testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (QLException qlException) {
+            if (printE) {
+                qlException.printStackTrace();
+            }
             assertEquals(path + " error code assert fail", expectErrCode, qlException.getErrorCode());
         } catch (Exception e) {
             throw new RuntimeException(path + " unknown error", e);
@@ -167,8 +168,7 @@ public class TestSuiteRunner {
     }
 
     private void assertErrCodeAndReason(Express4Runner express4Runner, String script,
-        QLOptions qlOptions,
-        String errCode, String reason) {
+        QLOptions qlOptions, String errCode, String reason) {
         try {
             express4Runner.execute(script, Collections.emptyMap(), qlOptions);
         } catch (QLException e) {

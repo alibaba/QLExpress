@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
+import com.alibaba.qlexpress4.aparser.OperatorFactory;
+import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideAssignOperator;
@@ -58,7 +60,7 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
  *
  * @author 冰够
  */
-public class OperatorManager {
+public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     private static final Map<String, BinaryOperator> DEFAULT_BINARY_OPERATOR_MAP = new ConcurrentHashMap<>(64);
     private static final Map<String, UnaryOperator> DEFAULT_PREFIX_UNARY_OPERATOR_MAP = new ConcurrentHashMap<>(8);
     private static final Map<String, UnaryOperator> DEFAULT_SUFFIX_UNARY_OPERATOR_MAP = new ConcurrentHashMap<>(8);
@@ -194,5 +196,23 @@ public class OperatorManager {
      */
     public UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
         return DEFAULT_SUFFIX_UNARY_OPERATOR_MAP.get(operatorLexeme);
+    }
+
+    @Override
+    public boolean isOpType(String lexeme, OpType opType) {
+        switch (opType) {
+            case MIDDLE:
+                return DEFAULT_BINARY_OPERATOR_MAP.containsKey(lexeme);
+            case PREFIX:
+                return DEFAULT_PREFIX_UNARY_OPERATOR_MAP.containsKey(lexeme);
+            case SUFFIX:
+                return DEFAULT_SUFFIX_UNARY_OPERATOR_MAP.containsKey(lexeme);
+        }
+        return false;
+    }
+
+    @Override
+    public Integer precedence(String lexeme) {
+        return DEFAULT_BINARY_OPERATOR_MAP.get(lexeme).getPriority();
     }
 }

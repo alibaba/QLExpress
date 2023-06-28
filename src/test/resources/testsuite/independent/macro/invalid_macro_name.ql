@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_MACRO_NAME"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 macro if {

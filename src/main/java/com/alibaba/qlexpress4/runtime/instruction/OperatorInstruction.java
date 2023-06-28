@@ -50,4 +50,8 @@ public class OperatorInstruction extends QLInstruction {
     public void println(int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, "Operator " + operator.getOperator(), debug);
     }
+
+    public BinaryOperator getOperator() {
+        return operator;
+    }
 }

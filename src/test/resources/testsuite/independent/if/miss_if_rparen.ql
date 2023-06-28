@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "EXPECT_RPAREN_AFTER_IF_CONDITION"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 if (a>10;

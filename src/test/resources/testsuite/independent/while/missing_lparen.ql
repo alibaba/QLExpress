@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_LPAREN_BEFORE_WHILE_CONDITION"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 while i < 5 {

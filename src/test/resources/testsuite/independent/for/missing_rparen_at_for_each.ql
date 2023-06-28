@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_RPAREN_AT_FOR_EACH"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 for (a :[1,2,3] {

@@ -6,5 +6,6 @@ f = e -> try {
   10
 };
 
+println(f(new NullPointerException()));
 assert(f(new NullPointerException()) == 100);
 assert(f(new Exception()) == 10);

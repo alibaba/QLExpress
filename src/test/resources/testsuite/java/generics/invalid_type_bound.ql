@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_TYPE_BOUND"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 List<? extends 123> l;

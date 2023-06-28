@@ -5,6 +5,7 @@ a = if (11 == 11) {
 } + 1;
 b = if (a == 11) 20 else 9;
 c = if (a != 11) 11 else 12;
+println(b);
 assert(b == 20);
 assert(c == 12);
 

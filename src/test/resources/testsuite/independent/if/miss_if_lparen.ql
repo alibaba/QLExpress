@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "EXPECT_LPAREN_BEFORE_IF_CONDITION"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 if a(

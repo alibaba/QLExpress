@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_LBRACE_AT_MACRO"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 macro m a=1

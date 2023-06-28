@@ -41,6 +41,10 @@ public class ConstInstruction extends QLInstruction {
         return 1;
     }
 
+    public Object getConstObj() {
+        return constObj;
+    }
+
     @Override
     public void println(int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth,

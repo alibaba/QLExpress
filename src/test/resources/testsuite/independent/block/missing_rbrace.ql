@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_MATCHING_RBRACE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 {

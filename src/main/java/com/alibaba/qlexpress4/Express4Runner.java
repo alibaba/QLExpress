@@ -2,23 +2,18 @@ package com.alibaba.qlexpress4;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.parser.*;
-import com.alibaba.qlexpress4.parser.tree.Program;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
-import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.CacheUtil;
@@ -162,27 +157,23 @@ public class Express4Runner {
         }
     }
 
-    public Program parseToSyntaxTree(String script, QLOptions qlOptions) {
-        QLParser qlParser = new QLParser(operatorManager.getOperatorPrecedenceMap(), new Scanner(script, qlOptions),
-            ImportManager.buildGlobalImportManager(qlOptions.getDefaultImport()),
-            DefaultClassSupplier.INSTANCE);
-        return qlParser.parse();
+    public QLGrammarParser.ProgramContext parseToSyntaxTree(String script, QLOptions qlOptions) {
+        return SyntaxTreeFactory.buildTree(
+                script, operatorManager, qlOptions.isDebug(),
+                qlOptions.getDebugInfoConsumer()
+        );
     }
 
     private QLambda parseToLambda(String script, Map<String, Object> context, QLOptions qlOptions) {
-        Program program = parseToSyntaxTree(script, qlOptions);
-        if (qlOptions.isDebug()) {
-            qlOptions.getDebugInfoConsumer().accept("\nAST:");
-            AstPrinter astPrinter = new AstPrinter(qlOptions.getDebugInfoConsumer());
-            program.accept(astPrinter, null);
-        }
+        QLGrammarParser.ProgramContext program = parseToSyntaxTree(script, qlOptions);
 
-        QvmInstructionGenerator qvmInstructionGenerator = new QvmInstructionGenerator(operatorManager, "", script);
-        program.accept(qvmInstructionGenerator, new GeneratorScope(null));
+        QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script,
+                inheritDefaultImport(qlOptions), operatorManager);
+        program.accept(qvmInstructionVisitor);
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
-                qvmInstructionGenerator.getInstructionList(), Collections.emptyList(),
-                qvmInstructionGenerator.getMaxStackSize());
+                qvmInstructionVisitor.getInstructions(), Collections.emptyList(),
+                qvmInstructionVisitor.getMaxStackSize());
         if (qlOptions.isDebug()) {
             qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
@@ -193,6 +184,10 @@ public class Express4Runner {
                 qlOptions.isPolluteUserContext());
         return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
                 qlOptions, true);
+    }
+
+    private ImportManager inheritDefaultImport(QLOptions qlOptions) {
+        return new ImportManager(qlOptions.getClassSupplier(), qlOptions.getDefaultImport());
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_FIELD"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 map = {

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "COMMA_ABSENT_BETWEEN_MAP_ENTRY"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 map = {

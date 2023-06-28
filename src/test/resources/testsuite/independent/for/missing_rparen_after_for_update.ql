@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_RPAREN_AFTER_FOR_UPDATE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 for (int i = 0; i < 10; i++ {}

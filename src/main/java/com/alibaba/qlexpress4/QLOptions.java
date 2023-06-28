@@ -1,12 +1,11 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.aparser.ImportManager;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import com.alibaba.qlexpress4.parser.ImportManager;
 
 /**
  * Author: DQinYuan
@@ -35,10 +34,10 @@ public class QLOptions {
     private final boolean allowAccessPrivateMethod;
 
     /**
-     * custom classLoader
-     * default is QLOptions ClassLoader
+     * custom classSupplier
+     * default is {@link DefaultClassSupplier}
      */
-    private final ClassLoader classLoader;
+    private final ClassSupplier classSupplier;
 
     /**
      * script timeout millisecond, default is -1, namely time unlimited
@@ -56,7 +55,7 @@ public class QLOptions {
      * ImportManager.importPack("java.util.stream")
      * ImportManager.importPack("java.util.function")
      */
-    private final List<ImportManager.Import> defaultImport;
+    private final List<ImportManager.QLImport> defaultImport;
 
     /**
      * attachments will be carried to user defined function/operator/macro
@@ -84,13 +83,13 @@ public class QLOptions {
      */
     private final Consumer<String> debugInfoConsumer;
 
-    private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
-        List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
-        Map<String, Object> attachments, boolean debug,
-        boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
+    private QLOptions(boolean precise, boolean polluteUserContext, ClassSupplier classSupplier, long timeoutMillis,
+                      List<ImportManager.QLImport> defaultImport, boolean allowAccessPrivateMethod,
+                      Map<String, Object> attachments, boolean debug,
+                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
-        this.classLoader = classLoader;
+        this.classSupplier = classSupplier;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
         this.allowAccessPrivateMethod = allowAccessPrivateMethod;
@@ -116,15 +115,15 @@ public class QLOptions {
         return allowAccessPrivateMethod;
     }
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
+    public ClassSupplier getClassSupplier() {
+        return classSupplier;
     }
 
     public long getTimeoutMillis() {
         return timeoutMillis;
     }
 
-    public List<ImportManager.Import> getDefaultImport() {
+    public List<ImportManager.QLImport> getDefaultImport() {
         return defaultImport;
     }
 
@@ -151,7 +150,7 @@ public class QLOptions {
 
         private boolean allowAccessPrivateMethod;
 
-        private ClassLoader classLoader = QLOptions.class.getClassLoader();
+        private ClassSupplier classSupplier = new DefaultClassSupplier();
 
         private long timeoutMillis = -1;
 
@@ -163,12 +162,12 @@ public class QLOptions {
 
         private Consumer<String> debugInfoConsumer = System.out::println;
 
-        private List<ImportManager.Import> defaultImport = Arrays.asList(
-            ImportManager.importPack("java.lang"),
-            ImportManager.importPack("java.util"),
-            ImportManager.importPack("java.math"),
-            ImportManager.importPack("java.util.stream"),
-            ImportManager.importPack("java.util.function")
+        private List<ImportManager.QLImport> defaultImport = Arrays.asList(
+                ImportManager.importPack("java.lang"),
+                ImportManager.importPack("java.util"),
+                ImportManager.importPack("java.math"),
+                ImportManager.importPack("java.util.stream"),
+                ImportManager.importPack("java.util.function")
         );
 
         public Builder precise(boolean precise) {
@@ -186,12 +185,12 @@ public class QLOptions {
             return this;
         }
 
-        public Builder classLoader(ClassLoader classLoader) {
-            this.classLoader = classLoader;
+        public Builder classSupplier(ClassSupplier classSupplier) {
+            this.classSupplier = classSupplier;
             return this;
         }
 
-        public Builder defaultImport(List<ImportManager.Import> defaultImport) {
+        public Builder defaultImport(List<ImportManager.QLImport> defaultImport) {
             this.defaultImport = defaultImport;
             return this;
         }
@@ -222,7 +221,7 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis, defaultImport,
+            return new QLOptions(precise, polluteUserContext, classSupplier, timeoutMillis, defaultImport,
                 allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
         }
     }

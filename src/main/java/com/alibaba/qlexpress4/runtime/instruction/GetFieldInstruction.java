@@ -96,6 +96,10 @@ public class GetFieldInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "GetField " + fieldName, debug);
     }
 
+    public String getFieldName() {
+        return fieldName;
+    }
+
     /**
      * getValue from cache, if value not exist getInstance
      *

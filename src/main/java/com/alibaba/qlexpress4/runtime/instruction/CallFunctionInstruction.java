@@ -55,7 +55,7 @@ public class CallFunctionInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
             } else {
                 throw errorReporter.report(new NullPointerException(), "CALL_FUNCTION_FROM_NULL",
-                        "can not call function from null" + functionName);
+                        "can not call function from null: " + functionName);
             }
             return;
         }

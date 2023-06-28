@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "EXPECT_IF_CONDITION"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 if(

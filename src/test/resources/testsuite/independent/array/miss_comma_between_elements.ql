@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "EXPECT_COMMA_BETWEEN_ELEMENTS"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 [123 334]

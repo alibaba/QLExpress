@@ -48,7 +48,6 @@ public class QLambdaInner implements QLambda {
                     i += (int) qResult.getResult().get();
                     continue;
                 case RETURN:
-                case IMPLICIT_RETURN:
                 case BREAK:
                 case CONTINUE:
                     return qResult;

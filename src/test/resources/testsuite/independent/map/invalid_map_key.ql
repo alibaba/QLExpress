@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_MAP_KEY"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 {

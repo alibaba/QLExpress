@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_COLON_AT_TERNARY"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 a = x > 10? 10;

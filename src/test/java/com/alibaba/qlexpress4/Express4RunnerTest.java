@@ -3,10 +3,10 @@ package com.alibaba.qlexpress4;
 import com.alibaba.qlexpress4.exception.QLException;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 
@@ -50,14 +50,13 @@ public class Express4RunnerTest {
     @Test
     public void assignTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        assertErrorCode(express4Runner, "1 = 0", "INVALID_ASSIGN_TARGET");
+        assertErrorCode(express4Runner, "1 = 0", "SYNTAX_ERROR");
     }
 
     @Test
     public void ifTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
-                .debug(true)
                 .build();
         Object result = express4Runner.execute("if (2==3) {if (2==2) 10} else 4",
                 Collections.emptyMap(), debugOptions);
@@ -68,7 +67,6 @@ public class Express4RunnerTest {
     public void debugExample() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
-                .debug(true)
                 .build();
         Object result = express4Runner.execute("1+1", Collections.emptyMap(), debugOptions);
         assertEquals(2, result);
@@ -114,9 +112,63 @@ public class Express4RunnerTest {
     @Test
     public void classFieldTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        Object result = express4Runner.execute("List.class", Collections.emptyMap(),
+        assertEquals(List.class, express4Runner.execute("List.class", Collections.emptyMap(),
+                QLOptions.DEFAULT_OPTIONS));
+        assertEquals(List.class, express4Runner.execute("java.util.List.class", Collections.emptyMap(),
+                QLOptions.DEFAULT_OPTIONS));
+    }
+
+    @Test
+    public void invalidOperatorTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertErrorCode(express4Runner, "1+++a", "UNKNOWN_OPERATOR");
+        assertErrorCode(express4Runner, "a abcd bb", "UNKNOWN_OPERATOR");
+        assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
+    }
+
+    @Test
+    public void logicAndTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("null && true", Collections.emptyMap(),
                 QLOptions.DEFAULT_OPTIONS);
-        assertEquals(List.class, result);
+        assertFalse((Boolean) result);
+    }
+
+    @Test
+    public void stringTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertResultEquals(express4Runner, "'ccc\\tmb'", "ccc\\tmb");
+        assertResultEquals(express4Runner, "\"ccc\\tmb\"", "ccc\tmb");
+    }
+
+    @Test
+    public void numberTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object[][] scriptAndExpects = new Object[][] {
+                {"12323", 12323},
+                {"2147483647", 2147483647},
+                {"9223372036854775807", 9223372036854775807L},
+                {"18446744073709552000", new BigInteger("18446744073709552000")},
+                {"1.1", 1.1},
+                {"1.7976931348623157E308", Double.MAX_VALUE},
+                {"1.", 1.0}, {".1", 0.1},
+                {"0xfff", 4095}, {"0b11", 3}, {"072", 58},
+                {"12e1", 120.0}, {"12.1E2", 1210.0},
+                {"10l", 10L}, {"10L", 10L}, {"10d", 10.0}, {"10.313D", 10.313d}, {"10.2f", 10.2f}, {"10.2F", 10.2f}
+        };
+
+        for (Object[] scriptAndExpect : scriptAndExpects) {
+            assertResultEquals(express4Runner, (String) scriptAndExpect[0], scriptAndExpect[1]);
+        }
+    }
+
+    private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
+        assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
+    }
+
+    private void assertResultPredicate(Express4Runner express4Runner, String script, Predicate<Object> predicate) {
+        Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertTrue(predicate.test(result));
     }
 
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {

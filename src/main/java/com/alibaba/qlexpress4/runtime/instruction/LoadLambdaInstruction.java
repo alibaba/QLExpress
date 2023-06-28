@@ -46,4 +46,8 @@ public class LoadLambdaInstruction extends QLInstruction {
         PrintlnUtils.printlnByCurDepth(depth, "LoadLambda", debug);
         lambdaDefinition.println(depth+1, debug);
     }
+
+    public QLambdaDefinition getLambdaDefinition() {
+        return lambdaDefinition;
+    }
 }

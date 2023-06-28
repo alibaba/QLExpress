@@ -21,5 +21,5 @@ List addressBook = [address, {owner: 'john'}];
 assert(addressBook[0].owner == 'cole');
 assert(addressBook[1].owner == 'john');
 
-empty = {};
+empty = {:};
 assert(empty.a == null);

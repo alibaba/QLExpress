@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "COLON_ABSENT_BETWEEN_KEY_VALUE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 {

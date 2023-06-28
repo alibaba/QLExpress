@@ -1,7 +1,5 @@
 package com.alibaba.qlexpress4.exception;
 
-import com.alibaba.qlexpress4.parser.Token;
-
 import java.text.MessageFormat;
 
 public class QLException extends RuntimeException {
@@ -58,10 +56,6 @@ public class QLException extends RuntimeException {
         return snippet;
     }
 
-    public static QLSyntaxException reportParserErr(String script, Token token, String errorCode, String reason) {
-        return reportErrWithToken(script, token, errorCode, reason, QLSyntaxException::new);
-    }
-
     public static QLSyntaxException reportScannerErr(String script, int tokenPos,
                                                      int tokenLine, int tokenCol, String lexeme,
                                                      String errorCode, String reason) {
@@ -69,22 +63,17 @@ public class QLException extends RuntimeException {
                 QLSyntaxException::new);
     }
 
-    public static QLRuntimeException reportRuntimeErr(String script, Token token, String errorCode, String reason) {
-        return reportErrWithToken(script, token, errorCode, reason, QLRuntimeException::new);
+    public static QLRuntimeException reportRuntimeErr(String script, int tokenPos, int line, int col, String lexeme,
+            String errorCode, String reason) {
+        return reportErr(script, tokenPos, line, col, lexeme, errorCode, reason, QLRuntimeException::new);
     }
 
-    public static QLRuntimeException reportRuntimeErrWithAttach(String script, Token token, String errorCode, String reason,
-                                                                Object catchObj) {
-        return reportErrWithToken(script, token, errorCode, reason,
+    public static QLRuntimeException reportRuntimeErrWithAttach(String script, int tokenPos, int line,
+                                                                int col, String lexeme,
+                                                                String errorCode, String reason, Object catchObj) {
+        return reportErr(script, tokenPos, line, col, lexeme, errorCode, reason,
                 (message, lineNo, colNo, errLexeme, errorCode0, reason0, snippet) ->
-                        new QLRuntimeException(catchObj, message, lineNo, colNo, errLexeme, errorCode0, reason0, snippet)
-        );
-    }
-
-    private static <T extends QLException> T reportErrWithToken(String script, Token token, String errCode,
-                                                                String reason, ExceptionFactory<T> exceptionFactory) {
-        return reportErr(script, token.getPos(), token.getLine(), token.getCol(), token.getLexeme(), errCode, reason,
-                exceptionFactory);
+                        new QLRuntimeException(catchObj, message, lineNo, colNo, errLexeme, errorCode0, reason0, snippet));
     }
 
     private static <T extends QLException> T reportErr(String script, int tokenPos,

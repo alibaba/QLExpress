@@ -10,7 +10,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: pop the top of stack, if the element is ${expect}, jump to position, else execute next instruction as normal
+ * @Operation: pop the top of stack, if the element is ${expect}, jump to position, else execute next instruction as normal. jump if null
  * @Input: 1
  * @Output: 0
  *
@@ -36,14 +36,20 @@ public class JumpIfPopInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        Object condition = qContext.pop().get();
+        boolean conditionBool = conditionToBool(qContext.pop().get());
+        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
+                QResult.NEXT_INSTRUCTION;
+    }
+
+    private boolean conditionToBool(Object condition) {
+        if (condition == null) {
+            return expect;
+        }
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("CONDITION_EXPECT_BOOL",
                     "condition expression result must be bool");
         }
-        boolean conditionBool = (boolean) condition;
-        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
-                QResult.NEXT_INSTRUCTION;
+        return (boolean) condition;
     }
 
     @Override

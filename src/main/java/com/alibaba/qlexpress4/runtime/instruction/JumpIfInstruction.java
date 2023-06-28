@@ -10,7 +10,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: if the element is ${expect}, jump to position, else execute next instruction as normal
+ * @Operation: if the element is ${expect}, jump to position, else execute next instruction as normal. not jump if null
  * @Input: 0
  * @Output: 0
  *
@@ -33,14 +33,20 @@ public class JumpIfInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        Object condition = qContext.peek().get();
+        boolean conditionBool = conditionToBool(qContext.peek().get());
+        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
+                QResult.NEXT_INSTRUCTION;
+    }
+
+    private boolean conditionToBool(Object condition) {
+        if (condition == null) {
+            return !expect;
+        }
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report("CONDITION_EXPECT_BOOL",
                     "condition expression result must be bool");
         }
-        boolean conditionBool = (boolean) condition;
-        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
-                QResult.NEXT_INSTRUCTION;
+        return (boolean) condition;
     }
 
     @Override

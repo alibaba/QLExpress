@@ -39,6 +39,10 @@ public class LoadInstruction extends QLInstruction {
         return 1;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public void println(int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, "Load " + name, debug);

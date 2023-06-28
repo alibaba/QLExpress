@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_ARRAY_SIZE_DEFINE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 new int[][10][]

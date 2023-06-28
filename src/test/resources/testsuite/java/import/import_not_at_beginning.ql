@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "IMPORT_STATEMENT_MUST_AT_BEGINNING"
+  "errCode": "IMPORT_STATEMENT_NOT_AT_BEGINNING"
 }
 */
 a = 10;

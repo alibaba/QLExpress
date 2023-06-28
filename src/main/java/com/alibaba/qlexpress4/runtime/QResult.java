@@ -19,8 +19,6 @@ public class QResult {
         JUMP,
         // return from function/lambda/script
         RETURN,
-        // implicit (return as expression result)
-        IMPLICIT_RETURN,
         // execute next instruction
         NEXT_INSTRUCTION
     }

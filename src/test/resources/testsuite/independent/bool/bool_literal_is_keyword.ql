@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_ASSIGN_TARGET"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 true = 1;

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_SEMI_AFTER_FOR_INIT"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 for (i = 0 i < 10; i++) {}

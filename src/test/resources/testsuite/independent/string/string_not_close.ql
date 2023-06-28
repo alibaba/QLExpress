@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "STRING_NOT_CLOSE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 a = "abc

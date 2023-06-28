@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_PACKAGE_AT_IMPORT"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 import a.b.-

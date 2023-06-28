@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "COMMA_ABSENT_BETWEEN_ARRAY_ITEMS"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 new int[] {1 2}

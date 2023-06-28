@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_LBRACE_AT_TRY"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 try 1+1

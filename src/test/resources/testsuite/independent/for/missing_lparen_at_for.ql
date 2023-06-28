@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_LPAREN_AT_FOR"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 for int i;;;)

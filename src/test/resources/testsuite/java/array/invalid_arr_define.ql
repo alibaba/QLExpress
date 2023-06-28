@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_ARRAY_DEFINE"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 int[][] a = new int[][];

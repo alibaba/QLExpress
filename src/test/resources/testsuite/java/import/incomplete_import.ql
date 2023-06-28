@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INCOMPLETE_IMPORT_STATEMENT"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 import a.b.

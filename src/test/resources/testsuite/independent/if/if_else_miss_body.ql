@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "EXPECT_IF_BODY"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 if (1>2) {

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_SEMI_AT_STATEMENT"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 import a.b.c.*-

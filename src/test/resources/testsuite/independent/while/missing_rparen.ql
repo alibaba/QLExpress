@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "MISSING_RPAREN_AFTER_WHILE_CONDITION"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 i = 0;
