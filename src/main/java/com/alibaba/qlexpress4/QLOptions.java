@@ -85,17 +85,14 @@ public class QLOptions {
      * default is blacklist mode
      *
      */
-    private final IStrategy strategySandBox;
-    private final IStrategy strategyBlackList;
-    private final IStrategy strategyWhiteList;
+    private final IStrategy strategy;
 
 
 
     private QLOptions(boolean precise, boolean polluteUserContext, ClassLoader classLoader, long timeoutMillis,
                       List<ImportManager.Import> defaultImport, boolean allowAccessPrivateMethod,
                       Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, IStrategy strategyBlackList, IStrategy strategyWhiteList,
-                      IStrategy strategySandBox, Consumer<String> debugInfoConsumer) {
+                      boolean avoidNullPointer, IStrategy strategy, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.classLoader = classLoader;
@@ -106,9 +103,7 @@ public class QLOptions {
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
         this.debugInfoConsumer = debugInfoConsumer;
-        this.strategyBlackList = strategyBlackList;
-        this.strategyWhiteList = strategyWhiteList;
-        this.strategySandBox = strategySandBox;
+        this.strategy = strategy;
     }
 
     public static Builder builder() {
@@ -151,10 +146,7 @@ public class QLOptions {
         return avoidNullPointer;
     }
 
-    public IStrategy getStrategyWhiteList() {return strategyWhiteList;}
-    public IStrategy getStrategyBlackList() {return strategyBlackList;}
-    public IStrategy getStrategySandBox() {return strategySandBox;}
-
+    public IStrategy getStrategy() {return strategy;}
 
     public Consumer<String> getDebugInfoConsumer() {
         return debugInfoConsumer;
@@ -178,11 +170,7 @@ public class QLOptions {
 
         private boolean avoidNullPointer = false;
 
-        private IStrategy strategyBlackList = IStrategy.defaultBlackList;
-
-        private IStrategy strategyWhiteList = null;
-
-        private IStrategy strategySandBox = IStrategy.defaultSandBox;
+        private IStrategy strategy = IStrategy.defaultStrategy;
 
 
         private Consumer<String> debugInfoConsumer = System.out::println;
@@ -230,18 +218,8 @@ public class QLOptions {
             return this;
         }
 
-        public Builder strategyBlackList(IStrategy strategyBlackList){
-            this.strategyBlackList = strategyBlackList;
-            return this;
-        }
-
-        public Builder strategySandBox(IStrategy strategySandBox){
-            this.strategySandBox = strategySandBox;
-            return this;
-        }
-
-        public Builder strategyWhiteList(IStrategy strategyWhiteList){
-            this.strategyWhiteList = strategyWhiteList;
+        public Builder strategy(IStrategy strategy){
+            this.strategy = strategy;
             return this;
         }
 
@@ -263,7 +241,7 @@ public class QLOptions {
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, classLoader, timeoutMillis,
                     defaultImport, allowAccessPrivateMethod, attachments, debug, avoidNullPointer,
-                    strategyBlackList, strategyWhiteList, strategySandBox, debugInfoConsumer);
+                    strategy, debugInfoConsumer);
         }
     }
 
