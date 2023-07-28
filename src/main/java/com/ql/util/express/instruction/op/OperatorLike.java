@@ -13,7 +13,10 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        if (op1 == null) {
+        if (op1 == null && op2 == null) {
+            return true;
+        }
+        if (op1 == null || op2 == null) {
             return false;
         }
         String s = op1.toString();
