@@ -13,7 +13,7 @@ public class OperatorLike extends Operator {
     }
 
     public Object executeInner(Object op1, Object op2) throws Exception {
-        String s = op1.toString();
+        String s = op1 != null ? op1.toString() : "";
         String pattern = op2.toString();
 
         return matchPattern(s, pattern);
