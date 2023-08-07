@@ -33,6 +33,8 @@ public class QLExpressRunStrategy {
      */
     private static boolean compareNullLessMoreAsFalse = false;
 
+    private static ClassLoader customClassLoader = null;
+
     /**
      * 禁止调用不安全的方法
      */
@@ -109,6 +111,14 @@ public class QLExpressRunStrategy {
 
     public static void setAvoidNullPointer(boolean avoidNullPointer) {
         QLExpressRunStrategy.avoidNullPointer = avoidNullPointer;
+    }
+
+    public static ClassLoader getCustomClassLoader() {
+        return customClassLoader;
+    }
+
+    public static void setCustomClassLoader(ClassLoader customClassLoader) {
+        QLExpressRunStrategy.customClassLoader = customClassLoader;
     }
 
     public static boolean isForbidInvokeSecurityRiskMethods() {

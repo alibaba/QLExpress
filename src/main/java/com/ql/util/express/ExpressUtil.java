@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import com.ql.util.express.annotation.QLAlias;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
-import com.ql.util.express.exception.QLSecurityRiskException;
 import com.ql.util.express.util.QLAliasUtils;
 
 /**
@@ -565,7 +564,12 @@ public class ExpressUtil {
     }
 
     public static Class<?> loadClass(String name) throws ClassNotFoundException {
-        return Class.forName(name);
+        ClassLoader customClassLoader = QLExpressRunStrategy.getCustomClassLoader();
+        if (customClassLoader != null) {
+            return Class.forName(name, true, customClassLoader);
+        } else {
+            return Class.forName(name);
+        }
     }
 
     /**
