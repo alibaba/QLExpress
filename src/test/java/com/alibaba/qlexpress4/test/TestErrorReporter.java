@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.test;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 
 /**

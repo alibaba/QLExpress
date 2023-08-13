@@ -64,8 +64,8 @@ public class MethodInvokeInstruction extends QLInstruction {
         QLCaches qlCaches = qContext.getQLCaches();
         QLConvertResult convertResult;
         QLImplicitMethod implicitMethod = bean instanceof MetaClass ?
-                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.enableAllowAccessPrivateMethod()) :
-                getInstanceMethod(qlCaches, bean, type, qlOptions.enableAllowAccessPrivateMethod());
+                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), type, qlOptions.allowAccessPrivateMethod()) :
+                getInstanceMethod(qlCaches, bean, type, qlOptions.allowAccessPrivateMethod());
         if (implicitMethod == null) {
             //lambda special
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
@@ -99,7 +99,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             }
             try {
                 Object value = MethodHandler.Access.accessMethodValue(implicitMethod.getMethod(), bean,
-                        (Object[]) convertResult.getCastValue(), qlOptions.enableAllowAccessPrivateMethod());
+                        (Object[]) convertResult.getCastValue(), qlOptions.allowAccessPrivateMethod());
                 Value dataValue = new DataValue(value);
                 qContext.push(dataValue);
             } catch (InvocationTargetException e) {

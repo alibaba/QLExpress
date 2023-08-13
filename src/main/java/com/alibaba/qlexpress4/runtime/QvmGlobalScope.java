@@ -38,9 +38,9 @@ public class QvmGlobalScope implements QScope {
             return newVariable;
         }
         if (polluteExternal) {
-            return new MapItemValue(externalVariable, varName);
+            return new MapItemValue(varName, externalVariable, varName);
         }
-        newVariable = new AssignableDataValue(externalVariable.get(varName));
+        newVariable = new AssignableDataValue(varName, externalVariable.get(varName));
         newVariables.put(varName, newVariable);
         return newVariable;
     }

@@ -65,7 +65,7 @@ public class NewInstruction extends QLInstruction {
             throw errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not cast param");
         }
         Object constructorAccessible = getConstructorAccessible(cacheElement.getConstructor(),
-                (Object[]) convertResult.getCastValue(), qlOptions.enableAllowAccessPrivateMethod());
+                (Object[]) convertResult.getCastValue(), qlOptions.allowAccessPrivateMethod());
         if(constructorAccessible == null){
             throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object");
         }

@@ -665,7 +665,17 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                     TRY_PREFIX + tryCount + CATCH_SUFFIX;
             QvmInstructionVisitor catchSubVisitor = parseWithSubVisitor(tryCatchContext.blockStatements(),
                     new GeneratorScope(catchBodyName, generatorScope), Context.BLOCK);
-            for (DeclTypeContext declTypeContext : catchParamsContext.declType()) {
+
+            List<DeclTypeContext> catchDeclTypes = catchParamsContext.declType();
+            if (catchDeclTypes.isEmpty()) {
+                QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(eName, Object.class);
+                QLambdaDefinition exceptionHandlerDefinition = new QLambdaDefinitionInner(
+                        catchBodyName, catchSubVisitor.getInstructions(),
+                        Collections.singletonList(param), catchSubVisitor.getMaxStackSize()
+                );
+                exceptionTable.add(new AbstractMap.SimpleEntry<>(Object.class, exceptionHandlerDefinition));
+            }
+            for (DeclTypeContext declTypeContext : catchDeclTypes) {
                 Class<?> exceptionType = parseDeclType(declTypeContext);
                 QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(
                         eName, exceptionType

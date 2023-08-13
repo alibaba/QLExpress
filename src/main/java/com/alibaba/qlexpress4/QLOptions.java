@@ -111,7 +111,7 @@ public class QLOptions {
         return polluteUserContext;
     }
 
-    public boolean enableAllowAccessPrivateMethod() {
+    public boolean allowAccessPrivateMethod() {
         return allowAccessPrivateMethod;
     }
 

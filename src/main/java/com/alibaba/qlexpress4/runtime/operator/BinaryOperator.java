@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.operator;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 
 /**
@@ -15,9 +16,10 @@ public interface BinaryOperator extends Operator {
      *
      * @param left
      * @param right
+     * @param qRuntime
      * @param qlOptions
      * @param errorReporter
      * @return
      */
-    Object execute(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter);
+    Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter);
 }

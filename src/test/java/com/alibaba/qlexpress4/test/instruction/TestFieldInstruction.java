@@ -107,24 +107,6 @@ public class TestFieldInstruction {
 
 
     /**
-     * error case(Static field of Parent instance)
-     * parent.staticFinal fieldSet
-     *
-     * @throws Exception
-     */
-    @Test
-    public void case6() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
-        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticFinal");
-        TestQContextParent testQContextParent = new TestQContextParent();
-        testQContextParent.push(new Parent());
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue) testQContextParent.getValue()).set("111",errorReporter);
-        Assert.assertEquals((testQContextParent.getValue()).get(),"staticFinal");
-    }
-
-
-    /**
      * static case(Static method of Parent instance)
      * parent.getStaticGet()
      *

@@ -46,7 +46,7 @@ public class QvmBlockScope implements QScope {
 
     @Override
     public void defineLocalSymbol(String varName, Class<?> varClz, Object value) {
-        symbolTable.put(varName, new AssignableDataValue(value, varClz));
+        symbolTable.put(varName, new AssignableDataValue(varName, value, varClz));
     }
 
     @Override

@@ -10,11 +10,20 @@ import java.util.Map;
 @SuppressWarnings("all")
 public class MapItemValue implements LeftValue {
 
+    private final String symbolName;
+
     private final Map map;
 
     private final Object key;
 
     public MapItemValue(Map map, Object key) {
+        this.symbolName = null;
+        this.map = map;
+        this.key = key;
+    }
+
+    public MapItemValue(String symbolName, Map map, Object key) {
+        this.symbolName = symbolName;
         this.map = map;
         this.key = key;
     }
@@ -22,6 +31,11 @@ public class MapItemValue implements LeftValue {
     @Override
     public void setInner(Object newValue) {
         map.put(key, newValue);
+    }
+
+    @Override
+    public String getSymbolName() {
+        return symbolName;
     }
 
     @Override

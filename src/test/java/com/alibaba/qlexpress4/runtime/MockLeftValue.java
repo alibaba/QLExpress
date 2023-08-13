@@ -16,4 +16,9 @@ public class MockLeftValue extends MockValue implements LeftValue {
     public void setInner(Object newValue) {
         this.value = newValue;
     }
+
+    @Override
+    public String getSymbolName() {
+        return null;
+    }
 }

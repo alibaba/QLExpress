@@ -11,6 +11,7 @@ import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.aparser.OperatorFactory;
 import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideAssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideOperator;
@@ -46,6 +47,7 @@ import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
+import com.alibaba.qlexpress4.runtime.operator.object.OptionalChainingOperator;
 import com.alibaba.qlexpress4.runtime.operator.string.LikeOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusPrefixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusSuffixUnaryOperator;
@@ -104,6 +106,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         binaryOperatorList.add(InOperator.getInstance());
         binaryOperatorList.add(LikeOperator.getInstance());
         binaryOperatorList.add(InstanceOfOperator.getInstance());
+        binaryOperatorList.add(OptionalChainingOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
@@ -136,7 +139,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
         BinaryOperator binaryOperator = new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
+            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
                 return customBinaryOperator.execute(left.get(), right.get());
             }
 

@@ -30,4 +30,9 @@ public interface LeftValue extends Value {
     }
 
     void setInner(Object newValue);
+
+    /**
+     * @return Nullable
+     */
+    String getSymbolName();
 }

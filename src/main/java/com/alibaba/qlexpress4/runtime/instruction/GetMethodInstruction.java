@@ -43,8 +43,8 @@ public class GetMethodInstruction extends QLInstruction {
         }
         QLCaches qlCaches = qContext.getQLCaches();
         DataValue dataMethod = bean instanceof MetaClass?
-                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), qlOptions.enableAllowAccessPrivateMethod()):
-                getInstanceMethod(qlCaches, bean, qlOptions.enableAllowAccessPrivateMethod());
+                getClazzMethod(qlCaches, ((MetaClass) bean).getClz(), qlOptions.allowAccessPrivateMethod()):
+                getInstanceMethod(qlCaches, bean, qlOptions.allowAccessPrivateMethod());
         qContext.push(dataMethod);
         return QResult.NEXT_INSTRUCTION;
     }

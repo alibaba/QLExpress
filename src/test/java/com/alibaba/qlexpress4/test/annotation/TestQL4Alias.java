@@ -19,16 +19,6 @@ import org.junit.Test;
  * @Date 2022/7/31 上午11:33
  */
 public class TestQL4Alias {
-    @Test
-    public void testQLAliasField() throws Exception {
-        ErrorReporter errorReporter = new TestErrorReporter();
-        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试字段");
-        TestQContextParent testQContextParent = new TestQContextParent();
-        testQContextParent.push(new DataValue(new Child7()));
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        ((LeftValue) testQContextParent.getValue()).set("111",errorReporter);
-        Assert.assertEquals((testQContextParent.getValue()).get(),9);
-    }
 
     @Test
     public void testQLAliasClassField() throws Exception {

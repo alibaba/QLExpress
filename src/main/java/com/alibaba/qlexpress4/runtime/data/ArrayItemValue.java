@@ -25,6 +25,11 @@ public class ArrayItemValue implements LeftValue {
     }
 
     @Override
+    public String getSymbolName() {
+        return null;
+    }
+
+    @Override
     public Object get() {
         return Array.get(array, index);
     }

@@ -37,6 +37,7 @@ public class SyntaxTreeFactoryTest {
                         case "%":
                         case ">":
                         case "*":
+                        case "?.":
                             return true;
                     }
                     return false;
@@ -67,6 +68,7 @@ public class SyntaxTreeFactoryTest {
                 case "*":
                     return QLPrecedences.MULTI;
                 case ".*":
+                case "?.":
                     return QLPrecedences.GROUP;
                 case "==":
                 case "instanceof":
@@ -386,6 +388,5 @@ public class SyntaxTreeFactoryTest {
                 new MockOpM(), true, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
-        List<QLInstruction> instructions = visitor.getInstructions();
     }
 }

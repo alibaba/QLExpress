@@ -48,7 +48,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/function/multi_call.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/optional_chaining.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

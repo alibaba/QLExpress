@@ -24,6 +24,11 @@ public class ListItemValue implements LeftValue {
     }
 
     @Override
+    public String getSymbolName() {
+        return null;
+    }
+
+    @Override
     public Object get() {
         return list.get(index);
     }

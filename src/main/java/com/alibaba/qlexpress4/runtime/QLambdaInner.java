@@ -73,13 +73,14 @@ public class QLambdaInner implements QLambda {
                                 originParamI == null? "null": originParamI.getClass().getName())
                 );
             }
-            initSymbolTable.put(paramDefinition.getName(), new AssignableDataValue(originParamI, targetCls));
+            initSymbolTable.put(paramDefinition.getName(),
+                    new AssignableDataValue(paramDefinition.getName(), originParamI, targetCls));
         }
         // null for rest params
         for (int i = params.length; i < paramsDefinition.size(); i++) {
             QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);
             initSymbolTable.put(paramDefinition.getName(),
-                    new AssignableDataValue(null, paramDefinition.getClazz()));
+                    new AssignableDataValue(paramDefinition.getName(), null, paramDefinition.getClazz()));
         }
         QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize(),
                 ExceptionTable.EMPTY);

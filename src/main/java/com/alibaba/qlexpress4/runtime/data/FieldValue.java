@@ -29,6 +29,11 @@ public class FieldValue implements LeftValue {
     }
 
     @Override
+    public String getSymbolName() {
+        return null;
+    }
+
+    @Override
     public Object get() {
         return getOp.get();
     }
