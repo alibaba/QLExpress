@@ -15,7 +15,7 @@
 // * "a" == 10， false
 // * "a" != 10, true
 // *
-// * @author 冰够
+// * @author bingo
 // */
 //public abstract class CompareOperator extends BaseBinaryOperator {
 //    @Override

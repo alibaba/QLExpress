@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
     private static final BitwiseRightShiftUnsignedOperator INSTANCE = new BitwiseRightShiftUnsignedOperator();
@@ -31,7 +31,8 @@ public class BitwiseRightShiftUnsignedOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         return rightShiftUnsigned(left, right, errorReporter);
     }
 }

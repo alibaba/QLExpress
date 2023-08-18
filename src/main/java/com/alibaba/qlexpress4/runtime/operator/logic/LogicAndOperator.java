@@ -11,7 +11,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class LogicAndOperator extends BaseBinaryOperator {
     private static final Map<String, LogicAndOperator> INSTANCE_CACHE = new ConcurrentHashMap<>(2);
@@ -32,7 +32,8 @@ public class LogicAndOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
         // 抽取至类型转换工具类

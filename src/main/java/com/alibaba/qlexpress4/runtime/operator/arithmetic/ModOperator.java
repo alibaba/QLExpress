@@ -11,7 +11,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class ModOperator extends BaseBinaryOperator {
     private static final Map<String, ModOperator> INSTANCE_CACHE = new ConcurrentHashMap<>(2);

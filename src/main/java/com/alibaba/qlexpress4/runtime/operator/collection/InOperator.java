@@ -11,7 +11,7 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class InOperator extends BaseBinaryOperator {
     private static final InOperator INSTANCE = new InOperator();
@@ -24,7 +24,8 @@ public class InOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         Object rightOperand = right.get();
         if (rightOperand == null) {
             return false;

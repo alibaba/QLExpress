@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class GreaterEqualOperator extends BaseBinaryOperator {
     private static final GreaterEqualOperator INSTANCE = new GreaterEqualOperator();
@@ -31,7 +31,8 @@ public class GreaterEqualOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         if (qlOptions.isAvoidNullPointer() && (left.get() == null || right.get() == null)) {
             return false;
         }

@@ -9,7 +9,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class AssignOperator extends BaseBinaryOperator {
     private static final AssignOperator INSTANCE = new AssignOperator();
@@ -22,9 +22,10 @@ public class AssignOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
-        LeftValue leftValue = (LeftValue) left;
+        LeftValue leftValue = (LeftValue)left;
         Object newValue = right.get();
         leftValue.set(newValue, errorReporter);
         return newValue;

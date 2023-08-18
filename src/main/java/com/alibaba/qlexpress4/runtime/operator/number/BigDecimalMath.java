@@ -5,10 +5,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class BigDecimalMath extends NumberMath {
-
     /**
      * This is an arbitrary value, picked as a reasonable choice for a precision for typical user math when a
      * non-terminating result would otherwise occur.
@@ -55,7 +54,9 @@ public class BigDecimalMath extends NumberMath {
             int precision = Math.max(bigLeft.precision(), bigRight.precision()) + DIVISION_EXTRA_PRECISION;
             BigDecimal result = bigLeft.divide(bigRight, new MathContext(precision));
             int scale = Math.max(Math.max(bigLeft.scale(), bigRight.scale()), DIVISION_MIN_SCALE);
-            if (result.scale() > scale) {result = result.setScale(scale, RoundingMode.HALF_UP);}
+            if (result.scale() > scale) {
+                result = result.setScale(scale, RoundingMode.HALF_UP);
+            }
             return result;
         }
     }

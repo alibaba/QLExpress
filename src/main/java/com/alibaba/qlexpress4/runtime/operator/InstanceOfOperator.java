@@ -9,7 +9,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class InstanceOfOperator extends BaseBinaryOperator {
     private static final InstanceOfOperator INSTANCE = new InstanceOfOperator();
@@ -22,14 +22,15 @@ public class InstanceOfOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         Object sourceObject = left.get();
         Object targetClass = right.get();
         if (targetClass == null) {
             throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is null");
         }
         if (targetClass instanceof MetaClass) {
-            targetClass = ((MetaClass) targetClass).getClz();
+            targetClass = ((MetaClass)targetClass).getClz();
         } else if (!(targetClass instanceof Class)) {
             throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is not Class");
         }

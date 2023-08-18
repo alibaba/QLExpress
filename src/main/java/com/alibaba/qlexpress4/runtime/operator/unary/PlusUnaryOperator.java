@@ -7,7 +7,7 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class PlusUnaryOperator extends BaseUnaryOperator {
     private static final PlusUnaryOperator INSTANCE = new PlusUnaryOperator();

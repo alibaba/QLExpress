@@ -9,7 +9,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class DivideAssignOperator extends BaseBinaryOperator {
     private static final DivideAssignOperator INSTANCE = new DivideAssignOperator();

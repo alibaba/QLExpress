@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public abstract class NumberMath {
     public static Number abs(Number number) {

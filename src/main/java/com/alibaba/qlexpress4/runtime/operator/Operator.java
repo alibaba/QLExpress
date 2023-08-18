@@ -3,7 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator;
 /**
  * 操作符接口
  *
- * @author 冰够
+ * @author bingo
  */
 public interface Operator {
     /**

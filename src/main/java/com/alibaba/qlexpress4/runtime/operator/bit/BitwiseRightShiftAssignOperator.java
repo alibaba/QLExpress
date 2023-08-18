@@ -9,7 +9,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class BitwiseRightShiftAssignOperator extends BaseBinaryOperator {
     private static final BitwiseRightShiftAssignOperator INSTANCE = new BitwiseRightShiftAssignOperator();
@@ -22,7 +22,8 @@ public class BitwiseRightShiftAssignOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
         Object result = rightShift(left, right, errorReporter);

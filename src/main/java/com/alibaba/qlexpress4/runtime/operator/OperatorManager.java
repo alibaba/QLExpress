@@ -54,7 +54,7 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 /**
  * 不考虑一元操作符
  *
- * @author 冰够
+ * @author bingo
  */
 public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     private static final Map<String, BinaryOperator> DEFAULT_BINARY_OPERATOR_MAP = new ConcurrentHashMap<>(64);
@@ -133,7 +133,8 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
         BinaryOperator binaryOperator = new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+                ErrorReporter errorReporter) {
                 return customBinaryOperator.execute(left.get(), right.get());
             }
 

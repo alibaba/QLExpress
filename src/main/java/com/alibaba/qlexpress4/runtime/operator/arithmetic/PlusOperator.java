@@ -10,7 +10,7 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 /**
  * QLExpress只支持String和Number类型的+
  *
- * @author 冰够
+ * @author bingo
  */
 public class PlusOperator extends BaseBinaryOperator {
     private static final PlusOperator INSTANCE = new PlusOperator();
@@ -23,7 +23,8 @@ public class PlusOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         return plus(left, right, errorReporter);
     }
 

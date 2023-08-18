@@ -6,7 +6,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseUnaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class LogicNotOperator extends BaseUnaryOperator {
     private static final LogicNotOperator INSTANCE = new LogicNotOperator();

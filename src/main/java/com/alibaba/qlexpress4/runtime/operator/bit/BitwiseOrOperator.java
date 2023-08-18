@@ -8,7 +8,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class BitwiseOrOperator extends BaseBinaryOperator {
     private static final BitwiseOrOperator INSTANCE = new BitwiseOrOperator();
@@ -31,7 +31,8 @@ public class BitwiseOrOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         return bitwiseOr(left, right, errorReporter);
     }
 }

@@ -12,7 +12,7 @@ import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean isSameType(Value left, Value right) {

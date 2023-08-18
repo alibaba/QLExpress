@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.runtime.operator.number;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public class BigIntegerMath extends NumberMath {
     public static final BigIntegerMath INSTANCE = new BigIntegerMath();

@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.runtime.operator;
 
 /**
- * @author 冰够
+ * @author bingo
  */
 public interface CustomBinaryOperator {
     Object execute(Object left, Object right);

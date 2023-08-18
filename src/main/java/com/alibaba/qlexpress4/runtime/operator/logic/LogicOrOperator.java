@@ -14,7 +14,7 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * org.codehaus.groovy.runtime.DefaultGroovyMethods.asBoolean方法
  * 普通类：null-false, 非null-true
  *
- * @author 冰够
+ * @author bingo
  */
 public class LogicOrOperator extends BaseBinaryOperator {
     private static final Map<String, LogicOrOperator> INSTANCE_CACHE = new ConcurrentHashMap<>(2);
@@ -35,7 +35,8 @@ public class LogicOrOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
         if (leftValue == null) {
