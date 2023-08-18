@@ -142,7 +142,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.and(leftValue, rightValue);
         }
 
@@ -158,7 +157,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.or(leftValue, rightValue);
         }
 
@@ -174,7 +172,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.xor(leftValue, rightValue);
         }
 
@@ -185,7 +182,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.leftShift(leftValue, rightValue);
         }
 
@@ -196,7 +192,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.rightShift(leftValue, rightValue);
         }
 
@@ -207,7 +202,6 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             Number leftValue = (Number)left.get();
             Number rightValue = (Number)right.get();
-            // TODO 需要统一考虑下NumberMath抛出的异常如何处理
             return NumberMath.rightShiftUnsigned(leftValue, rightValue);
         }
 

@@ -31,9 +31,15 @@ public class OperatorInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Value rightValue = qContext.pop();
         Value leftValue = qContext.pop();
-        Object result = operator.execute(leftValue, rightValue, qContext, qlOptions, errorReporter);
-        qContext.push(new DataValue(result));
-        return QResult.NEXT_INSTRUCTION;
+        try {
+            Object result = operator.execute(leftValue, rightValue, qContext, qlOptions, errorReporter);
+            qContext.push(new DataValue(result));
+            return QResult.NEXT_INSTRUCTION;
+        } catch (Throwable t) {
+            throw errorReporter.report(t, "OPERATOR_EXECUTE_EXCEPTION",
+                String.format("execute %s %s %s throw exception", leftValue.get(), operator.getOperator(),
+                    rightValue.get()));
+        }
     }
 
     @Override
