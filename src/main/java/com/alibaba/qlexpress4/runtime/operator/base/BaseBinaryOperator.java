@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.base;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
@@ -96,13 +97,18 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected Object divide(Value left, Value right, ErrorReporter errorReporter) {
+    protected Object divide(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
         if (isBothNumber(left, right)) {
             try {
-                return NumberMath.divide((Number)leftValue, (Number)rightValue);
+                if (qlOptions.isPrecise()) {
+                    return NumberMath.toBigDecimal((Number)leftValue)
+                        .divide(NumberMath.toBigDecimal((Number)rightValue));
+                } else {
+                    return NumberMath.divide((Number)leftValue, (Number)rightValue);
+                }
             } catch (ArithmeticException arithmeticException) {
                 throw errorReporter.report(arithmeticException, "INVALID_ARITHMETIC", arithmeticException.getMessage());
             }
@@ -111,12 +117,17 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected Object mod(Value left, Value right, ErrorReporter errorReporter) {
+    protected Object mod(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
         if (isBothNumber(left, right)) {
-            return NumberMath.mod((Number)leftValue, (Number)rightValue);
+            if (qlOptions.isPrecise()) {
+                return NumberMath.mod(NumberMath.toBigDecimal((Number)leftValue),
+                    NumberMath.toBigDecimal((Number)rightValue));
+            } else {
+                return NumberMath.mod((Number)leftValue, (Number)rightValue);
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);

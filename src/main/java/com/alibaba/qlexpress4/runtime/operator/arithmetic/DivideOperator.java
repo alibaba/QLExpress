@@ -21,8 +21,9 @@ public class DivideOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
-        return divide(left, right, errorReporter);
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
+        return divide(left, right, qlOptions, errorReporter);
     }
 
     @Override

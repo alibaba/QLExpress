@@ -180,10 +180,10 @@ public abstract class NumberMath {
      * bD bI  D  F  L  I
      * bD bD bD  D  D bD bD
      * bI bD bI  D  D bI bI
-     * D  D  D  D  D  D  D
-     * F  D  D  D  D  D  D
-     * L bD bI  D  D  L  L
-     * I bD bI  D  D  L  I
+     * D   D  D  D  D  D  D
+     * F   D  D  D  D  D  D
+     * L  bD bI  D  D  L  L
+     * I  bD bI  D  D  L  I
      *
      * Note that for division, if either operand isFloatingPoint, the result will be floating.  Otherwise,
      * the result is BigDecimal

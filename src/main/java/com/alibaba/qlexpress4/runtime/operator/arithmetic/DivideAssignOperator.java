@@ -22,10 +22,11 @@ public class DivideAssignOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object result = divide(left, right, errorReporter);
+        Object result = divide(left, right, qlOptions, errorReporter);
         leftValue.set(result, errorReporter);
         return result;
     }

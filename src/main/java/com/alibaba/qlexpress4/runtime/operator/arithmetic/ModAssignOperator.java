@@ -22,10 +22,11 @@ public class ModAssignOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object result = mod(left, right, errorReporter);
+        Object result = mod(left, right, qlOptions, errorReporter);
         leftValue.set(result, errorReporter);
         return result;
     }

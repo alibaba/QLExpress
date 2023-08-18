@@ -32,8 +32,9 @@ public class ModOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
-        return mod(left, right, errorReporter);
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
+        return mod(left, right, qlOptions, errorReporter);
     }
 
     @Override
