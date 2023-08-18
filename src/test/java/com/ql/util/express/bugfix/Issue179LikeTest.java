@@ -9,7 +9,6 @@ import org.junit.Test;
  * Author: DQinYuan
  */
 public class Issue179LikeTest {
-
     @Test
     public void test() throws Exception {
         String express = "'1006' like '6%'";
@@ -17,7 +16,6 @@ public class Issue179LikeTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
 
         Object res = runner.execute(express, context, null, true, true);
-        Assert.assertFalse((Boolean) res);
+        Assert.assertFalse((Boolean)res);
     }
-
 }
