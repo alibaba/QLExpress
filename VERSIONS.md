@@ -8,9 +8,10 @@
 之前svn的开源地址： http://code.taobao.org/p/QLExpress/src/branches/
 
 # 二、版本升级可能会有的不兼容问题
-（1）版本3.2.3 引入了不兼容的修改, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 1=="1" 为 true, 但是 3.2.3 及以后版本都是 false，升级时需要注意
-（2）版本3.3.1 去除 log4j 和 apache common log 的依赖， 原先部分 execute 参数中含有 common log ，所以部分 execute 签名有不兼容变更
-
+## 1、 版本3.2.3
+ 引入了不兼容的修改, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 1=="1" 为 true, 但是 3.2.3 及以后版本都是 false，升级时需要注意
+## 2、 版本3.3.1
+ 去除 log4j 和 apache common log 的依赖， 原先部分 execute 参数中含有 common log ，所以部分 execute 签名有不兼容变更
 
 # 三、有记录的版本迭代
 
