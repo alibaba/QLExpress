@@ -23,7 +23,7 @@ public class TestQL4Alias {
     @Test
     public void testQLAliasClassField() throws Exception {
         ErrorReporter errorReporter = new TestErrorReporter();
-        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试静态字段");
+        GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试静态字段", false);
         TestQContextParent testQContextParent = new TestQContextParent();
         testQContextParent.push(new DataValue(new MetaClass(Child7.class)));
         getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
@@ -34,7 +34,9 @@ public class TestQL4Alias {
     @Test
     public void testQLAliasClassFunction() throws Exception {
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "测试静态方法",0);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "测试静态方法",0, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new MetaClass(Child7.class));
@@ -46,7 +48,9 @@ public class TestQL4Alias {
     @Test
     public void testQLAliasFunction() throws Exception {
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "测试方法",0);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "测试方法",0, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child7());

@@ -25,7 +25,9 @@ public class TestTransferCases {
     @Test
     public void testCastTransferChildMatchMethod() {
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod11",2);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod11",2, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child());
@@ -44,7 +46,9 @@ public class TestTransferCases {
     @Test
     public void testCastNotTransferChildMatchMethod() {
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod12",2);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod12",2, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child());
@@ -96,81 +100,6 @@ public class TestTransferCases {
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child1);
     }
 
-
-    /**
-     * CastInstruction null obj trans to (boolean)false
-     * type1:null
-     * child1 method3(boolean)
-     * return child1.method3
-     */
-//    @Test
-//    public void testCastTransferNullToFalse() {
-//        ErrorReporter errorReporter = new TestErrorReporter();
-//        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod3",1);
-//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-//        ParentParameters parentParameters = new ParentParameters();
-//        parentParameters.push(new Child1());
-//        parentParameters.push((Integer)null);
-//        testQRuntimeParent.setParameters(parentParameters);
-//        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-//        Assert.assertEquals(testQRuntimeParent.getValue().get(),false);
-//    }
-    /**
-     * NewInstruction null obj trans to (boolean)false
-     * type1:null
-     * child1 new(boolean)
-     * return child1
-     */
-//    @Test
-//    public void testNewTransferNullToFalse() {
-//        ErrorReporter errorReporter = new TestErrorReporter();
-//        NewInstruction newInstruction = new NewInstruction(errorReporter, Child1.class, 1);
-//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-//        ParentParameters parentParameters = new ParentParameters();
-//        parentParameters.push(null);
-//        testQRuntimeParent.pushParameter(parentParameters);
-//        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-//        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child1);
-//    }
-
-    /**
-     * type1:int type2:null
-     * child1 method4(Object,boolean)
-     * return child1.method4
-     */
-//    @Test
-//    public void testCaseTransferObject(){
-//        ErrorReporter errorReporter = new TestErrorReporter();
-//        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod4",2);
-//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-//        ParentParameters parentParameters = new ParentParameters();
-//        parentParameters.push(new Child1());
-//        parentParameters.push(1);
-//        parentParameters.push((Integer)null);
-//        testQRuntimeParent.setParameters(parentParameters);
-//        methodInvokeInstruction.execute(testQRuntimeParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-//        Assert.assertEquals(testQRuntimeParent.getValue().get(),2);
-//    }
-
-    /**
-     * NewInstruction null obj trans to (boolean)false
-     * type1:int type2:null
-     * child2 new(Object,boolean)
-     * return child2
-     */
-//    @Test
-//    public void testNewTransferObject() {
-//        ErrorReporter errorReporter = new TestErrorReporter();
-//        NewInstruction newInstruction = new NewInstruction(errorReporter, Child2.class, 2);
-//        TestQRuntimeParent testQRuntimeParent = new TestQRuntimeParent();
-//        ParentParameters parentParameters = new ParentParameters();
-//        parentParameters.push(1);
-//        parentParameters.push(null);
-//        testQRuntimeParent.pushParameter(parentParameters);
-//        newInstruction.execute(testQRuntimeParent, QLOptions.DEFAULT_OPTIONS);
-//        Assert.assertTrue(testQRuntimeParent.getValue().get() instanceof Child2);
-//    }
-
     /**
      * type1:Child3
      * Child3 method5(Parent)
@@ -179,7 +108,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferAssigned(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod5",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod5",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child3());
@@ -215,7 +146,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferArray(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod6",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod6",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child3());
@@ -250,7 +183,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferPrimitive(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod7",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod7",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child4());
@@ -294,7 +229,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferImplicit(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod8",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod8",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child5());
@@ -329,7 +266,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferExtend(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod9",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod9",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child6());
@@ -364,7 +303,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferExtend2(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod10",1);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod10",1, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child6());
@@ -400,7 +341,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferVars1(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField",3);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "addField",3, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child9());
@@ -439,7 +382,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferVars2(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField1",3);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "addField1",3, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child9());
@@ -459,7 +404,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferVars3(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField2",3);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "addField2",3, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child9());
@@ -479,7 +426,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferVars4(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField3",3);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "addField3",3, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child9());
@@ -503,7 +452,9 @@ public class TestTransferCases {
     @Test
     public void testCaseTransferVars5(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "addField",3);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "addField",3, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child9());

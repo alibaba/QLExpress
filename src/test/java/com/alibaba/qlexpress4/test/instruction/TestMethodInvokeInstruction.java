@@ -21,7 +21,9 @@ public class TestMethodInvokeInstruction {
     @Test
     public void case1(){
         ErrorReporter errorReporter = new TestErrorReporter();
-        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(errorReporter, "getMethod1",2);
+        MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
+                errorReporter, "getMethod1",2, false
+        );
         TestQContextParent testQContextParent = new TestQContextParent();
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child());

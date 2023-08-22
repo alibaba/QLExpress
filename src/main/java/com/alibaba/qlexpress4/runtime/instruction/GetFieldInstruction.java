@@ -20,16 +20,19 @@ public class GetFieldInstruction extends QLInstruction {
 
     private final String fieldName;
 
-    public GetFieldInstruction(ErrorReporter errorReporter, String fieldName) {
+    private final boolean optional;
+
+    public GetFieldInstruction(ErrorReporter errorReporter, String fieldName, boolean optional) {
         super(errorReporter);
         this.fieldName = fieldName;
+        this.optional = optional;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object bean = qContext.pop().get();
         if (bean == null) {
-            if (qlOptions.isAvoidNullPointer()) {
+            if (qlOptions.isAvoidNullPointer() || optional) {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }

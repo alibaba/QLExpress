@@ -274,6 +274,7 @@ EQ : '=';
 NOEQ: '<>';
 RIGHSHIFT_ASSGIN: '>>=';
 RIGHSHIFT: '>>';
+OPTIONAL_CHAINING: '?.';
 URSHIFT_ASSGIN: '>>>=';
 URSHIFT: '>>>';
 LSHIFT_ASSGIN: '<<=';
@@ -1280,7 +1281,9 @@ idMapKey
 
 pathPart
     : '.' varId '(' argumentList? ')' # methodInvoke
+    | OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
     | '.' (varId | CLASS) # fieldAccess
+    | OPTIONAL_CHAINING (varId | CLASS) # optionalFieldAccess
     | DCOLON varId # methodAccess
     | '(' argumentList? ')' # callExpr
     | '[' expression? ']' # indexExpr

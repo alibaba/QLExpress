@@ -775,20 +775,42 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitMethodInvoke(MethodInvokeContext ctx) {
-        ArgumentListContext argumentListContext = ctx.argumentList();
+        visitMethodInvokeInner(ctx.argumentList(), ctx.varId(), false);
+        return null;
+    }
+
+    @Override
+    public Void visitOptionalMethodInvoke(OptionalMethodInvokeContext ctx) {
+        visitMethodInvokeInner(ctx.argumentList(), ctx.varId(), true);
+        return null;
+    }
+
+    private void visitMethodInvokeInner(ArgumentListContext argumentListContext, VarIdContext methodName,
+                                        boolean optional) {
         if (argumentListContext != null) {
             argumentListContext.accept(this);
         }
-        VarIdContext methodName = ctx.varId();
         int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
-        addInstruction(new MethodInvokeInstruction(newReporterWithToken(methodName.getStart()), methodName.getText(), argNum));
-        return null;
+        addInstruction(new MethodInvokeInstruction(
+                newReporterWithToken(methodName.getStart()), methodName.getText(), argNum, optional
+        ));
     }
 
     @Override
     public Void visitFieldAccess(FieldAccessContext ctx) {
         Token fieldNameToken = ctx.getStop();
-        addInstruction(new GetFieldInstruction(newReporterWithToken(fieldNameToken), fieldNameToken.getText()));
+        addInstruction(new GetFieldInstruction(
+                newReporterWithToken(fieldNameToken), fieldNameToken.getText(), false
+        ));
+        return null;
+    }
+
+    @Override
+    public Void visitOptionalFieldAccess(OptionalFieldAccessContext ctx) {
+        Token fieldNameToken = ctx.getStop();
+        addInstruction(new GetFieldInstruction(
+                newReporterWithToken(fieldNameToken), fieldNameToken.getText(), true
+        ));
         return null;
     }
 

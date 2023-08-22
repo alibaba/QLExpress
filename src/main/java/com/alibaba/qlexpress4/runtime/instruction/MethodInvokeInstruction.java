@@ -35,10 +35,13 @@ public class MethodInvokeInstruction extends QLInstruction {
 
     private final int argNum;
 
-    public MethodInvokeInstruction(ErrorReporter errorReporter, String methodName, int argNum) {
+    private final boolean optional;
+
+    public MethodInvokeInstruction(ErrorReporter errorReporter, String methodName, int argNum, boolean optional) {
         super(errorReporter);
         this.methodName = methodName;
         this.argNum = argNum;
+        this.optional = optional;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             type[i] = v.getType();
         }
         if (bean == null) {
-            if (qlOptions.isAvoidNullPointer()) {
+            if (qlOptions.isAvoidNullPointer() || optional) {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }

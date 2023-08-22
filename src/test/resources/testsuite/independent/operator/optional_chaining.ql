@@ -11,3 +11,4 @@ mm = {cc: 123}
 
 assert(mm?.cc == 123);
 assert(mm.dd?.ee == null);
+assert(mm.dd?.test() == null);
