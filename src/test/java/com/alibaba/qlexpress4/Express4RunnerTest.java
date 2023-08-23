@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
+import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -159,6 +161,34 @@ public class Express4RunnerTest {
 
         for (Object[] scriptAndExpect : scriptAndExpects) {
             assertResultEquals(express4Runner, (String) scriptAndExpect[0], scriptAndExpect[1]);
+        }
+    }
+
+    @Test
+    public void errorReportColNumTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("1+1;\n2+2;\n1+cc()", Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS);
+        } catch (QLRuntimeException e) {
+            assertEquals(2, e.getColNo());
+            assertEquals(3, e.getLineNo());
+        }
+
+        try {
+            express4Runner.execute("1/0", Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS);
+        } catch (QLRuntimeException e) {
+            assertEquals(1, e.getColNo());
+            assertEquals(1, e.getLineNo());
+        }
+
+        try {
+            express4Runner.execute("a[]", Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS);
+        } catch (QLSyntaxException e) {
+            assertEquals(1, e.getLineNo());
+            assertEquals(2, e.getColNo());
         }
     }
 

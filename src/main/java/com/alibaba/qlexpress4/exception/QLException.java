@@ -106,10 +106,9 @@ public class QLException extends RuntimeException {
             carteBuilder.append('^');
         }
 
-        int colNo = tokenCol - lexeme.length();
         String snippet = snippetBuilder.toString();
         String message = MessageFormat.format(REPORT_TEMPLATE, reason, snippet,
-                carteBuilder.toString(), tokenLine, colNo);
-        return exceptionFactory.newException(message, tokenLine, colNo, lexeme, errorCode, reason, snippet);
+                carteBuilder.toString(), tokenLine, tokenCol);
+        return exceptionFactory.newException(message, tokenLine, tokenCol, lexeme, errorCode, reason, snippet);
     }
 }

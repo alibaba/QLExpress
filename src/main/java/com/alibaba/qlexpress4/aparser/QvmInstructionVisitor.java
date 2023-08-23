@@ -13,7 +13,6 @@ import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -943,12 +942,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         ));
     }
 
-    private boolean isCallFunctionPrimary(ParserRuleContext parserRuleContext,
-                                          List<PathPartContext> pathPartContexts) {
-        return parserRuleContext instanceof VarIdExprContext && pathPartContexts.size() == 1 &&
-                pathPartContexts.get(0) instanceof CallExprContext;
-    }
-
     @Override
     public Void visitLeftHandSide(LeftHandSideContext ctx) {
         VarIdContext idContext = ctx.varId();
@@ -1010,7 +1003,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     @Override
     public Void visitTypeExpr(TypeExprContext ctx) {
         Class<?> cls = BuiltInTypesSet.getCls(ctx.primitiveType().getText());
-        addInstruction(new ConstInstruction(newReportWithMultiToken(ctx.getStart(), ctx.getStop()), new MetaClass(cls)));
+        addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), new MetaClass(cls)));
         return null;
     }
 
@@ -1298,7 +1291,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private QLSyntaxException reportParseErr(Token token, String errCode, String errReason) {
         return QLException.reportScannerErr(script, token.getStopIndex() + 1,
-                token.getLine(), token.getCharPositionInLine() + token.getText().length(),
+                token.getLine(), token.getCharPositionInLine(),
                 token.getText(), errCode, errReason);
     }
 
@@ -1391,7 +1384,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private ErrorReporter newReportWithMultiToken(Token start, Token end) {
         return new DefaultErrReporter(script, end.getStopIndex() + 1,
-                start.getLine(), start.getCharPositionInLine(),
+                start.getLine(), end.getCharPositionInLine(),
                 script.substring(start.getStartIndex(), end.getStopIndex()));
     }
 

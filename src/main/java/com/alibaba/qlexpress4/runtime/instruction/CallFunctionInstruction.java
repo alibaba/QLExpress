@@ -54,8 +54,8 @@ public class CallFunctionInstruction extends QLInstruction {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.push(DataValue.NULL_VALUE);
             } else {
-                throw errorReporter.report(new NullPointerException(), "CALL_FUNCTION_FROM_NULL",
-                        "can not call function from null: " + functionName);
+                throw errorReporter.report(new NullPointerException(), "FUNCTION_NOT_FOUND",
+                        "function not found: " + functionName);
             }
             return;
         }
