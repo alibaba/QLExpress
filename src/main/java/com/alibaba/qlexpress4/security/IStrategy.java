@@ -15,15 +15,9 @@ import java.util.Set;
  */
 public interface IStrategy {
 
-    boolean checkBlackList(IMethod iMethod);
+    boolean checkPassed(IMethod iMethod);
 
-
-    boolean checkSandbox(IMethod iMethod);
-
-
-    boolean checkWhiteList(IMethod iMethod);
-
-
+    //DEMO
     IStrategy defaultStrategy = new DefaultStrategy(mapListTransToSet(new HashMap<Class, String>() {{
         put(System.class, "exit");
         put(Runtime.class, "exec");
@@ -32,7 +26,7 @@ public interface IStrategy {
         put(ClassLoader.class, "loadClass");
         put(ClassLoader.class, "findClass");
         put(Class.class, "forName");
-    }}),null);
+    }}),null, true);
 
 
     static Set<String> mapListTransToSet(Map<Class, String> map) {

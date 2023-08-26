@@ -12,28 +12,22 @@ public class DefaultStrategy implements IStrategy{
 
     private final Set<String> blackStrategyStructList;
     private final Set<String> whiteStrategyStructList;
+    private final boolean useSandBox;
 
-    public DefaultStrategy(Set<String> blackStrategyStructList,
-                           Set<String> whiteStrategyStructList){
+    public DefaultStrategy(Set<String> blackStrategyStructList, Set<String> whiteStrategyStructList, boolean useSandBox){
         this.blackStrategyStructList = blackStrategyStructList;
         this.whiteStrategyStructList = whiteStrategyStructList;
+        this.useSandBox = useSandBox;
     }
 
     @Override
-    public boolean checkBlackList(IMethod iMethod) {
+    public boolean checkPassed(IMethod iMethod) {
+        if(useSandBox) {
+            return false;
+        }
         if (this.blackStrategyStructList != null && this.blackStrategyStructList.contains(iMethod.getQualifyName())) {
             return false;
         }
-        return true;
-    }
-
-    @Override
-    public boolean checkSandbox(IMethod iMethod) {
-        return false;
-    }
-
-    @Override
-    public boolean checkWhiteList(IMethod iMethod) {
         if (this.whiteStrategyStructList != null && this.whiteStrategyStructList.contains(iMethod.getQualifyName())) {
             return true;
         }
