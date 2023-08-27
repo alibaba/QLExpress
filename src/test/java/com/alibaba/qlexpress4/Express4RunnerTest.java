@@ -1,11 +1,11 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import org.junit.Test;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Predicate;
@@ -190,6 +190,29 @@ public class Express4RunnerTest {
             assertEquals(1, e.getLineNo());
             assertEquals(2, e.getColNo());
         }
+    }
+
+    public static class MyFunctionUtil {
+        @QLFunction({"myAdd", "iAdd"})
+        public int add(int a, int b) {
+            return  a + b;
+        }
+
+        @QLFunction("arr3")
+        public static int[] array3(int a, int b, int c) {
+            return new int[] {a, b, c};
+        }
+    }
+
+    @Test
+    public void addFunctionByAnnotationTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addObjFunction(new MyFunctionUtil());
+        Object result = express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(14, result);
+        express4Runner.addStaticFunction(MyFunctionUtil.class);
+        Object result1 = express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(10 ,result1);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

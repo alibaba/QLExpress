@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.alibaba.qlexpress4.aparser.*;
+import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
+import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
 import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.runtime.*;
@@ -16,9 +18,8 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
+import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
-import com.alibaba.qlexpress4.utils.PropertiesUtil;
-import com.alibaba.qlexpress4.utils.QLFieldUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 
 /**
@@ -29,7 +30,6 @@ public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
 
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
-    private final Map<String, QFunction> userDefineField = new ConcurrentHashMap<>();
     private final QLCaches qlCaches;
 
     public Express4Runner(InitOptions initOptions) {
@@ -52,109 +52,92 @@ public class Express4Runner {
         }
     }
 
-    public void addFunction(String name, QFunction function) {
-        userDefineFunction.put(name, function);
+    /**
+     * add user defined function to QLExpress engine
+     * @param name function name
+     * @param function function definition
+     * @return true if add function successfully. fail if function name already exists or method is not public.
+     */
+    public boolean addFunction(String name, QFunction function) {
+        QFunction preFunction = userDefineFunction.putIfAbsent(name, function);
+        return preFunction == null;
     }
 
-    public <T, R> void addFunction(String name, Function<T, R> function) {
-        addFunction(name, new QFunctionInner(params -> {
+    public <T, R> boolean addFunction(String name, Function<T, R> function) {
+        return addFunction(name, new QFunctionInner(params -> {
             R result = function.apply((T)params[0]);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
 
-    public <T, R> void addFunction(String name, QLFunctionalVarargs<T, R> functionalVarargs, Class<?> type) {
-        addFunction(name, new QFunctionInner(params -> {
-            Object array = Array.newInstance(type, params.length);
+    public <T, R> boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
+        return addFunction(name, new QFunctionInner(params -> {
+            Object array = Array.newInstance(Object.class, params.length);
             for (int i = 0; i < params.length; i++) {
                 Array.set(array, i, params[i]);
             }
-            R result = functionalVarargs.call((T[])array);
+            Object result = functionalVarargs.call((Object[])array);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
 
-    public <T> void addFunction(String name, Predicate<T> predicate) {
-        addFunction(name, new QFunctionInner(
+    public <T> boolean addFunction(String name, Predicate<T> predicate) {
+        return addFunction(name, new QFunctionInner(
             params -> new QResult(new DataValue(predicate.test((T)params[0])), QResult.ResultType.RETURN)));
     }
 
-    public void addFunction(String name, Runnable runnable) {
-        addFunction(name, new QFunctionInner(params -> {
+    public boolean addFunction(String name, Runnable runnable) {
+        return addFunction(name, new QFunctionInner(params -> {
             runnable.run();
             return new QResult(null, QResult.ResultType.RETURN);
         }));
     }
 
-    public <T> void addFunction(String name, Consumer<T> consumer) {
-        addFunction(name, new QFunctionInner(params -> {
+    public <T> boolean addFunction(String name, Consumer<T> consumer) {
+        return addFunction(name, new QFunctionInner(params -> {
             consumer.accept((T)params[0]);
             return new QResult(null, QResult.ResultType.RETURN);
         }));
     }
 
-    public void addField(String name, QFunction function) {
-        userDefineField.put(name, function);
+    /**
+     * add object member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction} as function
+     * @param object object with member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction}
+     * @return succ and fail functions. fail if function name already exists or method is not public
+     */
+    public BatchAddFunctionResult addObjFunction(Object object) {
+        return addFunctionByAnnotation(object.getClass(), object);
     }
 
-    public void addFieldByClassAnnotation(Object object) {
-        addFieldByAnnotation(object.getClass(), object);
+    /**
+     * add class static method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction} as function
+     * @param clazz class with static method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction}
+     * @return succ and fail functions. fail if function name already exists or method is not public
+     */
+    public BatchAddFunctionResult addStaticFunction(Class<?> clazz) {
+        return addFunctionByAnnotation(clazz, null);
     }
 
-    public void addFieldByObjectAnnotation(Class<?> clazz) {
-        addFieldByAnnotation(clazz, clazz);
-    }
-
-    public void addFunctionByObjectAnnotation(Object object) {
-        addFunctionByAnnotation(object.getClass(), object);
-    }
-
-    public void addFunctionByClassAnnotation(Class<?> clazz) {
-        addFunctionByAnnotation(clazz, clazz);
-    }
-
-    public void addFunction(String name, Object obj, String methodName) {
-        if (obj instanceof Class) {
-            addFunctionByClass(name, (Class<?>)obj, methodName);
-        } else {
-            addFunctionByObject(name, obj, methodName);
-        }
-    }
-
-    private void addFunctionByObject(String name, Object object, String methodName) {
-        List<Method> methods = PropertiesUtil.getMethod(object.getClass(), methodName, false);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, object, false)));
-    }
-
-    private void addFunctionByClass(String name, Class<?> clazz, String methodName) {
-        List<Method> methods = PropertiesUtil.getClzMethod(clazz, methodName, false);
-        addFunction(name, new QFunctionInner(new QLambdaMethod(methods, clazz, false)));
-    }
-
-    private void addFunctionByAnnotation(Class<?> clazz, Object object) {
+    private BatchAddFunctionResult addFunctionByAnnotation(Class<?> clazz, Object object) {
+        BatchAddFunctionResult result = new BatchAddFunctionResult();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
+            if (!BasicUtil.isPublic(method)) {
+                result.getSucc().add(method.getName());
+                continue;
+            }
             if (QLFunctionUtil.containsQLFunctionForMethod(method)) {
-                for (String value : QLFunctionUtil.getQLFunctionValue(method)) {
+                for (String functionName : QLFunctionUtil.getQLFunctionValue(method)) {
                     List<Method> qlMethods = new ArrayList<>();
                     qlMethods.add(method);
-                    addFunction(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, false)));
+                    boolean addResult = addFunction(functionName, new QFunctionInner(
+                            new QLambdaMethod(qlMethods, object, false)
+                    ));
+                    (addResult? result.getSucc(): result.getFail()).add(method.getName());
                 }
             }
         }
-    }
-
-    private void addFieldByAnnotation(Class<?> clazz, Object object) {
-        Method[] methods = clazz.getDeclaredMethods();
-        for (Method method : methods) {
-            if (QLFieldUtil.containsQLFieldForMethod(method)) {
-                for (String value : QLFieldUtil.getQLFieldValue(method)) {
-                    List<Method> qlMethods = new ArrayList<>();
-                    qlMethods.add(method);
-                    addField(value, new QFunctionInner(new QLambdaMethod(qlMethods, object, false)));
-                }
-            }
-        }
+        return result;
     }
 
     public QLGrammarParser.ProgramContext parseToSyntaxTree(String script, QLOptions qlOptions) {

@@ -15,7 +15,7 @@ import static java.lang.annotation.ElementType.METHOD;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QLFunction {
     /**
-     * 注解内容
+     * function names
      */
     String[] value();
 }

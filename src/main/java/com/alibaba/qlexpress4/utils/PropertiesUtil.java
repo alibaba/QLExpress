@@ -139,16 +139,12 @@ public class PropertiesUtil {
 
     private static Supplier<Object> getFieldSupplierNotAccessible(Field field, Object bean, ErrorReporter errorReporter) {
         return () -> {
-            synchronized (field) {
-                try {
-                    field.setAccessible(true);
-                    return field.get(bean);
-                } catch (IllegalAccessException e) {
-                    throw errorReporter.report(e, "FIELD_GET_UNKNOWN_ERROR",
-                            "'" + field.getName() + "' field get unknown error");
-                } finally {
-                    field.setAccessible(false);
-                }
+            try {
+                field.setAccessible(true);
+                return field.get(bean);
+            } catch (IllegalAccessException e) {
+                throw errorReporter.report(e, "FIELD_GET_UNKNOWN_ERROR",
+                        "'" + field.getName() + "' field get unknown error");
             }
         };
     }
@@ -166,16 +162,12 @@ public class PropertiesUtil {
 
     private static Consumer<Object> getFieldConsumerNotAccessible(Field field, Object bean, ErrorReporter errorReporter) {
         return (newValue) -> {
-            synchronized (field) {
-                try {
-                    field.setAccessible(true);
-                    field.set(bean, newValue);
-                } catch (Exception e) {
-                    throw errorReporter.report(e, "FIELD_SET_UNKNOWN_ERROR",
-                            "'" + field.getName() + "' field set unknown error");
-                } finally {
-                    field.setAccessible(false);
-                }
+            try {
+                field.setAccessible(true);
+                field.set(bean, newValue);
+            } catch (Exception e) {
+                throw errorReporter.report(e, "FIELD_SET_UNKNOWN_ERROR",
+                        "'" + field.getName() + "' field set unknown error");
             }
         };
     }
@@ -192,16 +184,12 @@ public class PropertiesUtil {
 
     private static Supplier<Object> getMethodSupplierNotAccessible(Method method, Object bean, ErrorReporter errorReporter) {
         return () -> {
-            synchronized (method) {
                 try {
                     method.setAccessible(true);
                     return method.invoke(bean);
                 } catch (Exception e) {
                     throw unwrapMethodInvokeEx(errorReporter, method.getName(), e);
-                } finally {
-                    method.setAccessible(false);
                 }
-            }
         };
     }
 
@@ -218,15 +206,11 @@ public class PropertiesUtil {
     private static Consumer<Object> getMethodConsumerNotAccessible(Method method, Object bean, ErrorReporter errorReporter) {
         // TODO errorReporter 抛出方法的执行错误
         return (newValue) -> {
-            synchronized (method) {
-                try {
-                    method.setAccessible(true);
-                    method.invoke(bean, newValue);
-                } catch (Exception e) {
-                    throw unwrapMethodInvokeEx(errorReporter, method.getName(), e);
-                } finally {
-                    method.setAccessible(false);
-                }
+            try {
+                method.setAccessible(true);
+                method.invoke(bean, newValue);
+            } catch (Exception e) {
+                throw unwrapMethodInvokeEx(errorReporter, method.getName(), e);
             }
         };
     }
