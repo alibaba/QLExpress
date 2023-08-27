@@ -38,12 +38,7 @@ import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedOper
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorAssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorOperator;
 import com.alibaba.qlexpress4.runtime.operator.collection.InOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.EqualOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.GreaterEqualOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.LessEqualOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.LessOperator;
-import com.alibaba.qlexpress4.runtime.operator.compare.UnequalOperator;
+import com.alibaba.qlexpress4.runtime.operator.compare.*;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
@@ -98,6 +93,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         binaryOperatorList.add(LogicOrOperator.getInstance("or"));
         binaryOperatorList.add(EqualOperator.getInstance());
         binaryOperatorList.add(UnequalOperator.getInstance());
+        binaryOperatorList.add(PrismaticUnequalOperator.getInstance());
         binaryOperatorList.add(GreaterOperator.getInstance());
         binaryOperatorList.add(GreaterEqualOperator.getInstance());
         binaryOperatorList.add(LessOperator.getInstance());

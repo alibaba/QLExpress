@@ -134,7 +134,7 @@ public class ImportManager {
                 case loadInnerClsState:
                     Class<?> innerCls = classSupplier.loadCls(qualifiedCls.getName() + "$" + innerClsId);
                     if (innerCls == null) {
-                        return new LoadQualifiedResult(qualifiedCls, i);
+                        return new LoadQualifiedResult(qualifiedCls, i - 1);
                     }
                     if (!Character.isLowerCase(fieldId.charAt(0))) {
                         qualifiedCls = innerCls;

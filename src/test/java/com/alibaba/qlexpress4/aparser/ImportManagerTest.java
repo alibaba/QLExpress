@@ -47,6 +47,10 @@ public class ImportManagerTest {
                 Arrays.asList("Function", "value"));
         assertEquals(Function.class, result4.getCls());
         assertEquals(1, result4.getRestIndex());
+
+        ImportManager.LoadQualifiedResult result5 = importManager.loadQualified(
+                Arrays.asList("Function", "TT", "v"));
+        assertEquals(1, result5.getRestIndex());
     }
 
     @Test

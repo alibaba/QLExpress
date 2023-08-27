@@ -25,5 +25,10 @@ assert(97 != (char)'b');
 assertFalse((char)'a' != 97);
 assertFalse(97 != (char)'a');
 
+assert((char)'b' <> 97);
+assert(97 <> (char)'b');
+assertFalse((char)'a' <> 97);
+assertFalse(97 <> (char)'a');
+
 assert(null == null);
 assertFalse(null != null);
