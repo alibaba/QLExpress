@@ -1,12 +1,5 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
-import com.alibaba.qlexpress4.runtime.data.MapItemValue;
-import com.alibaba.qlexpress4.runtime.scope.QScope;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,13 +10,13 @@ public class QvmRuntime implements QRuntime {
 
     private final Map<String, Object> attachments;
 
-    private final QLCaches qlCaches;
+    private final ReflectLoader reflectLoader;
 
     private final long startTime;
 
-    public QvmRuntime(Map<String, Object> attachments, QLCaches qlCaches, long startTime) {
+    public QvmRuntime(Map<String, Object> attachments, ReflectLoader reflectLoader, long startTime) {
         this.attachments = attachments;
-        this.qlCaches = qlCaches;
+        this.reflectLoader = reflectLoader;
         this.startTime = startTime;
     }
 
@@ -37,8 +30,7 @@ public class QvmRuntime implements QRuntime {
         return attachments;
     }
 
-    @Override
-    public QLCaches getQLCaches() {
-        return qlCaches;
+    public ReflectLoader getReflectLoader() {
+        return reflectLoader;
     }
 }

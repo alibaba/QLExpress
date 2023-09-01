@@ -6,12 +6,12 @@ import java.lang.reflect.Method;
  * @Author TaoKan
  * @Date 2022/6/29 下午4:21
  */
-public class QLImplicitMethod {
+public class MethodReflect {
     private final Method method;
     private final boolean needImplicitTrans;
     private final QLImplicitVars vars;
 
-    public QLImplicitMethod(Method method, boolean needImplicitTrans, QLImplicitVars vars){
+    public MethodReflect(Method method, boolean needImplicitTrans, QLImplicitVars vars){
         this.method = method;
         this.needImplicitTrans = needImplicitTrans;
         this.vars = vars;

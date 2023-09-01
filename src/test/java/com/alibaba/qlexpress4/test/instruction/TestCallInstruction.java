@@ -2,10 +2,10 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.MockErrorReporter;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.instruction.CallInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.GetMethodInstruction;
-import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.ParentParameters;
 import org.junit.Assert;
@@ -22,11 +22,11 @@ public class TestCallInstruction {
      */
     @Test
     public void case1(){
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetMethodInstruction getMethodInstruction = new GetMethodInstruction(errorReporter, "getMethod1");
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new Child());
-        getMethodInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getMethodInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(testQContextParent.getValue().get() instanceof QLambda);
         QLambda qLambda = (QLambda) testQContextParent.getValue().get();
 
@@ -36,7 +36,7 @@ public class TestCallInstruction {
         parentParameters.push(1);
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
-        callInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        callInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(testQContextParent.getValue().get(),3);
 
     }

@@ -1,8 +1,5 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.cache.*;
-import com.alibaba.qlexpress4.runtime.scope.QScope;
-
 import java.util.Map;
 
 /**
@@ -17,9 +14,6 @@ public interface QRuntime {
     long scriptStartTimeStamp();
 
     Map<String, Object> attachment();
-    /**
-     * get instance cache from qvm
-     * @return ICache
-     */
-    QLCaches getQLCaches();
+
+    ReflectLoader getReflectLoader();
 }

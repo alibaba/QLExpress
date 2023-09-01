@@ -1,13 +1,17 @@
-package com.alibaba.qlexpress4.runtime;
+package com.alibaba.qlexpress4.runtime.function;
+
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 
 /**
  * Author: DQinYuan
  */
-public class QFunctionInner implements QFunction {
+public class QLambdaFunction implements QFunction {
 
     private final QLambda qLambda;
 
-    public QFunctionInner(QLambda qLambda) {
+    public QLambdaFunction(QLambda qLambda) {
         this.qLambda = qLambda;
     }
 

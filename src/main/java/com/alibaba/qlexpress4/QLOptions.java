@@ -28,18 +28,6 @@ public class QLOptions {
     private final boolean polluteUserContext;
 
     /**
-     * allowAccessPrivateMethod
-     * default false
-     */
-    private final boolean allowAccessPrivateMethod;
-
-    /**
-     * custom classSupplier
-     * default is {@link DefaultClassSupplier}
-     */
-    private final ClassSupplier classSupplier;
-
-    /**
      * script timeout millisecond, default is -1, namely time unlimited
      * <= 0, time unlimited
      * default -1
@@ -83,16 +71,14 @@ public class QLOptions {
      */
     private final Consumer<String> debugInfoConsumer;
 
-    private QLOptions(boolean precise, boolean polluteUserContext, ClassSupplier classSupplier, long timeoutMillis,
-                      List<ImportManager.QLImport> defaultImport, boolean allowAccessPrivateMethod,
+    private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
+                      List<ImportManager.QLImport> defaultImport,
                       Map<String, Object> attachments, boolean debug,
                       boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
-        this.classSupplier = classSupplier;
         this.timeoutMillis = timeoutMillis;
         this.defaultImport = defaultImport;
-        this.allowAccessPrivateMethod = allowAccessPrivateMethod;
         this.attachments = attachments;
         this.debug = debug;
         this.avoidNullPointer = avoidNullPointer;
@@ -109,14 +95,6 @@ public class QLOptions {
 
     public boolean isPolluteUserContext() {
         return polluteUserContext;
-    }
-
-    public boolean allowAccessPrivateMethod() {
-        return allowAccessPrivateMethod;
-    }
-
-    public ClassSupplier getClassSupplier() {
-        return classSupplier;
     }
 
     public long getTimeoutMillis() {
@@ -148,10 +126,6 @@ public class QLOptions {
 
         private boolean polluteUserContext = false;
 
-        private boolean allowAccessPrivateMethod;
-
-        private ClassSupplier classSupplier = new DefaultClassSupplier();
-
         private long timeoutMillis = -1;
 
         private Map<String, Object> attachments = Collections.emptyMap();
@@ -177,16 +151,6 @@ public class QLOptions {
 
         public Builder polluteUserContext(boolean polluteUserContext) {
             this.polluteUserContext = polluteUserContext;
-            return this;
-        }
-
-        public Builder allowAccessPrivateMethod(boolean allowAccessPrivateMethod) {
-            this.allowAccessPrivateMethod = allowAccessPrivateMethod;
-            return this;
-        }
-
-        public Builder classSupplier(ClassSupplier classSupplier) {
-            this.classSupplier = classSupplier;
             return this;
         }
 
@@ -221,8 +185,8 @@ public class QLOptions {
         }
 
         public QLOptions build() {
-            return new QLOptions(precise, polluteUserContext, classSupplier, timeoutMillis, defaultImport,
-                allowAccessPrivateMethod, attachments, debug, avoidNullPointer, debugInfoConsumer);
+            return new QLOptions(precise, polluteUserContext, timeoutMillis, defaultImport,
+                attachments, debug, avoidNullPointer, debugInfoConsumer);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.utils;
 
 
+import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.data.checker.*;
 
 import java.lang.reflect.*;
@@ -136,7 +137,13 @@ public class BasicUtil {
         return classes;
     }
 
-
+    public static Object[] argumentsArr(Parameters parameters) {
+        Object[] arr = new Object[parameters.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = parameters.getValue(i);
+        }
+        return arr;
+    }
 
     public static int hashAlgorithmWithNoForNumber(int h){
         h += (h << 15) ^ 0xffffcd7d;

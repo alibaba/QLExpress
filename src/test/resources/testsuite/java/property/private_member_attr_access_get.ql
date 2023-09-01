@@ -1,6 +1,6 @@
 /*
 {
-  "qlOptions": QLOptions.builder().allowAccessPrivateMethod(true)
+  "initOptions": InitOptions.builder().allowPrivateAccess(true)
 }
 */
 import com.alibaba.qlexpress4.test.property.SampleForPrivate;

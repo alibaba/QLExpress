@@ -11,8 +11,18 @@ public class InitOptions {
 
     private final boolean useCacheClear;
 
-    private InitOptions(boolean useCacheClear) {
+    private final ClassSupplier classSupplier;
+
+    /**
+     * allow access private field and method
+     * default false
+     */
+    private final boolean allowPrivateAccess;
+
+    private InitOptions(boolean useCacheClear, ClassSupplier classSupplier, boolean allowPrivateAccess) {
         this.useCacheClear = useCacheClear;
+        this.classSupplier = classSupplier;
+        this.allowPrivateAccess = allowPrivateAccess;
     }
 
     public static InitOptions.Builder builder() {
@@ -23,16 +33,36 @@ public class InitOptions {
         return useCacheClear;
     }
 
+    public ClassSupplier classSupplier() {
+        return classSupplier;
+    }
+
+    public boolean allowPrivateAccess() {
+        return allowPrivateAccess;
+    }
+
     public static class Builder {
-        private boolean useCacheClear;
+        private boolean useCacheClear = false;
+        private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
+        private boolean allowPrivateAccess = false;
 
         public Builder useCacheClear(boolean useCacheClear) {
             this.useCacheClear = useCacheClear;
             return this;
         }
 
+        public Builder classSupplier(ClassSupplier classSupplier) {
+            this.classSupplier = classSupplier;
+            return this;
+        }
+
+        public Builder allowPrivateAccess(boolean allowPrivateAccess) {
+            this.allowPrivateAccess = allowPrivateAccess;
+            return this;
+        }
+
         public InitOptions build() {
-            return new InitOptions(useCacheClear);
+            return new InitOptions(useCacheClear, classSupplier, allowPrivateAccess);
         }
     }
 }

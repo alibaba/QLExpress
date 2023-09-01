@@ -23,7 +23,7 @@ public class ImportManagerTest {
 
     @Test
     public void loadTest() {
-        ImportManager importManager = new ImportManager(new DefaultClassSupplier(),
+        ImportManager importManager = new ImportManager(DefaultClassSupplier.getInstance(),
                 new ArrayList<>(), new HashMap<>());
         ImportManager.LoadQualifiedResult result0 = importManager.loadQualified(Arrays.asList("Function"));
         assertNull(result0.getCls());
@@ -55,7 +55,7 @@ public class ImportManagerTest {
 
     @Test
     public void loadInnerTest() {
-        ImportManager importManager = new ImportManager(new DefaultClassSupplier(),
+        ImportManager importManager = new ImportManager(DefaultClassSupplier.getInstance(),
                 new ArrayList<>(), new HashMap<>());
         importManager.addImport(ImportManager.importInnerCls(
                 "com.alibaba.qlexpress4.aparser.ImportManagerTest"));

@@ -2,11 +2,12 @@ package com.alibaba.qlexpress4.test.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.MockErrorReporter;
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
-import com.alibaba.qlexpress4.test.TestErrorReporter;
 import com.alibaba.qlexpress4.test.property.Child;
 import com.alibaba.qlexpress4.test.property.Parent;
 import com.alibaba.qlexpress4.test.property.TestEnum;
@@ -26,9 +27,9 @@ public class TestFieldInstruction {
      */
     @Test
     public void case1() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),"staticGet1");
@@ -43,12 +44,12 @@ public class TestFieldInstruction {
      */
     @Test
     public void case2() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSet", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        ((LeftValue) testQContextParent.getValue()).set("staticSet1",errorReporter);
+        ((LeftValue) testQContextParent.getValue()).set("staticSet1", errorReporter);
         Assert.assertEquals((testQContextParent.getValue()).get(),"staticSet1");
     }
 
@@ -60,9 +61,9 @@ public class TestFieldInstruction {
      */
     @Test
     public void case3() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new DataValue(new MetaClass(Parent.class)));
         try {
             getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
@@ -81,11 +82,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case4() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new DataValue(new MetaClass(Parent.class)));
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),"staticSetPrivate");
     }
 
@@ -97,11 +98,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case5() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticSetPrivate", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new DataValue(new MetaClass(Parent.class)));
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),"staticSetPrivate");
     }
 
@@ -114,11 +115,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case7() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "staticGet", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new Parent());
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),"staticGet1");
     }
 
@@ -131,9 +132,9 @@ public class TestFieldInstruction {
      */
     @Test
     public void case8() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new Parent());
         getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         ((LeftValue) testQContextParent.getValue()).set(35,errorReporter);
@@ -148,11 +149,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case9() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new Parent());
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         ((LeftValue) testQContextParent.getValue()).set("name1",errorReporter);
         Assert.assertEquals((testQContextParent.getValue()).get(),"name1");
     }
@@ -166,19 +167,18 @@ public class TestFieldInstruction {
      */
     @Test
     public void case10() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "name", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new Parent());
         try {
-            getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
+            getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
             ((LeftValue) testQContextParent.getValue()).set("name1",errorReporter);
             Assert.assertEquals((testQContextParent.getValue()).get(),"name1");
-        }catch (Exception e){
-            Assert.assertTrue(e != null);
-            return;
+            Assert.fail();
+        } catch (QLRuntimeException e){
+            Assert.assertNotNull(e);
         }
-        Assert.assertTrue(false);
     }
 
     /**
@@ -189,11 +189,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case11() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "age", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new Child());
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),11);
     }
 
@@ -207,11 +207,11 @@ public class TestFieldInstruction {
      */
     @Test
     public void case12() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "birth", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(false);
         testQContextParent.push(new Child());
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(false).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),"2022-01-01");
     }
 
@@ -225,17 +225,16 @@ public class TestFieldInstruction {
      */
     @Test
     public void case13() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "method1", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new Child());
         try {
-            getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
-        }catch (Exception e){
-            Assert.assertTrue(e != null);
-            return;
+            getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
+            Assert.fail();
+        } catch (QLRuntimeException e){
+            Assert.assertNotNull(e);
         }
-        Assert.assertTrue(false);
     }
 
 
@@ -247,13 +246,13 @@ public class TestFieldInstruction {
      */
     @Test
     public void case14() throws Exception{
-        ErrorReporter errorReporter = new TestErrorReporter();
+        ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "SKT", false);
-        TestQContextParent testQContextParent = new TestQContextParent();
+        TestQContextParent testQContextParent = new TestQContextParent(true);
         testQContextParent.push(new DataValue(new MetaClass(TestEnum.class)));
-        getFieldInstruction.execute(testQContextParent, QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         GetFieldInstruction getFieldInstruction1 = new GetFieldInstruction(errorReporter, "value", false);
-        getFieldInstruction1.execute(testQContextParent,QLOptions.builder().allowAccessPrivateMethod(true).build());
+        getFieldInstruction1.execute(testQContextParent,QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals((testQContextParent.getValue()).get(),-1);
     }
 

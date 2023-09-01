@@ -1,9 +1,8 @@
 package com.alibaba.qlexpress4.test.instruction;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.util.Map;
 
@@ -14,6 +13,13 @@ import java.util.Map;
 public class TestQContextParent implements QContext {
     private Value value;
     private Parameters parameters;
+    private final boolean allowPrivateAccess;
+    private final ReflectLoader reflectLoader;
+
+    public TestQContextParent(boolean allowPrivateAccess) {
+        this.allowPrivateAccess = allowPrivateAccess;
+        this.reflectLoader = new ReflectLoader(allowPrivateAccess);
+    }
 
     public Value getValue() {
         return value;
@@ -94,15 +100,10 @@ public class TestQContextParent implements QContext {
     }
 
     @Override
-    public QLCaches getQLCaches() {
-        int size = 128;
-        boolean enableUseCacheClear = false;
-        return new QLCaches(CacheUtil.initConstructorCache(size,enableUseCacheClear),
-                CacheUtil.initFieldCache(size,enableUseCacheClear),
-                CacheUtil.initMethodCache(size,enableUseCacheClear),
-                CacheUtil.initMethodInvokeCache(size,enableUseCacheClear),
-                CacheUtil.initScriptCache(size,true));
+    public ReflectLoader getReflectLoader() {
+        return reflectLoader;
     }
+
 
     @Override
     public QScope getCurrentScope() {

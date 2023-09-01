@@ -7,13 +7,13 @@ import java.lang.reflect.Method;
  * @Author TaoKan
  * @Date 2022/5/15 下午8:08
  */
-public class CacheFieldValue {
+public class FieldReflect {
 
-    private Method getMethod;
-    private Method setMethod;
-    private Field field;
+    private final Method getMethod;
+    private final Method setMethod;
+    private final Field field;
 
-    public CacheFieldValue(Method getMethod, Method setMethod, Field field) {
+    public FieldReflect(Method getMethod, Method setMethod, Field field) {
         this.getMethod = getMethod;
         this.setMethod = setMethod;
         this.field = field;

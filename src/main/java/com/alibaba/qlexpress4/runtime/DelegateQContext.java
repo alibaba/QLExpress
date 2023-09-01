@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.cache.QLCaches;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 
 import java.util.Map;
@@ -30,8 +30,8 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public QLCaches getQLCaches() {
-        return qRuntime.getQLCaches();
+    public ReflectLoader getReflectLoader() {
+        return qRuntime.getReflectLoader();
     }
 
     @Override

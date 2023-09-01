@@ -39,9 +39,10 @@ public class GetFieldInstruction extends QLInstruction {
             throw errorReporter.report(new NullPointerException(),
                     "GET_FIELD_FROM_NULL", "can not get field from null");
         }
-        Value fieldValue = PropertiesUtil.getField(bean, fieldName,
-                qContext.getQLCaches().getQlFieldCache(), errorReporter,
-                qlOptions.allowAccessPrivateMethod());
+        Value fieldValue = qContext.getReflectLoader().loadField(bean, fieldName, errorReporter);
+        if (fieldValue == null) {
+            throw errorReporter.report("FIELD_NOT_FOUND", "'" + fieldName + "' not found");
+        }
         qContext.push(fieldValue);
         return QResult.NEXT_INSTRUCTION;
     }

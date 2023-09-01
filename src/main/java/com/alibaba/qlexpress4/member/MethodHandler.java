@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.member;
 
 import com.alibaba.qlexpress4.runtime.data.implicit.QLCandidateMethodAttr;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMatcher;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitMethod;
+import com.alibaba.qlexpress4.runtime.data.implicit.MethodReflect;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLAliasUtil;
 
@@ -76,7 +76,7 @@ public class MethodHandler extends MemberHandler {
          * @param methods
          * @return
          */
-        public static QLImplicitMethod findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
+        public static MethodReflect findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
             QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[methods.length];
             Method compareMethod = null;
             int level = 1;
@@ -87,7 +87,7 @@ public class MethodHandler extends MemberHandler {
             }
             QLImplicitMatcher matcher = MemberHandler.Preferred.findMostSpecificSignature(idealMatch, candidates);
             return matcher.getMatchIndex() == BasicUtil.DEFAULT_MATCH_INDEX ? null :
-                    new QLImplicitMethod(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
+                    new MethodReflect(methods[matcher.getMatchIndex()],matcher.needImplicitTrans(), matcher.getVars());
         }
 
 
@@ -121,7 +121,7 @@ public class MethodHandler extends MemberHandler {
         public static List<Method> gatherMethodsRecursive(Class<?> baseClass, String methodName, boolean argCheck, Integer numArgs,
                                                           boolean publicOnly, boolean isStatic, List<Method> candidates) {
             if (candidates == null) {
-                candidates = new ArrayList();
+                candidates = new ArrayList<>();
             }
             addCandidatesMethod(baseClass.getDeclaredMethods(), methodName, argCheck, numArgs, publicOnly, isStatic, candidates);
             Class<?>[] interfaces = baseClass.getInterfaces();
@@ -172,25 +172,12 @@ public class MethodHandler extends MemberHandler {
             return accessMethod.getReturnType();
         }
 
-        public static Object accessMethodValue(Member accessMember, Object bean, Object[] params, boolean allowAccessPrivateMethod) throws
+        public static Object accessMethodValue(Method method, Object bean, Object[] params) throws
                 IllegalArgumentException, InvocationTargetException, IllegalAccessException {
-            Method accessMethod = ((Method) accessMember);
-            if (BasicUtil.isPublic(accessMethod)) {
-                return accessMethod.invoke(bean, params);
-            } else {
-                if(!allowAccessPrivateMethod){
-                    throw new IllegalAccessException("can not allow access");
-                }else {
-                    synchronized (accessMethod) {
-                        try {
-                            accessMethod.setAccessible(true);
-                            return accessMethod.invoke(bean, params);
-                        } finally {
-                            accessMethod.setAccessible(false);
-                        }
-                    }
-                }
+            if (!BasicUtil.isPublic(method)) {
+                method.setAccessible(true);
             }
+            return method.invoke(bean, params);
         }
 
         public static void setAccessMethodValue(Member accessMember, Object bean, Object value, boolean allowAccessPrivateMethod)

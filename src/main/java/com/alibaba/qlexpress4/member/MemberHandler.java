@@ -79,7 +79,7 @@ public class MemberHandler {
                     bestMatcher = qlParametersMatcherSplit;
                 }
             }
-            return new QLImplicitMatcher(QLWeighter.calNeedImplicitTrans(bestMatcher.getMatchWeight()) ? true : false
+            return new QLImplicitMatcher(QLWeighter.calNeedImplicitTrans(bestMatcher.getMatchWeight())
                     ,bestMatcher.getIndex(),bestMatcher.getQlImplicitVars());
         }
     }

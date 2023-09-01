@@ -111,7 +111,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     public QvmInstructionVisitor(String script) {
         this.script = script;
-        this.importManager = new ImportManager(new DefaultClassSupplier(),
+        this.importManager = new ImportManager(DefaultClassSupplier.getInstance(),
                 new ArrayList<>(), new HashMap<>());
         this.generatorScope = new GeneratorScope("MAIN", null);
         this.operatorFactory = new OperatorManager();

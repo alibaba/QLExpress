@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.scope;
 
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
 
 /**
  * Author: DQinYuan

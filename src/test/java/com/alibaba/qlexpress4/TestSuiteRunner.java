@@ -12,7 +12,7 @@ import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QFunction;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 import org.junit.Before;
@@ -30,14 +30,14 @@ public class TestSuiteRunner {
     private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
-    private Express4Runner testRunner;
+    private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
 
-    @Before
-    public void before() {
-        this.testRunner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+    private Express4Runner prepareRunner(InitOptions initOptions) {
+        Express4Runner testRunner = new Express4Runner(initOptions);
         testRunner.addFunction(ASSERT_FUNCTION_NAME, new AssertFunction());
         testRunner.addFunction(ASSERT_FALSE_FUNCTION_NAME, new AssertFalseFunction());
         testRunner.addFunction(PRINT_FUNCTION_NAME, new PrintFunction());
+        return testRunner;
     }
 
     @Test
@@ -48,7 +48,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/property/private_member_set_not_accessible.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/private_member_attr_access_set.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -76,8 +76,14 @@ public class TestSuiteRunner {
         // parse testsuite option first
         Optional<Map<String, Object>> scriptOptionOp = parseOption(qlScript);
         Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String)scriptOption.get("errCode"));
+        Optional<InitOptions.Builder> initOptionsBuilder = scriptOptionOp.map(scriptOption ->
+                (InitOptions.Builder) scriptOption.get("initOptions"));
+        InitOptions initOptions = initOptionsBuilder.isPresent()?
+                initOptionsBuilder.get().build():
+                InitOptions.DEFAULT_OPTIONS;
+        Express4Runner express4Runner = prepareRunner(initOptions);
         if (errCodeOp.isPresent()) {
-            assertErrCode(path, qlScript, QLOptions.builder()
+            assertErrCode(express4Runner, path, qlScript, QLOptions.builder()
                 .debug(debug)
                 .attachments(attachments)
                 .build(), errCodeOp.get(), debug);
@@ -91,7 +97,7 @@ public class TestSuiteRunner {
             QLOptions.builder().debug(debug).attachments(attachments).build();
 
         try {
-            testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
+            express4Runner.execute(qlScript, Collections.emptyMap(), qlOptions);
             printOk(path);
         } catch (Exception e) {
             System.out.printf("%1$-95s %2$s\n", path, "error");
@@ -107,10 +113,10 @@ public class TestSuiteRunner {
         System.out.printf("%1$-98s %2$s\n", path, "ok");
     }
 
-    private void assertErrCode(String path, String qlScript, QLOptions qlOptions,
+    private void assertErrCode(Express4Runner runner, String path, String qlScript, QLOptions qlOptions,
                                String expectErrCode, boolean printE) {
         try {
-            testRunner.execute(qlScript, Collections.emptyMap(), qlOptions);
+            runner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (QLException qlException) {
             if (printE) {
                 qlException.printStackTrace();
@@ -132,10 +138,11 @@ public class TestSuiteRunner {
         String configJson = qlScript.substring(2, endIndex);
         try {
             QLOptions qlOptions = QLOptions.builder()
-                .defaultImport(Collections.singletonList(
-                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions")))
+                .defaultImport(Arrays.asList(
+                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
+                    ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
                 .build();
-            Map<String, Object> scriptOptions = (Map<String, Object>)testRunner
+            Map<String, Object> scriptOptions = (Map<String, Object>) CONFIG_RUNNER
                 .execute(configJson, Collections.emptyMap(), qlOptions);
             return Optional.of(scriptOptions);
         } catch (JSONException e) {
@@ -151,14 +158,15 @@ public class TestSuiteRunner {
         QLOptions attachOptions = QLOptions.builder()
             .attachments(attachment)
             .build();
-        testRunner.execute("assert(true)", Collections.emptyMap(), attachOptions);
-        assertErrCodeAndReason(testRunner, "assert(false)", attachOptions,
+        Express4Runner express4Runner = prepareRunner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.execute("assert(true)", Collections.emptyMap(), attachOptions);
+        assertErrCodeAndReason(express4Runner, "assert(false)", attachOptions,
             "BIZ_EXCEPTION",
             "a/b.ql: assert fail");
-        assertErrCodeAndReason(testRunner, "assert(false, 'my test')", attachOptions,
+        assertErrCodeAndReason(express4Runner, "assert(false, 'my test')", attachOptions,
             "BIZ_EXCEPTION", "a/b.ql: my test");
         // variable can be the same name with function
-        testRunner.execute("assert = 4;assert(assert == 4)",
+        express4Runner.execute("assert = 4;assert(assert == 4)",
             Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
     }
 

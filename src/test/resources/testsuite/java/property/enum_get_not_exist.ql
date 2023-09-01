@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "FIELD_INACCESSIBLE"
+  "errCode": "FIELD_NOT_FOUND"
 }
 */
 import com.alibaba.qlexpress4.test.property.SampleEnum;

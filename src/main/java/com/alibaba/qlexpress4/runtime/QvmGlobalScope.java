@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 
 import java.util.Collections;

@@ -1,21 +1,19 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
-import com.alibaba.qlexpress4.cache.QLCaches;
-import com.alibaba.qlexpress4.cache.QLConstructorCache;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.member.ConstructorHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitConstructor;
+import com.alibaba.qlexpress4.runtime.data.implicit.ConstructorReflect;
 import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 
@@ -49,31 +47,31 @@ public class NewInstruction extends QLInstruction {
             objs[i] = v.get();
             paramTypes[i] = v.getType();
         }
-        QLCaches qlCaches = qContext.getQLCaches();
-        QLConstructorCache qlConstructorCache = qlCaches.getQlConstructorCache();
-        QLImplicitConstructor cacheElement = CacheUtil.getConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes);
-        if (cacheElement == null) {
-            cacheElement = ConstructorHandler.Preferred.findConstructorMostSpecificSignature(this.newClz, paramTypes);
-            if (cacheElement==null || cacheElement.getConstructor() == null) {
-                throw errorReporter.report("NEW_OBJECT_CREATE_ERROR", "not find constructor");
-            }
-            CacheUtil.setConstructorCacheElement(qlConstructorCache, this.newClz, paramTypes, cacheElement);
-        }
-        QLConvertResult convertResult = ParametersConversion.convert(objs, paramTypes, cacheElement.getConstructor().getParameterTypes(),
-                cacheElement.needImplicitTrans(),cacheElement.getVars());
+        ReflectLoader reflectLoader = qContext.getReflectLoader();
+        ConstructorReflect constructorReflect = reflectLoader.loadConstructor(newClz, paramTypes);
+        QLConvertResult convertResult = ParametersConversion.convert(objs, paramTypes,
+                constructorReflect.getConstructor().getParameterTypes(),
+                constructorReflect.needImplicitTrans(),constructorReflect.getVars());
         if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
-            throw errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not cast param");
+            throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
+                    "%s's constructor not found for types %s", newClz.getName(), Arrays.toString(paramTypes));
         }
-        Object constructorAccessible = getConstructorAccessible(cacheElement.getConstructor(),
-                (Object[]) convertResult.getCastValue(), qlOptions.allowAccessPrivateMethod());
-        if(constructorAccessible == null){
-            throw this.errorReporter.report("NEW_OBJECT_CREATE_ERROR", "can not create object");
-        }
-        Value dataInstruction = new DataValue(constructorAccessible);
+        Object newObject = newObject(constructorReflect.getConstructor(), (Object[]) convertResult.getCastValue());
+        Value dataInstruction = new DataValue(newObject);
         qContext.push(dataInstruction);
         return QResult.NEXT_INSTRUCTION;
     }
 
+    private Object newObject(Constructor<?> constructor, Object[] params) {
+        try {
+            return constructor.newInstance(params);
+        } catch (InvocationTargetException e) {
+            throw errorReporter.report(e.getTargetException(), "CONSTRUCTOR_INNER_EXCEPTION",
+                    "constructor inner exception");
+        } catch (Exception e) {
+            throw errorReporter.report("CONSTRUCTOR_UNKNOWN_EXCEPTION", "constructor unknown exception");
+        }
+    }
 
     private Object getConstructorAccessible(Constructor<?> constructor, Object[] params,
                                             boolean enableAllowAccessPrivateMethod){
@@ -92,23 +90,6 @@ public class NewInstruction extends QLInstruction {
         return () -> {
             try {
                 return constructor.newInstance(params);
-            } catch (Exception e) {
-                return null;
-            }
-        };
-    }
-
-    private Supplier<Object> getConstructorSupplierNotAccessible(Constructor<?> constructor, Object[] params) {
-        return () -> {
-            try {
-                synchronized (constructor) {
-                    try {
-                        constructor.setAccessible(true);
-                        return constructor.newInstance(params);
-                    } finally {
-                        constructor.setAccessible(false);
-                    }
-                }
             } catch (Exception e) {
                 return null;
             }

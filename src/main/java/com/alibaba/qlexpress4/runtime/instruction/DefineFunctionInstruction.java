@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -29,7 +30,7 @@ public class DefineFunctionInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         QLambda lambda = lambdaDefinition.toLambda(qContext, qlOptions, true);
-        qContext.defineFunction(name, new QFunctionInner(lambda));
+        qContext.defineFunction(name, new QLambdaFunction(lambda));
         return QResult.NEXT_INSTRUCTION;
     }
 

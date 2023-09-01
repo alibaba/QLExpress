@@ -11,15 +11,16 @@ import java.util.function.Predicate;
 import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
-import com.alibaba.qlexpress4.cache.*;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
+import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
+import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.CacheUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 
 /**
@@ -30,14 +31,12 @@ public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
 
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
-    private final QLCaches qlCaches;
+    private final ReflectLoader reflectLoader;
+    private final InitOptions initOptions;
 
     public Express4Runner(InitOptions initOptions) {
-        qlCaches = new QLCaches(CacheUtil.initConstructorCache(10, initOptions.enableUseCacheClear()),
-            CacheUtil.initFieldCache(10, initOptions.enableUseCacheClear()),
-            CacheUtil.initMethodCache(10, initOptions.enableUseCacheClear()),
-            CacheUtil.initMethodInvokeCache(10, initOptions.enableUseCacheClear()),
-            CacheUtil.initScriptCache(10, initOptions.enableUseCacheClear()));
+        this.initOptions = initOptions;
+        this.reflectLoader = new ReflectLoader(initOptions.allowPrivateAccess());
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
@@ -64,14 +63,14 @@ public class Express4Runner {
     }
 
     public <T, R> boolean addFunction(String name, Function<T, R> function) {
-        return addFunction(name, new QFunctionInner(params -> {
+        return addFunction(name, new QLambdaFunction(params -> {
             R result = function.apply((T)params[0]);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
 
     public <T, R> boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
-        return addFunction(name, new QFunctionInner(params -> {
+        return addFunction(name, new QLambdaFunction(params -> {
             Object array = Array.newInstance(Object.class, params.length);
             for (int i = 0; i < params.length; i++) {
                 Array.set(array, i, params[i]);
@@ -82,19 +81,19 @@ public class Express4Runner {
     }
 
     public <T> boolean addFunction(String name, Predicate<T> predicate) {
-        return addFunction(name, new QFunctionInner(
+        return addFunction(name, new QLambdaFunction(
             params -> new QResult(new DataValue(predicate.test((T)params[0])), QResult.ResultType.RETURN)));
     }
 
     public boolean addFunction(String name, Runnable runnable) {
-        return addFunction(name, new QFunctionInner(params -> {
+        return addFunction(name, new QLambdaFunction(params -> {
             runnable.run();
             return new QResult(null, QResult.ResultType.RETURN);
         }));
     }
 
     public <T> boolean addFunction(String name, Consumer<T> consumer) {
-        return addFunction(name, new QFunctionInner(params -> {
+        return addFunction(name, new QLambdaFunction(params -> {
             consumer.accept((T)params[0]);
             return new QResult(null, QResult.ResultType.RETURN);
         }));
@@ -128,11 +127,7 @@ public class Express4Runner {
             }
             if (QLFunctionUtil.containsQLFunctionForMethod(method)) {
                 for (String functionName : QLFunctionUtil.getQLFunctionValue(method)) {
-                    List<Method> qlMethods = new ArrayList<>();
-                    qlMethods.add(method);
-                    boolean addResult = addFunction(functionName, new QFunctionInner(
-                            new QLambdaMethod(qlMethods, object, false)
-                    ));
+                    boolean addResult = addFunction(functionName, new QMethodFunction(object, method));
                     (addResult? result.getSucc(): result.getFail()).add(method.getName());
                 }
             }
@@ -162,7 +157,7 @@ public class Express4Runner {
             mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
         }
 
-        QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), qlCaches, System.currentTimeMillis());
+        QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), reflectLoader, System.currentTimeMillis());
         QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction,
                 qlOptions.isPolluteUserContext());
         return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
@@ -170,7 +165,7 @@ public class Express4Runner {
     }
 
     private ImportManager inheritDefaultImport(QLOptions qlOptions) {
-        return new ImportManager(qlOptions.getClassSupplier(), qlOptions.getDefaultImport());
+        return new ImportManager(initOptions.classSupplier(), qlOptions.getDefaultImport());
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {

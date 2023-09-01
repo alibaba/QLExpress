@@ -8,6 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultClassSupplier implements ClassSupplier {
 
+    private static final DefaultClassSupplier INSTANCE = new DefaultClassSupplier();
+
+    public static DefaultClassSupplier getInstance() {
+        return INSTANCE;
+    }
+
     private final Map<String, NullableCls> cache = new ConcurrentHashMap<>();
 
     /**
@@ -30,8 +36,8 @@ public class DefaultClassSupplier implements ClassSupplier {
     }
 
     private static class NullableCls {
-        private Class<?> cls;
-        private boolean found;
+        private final Class<?> cls;
+        private final boolean found;
 
         public NullableCls(Class<?> cls, boolean found) {
             this.cls = cls;

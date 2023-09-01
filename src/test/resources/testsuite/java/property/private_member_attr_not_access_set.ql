@@ -1,7 +1,6 @@
 /*
 {
-  "errCode": "FIELD_INACCESSIBLE",
-  "qlOptions": QLOptions.builder().allowAccessPrivateMethod(false)
+  "errCode": "FIELD_NOT_FOUND"
 }
 */
 import com.alibaba.qlexpress4.test.property.SampleForPrivate;
