@@ -46,7 +46,7 @@ public class LogicOrOperator extends BaseBinaryOperator {
             rightValue = false;
         }
 
-        // TODO 非Boolean类型是否允许转为Boolean
+        // TODO bingo 非Boolean类型是否允许转为Boolean
         if (!(leftValue instanceof Boolean) || !(rightValue instanceof Boolean)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }

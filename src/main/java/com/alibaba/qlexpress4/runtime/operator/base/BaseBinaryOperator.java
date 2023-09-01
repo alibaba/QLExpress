@@ -223,12 +223,12 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return 0;
         }
 
-        // null TODO 参考 groovy
+        // TODO bingo 参考 groovy
         if (isSameType(left, right) && isInstanceofComparable(left)) {
             return ((Comparable)(left.get())).compareTo(right.get());
         }
 
-        // TODO 两个都实现Comparable接口，参考groovy
+        // TODO bingo 两个都实现Comparable接口，参考groovy
         if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get());
         }
