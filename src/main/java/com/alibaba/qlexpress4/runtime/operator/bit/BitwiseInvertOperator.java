@@ -22,7 +22,7 @@ public class BitwiseInvertOperator extends BaseUnaryOperator {
     @Override
     public Object execute(Value value, ErrorReporter errorReporter) {
         Object operand = value.get();
-        if (!NumberMath.isNumber(operand)) {
+        if (!(operand instanceof Number)) {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
 

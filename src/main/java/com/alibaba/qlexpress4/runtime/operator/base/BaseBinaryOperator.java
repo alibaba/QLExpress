@@ -117,16 +117,16 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected Object mod(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
+    protected Object remainder(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
         if (isBothNumber(left, right)) {
             if (qlOptions.isPrecise()) {
-                return NumberMath.mod(NumberMath.toBigDecimal((Number)leftValue),
+                return NumberMath.remainder(NumberMath.toBigDecimal((Number)leftValue),
                     NumberMath.toBigDecimal((Number)rightValue));
             } else {
-                return NumberMath.mod((Number)leftValue, (Number)rightValue);
+                return NumberMath.remainder((Number)leftValue, (Number)rightValue);
             }
         }
 

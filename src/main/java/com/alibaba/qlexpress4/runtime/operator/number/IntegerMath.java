@@ -1,15 +1,35 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package com.alibaba.qlexpress4.runtime.operator.number;
 
 /**
- * @author bingo
+ * Integer NumberMath operations
+ * reference groovy source code
  */
-public class IntegerMath extends NumberMath {
+public final class IntegerMath extends NumberMath {
+
     public static final IntegerMath INSTANCE = new IntegerMath();
 
     private IntegerMath() {}
 
     @Override
-    protected Number absImpl(Number number) {
+    public Number absImpl(Number number) {
         return Math.abs(number.intValue());
     }
 
@@ -41,57 +61,62 @@ public class IntegerMath extends NumberMath {
     }
 
     @Override
-    protected Number orImpl(Number left, Number right) {
+    public Number orImpl(Number left, Number right) {
         return left.intValue() | right.intValue();
     }
 
     @Override
-    protected Number andImpl(Number left, Number right) {
+    public Number andImpl(Number left, Number right) {
         return left.intValue() & right.intValue();
     }
 
     @Override
-    protected Number xorImpl(Number left, Number right) {
+    public Number xorImpl(Number left, Number right) {
         return left.intValue() ^ right.intValue();
     }
 
     @Override
-    protected Number intDivImpl(Number left, Number right) {
+    public Number intDivImpl(Number left, Number right) {
         return left.intValue() / right.intValue();
     }
 
     @Override
-    protected Number modImpl(Number left, Number right) {
+    public Number modImpl(Number left, Number right) {
+        return toBigInteger(left).mod(toBigInteger(right)).intValue();
+    }
+
+    @Override
+    public Number remainderImpl(Number left, Number right) {
         return left.intValue() % right.intValue();
     }
 
     @Override
-    protected Number unaryMinusImpl(Number left) {
+    public Number unaryMinusImpl(Number left) {
         return -left.intValue();
     }
 
     @Override
-    protected Number unaryPlusImpl(Number left) {
+    public Number unaryPlusImpl(Number left) {
         return left.intValue();
     }
 
     @Override
-    protected Number bitwiseNegateImpl(Number left) {
+    public Number bitwiseNegateImpl(Number left) {
         return ~left.intValue();
     }
 
     @Override
-    protected Number leftShiftImpl(Number left, Number right) {
+    public Number leftShiftImpl(Number left, Number right) {
         return left.intValue() << right.intValue();
     }
 
     @Override
-    protected Number rightShiftImpl(Number left, Number right) {
+    public Number rightShiftImpl(Number left, Number right) {
         return left.intValue() >> right.intValue();
     }
 
     @Override
-    protected Number rightShiftUnsignedImpl(Number left, Number right) {
+    public Number rightShiftUnsignedImpl(Number left, Number right) {
         return left.intValue() >>> right.intValue();
     }
 }

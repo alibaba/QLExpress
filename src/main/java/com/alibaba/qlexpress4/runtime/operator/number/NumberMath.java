@@ -1,12 +1,50 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package com.alibaba.qlexpress4.runtime.operator.number;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @author bingo
+ * Stateless objects used to perform math on the various Number subclasses.
+ * Instances are required so that polymorphic calls work properly, but each
+ * subclass creates a singleton instance to minimize garbage.  All methods
+ * must be thread-safe.
+ *
+ * The design goals of this class are as follows:
+ * <ol>
+ * <li>Support a 'least surprising' math model to scripting language users.  This
+ * means that exact, or decimal math should be used for default calculations.  This
+ * scheme assumes that by default, groovy literals with decimal points are instantiated
+ * as BigDecimal objects rather than binary floating points (Float, Double).
+ * <li>Do not force the appearance of exactness on a number that is by definition not
+ * guaranteed to be exact.  In particular this means that if an operand in a NumberMath
+ * operation is a binary floating point number, ensure that the result remains a binary floating point
+ * number (i.e. never automatically promote a binary floating point number to a BigDecimal).
+ * This has the effect of preserving the expectations of binary floating point users and helps performance.
+ * <li>Provide an implementation that is as close as practical to the Java 1.5 BigDecimal math model which implements
+ * precision based floating point decimal math (ANSI X3.274-1996 and ANSI X3.274-1996/AM 1-2000 (section 7.4).
+ * </ol>
+ * reference groovy source code
  */
 public abstract class NumberMath {
+
     public static Number abs(Number number) {
         return getMath(number).absImpl(number);
     }
@@ -47,8 +85,13 @@ public abstract class NumberMath {
         return getMath(left, right).intDivImpl(left, right);
     }
 
+    // retain for backwards compatibility
     public static Number mod(Number left, Number right) {
         return getMath(left, right).modImpl(left, right);
+    }
+
+    public static Number remainder(Number left, Number right) {
+        return getMath(left, right).remainderImpl(left, right);
     }
 
     /**
@@ -75,7 +118,7 @@ public abstract class NumberMath {
     public static Number rightShift(Number left, Number right) {
         if (isFloatingPoint(right) || isBigDecimal(right)) {
             throw new UnsupportedOperationException(
-                "shift distance must be an integral type, but " + right + " (" + right.getClass().getName()
+                "Shift distance must be an integral type, but " + right + " (" + right.getClass().getName()
                     + ") was supplied");
         }
         return getMath(left).rightShiftImpl(left, right);
@@ -90,7 +133,7 @@ public abstract class NumberMath {
     public static Number rightShiftUnsigned(Number left, Number right) {
         if (isFloatingPoint(right) || isBigDecimal(right)) {
             throw new UnsupportedOperationException(
-                "shift distance must be an integral type, but " + right + " (" + right.getClass().getName()
+                "Shift distance must be an integral type, but " + right + " (" + right.getClass().getName()
                     + ") was supplied");
         }
         return getMath(left).rightShiftUnsignedImpl(left, right);
@@ -106,10 +149,6 @@ public abstract class NumberMath {
 
     public static Number unaryPlus(Number left) {
         return getMath(left).unaryPlusImpl(left);
-    }
-
-    public static boolean isNumber(Object value) {
-        return value instanceof Number;
     }
 
     public static boolean isFloatingPoint(Number number) {
@@ -150,7 +189,11 @@ public abstract class NumberMath {
         if (n instanceof Integer || n instanceof Long || n instanceof Byte || n instanceof Short) {
             return BigDecimal.valueOf(n.longValue());
         }
-        return new BigDecimal(n.toString());
+        try {
+            return new BigDecimal(n.toString());
+        } catch (NumberFormatException nfe) {
+            return BigDecimal.valueOf(n.doubleValue());
+        }
     }
 
     public static BigInteger toBigInteger(Number n) {
@@ -212,6 +255,7 @@ public abstract class NumberMath {
         return BigDecimalMath.INSTANCE;
     }
 
+    /* package private */
     static NumberMath getMath(Number number) {
         if (isLong(number)) {
             return LongMath.INSTANCE;
@@ -265,6 +309,10 @@ public abstract class NumberMath {
         throw createUnsupportedException("xor()", left);
     }
 
+    protected Number remainderImpl(Number left, Number right) {
+        throw createUnsupportedException("remainder()", left);
+    }
+
     protected Number modImpl(Number left, Number right) {
         throw createUnsupportedException("mod()", left);
     }
@@ -285,9 +333,8 @@ public abstract class NumberMath {
         throw createUnsupportedException("rightShiftUnsigned()", left);
     }
 
-    protected UnsupportedOperationException createUnsupportedException(String operator, Number left) {
-        String message = String.format("Can not use %s on this number type:%s with value:%s", operator,
-            left.getClass().getName(), left);
-        return new UnsupportedOperationException(message);
+    protected UnsupportedOperationException createUnsupportedException(String operation, Number left) {
+        return new UnsupportedOperationException(
+            "Cannot use " + operation + " on this number type: " + left.getClass().getName() + " with value: " + left);
     }
 }

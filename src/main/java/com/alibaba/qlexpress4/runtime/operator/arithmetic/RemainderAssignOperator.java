@@ -11,13 +11,13 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 /**
  * @author bingo
  */
-public class ModAssignOperator extends BaseBinaryOperator {
-    private static final ModAssignOperator INSTANCE = new ModAssignOperator();
+public class RemainderAssignOperator extends BaseBinaryOperator {
+    private static final RemainderAssignOperator INSTANCE = new RemainderAssignOperator();
 
-    private ModAssignOperator() {
+    private RemainderAssignOperator() {
     }
 
-    public static ModAssignOperator getInstance() {
+    public static RemainderAssignOperator getInstance() {
         return INSTANCE;
     }
 
@@ -26,7 +26,7 @@ public class ModAssignOperator extends BaseBinaryOperator {
         ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object result = mod(left, right, qlOptions, errorReporter);
+        Object result = remainder(left, right, qlOptions, errorReporter);
         leftValue.set(result, errorReporter);
         return result;
     }
