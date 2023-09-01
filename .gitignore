@@ -6,7 +6,6 @@ target/*
 *.iml
 .idea/
 
-
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -21,3 +20,5 @@ hs_err_pid*
 
 test.log
 test-push.sh
+
+.DS_Store
