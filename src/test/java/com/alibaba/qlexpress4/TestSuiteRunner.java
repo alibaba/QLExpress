@@ -52,7 +52,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/property/private_member_attr_access_set.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/private_member_set_not_accessible.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

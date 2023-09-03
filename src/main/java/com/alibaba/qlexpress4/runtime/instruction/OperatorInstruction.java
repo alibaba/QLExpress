@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
+import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 /**
@@ -36,9 +37,9 @@ public class OperatorInstruction extends QLInstruction {
             qContext.push(new DataValue(result));
             return QResult.NEXT_INSTRUCTION;
         } catch (Throwable t) {
-            throw errorReporter.report(t, "OPERATOR_EXECUTE_EXCEPTION",
-                String.format("execute %s %s %s throw exception", leftValue.get(), operator.getOperator(),
-                    rightValue.get()));
+            throw  ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_EXECUTE_EXCEPTION",
+                    "execute %s %s %s throw exception", String.valueOf(leftValue.get()), operator.getOperator(),
+                    String.valueOf(rightValue.get()));
         }
     }
 
