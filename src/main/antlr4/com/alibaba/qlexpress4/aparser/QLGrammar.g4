@@ -249,6 +249,16 @@ fragment ExponentIndicator
     :   [eE]
     ;
 
+// Value Selector
+
+ContextSelector
+    :   '${' ContextSelectorCharacter+ '}'
+    ;
+
+fragment ContextSelectorCharacter
+    :   ~[}\r\n]
+    ;
+
 // operator
 
 LPAREN : '(';
@@ -1182,20 +1192,21 @@ suffixExpress
     ;
 
 primaryNoFix
-    : literal # constExpr
-    | '(' declType ')' primary # castExpr
-    | '(' expression ')' # groupExpr
-    | NEW varId ('.' varId)* typeArguments? '(' argumentList? ')' # newObjExpr
-    | NEW declTypeNoArr dimExprs # newEmptyArrExpr
-    | NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    | lambdaParameters ARROW expression # lambdaExpr
-    | varId # varIdExpr
-    | primitiveType # typeExpr
-    | '[' listItems? ']' # listExpr
-    | '{' mapEntries '}' # mapExpr
-    | '{' blockStatements? '}' # blockExpr
-    | IF '(' condition=expression ')' thenBody=ifBody ('else' elseBody=ifBody)? # ifExpr
-    | TRY '{' blockStatements? '}' tryCatches? tryFinally? # tryCatchExpr
+    :   literal # constExpr
+    |   '(' declType ')' primary # castExpr
+    |   '(' expression ')' # groupExpr
+    |   NEW varId ('.' varId)* typeArguments? '(' argumentList? ')' # newObjExpr
+    |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
+    |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
+    |   lambdaParameters ARROW expression # lambdaExpr
+    |   varId # varIdExpr
+    |   primitiveType # typeExpr
+    |   '[' listItems? ']' # listExpr
+    |   '{' mapEntries '}' # mapExpr
+    |   '{' blockStatements? '}' # blockExpr
+    |   IF '(' condition=expression ')' thenBody=ifBody ('else' elseBody=ifBody)? # ifExpr
+    |   TRY '{' blockStatements? '}' tryCatches? tryFinally? # tryCatchExpr
+    |   ContextSelector # contextSelectExpr
     ;
 
 ifBody

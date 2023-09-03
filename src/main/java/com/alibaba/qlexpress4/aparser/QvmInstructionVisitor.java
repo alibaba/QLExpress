@@ -1019,6 +1019,14 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitContextSelectExpr(ContextSelectExprContext ctx) {
+        String text = ctx.ContextSelector().getText();
+        String variableName = text.substring(2, text.length() - 1).trim();
+        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), variableName));
+        return null;
+    }
+
+    @Override
     public Void visitLiteral(LiteralContext literal) {
         TerminalNode integerLiteral = literal.IntegerLiteral();
         if (integerLiteral != null) {
@@ -1061,10 +1069,14 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         }
         TerminalNode stringLiteral = literal.StringLiteral();
         if (stringLiteral != null) {
-            String qlStr = parseStringEscape(stringLiteral.getText());
-            addInstruction(
-                    new ConstInstruction(newReporterWithToken(stringLiteral.getSymbol()), qlStr)
+            ErrorReporter errorReporter = newReporterWithToken(stringLiteral.getSymbol());
+            int strPartNum = handleStringInterpolation(
+                    errorReporter,
+                    parseStringEscape(stringLiteral.getText())
             );
+            if (strPartNum > 1) {
+                addInstruction(new StringJoinInstruction(errorReporter, strPartNum));
+            }
             return null;
         }
         TerminalNode nullLiteral = literal.NULL();
@@ -1105,6 +1117,33 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             }
         }
         return result.toString();
+    }
+
+    private int handleStringInterpolation(ErrorReporter errorReporter, String originStr) {
+        int dollarIndex = originStr.indexOf("${");
+        int dollarCloseIndex = dollarIndex == -1? -1: originStr.indexOf('}', dollarIndex);
+        if (dollarIndex == -1 || dollarCloseIndex == -1) {
+            addInstruction(
+                    new ConstInstruction(errorReporter, originStr)
+            );
+            return 1;
+        }
+        String left = originStr.substring(0, dollarIndex);
+        String variableName = originStr.substring(dollarIndex + 2, dollarCloseIndex).trim();
+        String right = originStr.substring(dollarCloseIndex + 1);
+
+        // left const string
+        addInstruction(
+                new ConstInstruction(errorReporter, left)
+        );
+
+        // variable
+        addInstruction(
+                new LoadInstruction(errorReporter, variableName)
+        );
+
+        // right
+        return 2 + handleStringInterpolation(errorReporter, right);
     }
 
     private String parseStringEscape(String originStr) {
