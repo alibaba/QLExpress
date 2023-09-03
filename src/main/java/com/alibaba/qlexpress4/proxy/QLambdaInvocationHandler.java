@@ -21,16 +21,9 @@ public class QLambdaInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public QLConvertResult invoke(Object proxy, Method method, Object[] args) {
-        try {
-            if(Modifier.isAbstract(method.getModifiers())){
-                Object rs = qLambda.call(args);
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS ,rs);
-            }else {
-                return new QLConvertResult(QLConvertResultType.CAN_TRANS, method.getReturnType() == String.class ? "QLambdaProxy" : null);
-            }
-        }catch (Throwable t){
-            return new QLConvertResult(QLConvertResultType.NOT_TRANS,null);
-        }
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return Modifier.isAbstract(method.getModifiers())? qLambda.call(args).getResult().get():
+                method.getReturnType() == String.class &&  "toString".equals(method.getName())?
+                        "QLambdaProxy": method.invoke(args);
     }
 }

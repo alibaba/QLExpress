@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.proxy.QLambdaInvocationHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.data.checker.TypeConvertChecker;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
+import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.utils.CacheUtil;
 
 import java.lang.reflect.Proxy;
@@ -21,6 +22,8 @@ public class QLFunctionConvertChecker implements TypeConvertChecker<Object> {
 
     @Override
     public QLConvertResult typeReturn(Object value, Class<?> type) {
-        return (QLConvertResult) Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]{type}, new QLambdaInvocationHandler((QLambda) value));
+        Object result = Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]{type},
+                new QLambdaInvocationHandler((QLambda) value));
+        return new QLConvertResult(QLConvertResultType.CAN_TRANS, result);
     }
 }
