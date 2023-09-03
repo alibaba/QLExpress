@@ -713,8 +713,15 @@ public class ExpressRunner {
                 parseTask.run();
             }
         }
-        return futureTask.get();
-
+        try {
+            return futureTask.get();
+        } catch (Exception e) {
+            Throwable originThrow = e.getCause();
+            if (!(originThrow instanceof Exception)) {
+                throw e;
+            }
+            throw (Exception) originThrow;
+        }
     }
 
     public InstructionSet createInstructionSet(ExpressNode root, String type) throws Exception {

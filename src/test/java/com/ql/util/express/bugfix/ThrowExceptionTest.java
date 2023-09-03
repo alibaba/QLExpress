@@ -20,7 +20,7 @@ public class ThrowExceptionTest {
     public void runExpress(String exp) throws Exception {
         ExpressRunner runner = new ExpressRunner();
         IExpressContext<String, Object> context = new DefaultContext<>();
-        Object result = runner.execute(exp, context, null, false, false);
+        Object result = runner.execute(exp, context, null, true, false);
         System.out.println(result);
     }
 
