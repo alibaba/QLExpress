@@ -30,7 +30,11 @@ public class TestSuiteRunner {
     private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
-    private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+    private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
+            .defaultImport(Arrays.asList(
+                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
+                    ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
+            .build());
 
     private Express4Runner prepareRunner(InitOptions initOptions) {
         Express4Runner testRunner = new Express4Runner(initOptions);
@@ -79,12 +83,11 @@ public class TestSuiteRunner {
         Optional<InitOptions.Builder> initOptionsBuilder = scriptOptionOp.map(scriptOption ->
                 (InitOptions.Builder) scriptOption.get("initOptions"));
         InitOptions initOptions = initOptionsBuilder.isPresent()?
-                initOptionsBuilder.get().build():
+                initOptionsBuilder.get().debug(debug).build():
                 InitOptions.DEFAULT_OPTIONS;
         Express4Runner express4Runner = prepareRunner(initOptions);
         if (errCodeOp.isPresent()) {
             assertErrCode(express4Runner, path, qlScript, QLOptions.builder()
-                .debug(debug)
                 .attachments(attachments)
                 .build(), errCodeOp.get(), debug);
             printOk(path);
@@ -93,8 +96,8 @@ public class TestSuiteRunner {
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
             (QLOptions.Builder)scriptOption.get("qlOptions"));
         QLOptions qlOptions = optionsBuilder.isPresent() ?
-            optionsBuilder.get().debug(debug).attachments(attachments).build() :
-            QLOptions.builder().debug(debug).attachments(attachments).build();
+            optionsBuilder.get().attachments(attachments).build() :
+            QLOptions.builder().attachments(attachments).build();
 
         try {
             express4Runner.execute(qlScript, Collections.emptyMap(), qlOptions);
@@ -137,13 +140,8 @@ public class TestSuiteRunner {
         }
         String configJson = qlScript.substring(2, endIndex);
         try {
-            QLOptions qlOptions = QLOptions.builder()
-                .defaultImport(Arrays.asList(
-                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
-                    ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
-                .build();
             Map<String, Object> scriptOptions = (Map<String, Object>) CONFIG_RUNNER
-                .execute(configJson, Collections.emptyMap(), qlOptions);
+                .execute(configJson, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
             return Optional.of(scriptOptions);
         } catch (JSONException e) {
             return Optional.empty();

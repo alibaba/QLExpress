@@ -4,6 +4,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -12,9 +15,9 @@ import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
 import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
@@ -29,7 +32,7 @@ import com.alibaba.qlexpress4.utils.QLFunctionUtil;
  */
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
-
+    private final Map<String, Future<QLambdaDefinitionInner>> compileCache = new ConcurrentHashMap<>();
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
     private final ReflectLoader reflectLoader;
     private final InitOptions initOptions;
@@ -64,7 +67,7 @@ public class Express4Runner {
 
     public <T, R> boolean addFunction(String name, Function<T, R> function) {
         return addFunction(name, new QLambdaFunction(params -> {
-            R result = function.apply((T)params[0]);
+            R result = function.apply((T) params[0]);
             return new QResult(new DataValue(result), QResult.ResultType.RETURN);
         }));
     }
@@ -135,26 +138,19 @@ public class Express4Runner {
         return result;
     }
 
-    public QLGrammarParser.ProgramContext parseToSyntaxTree(String script, QLOptions qlOptions) {
+    public QLGrammarParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(
-                script, operatorManager, qlOptions.isDebug(),
-                qlOptions.getDebugInfoConsumer()
+                script, operatorManager, initOptions.isDebug(),
+                initOptions.getDebugInfoConsumer()
         );
     }
 
     private QLambda parseToLambda(String script, Map<String, Object> context, QLOptions qlOptions) {
-        QLGrammarParser.ProgramContext program = parseToSyntaxTree(script, qlOptions);
-
-        QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script,
-                inheritDefaultImport(qlOptions), operatorManager);
-        program.accept(qvmInstructionVisitor);
-
-        QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
-                qvmInstructionVisitor.getInstructions(), Collections.emptyList(),
-                qvmInstructionVisitor.getMaxStackSize());
-        if (qlOptions.isDebug()) {
-            qlOptions.getDebugInfoConsumer().accept("\nInstructions:");
-            mainLambdaDefine.println(0, qlOptions.getDebugInfoConsumer());
+        QLambdaDefinitionInner mainLambdaDefine = qlOptions.isCache()?
+                parseDefinitionWithCache(script): parseDefinition(script);
+        if (initOptions.isDebug()) {
+            initOptions.getDebugInfoConsumer().accept("\nInstructions:");
+            mainLambdaDefine.println(0, initOptions.getDebugInfoConsumer());
         }
 
         QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), reflectLoader, System.currentTimeMillis());
@@ -164,8 +160,43 @@ public class Express4Runner {
                 qlOptions, true);
     }
 
-    private ImportManager inheritDefaultImport(QLOptions qlOptions) {
-        return new ImportManager(initOptions.classSupplier(), qlOptions.getDefaultImport());
+    private QLambdaDefinitionInner parseDefinitionWithCache(String script) {
+        try {
+            return getParseFuture(script).get();
+        } catch (Exception e) {
+            Throwable compileException = e.getCause();
+            throw compileException instanceof QLSyntaxException? (QLSyntaxException) compileException:
+                    new RuntimeException(compileException);
+        }
+    }
+
+    private Future<QLambdaDefinitionInner> getParseFuture(String script) {
+        Future<QLambdaDefinitionInner> parseFuture = compileCache.get(script);
+        if (parseFuture != null) {
+            return parseFuture;
+        }
+        FutureTask<QLambdaDefinitionInner> parseTask = new FutureTask<>(() -> parseDefinition(script));
+        Future<QLambdaDefinitionInner> preTask = compileCache.putIfAbsent(script, parseTask);
+        if (preTask == null) {
+            parseTask.run();
+        }
+        return parseTask;
+    }
+
+    private QLambdaDefinitionInner parseDefinition(String script) {
+        QLGrammarParser.ProgramContext program = parseToSyntaxTree(script);
+        QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script,
+                inheritDefaultImport(), operatorManager);
+        program.accept(qvmInstructionVisitor);
+
+        QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
+                qvmInstructionVisitor.getInstructions(), Collections.emptyList(),
+                qvmInstructionVisitor.getMaxStackSize());
+        return mainLambdaDefine;
+    }
+
+    private ImportManager inheritDefaultImport() {
+        return new ImportManager(initOptions.getClassSupplier(), initOptions.getDefaultImport());
     }
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {

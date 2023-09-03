@@ -35,17 +35,6 @@ public class QLOptions {
     private final long timeoutMillis;
 
     /**
-     * default import java packages for script
-     * default
-     * ImportManager.importPack("java.lang"),
-     * ImportManager.importPack("java.util"),
-     * ImportManager.importPack("java.math"),
-     * ImportManager.importPack("java.util.stream")
-     * ImportManager.importPack("java.util.function")
-     */
-    private final List<ImportManager.QLImport> defaultImport;
-
-    /**
      * attachments will be carried to user defined function/operator/macro
      * only used to pass data, not as variable value
      *
@@ -54,10 +43,11 @@ public class QLOptions {
     private final Map<String, Object> attachments;
 
     /**
-     * enable debug mode
-     * default false
+     * allow cache compile result of script
+     *
+     * default true
      */
-    private final boolean debug;
+    private final boolean cache;
 
     /**
      * avoid null pointer
@@ -65,24 +55,14 @@ public class QLOptions {
      */
     private final boolean avoidNullPointer;
 
-    /**
-     * consume all debug info, valid when debug is true
-     * default is print in standard output, can not be null
-     */
-    private final Consumer<String> debugInfoConsumer;
-
     private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
-                      List<ImportManager.QLImport> defaultImport,
-                      Map<String, Object> attachments, boolean debug,
-                      boolean avoidNullPointer, Consumer<String> debugInfoConsumer) {
+                      Map<String, Object> attachments, boolean cache, boolean avoidNullPointer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.timeoutMillis = timeoutMillis;
-        this.defaultImport = defaultImport;
         this.attachments = attachments;
-        this.debug = debug;
+        this.cache = cache;
         this.avoidNullPointer = avoidNullPointer;
-        this.debugInfoConsumer = debugInfoConsumer;
     }
 
     public static Builder builder() {
@@ -101,24 +81,16 @@ public class QLOptions {
         return timeoutMillis;
     }
 
-    public List<ImportManager.QLImport> getDefaultImport() {
-        return defaultImport;
-    }
-
     public Map<String, Object> getAttachments() {
         return attachments;
     }
 
-    public boolean isDebug() {
-        return debug;
+    public boolean isCache() {
+        return cache;
     }
 
     public boolean isAvoidNullPointer() {
         return avoidNullPointer;
-    }
-
-    public Consumer<String> getDebugInfoConsumer() {
-        return debugInfoConsumer;
     }
 
     public static class Builder {
@@ -130,19 +102,9 @@ public class QLOptions {
 
         private Map<String, Object> attachments = Collections.emptyMap();
 
-        private boolean debug = false;
+        private boolean cache = true;
 
         private boolean avoidNullPointer = false;
-
-        private Consumer<String> debugInfoConsumer = System.out::println;
-
-        private List<ImportManager.QLImport> defaultImport = Arrays.asList(
-                ImportManager.importPack("java.lang"),
-                ImportManager.importPack("java.util"),
-                ImportManager.importPack("java.math"),
-                ImportManager.importPack("java.util.stream"),
-                ImportManager.importPack("java.util.function")
-        );
 
         public Builder precise(boolean precise) {
             this.precise = precise;
@@ -151,11 +113,6 @@ public class QLOptions {
 
         public Builder polluteUserContext(boolean polluteUserContext) {
             this.polluteUserContext = polluteUserContext;
-            return this;
-        }
-
-        public Builder defaultImport(List<ImportManager.QLImport> defaultImport) {
-            this.defaultImport = defaultImport;
             return this;
         }
 
@@ -169,8 +126,8 @@ public class QLOptions {
             return this;
         }
 
-        public Builder debug(boolean debug) {
-            this.debug = debug;
+        public Builder cache(boolean cache) {
+            this.cache = cache;
             return this;
         }
 
@@ -179,14 +136,9 @@ public class QLOptions {
             return this;
         }
 
-        public Builder debugInfoConsumer(Consumer<String> debugInfoConsumer) {
-            this.debugInfoConsumer = debugInfoConsumer;
-            return this;
-        }
-
         public QLOptions build() {
-            return new QLOptions(precise, polluteUserContext, timeoutMillis, defaultImport,
-                attachments, debug, avoidNullPointer, debugInfoConsumer);
+            return new QLOptions(precise, polluteUserContext, timeoutMillis,
+                attachments, cache, avoidNullPointer);
         }
     }
 }

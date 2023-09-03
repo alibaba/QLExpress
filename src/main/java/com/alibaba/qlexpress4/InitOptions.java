@@ -1,6 +1,12 @@
 package com.alibaba.qlexpress4;
 
 
+import com.alibaba.qlexpress4.aparser.ImportManager;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @Author TaoKan
  * @Date 2022/5/6 下午6:32
@@ -14,14 +20,43 @@ public class InitOptions {
     private final ClassSupplier classSupplier;
 
     /**
+     * default import java packages for script
+     * default
+     * ImportManager.importPack("java.lang"),
+     * ImportManager.importPack("java.util"),
+     * ImportManager.importPack("java.math"),
+     * ImportManager.importPack("java.util.stream")
+     * ImportManager.importPack("java.util.function")
+     */
+    private final List<ImportManager.QLImport> defaultImport;
+
+    /**
+     * enable debug mode
+     * default false
+     */
+    private final boolean debug;
+
+    /**
+     * consume all debug info, valid when debug is true
+     * default is print in standard output, can not be null
+     */
+    private final Consumer<String> debugInfoConsumer;
+
+    /**
      * allow access private field and method
      * default false
      */
     private final boolean allowPrivateAccess;
 
-    private InitOptions(boolean useCacheClear, ClassSupplier classSupplier, boolean allowPrivateAccess) {
+    private InitOptions(boolean useCacheClear, ClassSupplier classSupplier,
+                        List<ImportManager.QLImport> defaultImport,
+                        boolean debug, Consumer<String> debugInfoConsumer,
+                        boolean allowPrivateAccess) {
         this.useCacheClear = useCacheClear;
         this.classSupplier = classSupplier;
+        this.defaultImport = defaultImport;
+        this.debug = debug;
+        this.debugInfoConsumer = debugInfoConsumer;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
@@ -33,8 +68,20 @@ public class InitOptions {
         return useCacheClear;
     }
 
-    public ClassSupplier classSupplier() {
+    public List<ImportManager.QLImport> getDefaultImport() {
+        return defaultImport;
+    }
+
+    public ClassSupplier getClassSupplier() {
         return classSupplier;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public Consumer<String> getDebugInfoConsumer() {
+        return debugInfoConsumer;
     }
 
     public boolean allowPrivateAccess() {
@@ -44,6 +91,15 @@ public class InitOptions {
     public static class Builder {
         private boolean useCacheClear = false;
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
+        private List<ImportManager.QLImport> defaultImport = Arrays.asList(
+                ImportManager.importPack("java.lang"),
+                ImportManager.importPack("java.util"),
+                ImportManager.importPack("java.math"),
+                ImportManager.importPack("java.util.stream"),
+                ImportManager.importPack("java.util.function")
+        );
+        private boolean debug = false;
+        private Consumer<String> debugInfoConsumer = System.out::println;
         private boolean allowPrivateAccess = false;
 
         public Builder useCacheClear(boolean useCacheClear) {
@@ -56,13 +112,29 @@ public class InitOptions {
             return this;
         }
 
+        public Builder defaultImport(List<ImportManager.QLImport> defaultImport) {
+            this.defaultImport = defaultImport;
+            return this;
+        }
+
+        public Builder debug(boolean debug) {
+            this.debug = debug;
+            return this;
+        }
+
+        public Builder debugInfoConsumer(Consumer<String> debugInfoConsumer) {
+            this.debugInfoConsumer = debugInfoConsumer;
+            return this;
+        }
+
         public Builder allowPrivateAccess(boolean allowPrivateAccess) {
             this.allowPrivateAccess = allowPrivateAccess;
             return this;
         }
 
         public InitOptions build() {
-            return new InitOptions(useCacheClear, classSupplier, allowPrivateAccess);
+            return new InitOptions(useCacheClear, classSupplier, defaultImport,
+                    debug, debugInfoConsumer, allowPrivateAccess);
         }
     }
 }
