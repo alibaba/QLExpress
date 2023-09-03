@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
 import com.alibaba.qlexpress4.runtime.data.ListItemValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Array;
@@ -34,8 +35,8 @@ public class IndexInstruction extends QLInstruction {
         Object index = qContext.pop().get();
         Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
-            Number indexNumber = assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg());
+            Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
+                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
             int intIndex = indexNumber.intValue();
             List<? super Object> list = (List<? super Object>) indexAble;
             if (intIndex < 0 || intIndex >= list.size()) {
@@ -45,8 +46,8 @@ public class IndexInstruction extends QLInstruction {
         } else if (indexAble instanceof Map) {
             qContext.push(new MapItemValue((Map<?, ?>) indexAble, index));
         } else if (indexAble != null && indexAble.getClass().isArray()) {
-            Number indexNumber = assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg());
+            Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
+                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
             int intIndex = indexNumber.intValue();
             if (intIndex < 0 || intIndex >= Array.getLength(indexAble)) {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
@@ -72,12 +73,5 @@ public class IndexInstruction extends QLInstruction {
     @Override
     public void println(int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, "Index", debug);
-    }
-
-    private <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg) {
-        if (obj != null && assertType.isAssignableFrom(obj.getClass())) {
-            return assertType.cast(obj);
-        }
-        throw errorReporter.report(errCode, errMsg);
     }
 }

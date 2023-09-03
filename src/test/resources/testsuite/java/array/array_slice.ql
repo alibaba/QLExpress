@@ -1,0 +1,11 @@
+a = new int[] {1, 2, 3, 4};
+assert(a[1:2][0] == 2);
+b = a[-88:100];
+assert(b.length == 4);
+assert(b[0] == 1);
+assert(b[1] == 2);
+assert(b[2] == 3);
+assert(b[3] == 4);
+assert(a[:1].length == 1);
+assert(a[:1][0] == 1);
+assert(a[3:][0] == 4);

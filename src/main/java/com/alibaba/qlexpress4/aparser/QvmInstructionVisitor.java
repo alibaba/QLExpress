@@ -769,7 +769,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             return false;
         }
         IndexExprContext indexExprContext = (IndexExprContext) pathPartContext;
-        return indexExprContext.expression() == null;
+        return indexExprContext.indexValueExpr() == null;
     }
 
     @Override
@@ -836,12 +836,30 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitIndexExpr(IndexExprContext ctx) {
-        ExpressionContext indexExpression = ctx.expression();
-        if (indexExpression == null) {
+        IndexValueExprContext indexValueExprContext = ctx.indexValueExpr();
+        if (indexValueExprContext == null) {
             throw reportParseErr(ctx.getStop(), "MISSING_INDEX", "missing index expression");
         }
-        indexExpression.accept(this);
-        addInstruction(new IndexInstruction(newReporterWithToken(ctx.getStart())));
+        ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
+        if (indexValueExprContext instanceof SingleIndexContext) {
+            ((SingleIndexContext) indexValueExprContext).expression().accept(this);
+            addInstruction(new IndexInstruction(errorReporter));
+        } else if (indexValueExprContext instanceof SliceIndexContext) {
+            SliceIndexContext sliceIndexContext = (SliceIndexContext) indexValueExprContext;
+            if (sliceIndexContext.start == null && sliceIndexContext.end == null) {
+                addInstruction(new SliceInstruction(errorReporter, SliceInstruction.Mode.COPY));
+            } else if (sliceIndexContext.start == null) {
+                sliceIndexContext.end.accept(this);
+                addInstruction(new SliceInstruction(errorReporter, SliceInstruction.Mode.LEFT));
+            } else if (sliceIndexContext.end == null) {
+                sliceIndexContext.start.accept(this);
+                addInstruction(new SliceInstruction(errorReporter, SliceInstruction.Mode.RIGHT));
+            } else {
+                sliceIndexContext.start.accept(this);
+                sliceIndexContext.end.accept(this);
+                addInstruction(new SliceInstruction(errorReporter, SliceInstruction.Mode.BOTH));
+            }
+        }
         return null;
     }
 

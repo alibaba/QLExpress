@@ -52,7 +52,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/string/interpolation.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/array/slice.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

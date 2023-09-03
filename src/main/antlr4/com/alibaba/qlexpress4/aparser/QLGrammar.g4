@@ -1291,13 +1291,18 @@ idMapKey
     ;
 
 pathPart
-    : '.' varId '(' argumentList? ')' # methodInvoke
-    | OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
-    | '.' (varId | CLASS) # fieldAccess
-    | OPTIONAL_CHAINING (varId | CLASS) # optionalFieldAccess
-    | DCOLON varId # methodAccess
-    | '(' argumentList? ')' # callExpr
-    | '[' expression? ']' # indexExpr
+    :   '.' varId '(' argumentList? ')' # methodInvoke
+    |   OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
+    |   '.' (varId | CLASS) # fieldAccess
+    |   OPTIONAL_CHAINING (varId | CLASS) # optionalFieldAccess
+    |   DCOLON varId # methodAccess
+    |   '(' argumentList? ')' # callExpr
+    |   '[' indexValueExpr? ']' # indexExpr
+    ;
+
+indexValueExpr
+    :   expression # singleIndex
+    |   start=expression? ':' end=expression? # sliceIndex
     ;
 
 argumentList
