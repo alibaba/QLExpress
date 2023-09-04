@@ -208,27 +208,15 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    /**
-     * 参考groovy
-     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareEqual
-     * org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation#compareToWithEqualityCheck
-     *
-     * @param left
-     * @param right
-     * @param errorReporter
-     * @return
-     */
     protected int compare(Value left, Value right, ErrorReporter errorReporter) {
         if (Objects.equals(left.get(), right.get())) {
             return 0;
         }
 
-        // TODO bingo 参考 groovy
         if (isSameType(left, right) && isInstanceofComparable(left)) {
             return ((Comparable)(left.get())).compareTo(right.get());
         }
 
-        // TODO bingo 两个都实现Comparable接口，参考groovy
         if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get());
         }
