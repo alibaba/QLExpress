@@ -300,6 +300,7 @@ OR_ASSIGN: '|=';
 MUL_ASSIGN: '*=';
 MOD_ASSIGN: '%=';
 DIV_ASSIGN: '/=';
+XOR_ASSIGN: '^=';
 
 // prefix suffix operator
 BANG : '!';
@@ -1359,6 +1360,7 @@ assignOperator
     |   MUL_ASSIGN
     |   MOD_ASSIGN
     |   DIV_ASSIGN
+    |   XOR_ASSIGN
     ;
 
 opId
