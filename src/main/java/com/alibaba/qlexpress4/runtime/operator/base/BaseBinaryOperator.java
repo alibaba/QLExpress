@@ -56,7 +56,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         }
     }
 
-    protected Object plus(Value left, Value right, ErrorReporter errorReporter) {
+    protected Object plus(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
@@ -69,29 +69,44 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         }
 
         if (isBothNumber(left, right)) {
-            return NumberMath.add((Number)leftValue, (Number)rightValue);
+            if (qlOptions.isPrecise()) {
+                return NumberMath.add(NumberMath.toBigDecimal((Number)leftValue),
+                    NumberMath.toBigDecimal((Number)rightValue));
+            } else {
+                return NumberMath.add((Number)leftValue, (Number)rightValue);
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected Object minus(Value left, Value right, ErrorReporter errorReporter) {
+    protected Object minus(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
         if (isBothNumber(left, right)) {
-            return NumberMath.subtract((Number)leftValue, (Number)rightValue);
+            if (qlOptions.isPrecise()) {
+                return NumberMath.subtract(NumberMath.toBigDecimal((Number)leftValue),
+                    NumberMath.toBigDecimal((Number)rightValue));
+            } else {
+                return NumberMath.subtract((Number)leftValue, (Number)rightValue);
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected Object multiply(Value left, Value right, ErrorReporter errorReporter) {
+    protected Object multiply(Value left, Value right, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
 
         if (isBothNumber(left, right)) {
-            return NumberMath.multiply((Number)leftValue, (Number)rightValue);
+            if (qlOptions.isPrecise()) {
+                return NumberMath.multiply(NumberMath.toBigDecimal((Number)leftValue),
+                    NumberMath.toBigDecimal((Number)rightValue));
+            } else {
+                return NumberMath.multiply((Number)leftValue, (Number)rightValue);
+            }
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
@@ -104,8 +119,8 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         if (isBothNumber(left, right)) {
             try {
                 if (qlOptions.isPrecise()) {
-                    return NumberMath.toBigDecimal((Number)leftValue)
-                        .divide(NumberMath.toBigDecimal((Number)rightValue));
+                    return NumberMath.divide(NumberMath.toBigDecimal((Number)leftValue),
+                        NumberMath.toBigDecimal((Number)rightValue));
                 } else {
                     return NumberMath.divide((Number)leftValue, (Number)rightValue);
                 }

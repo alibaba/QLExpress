@@ -53,7 +53,7 @@ public class TestSuiteRunner {
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
         //Path filePath = getTestSuiteRoot().resolve("independent/array/slice.ql");
-        Path filePath = getTestSuiteRoot().resolve("independent/operator/bitwise.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/big_decimal.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

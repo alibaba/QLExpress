@@ -26,7 +26,7 @@ public class MultiplyAssignOperator extends BaseBinaryOperator {
         ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object result = multiply(left, right, errorReporter);
+        Object result = multiply(left, right, qlOptions, errorReporter);
         leftValue.set(result, errorReporter);
         return result;
     }

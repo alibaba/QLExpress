@@ -25,7 +25,7 @@ public class PlusOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
-        return plus(left, right, errorReporter);
+        return plus(left, right, qlOptions, errorReporter);
     }
 
     @Override

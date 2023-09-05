@@ -23,7 +23,7 @@ public class MinusOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
-        return minus(left, right, errorReporter);
+        return minus(left, right, qlOptions, errorReporter);
     }
 
     @Override

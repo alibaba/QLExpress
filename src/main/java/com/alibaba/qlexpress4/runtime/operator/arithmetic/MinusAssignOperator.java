@@ -26,7 +26,7 @@ public class MinusAssignOperator extends BaseBinaryOperator {
         ErrorReporter errorReporter) {
         assertLeftValue(left, errorReporter);
         LeftValue leftValue = (LeftValue)left;
-        Object result = minus(left, right, errorReporter);
+        Object result = minus(left, right, qlOptions, errorReporter);
         leftValue.set(result, errorReporter);
         return result;
     }

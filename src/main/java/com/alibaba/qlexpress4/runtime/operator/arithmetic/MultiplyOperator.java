@@ -23,7 +23,7 @@ public class MultiplyOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
-        return multiply(left, right, errorReporter);
+        return multiply(left, right, qlOptions, errorReporter);
     }
 
     @Override
