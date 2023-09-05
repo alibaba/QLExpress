@@ -26,7 +26,7 @@ public class BitwiseInvertOperator extends BaseUnaryOperator {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
 
-        return NumberMath.bitwiseNegate((Number)value);
+        return NumberMath.bitwiseNegate((Number)operand);
     }
 
     @Override
