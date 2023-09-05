@@ -47,7 +47,6 @@ public class MethodInvokeInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
-        // TODO: 数组遍历优化
         Class<?>[] type = new Class[this.argNum];
         Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
         for (int i = 0; i < this.argNum; i++) {
@@ -64,9 +63,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<ReflectLoader.PolyMethods> polyMethodsOp = bean instanceof MetaClass?
-                reflectLoader.loadStaticMethod(((MetaClass) bean).getClz(), methodName):
-                reflectLoader.loadMemberMethod(bean, methodName);
+        Optional<ReflectLoader.PolyMethods> polyMethodsOp = reflectLoader.loadMethod(bean, methodName);
         Optional<MethodReflect> methodReflectOp = polyMethodsOp.flatMap(polyMethods -> polyMethods.getMethod(type));
         if (!methodReflectOp.isPresent()) {
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean);

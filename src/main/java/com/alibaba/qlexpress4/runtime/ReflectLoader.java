@@ -69,6 +69,12 @@ public class ReflectLoader {
         }
     }
 
+    public Optional<PolyMethods> loadMethod(Object bean, String methodName) {
+        return bean instanceof MetaClass?
+                loadStaticMethod(((MetaClass) bean).getClz(), methodName):
+                loadMemberMethod(bean, methodName);
+    }
+
     public Optional<PolyMethods> loadStaticMethod(Class<?> cls, String methodName) {
         return staticMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(cls, methodName), ignore -> {
             List<Method> clzMethods = PropertiesUtil.getClzMethod(cls, methodName, allowPrivateAccess);

@@ -38,9 +38,7 @@ public class GetMethodInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<ReflectLoader.PolyMethods> polyMethodsOp = bean instanceof MetaClass?
-                reflectLoader.loadStaticMethod(((MetaClass) bean).getClz(), methodName):
-                reflectLoader.loadMemberMethod(bean, methodName);
+        Optional<ReflectLoader.PolyMethods> polyMethodsOp = reflectLoader.loadMethod(bean, methodName);
         if (!polyMethodsOp.isPresent()) {
             throw errorReporter.report("METHOD_NOT_FOUND", "'" + methodName + "' not found");
         }
