@@ -15,6 +15,7 @@ import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,6 +32,7 @@ public class TestSuiteRunner {
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
     private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
+            .securityStrategy(QLSecurityStrategy.open())
             .defaultImport(Arrays.asList(
                     ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
                     ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
@@ -85,8 +87,8 @@ public class TestSuiteRunner {
         Optional<InitOptions.Builder> initOptionsBuilder = scriptOptionOp.map(scriptOption ->
                 (InitOptions.Builder) scriptOption.get("initOptions"));
         InitOptions initOptions = initOptionsBuilder.isPresent()?
-                initOptionsBuilder.get().debug(debug).build():
-                InitOptions.DEFAULT_OPTIONS;
+                initOptionsBuilder.get().securityStrategy(QLSecurityStrategy.open()).debug(debug).build():
+                InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).debug(debug).build();
         Express4Runner express4Runner = prepareRunner(initOptions);
         if (errCodeOp.isPresent()) {
             assertErrCode(express4Runner, path, qlScript, QLOptions.builder()

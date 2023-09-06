@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -22,7 +23,9 @@ public class Express4RunnerTest {
         String script = "a = new HashMap<>();" +
                 "a['aaa'] = 'bbb';" +
                 "a";
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
         Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertTrue(result instanceof HashMap);
         assertEquals("bbb", ((HashMap<?, ?>) result).get("aaa"));

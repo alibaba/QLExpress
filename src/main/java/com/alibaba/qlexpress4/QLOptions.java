@@ -47,8 +47,6 @@ public class QLOptions {
      */
     private final boolean cache;
 
-    private final QLSecurityStrategy securityStrategy;
-
     /**
      * avoid null pointer
      * default false
@@ -56,14 +54,12 @@ public class QLOptions {
     private final boolean avoidNullPointer;
 
     private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
-                      Map<String, Object> attachments, boolean cache,
-                      QLSecurityStrategy securityStrategy, boolean avoidNullPointer) {
+                      Map<String, Object> attachments, boolean cache, boolean avoidNullPointer) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.timeoutMillis = timeoutMillis;
         this.attachments = attachments;
         this.cache = cache;
-        this.securityStrategy = securityStrategy;
         this.avoidNullPointer = avoidNullPointer;
     }
 
@@ -91,10 +87,6 @@ public class QLOptions {
         return cache;
     }
 
-    public QLSecurityStrategy getSecurityStrategy() {
-        return securityStrategy;
-    }
-
     public boolean isAvoidNullPointer() {
         return avoidNullPointer;
     }
@@ -109,8 +101,6 @@ public class QLOptions {
         private Map<String, Object> attachments = Collections.emptyMap();
 
         private boolean cache = true;
-
-        private QLSecurityStrategy securityStrategy;
 
         private boolean avoidNullPointer = false;
 
@@ -139,11 +129,6 @@ public class QLOptions {
             return this;
         }
 
-        public Builder securityStrategy(QLSecurityStrategy securityStrategy) {
-            this.securityStrategy = securityStrategy;
-            return this;
-        }
-
         public Builder avoidNullPointer(boolean avoidNullPointer) {
             this.avoidNullPointer = avoidNullPointer;
             return this;
@@ -151,7 +136,7 @@ public class QLOptions {
 
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, timeoutMillis,
-                attachments, cache, securityStrategy, avoidNullPointer);
+                attachments, cache, avoidNullPointer);
         }
     }
 }
