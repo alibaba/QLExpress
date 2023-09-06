@@ -14,6 +14,7 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 
@@ -48,13 +49,18 @@ public class NewInstruction extends QLInstruction {
             paramTypes[i] = v.getType();
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        ConstructorReflect constructorReflect = reflectLoader.loadConstructor(newClz, paramTypes);
+        Optional<ConstructorReflect> constructorReflectOp = reflectLoader.loadConstructor(newClz, paramTypes);
+        if (!constructorReflectOp.isPresent()) {
+            throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
+                    "constructor not found for types %s", Arrays.toString(paramTypes));
+        }
+        ConstructorReflect constructorReflect = constructorReflectOp.get();
         QLConvertResult convertResult = ParametersConversion.convert(objs, paramTypes,
                 constructorReflect.getConstructor().getParameterTypes(),
                 constructorReflect.needImplicitTrans(),constructorReflect.getVars());
         if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
             throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
-                    "%s's constructor not found for types %s", newClz.getName(), Arrays.toString(paramTypes));
+                    "constructor not found for types %s", Arrays.toString(paramTypes));
         }
         Object newObject = newObject(constructorReflect.getConstructor(), (Object[]) convertResult.getCastValue());
         Value dataInstruction = new DataValue(newObject);

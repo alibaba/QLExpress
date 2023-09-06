@@ -39,7 +39,7 @@ public class Express4Runner {
 
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
-        this.reflectLoader = new ReflectLoader(initOptions.allowPrivateAccess());
+        this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.allowPrivateAccess());
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
@@ -72,7 +72,7 @@ public class Express4Runner {
         }));
     }
 
-    public <T, R> boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
+    public boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
         return addFunction(name, new QLambdaFunction(params -> {
             Object array = Array.newInstance(Object.class, params.length);
             for (int i = 0; i < params.length; i++) {

@@ -10,11 +10,13 @@ import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.data.implicit.ConstructorReflect;
 import com.alibaba.qlexpress4.runtime.data.implicit.MethodReflect;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,9 +30,11 @@ import java.util.function.Supplier;
  */
 public class ReflectLoader {
 
+    private final QLSecurityStrategy securityStrategy;
+
     private final boolean allowPrivateAccess;
 
-    private final Map<List<Class<?>>, ConstructorReflect> constructorCache = new ConcurrentHashMap<>();
+    private final Map<List<Class<?>>, Optional<ConstructorReflect>> constructorCache = new ConcurrentHashMap<>();
 
     private final Map<List<?>, Optional<FieldReflectCache>> fieldCache = new ConcurrentHashMap<>();
 
@@ -38,17 +42,24 @@ public class ReflectLoader {
 
     private final Map<Map.Entry<Class<?>, String>, Optional<PolyMethods>> memberMethodCache = new ConcurrentHashMap<>();
 
-    public ReflectLoader(boolean allowPrivateAccess) {
+    public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
+        this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
-    public ConstructorReflect loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
+    public Optional<ConstructorReflect> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         List<Class<?>> cacheKey = new ArrayList<>(paramTypes.length + 1);
         cacheKey.add(cls);
         cacheKey.addAll(Arrays.asList(paramTypes));
 
-        return constructorCache.computeIfAbsent(cacheKey, ignore ->
-                ConstructorHandler.Preferred.findConstructorMostSpecificSignature(cls, paramTypes, allowPrivateAccess));
+        return constructorCache.computeIfAbsent(cacheKey, ignore -> loadConstructInner(cls, paramTypes));
+    }
+
+    private Optional<ConstructorReflect> loadConstructInner(Class<?> cls, Class<?>[] paramTypes) {
+        ConstructorReflect constructorReflect = ConstructorHandler.Preferred
+                .findConstructorMostSpecificSignature(cls, paramTypes, allowPrivateAccess);
+        return Optional.ofNullable(constructorReflect)
+                .filter(constructor -> securityFilter(constructor.getConstructor()) != null);
     }
 
     public Value loadField(Object bean, String fieldName, ErrorReporter errorReporter) {
@@ -104,7 +115,7 @@ public class ReflectLoader {
     private Value loadJavaField(Class<?> cls, Object bean, String fieldName, ErrorReporter errorReporter) {
         Optional<FieldReflectCache> fieldReflectCacheOp = fieldCache.computeIfAbsent(
                 Arrays.asList(cls, fieldName),
-                ignore -> loadFieldInner(cls, fieldName)
+                ignore -> loadJavaFieldInner(cls, fieldName)
         );
         if (!fieldReflectCacheOp.isPresent()) {
             return null;
@@ -118,16 +129,20 @@ public class ReflectLoader {
         return new FieldValue(getterOp, setterOp, fieldReflectCache.defType);
     }
 
-    private Optional<FieldReflectCache> loadFieldInner(Class<?> cls, String fieldName) {
-        Method getMethod = MethodHandler.getGetter(cls, fieldName);
-        Field field = FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName);
+    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName) {
+        Method getMethod = securityFilter(MethodHandler.getGetter(cls, fieldName));
+        Field field = securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
         BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier = fieldGetter(getMethod, field);
         if (getterSupplier == null) {
             return Optional.empty();
         }
-        Method setMethod = MethodHandler.getSetter(cls, fieldName);
+        Method setMethod = securityFilter(MethodHandler.getSetter(cls, fieldName));
         BiFunction<ErrorReporter, Object, Consumer<Object>> setterSupplier = fieldSetter(setMethod, field);
         return Optional.of(new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field)));
+    }
+
+    private <T extends Member> T securityFilter(T member) {
+        return securityStrategy.check(member)? member: null;
     }
 
     private Class<?> fieldDefCls(Method setMethod, Field field) {
@@ -289,7 +304,7 @@ public class ReflectLoader {
         }
     }
 
-    public static class PolyMethods {
+    public class PolyMethods {
 
         private final List<Method> methods;
 
@@ -300,9 +315,14 @@ public class ReflectLoader {
         }
 
         public Optional<MethodReflect> getMethod(Class<?>[] paramTypes) {
-            return typesMethod.computeIfAbsent(Arrays.asList(paramTypes), ignore ->
-                    Optional.ofNullable(MethodHandler.Preferred
-                            .findMostSpecificMethod(paramTypes, methods.toArray(new Method[0]))));
+            return typesMethod.computeIfAbsent(Arrays.asList(paramTypes), ignore -> getMethodInner(paramTypes));
+        }
+
+        private Optional<MethodReflect> getMethodInner(Class<?>[] paramTypes) {
+            MethodReflect mostSpecificMethod = MethodHandler.Preferred
+                    .findMostSpecificMethod(paramTypes, methods.toArray(new Method[0]));
+            return Optional.ofNullable(mostSpecificMethod)
+                    .filter(methodReflect -> securityFilter(methodReflect.getMethod()) != null);
         }
     }
 }

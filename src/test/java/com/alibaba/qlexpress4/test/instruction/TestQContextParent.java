@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.test.instruction;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class TestQContextParent implements QContext {
 
     public TestQContextParent(boolean allowPrivateAccess) {
         this.allowPrivateAccess = allowPrivateAccess;
-        this.reflectLoader = new ReflectLoader(allowPrivateAccess);
+        this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), allowPrivateAccess);
     }
 
     public Value getValue() {

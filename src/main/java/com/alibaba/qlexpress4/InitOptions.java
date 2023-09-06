@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4;
 
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,12 @@ public class InitOptions {
     private final Consumer<String> debugInfoConsumer;
 
     /**
+     * qlexpress security strategy
+     * default is isolation, not allow any access to java
+     */
+    private final QLSecurityStrategy securityStrategy;
+
+    /**
      * allow access private field and method
      * default false
      */
@@ -51,12 +58,13 @@ public class InitOptions {
     private InitOptions(boolean useCacheClear, ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
-                        boolean allowPrivateAccess) {
+                        QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.useCacheClear = useCacheClear;
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
         this.debugInfoConsumer = debugInfoConsumer;
+        this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
@@ -84,6 +92,10 @@ public class InitOptions {
         return debugInfoConsumer;
     }
 
+    public QLSecurityStrategy getSecurityStrategy() {
+        return securityStrategy;
+    }
+
     public boolean allowPrivateAccess() {
         return allowPrivateAccess;
     }
@@ -100,6 +112,7 @@ public class InitOptions {
         );
         private boolean debug = false;
         private Consumer<String> debugInfoConsumer = System.out::println;
+        private QLSecurityStrategy securityStrategy = QLSecurityStrategy.isolation();
         private boolean allowPrivateAccess = false;
 
         public Builder useCacheClear(boolean useCacheClear) {
@@ -127,6 +140,11 @@ public class InitOptions {
             return this;
         }
 
+        public Builder securityStrategy(QLSecurityStrategy securityStrategy) {
+            this.securityStrategy = securityStrategy;
+            return this;
+        }
+
         public Builder allowPrivateAccess(boolean allowPrivateAccess) {
             this.allowPrivateAccess = allowPrivateAccess;
             return this;
@@ -134,7 +152,7 @@ public class InitOptions {
 
         public InitOptions build() {
             return new InitOptions(useCacheClear, classSupplier, defaultImport,
-                    debug, debugInfoConsumer, allowPrivateAccess);
+                    debug, debugInfoConsumer, securityStrategy, allowPrivateAccess);
         }
     }
 }
