@@ -37,9 +37,9 @@ public class OperatorInstruction extends QLInstruction {
             qContext.push(new DataValue(result));
             return QResult.NEXT_INSTRUCTION;
         } catch (Throwable t) {
-            throw  ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_EXECUTE_EXCEPTION",
-                    "execute %s %s %s throw exception", String.valueOf(leftValue.get()), operator.getOperator(),
-                    String.valueOf(rightValue.get()));
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_EXECUTE_EXCEPTION",
+                "execute %s %s %s throw exception", String.valueOf(leftValue.get()), operator.getOperator(),
+                String.valueOf(rightValue.get()));
         }
     }
 
