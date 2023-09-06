@@ -54,7 +54,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/operator/boolean.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/double.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
