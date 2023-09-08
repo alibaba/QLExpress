@@ -16,7 +16,6 @@ import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
