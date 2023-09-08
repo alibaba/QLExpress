@@ -48,8 +48,8 @@ else {
 assert(r)
 
 // expression
-def x = 5 // TODO bingo 为啥def不报错
-def value = x > 2
+x = 5
+value = x > 2
 assert(value)
 
 value = x < 2
