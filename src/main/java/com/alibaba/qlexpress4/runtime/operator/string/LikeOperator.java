@@ -12,24 +12,10 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * Author: DQinYuan
  */
 public class LikeOperator extends BaseBinaryOperator {
-
     private static final LikeOperator INSTANCE = new LikeOperator();
 
     public static BinaryOperator getInstance() {
         return INSTANCE;
-    }
-
-    @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
-        Object target = left.get();
-        Object pattern = right.get();
-        if (target == null || pattern == null) {
-            return false;
-        }
-        if (!(target instanceof String) || !(pattern instanceof String)) {
-            throw buildInvalidOperandTypeException(left, right, errorReporter);
-        }
-        return matchPattern((String) target, (String) pattern);
     }
 
     private static boolean matchPattern(String s, String pattern) {
@@ -55,6 +41,20 @@ public class LikeOperator extends BaseBinaryOperator {
             pPointer++;
         }
         return pPointer == pLen;
+    }
+
+    @Override
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
+        Object target = left.get();
+        Object pattern = right.get();
+        if (target == null || pattern == null) {
+            return false;
+        }
+        if (!(target instanceof String) || !(pattern instanceof String)) {
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        }
+        return matchPattern((String)target, (String)pattern);
     }
 
     @Override
