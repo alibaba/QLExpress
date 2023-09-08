@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
@@ -12,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.alibaba.qlexpress4.aparser.*;
+import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
 import com.alibaba.qlexpress4.exception.QLException;
@@ -34,6 +34,7 @@ public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
     private final Map<String, Future<QLambdaDefinitionInner>> compileCache = new ConcurrentHashMap<>();
     private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
+    private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
     private final ReflectLoader reflectLoader;
     private final InitOptions initOptions;
 
@@ -138,6 +139,16 @@ public class Express4Runner {
         return result;
     }
 
+    /**
+     * add compile time function
+     * @param name function name
+     * @param compileTimeFunction definition
+     * @return true if successful
+     */
+    public boolean addCompileTimeFunction(String name, CompileTimeFunction compileTimeFunction) {
+        return compileTimeFunctions.putIfAbsent(name, compileTimeFunction) == null;
+    }
+
     public QLGrammarParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(
                 script, operatorManager, initOptions.isDebug(),
@@ -186,7 +197,7 @@ public class Express4Runner {
     private QLambdaDefinitionInner parseDefinition(String script) {
         QLGrammarParser.ProgramContext program = parseToSyntaxTree(script);
         QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script,
-                inheritDefaultImport(), operatorManager);
+                inheritDefaultImport(), operatorManager, compileTimeFunctions);
         program.accept(qvmInstructionVisitor);
 
         QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",

@@ -148,7 +148,6 @@ public class MethodHandler extends MemberHandler {
             }
         }
 
-
         public static List<Method> addCandidatesMethod(Method[] methods, String methodName, boolean argCheck,
                                                        Integer numArgs, boolean publicOnly, boolean isStatic, List<Method> candidates) {
             for (Method method : methods) {

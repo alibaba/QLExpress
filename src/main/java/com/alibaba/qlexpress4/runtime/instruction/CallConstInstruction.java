@@ -12,28 +12,36 @@ import java.util.function.Consumer;
 
 /**
  * @Operation: call const lambda
- * @Input: 0
+ * @Input: ${argNum}
  * @Output: 1 const lambda result
  * <p>
  * Author: DQinYuan
  */
 public class CallConstInstruction extends QLInstruction {
 
-    private final QLambdaDefinition constLambda;
+    private final QLambda constLambda;
 
-    public CallConstInstruction(ErrorReporter errorReporter, QLambdaDefinition constLambda) {
+    private final int argNum;
+
+    private final String lambdaName;
+
+    public CallConstInstruction(ErrorReporter errorReporter, QLambda constLambda, int argNum, String lambdaName) {
         super(errorReporter);
         this.constLambda = constLambda;
+        this.argNum = argNum;
+        this.lambdaName = lambdaName;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        QLambda lambda = constLambda.toLambda(qContext, qlOptions, true);
+        Parameters args = qContext.pop(argNum);
+        Object[] argArr = new Object[argNum];
+        for (int i = 0; i < argNum; i++) {
+            argArr[i] = args.getValue(i);
+        }
+
         try {
-            QResult result = lambda.call();
-            if (QResult.ResultType.RETURN == result.getResultType()) {
-                return result;
-            }
+            QResult result = constLambda.call(argArr);
             qContext.push(ValueUtils.toImmutable(result.getResult()));
             return QResult.NEXT_INSTRUCTION;
         } catch (UserDefineException e) {
@@ -45,7 +53,7 @@ public class CallConstInstruction extends QLInstruction {
 
     @Override
     public int stackInput() {
-        return 0;
+        return argNum;
     }
 
     @Override
@@ -55,7 +63,6 @@ public class CallConstInstruction extends QLInstruction {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CallConst " + constLambda.getName(), debug);
-        constLambda.println(depth+1, debug);
+        PrintlnUtils.printlnByCurDepth(depth, "CallConstLambda " + lambdaName, debug);
     }
 }

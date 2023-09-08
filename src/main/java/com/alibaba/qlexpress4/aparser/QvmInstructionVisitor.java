@@ -1,6 +1,8 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.DefaultClassSupplier;
+import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
+import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.DefaultErrReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLException;
@@ -15,6 +17,7 @@ import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 
@@ -68,6 +71,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private final OperatorFactory operatorFactory;
 
+    private final Map<String, CompileTimeFunction> compileTimeFunctions;
+
     private final Context context;
 
     private final List<QLInstruction> instructionList = new ArrayList<>();
@@ -88,12 +93,14 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
      * main
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
-                                 OperatorFactory operatorFactory) {
+                                 OperatorFactory operatorFactory,
+                                 Map<String, CompileTimeFunction> compileTimeFunctions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = new GeneratorScope("main", null);
         this.operatorFactory = operatorFactory;
         this.context = Context.BLOCK;
+        this.compileTimeFunctions = compileTimeFunctions;
     }
 
     /**
@@ -101,14 +108,18 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  GeneratorScope generatorScope, OperatorFactory operatorFactory,
-                                 Context context) {
+                                 Context context, Map<String, CompileTimeFunction> compileTimeFunctions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
         this.operatorFactory = operatorFactory;
         this.context = context;
+        this.compileTimeFunctions = compileTimeFunctions;
     }
 
+    /**
+     * visible for testing
+     */
     public QvmInstructionVisitor(String script) {
         this.script = script;
         this.importManager = new ImportManager(DefaultClassSupplier.getInstance(),
@@ -116,6 +127,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         this.generatorScope = new GeneratorScope("MAIN", null);
         this.operatorFactory = new OperatorManager();
         this.context = Context.BLOCK;
+        this.compileTimeFunctions = new HashMap<>();
     }
 
     @Override
@@ -718,14 +730,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             // call function
             CallExprContext callExprContext = (CallExprContext) pathPartContexts.get(0);
             ArgumentListContext argumentListContext = callExprContext.argumentList();
-            if (argumentListContext != null) {
-                argumentListContext.accept(this);
-            }
-            int argSize = argumentListContext == null? 0: argumentListContext.expression().size();
-            String functionName = idContext.getText();
-            addInstruction(
-                    new CallFunctionInstruction(newReporterWithToken(idContext.getStart()), functionName, argSize)
-            );
+            visitCallFunction(idContext, argumentListContext);
             return 1;
         }
         List<String> headPartIds = new ArrayList<>();
@@ -967,14 +972,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         if (pathPartContexts.size() == 1 && pathPartContexts.get(0) instanceof CallExprContext) {
             CallExprContext callExprContext = (CallExprContext) pathPartContexts.get(0);
             ArgumentListContext argumentListContext = callExprContext.argumentList();
-            if (argumentListContext != null) {
-                argumentListContext.accept(this);
-            }
-            int argSize = argumentListContext == null? 0: argumentListContext.expression().size();
-            String functionName = idContext.getText();
-            addInstruction(
-                    new CallFunctionInstruction(newReporterWithToken(idContext.getStart()), functionName, argSize)
-            );
+            visitCallFunction(idContext, argumentListContext);
         } else {
             int tailPartStart = parseIdHeadPart(idContext, pathPartContexts);
             for (int i = tailPartStart; i < pathPartContexts.size(); i++) {
@@ -982,6 +980,67 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             }
         }
         return null;
+    }
+
+    private void visitCallFunction(VarIdContext functionNameContext, ArgumentListContext argumentListContext) {
+        String functionName = functionNameContext.getText();
+        CompileTimeFunction compileTimeFunction = compileTimeFunctions.get(functionName);
+        if (compileTimeFunction != null) {
+            ErrorReporter functionNameReporter = newReporterWithToken(functionNameContext.getStart());
+            compileTimeFunction.createFunctionInstruction(
+                    functionName, argumentListContext == null ?
+                            Collections.emptyList() : argumentListContext.expression(),
+                    operatorFactory, new CodeGenerator() {
+                        @Override
+                        public void addInstruction(QLInstruction qlInstruction) {
+                            QvmInstructionVisitor.this.addInstruction(qlInstruction);
+                        }
+
+                        @Override
+                        public void addInstructionsByTree(ParseTree tree) {
+                            tree.accept(QvmInstructionVisitor.this);
+                        }
+
+                        @Override
+                        public QLSyntaxException reportParseErr(String errCode, String errReason) {
+                            return QvmInstructionVisitor.this.reportParseErr(functionNameContext.getStart(),
+                                    errCode, errReason);
+                        }
+
+                        @Override
+                        public QLambdaDefinition generateLambdaDefinition(ExpressionContext expressionContext, List<QLambdaDefinitionInner.Param> params) {
+                            QvmInstructionVisitor subVisitor = parseExprBodyWithSubVisitor(expressionContext, generatorScope, context);
+                            subVisitor.visitBodyExpression(expressionContext);
+                            return new QLambdaDefinitionInner(functionName, subVisitor.getInstructions(), params, subVisitor.getMaxStackSize());
+                        }
+
+                        @Override
+                        public ErrorReporter getErrorReporter() {
+                            return functionNameReporter;
+                        }
+
+                        @Override
+                        public ErrorReporter newReporterWithToken(Token token) {
+                            return QvmInstructionVisitor.this.newReporterWithToken(token);
+                        }
+
+                        @Override
+                        public ErrorReporter newReporterWithMultiToken(Token start, Token end) {
+                            return QvmInstructionVisitor.this.newReportWithMultiToken(start, end);
+                        }
+                    }
+
+            );
+            return;
+        }
+
+        if (argumentListContext != null) {
+            argumentListContext.accept(this);
+        }
+        int argSize = argumentListContext == null? 0: argumentListContext.expression().size();
+        addInstruction(
+                new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName, argSize)
+        );
     }
 
     @Override
@@ -1381,7 +1440,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private QvmInstructionVisitor parseWithSubVisitor(RuleContext ruleContext, GeneratorScope generatorScope,
                                                       Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context);
+                generatorScope, operatorFactory, context, compileTimeFunctions);
         ruleContext.accept(subVisitor);
         return subVisitor;
     }
@@ -1389,7 +1448,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private QvmInstructionVisitor parseExprBodyWithSubVisitor(ExpressionContext expressionContext,
                                                               GeneratorScope generatorScope, Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context);
+                generatorScope, operatorFactory, context, compileTimeFunctions);
         subVisitor.visitBodyExpression(expressionContext);
         return subVisitor;
     }
