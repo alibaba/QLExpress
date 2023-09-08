@@ -37,17 +37,13 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         return left.get() instanceof Number && right.get() instanceof Number;
     }
 
-    protected boolean isNumberCharacter(Object leftValue, Object rightValue) {
-        return (leftValue instanceof Character && rightValue instanceof Number)
-            || (leftValue instanceof Number && rightValue instanceof Character);
+    protected boolean isNumberCharacter(Value left, Value right) {
+        return (left.get() instanceof Character && right.get() instanceof Number)
+            || (left.get() instanceof Number && right.get() instanceof Character);
     }
 
-    protected boolean isCharacter(Object value) {
-        return value instanceof Character;
-    }
-
-    protected boolean isNumber(Object value) {
-        return value instanceof Number;
+    protected boolean isNumber(Value value) {
+        return value.get() instanceof Number;
     }
 
     protected void assertLeftValue(Value left, ErrorReporter errorReporter) {
@@ -228,28 +224,31 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return 0;
         }
 
-        if (isSameType(left, right) && isInstanceofComparable(left)) {
-            return ((Comparable)(left.get())).compareTo(right.get());
-        }
-
         if (isBothNumber(left, right)) {
             return NumberMath.compareTo((Number)left.get(), (Number)right.get());
+        }
+
+        if (isNumberCharacter(left, right)) {
+            if (isNumber(left)) {
+                return NumberMath.compareTo((Number)left.get(), (int)(Character)right.get());
+            } else {
+                return NumberMath.compareTo((int)(Character)left.get(), (Number)right.get());
+            }
+        }
+
+        if (isSameType(left, right) && isInstanceofComparable(left)) {
+            return ((Comparable)(left.get())).compareTo(right.get());
         }
 
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
-    protected boolean equals(Value left, Value right) {
+    protected boolean equals(Value left, Value right, ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
-        if (isBothNumber(left, right)) {
-            return NumberMath.compareTo((Number)leftValue, (Number)rightValue) == 0;
-        } else if (isNumberCharacter(leftValue, rightValue)) {
-            if (isNumber(leftValue)) {
-                return NumberMath.compareTo((Number)leftValue, (int)(Character)rightValue) == 0;
-            } else {
-                return NumberMath.compareTo((int)(Character)leftValue, (Number)rightValue) == 0;
-            }
+        if (isBothNumber(left, right) || isNumberCharacter(left, right)
+            || (isSameType(left, right) && isInstanceofComparable(left))) {
+            return compare(left, right, errorReporter) == 0;
         } else {
             return Objects.equals(leftValue, rightValue);
         }

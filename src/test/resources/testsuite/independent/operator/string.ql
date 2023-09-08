@@ -11,5 +11,9 @@ y = x + 1
 assert(y == "hello 1.21")
 
 x = "hello" + " " + "there" + " nice" + " day"
-
 assert(x == "hello there nice day")
+
+assert("bc" > "ab")
+assert("bc" > "ab")
+assert("bcd" > "ab")
+assert("bcd" > "abc")

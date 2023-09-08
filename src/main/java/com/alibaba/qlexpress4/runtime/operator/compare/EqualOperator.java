@@ -33,6 +33,6 @@ public class EqualOperator extends BaseBinaryOperator {
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
-        return equals(left, right);
+        return equals(left, right, errorReporter);
     }
 }
