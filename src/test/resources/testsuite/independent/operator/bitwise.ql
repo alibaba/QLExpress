@@ -131,9 +131,9 @@ assert(b == -21); // 0xFFFFFFFB ^ 0x00000010 = 0xFFFFFFEB
 
 // bitwise negation
 assert(~1 == -2); // ~0x00000001 = 0xFFFFFFFE
-// assert(~-1 == 0); // ~0xFFFFFFFF = 0x00000000 TODO bingo 报错
-// assert(~~5 == 5); // ~~0x00000005 = ~0xFFFFFFFA = 0xFFFFFFF5 TODO bingo 报错
+assert(~(-1) == 0); // ~0xFFFFFFFF = 0x00000000
+assert(~(~5) == 5); // ~~0x00000005 = ~0xFFFFFFFA = 0xFFFFFFF5
 a = 13;
 assert(~a == -14); // ~0x0000000D = 0xFFFFFFF2
-// assert(~~a == 13); // ~~0x0000000D = ~0xFFFFFFF2 = 0x0000000D TODO bingo 报错
-// assert(-~a == 14); // -~0x0000000D = -0xFFFFFFF2 = 0x0000000E TODO bingo 报错
+assert(~(~a) == 13); // ~~0x0000000D = ~0xFFFFFFF2 = 0x0000000D
+assert(-(~a) == 14); // -~0x0000000D = -0xFFFFFFF2 = 0x0000000E

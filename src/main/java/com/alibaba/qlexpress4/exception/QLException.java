@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 
 public class QLException extends RuntimeException {
 
-    private static final String REPORT_TEMPLATE = "[Error: {0}]\n[Near: {1}]\n{2}\n[Line: {3}, Column: {4}]";
+    private static final String REPORT_TEMPLATE = "[Error {0}: {1}]\n[Near: {2}]\n{3}\n[Line: {4}, Column: {5}]";
 
     private final int lineNo;
 
@@ -107,7 +107,7 @@ public class QLException extends RuntimeException {
         }
 
         String snippet = snippetBuilder.toString();
-        String message = MessageFormat.format(REPORT_TEMPLATE, reason, snippet,
+        String message = MessageFormat.format(REPORT_TEMPLATE, errorCode, reason, snippet,
                 carteBuilder.toString(), tokenLine, tokenCol);
         return exceptionFactory.newException(message, tokenLine, tokenCol, lexeme, errorCode, reason, snippet);
     }

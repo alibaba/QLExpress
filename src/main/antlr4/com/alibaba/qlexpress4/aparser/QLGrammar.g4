@@ -317,6 +317,19 @@ MOD: '%';
 INC: '++';
 DEC: '--';
 
+// Whitespace and comments
+
+WS  :  [ \t\r\n\u000C]+ -> skip
+    ;
+
+COMMENT
+    :   '/*' .*? '*/' -> skip
+    ;
+
+LINE_COMMENT
+    :   '//' ~[\r\n]* -> skip
+    ;
+
 // custom operator
 
 OPID: OpIdItemStart OpIdItem+;
@@ -1006,21 +1019,6 @@ fragment IdPart
 	| [\uFF10-\uFF19]
 	| [\uFFF9-\uFFFB]
 	;
-
-//
-// Whitespace and comments
-//
-
-WS  :  [ \t\r\n\u000C]+ -> skip
-    ;
-
-COMMENT
-    :   '/*' .*? '*/' -> skip
-    ;
-
-LINE_COMMENT
-    :   '//' ~[\r\n]* -> skip
-    ;
 
 CATCH_ALL:   . ;
 

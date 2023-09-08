@@ -56,5 +56,3 @@ assert(y == 2d)
 y = -11d
 y %= 3d
 assert(y == -2d)
-
-// TODO bingo 不带空格会报错

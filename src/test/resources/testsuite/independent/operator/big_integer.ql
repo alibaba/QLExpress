@@ -28,7 +28,6 @@ bi = 10.5G
 assert(bi instanceof BigInteger)
 assert(bi == 10)
 
-// double d = 1000 TODO bingo 两种方式为啥有区别
 double d;
 d = 1000;
 d *= d

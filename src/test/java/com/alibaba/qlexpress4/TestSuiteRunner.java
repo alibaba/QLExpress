@@ -88,10 +88,11 @@ public class TestSuiteRunner {
                 InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).debug(debug).build();
         Express4Runner express4Runner = prepareRunner(initOptions);
         if (errCodeOp.isPresent()) {
+            long start = System.currentTimeMillis();
             assertErrCode(express4Runner, path, qlScript, QLOptions.builder()
                 .attachments(attachments)
                 .build(), errCodeOp.get(), debug);
-            printOk(path);
+            printOk(path, System.currentTimeMillis() - start);
             return;
         }
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
@@ -101,8 +102,9 @@ public class TestSuiteRunner {
             QLOptions.builder().attachments(attachments).build();
 
         try {
+            long start = System.currentTimeMillis();
             express4Runner.execute(qlScript, Collections.emptyMap(), qlOptions);
-            printOk(path);
+            printOk(path, System.currentTimeMillis() - start);
         } catch (Exception e) {
             System.out.printf("%1$-95s %2$s\n", path, "error");
             throw e;
@@ -113,8 +115,8 @@ public class TestSuiteRunner {
         System.out.printf("%1$-98s %2$s\n", path, "running");
     }
 
-    private void printOk(String path) {
-        System.out.printf("%1$-98s %2$s\n", path, "ok");
+    private void printOk(String path, long consumeTime) {
+        System.out.printf("%1$-98s %2$s consume %3$dms\n", path, "ok", consumeTime);
     }
 
     private void assertErrCode(Express4Runner runner, String path, String qlScript, QLOptions qlOptions,

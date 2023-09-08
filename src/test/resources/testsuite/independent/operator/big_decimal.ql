@@ -68,11 +68,11 @@ y = x / 2
 assert(y == 10.0 , "y = " + y)
 assert(y == 10 , "y = " + y)
 
-y = 34 / 3.000; // TODO bingo 执行失败时，没有透出错误码
+y = 34 / 3.000;
 assert(y == 11.3333333333);
 
 y = 34.00000000000 / 3;
-assert(y == 11.3333333333); // TODO bingo 常量是否转为BigDecimal
+assert(y == 11.3333333333);
 
 // remainder
 x = 100.0 % 3
