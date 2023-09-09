@@ -34,7 +34,7 @@ String express = "a + b * c";
 Object r = runner.execute(express, context, null, true, false);
 System.out.println(r);
 ```
-如果应用有让终端用户输入与执行 QLExpress 的功能，务必关注 [多级别安全控制](#4-多级别安全控制)，将 QLExpress 的安全级别配置在 2 或以上。
+如果应用有让终端用户输入与执行 QLExpress 的功能，务必关注 [多级别安全控制](#4-多级别安全控制)，**将 QLExpress 的安全级别配置在白名单或以上。**
 
 # 三、语法介绍
 
