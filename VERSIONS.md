@@ -7,7 +7,13 @@
 先后出现了1.0版本和2.0版本，到3.0版本之后，引入了比较系统的语法树推导，使语法的功能大大增强和稳定。
 之前svn的开源地址： http://code.taobao.org/p/QLExpress/src/branches/
 
-# 二、有记录的版本迭代
+# 二、版本升级可能会有的不兼容问题
+## 1、 版本3.2.3
+ 引入了不兼容的修改, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 1=="1" 为 true, 但是 3.2.3 及以后版本都是 false，升级时需要注意
+## 2、 版本3.3.1
+ 去除 log4j 和 apache common log 的依赖， 原先部分 execute 参数中含有 common log ，所以部分 execute 签名有不兼容变更
+
+# 三、有记录的版本迭代
 
 ## 1、3.0.7-SNAPSHOT 版本[2014-06-06 fixed]
 BigDecimal.divide()函数增加默认的策略BigDecimal.ROUND_HALF_UP，防止在高精度要求的除法计算时，某些情况下出现以下异常。
