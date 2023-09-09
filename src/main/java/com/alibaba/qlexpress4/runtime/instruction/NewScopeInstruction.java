@@ -41,7 +41,7 @@ public class NewScopeInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "NewScope " + scopeName, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": NewScope " + scopeName, debug);
     }
 }

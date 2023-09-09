@@ -48,7 +48,7 @@ public class StringJoinInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "StringJoin " + n, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": StringJoin " + n, debug);
     }
 }

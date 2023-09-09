@@ -83,8 +83,8 @@ public class ForEachInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "ForEach", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": ForEach", debug);
         body.println(depth+1, debug);
     }
 

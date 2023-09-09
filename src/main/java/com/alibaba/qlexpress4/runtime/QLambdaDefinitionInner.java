@@ -66,8 +66,8 @@ public class QLambdaDefinitionInner implements QLambdaDefinition {
 
     @Override
     public void println(int depth, Consumer<String> debug) {
-        for (QLInstruction qlInstruction : instructions) {
-            qlInstruction.println(depth, debug);
+        for (int i = 0; i < instructions.length; i++) {
+            instructions[i].println(i, depth, debug);
         }
     }
 

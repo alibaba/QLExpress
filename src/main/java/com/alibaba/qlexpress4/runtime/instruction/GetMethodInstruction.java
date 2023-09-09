@@ -58,8 +58,8 @@ public class GetMethodInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "GetMethod " + methodName, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": GetMethod " + methodName, debug);
     }
 
 }

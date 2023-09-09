@@ -69,8 +69,8 @@ public class WhileInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "While", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": While", debug);
         PrintlnUtils.printlnByCurDepth(depth+1, "Condition", debug);
         condition.println(depth+2, debug);
         PrintlnUtils.printlnByCurDepth(depth+1, "Body", debug);

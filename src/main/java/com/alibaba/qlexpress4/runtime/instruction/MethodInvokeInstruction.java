@@ -118,8 +118,8 @@ public class MethodInvokeInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "MethodInvoke " + methodName + " with argNum " + argNum, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": MethodInvoke " + methodName + " with argNum " + argNum, debug);
     }
 
     public String getMethodName() {

@@ -46,8 +46,8 @@ public class ConstInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
+    public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth,
-                "LoadConst " + (constObj == null? "null": constObj.toString()), debug);
+                index + ": LoadConst " + (constObj == null? "null": constObj.toString()), debug);
     }
 }

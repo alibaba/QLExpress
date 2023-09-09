@@ -41,7 +41,7 @@ public class CloseScopeInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CloseScope " + scopeName, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": CloseScope " + scopeName, debug);
     }
 }

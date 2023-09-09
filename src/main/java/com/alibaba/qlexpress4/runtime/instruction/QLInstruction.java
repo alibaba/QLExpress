@@ -35,7 +35,7 @@ public abstract class QLInstruction {
      */
     public abstract int stackOutput();
 
-    public abstract void println(int depth, Consumer<String> debug);
+    public abstract void println(int index, int depth, Consumer<String> debug);
 
     public ErrorReporter getErrorReporter() {
         return errorReporter;

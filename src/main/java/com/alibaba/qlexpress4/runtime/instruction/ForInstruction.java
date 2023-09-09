@@ -131,8 +131,8 @@ public class ForInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "For", debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": For", debug);
         PrintlnUtils.printlnByCurDepth(depth + 1, "Init", debug);
         if (forInit != null) {
             forInit.println(depth + 2, debug);

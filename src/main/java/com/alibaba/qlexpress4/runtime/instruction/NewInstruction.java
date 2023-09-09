@@ -113,8 +113,8 @@ public class NewInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "New cls " + newClz.getSimpleName()
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": New cls " + newClz.getSimpleName()
                 + " with argNum " + argNum, debug);
     }
 }

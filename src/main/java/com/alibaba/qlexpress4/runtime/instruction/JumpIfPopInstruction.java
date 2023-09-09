@@ -18,15 +18,9 @@ import java.util.function.Consumer;
  */
 public class JumpIfPopInstruction extends QLInstruction {
 
-    /**
-     * instance to expand stack at instruction generator
-     */
-    public static final JumpIfPopInstruction INSTANCE = new JumpIfPopInstruction(null,
-            false, -1);
-
     private final boolean expect;
 
-    private final int position;
+    private int position;
 
     public JumpIfPopInstruction(ErrorReporter errorReporter, boolean expect, int position) {
         super(errorReporter);
@@ -62,8 +56,12 @@ public class JumpIfPopInstruction extends QLInstruction {
         return 0;
     }
 
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "JumpIfPop " + expect + " " + position, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIfPop " + expect + " " + position, debug);
     }
 }

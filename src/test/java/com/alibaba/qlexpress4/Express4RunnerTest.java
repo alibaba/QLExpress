@@ -60,7 +60,7 @@ public class Express4RunnerTest {
 
     @Test
     public void ifTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().debug(true).build());
         QLOptions debugOptions = QLOptions.builder()
                 .build();
         Object result = express4Runner.execute("if (2==3) {if (2==2) 10} else 4",

@@ -59,7 +59,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private static final BigDecimal MAX_DOUBLE = new BigDecimal(String.valueOf(Double.MAX_VALUE));
 
-     enum Context {
+    private static final int TIMEOUT_CHECK_GAP = 5;
+
+    enum Context {
         BLOCK, MACRO
     }
 
@@ -88,6 +90,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private int tryCounter = 0;
     private int forCounter = 0;
     private int whileCounter = 0;
+
+    private int timeoutCheckPoint = -1;
 
     /**
      * main
@@ -174,7 +178,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             if (preStatement instanceof ExpressionStatementContext) {
                 addInstruction(new ReturnInstruction(
                         newReporterWithToken(preStatement.getStart()),
-                        QResult.ResultType.RETURN)
+                        QResult.ResultType.CONTINUE)
                 );
             }
         }
@@ -244,22 +248,27 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
         // for init
         ForInitContext forInitContext = ctx.forInit();
-        QLambdaDefinitionInner forInitLambda = forInitContext != null?
-                generateForInitLambda(forCount, forInitContext): null;
+        QLambdaDefinitionInner forInitLambda = forInitContext == null? null:
+                generateForInitLambda(forCount, forInitContext);
 
         // condition
         ExpressionContext forConditionContext = ctx.forCondition;
-        QLambdaDefinitionInner forConditionLambda = forConditionContext != null?
-                generateForExpressLambda(forCount, CONDITION_SUFFIX, forConditionContext): null;
+        QLambdaDefinitionInner forConditionLambda = forConditionContext == null? null:
+                generateForExpressLambda(forCount, CONDITION_SUFFIX, forConditionContext);
 
         // for update
         ExpressionContext forUpdateContext = ctx.forUpdate;
-        QLambdaDefinitionInner forUpdateLambda = forUpdateContext != null?
-                generateForExpressLambda(forCount, UPDATE_SUFFIX, forUpdateContext): null;
+        QLambdaDefinitionInner forUpdateLambda = forUpdateContext == null? null:
+                generateForExpressLambda(forCount, UPDATE_SUFFIX, forUpdateContext);
 
         // for body
         BlockStatementContext forBodyContext = ctx.blockStatement();
-        QLambdaDefinitionInner forBodyLambda = forBodyContext != null? generateForBodyLambda(forCount, forBodyContext): null;
+        QLambdaDefinitionInner forBodyLambda = forBodyContext == null? null:
+                loopBodyVisitorDefinition(forBodyContext,
+                        generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount + BODY_SUFFIX,
+                        Collections.emptyList(),
+                        forErrReporter
+                );
 
         int forInitSize = forInitLambda == null? 0: forInitLambda.getMaxStackSize();
         int forConditionSize = forConditionLambda == null? 0: forConditionLambda.getMaxStackSize();
@@ -270,19 +279,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 forUpdateLambda, forScopeMaxStackSize,
                 forBodyLambda));
         return null;
-    }
-
-    private QLambdaDefinitionInner generateForBodyLambda(int forCount, BlockStatementContext forBodyContext) {
-        if (forBodyContext instanceof ExpressionStatementContext) {
-            ExpressionStatementContext exprForBodyContext = (ExpressionStatementContext) forBodyContext;
-            return generateForExpressLambda(forCount, BODY_SUFFIX, exprForBodyContext.expression());
-        } else {
-            String scopeName = generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount + BODY_SUFFIX;
-            QvmInstructionVisitor subVisitor = parseWithSubVisitor(forBodyContext,
-                    new GeneratorScope(scopeName, generatorScope), Context.MACRO);
-            return new QLambdaDefinitionInner(scopeName, subVisitor.getInstructions(),
-                    Collections.emptyList(),subVisitor.getMaxStackSize());
-        }
     }
 
     private QLambdaDefinitionInner generateForInitLambda(int forCount, ForInitContext forInitContext) {
@@ -315,15 +311,17 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         DeclTypeContext declTypeContext = ctx.declType();
         Class<?> itVarCls = declTypeContext == null? Object.class: parseDeclType(declTypeContext);
 
-        String forEachBodyScopeName = generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount() + BODY_SUFFIX;
-        QvmInstructionVisitor forEachBodyVisitor = parseWithSubVisitor(ctx.blockStatement(), new GeneratorScope(forEachBodyScopeName, generatorScope),
-                Context.MACRO);
-        QLambdaDefinition bodyDefinition = new QLambdaDefinitionInner(forEachBodyScopeName, forEachBodyVisitor.getInstructions(),
+        ErrorReporter forEachErrReporter = newReporterWithToken(ctx.FOR().getSymbol());
+        QLambdaDefinition bodyDefinition = loopBodyVisitorDefinition(ctx.blockStatement(),
+                generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount() + BODY_SUFFIX,
                 Collections.singletonList(
                         new QLambdaDefinitionInner.Param(ctx.varId().getText(), itVarCls)
-                ), forEachBodyVisitor.getMaxStackSize());
+                ),
+                forEachErrReporter
+        );
+
         addInstruction(new ForEachInstruction(
-                newReporterWithToken(ctx.FOR().getSymbol()), bodyDefinition,
+                forEachErrReporter, bodyDefinition,
                 itVarCls, newReporterWithToken(targetExprContext.getStart())
             )
         );
@@ -342,28 +340,40 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner(whileConditionScope, conditionSubVisitor.getInstructions(),
                 Collections.emptyList(), conditionSubVisitor.getMaxStackSize());
 
-        QLambdaDefinitionInner whileBodyLambda = generateWhileBody(whileCount, ctx.blockStatement());
+        ErrorReporter whileErrReporter = newReporterWithToken(ctx.WHILE().getSymbol());
+        QLambdaDefinitionInner whileBodyLambda = loopBodyVisitorDefinition(ctx.blockStatement(),
+                generatorScope.getName() + SCOPE_SEPARATOR + WHILE_PREFIX + whileCount + BODY_SUFFIX,
+                Collections.emptyList(),
+                whileErrReporter
+        );
 
         addInstruction(new WhileInstruction(
-                newReporterWithToken(ctx.WHILE().getSymbol()), conditionLambda, whileBodyLambda,
+                whileErrReporter, conditionLambda, whileBodyLambda,
                 Math.max(conditionLambda.getMaxStackSize(), whileBodyLambda.getMaxStackSize())
         ));
         return null;
     }
 
-    private QLambdaDefinitionInner generateWhileBody(int whileCount, BlockStatementContext blockStatementContext) {
-        String scopeName = generatorScope.getName() + SCOPE_SEPARATOR + WHILE_PREFIX + whileCount + BODY_SUFFIX;
-        if (blockStatementContext instanceof ExpressionStatementContext) {
-            ExpressionStatementContext expressionStatementContext = (ExpressionStatementContext) blockStatementContext;
-            QvmInstructionVisitor subVisitor = parseExprBodyWithSubVisitor(expressionStatementContext.expression(),
+    private QLambdaDefinitionInner loopBodyVisitorDefinition(BlockStatementContext bodyCtx, String scopeName,
+                                                             List<QLambdaDefinitionInner.Param> paramsType,
+                                                             ErrorReporter errorReporter) {
+        QvmInstructionVisitor bodyVisitor = loopBodyVisitor(bodyCtx, scopeName);
+        List<QLInstruction> bodyInstructions = bodyVisitor.getInstructions();
+
+        List<QLInstruction> resultInstructions = new ArrayList<>();
+        resultInstructions.add(new CheckTimeOutInstruction(errorReporter));
+        resultInstructions.addAll(bodyInstructions);
+
+        return new QLambdaDefinitionInner(scopeName, resultInstructions, paramsType, bodyVisitor.getMaxStackSize());
+    }
+
+    private QvmInstructionVisitor loopBodyVisitor(BlockStatementContext bodyCtx, String scopeName) {
+        if (bodyCtx instanceof ExpressionStatementContext) {
+            ExpressionStatementContext expressionStatementContext = (ExpressionStatementContext) bodyCtx;
+            return parseExprBodyWithSubVisitor(expressionStatementContext.expression(),
                     new GeneratorScope(scopeName, generatorScope), Context.BLOCK);
-            return new QLambdaDefinitionInner(scopeName, subVisitor.getInstructions(),
-                    Collections.emptyList(), subVisitor.getMaxStackSize());
         } else {
-            QvmInstructionVisitor subVisitor = parseWithSubVisitor(blockStatementContext,
-                    new GeneratorScope(scopeName, generatorScope), Context.MACRO);
-            return new QLambdaDefinitionInner(scopeName, subVisitor.getInstructions(),
-                    Collections.emptyList(), subVisitor.getMaxStackSize());
+            return parseWithSubVisitor(bodyCtx, new GeneratorScope(scopeName, generatorScope), Context.MACRO);
         }
     }
 
@@ -876,15 +886,14 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         BaseExprContext rightExpr = ctx.baseExpr();
         // short circuit operator
         if ("&&".equals(operatorId)) {
-            jumpRightIfExpect(false, opErrReporter, rightExpr);
+            jumpRightIfExpect(false, opErrReporter, rightExpr, operatorId);
         } else if ("||".equals(operatorId)) {
-            jumpRightIfExpect(true, opErrReporter, rightExpr);
+            jumpRightIfExpect(true, opErrReporter, rightExpr, operatorId);
         } else {
             rightExpr.accept(this);
+            BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
+            addInstruction(new OperatorInstruction(opErrReporter, binaryOperator));
         }
-
-        BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
-        addInstruction(new OperatorInstruction(opErrReporter, binaryOperator));
         return null;
     }
 
@@ -1421,20 +1430,39 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions,
                                     List<QLInstruction> elseInstructions) {
-        addInstruction(new JumpIfPopInstruction(conditionReporter, false,
-                thenInstructions.size() + 1));
-        thenInstructions.forEach(this::addInstruction);
-        addInstruction(new JumpInstruction(conditionReporter, elseInstructions.size()));
-        elseInstructions.forEach(this::addInstruction);
+        JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(conditionReporter, false, -1);
+        pureAddInstruction(jumpIf);
+        int jumpStart = instructionList.size();
+        thenInstructions.forEach(this::pureAddInstruction);
+        addTimeoutInstruction();
+
+        JumpInstruction jump = new JumpInstruction(conditionReporter, -1);
+        pureAddInstruction(jump);
+
+        jumpIf.setPosition(instructionList.size() - jumpStart);
+
+        jumpStart = instructionList.size();
+        elseInstructions.forEach(this::pureAddInstruction);
+        addTimeoutInstruction();
+        jump.setPosition(instructionList.size() - jumpStart);
     }
 
-    private void jumpRightIfExpect(boolean expect, ErrorReporter opErrReporter, RuleContext right) {
+    private void jumpRightIfExpect(boolean expect, ErrorReporter opErrReporter, RuleContext right, String operatorId) {
         QvmInstructionVisitor rightVisitor = parseWithSubVisitor(right, generatorScope, Context.MACRO);
         List<QLInstruction> rightInstructions = rightVisitor.getInstructions();
-        addInstruction(new JumpIfInstruction(opErrReporter, expect,
-                // right instruction + operator
-                rightInstructions.size() + 1));
-        rightInstructions.forEach(this::addInstruction);
+
+
+        JumpIfInstruction jumpIf = new JumpIfInstruction(opErrReporter, expect, -1);
+        pureAddInstruction(jumpIf);
+
+        int jumpStart = instructionList.size();
+
+        rightInstructions.forEach(this::pureAddInstruction);
+        BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
+        addInstruction(new OperatorInstruction(opErrReporter, binaryOperator));
+        addTimeoutInstruction();
+
+        jumpIf.setPosition(instructionList.size() - jumpStart);
     }
 
     private QvmInstructionVisitor parseWithSubVisitor(RuleContext ruleContext, GeneratorScope generatorScope,
@@ -1458,9 +1486,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             String macroName = statementContext.getStart().getText();
             MacroDefine macroDefine = generatorScope.getMacroInstructions(macroName);
             if (macroDefine != null) {
-                for (QLInstruction instruction : macroDefine.getMacroInstructions()) {
-                    addInstruction(instruction);
-                }
+                macroDefine.getMacroInstructions().forEach(this::pureAddInstruction);
+                addTimeoutInstruction();
                 return macroDefine.getLastStmt();
             }
         }
@@ -1480,10 +1507,30 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         return false;
     }
 
-    private void addInstruction(QLInstruction qlInstruction) {
+    private void pureAddInstruction(QLInstruction qlInstruction) {
         int stackExpandSize = qlInstruction.stackOutput() - qlInstruction.stackInput();
         expandStackSize(stackExpandSize);
         instructionList.add(qlInstruction);
+    }
+
+    private void addInstruction(QLInstruction qlInstruction) {
+        if (instructionList.size() - timeoutCheckPoint > TIMEOUT_CHECK_GAP) {
+            addTimeoutInstruction();
+        }
+        pureAddInstruction(qlInstruction);
+        if (qlInstruction instanceof MethodInvokeInstruction || qlInstruction instanceof CallFunctionInstruction ||
+            qlInstruction instanceof CallConstInstruction || qlInstruction instanceof CallInstruction) {
+            addTimeoutInstruction();
+        }
+    }
+
+    private void addTimeoutInstruction() {
+        QLInstruction lastInstruction = instructionList.get(instructionList.size() - 1);
+        if (lastInstruction instanceof CheckTimeOutInstruction) {
+            return;
+        }
+        this.timeoutCheckPoint = instructionList.size();
+        instructionList.add(new CheckTimeOutInstruction(lastInstruction.getErrorReporter()));
     }
 
     private void expandStackSize(int stackExpandSize) {

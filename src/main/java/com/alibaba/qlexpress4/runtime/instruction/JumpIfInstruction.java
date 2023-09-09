@@ -18,12 +18,9 @@ import java.util.function.Consumer;
  */
 public class JumpIfInstruction extends QLInstruction {
 
-    public static final JumpIfInstruction INSTANCE = new JumpIfInstruction(null,
-            false, -1);
-
     private final boolean expect;
 
-    private final int position;
+    private int position;
 
     public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int position) {
         super(errorReporter);
@@ -59,8 +56,12 @@ public class JumpIfInstruction extends QLInstruction {
         return 0;
     }
 
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "JumpIf " + expect + " " + position, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIf " + expect + " " + position, debug);
     }
 }

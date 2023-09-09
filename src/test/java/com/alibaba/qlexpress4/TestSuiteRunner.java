@@ -53,7 +53,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/operator/character.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/timeout/timeout.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -87,19 +87,17 @@ public class TestSuiteRunner {
                 initOptionsBuilder.get().securityStrategy(QLSecurityStrategy.open()).debug(debug).build():
                 InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).debug(debug).build();
         Express4Runner express4Runner = prepareRunner(initOptions);
+        Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
+                (QLOptions.Builder)scriptOption.get("qlOptions"));
+        QLOptions qlOptions = optionsBuilder.isPresent() ?
+                optionsBuilder.get().attachments(attachments).build() :
+                QLOptions.builder().attachments(attachments).build();
         if (errCodeOp.isPresent()) {
             long start = System.currentTimeMillis();
-            assertErrCode(express4Runner, path, qlScript, QLOptions.builder()
-                .attachments(attachments)
-                .build(), errCodeOp.get(), debug);
+            assertErrCode(express4Runner, path, qlScript, qlOptions, errCodeOp.get(), debug);
             printOk(path, System.currentTimeMillis() - start);
             return;
         }
-        Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
-            (QLOptions.Builder)scriptOption.get("qlOptions"));
-        QLOptions qlOptions = optionsBuilder.isPresent() ?
-            optionsBuilder.get().attachments(attachments).build() :
-            QLOptions.builder().attachments(attachments).build();
 
         try {
             long start = System.currentTimeMillis();

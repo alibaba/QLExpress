@@ -97,7 +97,7 @@ public class SyntaxTreeFactoryTest {
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
-        assertEquals(5, instructions.size());
+        assertEquals(6, instructions.size());
         ConstInstruction constInstruction = (ConstInstruction) instructions.get(0);
         MetaClass metaClass = (MetaClass) constInstruction.getConstObj();
         assertEquals(Function.class, metaClass.getClz());
@@ -136,7 +136,7 @@ public class SyntaxTreeFactoryTest {
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
-        assertEquals(3, instructions.size());
+        assertEquals(4, instructions.size());
         LoadInstruction loadInstruction = (LoadInstruction) instructions.get(0);
         assertEquals("mm", loadInstruction.getName());
     }
@@ -162,7 +162,7 @@ public class SyntaxTreeFactoryTest {
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
-        assertEquals(6, instructions.size());
+        assertEquals(7, instructions.size());
     }
 
     @Test
@@ -362,7 +362,7 @@ public class SyntaxTreeFactoryTest {
         List<QLInstruction> instructions = visitor.getInstructions();
         OperatorInstruction operatorMulti = (OperatorInstruction) instructions.get(4);
         assertTrue(operatorMulti.getOperator() instanceof MultiplyOperator);
-        OperatorInstruction operatorAssign = (OperatorInstruction) instructions.get(8);
+        OperatorInstruction operatorAssign = (OperatorInstruction) instructions.get(9);
         assertTrue(operatorAssign.getOperator() instanceof AssignOperator);
     }
 

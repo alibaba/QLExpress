@@ -20,7 +20,7 @@ public class JumpInstruction extends QLInstruction {
 
     public static final JumpInstruction INSTANCE = new JumpInstruction(null, -1);
 
-    private final int position;
+    private int position;
 
     public JumpInstruction(ErrorReporter errorReporter, int position) {
         super(errorReporter);
@@ -42,8 +42,12 @@ public class JumpInstruction extends QLInstruction {
         return 0;
     }
 
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "Jump " + position, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": Jump " + position, debug);
     }
 }

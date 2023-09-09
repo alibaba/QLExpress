@@ -91,7 +91,7 @@ public class CallFunctionInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CallFunction " + functionName + " " + argNum, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": CallFunction " + functionName + " " + argNum, debug);
     }
 }

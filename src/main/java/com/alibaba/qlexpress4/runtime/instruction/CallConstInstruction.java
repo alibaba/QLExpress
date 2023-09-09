@@ -62,7 +62,7 @@ public class CallConstInstruction extends QLInstruction {
     }
 
     @Override
-    public void println(int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, "CallConstLambda " + lambdaName, debug);
+    public void println(int index, int depth, Consumer<String> debug) {
+        PrintlnUtils.printlnByCurDepth(depth, index + ": CallConstLambda " + lambdaName, debug);
     }
 }
