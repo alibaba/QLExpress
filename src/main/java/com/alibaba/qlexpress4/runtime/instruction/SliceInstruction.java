@@ -89,8 +89,8 @@ public class SliceInstruction extends QLInstruction {
     }
 
     private List<?> listSlice(List<?> listObj, int originStart, int originEnd) {
-        int start = Math.max(javaIndex(listObj.size(), originStart), 0);
-        int end = Math.min(javaIndex(listObj.size(), originEnd), listObj.size());
+        int start = Math.max(ValueUtils.javaIndex(listObj.size(), originStart), 0);
+        int end = Math.min(ValueUtils.javaIndex(listObj.size(), originEnd), listObj.size());
         if (start >= end) {
             return new ArrayList<>(0);
         }
@@ -100,8 +100,8 @@ public class SliceInstruction extends QLInstruction {
 
     private Object arraySlice(Object arrObj, int originStart, int originEnd) {
         int arrLen = Array.getLength(arrObj);
-        int start = Math.max(javaIndex(arrLen, originStart), 0);
-        int end = Math.min(javaIndex(arrLen, originEnd), arrLen);
+        int start = Math.max(ValueUtils.javaIndex(arrLen, originStart), 0);
+        int end = Math.min(ValueUtils.javaIndex(arrLen, originEnd), arrLen);
         if (start >= end) {
             return Array.newInstance(arrObj.getClass().getComponentType(), 0);
         }
@@ -111,10 +111,6 @@ public class SliceInstruction extends QLInstruction {
             Array.set(newArr, i - start, Array.get(arrObj, i));
         }
         return newArr;
-    }
-
-    private int javaIndex(int length, int qlIndex) {
-        return qlIndex < 0? length + qlIndex: qlIndex;
     }
 
     @Override

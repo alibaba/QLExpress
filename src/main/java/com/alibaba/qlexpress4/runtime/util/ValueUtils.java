@@ -21,4 +21,8 @@ public class ValueUtils {
         }
         throw errorReporter.report(errCode, errMsg);
     }
+
+    public static int javaIndex(int length, int qlIndex) {
+        return qlIndex < 0? length + qlIndex: qlIndex;
+    }
 }

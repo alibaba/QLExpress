@@ -37,8 +37,8 @@ public class IndexInstruction extends QLInstruction {
         if (indexAble instanceof List) {
             Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
                     QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
-            int intIndex = indexNumber.intValue();
             List<? super Object> list = (List<? super Object>) indexAble;
+            int intIndex = ValueUtils.javaIndex(list.size(), indexNumber.intValue());
             if (intIndex < 0 || intIndex >= list.size()) {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
@@ -48,8 +48,9 @@ public class IndexInstruction extends QLInstruction {
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
                     QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
-            int intIndex = indexNumber.intValue();
-            if (intIndex < 0 || intIndex >= Array.getLength(indexAble)) {
+            int arrLen = Array.getLength(indexAble);
+            int intIndex = ValueUtils.javaIndex(arrLen, indexNumber.intValue());
+            if (intIndex < 0 || intIndex >= arrLen) {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
             qContext.push(new ArrayItemValue(indexAble, intIndex));
