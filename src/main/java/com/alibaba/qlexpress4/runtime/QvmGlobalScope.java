@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
@@ -16,20 +18,20 @@ import java.util.Map;
  */
 public class QvmGlobalScope implements QScope {
 
-    private final Map<String, Object> externalVariable;
+    private final ExpressContext externalVariable;
 
     private final Map<String, LeftValue> newVariables;
 
     private final Map<String, QFunction> externalFunction;
 
-    private final boolean polluteExternal;
+    private final QLOptions qlOptions;
 
-    public QvmGlobalScope(Map<String, Object> externalVariable, Map<String, QFunction> externalFunction,
-                          boolean polluteExternal) {
+    public QvmGlobalScope(ExpressContext externalVariable, Map<String, QFunction> externalFunction,
+                          QLOptions qlOptions) {
         this.externalVariable = externalVariable;
-        this.newVariables = polluteExternal? Collections.emptyMap(): new HashMap<>();
+        this.newVariables = new HashMap<>();
         this.externalFunction = externalFunction;
-        this.polluteExternal = polluteExternal;
+        this.qlOptions = qlOptions;
     }
 
     @Override
@@ -38,10 +40,11 @@ public class QvmGlobalScope implements QScope {
         if (newVariable != null) {
             return newVariable;
         }
-        if (polluteExternal) {
-            return new MapItemValue(varName, externalVariable, varName);
+        Value externalValue = externalVariable.get(qlOptions.getAttachments(), varName);
+        if (externalValue != null && qlOptions.isPolluteUserContext()) {
+            return externalValue;
         }
-        newVariable = new AssignableDataValue(varName, externalVariable.get(varName));
+        newVariable = new AssignableDataValue(varName, externalValue == null? null: externalValue.get());
         newVariables.put(varName, newVariable);
         return newVariable;
     }

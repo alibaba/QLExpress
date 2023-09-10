@@ -53,7 +53,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/timeout/timeout.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/integer.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.context.ExpressContext;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 
@@ -216,6 +219,35 @@ public class Express4RunnerTest {
         express4Runner.addStaticFunction(MyFunctionUtil.class);
         Object result1 = express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(10 ,result1);
+    }
+
+    @Test
+    public void customExpressKeyValue() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+
+        Map<String, Object> attachments = new HashMap<>();
+
+        Map<String, Object> subAttachA = new HashMap<>();
+        subAttachA.put("aa", 123);
+
+        Map<String, Object> subAttachB = new HashMap<>();
+        subAttachB.put("bb", 12);
+
+        attachments.put("a", subAttachA);
+        attachments.put("b", subAttachB);
+
+        QLOptions qlOptions = QLOptions.builder()
+                .attachments(attachments)
+                .build();
+        Object result = express4Runner.execute("${/a/aa} + ${/b/bb}", new ExpressContext() {
+            @Override
+            public Value get(Map<String, Object> attachments, String variableName) {
+                String[] split = variableName.split("/");
+                Map<String, Object> subMap = (Map<String, Object>) attachments.get(split[1]);
+                return new DataValue(subMap.get(split[2]));
+            }
+        }, qlOptions);
+        assertEquals(135, result);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
