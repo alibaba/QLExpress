@@ -17,6 +17,8 @@ import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.context.ExpressContext;
+import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
@@ -44,6 +46,10 @@ public class Express4Runner {
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
+        return execute(script, new MapExpressContext(context), qlOptions);
+    }
+
+    public Object execute(String script, ExpressContext context, QLOptions qlOptions) {
         QLambda mainLambda = parseToLambda(script, context, qlOptions);
         try {
             return mainLambda.call().getResult().get();
@@ -156,7 +162,7 @@ public class Express4Runner {
         );
     }
 
-    private QLambda parseToLambda(String script, Map<String, Object> context, QLOptions qlOptions) {
+    private QLambda parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QLambdaDefinitionInner mainLambdaDefine = qlOptions.isCache()?
                 parseDefinitionWithCache(script): parseDefinition(script);
         if (initOptions.isDebug()) {
@@ -165,8 +171,7 @@ public class Express4Runner {
         }
 
         QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), reflectLoader, System.currentTimeMillis());
-        QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction,
-                qlOptions.isPolluteUserContext());
+        QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction, qlOptions);
         return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
                 qlOptions, true);
     }
