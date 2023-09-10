@@ -1,4 +1,3 @@
-//byte→short→int→long→float→double
 byte a = 0;
 assert(a == 0);
 

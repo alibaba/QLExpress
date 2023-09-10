@@ -34,3 +34,15 @@ assert(big == 11111111111l);
 BigDecimal big = 11111111111l;
 long l1 = big;
 assert(l1 == 11111111111l);
+
+//char→String
+char c = 'a';
+String s = c;
+assert(s.equals("a"));
+
+//String→char
+String s1 = "a";
+char c1 = s1;
+assert(c1 == 97);
+
+
