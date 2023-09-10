@@ -50,9 +50,23 @@ public class Express4Runner {
     }
 
     public Object execute(String script, ExpressContext context, QLOptions qlOptions) {
-        QLambda mainLambda = parseToLambda(script, context, qlOptions);
+        QLambda mainLambda;
+        if (initOptions.isDebug()) {
+            long start = System.currentTimeMillis();
+            mainLambda = parseToLambda(script, context, qlOptions);
+            System.out.println("Compile consume time: " + (System.currentTimeMillis() - start) + " ms");
+        } else {
+            mainLambda = parseToLambda(script, context, qlOptions);
+        }
         try {
-            return mainLambda.call().getResult().get();
+            if (initOptions.isDebug()) {
+                long start = System.currentTimeMillis();
+                Object result = mainLambda.call().getResult().get();
+                System.out.println("Execute consume time: " + (System.currentTimeMillis() - start) + " ms");
+                return result;
+            } else {
+                return mainLambda.call().getResult().get();
+            }
         } catch (QLException e) {
             throw e;
         } catch (Throwable nuKnown) {
@@ -217,9 +231,5 @@ public class Express4Runner {
 
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
         return operatorManager.addOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
-    }
-
-    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
-        return operatorManager.addOperator(operator, customBinaryOperator, priority);
     }
 }
