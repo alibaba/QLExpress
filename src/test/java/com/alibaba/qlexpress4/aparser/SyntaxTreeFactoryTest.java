@@ -25,6 +25,7 @@ public class SyntaxTreeFactoryTest {
                 case MIDDLE:
                     switch (lexeme) {
                         case "+":
+                        case "-":
                         case "/":
                         case ".*":
                         case ">>":
@@ -38,13 +39,18 @@ public class SyntaxTreeFactoryTest {
                         case ">":
                         case "*":
                         case "?.":
+                        case "<<":
                             return true;
                     }
                     return false;
                 case PREFIX:
                     switch (lexeme) {
                         case "++":
+                        case "-":
+                        case "+":
+                        case "~":
                             return true;
+
                     }
                     return false;
                 case SUFFIX:
@@ -62,6 +68,7 @@ public class SyntaxTreeFactoryTest {
         public Integer precedence(String lexeme) {
             switch (lexeme) {
                 case "+":
+                case "-":
                     return QLPrecedences.ADD;
                 case "/":
                 case "%":
@@ -76,6 +83,7 @@ public class SyntaxTreeFactoryTest {
                     return QLPrecedences.COMPARE;
                 case ">>":
                 case ">>>":
+                case "<<":
                     return QLPrecedences.BIT_MOVE;
                 case "=":
                     return QLPrecedences.ASSIGN;

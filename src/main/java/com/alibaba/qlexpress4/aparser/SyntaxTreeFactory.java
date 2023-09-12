@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.aparser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.PredictionMode;
 
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ public class SyntaxTreeFactory {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QLGrammarParser qlGrammarParser = new QLGrammarParser(tokens, operatorManager);
         qlGrammarParser.setErrorHandler(new QLErrorStrategy(script));
+        qlGrammarParser.getInterpreter().setPredictionMode(PredictionMode.SLL);
         QLGrammarParser.ProgramContext programContext = qlGrammarParser.program();
         if (printTree) {
             printer.accept(tokens.getTokens().stream()

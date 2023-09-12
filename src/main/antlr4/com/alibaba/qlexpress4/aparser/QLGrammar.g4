@@ -1084,8 +1084,8 @@ variableInitializerList
 // decl type
 
 declType
-    :   primitiveType
-    |   referenceType
+    :   primitiveType dims?
+    |   clsType dims?
     ;
 
 declTypeNoArr
@@ -1105,13 +1105,8 @@ primitiveType
     ;
 
 referenceType
-    :   clsType
-    |   arrayType
-    ;
-
-arrayType
-    :   primitiveType dims
-    |   clsType dims
+    :   clsType dims?
+    |   primitiveType dims
     ;
 
 dims

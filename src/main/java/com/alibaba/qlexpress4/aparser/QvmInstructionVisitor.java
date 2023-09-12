@@ -1354,26 +1354,19 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     private Class<?> parseDeclType(DeclTypeContext declTypeContext) {
+        Class<?> baseCls = parseDeclBaseCls(declTypeContext);
+        DimsContext dims = declTypeContext.dims();
+        int layers = dims == null? 0: dims.LBRACK().size();
+        return wrapInArray(baseCls, layers);
+    }
+
+    private Class<?> parseDeclBaseCls(DeclTypeContext declTypeContext) {
         PrimitiveTypeContext primitiveTypeContext = declTypeContext.primitiveType();
         if (primitiveTypeContext != null) {
             return BuiltInTypesSet.getCls(primitiveTypeContext.getText());
         }
-
-        ReferenceTypeContext referenceTypeContext = declTypeContext.referenceType();
-        ClsTypeContext clsTypeContext = referenceTypeContext.clsType();
-        if (clsTypeContext != null) {
-            return parseClsIds(clsTypeContext.varId());
-        }
-
-        // array
-        ArrayTypeContext arrayTypeContext = referenceTypeContext.arrayType();
-        PrimitiveTypeContext arrPrimitiveTypeContext = arrayTypeContext.primitiveType();
-        Class<?> baseType = arrPrimitiveTypeContext != null?
-                BuiltInTypesSet.getCls(arrPrimitiveTypeContext.getText()):
-                parseClsIds(arrayTypeContext.clsType().varId());
-        DimsContext dimsContext = arrayTypeContext.dims();
-        int layers = dimsContext.LBRACK().size();
-        return wrapInArray(baseType, layers);
+        ClsTypeContext clsTypeContext = declTypeContext.clsType();
+        return parseClsIds(clsTypeContext.varId());
     }
 
     private String remove(String target, char c) {
