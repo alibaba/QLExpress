@@ -101,7 +101,7 @@ public class SyntaxTreeFactoryTest {
     public void visitPathExprTestWhenMix() {
         String script = "java.util.function.Function.a.b.cc()";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -121,7 +121,7 @@ public class SyntaxTreeFactoryTest {
     public void visitPathExprTestWhenInnerCls() {
         String script = "com.alibaba.qlexpress4.aparser.ImportManagerTest.TestImportInner.TestImportInner2.pp[m]";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -140,7 +140,7 @@ public class SyntaxTreeFactoryTest {
     public void visitCallTest() {
         String script = "call(mm)";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -153,7 +153,7 @@ public class SyntaxTreeFactoryTest {
     public void numberTest() {
         String script = "10_0_0l";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -166,7 +166,7 @@ public class SyntaxTreeFactoryTest {
     public void macroDefineTest() {
         String script = "macro add {a+b} add;int c = 10;";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -177,7 +177,7 @@ public class SyntaxTreeFactoryTest {
     public void rawStringEscapeTest() {
         String script = "'ac\\'c\\'m\\n'";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -191,7 +191,7 @@ public class SyntaxTreeFactoryTest {
         // invalid escape \p will be ignored
         String script = "\"\\r\\n\\p\"";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -204,7 +204,7 @@ public class SyntaxTreeFactoryTest {
     public void castTest() {
         String script = "1+(int)3L";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, System.out::println);
+                .buildTree(script, new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -214,17 +214,17 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void cusOpTest() {
         String script = "c.*d";
-        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, System.out::println);
+        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println);
 
         String script1 = "c>>>d";
-        SyntaxTreeFactory.buildTree(script1, new MockOpM(), true, System.out::println);
+        SyntaxTreeFactory.buildTree(script1, new MockOpM(), true, false, System.out::println);
     }
 
     @Test
     public void pathPartTest() {
         String script = "assert((java.lang.Object) a == 1)";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -239,7 +239,7 @@ public class SyntaxTreeFactoryTest {
     public void fieldExpressionTest() {
         String script = "\"null\".equals(b)";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -256,7 +256,7 @@ public class SyntaxTreeFactoryTest {
                 "  10\n" +
                 "};";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -269,7 +269,7 @@ public class SyntaxTreeFactoryTest {
     public void lambdaBlockBodyTest() {
         String script = "f = e -> {10};";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -283,7 +283,7 @@ public class SyntaxTreeFactoryTest {
     public void lambdaMapBodyTest() {
         String script = "f = e -> {'test': 1234};";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -296,7 +296,7 @@ public class SyntaxTreeFactoryTest {
     public void newArrayTest() {
         String script = "new int[][] {new int[] {1,2}, new int[] {3,4}}";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -308,7 +308,7 @@ public class SyntaxTreeFactoryTest {
     public void instanceOfTest() {
         String script = "1 instanceof int";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -321,7 +321,7 @@ public class SyntaxTreeFactoryTest {
     public void instanceOfStrArrTest() {
         String script = "1 instanceof java.lang.String[][][]";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -334,7 +334,7 @@ public class SyntaxTreeFactoryTest {
     public void instanceOfIntArrTest() {
         String script = "1 instanceof int[][][]";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -352,7 +352,7 @@ public class SyntaxTreeFactoryTest {
 
     private void assertOperator(String script, String expectOp) {
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -364,7 +364,7 @@ public class SyntaxTreeFactoryTest {
     public void opPrecedencesTest() {
         String script = "a = 1+2*3+10";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -378,7 +378,7 @@ public class SyntaxTreeFactoryTest {
     public void ternaryTest() {
         String script = "l = (x) -> x > 10 ? 11 : 100";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -393,7 +393,7 @@ public class SyntaxTreeFactoryTest {
     public void functionInterfaceTest() {
         String script = "java.lang.Runnable r = () -> a = 8;";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), true, System.out::println);
+                new MockOpM(), true, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
     }

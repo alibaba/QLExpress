@@ -43,6 +43,7 @@ public class Express4Runner {
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.allowPrivateAccess());
+        SyntaxTreeFactory.warmUp();
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
@@ -171,12 +172,12 @@ public class Express4Runner {
 
     public QLGrammarParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(
-                script, operatorManager, initOptions.isDebug(),
+                script, operatorManager, initOptions.isDebug(), false,
                 initOptions.getDebugInfoConsumer()
         );
     }
 
-    private QLambda parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
+    public QLambda parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QLambdaDefinitionInner mainLambdaDefine = qlOptions.isCache()?
                 parseDefinitionWithCache(script): parseDefinition(script);
         if (initOptions.isDebug()) {
