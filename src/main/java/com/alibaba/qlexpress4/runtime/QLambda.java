@@ -5,14 +5,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
-        Predicate<Object>, Function<Object, Object> {
+public interface QLambda
+    extends Runnable, Supplier<Object>, Consumer<Object>, Predicate<Object>, Function<Object, Object> {
 
     /**
      * @param params
      * @return
-     * @throws Throwable
-     *         {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
+     * @throws Throwable {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
     QResult call(Object... params) throws Throwable;
 
@@ -21,8 +20,7 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
         try {
             return call().getResult().get();
         } catch (Throwable t) {
-            throw t instanceof RuntimeException?
-                    (RuntimeException) t: new RuntimeException(t);
+            throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
     }
 
@@ -31,8 +29,7 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
         try {
             call(o);
         } catch (Throwable t) {
-            throw t instanceof RuntimeException?
-                    (RuntimeException) t: new RuntimeException(t);
+            throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
     }
 
@@ -41,18 +38,16 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
         try {
             call();
         } catch (Throwable t) {
-            throw t instanceof RuntimeException?
-                    (RuntimeException) t: new RuntimeException(t);
+            throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
     }
 
     @Override
     default boolean test(Object o) {
         try {
-            return (boolean) call(o).getResult().get();
+            return (boolean)call(o).getResult().get();
         } catch (Throwable t) {
-            throw t instanceof RuntimeException?
-                    (RuntimeException) t: new RuntimeException(t);
+            throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
     }
 
@@ -61,8 +56,7 @@ public interface QLambda extends Runnable, Supplier<Object>, Consumer<Object>,
         try {
             return call(o).getResult().get();
         } catch (Throwable t) {
-            throw t instanceof RuntimeException?
-                    (RuntimeException) t: new RuntimeException(t);
+            throw t instanceof RuntimeException ? (RuntimeException)t : new RuntimeException(t);
         }
     }
 }

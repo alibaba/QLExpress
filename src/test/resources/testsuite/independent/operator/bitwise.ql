@@ -38,6 +38,9 @@ assert(b >> 2 == -1);
 assert(b >>> 1 == 0x7FFFFFFE);
 assert(b >>> 2 == 0x3FFFFFFF);
 
+assertErrorCode(()-> {8.0F >> 2}, "OPERATOR_EXECUTE_EXCEPTION")
+assertErrorCode(()-> {8 >> 2.0}, "OPERATOR_EXECUTE_EXCEPTION")
+
 // bitwise shift equal
 a = 4;
 a <<= 1;

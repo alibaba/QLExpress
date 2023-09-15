@@ -10,12 +10,16 @@ import java.util.*;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QLambda;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,23 +28,24 @@ import static org.junit.Assert.assertEquals;
  * Author: DQinYuan
  */
 public class TestSuiteRunner {
-
     private static final String ASSERT_FUNCTION_NAME = "assert";
     private static final String ASSERT_FALSE_FUNCTION_NAME = "assertFalse";
+    private static final String ASSERT_ERROR_CODE_FUNCTION_NAME = "assertErrorCode";
     private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
     private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
-            .securityStrategy(QLSecurityStrategy.open())
-            .defaultImport(Arrays.asList(
-                    ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
-                    ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
-            .build());
+        .securityStrategy(QLSecurityStrategy.open())
+        .defaultImport(Arrays.asList(
+            ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
+            ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
+        .build());
 
     private Express4Runner prepareRunner(InitOptions initOptions) {
         Express4Runner testRunner = new Express4Runner(initOptions);
         testRunner.addFunction(ASSERT_FUNCTION_NAME, new AssertFunction());
         testRunner.addFunction(ASSERT_FALSE_FUNCTION_NAME, new AssertFalseFunction());
+        testRunner.addFunction(ASSERT_ERROR_CODE_FUNCTION_NAME, new AssertErrorCodeFunction());
         testRunner.addFunction(PRINT_FUNCTION_NAME, new PrintFunction());
         return testRunner;
     }
@@ -53,7 +58,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/cast/arraytolist.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/operator/bitwise.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -82,16 +87,16 @@ public class TestSuiteRunner {
         Optional<Map<String, Object>> scriptOptionOp = parseOption(qlScript);
         Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String)scriptOption.get("errCode"));
         Optional<InitOptions.Builder> initOptionsBuilder = scriptOptionOp.map(scriptOption ->
-                (InitOptions.Builder) scriptOption.get("initOptions"));
-        InitOptions initOptions = initOptionsBuilder.isPresent()?
-                initOptionsBuilder.get().securityStrategy(QLSecurityStrategy.open()).debug(debug).build():
-                InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).debug(debug).build();
+            (InitOptions.Builder)scriptOption.get("initOptions"));
+        InitOptions initOptions = initOptionsBuilder.isPresent() ?
+            initOptionsBuilder.get().securityStrategy(QLSecurityStrategy.open()).debug(debug).build() :
+            InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).debug(debug).build();
         Express4Runner express4Runner = prepareRunner(initOptions);
         Optional<QLOptions.Builder> optionsBuilder = scriptOptionOp.map(scriptOption ->
-                (QLOptions.Builder)scriptOption.get("qlOptions"));
+            (QLOptions.Builder)scriptOption.get("qlOptions"));
         QLOptions qlOptions = optionsBuilder.isPresent() ?
-                optionsBuilder.get().attachments(attachments).build() :
-                QLOptions.builder().attachments(attachments).build();
+            optionsBuilder.get().attachments(attachments).build() :
+            QLOptions.builder().attachments(attachments).build();
         if (errCodeOp.isPresent()) {
             long start = System.currentTimeMillis();
             assertErrCode(express4Runner, path, qlScript, qlOptions, errCodeOp.get(), debug);
@@ -118,7 +123,7 @@ public class TestSuiteRunner {
     }
 
     private void assertErrCode(Express4Runner runner, String path, String qlScript, QLOptions qlOptions,
-                               String expectErrCode, boolean printE) {
+        String expectErrCode, boolean printE) {
         try {
             runner.execute(qlScript, Collections.emptyMap(), qlOptions);
         } catch (QLException qlException) {
@@ -141,7 +146,7 @@ public class TestSuiteRunner {
         }
         String configJson = qlScript.substring(2, endIndex);
         try {
-            Map<String, Object> scriptOptions = (Map<String, Object>) CONFIG_RUNNER
+            Map<String, Object> scriptOptions = (Map<String, Object>)CONFIG_RUNNER
                 .execute(configJson, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
             return Optional.of(scriptOptions);
         } catch (JSONException e) {
@@ -245,6 +250,30 @@ public class TestSuiteRunner {
 
         private String wrap(Map<String, Object> attachments, String originErrInfo) {
             return attachments.get(TEST_PATH_ATT) + ": " + originErrInfo;
+        }
+    }
+
+    private static class AssertErrorCodeFunction implements QFunction {
+        @Override
+        public Object call(QRuntime qRuntime, Parameters parameters) throws Throwable {
+            int pSize = parameters.size();
+            if (pSize != 2) {
+                throw new UserDefineException(String.format("invalid pSize:%s, expected 2 parameters", pSize));
+            }
+
+            Value value = parameters.get(0);
+            Value value1 = parameters.get(1);
+            QLambda qLambda = (QLambda)value.get();
+            try {
+                qLambda.run();
+                throw new UserDefineException(String.format("expectedErrorCode:%s, but no error", value1.get()));
+            } catch (QLRuntimeException e) {
+                if (!Objects.equals(value1.get(), e.getErrorCode())) {
+                    throw new UserDefineException(
+                        String.format("expectedErrorCode:%s, actualErrorCode:%s", value1.get(), e.getErrorCode()));
+                }
+                return null;
+            }
         }
     }
 }
