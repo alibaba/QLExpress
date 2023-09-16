@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * @Operation: slice array or list, like a[2:4], a[4:-1], a[:4], a[5:], a[:]
- * @Input: 0-2
- * @Output: 1
+ * Operation: slice array or list, like a[2:4], a[4:-1], a[:4], a[5:], a[:]
+ * Input: 0-2
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

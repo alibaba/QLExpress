@@ -14,9 +14,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * @Operation: try and catch throw element
- * @Input: 0
- * @Output: 1
+ * Operation: try and catch throw element
+ * Input: 0
+ * Output: 1
  *
  * Author: DQinYuan
  */

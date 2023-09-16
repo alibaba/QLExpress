@@ -16,9 +16,9 @@ import java.util.function.Consumer;
 
 /**
  * new int[] {1,2,3}
- * @Operation: new array with init items
- * @Input: ${length}
- * @Output: 1
+ * Operation: new array with init items
+ * Input: ${length}
+ * Output: 1
  * Author: DQinYuan
  */
 public class NewArrayInstruction extends QLInstruction {

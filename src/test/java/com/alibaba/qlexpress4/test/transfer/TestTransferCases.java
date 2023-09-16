@@ -12,8 +12,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/10 下午4:37
+ * Author: TaoKan
  */
 public class TestTransferCases {
     /**

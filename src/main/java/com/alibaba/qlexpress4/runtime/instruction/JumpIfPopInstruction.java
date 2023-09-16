@@ -10,9 +10,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: pop the top of stack, if the element is ${expect}, jump to position, else execute next instruction as normal. jump if null
- * @Input: 1
- * @Output: 0
+ * Operation: pop the top of stack, if the element is ${expect}, jump to position, else execute next instruction as normal. jump if null
+ * Input: 1
+ * Output: 0
  *
  * Author: DQinYuan
  */

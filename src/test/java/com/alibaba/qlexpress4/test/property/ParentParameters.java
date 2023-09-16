@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/15 下午4:38
+ * Author: TaoKan
  */
 public class ParentParameters implements Parameters {
     public List<Value> values = new ArrayList<>();

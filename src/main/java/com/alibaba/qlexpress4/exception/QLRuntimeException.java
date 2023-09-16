@@ -7,11 +7,8 @@ public class QLRuntimeException extends QLException {
      */
     private final Object catchObj;
 
-    /**
+    /*
      * Visible for test
-     * @param catchObj
-     * @param reason
-     * @param errorCode
      */
     protected QLRuntimeException(Object catchObj, String reason, String errorCode) {
         super("", 0, 0, "", reason, errorCode, "");

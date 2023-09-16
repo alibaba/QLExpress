@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * @Operation: get specified method of object on the top of stack
- * @Input: 1
- * @Output: 1
+ * Operation: get specified method of object on the top of stack
+ * Input: 1
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

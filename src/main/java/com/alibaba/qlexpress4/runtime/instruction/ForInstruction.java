@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
- * @Operation: traditional for loop
- * @Input: 0
- * @Output: 0
+ * Operation: traditional for loop
+ * Input: 0
+ * Output: 0
  * Author: DQinYuan
  */
 public class ForInstruction extends QLInstruction {

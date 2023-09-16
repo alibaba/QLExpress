@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.test.property;
 
 /**
- * @Author TaoKan
- * @Date 2022/8/6 下午4:16
+ * Author: TaoKan
  */
 public class Child10 {
     public void setAA(int a){System.out.println("setAA");}

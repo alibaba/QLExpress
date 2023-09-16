@@ -10,9 +10,9 @@ import com.alibaba.qlexpress4.utils.PropertiesUtil;
 import java.util.function.Consumer;
 
 /**
- * @Operation: get specified field of object on the top of stack
- * @Input: 1
- * @Output: 1
+ * Operation: get specified field of object on the top of stack
+ * Input: 1
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

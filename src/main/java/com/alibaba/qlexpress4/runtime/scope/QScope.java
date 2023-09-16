@@ -27,22 +27,22 @@ public interface QScope {
 
     /**
      * define a symbol in local scope
-     * @param varName
-     * @param varClz
+     * @param varName variable name
+     * @param varClz class of variable
      * @param value init value
      */
     void defineLocalSymbol(String varName, Class<?> varClz, Object value);
 
     /**
      * define local function in scope
-     * @param functionName
-     * @param function
+     * @param functionName name of function
+     * @param function implement of function
      */
     void defineFunction(String functionName, QFunction function);
 
     /**
      * get function or lambda define
-     * @param functionName
+     * @param functionName name of function
      * @return null if not exist
      */
     QFunction getFunction(String functionName);
@@ -67,8 +67,7 @@ public interface QScope {
     Value pop();
 
     /**
-     * return top element of stack without pop
-     * @return
+     * @return top element of stack without pop
      */
     Value peek();
 

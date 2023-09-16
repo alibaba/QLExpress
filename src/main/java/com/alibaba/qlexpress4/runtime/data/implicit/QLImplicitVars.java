@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.implicit;
 
 /**
- * @Author TaoKan
- * @Date 2022/8/6 下午1:56
+ * Author: TaoKan
  */
 public class QLImplicitVars {
     private final boolean needVarsConvert;

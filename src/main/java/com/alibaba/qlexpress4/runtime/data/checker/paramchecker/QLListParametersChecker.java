@@ -6,8 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import java.util.Collection;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午10:34
+ * Author: TaoKan
  */
 public class QLListParametersChecker implements MatchChecker {
 

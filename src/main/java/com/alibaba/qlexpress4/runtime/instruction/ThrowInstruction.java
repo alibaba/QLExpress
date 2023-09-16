@@ -9,9 +9,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: throw top element on the stack
- * @Input: 1
- * @Output: 0
+ * Operation: throw top element on the stack
+ * Input: 1
+ * Output: 0
  * <p>
  * Author: DQinYuan
  */

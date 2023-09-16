@@ -6,8 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/28 下午5:25
+ * Author: TaoKan
  */
 public class QLAliasUtil {
     private QLAliasUtil() {

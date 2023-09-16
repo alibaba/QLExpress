@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/21 上午6:38
+ * Author: TaoKan
  */
 public class QLArrayAssignableConvertChecker implements TypeConvertChecker<Object> {
 

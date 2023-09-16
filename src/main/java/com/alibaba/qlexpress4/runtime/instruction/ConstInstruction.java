@@ -10,9 +10,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: push constObj to stack
- * @Input: 0
- * @Output: 1
+ * Operation: push constObj to stack
+ * Input: 0
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

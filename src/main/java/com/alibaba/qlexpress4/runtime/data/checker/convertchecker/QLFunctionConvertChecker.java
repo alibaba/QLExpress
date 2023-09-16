@@ -10,8 +10,7 @@ import com.alibaba.qlexpress4.utils.CacheUtil;
 import java.lang.reflect.Proxy;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午11:07
+ * Author: TaoKan
  */
 public class QLFunctionConvertChecker implements TypeConvertChecker<Object> {
 

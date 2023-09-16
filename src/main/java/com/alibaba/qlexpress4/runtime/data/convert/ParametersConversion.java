@@ -9,8 +9,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLImplicitVars;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLWeighter;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/25 下午7:01
+ * Author: TaoKan
  */
 public class ParametersConversion {
     private static final MatchChecker[] typeParametersChecker;

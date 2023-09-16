@@ -8,8 +8,7 @@ import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import java.util.Map;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/15 上午11:03
+ * Author: TaoKan
  */
 public class TestQContextParent implements QContext {
     private Value value;

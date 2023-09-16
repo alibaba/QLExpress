@@ -30,7 +30,6 @@ import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 
 /**
  * Author: DQinYuan
- * date 2022/1/12 2:28 下午
  */
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();

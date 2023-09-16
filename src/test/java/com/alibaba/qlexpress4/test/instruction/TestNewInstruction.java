@@ -10,8 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/15 下午4:23
+ * Author: TaoKan
  */
 public class TestNewInstruction {
     @Test

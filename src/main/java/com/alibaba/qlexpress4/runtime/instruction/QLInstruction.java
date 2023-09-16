@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 /**
  * Instruction Specification:
  *
- * @Operation: What does it do?
- * @Input: How many stack element it consumes? and their means
- * @Output: How many stack element it push back? and their means
+ * Operation: What does it do?
+ * Input: How many stack element it consumes? and their means
+ * Output: How many stack element it push back? and their means
  * <p>
  * Author: DQinYuan
  */

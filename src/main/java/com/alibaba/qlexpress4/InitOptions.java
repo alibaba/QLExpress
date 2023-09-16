@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/6 下午6:32
+ * Author: TaoKan
  */
 public class InitOptions {
 

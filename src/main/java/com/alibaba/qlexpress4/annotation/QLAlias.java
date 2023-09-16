@@ -12,7 +12,7 @@ import static java.lang.annotation.ElementType.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QLAlias {
     /**
-     * 注解内容
+     * @return aliases
      */
     String[] value();
 }

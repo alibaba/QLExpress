@@ -20,9 +20,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * @Operation: invoke specified method of object on the top of stack
- * @Input: ${argNum} + 1
- * @Output: 1, method return value, null for void method
+ * Operation: invoke specified method of object on the top of stack
+ * Input: ${argNum} + 1
+ * Output: 1, method return value, null for void method
  * <p>
  * equivalent to GetMethodInstruction + CallInstruction
  * <p>

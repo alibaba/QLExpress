@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.implicit;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/29 下午4:25
+ * Author: TaoKan
  */
 public class QLCandidateMethodAttr {
     private Class<?>[] paramClass;

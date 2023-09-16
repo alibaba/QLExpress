@@ -4,8 +4,7 @@ import com.alibaba.qlexpress4.runtime.data.checker.MatchChecker;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午10:34
+ * Author: TaoKan
  */
 public class QLArrayParametersChecker implements MatchChecker {
 

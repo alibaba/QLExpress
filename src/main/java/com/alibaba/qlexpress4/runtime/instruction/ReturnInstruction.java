@@ -10,9 +10,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: return top element and exit lambda
- * @Input: 1
- * @Output: 0
+ * Operation: return top element and exit lambda
+ * Input: 1
+ * Output: 0
  * <p>
  * Author: DQinYuan
  */

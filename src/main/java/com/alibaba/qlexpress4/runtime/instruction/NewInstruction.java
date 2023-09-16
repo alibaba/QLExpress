@@ -19,9 +19,9 @@ import java.util.function.Supplier;
 import java.util.function.Consumer;
 
 /**
- * @Operation: new an object of specified class
- * @Input: ${argNum} + 1
- * @Output: 1
+ * Operation: new an object of specified class
+ * Input: ${argNum} + 1
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

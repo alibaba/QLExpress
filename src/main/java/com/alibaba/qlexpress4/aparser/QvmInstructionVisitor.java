@@ -93,8 +93,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private int timeoutCheckPoint = -1;
 
-    /**
-     * main
+    /*
+     * main constructor
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  OperatorFactory operatorFactory,
@@ -107,8 +107,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         this.compileTimeFunctions = compileTimeFunctions;
     }
 
-    /**
-     * recursion
+    /*
+     *  for recursion
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  GeneratorScope generatorScope, OperatorFactory operatorFactory,
@@ -121,7 +121,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         this.compileTimeFunctions = compileTimeFunctions;
     }
 
-    /**
+    /*
      * visible for testing
      */
     public QvmInstructionVisitor(String script) {
@@ -153,7 +153,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 .map(VarIdContext::getStart)
                 .map(Token::getText)
                 .collect(Collectors.joining("."));
-        importManager.addImport(isInnerCls? ImportManager.importInnerCls(importPath):
+        importManager.addImport(isInnerCls ? ImportManager.importInnerCls(importPath) :
                 ImportManager.importPack(importPath));
         return null;
     }
@@ -166,8 +166,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             if (preStatement instanceof ExpressionStatementContext) {
                 // pop if expression without acceptor
                 addInstruction(new PopInstruction(
-                        newReporterWithToken(preStatement.getStart())
-                    )
+                                newReporterWithToken(preStatement.getStart())
+                        )
                 );
             }
             BlockStatementContext child = blockStatementsContext.getChild(BlockStatementContext.class, i);
@@ -221,7 +221,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             return null;
         }
         PrimaryNoFixContext primaryNoFixContext = baseExprContext.primary().primaryNoFix();
-        return primaryNoFixContext instanceof BlockExprContext? (BlockExprContext) primaryNoFixContext : null;
+        return primaryNoFixContext instanceof BlockExprContext ? (BlockExprContext) primaryNoFixContext : null;
     }
 
     @Override
@@ -248,34 +248,34 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
         // for init
         ForInitContext forInitContext = ctx.forInit();
-        QLambdaDefinitionInner forInitLambda = forInitContext == null? null:
+        QLambdaDefinitionInner forInitLambda = forInitContext == null ? null :
                 generateForInitLambda(forCount, forInitContext);
 
         // condition
         ExpressionContext forConditionContext = ctx.forCondition;
-        QLambdaDefinitionInner forConditionLambda = forConditionContext == null? null:
+        QLambdaDefinitionInner forConditionLambda = forConditionContext == null ? null :
                 generateForExpressLambda(forCount, CONDITION_SUFFIX, forConditionContext);
 
         // for update
         ExpressionContext forUpdateContext = ctx.forUpdate;
-        QLambdaDefinitionInner forUpdateLambda = forUpdateContext == null? null:
+        QLambdaDefinitionInner forUpdateLambda = forUpdateContext == null ? null :
                 generateForExpressLambda(forCount, UPDATE_SUFFIX, forUpdateContext);
 
         // for body
         BlockStatementContext forBodyContext = ctx.blockStatement();
-        QLambdaDefinitionInner forBodyLambda = forBodyContext == null? null:
+        QLambdaDefinitionInner forBodyLambda = forBodyContext == null ? null :
                 loopBodyVisitorDefinition(forBodyContext,
                         generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount + BODY_SUFFIX,
                         Collections.emptyList(),
                         forErrReporter
                 );
 
-        int forInitSize = forInitLambda == null? 0: forInitLambda.getMaxStackSize();
-        int forConditionSize = forConditionLambda == null? 0: forConditionLambda.getMaxStackSize();
-        int forUpdateSize = forUpdateLambda == null? 0: forUpdateLambda.getMaxStackSize();
+        int forInitSize = forInitLambda == null ? 0 : forInitLambda.getMaxStackSize();
+        int forConditionSize = forConditionLambda == null ? 0 : forConditionLambda.getMaxStackSize();
+        int forUpdateSize = forUpdateLambda == null ? 0 : forUpdateLambda.getMaxStackSize();
         int forScopeMaxStackSize = Math.max(forInitSize, Math.max(forConditionSize, forUpdateSize));
         addInstruction(new ForInstruction(forErrReporter, forInitLambda, forConditionLambda,
-                forConditionContext != null? newReporterWithToken(forConditionContext.getStart()): null,
+                forConditionContext != null ? newReporterWithToken(forConditionContext.getStart()) : null,
                 forUpdateLambda, forScopeMaxStackSize,
                 forBodyLambda));
         return null;
@@ -287,7 +287,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             QvmInstructionVisitor subVisitor = parseWithSubVisitor(forInitContext.localVariableDeclaration(),
                     new GeneratorScope(scopeName, generatorScope), Context.MACRO);
             return new QLambdaDefinitionInner(scopeName, subVisitor.getInstructions(),
-                    Collections.emptyList(),subVisitor.getMaxStackSize());
+                    Collections.emptyList(), subVisitor.getMaxStackSize());
         } else if (forInitContext.expression() != null) {
             return generateForExpressLambda(forCount, INIT_SUFFIX, forInitContext.expression());
         } else {
@@ -300,7 +300,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         QvmInstructionVisitor subVisitor = parseExprBodyWithSubVisitor(expressionContext,
                 new GeneratorScope(scopeName, generatorScope), Context.BLOCK);
         return new QLambdaDefinitionInner(scopeName, subVisitor.getInstructions(),
-                Collections.emptyList(),subVisitor.getMaxStackSize());
+                Collections.emptyList(), subVisitor.getMaxStackSize());
     }
 
     @Override
@@ -309,7 +309,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         targetExprContext.accept(this);
 
         DeclTypeContext declTypeContext = ctx.declType();
-        Class<?> itVarCls = declTypeContext == null? Object.class: parseDeclType(declTypeContext);
+        Class<?> itVarCls = declTypeContext == null ? Object.class : parseDeclType(declTypeContext);
 
         ErrorReporter forEachErrReporter = newReporterWithToken(ctx.FOR().getSymbol());
         QLambdaDefinition bodyDefinition = loopBodyVisitorDefinition(ctx.blockStatement(),
@@ -321,9 +321,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         );
 
         addInstruction(new ForEachInstruction(
-                forEachErrReporter, bodyDefinition,
-                itVarCls, newReporterWithToken(targetExprContext.getStart())
-            )
+                        forEachErrReporter, bodyDefinition,
+                        itVarCls, newReporterWithToken(targetExprContext.getStart())
+                )
         );
 
         return null;
@@ -401,8 +401,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     @Override
     public Void visitFunctionStatement(FunctionStatementContext ctx) {
         FormalOrInferredParameterListContext formalOrInferredParameterList = ctx.formalOrInferredParameterList();
-        List<QLambdaDefinitionInner.Param> params = formalOrInferredParameterList == null?
-                Collections.emptyList():
+        List<QLambdaDefinitionInner.Param> params = formalOrInferredParameterList == null ?
+                Collections.emptyList() :
                 parseFormalOrInferredParameterList(formalOrInferredParameterList);
         VarIdContext functionNameCtx = ctx.varId();
         QLambdaDefinition functionDefinition = parseFunctionDefinition(functionNameCtx.getText(), ctx, params);
@@ -413,7 +413,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     private QLambdaDefinition parseFunctionDefinition(String functionName, FunctionStatementContext ctx,
-                                                       List<QLambdaDefinitionInner.Param> params) {
+                                                      List<QLambdaDefinitionInner.Param> params) {
         BlockStatementsContext blockStatementsContext = ctx.blockStatements();
         if (blockStatementsContext == null) {
             return new QLambdaDefinitionInner(functionName, Collections.emptyList(), params, 0);
@@ -482,8 +482,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         List<QLInstruction> thenInstructions = parseWithSubVisitor(ctx.thenBody,
                 new GeneratorScope(thenScopeName, generatorScope), Context.MACRO).getInstructions();
         String elseScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount + ELSE_SUFFIX;
-        List<QLInstruction> elseInstructions = ctx.elseBody == null?
-                Collections.singletonList(new ConstInstruction(ifErrorReporter, null)):
+        List<QLInstruction> elseInstructions = ctx.elseBody == null ?
+                Collections.singletonList(new ConstInstruction(ifErrorReporter, null)) :
                 parseWithSubVisitor(ctx.elseBody, new GeneratorScope(elseScopeName, generatorScope),
                         Context.MACRO).getInstructions();
         ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions);
@@ -495,7 +495,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     @Override
     public Void visitBreakContinueStatement(BreakContinueStatementContext ctx) {
         TerminalNode aBreak = ctx.BREAK();
-        QResult qResult = aBreak == null? QResult.LOOP_CONTINUE_RESULT: QResult.LOOP_BREAK_RESULT;
+        QResult qResult = aBreak == null ? QResult.LOOP_CONTINUE_RESULT : QResult.LOOP_BREAK_RESULT;
         addInstruction(
                 new BreakContinueInstruction(newReporterWithToken(ctx.getStart()), qResult)
         );
@@ -550,7 +550,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         if (argumentListContext != null) {
             argumentListContext.accept(this);
         }
-        int argNum = argumentListContext == null? 0: argumentListContext.expression().size();
+        int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
         addInstruction(new NewInstruction(newReporterWithToken(ctx.NEW().getSymbol()), newCls, argNum));
         return null;
     }
@@ -561,8 +561,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         int dims = ctx.dimExprs().expression().size();
         Class<?> arrCls = parseDeclTypeNoArr(ctx.declTypeNoArr());
         addInstruction(new MultiNewArrayInstruction(
-                newReporterWithToken(ctx.NEW().getSymbol()), arrCls, dims
-            )
+                        newReporterWithToken(ctx.NEW().getSymbol()), arrCls, dims
+                )
         );
         return null;
     }
@@ -623,7 +623,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             FormalOrInferredParameterContext formalOrInferredParameterContext) {
         String paramName = formalOrInferredParameterContext.varId().getText();
         DeclTypeContext declTypeContext = formalOrInferredParameterContext.declType();
-        Class<?> paramCls = declTypeContext == null? Object.class: parseDeclType(declTypeContext);
+        Class<?> paramCls = declTypeContext == null ? Object.class : parseDeclType(declTypeContext);
         return new QLambdaDefinitionInner.Param(paramName, paramCls);
     }
 
@@ -723,7 +723,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             int dimPartNum = parseDimParts(0, pathPartContexts);
             addInstruction(new ConstInstruction(
                     newReporterWithToken(primaryNoFixContext.getStart()),
-                    new MetaClass(dimPartNum > 0? wrapInArray(cls, dimPartNum): cls))
+                    new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls))
             );
             return dimPartNum;
         } else if (!(primaryNoFixContext instanceof VarIdExprContext)) {
@@ -755,9 +755,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         ImportManager.LoadQualifiedResult loadQualifiedResult = importManager.loadQualified(headPartIds);
         if (loadQualifiedResult.getCls() != null) {
             int restIndex = loadQualifiedResult.getRestIndex() - 1;
-            Token clsReportToken = restIndex == 0? idContext.getStart(): pathPartContexts.get(restIndex - 1).getStop();
+            Token clsReportToken = restIndex == 0 ? idContext.getStart() : pathPartContexts.get(restIndex - 1).getStop();
             int dimPartNum = parseDimParts(restIndex, pathPartContexts);
-            Class<?> cls = dimPartNum > 0? wrapInArray(loadQualifiedResult.getCls(), dimPartNum):
+            Class<?> cls = dimPartNum > 0 ? wrapInArray(loadQualifiedResult.getCls(), dimPartNum) :
                     loadQualifiedResult.getCls();
 
             addInstruction(new ConstInstruction(newReporterWithToken(clsReportToken), new MetaClass(cls)));
@@ -832,8 +832,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public Void visitMethodAccess(MethodAccessContext ctx) {
         VarIdContext methodName = ctx.varId();
         addInstruction(new GetMethodInstruction(
-                newReporterWithToken(ctx.DCOLON().getSymbol()), methodName.getText()
-           )
+                        newReporterWithToken(ctx.DCOLON().getSymbol()), methodName.getText()
+                )
         );
         return null;
     }
@@ -844,7 +844,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         if (argumentListContext != null) {
             argumentListContext.accept(this);
         }
-        int argNum = argumentListContext == null? 0: argumentListContext.expression().size();
+        int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
         addInstruction(new CallInstruction(newReporterWithToken(ctx.getStart()), argNum));
         return null;
     }
@@ -915,7 +915,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             return macroCtx;
         }
         List<BlockStatementContext> blockStatementContexts = macroBlockStatementsCtx.blockStatement();
-        return blockStatementContexts.isEmpty()? macroCtx: blockStatementContexts.get(blockStatementContexts.size() - 1);
+        return blockStatementContexts.isEmpty() ? macroCtx : blockStatementContexts.get(blockStatementContexts.size() - 1);
     }
 
     private List<QLInstruction> getMacroInstructions(BlockStatementsContext macroBlockStatementsContext) {
@@ -964,8 +964,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private void newArrWithInitializers(Class<?> componentClz,
                                         ArrayInitializerContext arrayInitializerContext) {
         VariableInitializerListContext variableInitializerListContext = arrayInitializerContext.variableInitializerList();
-        List<VariableInitializerContext> initializerContexts = variableInitializerListContext == null?
-                Collections.emptyList(): variableInitializerListContext.variableInitializer();
+        List<VariableInitializerContext> initializerContexts = variableInitializerListContext == null ?
+                Collections.emptyList() : variableInitializerListContext.variableInitializer();
         for (VariableInitializerContext variableInitializerContext : initializerContexts) {
             variableInitializerContext.accept(this);
         }
@@ -1046,7 +1046,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         if (argumentListContext != null) {
             argumentListContext.accept(this);
         }
-        int argSize = argumentListContext == null? 0: argumentListContext.expression().size();
+        int argSize = argumentListContext == null ? 0 : argumentListContext.expression().size();
         addInstruction(
                 new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName, argSize)
         );
@@ -1207,7 +1207,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private int handleStringInterpolation(ErrorReporter errorReporter, String originStr) {
         int dollarIndex = originStr.indexOf("${");
-        int dollarCloseIndex = dollarIndex == -1? -1: originStr.indexOf('}', dollarIndex);
+        int dollarCloseIndex = dollarIndex == -1 ? -1 : originStr.indexOf('}', dollarIndex);
         if (dollarIndex == -1 || dollarCloseIndex == -1) {
             addInstruction(
                     new ConstInstruction(errorReporter, originStr)
@@ -1296,7 +1296,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 return baseDecimal.doubleValue();
             default:
                 baseDecimal = new BigDecimal(floatingText);
-                return baseDecimal.compareTo(MAX_DOUBLE) <= 0? baseDecimal.doubleValue(): baseDecimal;
+                return baseDecimal.compareTo(MAX_DOUBLE) <= 0 ? baseDecimal.doubleValue() : baseDecimal;
         }
     }
 
@@ -1356,7 +1356,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private Class<?> parseDeclType(DeclTypeContext declTypeContext) {
         Class<?> baseCls = parseDeclBaseCls(declTypeContext);
         DimsContext dims = declTypeContext.dims();
-        int layers = dims == null? 0: dims.LBRACK().size();
+        int layers = dims == null ? 0 : dims.LBRACK().size();
         return wrapInArray(baseCls, layers);
     }
 
@@ -1512,7 +1512,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         }
         pureAddInstruction(qlInstruction);
         if (qlInstruction instanceof MethodInvokeInstruction || qlInstruction instanceof CallFunctionInstruction ||
-            qlInstruction instanceof CallConstInstruction || qlInstruction instanceof CallInstruction) {
+                qlInstruction instanceof CallConstInstruction || qlInstruction instanceof CallInstruction) {
             addTimeoutInstruction();
         }
     }

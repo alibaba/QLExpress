@@ -11,8 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午11:08
+ * Author: TaoKan
  */
 public class QLNumberConvertChecker implements TypeConvertChecker<Object> {
 

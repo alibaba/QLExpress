@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import java.lang.reflect.Method;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/31 下午12:43
+ * Author: TaoKan
  */
 public class QLFunctionUtil {
 

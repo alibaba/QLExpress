@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/28 下午5:21
+ * Author: TaoKan
  */
 public class CacheUtil {
     private static final Map<Object, Boolean> FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();

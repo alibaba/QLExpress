@@ -3,8 +3,7 @@ package com.alibaba.qlexpress4.test.property;
 import com.alibaba.qlexpress4.runtime.Value;
 
 /**
- * @Author TaoKan
- * @Date 2022/4/9 上午10:55
+ * Author: TaoKan
  */
 public class Child extends Parent implements Value {
     public String work = "childWork";

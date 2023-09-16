@@ -14,12 +14,12 @@ public interface BinaryOperator extends Operator {
     /**
      * 执行操作符计算
      *
-     * @param left
-     * @param right
-     * @param qRuntime
-     * @param qlOptions
-     * @param errorReporter
-     * @return
+     * @param left left operand
+     * @param right right operand
+     * @param qRuntime runtime of qlexpress
+     * @param qlOptions options of current script run
+     * @param errorReporter error reporter
+     * @return result of operator
      */
     Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter);
 }

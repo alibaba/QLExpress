@@ -9,9 +9,9 @@ import com.alibaba.qlexpress4.runtime.QRuntime;
 public interface QFunction {
 
     /**
-     * @param qRuntime
-     * @param parameters
-     * @return
+     * @param qRuntime runtime of current script run
+     * @param parameters parameters
+     * @return result of function
      * @throws Throwable
      *        {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */

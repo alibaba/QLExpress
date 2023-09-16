@@ -17,8 +17,8 @@ public class DefaultClassSupplier implements ClassSupplier {
     private final Map<String, NullableCls> cache = new ConcurrentHashMap<>();
 
     /**
-     * @param clsQualifiedName
-     * @return
+     * @param clsQualifiedName qualified name of class
+     * @return loaded class
      */
     @Override
     public Class<?> loadCls(String clsQualifiedName) {

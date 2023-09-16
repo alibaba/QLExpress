@@ -4,8 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/15 下午8:08
+ * Author: TaoKan
  */
 public class FieldReflect {
 

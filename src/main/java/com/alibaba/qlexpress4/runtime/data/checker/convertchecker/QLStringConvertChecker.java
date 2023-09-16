@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.StringConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午11:03
+ * Author: TaoKan
  */
 public class QLStringConvertChecker implements TypeConvertChecker<Object> {
 

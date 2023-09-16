@@ -13,9 +13,9 @@ import java.util.function.Consumer;
 
 /**
  * new int[1][2][][]
- * @Operation: new array with multi dims
- * @Input: ${dims}
- * @Output: 1
+ * Operation: new array with multi dims
+ * Input: ${dims}
+ * Output: 1
  * Author: DQinYuan
  */
 public class MultiNewArrayInstruction extends QLInstruction {

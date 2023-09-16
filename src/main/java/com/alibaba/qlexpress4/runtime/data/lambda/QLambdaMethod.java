@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/15 下午8:23
+ * Author: TaoKan
  */
 public class QLambdaMethod implements QLambda {
 

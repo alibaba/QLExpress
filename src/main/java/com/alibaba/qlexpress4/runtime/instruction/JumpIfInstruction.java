@@ -10,9 +10,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: if the element is ${expect}, jump to position, else execute next instruction as normal. not jump if null
- * @Input: 0
- * @Output: 0
+ * Operation: if the element is ${expect}, jump to position, else execute next instruction as normal. not jump if null
+ * Input: 0
+ * Output: 0
  *
  * Author: DQinYuan
  */

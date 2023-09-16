@@ -12,9 +12,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: call a lambda with fixed number of arguments
- * @Input: ${argNum} + 1
- * @Output: 1, lambda return result
+ * Operation: call a lambda with fixed number of arguments
+ * Input: ${argNum} + 1
+ * Output: 1, lambda return result
  * <p>
  * Author: DQinYuan
  */

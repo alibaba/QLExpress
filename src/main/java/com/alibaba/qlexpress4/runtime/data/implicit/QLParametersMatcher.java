@@ -3,8 +3,7 @@ package com.alibaba.qlexpress4.runtime.data.implicit;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/29 下午4:20
+ * Author: TaoKan
  */
 public class QLParametersMatcher {
     private int matchWeight;

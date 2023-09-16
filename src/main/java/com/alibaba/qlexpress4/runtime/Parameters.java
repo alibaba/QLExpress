@@ -20,7 +20,7 @@ public interface Parameters {
 
     /**
      * parameters size
-     * @return
+     * @return size
      */
     int size();
 }

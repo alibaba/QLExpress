@@ -13,8 +13,7 @@ import java.util.*;
 import java.util.stream.*;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/26 下午3:35
+ * Author: TaoKan
  */
 public class ArrayConversion {
     private static final TypeConvertChecker[] typeConvertArrayChecker;

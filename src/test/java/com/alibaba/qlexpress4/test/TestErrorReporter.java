@@ -4,8 +4,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/22 下午7:02
+ * Author: TaoKan
  */
 public class TestErrorReporter implements ErrorReporter {
     @Override

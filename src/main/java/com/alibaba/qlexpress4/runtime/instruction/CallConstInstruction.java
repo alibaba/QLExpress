@@ -11,9 +11,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: call const lambda
- * @Input: ${argNum}
- * @Output: 1 const lambda result
+ * Operation: call const lambda
+ * Input: ${argNum}
+ * Output: 1 const lambda result
  * <p>
  * Author: DQinYuan
  */

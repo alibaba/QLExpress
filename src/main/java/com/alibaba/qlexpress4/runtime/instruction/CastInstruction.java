@@ -15,9 +15,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: force cast value to specified type
- * @Input: 2 targetCls and value
- * @Output: 1 casted value
+ * Operation: force cast value to specified type
+ * Input: 2 targetCls and value
+ * Output: 1 casted value
  * <p>
  * Author: DQinYuan
  */

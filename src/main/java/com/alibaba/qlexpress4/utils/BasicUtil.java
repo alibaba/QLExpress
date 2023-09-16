@@ -14,8 +14,7 @@ import java.util.Optional;
 import static java.lang.Character.toUpperCase;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/28 下午5:18
+ * Author: TaoKan
  */
 public class BasicUtil {
     public static final String NULL_SIGN = "null";

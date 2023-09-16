@@ -9,9 +9,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: instantiate lambda definition on stack
- * @Input: 0
- * @Output: 1 lambda instance
+ * Operation: instantiate lambda definition on stack
+ * Input: 0
+ * Output: 1 lambda instance
  *
  * Author: DQinYuan
  */

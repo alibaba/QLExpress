@@ -6,8 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/21 上午8:04
+ * Author: TaoKan
  */
 public class QLNumberToBigDecimalConvertChecker implements TypeConvertChecker<Number> {
 

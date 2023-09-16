@@ -10,8 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/28 下午5:54
+ * Author: TaoKan
  */
 public class QLambdaInvocationHandler implements InvocationHandler {
     private final QLambda qLambda;

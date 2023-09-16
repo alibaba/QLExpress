@@ -6,8 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import java.util.Collection;
 
 /**
- * @Author TaoKan
- * @Date 2022/12/15 下午5:02
+ * Author: TaoKan
  */
 public class ListConversion {
     public static QLConvertResult trans(final Object object, final Class type) {

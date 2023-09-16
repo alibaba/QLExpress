@@ -11,9 +11,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: concat n string on the top of stack
- * @Input: ${n}
- * @Output: concat result
+ * Operation: concat n string on the top of stack
+ * Input: ${n}
+ * Output: concat result
  *
  * Author: DQinYuan
  */

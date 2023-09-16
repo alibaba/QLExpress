@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * @Operation: extract value with index, like a[0], m['a']
- * @Input: 2, indexable object and index
- * @Output: 1
+ * Operation: extract value with index, like a[0], m['a']
+ * Input: 2, indexable object and index
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

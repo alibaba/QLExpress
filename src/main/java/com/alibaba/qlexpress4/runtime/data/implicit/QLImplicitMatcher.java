@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.implicit;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/29 下午4:24
+ * Author: TaoKan
  */
 public class QLImplicitMatcher {
     private final Boolean needImplicitTrans;

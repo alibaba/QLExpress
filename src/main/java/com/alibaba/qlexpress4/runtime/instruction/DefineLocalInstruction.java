@@ -12,9 +12,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: define a symbol in local scope
- * @Input: 1 symbol init value
- * @Output: 0
+ * Operation: define a symbol in local scope
+ * Input: 1 symbol init value
+ * Output: 0
  *
  * Author: DQinYuan
  */

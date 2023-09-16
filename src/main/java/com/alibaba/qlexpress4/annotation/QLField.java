@@ -7,15 +7,14 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/31 下午12:10
+ * Author: TaoKan
  */
 @Inherited
 @Target({METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface QLField {
     /**
-     * 注解内容
+     * @return aliases
      */
     String[] value();
 }

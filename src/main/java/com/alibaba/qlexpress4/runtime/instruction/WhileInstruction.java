@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
- * @Operation: while (condition) do body
- * @Input: 0
- * @Output: 0
+ * Operation: while (condition) do body
+ * Input: 0
+ * Output: 0
  * <p>
  * Author: DQinYuan
  */

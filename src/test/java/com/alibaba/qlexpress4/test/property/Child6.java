@@ -6,8 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/10 下午6:53
+ * Author: TaoKan
  */
 public class Child6 extends Parent implements Value {
     private final long result;

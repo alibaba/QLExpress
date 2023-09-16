@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author TaoKan
- * @Date 2022/4/7 下午6:05
+ * Author: TaoKan
  */
 public class MethodHandler extends MemberHandler {
 
@@ -72,9 +71,9 @@ public class MethodHandler extends MemberHandler {
 
     public static class Preferred {
         /**
-         * @param idealMatch
-         * @param methods
-         * @return
+         * @param idealMatch idealMatch
+         * @param methods methods
+         * @return result
          */
         public static MethodReflect findMostSpecificMethod(Class<?>[] idealMatch, Method[] methods) {
             QLCandidateMethodAttr[] candidates = new QLCandidateMethodAttr[methods.length];

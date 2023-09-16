@@ -6,8 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 
 /**
- * @Author TaoKan
- * @Date 2022/6/25 下午8:49
+ * Author: TaoKan
  */
 public class InstanceConversion {
 

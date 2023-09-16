@@ -13,9 +13,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: call ql function from function table
- * @Input: ${argNum}
- * @Output: 1 function result
+ * Operation: call ql function from function table
+ * Input: ${argNum}
+ * Output: 1 function result
  * Author: DQinYuan
  */
 public class CallFunctionInstruction extends QLInstruction {

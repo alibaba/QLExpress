@@ -9,9 +9,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: check if program timeout
- * @Input: 0
- * @Output: 0
+ * Operation: check if program timeout
+ * Input: 0
+ * Output: 0
  * <p>
  * Author: DQinYuan
  */

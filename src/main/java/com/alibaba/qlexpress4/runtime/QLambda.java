@@ -9,8 +9,8 @@ public interface QLambda
     extends Runnable, Supplier<Object>, Consumer<Object>, Predicate<Object>, Function<Object, Object> {
 
     /**
-     * @param params
-     * @return
+     * @param params params of lambda
+     * @return result of lambda
      * @throws Throwable {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
     QResult call(Object... params) throws Throwable;

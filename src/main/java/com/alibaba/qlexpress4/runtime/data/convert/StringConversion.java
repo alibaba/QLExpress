@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/26 下午3:39
+ * Author: TaoKan
  */
 public class StringConversion {
     public static QLConvertResult trans(Object object) {

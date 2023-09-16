@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/21 上午6:40
+ * Author: TaoKan
  */
 public class QLArrayIntStreamConvertChecker implements TypeConvertChecker<Object> {
 

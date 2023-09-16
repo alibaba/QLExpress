@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4.test.property;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/10 下午4:43
+ * Author: TaoKan
  */
 public enum TestEnum {
     SKT(-1),

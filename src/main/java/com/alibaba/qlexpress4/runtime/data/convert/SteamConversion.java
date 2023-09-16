@@ -5,8 +5,7 @@ import java.util.function.Consumer;
 import java.util.stream.*;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/26 下午3:33
+ * Author: TaoKan
  */
 public class SteamConversion {
 

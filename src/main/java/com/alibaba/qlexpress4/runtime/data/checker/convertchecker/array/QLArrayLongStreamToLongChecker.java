@@ -7,8 +7,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 import java.util.stream.LongStream;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/21 上午7:52
+ * Author: TaoKan
  */
 public class QLArrayLongStreamToLongChecker implements TypeConvertChecker<Object> {
 

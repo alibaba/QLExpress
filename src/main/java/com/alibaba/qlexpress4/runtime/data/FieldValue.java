@@ -6,8 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * @Author TaoKan
- * @Date 2022/6/16 上午10:17
+ * Author: TaoKan
  */
 public class FieldValue implements LeftValue {
     private final Supplier<Object> getOp;

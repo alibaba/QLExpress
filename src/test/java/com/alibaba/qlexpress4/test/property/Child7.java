@@ -3,8 +3,7 @@ package com.alibaba.qlexpress4.test.property;
 import com.alibaba.qlexpress4.annotation.QLAlias;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/31 上午11:30
+ * Author: TaoKan
  */
 public class Child7 {
     @QLAlias("测试静态字段")

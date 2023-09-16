@@ -94,7 +94,7 @@ public abstract class NumberMath {
         return getMath(left, right).remainderImpl(left, right);
     }
 
-    /**
+    /*
      * For this operation, consider the operands independently.  Throw an exception if the right operand
      * (shift distance) is not an integral type.  For the left operand (shift value) also require an integral
      * type, but do NOT promote from Integer to Long.  This is consistent with Java, and makes sense for the
@@ -109,7 +109,7 @@ public abstract class NumberMath {
         return getMath(left).leftShiftImpl(left, right);
     }
 
-    /**
+    /*
      * For this operation, consider the operands independently.  Throw an exception if the right operand
      * (shift distance) is not an integral type.  For the left operand (shift value) also require an integral
      * type, but do NOT promote from Integer to Long.  This is consistent with Java, and makes sense for the
@@ -124,7 +124,7 @@ public abstract class NumberMath {
         return getMath(left).rightShiftImpl(left, right);
     }
 
-    /**
+    /*
      * For this operation, consider the operands independently.  Throw an exception if the right operand
      * (shift distance) is not an integral type.  For the left operand (shift value) also require an integral
      * type, but do NOT promote from Integer to Long.  This is consistent with Java, and makes sense for the
@@ -215,7 +215,7 @@ public abstract class NumberMath {
         return new BigInteger(n.toString());
     }
 
-    /**
+    /*
      * Determine which NumberMath instance to use, given the supplied operands.  This method implements
      * the type promotion rules discussed in the documentation.  Note that by the time this method is
      * called, any Byte, Character or Short operands will have been promoted to Integer.  For reference,

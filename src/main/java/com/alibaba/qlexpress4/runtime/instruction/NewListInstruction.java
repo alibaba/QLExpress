@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * @Operation: new a List with top ${initLength} stack element
- * @Input: ${initLength}
- * @Output: 1
+ * Operation: new a List with top ${initLength} stack element
+ * Input: ${initLength}
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

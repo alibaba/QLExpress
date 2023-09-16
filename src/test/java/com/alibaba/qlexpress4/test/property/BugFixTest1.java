@@ -3,8 +3,7 @@ package com.alibaba.qlexpress4.test.property;
 import java.math.BigDecimal;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/26 下午8:42
+ * Author: TaoKan
  */
 public class BugFixTest1 {
     public BugFixTest1(double a){

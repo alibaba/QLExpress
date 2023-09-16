@@ -3,8 +3,7 @@ package com.alibaba.qlexpress4.runtime.data.implicit;
 import java.lang.reflect.Constructor;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/3 上午10:25
+ * Author: TaoKan
  */
 public class ConstructorReflect {
     private final Constructor<?> constructor;

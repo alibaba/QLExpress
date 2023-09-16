@@ -13,9 +13,9 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 /**
- * @Operation: process each element in iterable object on top of stack,
- * @Input: 1
- * @Output: 0
+ * Operation: process each element in iterable object on top of stack,
+ * Input: 1
+ * Output: 0
  *
  * Author: DQinYuan
  */

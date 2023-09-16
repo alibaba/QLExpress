@@ -7,8 +7,7 @@ import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 import java.util.Collection;
 
 /**
- * @Author TaoKan
- * @Date 2022/12/15 下午4:56
+ * Author: TaoKan
  */
 public class QLListConvertChecker implements TypeConvertChecker<Object> {
 

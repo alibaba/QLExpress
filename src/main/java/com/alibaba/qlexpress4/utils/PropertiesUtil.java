@@ -7,22 +7,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/28 下午5:23
+ * Author: TaoKan
  */
 public class PropertiesUtil {
 
-    private final Map<Class<?>, Boolean> FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
-
-
-
     /**
-     * getMethod List
-     * return null means notFound
-     *
-     * @param bean
-     * @param name
-     * @return
+     * @param bean bean
+     * @param name name of method
+     * @param isAllowAccessPrivate isAllowAccessPrivate
+     * @return method list, null means notFound
      */
     public static List<Method> getMethod(Object bean, String name, boolean isAllowAccessPrivate) {
         return getMethod(bean, name, null, isAllowAccessPrivate);
@@ -37,17 +30,14 @@ public class PropertiesUtil {
 
 
     /**
-     * getClzMethod
-     * return null means notFound
-     *
-     * @param clazz
-     * @param name
-     * @return
+     * @param clazz class
+     * @param name name of method
+     * @param isAllowAccessPrivate isAllowAccessPrivate
+     * @return methods, null means notFound
      */
     public static List<Method> getClzMethod(Class<?> clazz, String name, boolean isAllowAccessPrivate) {
         return getClzMethod(clazz, name, null, isAllowAccessPrivate);
     }
-
 
     public static List<Method> getClzMethod(Class<?> clazz, String name, Object[] params, boolean isAllowAccessPrivate) {
         if (params == null) {

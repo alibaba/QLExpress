@@ -2,8 +2,7 @@ package com.alibaba.qlexpress4.test.property;
 
 
 /**
- * @Author TaoKan
- * @Date 2022/7/31 下午12:18
+ * Author: TaoKan
  */
 public class Child9 {
     public Child9(){

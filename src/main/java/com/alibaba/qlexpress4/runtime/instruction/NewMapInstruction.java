@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * @Operation: new a Map with top ${keys.length} stack element
- * @Input: ${keys.length}
- * @Output: 1
+ * Operation: new a Map with top ${keys.length} stack element
+ * Input: ${keys.length}
+ * Output: 1
  * <p>
  * Author: DQinYuan
  */

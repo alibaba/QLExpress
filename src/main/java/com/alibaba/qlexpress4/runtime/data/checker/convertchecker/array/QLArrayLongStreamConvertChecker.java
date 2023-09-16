@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.stream.LongStream;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/21 上午6:40
+ * Author: TaoKan
  */
 public class QLArrayLongStreamConvertChecker implements TypeConvertChecker<Object> {
 

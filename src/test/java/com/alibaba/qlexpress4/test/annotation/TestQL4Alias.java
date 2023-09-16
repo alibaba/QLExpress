@@ -14,8 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/31 上午11:33
+ * Author: TaoKan
  */
 public class TestQL4Alias {
 

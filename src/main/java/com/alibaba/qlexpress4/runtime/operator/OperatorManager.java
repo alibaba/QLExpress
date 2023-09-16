@@ -168,10 +168,8 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     }
 
     /**
-     * 获取二元操作符
-     *
      * @param operatorLexeme +, =, *, /
-     * @return
+     * @return binary operator
      */
     public BinaryOperator getBinaryOperator(String operatorLexeme) {
         BinaryOperator customBinaryOperator = customBinaryOperatorMap.get(operatorLexeme);
@@ -186,7 +184,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
      * like --1 ++1 !true ~1 ^1
      *
      * @param operatorLexeme ++, --
-     * @return
+     * @return prefix unary operator
      */
     public UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {
         return DEFAULT_PREFIX_UNARY_OPERATOR_MAP.get(operatorLexeme);
@@ -196,7 +194,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
      * like 1-- 1++
      *
      * @param operatorLexeme ++, --
-     * @return
+     * @return suffix unary operator
      */
     public UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
         return DEFAULT_SUFFIX_UNARY_OPERATOR_MAP.get(operatorLexeme);

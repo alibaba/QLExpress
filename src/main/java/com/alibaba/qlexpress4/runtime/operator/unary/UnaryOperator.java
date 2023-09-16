@@ -5,18 +5,16 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.Operator;
 
 /**
- * 一元操作符
+ * unary operator, include:
  * prefix operator
  * suffix operator
  * Author: DQinYuan
  */
 public interface UnaryOperator extends Operator {
     /**
-     * 执行操作符计算
-     *
-     * @param value
-     * @param errorReporter
-     * @return
+     * @param value operand
+     * @param errorReporter operator
+     * @return result of operator
      */
     Object execute(Value value, ErrorReporter errorReporter);
 }

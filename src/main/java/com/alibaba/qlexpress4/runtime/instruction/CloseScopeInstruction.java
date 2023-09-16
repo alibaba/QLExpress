@@ -9,9 +9,9 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.util.function.Consumer;
 
 /**
- * @Operation: close scope
- * @Input: 0
- * @Output: 0
+ * Operation: close scope
+ * Input: 0
+ * Output: 0
  *
  * Author: DQinYuan
  */

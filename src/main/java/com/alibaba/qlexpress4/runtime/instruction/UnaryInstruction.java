@@ -12,9 +12,9 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 /**
- * @Operation: do unary operator like, ++,--,!,~
- * @Input: 1
- * @Output: 1, unary result
+ * Operation: do unary operator like, ++,--,!,~
+ * Input: 1
+ * Output: 1, unary result
  *
  * Author: DQinYuan
  */

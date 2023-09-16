@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午10:40
+ * Author: TaoKan
  */
 public class QLExtendParametersChecker implements MatchChecker {
 

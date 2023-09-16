@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.data.convert.EnumConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
 
 /**
- * @Author TaoKan
- * @Date 2022/7/20 下午11:00
+ * Author: TaoKan
  */
 public class QLEnumConvertChecker implements TypeConvertChecker<Object> {
 

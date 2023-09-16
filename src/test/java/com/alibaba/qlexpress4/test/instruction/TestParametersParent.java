@@ -5,8 +5,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.test.property.Parent;
 
 /**
- * @Author TaoKan
- * @Date 2022/5/15 上午11:00
+ * Author: TaoKan
  */
 public class TestParametersParent implements Parameters {
     @Override

@@ -26,7 +26,7 @@ public interface QLSecurityStrategy {
 
     /**
      * check if member secure
-     * @param member
+     * @param member member of object
      * @return true if secure
      */
     boolean check(Member member);
