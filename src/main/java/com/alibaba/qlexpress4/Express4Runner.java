@@ -76,6 +76,13 @@ public class Express4Runner {
         }
     }
 
+    public Set<String> getOutVarNames(String script) {
+        QLGrammarParser.ProgramContext programContext = parseToSyntaxTree(script);
+        OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor();
+        programContext.accept(outVarNamesVisitor);
+        return outVarNamesVisitor.getOutVars();
+    }
+
     /**
      * add user defined function to QLExpress engine
      * @param name function name

@@ -250,6 +250,30 @@ public class Express4RunnerTest {
         assertEquals(135, result);
     }
 
+    @Test
+    public void getOutVarNamesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
+                "c = 11\n" +
+                "e = a + b + c + d\n" +
+                "f+e");
+        Set<String> expectSet = new HashSet<>();
+        expectSet.add("d");
+        expectSet.add("f");
+        assertEquals(expectSet, outVarNames);
+
+        Set<String> outVarNames2 = express4Runner.getOutVarNames("if (true) {a = 10} else {a}");
+        Set<String> expectSet2 = new HashSet<>();
+        expectSet2.add("a");
+        assertEquals(expectSet2, outVarNames2);
+
+        Set<String> outVarNames3 = express4Runner.getOutVarNames("while (a>2) {a++;b=100} a+b");
+        Set<String> expectSet3 = new HashSet<>();
+        expectSet3.add("a");
+        expectSet3.add("b");
+        assertEquals(expectSet3, outVarNames3);
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }
