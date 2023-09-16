@@ -23,15 +23,18 @@ public class SyntaxTreeFactory {
     public static void warmUp () {
         if (IS_WARM_UP.compareAndSet(false, true)) {
             // warm up
-            buildTree("1+1", new OperatorManager(), false, false, s -> {});
-            buildTree("TEST(1,2)", new OperatorManager(), false, false, s -> {});
-            buildTree("if (true) {return 10;} else {return 20;}", new OperatorManager(),
-                    false, false, s -> {});
-            buildTree("for (int i = 0; i < 10; i++) {i}", new OperatorManager(),
-                    false, false, s -> {});
-            buildTree("for (a:[1,2,3]) {a}", new OperatorManager(),
-                    false, false, s -> {});
+            warmUpExpress("1+1");
+            warmUpExpress("a = b + c");
+            warmUpExpress("int v = 100;");
+            warmUpExpress("TEST(1,2)");
+            warmUpExpress("if (true) {return 10;} else {return 20;}");
+            warmUpExpress("for (int i = 0; i < 10; i++) {i}");
+            warmUpExpress("for (a:[1,2,3]) {a}");
         }
+    }
+
+    private static void warmUpExpress(String script) {
+        buildTree(script, new OperatorManager(), false, false, s -> {});
     }
 
 
