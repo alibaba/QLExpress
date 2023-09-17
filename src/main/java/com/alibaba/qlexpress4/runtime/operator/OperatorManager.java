@@ -57,8 +57,6 @@ import com.alibaba.qlexpress4.runtime.operator.unary.PlusUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 
 /**
- * 不考虑一元操作符
- *
  * @author bingo
  */
 public class OperatorManager implements OperatorFactory, ParserOperatorManager {
@@ -132,21 +130,38 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
 
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
-    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
-        return addOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
+    public boolean addBinaryOperator(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
+        if (DEFAULT_BINARY_OPERATOR_MAP.containsKey(operatorName)) {
+            return false;
+        }
+        BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
+                adapt2BinOp(operatorName, customBinaryOperator, priority)
+        );
+        return preBinaryOperator == null;
     }
 
-    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int priority) {
-        BinaryOperator binaryOperator = new BinaryOperator() {
+    public boolean replaceDefaultOperator(String operatorName, CustomBinaryOperator customBinaryOperator) {
+        BinaryOperator defaultOperator = DEFAULT_BINARY_OPERATOR_MAP.get(operatorName);
+        if (defaultOperator == null) {
+            return false;
+        }
+        BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
+                adapt2BinOp(operatorName, customBinaryOperator, defaultOperator.getPriority())
+        );
+        return preBinaryOperator == null;
+    }
+
+    private BinaryOperator adapt2BinOp(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
+        return new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
-                ErrorReporter errorReporter) {
-                return customBinaryOperator.execute(left.get(), right.get());
+            public Object execute(Value left, Value right, QRuntime qRuntime,
+                                  QLOptions qlOptions, ErrorReporter errorReporter) {
+                return customBinaryOperator.execute(left, right);
             }
 
             @Override
             public String getOperator() {
-                return operator;
+                return operatorName;
             }
 
             @Override
@@ -154,21 +169,10 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
                 return priority;
             }
         };
-        BinaryOperator preBinaryOperator = customBinaryOperatorMap.put(operator, binaryOperator);
-        return preBinaryOperator != null || DEFAULT_BINARY_OPERATOR_MAP.containsKey(operator);
-    }
-
-    public Map<String, Integer> getOperatorPrecedenceMap() {
-        Map<String, Integer> operatorPrecedenceMap = new HashMap<>(64);
-        customBinaryOperatorMap.forEach(
-            (operator, binaryOperator) -> operatorPrecedenceMap.putIfAbsent(operator, binaryOperator.getPriority()));
-        DEFAULT_BINARY_OPERATOR_MAP.forEach(
-            (operator, binaryOperator) -> operatorPrecedenceMap.putIfAbsent(operator, binaryOperator.getPriority()));
-        return operatorPrecedenceMap;
     }
 
     /**
-     * @param operatorLexeme +, =, *, /
+     * @param operatorLexeme like +, =, *, /
      * @return binary operator
      */
     public BinaryOperator getBinaryOperator(String operatorLexeme) {
@@ -204,7 +208,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     public boolean isOpType(String lexeme, OpType opType) {
         switch (opType) {
             case MIDDLE:
-                return DEFAULT_BINARY_OPERATOR_MAP.containsKey(lexeme);
+                return getBinaryOperator(lexeme) != null;
             case PREFIX:
                 return DEFAULT_PREFIX_UNARY_OPERATOR_MAP.containsKey(lexeme);
             case SUFFIX:
@@ -215,6 +219,6 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
 
     @Override
     public Integer precedence(String lexeme) {
-        return DEFAULT_BINARY_OPERATOR_MAP.get(lexeme).getPriority();
+        return getBinaryOperator(lexeme).getPriority();
     }
 }

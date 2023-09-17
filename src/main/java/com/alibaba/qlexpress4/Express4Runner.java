@@ -14,6 +14,7 @@ import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
@@ -23,6 +24,7 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.QFunction;
 import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
+import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.BasicUtil;
@@ -236,7 +238,33 @@ public class Express4Runner {
         return new ImportManager(initOptions.getClassSupplier(), initOptions.getDefaultImport());
     }
 
+    /**
+     * add operator with multi precedences
+     * @param operator operator name
+     * @param customBinaryOperator operator implement
+     * @return true if add operator successfully; false if operator already exist
+     */
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
-        return operatorManager.addOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
+        return operatorManager.addBinaryOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
+    }
+
+    /**
+     * add operator
+     * @param operator operator name
+     * @param customBinaryOperator operator implement
+     * @param precedence precedence, see {@link QLPrecedences}
+     * @return true if add operator successfully; false if operator already exist
+     */
+    public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int precedence) {
+        return operatorManager.addBinaryOperator(operator, customBinaryOperator, precedence);
+    }
+
+    /**
+     * @param operator operator name
+     * @param customBinaryOperator operator implement
+     * @return true if replace operator successfully; false if default operator not exists
+     */
+    public boolean replaceDefaultOperator(String operator, CustomBinaryOperator customBinaryOperator) {
+        return operatorManager.replaceDefaultOperator(operator, customBinaryOperator);
     }
 }

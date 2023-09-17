@@ -4,15 +4,19 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.exception.UserDefineException;
+import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -272,6 +276,42 @@ public class Express4RunnerTest {
         expectSet3.add("a");
         expectSet3.add("b");
         assertEquals(expectSet3, outVarNames3);
+    }
+
+    @Test
+    public void addOperatorTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("'1.2'+'2.3'", new HashMap<>(), QLOptions.builder()
+                .cache(false).build());
+        assertEquals("1.22.3", result);
+        boolean replaceResult = express4Runner.replaceDefaultOperator("+", (left, right) ->
+                Double.parseDouble(left.get().toString()) + Double.parseDouble(right.get().toString()));
+        assertTrue(replaceResult);
+        Object result1 = express4Runner.execute("'1.2'+'2.3'", new HashMap<>(), QLOptions.builder()
+                .cache(false).build());
+        assertEquals(3.5d, result1);
+        express4Runner.addOperator("join", (left, right) -> left.get().toString() + right.get().toString());
+        Object result2 = express4Runner.execute("1.2 join 2", new HashMap<>(), QLOptions.builder()
+                .cache(false).build());
+        assertEquals("1.22", result2);
+
+        express4Runner.addOperator(".*", (left, right) -> {
+            String fieldName;
+            if (right instanceof LeftValue) {
+                fieldName = ((LeftValue) right).getSymbolName();
+            } else {
+                fieldName = left.get().toString();
+            }
+            return ((List<Map<?, ?>>) left.get()).stream()
+                    .map(m -> m.get(fieldName))
+                    .collect(Collectors.toList());
+        }, QLPrecedences.GROUP);
+        Object result3 = express4Runner.execute("[{a:1}, {a:5}].*a", new HashMap<>(), QLOptions.builder()
+                .cache(false).build());
+        List<Integer> expect = new ArrayList<>();
+        expect.add(1);
+        expect.add(5);
+        assertEquals(expect, result3);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
