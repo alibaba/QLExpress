@@ -25,6 +25,9 @@ public class QLRuntimeException extends QLException {
                                  String reason, String errorCode, String snippet) {
         super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
         this.catchObj = catchObj;
+        if (catchObj instanceof Throwable) {
+            super.initCause((Throwable) catchObj);
+        }
     }
 
     public Object getCatchObj() {

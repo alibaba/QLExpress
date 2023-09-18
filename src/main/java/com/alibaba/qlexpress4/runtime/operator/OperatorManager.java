@@ -11,6 +11,7 @@ import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.aparser.OperatorFactory;
 import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.arithmetic.DivideAssignOperator;
@@ -55,6 +56,7 @@ import com.alibaba.qlexpress4.runtime.operator.unary.PlusPlusPrefixUnaryOperator
 import com.alibaba.qlexpress4.runtime.operator.unary.PlusPlusSuffixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.PlusUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
+import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 
 /**
  * @author bingo
@@ -156,7 +158,14 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
             @Override
             public Object execute(Value left, Value right, QRuntime qRuntime,
                                   QLOptions qlOptions, ErrorReporter errorReporter) {
-                return customBinaryOperator.execute(left, right);
+                try {
+                    return customBinaryOperator.execute(left, right);
+                } catch (UserDefineException e) {
+                    throw ThrowUtils.reportUserDefinedException(errorReporter, e);
+                } catch (Throwable t) {
+                    throw ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_INNER_EXCEPTION",
+                            "custom operator '" + operatorName + "' inner exception");
+                }
             }
 
             @Override

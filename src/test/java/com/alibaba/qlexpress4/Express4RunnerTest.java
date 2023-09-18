@@ -67,7 +67,7 @@ public class Express4RunnerTest {
 
     @Test
     public void ifTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().debug(true).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
                 .build();
         Object result = express4Runner.execute("if (2==3) {if (2==2) 10} else 4",
@@ -296,15 +296,14 @@ public class Express4RunnerTest {
         assertEquals("1.22", result2);
 
         express4Runner.addOperator(".*", (left, right) -> {
-            String fieldName;
             if (right instanceof LeftValue) {
-                fieldName = ((LeftValue) right).getSymbolName();
+                String fieldName = ((LeftValue) right).getSymbolName();
+                return ((List<Map<?, ?>>) left.get()).stream()
+                        .map(m -> m.get(fieldName))
+                        .collect(Collectors.toList());
             } else {
-                fieldName = left.get().toString();
+                throw new UserDefineException(UserDefineException.INVALID_ARGUMENT, "custom e test");
             }
-            return ((List<Map<?, ?>>) left.get()).stream()
-                    .map(m -> m.get(fieldName))
-                    .collect(Collectors.toList());
         }, QLPrecedences.GROUP);
         Object result3 = express4Runner.execute("[{a:1}, {a:5}].*a", new HashMap<>(), QLOptions.builder()
                 .cache(false).build());
@@ -312,6 +311,27 @@ public class Express4RunnerTest {
         expect.add(1);
         expect.add(5);
         assertEquals(expect, result3);
+
+        try {
+            express4Runner.execute("[{a:1}, {a:5}].*'abc'", new HashMap<>(), QLOptions.builder()
+                    .cache(false).build());
+        } catch (QLRuntimeException e) {
+            assertEquals("INVALID_ARGUMENT", e.getErrorCode());
+            assertEquals("custom e test", e.getReason());
+        }
+    }
+
+    @Test
+    public void methodInvokeCauseTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        try {
+            express4Runner.execute("l = [];l.get(3)", new HashMap<>(), QLOptions.builder()
+                    .cache(false).build());
+        } catch (QLRuntimeException e) {
+            assertTrue(e.getCause() instanceof IndexOutOfBoundsException);
+        }
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
