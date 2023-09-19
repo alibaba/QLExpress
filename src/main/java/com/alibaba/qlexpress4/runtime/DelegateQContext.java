@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 
 import java.util.Map;
@@ -50,12 +50,12 @@ public class DelegateQContext implements QContext {
     }
 
     @Override
-    public void defineFunction(String functionName, QFunction function) {
+    public void defineFunction(String functionName, CustomFunction function) {
         qScope.defineFunction(functionName, function);
     }
 
     @Override
-    public QFunction getFunction(String functionName) {
+    public CustomFunction getFunction(String functionName) {
         return qScope.getFunction(functionName);
     }
 

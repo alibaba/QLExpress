@@ -12,11 +12,8 @@ import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.function.QFunction;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
@@ -189,9 +186,9 @@ public class TestSuiteRunner {
         }
     }
 
-    private static class PrintFunction implements QFunction {
+    private static class PrintFunction implements CustomFunction {
         @Override
-        public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
+        public Object call(QContext qContext, Parameters parameters) throws Exception {
             for (int i = 0; i < parameters.size(); i++) {
                 System.out.println(parameters.get(i).get());
             }
@@ -199,21 +196,21 @@ public class TestSuiteRunner {
         }
     }
 
-    private static class AssertFunction implements QFunction {
+    private static class AssertFunction implements CustomFunction {
         @Override
-        public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
+        public Object call(QContext qContext, Parameters parameters) throws Exception {
             int pSize = parameters.size();
             switch (pSize) {
                 case 1:
                     Boolean b = (Boolean)parameters.getValue(0);
                     if (b == null || !b) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
+                        throw new UserDefineException(wrap(qContext.attachment(), "assert fail"));
                     }
                     return null;
                 case 2:
                     Boolean b0 = (Boolean)parameters.getValue(0);
                     if (b0 == null || !b0) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), (String)parameters.getValue(1)));
+                        throw new UserDefineException(wrap(qContext.attachment(), (String)parameters.getValue(1)));
                     }
                     return null;
                 default:
@@ -226,21 +223,21 @@ public class TestSuiteRunner {
         }
     }
 
-    private static class AssertFalseFunction implements QFunction {
+    private static class AssertFalseFunction implements CustomFunction {
         @Override
-        public Object call(QRuntime qRuntime, Parameters parameters) throws Exception {
+        public Object call(QContext qContext, Parameters parameters) throws Exception {
             int pSize = parameters.size();
             switch (pSize) {
                 case 1:
                     Boolean b = (Boolean)parameters.getValue(0);
                     if (b == null || b) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), "assert fail"));
+                        throw new UserDefineException(wrap(qContext.attachment(), "assert fail"));
                     }
                     return null;
                 case 2:
                     Boolean b0 = (Boolean)parameters.getValue(0);
                     if (b0 == null || b0) {
-                        throw new UserDefineException(wrap(qRuntime.attachment(), (String)parameters.getValue(1)));
+                        throw new UserDefineException(wrap(qContext.attachment(), (String)parameters.getValue(1)));
                     }
                     return null;
                 default:
@@ -253,9 +250,9 @@ public class TestSuiteRunner {
         }
     }
 
-    private static class AssertErrorCodeFunction implements QFunction {
+    private static class AssertErrorCodeFunction implements CustomFunction {
         @Override
-        public Object call(QRuntime qRuntime, Parameters parameters) throws Throwable {
+        public Object call(QContext qContext, Parameters parameters) throws Throwable {
             int pSize = parameters.size();
             if (pSize != 2) {
                 throw new UserDefineException(String.format("invalid pSize:%s, expected 2 parameters", pSize));

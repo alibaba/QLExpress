@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.runtime.scope;
 
 import com.alibaba.qlexpress4.runtime.*;
-import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
 /**
  * Author: DQinYuan
@@ -38,14 +38,14 @@ public interface QScope {
      * @param functionName name of function
      * @param function implement of function
      */
-    void defineFunction(String functionName, QFunction function);
+    void defineFunction(String functionName, CustomFunction function);
 
     /**
      * get function or lambda define
      * @param functionName name of function
      * @return null if not exist
      */
-    QFunction getFunction(String functionName);
+    CustomFunction getFunction(String functionName);
 
     /**
      * push value on the top of stack

@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.function;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
 import com.alibaba.qlexpress4.runtime.data.implicit.MethodReflect;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 /**
  * Author: DQinYuan
  */
-public class QMethodFunction implements QFunction {
+public class QMethodFunction implements CustomFunction {
 
     private final Object object;
 
@@ -27,7 +28,7 @@ public class QMethodFunction implements QFunction {
     }
 
     @Override
-    public Object call(QRuntime qRuntime, Parameters parameters) throws Throwable {
+    public Object call(QContext qContext, Parameters parameters) throws Throwable {
         Object[] argumentsArr = BasicUtil.argumentsArr(parameters);
         Class<?>[] typeArr = BasicUtil.getTypeOfObject(argumentsArr);
         MethodReflect methodReflect = MethodHandler.Preferred

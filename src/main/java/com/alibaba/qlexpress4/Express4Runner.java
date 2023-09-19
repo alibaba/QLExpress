@@ -14,17 +14,15 @@ import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
-import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
-import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.BasicUtil;
@@ -36,7 +34,7 @@ import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
     private final Map<String, Future<QLambdaDefinitionInner>> compileCache = new ConcurrentHashMap<>();
-    private final Map<String, QFunction> userDefineFunction = new ConcurrentHashMap<>();
+    private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
     private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
     private final ReflectLoader reflectLoader;
     private final InitOptions initOptions;
@@ -90,8 +88,8 @@ public class Express4Runner {
      * @param function function definition
      * @return true if add function successfully. fail if function name already exists or method is not public.
      */
-    public boolean addFunction(String name, QFunction function) {
-        QFunction preFunction = userDefineFunction.putIfAbsent(name, function);
+    public boolean addFunction(String name, CustomFunction function) {
+        CustomFunction preFunction = userDefineFunction.putIfAbsent(name, function);
         return preFunction == null;
     }
 

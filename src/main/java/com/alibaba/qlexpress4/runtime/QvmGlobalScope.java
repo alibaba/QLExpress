@@ -3,11 +3,9 @@ package com.alibaba.qlexpress4.runtime;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
-import com.alibaba.qlexpress4.runtime.data.MapItemValue;
-import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +20,11 @@ public class QvmGlobalScope implements QScope {
 
     private final Map<String, LeftValue> newVariables;
 
-    private final Map<String, QFunction> externalFunction;
+    private final Map<String, CustomFunction> externalFunction;
 
     private final QLOptions qlOptions;
 
-    public QvmGlobalScope(ExpressContext externalVariable, Map<String, QFunction> externalFunction,
+    public QvmGlobalScope(ExpressContext externalVariable, Map<String, CustomFunction> externalFunction,
                           QLOptions qlOptions) {
         this.externalVariable = externalVariable;
         this.newVariables = new HashMap<>();
@@ -60,12 +58,12 @@ public class QvmGlobalScope implements QScope {
     }
 
     @Override
-    public void defineFunction(String functionName, QFunction function) {
+    public void defineFunction(String functionName, CustomFunction function) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public QFunction getFunction(String functionName) {
+    public CustomFunction getFunction(String functionName) {
         return externalFunction.get(functionName);
     }
 

@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.runtime.scope;
 
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
-import com.alibaba.qlexpress4.runtime.function.QFunction;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class QvmBlockScope implements QScope {
 
     private final Map<String, Value> symbolTable;
 
-    private final Map<String, QFunction> functionTable;
+    private final Map<String, CustomFunction> functionTable;
 
     // TODO: stack 优化, 只有一个总的 stack, 不需要每个 scope 一个
     private final FixedSizeStack opStack;
@@ -51,13 +51,13 @@ public class QvmBlockScope implements QScope {
     }
 
     @Override
-    public void defineFunction(String functionName, QFunction function) {
+    public void defineFunction(String functionName, CustomFunction function) {
         functionTable.put(functionName, function);
     }
 
     @Override
-    public QFunction getFunction(String functionName) {
-        QFunction function = functionTable.get(functionName);
+    public CustomFunction getFunction(String functionName) {
+        CustomFunction function = functionTable.get(functionName);
         return function == null? parent.getFunction(functionName): function;
     }
 

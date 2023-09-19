@@ -1,20 +1,20 @@
 package com.alibaba.qlexpress4.runtime.function;
 
 import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QRuntime;
+import com.alibaba.qlexpress4.runtime.QContext;
 
 /**
  * Author: DQinYuan
  */
-public interface QFunction {
+public interface CustomFunction {
 
     /**
-     * @param qRuntime runtime of current script run
+     * @param qContext context of current script run
      * @param parameters parameters
      * @return result of function
      * @throws Throwable
      *        {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
-    Object call(QRuntime qRuntime, Parameters parameters) throws Throwable;
+    Object call(QContext qContext, Parameters parameters) throws Throwable;
 
 }
