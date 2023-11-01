@@ -2,14 +2,12 @@ package com.alibaba.qlexpress4.utils;
 
 
 import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.data.checker.*;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.lang.Character.toUpperCase;
 
@@ -20,19 +18,12 @@ public class BasicUtil {
     public static final String NULL_SIGN = "null";
     public static final String LENGTH = "length";
     public static final String CLASS = "class";
-    public static final String NEW = "new";
-    public static final String SPLIT_CLASS = "#";
-    public static final String SPLIT_NAME = ";";
-    public static final String SPLIT_COLLECTOR = ",";
 
     public static final int LEVEL_FACTOR = 10000;
     public static final int DEFAULT_MATCH_INDEX = -1;
     public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
     private static final Map<Class<?>,Class<?>> primitiveMap;
-    private static final Map<Class<?>,Integer> classMatchImplicit;
-    private static final Map<Class<?>,Integer> classMatchImplicitExtend;
-
 
     static{
         primitiveMap = new HashMap<>(8);
@@ -46,59 +37,40 @@ public class BasicUtil {
         primitiveMap.put(Short.class,short.class);
     }
 
-    static {
-        classMatchImplicit = new HashMap<>(6);
-        classMatchImplicit.put(double.class,5);
-        classMatchImplicit.put(float.class,4);
-        classMatchImplicit.put(long.class,3);
-        classMatchImplicit.put(int.class,2);
-        classMatchImplicit.put(short.class,1);
-        classMatchImplicit.put(byte.class,0);
-    }
-
-    static {
-        classMatchImplicitExtend = new HashMap<>(14);
-        classMatchImplicitExtend.put(BigInteger.class,13);
-        classMatchImplicitExtend.put(BigDecimal.class,12);
-        classMatchImplicitExtend.put(Double.class,11);
-        classMatchImplicitExtend.put(Float.class,10);
-        classMatchImplicitExtend.put(Long.class,9);
-        classMatchImplicitExtend.put(Integer.class,8);
-        classMatchImplicitExtend.put(Short.class,7);
-        classMatchImplicitExtend.put(Byte.class,6);
-        classMatchImplicitExtend.put(double.class,5);
-        classMatchImplicitExtend.put(float.class,4);
-        classMatchImplicitExtend.put(long.class,3);
-        classMatchImplicitExtend.put(int.class,2);
-        classMatchImplicitExtend.put(short.class,1);
-        classMatchImplicitExtend.put(byte.class,0);
-    }
-
-
-
     public static Class<?> transToPrimitive(Class<?> clazz){
         return primitiveMap.get(clazz);
     }
 
-
-    public static boolean classMatchImplicit(Class<?> target, Class<?> source){
-        Integer targetOp = classMatchImplicit.get(target);
-        Integer sourceOp = classMatchImplicit.get(source);
-        if(targetOp != null && sourceOp != null && targetOp > sourceOp){
-            return true;
-        }else {
-            return false;
+    public static Integer numberPromoteLevel(Class<?> numCls) {
+        if (numCls == byte.class || numCls == Byte.class) {
+            return 0;
         }
+        if (numCls == short.class || numCls == Short.class) {
+            return 1;
+        }
+        if (numCls == int.class || numCls == Integer.class) {
+            return 2;
+        }
+        if (numCls == long.class || numCls == Long.class) {
+            return 3;
+        }
+        if (numCls == BigInteger.class) {
+            return 4;
+        }
+        if (numCls == float.class || numCls == Float.class) {
+            return 5;
+        }
+        if (numCls == double.class || numCls == Double.class) {
+            return 6;
+        }
+        if (numCls == BigDecimal.class) {
+            return 7;
+        }
+        return null;
     }
 
-    public static boolean classMatchImplicitExtend(Class<?> target, Class<?> source){
-        Integer targetOp = classMatchImplicitExtend.get(target);
-        Integer sourceOp = classMatchImplicitExtend.get(source);
-        if(targetOp != null && sourceOp != null){
-            return true;
-        }else {
-            return false;
-        }
+    public static boolean isAccess(Member member) {
+        return Modifier.isPublic(member.getDeclaringClass().getModifiers()) && Modifier.isPublic(member.getModifiers());
     }
 
     public static boolean isPublic(Member member) {
@@ -110,21 +82,18 @@ public class BasicUtil {
     }
 
     public static String getGetter(String s) {
-        return new StringBuilder().append("get").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
+        return "get" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     public static String getSetter(String s) {
-        return new StringBuilder().append("set").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
+        return "set" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     public static String getIsGetter(String s) {
-        return new StringBuilder().append("is").append(toUpperCase(s.charAt(0))).append(s, 1, s.length()).toString();
+        return "is" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     public static Class<?>[] getTypeOfObject(Object[] objects) {
-        if (objects == null) {
-            return null;
-        }
         Class<?>[] classes = new Class<?>[objects.length];
         for (int i = 0; i < objects.length; i++) {
             if (objects[i] == null) {
@@ -143,14 +112,4 @@ public class BasicUtil {
         }
         return arr;
     }
-
-    public static int hashAlgorithmWithNoForNumber(int h){
-        h += (h << 15) ^ 0xffffcd7d;
-        h ^= (h >>> 10);
-        h += (h << 3);
-        h ^= (h >>> 6);
-        h += (h << 2) + (h << 14);
-        return h ^ (h >>> 16);
-    }
-
 }

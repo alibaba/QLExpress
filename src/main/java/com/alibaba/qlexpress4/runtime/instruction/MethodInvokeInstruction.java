@@ -7,11 +7,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
-import com.alibaba.qlexpress4.runtime.data.implicit.MethodReflect;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
-import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Method;
@@ -48,7 +44,7 @@ public class MethodInvokeInstruction extends QLInstruction {
         Parameters parameters = qContext.pop(this.argNum + 1);
         Object bean = parameters.get(0).get();
         Class<?>[] type = new Class[this.argNum];
-        Object[] params = this.argNum > 0 ? new Object[this.argNum] : null;
+        Object[] params = new Object[this.argNum];
         for (int i = 0; i < this.argNum; i++) {
             Value v = parameters.get(i + 1);
             params[i] = v.get();
@@ -63,9 +59,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<ReflectLoader.PolyMethods> polyMethodsOp = reflectLoader.loadMethod(bean, methodName);
-        Optional<MethodReflect> methodReflectOp = polyMethodsOp.flatMap(polyMethods -> polyMethods.getMethod(type));
-        if (!methodReflectOp.isPresent()) {
+        Optional<Method> methodOp = reflectLoader.loadMethod(bean, methodName, type);
+        if (!methodOp.isPresent()) {
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
             if (qLambdaInnerMethod != null) {
                 try {
@@ -83,19 +78,10 @@ public class MethodInvokeInstruction extends QLInstruction {
             }
         } else {
             // method invoke
-            MethodReflect methodReflect = methodReflectOp.get();
-            QLConvertResult convertResult = ParametersConversion.convert(params, type, methodReflect.getMethod().getParameterTypes()
-                    , methodReflect.needImplicitTrans(), methodReflect.getVars());
-            if (convertResult.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
-                throw errorReporter.report("GET_METHOD_VALUE_CAST_PARAM_ERROR", "can not cast param");
-            }
-            Method method = methodReflect.getMethod();
-            if (!BasicUtil.isPublic(method)) {
-                method.setAccessible(true);
-            }
+            Method method = methodOp.get();
+            Object[] convertResult = ParametersConversion.convert(params, method.getParameterTypes(), method.isVarArgs());
             try {
-                Object value = MethodHandler.Access.accessMethodValue(methodReflect.getMethod(), bean,
-                        (Object[]) convertResult.getCastValue());
+                Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
                 Value dataValue = new DataValue(value);
                 qContext.push(dataValue);
             } catch (Exception e) {

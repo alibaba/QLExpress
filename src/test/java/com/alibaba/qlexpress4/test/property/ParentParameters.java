@@ -20,7 +20,7 @@ public class ParentParameters implements Parameters {
 
     @Override
     public int size() {
-        return 0;
+        return values.size();
     }
 
     public void push(Object s){

@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/operator/bitwise.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/lambda/java_functional_interface.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

@@ -2,22 +2,15 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
-import com.alibaba.qlexpress4.member.ConstructorHandler;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
-import com.alibaba.qlexpress4.runtime.data.implicit.ConstructorReflect;
-import com.alibaba.qlexpress4.runtime.data.implicit.MethodReflect;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.utils.BasicUtil;
-import com.alibaba.qlexpress4.utils.PropertiesUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
@@ -34,20 +27,24 @@ public class ReflectLoader {
 
     private final boolean allowPrivateAccess;
 
-    private final Map<List<Class<?>>, Optional<ConstructorReflect>> constructorCache = new ConcurrentHashMap<>();
+    private final Map<List<Class<?>>, Optional<Constructor<?>>> constructorCache = new ConcurrentHashMap<>();
 
     private final Map<List<?>, Optional<FieldReflectCache>> fieldCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Optional<PolyMethods>> staticMethodCache = new ConcurrentHashMap<>();
+    private final Map<Map.Entry<Class<?>, String>, Optional<Method>> staticMethodCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Optional<PolyMethods>> memberMethodCache = new ConcurrentHashMap<>();
+    private final Map<Map.Entry<Class<?>, String>, Boolean> staticMethodExistCache = new ConcurrentHashMap<>();
+
+    private final Map<Map.Entry<Class<?>, String>, Optional<Method>> memberMethodCache = new ConcurrentHashMap<>();
+
+    private final Map<Map.Entry<Class<?>, String>, Boolean> memberMethodExistCache = new ConcurrentHashMap<>();
 
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
-    public Optional<ConstructorReflect> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
+    public Optional<Constructor<?>> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         List<Class<?>> cacheKey = new ArrayList<>(paramTypes.length + 1);
         cacheKey.add(cls);
         cacheKey.addAll(Arrays.asList(paramTypes));
@@ -55,11 +52,9 @@ public class ReflectLoader {
         return constructorCache.computeIfAbsent(cacheKey, ignore -> loadConstructInner(cls, paramTypes));
     }
 
-    private Optional<ConstructorReflect> loadConstructInner(Class<?> cls, Class<?>[] paramTypes) {
-        ConstructorReflect constructorReflect = ConstructorHandler.Preferred
-                .findConstructorMostSpecificSignature(cls, paramTypes, allowPrivateAccess);
-        return Optional.ofNullable(constructorReflect)
-                .filter(constructor -> securityFilter(constructor.getConstructor()) != null);
+    private Optional<Constructor<?>> loadConstructInner(Class<?> cls, Class<?>[] paramTypes) {
+        return MemberResolver.resolveConstructor(cls, paramTypes)
+                .filter(constructor -> securityFilter(constructor) != null);
     }
 
     public Value loadField(Object bean, String fieldName, ErrorReporter errorReporter) {
@@ -80,36 +75,28 @@ public class ReflectLoader {
         }
     }
 
-    public Optional<PolyMethods> loadMethod(Object bean, String methodName) {
-        return bean instanceof MetaClass?
-                loadStaticMethod(((MetaClass) bean).getClz(), methodName):
-                loadMemberMethod(bean, methodName);
+    public boolean methodExist(Object bean, String methodName) {
+        if (bean instanceof MetaClass) {
+            Class<?> clz = ((MetaClass) bean).getClz();
+            return staticMethodExistCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
+                    ignore -> MemberResolver.methodExist(clz, methodName, true, allowPrivateAccess));
+        } else {
+            Class<?> clz = bean.getClass();
+            return memberMethodExistCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
+                    ignore -> MemberResolver.methodExist(clz, methodName, false, allowPrivateAccess));
+        }
     }
 
-    public Optional<PolyMethods> loadStaticMethod(Class<?> cls, String methodName) {
-        return staticMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(cls, methodName), ignore -> {
-            List<Method> clzMethods = PropertiesUtil.getClzMethod(cls, methodName, allowPrivateAccess);
-            if (clzMethods.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.of(new PolyMethods(clzMethods));
-        });
-    }
-
-    public Optional<PolyMethods> loadMemberMethod(Object bean, String methodName) {
-        return memberMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(bean.getClass(), methodName),
-                ignore -> {
-                    List<Method> memberMethods = PropertiesUtil.getMethod(bean, methodName, allowPrivateAccess);
-                    if (memberMethods.isEmpty()) {
-                        return Optional.empty();
-                    }
-                    return Optional.of(new PolyMethods(memberMethods));
-        });
-    }
-
-    private MethodReflect loadStaticMethodInner(Class<?> cls, String methodName, Class<?>[] paramTypes) {
-        List<Method> methods = PropertiesUtil.getClzMethod(cls, methodName, allowPrivateAccess);
-        return MethodHandler.Preferred.findMostSpecificMethod(paramTypes, methods.toArray(new Method[0]));
+    public Optional<Method> loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
+        if (bean instanceof MetaClass) {
+            Class<?> clz = ((MetaClass) bean).getClz();
+            return staticMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
+                    ignore -> MemberResolver.resolveMethod(clz, methodName, argTypes, true, allowPrivateAccess));
+        } else  {
+            Class<?> clz = bean.getClass();
+            return memberMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
+                    ignore -> MemberResolver.resolveMethod(clz, methodName, argTypes, false, allowPrivateAccess));
+        }
     }
 
     private Value loadJavaField(Class<?> cls, Object bean, String fieldName, ErrorReporter errorReporter) {
@@ -301,28 +288,6 @@ public class ReflectLoader {
             this.getterSupplier = getterSupplier;
             this.setterSupplier = setterSupplier;
             this.defType = defType;
-        }
-    }
-
-    public class PolyMethods {
-
-        private final List<Method> methods;
-
-        private final Map<List<?>, Optional<MethodReflect>> typesMethod = new ConcurrentHashMap<>();
-
-        public PolyMethods(List<Method> methods) {
-            this.methods = methods;
-        }
-
-        public Optional<MethodReflect> getMethod(Class<?>[] paramTypes) {
-            return typesMethod.computeIfAbsent(Arrays.asList(paramTypes), ignore -> getMethodInner(paramTypes));
-        }
-
-        private Optional<MethodReflect> getMethodInner(Class<?>[] paramTypes) {
-            MethodReflect mostSpecificMethod = MethodHandler.Preferred
-                    .findMostSpecificMethod(paramTypes, methods.toArray(new Method[0]));
-            return Optional.ofNullable(mostSpecificMethod)
-                    .filter(methodReflect -> securityFilter(methodReflect.getMethod()) != null);
         }
     }
 }

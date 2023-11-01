@@ -34,8 +34,9 @@ public class TestTransferCases {
         parentParameters.push(2);
         testQContextParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(testQContextParent.getValue().get(),4L);
+        Assert.assertEquals(testQContextParent.getValue().get(),3L);
     }
+
     /**
      * type1:int type2:int
      * parent method12(int , int)
@@ -57,6 +58,7 @@ public class TestTransferCases {
         methodInvokeInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(testQContextParent.getValue().get(),3L);
     }
+
     /**
      * type1:int type2:int
      * parent new Parent(int , int)
@@ -211,15 +213,6 @@ public class TestTransferCases {
         Assert.assertTrue(testQContextParent.getValue().get() instanceof Child4);
     }
 
-    @Test
-    public void testCaseTransferQLambda(){
-
-    }
-    @Test
-    public void testNewTransferQLambda(){
-
-    }
-
     /**
      * type1:int
      * Child5 method8(double)
@@ -308,10 +301,10 @@ public class TestTransferCases {
         TestQContextParent testQContextParent = new TestQContextParent(true);
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child6());
-        parentParameters.push(new BigDecimal("5.0"));
+        parentParameters.push(5.0f);
         testQContextParent.setParameters(parentParameters);
         methodInvokeInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(testQContextParent.getValue().get(),new BigDecimal("5.0"));
+        Assert.assertEquals(testQContextParent.getValue().get(), new BigDecimal("5.0"));
     }
 
 

@@ -38,12 +38,12 @@ public class GetMethodInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<ReflectLoader.PolyMethods> polyMethodsOp = reflectLoader.loadMethod(bean, methodName);
-        if (!polyMethodsOp.isPresent()) {
+        boolean exist = reflectLoader.methodExist(bean, methodName);
+        if (!exist) {
             throw errorReporter.report("METHOD_NOT_FOUND", "'" + methodName + "' not found");
         }
 
-        qContext.push(new DataValue(new QLambdaMethod(methodName, polyMethodsOp.get(), bean)));
+        qContext.push(new DataValue(new QLambdaMethod(methodName, reflectLoader, bean)));
         return QResult.NEXT_INSTRUCTION;
     }
 
