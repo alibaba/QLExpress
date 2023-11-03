@@ -54,7 +54,9 @@ public class Express4Runner {
         if (initOptions.isDebug()) {
             long start = System.currentTimeMillis();
             mainLambda = parseToLambda(script, context, qlOptions);
-            System.out.println("Compile consume time: " + (System.currentTimeMillis() - start) + " ms");
+            initOptions.getDebugInfoConsumer().accept(
+                    "Compile consume time: " + (System.currentTimeMillis() - start) + " ms"
+            );
         } else {
             mainLambda = parseToLambda(script, context, qlOptions);
         }
@@ -62,7 +64,7 @@ public class Express4Runner {
             if (initOptions.isDebug()) {
                 long start = System.currentTimeMillis();
                 Object result = mainLambda.call().getResult().get();
-                System.out.println("Execute consume time: " + (System.currentTimeMillis() - start) + " ms");
+                initOptions.getDebugInfoConsumer().accept("Execute consume time: " + (System.currentTimeMillis() - start) + " ms");
                 return result;
             } else {
                 return mainLambda.call().getResult().get();
