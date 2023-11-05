@@ -41,15 +41,15 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
         } else if (ruleContext instanceof QLGrammarParser.MacroStatementContext) {
             syntaxErrorThrow(currentToken, "macroStatement");
         } else if (IMPORT_SYMBOL.equals(symbolicName)) {
-            throw QLException.reportScannerErr(script, currentToken.getStopIndex() + 1,
+            throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + currentToken.getText().length(),
                     currentToken.getText(), "IMPORT_STATEMENT_NOT_AT_BEGINNING", "import declaration must at beginning");
         } else if (IMPORT_DECLARATION_RULE.equals(ruleName) && STATIC_SYMBOL.equals(symbolicName)) {
-            throw QLException.reportScannerErr(script, currentToken.getStopIndex() + 1,
+            throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + currentToken.getText().length(),
                     currentToken.getText(), "NOT_SUPPORT_IMPORT_STATIC", "not support 'import static'");
         } else if (BLOCK_STATEMENTS_RULE.equals(ruleName) && (OPID_SYMBOL.equals(symbolicName) || ID_SYMBOL.equals(symbolicName))) {
-            throw QLException.reportScannerErr(script, currentToken.getStopIndex() + 1,
+            throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + currentToken.getText().length(),
                     currentToken.getText(), "UNKNOWN_OPERATOR", "unknown operator");
         }
@@ -58,7 +58,7 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
     }
 
     private void syntaxErrorThrow(Token currentToken, String ruleName) {
-        throw QLException.reportScannerErr(script, currentToken.getStopIndex() + 1,
+        throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                 currentToken.getLine(), currentToken.getCharPositionInLine() + currentToken.getText().length(),
                 currentToken.getText(), "SYNTAX_ERROR",
                 "invalid " + ruleName);

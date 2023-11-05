@@ -28,6 +28,4 @@ public interface CodeGenerator {
     ErrorReporter getErrorReporter();
 
     ErrorReporter newReporterWithToken(Token token);
-
-    ErrorReporter newReporterWithMultiToken(Token start, Token end);
 }

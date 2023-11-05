@@ -47,7 +47,7 @@ public class CompileTimeFunctionTest {
             codeGenerator.addInstructionsByTree(arg0);
             codeGenerator.addInstruction(
                     new MethodInvokeInstruction(
-                            codeGenerator.newReporterWithMultiToken(arg0.getStart(), arg0.getStop()),
+                            codeGenerator.newReporterWithToken(arg0.getStart()),
                             "iterator", 0, false)
             );
 

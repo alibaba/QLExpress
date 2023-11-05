@@ -1032,11 +1032,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                         public ErrorReporter newReporterWithToken(Token token) {
                             return QvmInstructionVisitor.this.newReporterWithToken(token);
                         }
-
-                        @Override
-                        public ErrorReporter newReporterWithMultiToken(Token start, Token end) {
-                            return QvmInstructionVisitor.this.newReportWithMultiToken(start, end);
-                        }
                     }
 
             );
@@ -1408,7 +1403,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     private QLSyntaxException reportParseErr(Token token, String errCode, String errReason) {
-        return QLException.reportScannerErr(script, token.getStopIndex() + 1,
+        return QLException.reportScannerErr(script, token.getStartIndex(),
                 token.getLine(), token.getCharPositionInLine(),
                 token.getText(), errCode, errReason);
     }
@@ -1534,14 +1529,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     private ErrorReporter newReporterWithToken(Token token) {
-        return new DefaultErrReporter(script, token.getStopIndex() + 1,
+        return new DefaultErrReporter(script, token.getStartIndex(),
                 token.getLine(), token.getCharPositionInLine(), token.getText());
-    }
-
-    private ErrorReporter newReportWithMultiToken(Token start, Token end) {
-        return new DefaultErrReporter(script, end.getStopIndex() + 1,
-                start.getLine(), end.getCharPositionInLine(),
-                script.substring(start.getStartIndex(), end.getStopIndex()));
     }
 
     private int whileCount() {

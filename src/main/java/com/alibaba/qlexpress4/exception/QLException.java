@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.exception;
 
 public class QLException extends RuntimeException {
 
+    private final int pos;
+
     private final int lineNo;
 
     private final int colNo;
@@ -17,15 +19,20 @@ public class QLException extends RuntimeException {
      */
     private final String snippet;
 
-    protected QLException(String message, int lineNo, int colNo, String errLexeme,
+    protected QLException(String message, int pos, int lineNo, int colNo, String errLexeme,
                           String errorCode, String reason, String snippet) {
         super(message);
+        this.pos = pos;
         this.lineNo = lineNo;
         this.colNo = colNo;
         this.errLexeme = errLexeme;
         this.errorCode = errorCode;
         this.reason = reason;
         this.snippet = snippet;
+    }
+
+    public int getPos() {
+        return pos;
     }
 
     public int getLineNo() {
@@ -52,19 +59,20 @@ public class QLException extends RuntimeException {
         return snippet;
     }
 
-    public static QLSyntaxException reportScannerErr(String script, int tokenPos,
+    public static QLSyntaxException reportScannerErr(String script, int tokenStartPos,
                                                      int tokenLine, int tokenCol, String lexeme,
                                                      String errorCode, String reason) {
         ExMessageUtil.ExMessage exMessage = ExMessageUtil.format(
-                script, tokenPos, tokenLine, tokenCol, lexeme, errorCode, reason);
-        return new QLSyntaxException(exMessage.getMessage(), tokenLine, tokenCol, lexeme,
+                script, tokenStartPos, tokenLine, tokenCol, lexeme, errorCode, reason);
+        return new QLSyntaxException(exMessage.getMessage(), tokenStartPos, tokenLine, tokenCol, lexeme,
                 errorCode, reason, exMessage.getSnippet());
     }
 
-    public static QLRuntimeException reportRuntimeErrWithAttach(String script, int tokenPos, int line,
+    public static QLRuntimeException reportRuntimeErrWithAttach(String script, int tokenStartPos, int line,
                                                                 int col, String lexeme,
                                                                 String errorCode, String reason, Object catchObj) {
-        ExMessageUtil.ExMessage exMessage = ExMessageUtil.format(script, tokenPos, line, col, lexeme, errorCode, reason);
-        return  new QLRuntimeException(catchObj, exMessage.getMessage(), line, col, lexeme, errorCode, reason, exMessage.getSnippet());
+        ExMessageUtil.ExMessage exMessage = ExMessageUtil.format(script, tokenStartPos, line, col, lexeme, errorCode, reason);
+        return  new QLRuntimeException(catchObj, exMessage.getMessage(), tokenStartPos, line, col,
+                lexeme, errorCode, reason, exMessage.getSnippet());
     }
 }

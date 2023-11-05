@@ -11,19 +11,13 @@ public class QLRuntimeException extends QLException {
      * Visible for test
      */
     protected QLRuntimeException(Object catchObj, String reason, String errorCode) {
-        super("", 0, 0, "", reason, errorCode, "");
+        super("", 0, 0, 0, "", reason, errorCode, "");
         this.catchObj = catchObj;
     }
 
-    protected QLRuntimeException(String message, int lineNo, int colNo, String errLexeme,
-                                 String reason, String errorCode, String snippet) {
-        super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
-        this.catchObj = null;
-    }
-
-    protected QLRuntimeException(Object catchObj, String message, int lineNo, int colNo, String errLexeme,
-                                 String reason, String errorCode, String snippet) {
-        super(message, lineNo, colNo, errLexeme, reason, errorCode, snippet);
+    protected QLRuntimeException(Object catchObj, String message, int pos, int lineNo, int colNo,
+                                 String errLexeme, String reason, String errorCode, String snippet) {
+        super(message, pos, lineNo, colNo, errLexeme, reason, errorCode, snippet);
         this.catchObj = catchObj;
         if (catchObj instanceof Throwable) {
             super.initCause((Throwable) catchObj);

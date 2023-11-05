@@ -27,11 +27,10 @@ public class ExMessageUtil {
         }
     }
 
-    public static ExMessage format(String script, int tokenPos, int tokenLine, int tokenCol,
+    public static ExMessage format(String script, int tokenStartPos, int tokenLine, int tokenCol,
                                 String lexeme, String errorCode, String reason) {
-        int tokenStartPos = tokenPos - lexeme.length();
         int startReportPos = Math.max(tokenStartPos - 10, 0);
-        int endReportPos = Math.min(tokenPos + 10, script.length());
+        int endReportPos = Math.min(tokenStartPos + lexeme.length() + 10, script.length());
 
         StringBuilder snippetBuilder = new StringBuilder();
         if (startReportPos > 0) {

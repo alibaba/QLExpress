@@ -339,9 +339,14 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("testExp", () -> {throw new RuntimeException("inner test");});
         try {
-            express4Runner.execute("testExp()", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+            express4Runner.execute("1+testExp()+10", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         } catch (QLException e) {
             assertEquals("inner test", e.getCause().getMessage());
+            assertEquals("[Error CALL_FUNCTION_UNKNOWN_EXCEPTION: call function unknown exception]\n" +
+                    "[Near: 1+testExp()+10]\n" +
+                    "         ^^^^^^^\n" +
+                    "[Line: 1, Column: 2]", e.getMessage());
+            assertEquals(2, e.getPos());
         }
     }
 
