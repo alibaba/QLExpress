@@ -334,6 +334,17 @@ public class Express4RunnerTest {
         }
     }
 
+    @Test
+    public void innerFunctionExceptionTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("testExp", () -> {throw new RuntimeException("inner test");});
+        try {
+            express4Runner.execute("testExp()", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        } catch (QLException e) {
+            assertEquals("inner test", e.getCause().getMessage());
+        }
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

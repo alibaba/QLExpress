@@ -19,9 +19,7 @@ import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
-import com.alibaba.qlexpress4.runtime.function.QLambdaFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
@@ -96,40 +94,42 @@ public class Express4Runner {
     }
 
     public <T, R> boolean addFunction(String name, Function<T, R> function) {
-        return addFunction(name, new QLambdaFunction(params -> {
-            R result = function.apply((T) params[0]);
-            return new QResult(new DataValue(result), QResult.ResultType.RETURN);
-        }));
+        return addFunction(name, (qContext, parameters) -> {
+            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            return function.apply(t);
+        });
     }
 
     public boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
-        return addFunction(name, new QLambdaFunction(params -> {
-            Object array = Array.newInstance(Object.class, params.length);
-            for (int i = 0; i < params.length; i++) {
-                Array.set(array, i, params[i]);
+        return addFunction(name, (qContext, parameters) -> {
+            Object[] paramArr = new Object[parameters.size()];
+            for (int i = 0; i < paramArr.length; i++) {
+                paramArr[i] = parameters.get(i);
             }
-            Object result = functionalVarargs.call((Object[])array);
-            return new QResult(new DataValue(result), QResult.ResultType.RETURN);
-        }));
+            return functionalVarargs.call(paramArr);
+        });
     }
 
     public <T> boolean addFunction(String name, Predicate<T> predicate) {
-        return addFunction(name, new QLambdaFunction(
-            params -> new QResult(new DataValue(predicate.test((T)params[0])), QResult.ResultType.RETURN)));
+        return addFunction(name, (qContext, parameters) -> {
+            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            return predicate.test(t);
+        });
     }
 
     public boolean addFunction(String name, Runnable runnable) {
-        return addFunction(name, new QLambdaFunction(params -> {
+        return addFunction(name, (qContext, parameters) -> {
             runnable.run();
-            return new QResult(null, QResult.ResultType.RETURN);
-        }));
+            return null;
+        });
     }
 
     public <T> boolean addFunction(String name, Consumer<T> consumer) {
-        return addFunction(name, new QLambdaFunction(params -> {
-            consumer.accept((T)params[0]);
-            return new QResult(null, QResult.ResultType.RETURN);
-        }));
+        return addFunction(name, (qContext, parameters) -> {
+            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            consumer.accept(t);
+            return null;
+        });
     }
 
     /**

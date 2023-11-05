@@ -20,18 +20,8 @@ public class DefaultErrReporter implements ErrorReporter {
     }
 
     @Override
-    public QLRuntimeException report(Object catchObj, String errorCode, String reason) {
+    public QLRuntimeException reportFormatWithCatch(Object catchObj, String errorCode, String format, Object... args) {
         return QLException.reportRuntimeErrWithAttach(script, tokenPos, line, col, lexeme,
-                errorCode, reason, catchObj);
-    }
-
-    @Override
-    public QLRuntimeException report(String errorCode, String reason) {
-        return QLException.reportRuntimeErr(script, tokenPos, line, col, lexeme, errorCode, reason);
-    }
-
-    @Override
-    public QLRuntimeException reportFormat(String errorCode, String format, Object... args) {
-        return QLException.reportRuntimeErr(script, tokenPos, line, col, lexeme, errorCode, String.format(format, args));
+                errorCode, String.format(format, args), catchObj);
     }
 }

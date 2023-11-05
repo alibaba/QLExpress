@@ -14,7 +14,7 @@ public class ThrowUtils {
     public static QLRuntimeException wrapThrowable(Throwable t, ErrorReporter errorReporter, String errCode,
                                                    String errMsg, String... args) {
         return t instanceof QLRuntimeException? (QLRuntimeException) t :
-                errorReporter.reportFormat(errCode, errMsg, (Object[]) args);
+                errorReporter.reportFormatWithCatch(t, errCode, errMsg, (Object[]) args);
     }
 
     public static QLRuntimeException reportUserDefinedException(ErrorReporter errorReporter, UserDefineException e) {
