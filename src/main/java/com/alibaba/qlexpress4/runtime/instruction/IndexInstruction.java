@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.ArrayItemValue;
 import com.alibaba.qlexpress4.runtime.data.ListItemValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
@@ -54,6 +55,8 @@ public class IndexInstruction extends QLInstruction {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
             qContext.push(new ArrayItemValue(indexAble, intIndex));
+        } else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+            qContext.push(Value.NULL_VALUE);
         } else {
             throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
                     indexAble == null? "null": indexAble.getClass().getName());

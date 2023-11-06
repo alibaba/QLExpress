@@ -11,3 +11,4 @@ assert(a::b == null);
 assert(a.b.c.mm() == null);
 assert(a.b.c.mm()() == null);
 assert(mmm() == null)
+assert(a.n.c[2]==null)
