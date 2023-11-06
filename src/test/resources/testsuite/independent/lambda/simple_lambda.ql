@@ -5,3 +5,6 @@ blockLambda = () -> {
   return 6 + 6;
 };
 assert(blockLambda() == 12);
+
+emptyLambda = () -> {};
+assert(emptyLambda() == null);

@@ -1191,7 +1191,7 @@ primaryNoFix
     |   NEW varId ('.' varId)* typeArguments? '(' argumentList? ')' # newObjExpr
     |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
     |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    |   lambdaParameters ARROW expression # lambdaExpr
+    |   lambdaParameters ARROW ( '{' blockStatements? '}' | expression) # lambdaExpr
     |   varId # varIdExpr
     |   primitiveType # typeExpr
     |   '[' listItems? ']' # listExpr

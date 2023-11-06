@@ -7,10 +7,7 @@ import com.alibaba.qlexpress4.exception.DefaultErrReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.runtime.MetaClass;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
-import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
-import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
@@ -586,14 +583,26 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public Void visitLambdaExpr(LambdaExprContext ctx) {
         List<QLambdaDefinitionInner.Param> lambdaParams = parseLambdaParams(ctx.lambdaParameters());
         String lambdaScopeName = lambdaScopeName();
-        ExpressionContext lambdaBodyExpr = ctx.expression();
-        QvmInstructionVisitor lambdaSubVisitor = parseExprBodyWithSubVisitor(lambdaBodyExpr,
-                new GeneratorScope(lambdaScopeName, generatorScope), Context.BLOCK);
-        QLambdaDefinition lambdaDefinition = new QLambdaDefinitionInner(lambdaScopeName,
-                lambdaSubVisitor.getInstructions(), lambdaParams, lambdaSubVisitor.getMaxStackSize());
-        addInstruction(new LoadLambdaInstruction(
-                newReporterWithToken(ctx.ARROW().getSymbol()), lambdaDefinition
-        ));
+
+        QvmInstructionVisitor subVisitor = null;
+        ExpressionContext expression = ctx.expression();
+        ErrorReporter arrowErrorReporter = newReporterWithToken(ctx.ARROW().getSymbol());
+        if (expression != null) {
+            subVisitor = parseExprBodyWithSubVisitor(expression, new GeneratorScope(lambdaScopeName, generatorScope), Context.BLOCK);
+        } else {
+            BlockStatementsContext blockStatementsContext = ctx.blockStatements();
+            if (blockStatementsContext != null) {
+                subVisitor = parseWithSubVisitor(blockStatementsContext, new GeneratorScope(lambdaScopeName, generatorScope), Context.BLOCK);
+            }
+        }
+
+        if (subVisitor == null) {
+            addInstruction(new LoadLambdaInstruction(arrowErrorReporter, QLambdaDefinitionEmpty.INSTANCE));
+        } else {
+            QLambdaDefinition lambdaDefinition = new QLambdaDefinitionInner(lambdaScopeName,
+                    subVisitor.getInstructions(), lambdaParams, subVisitor.getMaxStackSize());
+            addInstruction(new LoadLambdaInstruction(arrowErrorReporter, lambdaDefinition));
+        }
         return null;
     }
 
