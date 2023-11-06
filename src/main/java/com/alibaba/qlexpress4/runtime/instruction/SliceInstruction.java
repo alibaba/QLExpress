@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -70,6 +71,9 @@ public class SliceInstruction extends QLInstruction {
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             Object result = arraySlice(indexAble, startInt, endInt);
             qContext.push(new DataValue(result));
+            return QResult.NEXT_INSTRUCTION;
+        } else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+            qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;
         } else {
             throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
