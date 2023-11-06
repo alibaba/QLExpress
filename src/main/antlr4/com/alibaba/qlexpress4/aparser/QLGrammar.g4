@@ -346,7 +346,6 @@ fragment OpIdItemStart
     | DIV
     | ADD
     | SUB
-    | COLON
     | QUESTION
     | DOT
     ;

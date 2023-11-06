@@ -393,7 +393,7 @@ public class SyntaxTreeFactoryTest {
     public void functionInterfaceTest() {
         String script = "java.lang.Runnable r = () -> a = 8;";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), true, false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
     }
