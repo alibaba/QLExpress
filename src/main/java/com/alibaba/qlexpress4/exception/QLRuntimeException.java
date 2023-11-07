@@ -1,5 +1,8 @@
 package com.alibaba.qlexpress4.exception;
 
+import com.alibaba.qlexpress4.exception.lsp.Diagnostic;
+import com.alibaba.qlexpress4.exception.lsp.Range;
+
 public class QLRuntimeException extends QLException {
 
     /**
@@ -11,13 +14,12 @@ public class QLRuntimeException extends QLException {
      * Visible for test
      */
     protected QLRuntimeException(Object catchObj, String reason, String errorCode) {
-        super("", 0, 0, 0, "", reason, errorCode, "");
+        super("", new Diagnostic(0, new Range(null, null), errorCode, reason, ""));
         this.catchObj = catchObj;
     }
 
-    protected QLRuntimeException(Object catchObj, String message, int pos, int lineNo, int colNo,
-                                 String errLexeme, String reason, String errorCode, String snippet) {
-        super(message, pos, lineNo, colNo, errLexeme, reason, errorCode, snippet);
+    protected QLRuntimeException(Object catchObj, String message, Diagnostic diagnostic) {
+        super(message, diagnostic);
         this.catchObj = catchObj;
         if (catchObj instanceof Throwable) {
             super.initCause((Throwable) catchObj);
