@@ -82,7 +82,7 @@ public class QLPrecedences {
     public static final int UNARY_SUFFIX = 14;
 
     /*
-     * ()
+     *  . ()
      */
     public static final int GROUP = 15;
 

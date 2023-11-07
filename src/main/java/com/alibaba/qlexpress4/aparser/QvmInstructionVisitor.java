@@ -888,6 +888,18 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitCustomPath(CustomPathContext ctx) {
+        ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
+        String path = ctx.varId().getText();
+        addInstruction(new ConstInstruction(errorReporter, path));
+
+        String operatorId = ctx.opId().getText();
+        BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
+        addInstruction(new OperatorInstruction(errorReporter, binaryOperator));
+        return null;
+    }
+
+    @Override
     public Void visitLeftAsso(LeftAssoContext ctx) {
         BinaryopContext binaryopContext = ctx.binaryop();
         ErrorReporter opErrReporter = newReporterWithToken(binaryopContext.getStart());

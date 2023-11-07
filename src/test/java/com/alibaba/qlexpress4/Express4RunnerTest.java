@@ -296,14 +296,10 @@ public class Express4RunnerTest {
         assertEquals("1.22", result2);
 
         express4Runner.addOperator(".*", (left, right) -> {
-            if (right instanceof LeftValue) {
-                String fieldName = ((LeftValue) right).getSymbolName();
-                return ((List<Map<?, ?>>) left.get()).stream()
-                        .map(m -> m.get(fieldName))
-                        .collect(Collectors.toList());
-            } else {
-                throw new UserDefineException(UserDefineException.INVALID_ARGUMENT, "custom e test");
-            }
+            String fieldName = (String) right.get();
+            return ((List<Map<?, ?>>) left.get()).stream()
+                    .map(m -> m.get(fieldName))
+                    .collect(Collectors.toList());
         }, QLPrecedences.GROUP);
         Object result3 = express4Runner.execute("[{a:1}, {a:5}].*a", new HashMap<>(), QLOptions.builder()
                 .cache(false).build());
@@ -311,6 +307,10 @@ public class Express4RunnerTest {
         expect.add(1);
         expect.add(5);
         assertEquals(expect, result3);
+
+        Object result4 = express4Runner.execute("[{a:1}, {a:5}, {a:10}, {a:20}].*a[1:-1]",
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(Arrays.asList(5, 10), result4);
 
         try {
             express4Runner.execute("[{a:1}, {a:5}].*'abc'", new HashMap<>(), QLOptions.builder()

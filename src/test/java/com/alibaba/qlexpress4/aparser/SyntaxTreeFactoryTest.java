@@ -397,4 +397,11 @@ public class SyntaxTreeFactoryTest {
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
     }
+
+    @Test
+    public void groupPriorityTest()  {
+        String script = "a.*b.*c[2]+d.*e[1:2]";
+        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), true, false, System.out::println);
+    }
 }

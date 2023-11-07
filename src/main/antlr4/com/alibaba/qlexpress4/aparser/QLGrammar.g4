@@ -2,6 +2,7 @@ grammar QLGrammar;
 
 @header {
     import static com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType.*;
+    import static com.alibaba.qlexpress4.QLPrecedences.*;
 }
 
 @parser::members {
@@ -1291,6 +1292,7 @@ pathPart
     |   DCOLON varId # methodAccess
     |   '(' argumentList? ')' # callExpr
     |   '[' indexValueExpr? ']' # indexExpr
+    |   {opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
     ;
 
 indexValueExpr

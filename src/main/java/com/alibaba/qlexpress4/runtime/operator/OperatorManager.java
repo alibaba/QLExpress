@@ -132,6 +132,12 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
 
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
 
+    /**
+     * @param operatorName
+     * @param customBinaryOperator
+     * @param priority {@link QLPrecedences}
+     * @return
+     */
     public boolean addBinaryOperator(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
         if (DEFAULT_BINARY_OPERATOR_MAP.containsKey(operatorName)) {
             return false;
