@@ -33,6 +33,10 @@ public class QLException extends RuntimeException {
         return diagnostic.getRange().getStart().getCharacter();
     }
 
+    public String getErrLexeme() {
+        return diagnostic.getLexeme();
+    }
+
     public String getErrorCode() {
         return diagnostic.getCode();
     }
@@ -58,6 +62,6 @@ public class QLException extends RuntimeException {
         Position start = new Position(line, col);
         Position end = new Position(line, col + lexeme.length());
         Range range = new Range(start, end);
-        return new Diagnostic(startPos, range, errorCode, reason, snippet);
+        return new Diagnostic(startPos, range, lexeme, errorCode, reason, snippet);
     }
 }

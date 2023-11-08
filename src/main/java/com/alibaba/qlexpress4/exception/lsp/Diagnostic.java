@@ -30,9 +30,15 @@ public class Diagnostic {
      */
     private final String snippet;
 
-    public Diagnostic(int pos, Range range, String code, String message, String snippet) {
+    /**
+     * lexeme in range
+     */
+    private final String lexeme;
+
+    public Diagnostic(int pos, Range range, String lexeme, String code, String message, String snippet) {
         this.pos = pos;
         this.range = range;
+        this.lexeme = lexeme;
         this.code = code;
         this.message = message;
         this.snippet = snippet;
@@ -44,6 +50,10 @@ public class Diagnostic {
 
     public Range getRange() {
         return range;
+    }
+
+    public String getLexeme() {
+        return lexeme;
     }
 
     public String getCode() {

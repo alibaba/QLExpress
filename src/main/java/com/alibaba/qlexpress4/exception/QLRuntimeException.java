@@ -14,7 +14,7 @@ public class QLRuntimeException extends QLException {
      * Visible for test
      */
     protected QLRuntimeException(Object catchObj, String reason, String errorCode) {
-        super("", new Diagnostic(0, new Range(null, null), errorCode, reason, ""));
+        super("", new Diagnostic(0, new Range(null, null), "", errorCode, reason, ""));
         this.catchObj = catchObj;
     }
 
