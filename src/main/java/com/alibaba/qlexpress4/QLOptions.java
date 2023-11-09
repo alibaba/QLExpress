@@ -53,14 +53,23 @@ public class QLOptions {
      */
     private final boolean avoidNullPointer;
 
+    /**
+     * max length of arrays allowed to be created
+     * -1 means no limit
+     * default -1
+     */
+    private final int maxArrLength;
+
     private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
-                      Map<String, Object> attachments, boolean cache, boolean avoidNullPointer) {
+                      Map<String, Object> attachments, boolean cache, boolean avoidNullPointer,
+                      int maxArrLength) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.timeoutMillis = timeoutMillis;
         this.attachments = attachments;
         this.cache = cache;
         this.avoidNullPointer = avoidNullPointer;
+        this.maxArrLength = maxArrLength;
     }
 
     public static Builder builder() {
@@ -91,6 +100,18 @@ public class QLOptions {
         return avoidNullPointer;
     }
 
+    public int getMaxArrLength() {
+        return maxArrLength;
+    }
+
+    /**
+     * @param newArrLen new arr length in runtime
+     * @return true if less or equal to max arr len
+     */
+    public boolean checkArrLen(int newArrLen) {
+        return maxArrLength == -1 || newArrLen <= maxArrLength;
+    }
+
     public static class Builder {
         private boolean precise = false;
 
@@ -103,6 +124,8 @@ public class QLOptions {
         private boolean cache = true;
 
         private boolean avoidNullPointer = false;
+
+        private int maxArrLength = -1;
 
         public Builder precise(boolean precise) {
             this.precise = precise;
@@ -134,9 +157,14 @@ public class QLOptions {
             return this;
         }
 
+        public Builder maxArrLength(int maxArrLength) {
+            this.maxArrLength = maxArrLength;
+            return this;
+        }
+
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, timeoutMillis,
-                attachments, cache, avoidNullPointer);
+                attachments, cache, avoidNullPointer, maxArrLength);
         }
     }
 }

@@ -44,8 +44,8 @@ public class CallFunctionInstruction extends QLInstruction {
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "CALL_FUNCTION_UNKNOWN_EXCEPTION",
-                    "call function unknown exception");
+            throw ThrowUtils.wrapThrowable(t, errorReporter, "FUNCTION_INNER_EXCEPTION",
+                    String.format("function '%s' inner exception", functionName));
         }
     }
 

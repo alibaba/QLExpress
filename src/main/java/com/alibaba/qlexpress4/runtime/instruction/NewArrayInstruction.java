@@ -35,6 +35,10 @@ public class NewArrayInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
+        if (!qlOptions.checkArrLen(length)) {
+            throw errorReporter.reportFormat("EXCEED_MAX_ARR_LENGTH",
+                    "new array length %d, exceed max allowed length %d", length, qlOptions.getMaxArrLength());
+        }
         Object array = Array.newInstance(clz, length);
         Parameters initItems = qContext.pop(length);
         for (int i = 0; i < initItems.size(); i++) {

@@ -195,8 +195,7 @@ public class Express4Runner {
 
         QvmRuntime qvmRuntime = new QvmRuntime(qlOptions.getAttachments(), reflectLoader, System.currentTimeMillis());
         QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction, qlOptions);
-        return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope),
-                qlOptions, true);
+        return mainLambdaDefine.toLambda(new DelegateQContext(qvmRuntime, globalScope), qlOptions, true);
     }
 
     private QLambdaDefinitionInner parseDefinitionWithCache(String script) {
@@ -228,10 +227,9 @@ public class Express4Runner {
                 inheritDefaultImport(), operatorManager, compileTimeFunctions);
         program.accept(qvmInstructionVisitor);
 
-        QLambdaDefinitionInner mainLambdaDefine = new QLambdaDefinitionInner("main",
+        return new QLambdaDefinitionInner("main",
                 qvmInstructionVisitor.getInstructions(), Collections.emptyList(),
                 qvmInstructionVisitor.getMaxStackSize());
-        return mainLambdaDefine;
     }
 
     private ImportManager inheritDefaultImport() {

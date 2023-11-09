@@ -40,7 +40,12 @@ public class MultiNewArrayInstruction extends QLInstruction {
                 throw errorReporter.reportFormat("ARRAY_INVALID_SIZE_TYPE",
                         "array size must be number, %s dim is invalid", i);
             }
-            dimArray[i] = ((Number) dimValue).intValue();
+            int dimLen = ((Number) dimValue).intValue();
+            if (!qlOptions.checkArrLen(dimLen)) {
+                throw errorReporter.reportFormat("EXCEED_MAX_ARR_LENGTH",
+                        "new array length %d, exceed max allowed length %d", dimLen, qlOptions.getMaxArrLength());
+            }
+            dimArray[i] = dimLen;
         }
         qContext.push(new DataValue(Array.newInstance(clz, dimArray)));
         return QResult.NEXT_INSTRUCTION;
