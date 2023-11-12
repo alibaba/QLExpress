@@ -25,12 +25,18 @@ public class QLException extends RuntimeException {
         return diagnostic.getMessage();
     }
 
+    /**
+     * @return line no based 1
+     */
     public int getLineNo() {
-        return diagnostic.getRange().getStart().getLine();
+        return diagnostic.getRange().getStart().getLine() + 1;
     }
 
+    /**
+     * @return col no based 1
+     */
     public int getColNo() {
-        return diagnostic.getRange().getStart().getCharacter();
+        return diagnostic.getRange().getStart().getCharacter() + 1;
     }
 
     public String getErrLexeme() {
@@ -59,8 +65,10 @@ public class QLException extends RuntimeException {
     }
 
     private static Diagnostic toDiagnostic(int startPos, int line, int col, String lexeme, String errorCode, String reason, String snippet) {
-        Position start = new Position(line, col);
-        Position end = new Position(line, col + lexeme.length());
+        int zeroBasedLine = line - 1;
+        int zeroBasedCol = col - 1;
+        Position start = new Position(zeroBasedLine, zeroBasedCol);
+        Position end = new Position(zeroBasedLine, zeroBasedCol + lexeme.length());
         Range range = new Range(start, end);
         return new Diagnostic(startPos, range, lexeme, errorCode, reason, snippet);
     }
