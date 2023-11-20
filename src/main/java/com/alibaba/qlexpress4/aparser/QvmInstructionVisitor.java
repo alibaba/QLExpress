@@ -1153,6 +1153,20 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             }
             return null;
         }
+        TerminalNode integerOrFloatingLiteral = literal.IntegerOrFloatingLiteral();
+        if (integerOrFloatingLiteral != null) {
+            try {
+                String numberText = integerOrFloatingLiteral.getText();
+                Number numberResult = numberText.contains(".")?
+                        parseFloating(remove(numberText, '_')): parseInteger(remove(numberText, '_'));
+                addInstruction(new ConstInstruction(
+                        newReporterWithToken(integerOrFloatingLiteral.getSymbol()), numberResult)
+                );
+            } catch (NumberFormatException nfe) {
+                throw reportParseErr(floatingPointLiteral.getSymbol(), "INVALID_NUMBER", "invalid number");
+            }
+            return null;
+        }
         BoolenLiteralContext booleanLiteral = literal.boolenLiteral();
         if (booleanLiteral != null) {
             boolean boolValue = Boolean.parseBoolean(booleanLiteral.getText());

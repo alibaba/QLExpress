@@ -175,6 +175,15 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void numberAmbiguousValueTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        Object result = express4Runner.execute("1.doubleValue()", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1d, result);
+    }
+
+    @Test
     public void errorReportColNumTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {

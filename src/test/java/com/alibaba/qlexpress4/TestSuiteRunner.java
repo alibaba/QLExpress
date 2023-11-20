@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/lambda/java_functional_interface.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/number/number_invoke.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

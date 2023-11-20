@@ -97,17 +97,31 @@ fragment HexDigit
 // Number Literals
 
 IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
+    :   HexIntegerLiteral
     |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
     ;
 
 FloatingPointLiteral
-    :   Digits '.' Digits? ExponentPart? FloatTypeSuffix?
-    |   '.' Digits ExponentPart? FloatTypeSuffix?
-    |   Digits ExponentPart FloatTypeSuffix?
-    |   Digits FloatTypeSuffix
+    :   '.' Digits ExponentPart? FloatTypeSuffix?
+    |   DecimalNumeral ExponentPart FloatTypeSuffix?
+    |   DecimalNumeral FloatTypeSuffix
+    ;
+
+IntegerOrFloatingLiteral
+    // 1l 1. 1.2 1.2e3 1.2e3f
+    :   DecimalNumeral IntegerOrFloating?
+    ;
+
+fragment IntegerOrFloating
+    :   IntegerTypeSuffix
+    |   {
+            !(
+                ( (_input.LA(2) >= 'a' && _input.LA(2) <= 'z') || (_input.LA(2) >= 'A' && _input.LA(2) <= 'Z') )
+                &&
+                ( (_input.LA(3) >= 'a' && _input.LA(3) <= 'z') || (_input.LA(3) >= 'A' && _input.LA(3) <= 'Z') )
+            )
+        }? '.' Digits? ExponentPart? FloatTypeSuffix?
     ;
 
 fragment BinaryIntegerLiteral
@@ -1307,6 +1321,7 @@ argumentList
 literal
     :   IntegerLiteral
     |   FloatingPointLiteral
+    |   IntegerOrFloatingLiteral
     |   boolenLiteral
     |   RawStringLiteral
     |   StringLiteral

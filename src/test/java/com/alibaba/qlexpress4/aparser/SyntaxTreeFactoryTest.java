@@ -401,7 +401,17 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void groupPriorityTest()  {
         String script = "a.*b.*c[2]+d.*e[1:2]";
+        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println);
+    }
+
+    @Test
+    public void numberAmbiguousValueTest() {
+        String script = "1.doubleValue()";
         QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), true, false, System.out::println);
+                new MockOpM(), false, false, System.out::println);
+        QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
+        programContext.accept(visitor);
+        List<QLInstruction> instructions = visitor.getInstructions();
+        assertEquals("doubleValue", ((MethodInvokeInstruction) instructions.get(1)).getMethodName());
     }
 }
