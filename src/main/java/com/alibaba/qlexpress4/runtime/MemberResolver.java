@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Author: DQinYuan
@@ -37,7 +36,7 @@ public class MemberResolver {
         }
     }
 
-    public static Optional<Constructor<?>> resolveConstructor(Class<?> cls, Class<?>[] argTypes) {
+    public static Constructor<?> resolveConstructor(Class<?> cls, Class<?>[] argTypes) {
         Constructor<?>[] constructors = cls.getConstructors();
 
         // simple match
@@ -47,7 +46,7 @@ public class MemberResolver {
         }
         Integer bestIndex = resolveBestMatch(candidates, argTypes);
         if (bestIndex != null) {
-            return Optional.of(constructors[bestIndex]);
+            return constructors[bestIndex];
         }
 
         // var args match
@@ -62,8 +61,10 @@ public class MemberResolver {
             varArgsConstructorI.add(i);
         }
         Integer varArgBestIndex = resolveBestMatch(varArgsCandidates.toArray(new Class[0][]), argTypes);
-        return Optional.ofNullable(varArgBestIndex)
-                .map(index -> constructors[varArgsConstructorI.get(varArgBestIndex)]);
+        if (varArgBestIndex == null) {
+            return null;
+        }
+        return constructors[varArgsConstructorI.get(varArgBestIndex)];
     }
 
     public static boolean methodExist(Class<?> cls, String name, boolean isStatic, boolean allowPrivate) {
@@ -78,13 +79,13 @@ public class MemberResolver {
         return false;
     }
 
-    public static Optional<Method> resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
+    public static Method resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
                                                  boolean isStatic, boolean allowPrivate) {
         Class<?> curCls = cls;
         while (curCls != null) {
-            Optional<Method> methodOp = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
-            if (methodOp.isPresent()) {
-                return methodOp;
+            Method method = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
+            if (method != null) {
+                return method;
             }
             curCls = curCls.getSuperclass();
         }
@@ -92,20 +93,20 @@ public class MemberResolver {
         return resolveIntersMethod(cls.getInterfaces(), methodName, argTypes, isStatic);
     }
 
-    private static Optional<Method> resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes, boolean isStatic) {
+    private static Method resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes, boolean isStatic) {
         for (Class<?> inter : inters) {
-            Optional<Method> methodOp = resolveInterMethod(inter, methodName, argTypes, isStatic);
-            if (methodOp.isPresent()) {
-                return methodOp;
+            Method method = resolveInterMethod(inter, methodName, argTypes, isStatic);
+            if (method != null) {
+                return method;
             }
         }
-        return Optional.empty();
+        return null;
     }
 
-    private static Optional<Method> resolveInterMethod(Class<?> inter, String methodName, Class<?>[] argTypes, boolean isStatic) {
+    private static Method resolveInterMethod(Class<?> inter, String methodName, Class<?>[] argTypes, boolean isStatic) {
         // no private method in interface, so pass false to 'allowPrivate'
-        Optional<Method> method = resolveDeclaredMethod(inter, methodName, argTypes, isStatic, false);
-        if (method.isPresent()) {
+        Method method = resolveDeclaredMethod(inter, methodName, argTypes, isStatic, false);
+        if (method != null) {
             return method;
         }
         return resolveIntersMethod(inter.getInterfaces(), methodName, argTypes, isStatic);
@@ -131,7 +132,7 @@ public class MemberResolver {
         return methodPriority;
     }
 
-    private static Optional<Method> resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
+    private static Method resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
                                                           boolean isStatic, boolean allowPrivate) {
         Method[] declaredMethods = getDeclaredMethod(cls, methodName, isStatic, allowPrivate);
 
@@ -143,7 +144,7 @@ public class MemberResolver {
         }
         Integer bestIndex = resolveBestMatch(candidates, argTypes);
         if (bestIndex != null) {
-            return Optional.of(declaredMethods[bestIndex]);
+            return declaredMethods[bestIndex];
         }
 
         // var args match
@@ -158,8 +159,10 @@ public class MemberResolver {
             varArgsMethodI.add(i);
         }
         Integer varArgBestIndex = resolveBestMatch(varArgsCandidates.toArray(new Class[0][]), argTypes);
-        return Optional.ofNullable(varArgBestIndex)
-                .map(index -> declaredMethods[varArgsMethodI.get(varArgBestIndex)]);
+        if (varArgBestIndex == null) {
+            return null;
+        }
+        return declaredMethods[varArgsMethodI.get(varArgBestIndex)];
     }
 
     private static Method[] getDeclaredMethod(Class<?> cls, String methodName, boolean isStatic, boolean allowPrivate) {

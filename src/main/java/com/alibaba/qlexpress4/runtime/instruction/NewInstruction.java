@@ -10,7 +10,6 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -44,12 +43,11 @@ public class NewInstruction extends QLInstruction {
             paramTypes[i] = v.getType();
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<Constructor<?>> constructorOp = reflectLoader.loadConstructor(newClz, paramTypes);
-        if (!constructorOp.isPresent()) {
+        Constructor<?> constructor = reflectLoader.loadConstructor(newClz, paramTypes);
+        if (constructor == null) {
             throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
                     "constructor not found for types %s", Arrays.toString(paramTypes));
         }
-        Constructor<?> constructor = constructorOp.get();
         Object[] convertResult = ParametersConversion.convert(
                 objs, constructor.getParameterTypes(), constructor.isVarArgs()
         );

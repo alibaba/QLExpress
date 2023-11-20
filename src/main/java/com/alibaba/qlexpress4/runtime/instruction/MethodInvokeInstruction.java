@@ -59,8 +59,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Optional<Method> methodOp = reflectLoader.loadMethod(bean, methodName, type);
-        if (!methodOp.isPresent()) {
+        Method method = reflectLoader.loadMethod(bean, methodName, type);
+        if (method == null) {
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
             if (qLambdaInnerMethod != null) {
                 try {
@@ -78,7 +78,6 @@ public class MethodInvokeInstruction extends QLInstruction {
             }
         } else {
             // method invoke
-            Method method = methodOp.get();
             Object[] convertResult = ParametersConversion.convert(params, method.getParameterTypes(), method.isVarArgs());
             try {
                 Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);

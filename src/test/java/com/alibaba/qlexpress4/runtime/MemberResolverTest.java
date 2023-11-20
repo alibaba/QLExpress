@@ -3,7 +3,6 @@ package com.alibaba.qlexpress4.runtime;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -33,15 +32,15 @@ public class MemberResolverTest {
 
     @Test
     public void resolveConstructorTest() {
-        Optional<Constructor<?>> constructor = MemberResolver.resolveConstructor(
+        Constructor<?> constructor = MemberResolver.resolveConstructor(
                 HelloMemberResolver.class, new Class[]{Integer.class}
         );
-        assertEquals(long.class, constructor.get().getParameterTypes()[0]);
+        assertEquals(long.class, constructor.getParameterTypes()[0]);
 
-        Optional<Constructor<?>> constructor1 = MemberResolver.resolveConstructor(
+        Constructor<?> constructor1 = MemberResolver.resolveConstructor(
                 HelloMemberResolver.class, new Class[]{Long.class, QLambda.class}
         );
-        assertEquals(Runnable.class, constructor1.get().getParameterTypes()[1]);
+        assertEquals(Runnable.class, constructor1.getParameterTypes()[1]);
     }
 
     @Test

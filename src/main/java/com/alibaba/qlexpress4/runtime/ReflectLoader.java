@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
+import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,34 +28,35 @@ public class ReflectLoader {
 
     private final boolean allowPrivateAccess;
 
-    private final Map<List<Class<?>>, Optional<Constructor<?>>> constructorCache = new ConcurrentHashMap<>();
+    private final Map<List<Class<?>>, Constructor<?>> constructorCache = new ConcurrentHashMap<>();
 
-    private final Map<List<?>, Optional<FieldReflectCache>> fieldCache = new ConcurrentHashMap<>();
+    private final Map<List<?>, FieldReflectCache> fieldCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Optional<Method>> staticMethodCache = new ConcurrentHashMap<>();
+    private final Map<Map.Entry<Class<?>, String>, Method> staticMethodCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Boolean> staticMethodExistCache = new ConcurrentHashMap<>();
-
-    private final Map<Map.Entry<Class<?>, String>, Optional<Method>> memberMethodCache = new ConcurrentHashMap<>();
-
-    private final Map<Map.Entry<Class<?>, String>, Boolean> memberMethodExistCache = new ConcurrentHashMap<>();
+    private final Map<Map.Entry<Class<?>, String>, Method> memberMethodCache = new ConcurrentHashMap<>();
 
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
-    public Optional<Constructor<?>> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
+    public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         List<Class<?>> cacheKey = new ArrayList<>(paramTypes.length + 1);
         cacheKey.add(cls);
         cacheKey.addAll(Arrays.asList(paramTypes));
 
-        return constructorCache.computeIfAbsent(cacheKey, ignore -> loadConstructInner(cls, paramTypes));
-    }
+        Constructor<?> cachedConstructor = constructorCache.get(cacheKey);
+        if (cachedConstructor != null) {
+            return cachedConstructor;
+        }
 
-    private Optional<Constructor<?>> loadConstructInner(Class<?> cls, Class<?>[] paramTypes) {
-        return MemberResolver.resolveConstructor(cls, paramTypes)
-                .filter(constructor -> securityFilter(constructor) != null);
+        Constructor<?> constructor = securityFilter(MemberResolver.resolveConstructor(cls, paramTypes));
+        if (constructor == null) {
+            return null;
+        }
+        constructorCache.put(cacheKey, constructor);
+        return constructor;
     }
 
     public Value loadField(Object bean, String fieldName, ErrorReporter errorReporter) {
@@ -75,39 +77,31 @@ public class ReflectLoader {
         }
     }
 
-    public boolean methodExist(Object bean, String methodName) {
-        if (bean instanceof MetaClass) {
-            Class<?> clz = ((MetaClass) bean).getClz();
-            return staticMethodExistCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
-                    ignore -> MemberResolver.methodExist(clz, methodName, true, allowPrivateAccess));
-        } else {
-            Class<?> clz = bean.getClass();
-            return memberMethodExistCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
-                    ignore -> MemberResolver.methodExist(clz, methodName, false, allowPrivateAccess));
+    public Method loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
+        Class<?> clz = bean instanceof MetaClass? ((MetaClass) bean).getClz(): bean.getClass();
+        Map.Entry<Class<?>, String> cacheKey = new AbstractMap.SimpleEntry<>(clz, methodName);
+        Map<Map.Entry<Class<?>, String>, Method> methodCache = bean instanceof MetaClass? staticMethodCache: memberMethodCache;
+        Method cachedMethod = methodCache.get(cacheKey);
+        if (cachedMethod != null) {
+            return cachedMethod;
         }
-    }
 
-    public Optional<Method> loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
-        if (bean instanceof MetaClass) {
-            Class<?> clz = ((MetaClass) bean).getClz();
-            return staticMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
-                    ignore -> MemberResolver.resolveMethod(clz, methodName, argTypes, true, allowPrivateAccess));
-        } else  {
-            Class<?> clz = bean.getClass();
-            return memberMethodCache.computeIfAbsent(new AbstractMap.SimpleEntry<>(clz, methodName),
-                    ignore -> MemberResolver.resolveMethod(clz, methodName, argTypes, false, allowPrivateAccess));
+        Method method = securityFilter(
+                MemberResolver.resolveMethod(clz, methodName, argTypes, bean instanceof MetaClass, allowPrivateAccess)
+        );
+        if (method == null) {
+            return null;
         }
+
+        methodCache.put(cacheKey, method);
+        return method;
     }
 
     private Value loadJavaField(Class<?> cls, Object bean, String fieldName, ErrorReporter errorReporter) {
-        Optional<FieldReflectCache> fieldReflectCacheOp = fieldCache.computeIfAbsent(
-                Arrays.asList(cls, fieldName),
-                ignore -> loadJavaFieldInner(cls, fieldName)
-        );
-        if (!fieldReflectCacheOp.isPresent()) {
+        FieldReflectCache fieldReflectCache = loadFieldReflectCache(cls, fieldName);
+        if (fieldReflectCache == null) {
             return null;
         }
-        FieldReflectCache fieldReflectCache = fieldReflectCacheOp.get();
         Supplier<Object> getterOp = fieldReflectCache.getterSupplier.apply(errorReporter, bean);
         if (fieldReflectCache.setterSupplier == null) {
             return new DataValue(getterOp.get());
@@ -116,20 +110,35 @@ public class ReflectLoader {
         return new FieldValue(getterOp, setterOp, fieldReflectCache.defType);
     }
 
-    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName) {
+    private FieldReflectCache loadFieldReflectCache(Class<?> cls, String fieldName) {
+        List<Serializable> cacheKey = Arrays.asList(cls, fieldName);
+        FieldReflectCache cachedField = fieldCache.get(cacheKey);
+        if (cachedField != null) {
+            return cachedField;
+        }
+
+        FieldReflectCache fieldReflect = loadJavaFieldInner(cls, fieldName);
+        if (fieldReflect == null) {
+            return null;
+        }
+        fieldCache.put(cacheKey, fieldReflect);
+        return fieldReflect;
+    }
+
+    private FieldReflectCache loadJavaFieldInner(Class<?> cls, String fieldName) {
         Method getMethod = securityFilter(MethodHandler.getGetter(cls, fieldName));
         Field field = securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
         BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier = fieldGetter(getMethod, field);
         if (getterSupplier == null) {
-            return Optional.empty();
+            return null;
         }
         Method setMethod = securityFilter(MethodHandler.getSetter(cls, fieldName));
         BiFunction<ErrorReporter, Object, Consumer<Object>> setterSupplier = fieldSetter(setMethod, field);
-        return Optional.of(new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field)));
+        return new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field));
     }
 
     private <T extends Member> T securityFilter(T member) {
-        return securityStrategy.check(member)? member: null;
+        return member == null? null: (securityStrategy.check(member)? member: null);
     }
 
     private Class<?> fieldDefCls(Method setMethod, Field field) {

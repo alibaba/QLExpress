@@ -31,12 +31,11 @@ public class QLambdaMethod implements QLambda {
     @Override
     public QResult call(Object... params) throws Exception {
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Optional<Method> methodOp = reflectLoader.loadMethod(bean, methodName, type);
-        if (!methodOp.isPresent()) {
+        Method method = reflectLoader.loadMethod(bean, methodName, type);
+        if (method == null) {
             throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
                     "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));
         }
-        Method method = methodOp.get();
         Object[] convertResult = ParametersConversion.convert(params, method.getParameterTypes(), method.isVarArgs());
         Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
         return new QResult(new DataValue(value), QResult.ResultType.RETURN);
