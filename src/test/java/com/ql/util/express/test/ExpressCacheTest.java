@@ -98,6 +98,8 @@ public class ExpressCacheTest {
         runner.addOperatorWithAlias("则", "then", null);
         runner.addOperatorWithAlias("否则", "else", null);
 
+        //QLExpressRunStrategy.setCompareNullLessMoreAsFalse(true);
+
         DefaultContext<String, Object> context = new DefaultContext<>();
 
         String express1 = ""
@@ -115,6 +117,8 @@ public class ExpressCacheTest {
             + "} 否则 {"
             + "    return 0;"
             + "}";
+        //Object execute = runner.execute(express2, context, null, false, true);
+        //System.out.println("execute = " + execute);
         Assert.assertThrows(com.ql.util.express.exception.QLException.class,
             () -> runner.execute(express2, context, null, false, true));
     }
