@@ -7,6 +7,7 @@ import com.ql.util.express.ArraySwap;
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.InstructionSetContext;
 import com.ql.util.express.OperateData;
+import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
@@ -55,7 +56,7 @@ public class OperatorNew extends OperatorBase {
             s.append(")");
             throw new QLException(s.toString());
         }
-
+        QLExpressRunStrategy.assertSecurityRiskConstructor(c);
         tmpObj = c.newInstance(objs);
         return OperateDataCacheManager.fetchOperateData(tmpObj, obj);
     }
