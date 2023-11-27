@@ -186,8 +186,7 @@ public class InstructionSet {
         return OperateDataCacheManager.fetchCallResult(environment.getReturnValue(), environment.isExit());
     }
 
-    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList)
-        throws Exception {
+    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList) throws Exception {
         while (environment.programPoint < this.instructionList.length) {
             QLExpressTimer.assertTimeOut();
             Instruction instruction = this.instructionList[environment.programPoint];
