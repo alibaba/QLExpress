@@ -13,16 +13,22 @@ public class InstructionSetRunner {
 
     public static Object executeOuter(ExpressRunner runner, InstructionSet instructionSet, ExpressLoader loader,
         IExpressContext<String, Object> iExpressContext, List<String> errorList, boolean isTrace,
-        boolean isCatchException, boolean isSupportDynamicFieldName) throws Exception {
+        boolean isCatchException, boolean isSupportDynamicFieldName, long timeoutMillis) throws Exception {
         try {
-            //开始计时
-            QLExpressTimer.startTimer();
+            // 开始计时
+            if (timeoutMillis > 0) {
+                QLExpressTimer.setTimer(timeoutMillis);
+                QLExpressTimer.startTimer();
+            }
 
             OperateDataCacheManager.push(runner);
             return execute(runner, instructionSet, loader, iExpressContext, errorList, isTrace, isCatchException, true,
                 isSupportDynamicFieldName);
         } finally {
             OperateDataCacheManager.resetCache();
+            if (timeoutMillis > 0) {
+                QLExpressTimer.reset();
+            }
         }
     }
 
