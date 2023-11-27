@@ -188,15 +188,10 @@ public class InstructionSet {
 
     public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList)
         throws Exception {
-        Instruction instruction = null;
-        try {
-            while (environment.programPoint < this.instructionList.length) {
-                QLExpressTimer.assertTimeOut();
-                instruction = this.instructionList[environment.programPoint];
-                instruction.execute(environment, errorList);
-            }
-        } catch (Exception e) {
-            throw e;
+        while (environment.programPoint < this.instructionList.length) {
+            QLExpressTimer.assertTimeOut();
+            Instruction instruction = this.instructionList[environment.programPoint];
+            instruction.execute(environment, errorList);
         }
     }
 
