@@ -32,9 +32,9 @@ public class ReflectLoader {
 
     private final Map<List<?>, FieldReflectCache> fieldCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Method> staticMethodCache = new ConcurrentHashMap<>();
+    private final Map<MethodCacheKey, Method> staticMethodCache = new ConcurrentHashMap<>();
 
-    private final Map<Map.Entry<Class<?>, String>, Method> memberMethodCache = new ConcurrentHashMap<>();
+    private final Map<MethodCacheKey, Method> memberMethodCache = new ConcurrentHashMap<>();
 
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
@@ -79,8 +79,8 @@ public class ReflectLoader {
 
     public Method loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         Class<?> clz = bean instanceof MetaClass? ((MetaClass) bean).getClz(): bean.getClass();
-        Map.Entry<Class<?>, String> cacheKey = new AbstractMap.SimpleEntry<>(clz, methodName);
-        Map<Map.Entry<Class<?>, String>, Method> methodCache = bean instanceof MetaClass? staticMethodCache: memberMethodCache;
+        MethodCacheKey cacheKey = new MethodCacheKey(clz, methodName, argTypes);
+        Map<MethodCacheKey, Method> methodCache = bean instanceof MetaClass? staticMethodCache: memberMethodCache;
         Method cachedMethod = methodCache.get(cacheKey);
         if (cachedMethod != null) {
             return cachedMethod;
@@ -297,6 +297,45 @@ public class ReflectLoader {
             this.getterSupplier = getterSupplier;
             this.setterSupplier = setterSupplier;
             this.defType = defType;
+        }
+    }
+
+    private static class MethodCacheKey {
+        private final Class<?> cls;
+        private final String methodName;
+        private final Class<?>[] argTypes;
+
+        public MethodCacheKey(Class<?> cls, String methodName, Class<?>[] argTypes) {
+            this.cls = cls;
+            this.methodName = methodName;
+            this.argTypes = argTypes;
+        }
+
+        public Class<?> getCls() {
+            return cls;
+        }
+
+        public String getMethodName() {
+            return methodName;
+        }
+
+        public Class<?>[] getArgTypes() {
+            return argTypes;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MethodCacheKey that = (MethodCacheKey) o;
+            return cls.equals(that.cls) && methodName.equals(that.methodName) && Arrays.equals(argTypes, that.argTypes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(cls, methodName);
+            result = 31 * result + Arrays.hashCode(argTypes);
+            return result;
         }
     }
 }

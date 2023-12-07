@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/method.get/method_not_found.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/method/method_invoke.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
