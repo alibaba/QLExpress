@@ -39,8 +39,8 @@ public class QLExpressRunStrategy {
     /**
      * 禁止调用不安全的方法
      */
-    private static boolean forbidInvokeSecurityRiskMethods = false;
-    private static boolean forbidInvokeSecurityRiskConstructors = false;
+    private static boolean forbidInvokeSecurityRiskMethods = true;
+    private static boolean forbidInvokeSecurityRiskConstructors = true;
 
     /**
      * 黑名单控制

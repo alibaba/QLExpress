@@ -4,6 +4,8 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
+import com.ql.util.express.exception.QLSecurityRiskException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,8 +42,9 @@ public class InvokeSecurityRiskConstructorsTest {
             try {
                 Object result = expressRunner.execute(express, context, null, true, false, 1000);
                 System.out.println(result);
+                //Assert.assertEquals("数组操作实现错误", 22, r[0][1]);
             } catch (QLException e) {
-                System.out.println(e.getCause());
+                Assert.assertEquals(e.getMessage(), new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數"));
             }
         }
     }
