@@ -41,10 +41,8 @@ public class InvokeSecurityRiskConstructorsTest {
         for (String express : expressList) {
             try {
                 Object result = expressRunner.execute(express, context, null, true, false, 1000);
-                System.out.println(result);
-                //Assert.assertEquals("数组操作实现错误", 22, r[0][1]);
             } catch (QLException e) {
-                Assert.assertEquals(e.getMessage(), new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數"));
+                Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest()");
             }
         }
     }
