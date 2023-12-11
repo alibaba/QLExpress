@@ -215,19 +215,20 @@ public abstract class NumberMath {
         return new BigInteger(n.toString());
     }
 
-    /*
+    /**
      * Determine which NumberMath instance to use, given the supplied operands.  This method implements
      * the type promotion rules discussed in the documentation.  Note that by the time this method is
      * called, any Byte, Character or Short operands will have been promoted to Integer.  For reference,
      * here is the promotion matrix:
-     * bD bI  D  F  L  I
+     * <pre>
+     *    bD bI  D  F  L  I
      * bD bD bD  D  D bD bD
      * bI bD bI  D  D bI bI
      * D   D  D  D  D  D  D
      * F   D  D  D  D  D  D
      * L  bD bI  D  D  L  L
      * I  bD bI  D  D  L  I
-     *
+     * </pre>
      * Note that for division, if either operand isFloatingPoint, the result will be floating.  Otherwise,
      * the result is BigDecimal
      */
