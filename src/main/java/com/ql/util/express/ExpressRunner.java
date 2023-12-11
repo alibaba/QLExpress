@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
-import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.ForRelBreakContinue;
@@ -128,8 +129,7 @@ public class ExpressRunner {
      * @param isTrace
      * @param cacheMap  user can define safe and efficient cache or use default concurrentMap
      */
-    public ExpressRunner(boolean isPrecise, boolean isTrace,
-                         Map<String, Future<InstructionSet>> cacheMap) {
+    public ExpressRunner(boolean isPrecise, boolean isTrace, Map<String, Future<InstructionSet>> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
 
@@ -143,9 +143,8 @@ public class ExpressRunner {
      * @param iExpressResourceLoader 表达式的资源装载器
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-                         NodeTypeManager nodeTypeManager) {
-        this(isPrecise, isTrace, iExpressResourceLoader,
-                nodeTypeManager, null);
+        NodeTypeManager nodeTypeManager) {
+        this(isPrecise, isTrace, iExpressResourceLoader, nodeTypeManager, null);
     }
 
     /**
@@ -155,7 +154,7 @@ public class ExpressRunner {
      * @param cacheMap               指令集缓存, 必须是线程安全的集合
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-                         NodeTypeManager nodeTypeManager, Map<String, Future<InstructionSet>> cacheMap) {
+        NodeTypeManager nodeTypeManager, Map<String, Future<InstructionSet>> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -577,7 +576,7 @@ public class ExpressRunner {
     public Object executeByExpressName(String name, IExpressContext<String, Object> context, List<String> errorList,
         boolean isTrace, boolean isCatchException) throws Exception {
         return InstructionSetRunner.executeOuter(this, this.loader.getInstructionSet(name), this.loader, context,
-            errorList, isTrace, isCatchException, false);
+            errorList, isTrace, isCatchException, false, -1);
     }
 
     /**
@@ -593,7 +592,7 @@ public class ExpressRunner {
      */
     public Object execute(InstructionSet instructionSet, IExpressContext<String, Object> context,
         List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
-        return executeReentrant(instructionSet, context, errorList, isTrace, isCatchException);
+        return executeReentrant(instructionSet, context, errorList, isTrace, isCatchException, -1);
     }
 
     /**
@@ -610,13 +609,13 @@ public class ExpressRunner {
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
         boolean isCache, boolean isTrace, long timeoutMillis) throws Exception {
-        //设置超时毫秒时间
-        QLExpressTimer.setTimer(timeoutMillis);
-        try {
-            return this.execute(expressString, context, errorList, isCache, isTrace);
-        } finally {
-            QLExpressTimer.reset();
+        InstructionSet parseResult;
+        if (isCache) {
+            parseResult = getInstructionSetFromLocalCache(expressString);
+        } else {
+            parseResult = this.parseInstructionSet(expressString);
         }
+        return executeReentrant(parseResult, context, errorList, isTrace, false, timeoutMillis);
     }
 
     /**
@@ -632,17 +631,11 @@ public class ExpressRunner {
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
         boolean isCache, boolean isTrace) throws Exception {
-        InstructionSet parseResult;
-        if (isCache) {
-            parseResult = getInstructionSetFromLocalCache(expressString);
-        } else {
-            parseResult = this.parseInstructionSet(expressString);
-        }
-        return executeReentrant(parseResult, context, errorList, isTrace, false);
+        return execute(expressString, context, errorList, isCache, isTrace, -1);
     }
 
     private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> iExpressContext,
-        List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
+        List<String> errorList, boolean isTrace, boolean isCatchException, long timeoutMillis) throws Exception {
         try {
             int reentrantCount = threadReentrantCount.get() + 1;
             threadReentrantCount.set(reentrantCount);
@@ -652,7 +645,7 @@ public class ExpressRunner {
                 InstructionSetRunner.execute(this, sets, this.loader, iExpressContext, errorList, isTrace,
                     isCatchException, true, false) :
                 InstructionSetRunner.executeOuter(this, sets, this.loader, iExpressContext, errorList, isTrace,
-                    isCatchException, false);
+                    isCatchException, false, timeoutMillis);
         } finally {
             threadReentrantCount.set(threadReentrantCount.get() - 1);
         }
@@ -720,7 +713,7 @@ public class ExpressRunner {
             if (!(originThrow instanceof Exception)) {
                 throw e;
             }
-            throw (Exception) originThrow;
+            throw (Exception)originThrow;
         }
     }
 

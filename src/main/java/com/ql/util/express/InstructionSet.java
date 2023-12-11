@@ -186,17 +186,11 @@ public class InstructionSet {
         return OperateDataCacheManager.fetchCallResult(environment.getReturnValue(), environment.isExit());
     }
 
-    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList)
-        throws Exception {
-        Instruction instruction = null;
-        try {
-            while (environment.programPoint < this.instructionList.length) {
-                QLExpressTimer.assertTimeOut();
-                instruction = this.instructionList[environment.programPoint];
-                instruction.execute(environment, errorList);
-            }
-        } catch (Exception e) {
-            throw e;
+    public void executeInnerOriginalInstruction(RunEnvironment environment, List<String> errorList) throws Exception {
+        while (environment.programPoint < this.instructionList.length) {
+            QLExpressTimer.assertTimeOut();
+            Instruction instruction = this.instructionList[environment.programPoint];
+            instruction.execute(environment, errorList);
         }
     }
 
