@@ -22,28 +22,31 @@ public class InvokeSecurityRiskConstructorsTest {
         //系统默认阻止的方法黑名单:System.exit(1);Runtime.getRuntime().exec()两个函数
         QLExpressRunStrategy.setForbidInvokeSecurityRiskConstructors(true);
 
-        //用户还可以增加一些类的方法黑名单
+        //白名单
         QLExpressRunStrategy.addSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
         //QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
     }
 
     private static final String[] expressList = new String[] {
-        "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
-        "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();"
-    ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
-        "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
+            "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
+                    "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();return w;"
+            ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
+            "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
 
     @Test
     public void test() throws Exception {
         ExpressRunner expressRunner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
 
-        for (String express : expressList) {
-            try {
-                Object result = expressRunner.execute(express, context, null, true, false, 1000);
-            } catch (QLException e) {
-                Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest()");
-            }
+        Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
+        Assert.assertTrue(result instanceof InvokeSecurityRiskConstructorsTest);
+
+        try {
+            result = expressRunner.execute(expressList[1], context, null, true, false, 1000);
+            Assert.fail();
+        }catch (QLException e) {
+            //预期内走这里
+            Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest()");
         }
     }
 }
