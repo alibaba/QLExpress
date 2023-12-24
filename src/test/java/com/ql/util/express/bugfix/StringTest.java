@@ -5,6 +5,8 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  * Created by tianqiao on 17/7/5.
  */
@@ -17,5 +19,22 @@ public class StringTest {
         IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
         System.out.println(result);
+    }
+
+    @Test
+    public void stringEscapeTest() throws Exception {
+        ExpressRunner runner = new ExpressRunner(false, true);
+        IExpressContext<String, Object> context = new DefaultContext<>();
+
+        assertEquals("\"aaa\"", runner.execute("\"\\\"aaa\\\"\"", context, null, false, false));
+        assertEquals("aaa'aa", runner.execute("'aaa\\'aa'", context, null, false, false));
+        assertEquals("aaa\\aa", runner.execute("'aaa\\\\aa'", context, null, false, false));
+
+        // 不认识的转义符 \a, 默认忽略掉 \
+        assertEquals("aaaaa", runner.execute("'aaa\\aa'", context, null, false, false));
+        assertEquals("", runner.execute("''", context, null, false, false));
+        assertEquals("\n\t", runner.execute("'\\n\\t'", context, null, false, false));
+        assertEquals("\n\tm", runner.execute("'\\n\\t\\m'", context, null, false, false));
+        assertEquals("", runner.execute("\"\"", context, null, false, false));
     }
 }
