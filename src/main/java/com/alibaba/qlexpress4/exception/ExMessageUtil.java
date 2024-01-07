@@ -9,6 +9,8 @@ public class ExMessageUtil {
 
     private static final String REPORT_TEMPLATE = "[Error {0}: {1}]\n[Near: {2}]\n{3}\n[Line: {4}, Column: {5}]";
 
+    private static final int SNIPPET_EXTENSION_LEN = 20;
+
     public static class ExMessage {
         private final String message;
         private final String snippet;
@@ -29,8 +31,8 @@ public class ExMessageUtil {
 
     public static ExMessage format(String script, int tokenStartPos, int tokenLine, int tokenCol,
                                 String lexeme, String errorCode, String reason) {
-        int startReportPos = Math.max(tokenStartPos - 10, 0);
-        int endReportPos = Math.min(tokenStartPos + lexeme.length() + 10, script.length());
+        int startReportPos = Math.max(tokenStartPos - SNIPPET_EXTENSION_LEN, 0);
+        int endReportPos = Math.min(tokenStartPos + lexeme.length() + SNIPPET_EXTENSION_LEN, script.length());
 
         StringBuilder snippetBuilder = new StringBuilder();
         if (startReportPos > 0) {

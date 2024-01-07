@@ -19,7 +19,7 @@ public class QLExceptionTest {
         QLSyntaxException qlSyntaxException = QLException.reportScannerErr(script, 13, 2, 3,
                 "break", "BREAK_MUST_IN_FOR_OR_WHILE", "break must in for/while");
         assertEquals("[Error BREAK_MUST_IN_FOR_OR_WHILE: break must in for/while]\n" +
-                "[Near: ...(3>1) {   break 9; } else...]\n" +
+                "[Near: if (3>1) {   break 9; } else {   retur...]\n" +
                 "                    ^^^^^\n" +
                 "[Line: 2, Column: 3]", qlSyntaxException.getMessage());
     }
