@@ -13,6 +13,12 @@ import com.ql.util.express.exception.QLCompileException;
  * @author xuannan
  */
 public class WordSplit {
+    enum EscapeState {
+        CHARS,
+        MAYBE_ESCAPE,
+        END
+    }
+
     private WordSplit() {
         throw new IllegalStateException("Utility class");
     }
@@ -39,34 +45,49 @@ public class WordSplit {
             c = str.charAt(i);
             //字符串处理
             if (c == '"' || c == '\'') {
-                int index = str.indexOf(c, i + 1);
-                //处理字符串中的”问题
-                while (index > 0 && str.charAt(index - 1) == '\\') {
-                    index = str.indexOf(c, index + 1);
+                StringBuilder escapedStr = new StringBuilder().append(c);
+                EscapeState state = EscapeState.CHARS;
+                int current = i;
+
+                forward:
+                while (++current < str.length()) {
+                    char curChar = str.charAt(current);
+                    switch (state) {
+                        case CHARS:
+                            if (curChar == '\\') {
+                                state = EscapeState.MAYBE_ESCAPE;
+                                continue;
+                            }
+                            escapedStr.append(curChar);
+                            if (curChar == c) {
+                                state = EscapeState.END;
+                                break forward;
+                            }
+
+                            break;
+                        case MAYBE_ESCAPE:
+                            switch (curChar) {
+                                case 'n':
+                                    escapedStr.append('\n');
+                                    break;
+                                case 't':
+                                    escapedStr.append('\t');
+                                    break;
+                                case 'r':
+                                    escapedStr.append('\r');
+                                    break;
+                                default:
+                                    escapedStr.append(curChar);
+                            }
+                            state = EscapeState.CHARS;
+                    }
                 }
-                if (index < 0) {
+
+                if (state != EscapeState.END) {
                     throw new QLCompileException("字符串没有关闭");
                 }
-                String tempDealStr = str.substring(i, index + 1);
-                //处理 \\，\"的情况
-                StringBuilder tmpResult = new StringBuilder();
-                int tmpPoint = tempDealStr.indexOf("\\");
-                while (tmpPoint >= 0) {
-                    tmpResult.append(tempDealStr, 0, tmpPoint);
-                    if (tmpPoint == tempDealStr.length() - 1) {
-                        throw new QLCompileException("字符串中的" + "\\错误:" + tempDealStr);
-                    }
-                    tmpResult.append(tempDealStr.charAt(tmpPoint + 1));
-                    tempDealStr = tempDealStr.substring(tmpPoint + 2);
-                    tmpPoint = tempDealStr.indexOf("\\");
-                }
-                tmpResult.append(tempDealStr);
-                list.add(new Word(tmpResult.toString(), line, i - currentLineOffset + 1));
-
-                if (point < i) {
-                    list.add(new Word(str.substring(point, i), line, point - currentLineOffset + 1));
-                }
-                i = index + 1;
+                list.add(new Word(escapedStr.toString(), line, i - currentLineOffset + 1));
+                i = current + 1;
                 point = i;
             } else if (c == '.' && point < i && isNumber(str.substring(point, i))) {
                 //小数点的特殊处理
