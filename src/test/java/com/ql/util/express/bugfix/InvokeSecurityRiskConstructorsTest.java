@@ -3,6 +3,7 @@ package com.ql.util.express.bugfix;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.config.QLExpressRunStrategy;
+import com.ql.util.express.example.CustBean;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.exception.QLSecurityRiskException;
 import org.junit.Assert;
@@ -24,6 +25,10 @@ public class InvokeSecurityRiskConstructorsTest {
 
         //白名单
         QLExpressRunStrategy.addSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
+        QLExpressRunStrategy.addSecureConstructor(CustBean.class);
+        QLExpressRunStrategy.addSecureConstructor(java.util.Date.class);
+        QLExpressRunStrategy.addSecureConstructor(java.util.LinkedList.class);
+
         //QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
     }
 
