@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +40,14 @@ public class Express4Runner {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.allowPrivateAccess());
         SyntaxTreeFactory.warmUp();
+    }
+
+    public CustomFunction getFunction(String functionName) {
+        return userDefineFunction.get(functionName);
+    }
+
+    public CompileTimeFunction getCompileTimeFunction(String functionName) {
+        return compileTimeFunctions.get(functionName);
     }
 
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {

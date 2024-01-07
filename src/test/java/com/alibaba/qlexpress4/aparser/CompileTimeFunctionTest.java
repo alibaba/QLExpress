@@ -80,6 +80,7 @@ public class CompileTimeFunctionTest {
                 .securityStrategy(QLSecurityStrategy.open())
                 .build());
         express4Runner.addCompileTimeFunction("FOR_EACH", new ForEachFunction());
+        assertNotNull(express4Runner.getCompileTimeFunction("FOR_EACH"));
         Object result = express4Runner.execute("FOR_EACH([1,2,3,4], _+1)", new HashMap<>(),
                 QLOptions.DEFAULT_OPTIONS);
         assertEquals(Arrays.asList(2, 3, 4, 5), result);

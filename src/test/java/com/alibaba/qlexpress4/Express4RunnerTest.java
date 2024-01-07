@@ -347,6 +347,7 @@ public class Express4RunnerTest {
     public void innerFunctionExceptionTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("testExp", () -> {throw new RuntimeException("inner test");});
+        assertNotNull(express4Runner.getFunction("testExp"));
         try {
             express4Runner.execute("1+testExp()+10", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         } catch (QLException e) {
