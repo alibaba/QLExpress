@@ -73,6 +73,9 @@ public class WordSplit {
                                 case 't':
                                     escapedStr.append('\t');
                                     break;
+                                case 'r':
+                                    escapedStr.append('\r');
+                                    break;
                                 default:
                                     escapedStr.append(curChar);
                             }

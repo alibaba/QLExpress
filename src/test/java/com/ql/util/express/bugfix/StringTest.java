@@ -15,10 +15,9 @@ public class StringTest {
     public void testFunction() throws Exception {
         ExpressRunner runner = new ExpressRunner();
         String exp = "a = \"11111,2222\";p = a.split(\",\");";
-        System.out.println(exp);
         IExpressContext<String, Object> context = new DefaultContext<>();
         Object result = runner.execute(exp, context, null, false, false);
-        System.out.println(result);
+        assertArrayEquals(new String[] {"11111", "2222"}, (String[]) result);
     }
 
     @Test
@@ -33,8 +32,8 @@ public class StringTest {
         // 不认识的转义符 \a, 默认忽略掉 \
         assertEquals("aaaaa", runner.execute("'aaa\\aa'", context, null, false, false));
         assertEquals("", runner.execute("''", context, null, false, false));
-        assertEquals("\n\t", runner.execute("'\\n\\t'", context, null, false, false));
-        assertEquals("\n\tm", runner.execute("'\\n\\t\\m'", context, null, false, false));
+        assertEquals("\n\t\r", runner.execute("'\\n\\t\\r'", context, null, false, false));
+        assertEquals("\n\tm\r", runner.execute("'\\n\\t\\m\\r'", context, null, false, false));
         assertEquals("", runner.execute("\"\"", context, null, false, false));
     }
 }
