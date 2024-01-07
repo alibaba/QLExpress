@@ -53,6 +53,7 @@ public class CallFunctionInstruction extends QLInstruction {
         Object lambdaSymbol = qContext.getSymbolValue(functionName);
         if (lambdaSymbol == null) {
             if (qlOptions.isAvoidNullPointer()) {
+                qContext.pop(argNum);
                 qContext.push(DataValue.NULL_VALUE);
             } else {
                 throw errorReporter.report(new NullPointerException(), "FUNCTION_NOT_FOUND",

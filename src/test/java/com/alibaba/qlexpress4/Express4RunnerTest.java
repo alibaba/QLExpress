@@ -4,12 +4,9 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.exception.UserDefineException;
-import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 
@@ -358,6 +355,14 @@ public class Express4RunnerTest {
                     "[Line: 1, Column: 2]", e.getMessage());
             assertEquals(2, e.getPos());
         }
+    }
+
+    @Test
+    public void avoidNullPointerTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("'a '+${a}+aa('xxx')", new HashMap<>(), QLOptions.builder()
+                .avoidNullPointer(true).build());
+        assertEquals("a nullnull", result);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
