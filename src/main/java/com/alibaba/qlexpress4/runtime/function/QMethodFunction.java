@@ -5,7 +5,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.MemberResolver;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
-import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Method;
@@ -37,7 +37,7 @@ public class QMethodFunction implements CustomFunction {
                     + " in declaring java class '" + method.getDeclaringClass().getName() + "'"
             );
         }
-        Object[] convertResult = ParametersConversion.convert(argumentsArr, method.getParameterTypes(), method.isVarArgs());
+        Object[] convertResult = ParametersTypeConvertor.cast(argumentsArr, method.getParameterTypes(), method.isVarArgs());
         return MethodHandler.Access.accessMethodValue(method, object, convertResult);
     }
 }

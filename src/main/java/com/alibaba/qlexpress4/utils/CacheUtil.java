@@ -11,9 +11,6 @@ public class CacheUtil {
     private static final Map<Object, Boolean> FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
 
     public static boolean isFunctionInterface(Class<?> clazz) {
-        if (clazz == null) {
-            return false;
-        }
         return FUNCTION_INTERFACE_CACHE.computeIfAbsent(clazz,
                 ignore -> clazz.isInterface() && MethodHandler.hasOnlyOneAbstractMethod(clazz.getMethods()));
     }

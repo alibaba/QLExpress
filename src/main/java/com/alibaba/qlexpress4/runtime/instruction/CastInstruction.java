@@ -7,9 +7,7 @@ import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -35,12 +33,12 @@ public class CastInstruction extends QLInstruction {
             qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;
         }
-        QLConvertResult result = InstanceConversion.castObject(value.get(), targetClz);
-        if (result.getResultType().equals(QLConvertResultType.NOT_TRANS)) {
+        ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(value.get(), targetClz);
+        if (!result.isConvertible()) {
             throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this type:"
                     + value.getTypeName() + " to type:" + targetClz.getName());
         }
-        Value dataCast = new DataValue(result.getCastValue());
+        Value dataCast = new DataValue(result.getConverted());
         qContext.push(dataCast);
         return QResult.NEXT_INSTRUCTION;
     }

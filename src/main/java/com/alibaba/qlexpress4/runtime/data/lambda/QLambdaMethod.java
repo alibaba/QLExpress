@@ -6,12 +6,11 @@ import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.ReflectLoader;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Author: TaoKan
@@ -36,7 +35,7 @@ public class QLambdaMethod implements QLambda {
             throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
                     "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));
         }
-        Object[] convertResult = ParametersConversion.convert(params, method.getParameterTypes(), method.isVarArgs());
+        Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
         Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
         return new QResult(new DataValue(value), QResult.ResultType.RETURN);
     }

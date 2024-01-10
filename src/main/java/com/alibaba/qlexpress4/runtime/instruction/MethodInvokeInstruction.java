@@ -6,13 +6,12 @@ import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -78,7 +77,7 @@ public class MethodInvokeInstruction extends QLInstruction {
             }
         } else {
             // method invoke
-            Object[] convertResult = ParametersConversion.convert(params, method.getParameterTypes(), method.isVarArgs());
+            Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
             try {
                 Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
                 Value dataValue = new DataValue(value);

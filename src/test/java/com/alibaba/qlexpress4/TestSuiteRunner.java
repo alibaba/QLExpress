@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/method/method_invoke.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/implicit/pointer.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

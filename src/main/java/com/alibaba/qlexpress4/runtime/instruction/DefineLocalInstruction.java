@@ -4,9 +4,7 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
-import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -33,13 +31,13 @@ public class DefineLocalInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object initValue = qContext.pop().get();
-        QLConvertResult qlConvertResult = InstanceConversion.castObject(initValue, defineClz);
-        if (QLConvertResultType.NOT_TRANS == qlConvertResult.getResultType()) {
+        ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initValue, defineClz);
+        if (!qlConvertResult.isConvertible()) {
             throw errorReporter.reportFormat("INVALID_TYPE_AT_VARIABLE_DEFINE",
                     "can not init variable %s declared type %s, use value type %s", variableName,
                     defineClz.getName(), initValue.getClass().getName());
         }
-        qContext.defineLocalSymbol(variableName, defineClz, qlConvertResult.getCastValue());
+        qContext.defineLocalSymbol(variableName, defineClz, qlConvertResult.getConverted());
         return QResult.NEXT_INSTRUCTION;
     }
 

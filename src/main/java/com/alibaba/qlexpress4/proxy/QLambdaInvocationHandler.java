@@ -2,8 +2,6 @@ package com.alibaba.qlexpress4.proxy;
 
 
 import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

@@ -6,9 +6,7 @@ import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.InstanceConversion;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResult;
-import com.alibaba.qlexpress4.runtime.data.implicit.QLConvertResultType;
+import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Array;
@@ -42,12 +40,12 @@ public class NewArrayInstruction extends QLInstruction {
         Object array = Array.newInstance(clz, length);
         Parameters initItems = qContext.pop(length);
         for (int i = 0; i < initItems.size(); i++) {
-            QLConvertResult qlConvertResult = InstanceConversion.castObject(initItems.get(i).get(), clz);
-            if (QLConvertResultType.NOT_TRANS == qlConvertResult.getResultType()) {
+            ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initItems.get(i).get(), clz);
+            if (!qlConvertResult.isConvertible()) {
                 throw errorReporter.reportFormat("INVALID_ARRAY_ITEM",
                         "item %s can not trans to array item type '%s'", i, clz.getName());
             }
-            Array.set(array, i, qlConvertResult.getCastValue());
+            Array.set(array, i, qlConvertResult.getConverted());
         }
         qContext.push(new DataValue(array));
         return QResult.NEXT_INSTRUCTION;

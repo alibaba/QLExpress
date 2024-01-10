@@ -57,6 +57,9 @@ public class MethodHandler {
         for (Method method : methods) {
             if (Modifier.isAbstract(method.getModifiers())) {
                 count++;
+                if (count > 1) {
+                    return false;
+                }
             }
         }
         return count == 1;

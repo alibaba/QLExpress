@@ -4,7 +4,7 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.ParametersConversion;
+import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Constructor;
@@ -48,7 +48,7 @@ public class NewInstruction extends QLInstruction {
             throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
                     "constructor not found for types %s", Arrays.toString(paramTypes));
         }
-        Object[] convertResult = ParametersConversion.convert(
+        Object[] convertResult = ParametersTypeConvertor.cast(
                 objs, constructor.getParameterTypes(), constructor.isVarArgs()
         );
         Object newObject = newObject(constructor, convertResult);

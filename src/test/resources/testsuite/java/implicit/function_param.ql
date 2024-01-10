@@ -1,4 +1,4 @@
-function add(int a, int b){
+function add(int a, long b){
     return a + b;
 };
 
