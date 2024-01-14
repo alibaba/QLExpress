@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.test.instruction;
+package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.Value;
@@ -7,11 +7,11 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 /**
  * Author: TaoKan
  */
-public class TestCastParameters implements Parameters {
+public class MockCastParameters implements Parameters {
     private Class<?> aClass;
     private Object obj;
 
-    public TestCastParameters(Class<?> aClass,Object obj){
+    public MockCastParameters(Class<?> aClass, Object obj){
         this.aClass = aClass;
         this.obj = obj;
     }

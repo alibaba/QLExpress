@@ -1,16 +1,17 @@
-package com.alibaba.qlexpress4.test.instruction;
+package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.test.property.ParentClass;
+import com.alibaba.qlexpress4.test.property.Parent;
 
 /**
  * Author: TaoKan
  */
-public class TestParametersParentClass implements Parameters {
+public class MockParametersParent implements Parameters {
     @Override
     public Value get(int i) {
-        ParentClass parent = new ParentClass();
+        Parent parent = new Parent();
+        parent.setAge(35);
         return parent;
     }
 

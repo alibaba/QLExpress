@@ -365,6 +365,8 @@ public class Express4RunnerTest {
         assertEquals("a nullnull", result);
     }
 
+
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

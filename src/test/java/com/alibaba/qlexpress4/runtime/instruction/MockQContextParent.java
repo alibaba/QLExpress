@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.test.instruction;
+package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
@@ -10,13 +10,13 @@ import java.util.Map;
 /**
  * Author: TaoKan
  */
-public class TestQContextParent implements QContext {
+public class MockQContextParent implements QContext {
     private Value value;
     private Parameters parameters;
     private final boolean allowPrivateAccess;
     private final ReflectLoader reflectLoader;
 
-    public TestQContextParent(boolean allowPrivateAccess) {
+    public MockQContextParent(boolean allowPrivateAccess) {
         this.allowPrivateAccess = allowPrivateAccess;
         this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), allowPrivateAccess);
     }

@@ -7,7 +7,7 @@ import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.GetFieldInstruction;
 import com.alibaba.qlexpress4.runtime.instruction.MethodInvokeInstruction;
-import com.alibaba.qlexpress4.test.instruction.TestQContextParent;
+import com.alibaba.qlexpress4.runtime.instruction.MockQContextParent;
 import com.alibaba.qlexpress4.test.property.Child7;
 import com.alibaba.qlexpress4.test.property.ParentParameters;
 import org.junit.Assert;
@@ -16,44 +16,44 @@ import org.junit.Test;
 /**
  * Author: TaoKan
  */
-public class TestQL4Alias {
+public class QL4AliasTest {
 
     @Test
-    public void testQLAliasClassField() throws Exception {
+    public void classFieldTest() throws Exception {
         ErrorReporter errorReporter = new MockErrorReporter();
         GetFieldInstruction getFieldInstruction = new GetFieldInstruction(errorReporter, "测试静态字段", false);
-        TestQContextParent testQContextParent = new TestQContextParent(false);
-        testQContextParent.push(new DataValue(new MetaClass(Child7.class)));
-        getFieldInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals((testQContextParent.getValue()).get(),8);
+        MockQContextParent mockQContextParent = new MockQContextParent(false);
+        mockQContextParent.push(new DataValue(new MetaClass(Child7.class)));
+        getFieldInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals((mockQContextParent.getValue()).get(),8);
     }
 
 
     @Test
-    public void testQLAliasClassFunction() {
+    public void staticMethodTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
                 errorReporter, "测试静态方法",0, false
         );
-        TestQContextParent testQContextParent = new TestQContextParent(true);
+        MockQContextParent mockQContextParent = new MockQContextParent(true);
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new MetaClass(Child7.class));
-        testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(testQContextParent.getValue().get(),11);
+        mockQContextParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(mockQContextParent.getValue().get(),11);
     }
 
     @Test
-    public void testQLAliasFunction() {
+    public void memberMethodTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
         MethodInvokeInstruction methodInvokeInstruction = new MethodInvokeInstruction(
                 errorReporter, "测试方法",0, false
         );
-        TestQContextParent testQContextParent = new TestQContextParent(true);
+        MockQContextParent mockQContextParent = new MockQContextParent(true);
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(new Child7());
-        testQContextParent.setParameters(parentParameters);
-        methodInvokeInstruction.execute(testQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(testQContextParent.getValue().get(),10);
+        mockQContextParent.setParameters(parentParameters);
+        methodInvokeInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(mockQContextParent.getValue().get(),10);
     }
 }
