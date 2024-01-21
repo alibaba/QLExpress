@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/implicit/incompatible_type_for_assignment.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/map/map_define.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

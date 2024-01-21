@@ -23,3 +23,9 @@ assert(addressBook[1].owner == 'john');
 
 empty = {:};
 assert(empty.a == null);
+
+extra_comma_map = {
+    "test_id" : "acd",
+    "cc_id"   : "ttt",
+}
+assert(extra_comma_map.test_id == "acd")

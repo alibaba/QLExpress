@@ -1248,7 +1248,7 @@ tryFinally
 
 mapEntries
     : ':'
-    | mapEntry (',' mapEntry)*
+    | mapEntry (',' mapEntry)* ','?
     ;
 
 mapEntry
