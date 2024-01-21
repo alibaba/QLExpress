@@ -33,9 +33,9 @@ public class DefineLocalInstruction extends QLInstruction {
         Object initValue = qContext.pop().get();
         ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initValue, defineClz);
         if (!qlConvertResult.isConvertible()) {
-            throw errorReporter.reportFormat("INVALID_TYPE_AT_VARIABLE_DEFINE",
-                    "can not init variable %s declared type %s, use value type %s", variableName,
-                    defineClz.getName(), initValue.getClass().getName());
+            throw errorReporter.reportFormat("INCOMPATIBLE_TYPE_FOR_ASSIGNMENT",
+                    "variable declared type %s, assigned with incompatible value type %s",
+                    defineClz.getName(), initValue == null? "null": initValue.getClass().getName());
         }
         qContext.defineLocalSymbol(variableName, defineClz, qlConvertResult.getConverted());
         return QResult.NEXT_INSTRUCTION;

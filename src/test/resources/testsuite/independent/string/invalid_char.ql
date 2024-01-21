@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_TYPE_AT_VARIABLE_DEFINE"
+  "errCode": "INCOMPATIBLE_TYPE_FOR_ASSIGNMENT"
 }
 */
 char a = 'aa';

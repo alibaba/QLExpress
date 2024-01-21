@@ -35,7 +35,7 @@ public class CastInstruction extends QLInstruction {
         }
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(value.get(), targetClz);
         if (!result.isConvertible()) {
-            throw errorReporter.report("CAST_VALUE_ERROR", "can not cast from this type:"
+            throw errorReporter.report("INCOMPATIBLE_TYPE_CAST", "incompatible cast from type:"
                     + value.getTypeName() + " to type:" + targetClz.getName());
         }
         Value dataCast = new DataValue(result.getConverted());

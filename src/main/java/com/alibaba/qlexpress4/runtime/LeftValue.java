@@ -21,7 +21,9 @@ public interface LeftValue extends Value {
         Class<?> defineType = getDefinedType();
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(newValue, defineType);
         if (!result.isConvertible()) {
-            throw errorReporter.report("TRANS_OBJECT_ERROR", "can not trans to:" + defineType.getName());
+            throw errorReporter.reportFormat("INCOMPATIBLE_TYPE_FOR_ASSIGNMENT",
+                    "variable declared type %s, assigned with incompatible value type %s",
+                    newValue == null? "null": newValue.getClass().getName(), defineType.getName());
         }
         setInner(result.getConverted());
     }

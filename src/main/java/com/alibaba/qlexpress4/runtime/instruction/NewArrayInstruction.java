@@ -40,10 +40,12 @@ public class NewArrayInstruction extends QLInstruction {
         Object array = Array.newInstance(clz, length);
         Parameters initItems = qContext.pop(length);
         for (int i = 0; i < initItems.size(); i++) {
-            ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initItems.get(i).get(), clz);
+            Object initItemObj = initItems.get(i).get();
+            ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initItemObj, clz);
             if (!qlConvertResult.isConvertible()) {
-                throw errorReporter.reportFormat("INVALID_ARRAY_ITEM",
-                        "item %s can not trans to array item type '%s'", i, clz.getName());
+                throw errorReporter.reportFormat("INCOMPATIBLE_ARRAY_ITEM_TYPE",
+                        "item %s with type %s incompatible with array type %s", i,
+                        initItemObj == null? "null": initItemObj.getClass().getName(), clz.getName());
             }
             Array.set(array, i, qlConvertResult.getConverted());
         }

@@ -31,7 +31,7 @@ public class TestSuiteRunner {
     private static final String PRINT_FUNCTION_NAME = "println";
     private static final String TEST_PATH_ATT = "TEST_PATH";
 
-    private static Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
+    private static final Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
         .securityStrategy(QLSecurityStrategy.open())
         .defaultImport(Arrays.asList(
             ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/implicit/pointer.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/implicit/incompatible_type_for_assignment.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
