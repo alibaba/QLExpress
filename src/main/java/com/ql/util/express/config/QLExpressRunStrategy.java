@@ -1,9 +1,13 @@
 package com.ql.util.express.config;
 
+import java.awt.*;
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PropertyResourceBundle;
 import java.util.Set;
 
 import com.ql.util.express.config.whitelist.WhiteChecker;
@@ -90,6 +94,14 @@ public class QLExpressRunStrategy {
         for (Method method : QLExpressRunStrategy.class.getMethods()) {
             SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName() + "." + method.getName());
         }
+
+        addRiskSecureConstructor(ProcessBuilder.class);
+        addRiskSecureConstructor(Socket.class);
+        addRiskSecureConstructor(File.class);
+        addRiskSecureConstructor(Desktop.class);
+        addRiskSecureConstructor(PropertyResourceBundle.class);
+        addRiskSecureConstructor(java.nio.file.Files.class);
+        addRiskSecureConstructor(java.nio.file.Path.class);
     }
 
     private QLExpressRunStrategy() {
@@ -193,10 +205,15 @@ public class QLExpressRunStrategy {
             return;
         }
         String fullConstructorName = constructor.getDeclaringClass().getName();
-        if (!SECURE_CONSTRUCTOR_LIST.isEmpty() && !SECURE_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
-            throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);
+        if (SECURE_CONSTRUCTOR_LIST != null && !SECURE_CONSTRUCTOR_LIST.isEmpty()) {
+            // 有白名单配置时则黑名单失效
+            if (!SECURE_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
+                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);
+            }
+            return;
         }
-        if (!SECURITY_RISK_METHOD_LIST.isEmpty() && SECURITY_RISK_METHOD_LIST.contains(fullConstructorName)) {
+
+        if (SECURE_RISK_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
             throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);
         }
     }

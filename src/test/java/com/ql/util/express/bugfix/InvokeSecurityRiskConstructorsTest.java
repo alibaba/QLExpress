@@ -32,16 +32,16 @@ public class InvokeSecurityRiskConstructorsTest {
         //QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
     }
 
-    private static final String[] expressList = new String[] {
-            "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
-                    "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();return w;"
-            ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
-            "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
-
     @Test
     public void test() throws Exception {
         ExpressRunner expressRunner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
+
+        String[] expressList = new String[] {
+                "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
+                        "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();return w;"
+                ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
+                "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
 
         Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
         Assert.assertTrue(result instanceof InvokeSecurityRiskConstructorsTest);
@@ -53,5 +53,26 @@ public class InvokeSecurityRiskConstructorsTest {
             //预期内走这里
             Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest()");
         }
+    }
+
+    @Test
+    public void testDefault() throws Exception {
+        ExpressRunner expressRunner = new ExpressRunner();
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        String[] expressList = new String[] {
+                "import java.net.Socket;" +
+                        "return new Socket();"};
+
+        try {
+            Object result = expressRunner.execute(expressList[0], context, null, false, false, 1000);
+            Assert.fail();
+        }catch (QLException e) {
+            //预期内走这里
+            Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public java.net.Socket()");
+        }
+        QLExpressRunStrategy.addSecureConstructor(java.net.Socket.class);
+
+        Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
+        Assert.assertTrue(result instanceof java.net.Socket);
     }
 }
