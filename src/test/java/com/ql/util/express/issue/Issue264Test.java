@@ -12,17 +12,17 @@ import org.junit.Test;
 public class Issue264Test {
     /**
      * isPrecise:false, result:10.0              , result == 10.0:true
-     * isPrecise:false, result:9.9999999999      , d1 == d2:false
+     * isPrecise:false, result:9.9999999999      ,     d1 == d2  :false
      *
      * isPrecise:true, result:9.9999999999      , result == 10.0:false
-     * isPrecise:true, result:9.9999999999      , d1 == d2:true
+     * isPrecise:true, result:9.9999999999      ,     d1 == d2  :true
      *
      * @throws Exception
      */
     @Test
     public void test() throws Exception {
         String exp = "a/b*c";
-        boolean isPrecise = true;
+        boolean isPrecise = false;
         ExpressRunner runner = new ExpressRunner(isPrecise, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("a", 20.0);
@@ -42,6 +42,6 @@ public class Issue264Test {
             .divide(new BigDecimal("6"), 10, BigDecimal.ROUND_HALF_UP)
             .multiply(new BigDecimal("3"));
         double d2 = bigDecimal.doubleValue();
-        System.out.printf("isPrecise:%s, result:%-18s, d1 == d2:%s\n", isPrecise, d2, d1 == d2);
+        System.out.printf("isPrecise:%s, result:%-18s,     d1 == d2  :%s\n", isPrecise, d2, d1 == d2);
     }
 }
