@@ -1,13 +1,9 @@
 package com.ql.util.express.config;
 
-import java.awt.*;
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.Socket;
 import java.util.HashSet;
 import java.util.List;
-import java.util.PropertyResourceBundle;
 import java.util.Set;
 
 import com.ql.util.express.config.whitelist.WhiteChecker;
@@ -95,11 +91,11 @@ public class QLExpressRunStrategy {
             SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName() + "." + method.getName());
         }
 
-        addRiskSecureConstructor(ProcessBuilder.class);
-        addRiskSecureConstructor(Socket.class);
-        addRiskSecureConstructor(File.class);
-        addRiskSecureConstructor(Desktop.class);
-        addRiskSecureConstructor(PropertyResourceBundle.class);
+        addRiskSecureConstructor(java.lang.ProcessBuilder.class);
+        addRiskSecureConstructor(java.net.Socket.class);
+        addRiskSecureConstructor(java.io.File.class);
+        addRiskSecureConstructor(java.awt.Desktop.class);
+        addRiskSecureConstructor(java.util.PropertyResourceBundle.class);
         addRiskSecureConstructor(java.nio.file.Files.class);
         addRiskSecureConstructor(java.nio.file.Path.class);
     }
