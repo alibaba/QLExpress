@@ -102,7 +102,7 @@ public class Express4Runner {
 
     public <T, R> boolean addFunction(String name, Function<T, R> function) {
         return addFunction(name, (qContext, parameters) -> {
-            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            T t = parameters.size() > 0? (T) parameters.get(0).get(): null;
             return function.apply(t);
         });
     }
@@ -119,7 +119,7 @@ public class Express4Runner {
 
     public <T> boolean addFunction(String name, Predicate<T> predicate) {
         return addFunction(name, (qContext, parameters) -> {
-            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            T t = parameters.size() > 0? (T) parameters.get(0).get(): null;
             return predicate.test(t);
         });
     }
@@ -133,7 +133,7 @@ public class Express4Runner {
 
     public <T> boolean addFunction(String name, Consumer<T> consumer) {
         return addFunction(name, (qContext, parameters) -> {
-            T t = parameters.size() > 0? (T) parameters.get(0): null;
+            T t = parameters.size() > 0? (T) parameters.get(0).get(): null;
             consumer.accept(t);
             return null;
         });

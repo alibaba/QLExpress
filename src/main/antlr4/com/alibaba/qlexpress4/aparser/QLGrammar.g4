@@ -399,6 +399,8 @@ fragment IdStart
     | [\u0041-\u005A]
     // _
     | [\u005F]
+    // @
+    | [\u0040]
     // a-z
     | [\u0061-\u007A]
     // ¢-¥
@@ -804,6 +806,7 @@ fragment IdStart
 
 fragment IdPart
 	: IdStart
+	// 0-9
 	| [\u0030-\u0039]
 	| [\u007F-\u009F]
 	| [\u00AD]

@@ -365,6 +365,14 @@ public class Express4RunnerTest {
         assertEquals("a nullnull", result);
     }
 
+    @Test
+    public void atFunctionTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("@", (String s) -> s + "," + s);
+        Object result = express4Runner.execute("@('a')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("a,a", result);
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }
