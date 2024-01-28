@@ -756,7 +756,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         headPartIds.add(idContext.getText());
         for (PathPartContext pathPartContext : pathPartContexts) {
             if (pathPartContext instanceof FieldAccessContext) {
-                headPartIds.add(pathPartContext.getStop().getText());
+                headPartIds.add(parseFieldId(
+                        ((FieldAccessContext) pathPartContext).fieldId()
+                ));
             } else {
                 break;
             }
@@ -823,7 +825,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public Void visitFieldAccess(FieldAccessContext ctx) {
         Token fieldNameToken = ctx.getStop();
         addInstruction(new GetFieldInstruction(
-                newReporterWithToken(fieldNameToken), fieldNameToken.getText(), false
+                newReporterWithToken(fieldNameToken), parseFieldId(ctx.fieldId()), false
         ));
         return null;
     }
@@ -832,9 +834,23 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public Void visitOptionalFieldAccess(OptionalFieldAccessContext ctx) {
         Token fieldNameToken = ctx.getStop();
         addInstruction(new GetFieldInstruction(
-                newReporterWithToken(fieldNameToken), fieldNameToken.getText(), true
+                newReporterWithToken(fieldNameToken), parseFieldId(ctx.fieldId()), true
         ));
         return null;
+    }
+
+    private String parseFieldId(FieldIdContext ctx) {
+        TerminalNode rawStringLiteral = ctx.RawStringLiteral();
+        if (rawStringLiteral != null) {
+            return parseRawStringEscape(rawStringLiteral.getText());
+        }
+
+        TerminalNode stringLiteral = ctx.StringLiteral();
+        if (stringLiteral != null) {
+            return parseStringEscape(stringLiteral.getText());
+        }
+
+        return ctx.getStart().getText();
     }
 
     @Override

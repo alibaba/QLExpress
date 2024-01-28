@@ -133,6 +133,7 @@ public class Express4RunnerTest {
         assertErrorCode(express4Runner, "1+++a", "UNKNOWN_OPERATOR");
         assertErrorCode(express4Runner, "a abcd bb", "UNKNOWN_OPERATOR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
+        assertErrorCode(express4Runner, "a.*bbb", "UNKNOWN_OPERATOR");
     }
 
     @Test
@@ -371,6 +372,24 @@ public class Express4RunnerTest {
         express4Runner.addFunction("@", (String s) -> s + "," + s);
         Object result = express4Runner.execute("@('a')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         assertEquals("a,a", result);
+    }
+
+    @Test
+    public void multilineStrNotCloseTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("a=1;'aaa \n \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+            fail("should throw");
+        } catch (QLException e) {
+            assertEquals("invalid RawStringLiteral", e.getReason());
+        }
+
+        try {
+            express4Runner.execute("\"aaa \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+            fail("should throw");
+        } catch (QLException e) {
+            assertEquals("invalid StringLiteral", e.getReason());
+        }
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

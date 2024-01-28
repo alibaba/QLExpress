@@ -15,7 +15,7 @@ d = a(1000, true) && a(10000, false);
 assert(d == false);
 assert(a == 10000);
 
-e = a(11, false) || a(111, true);
+e = a(11, false) or a(111, true);
 assert(e == true);
 assert(a == 111);
 

@@ -37,8 +37,6 @@ FLOAT: 'float';
 DOUBLE: 'double';
 CHAR: 'char';
 BOOL: 'boolean';
-AND: 'and';
-OR: 'or';
 NULL: 'null';
 TRUE: 'true';
 FALSE: 'false';
@@ -68,7 +66,7 @@ fragment StringCharacters
 	;
 
 fragment StringCharacter
-    :   ~["\\\r\n]
+    :   ~["\\]
     |   '\\' '"'?
     ;
 
@@ -77,9 +75,9 @@ fragment RawStringCharacters
     ;
 
 fragment RawStringCharacter
-    :   ~['\r\n]
+    :   ~['\\]
     // only escape \' in raw string
-    |   '\\\''
+    |   '\\' '\''?
     ;
 
 fragment ZeroToThree
@@ -1286,8 +1284,6 @@ idMapKey
     |   DOUBLE
     |   CHAR
     |   BOOL
-    |   AND
-    |   OR
     |   NULL
     |   TRUE
     |   FALSE
@@ -1304,12 +1300,19 @@ idMapKey
 pathPart
     :   '.' varId '(' argumentList? ')' # methodInvoke
     |   OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
-    |   '.' (varId | CLASS) # fieldAccess
-    |   OPTIONAL_CHAINING (varId | CLASS) # optionalFieldAccess
+    |   '.' fieldId # fieldAccess
+    |   OPTIONAL_CHAINING fieldId # optionalFieldAccess
     |   DCOLON varId # methodAccess
     |   '(' argumentList? ')' # callExpr
     |   '[' indexValueExpr? ']' # indexExpr
     |   {opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
+    ;
+
+fieldId
+    :   varId
+    |   CLASS
+    |   StringLiteral
+    |   RawStringLiteral
     ;
 
 indexValueExpr

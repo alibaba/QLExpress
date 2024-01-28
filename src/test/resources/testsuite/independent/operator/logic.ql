@@ -1,6 +1,9 @@
 assert(true && true);
 assertFalse(true && false);
 assertFalse(true && null);
+assert(true and true);
+assertFalse(true and false);
+assertFalse(true and null);
 
 assertFalse(false && true);
 assertFalse(false && false);
