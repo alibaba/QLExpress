@@ -90,7 +90,6 @@ public class QLExpressRunStrategy {
         for (Method method : QLExpressRunStrategy.class.getMethods()) {
             SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName() + "." + method.getName());
         }
-
         addRiskSecureConstructor(java.lang.ProcessBuilder.class);
         addRiskSecureConstructor(java.net.Socket.class);
         addRiskSecureConstructor(java.io.File.class);
