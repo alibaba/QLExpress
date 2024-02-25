@@ -119,7 +119,7 @@ public class QLOptions {
 
         private Map<String, Object> attachments = Collections.emptyMap();
 
-        private boolean cache = true;
+        private boolean cache = false;
 
         private boolean avoidNullPointer = false;
 

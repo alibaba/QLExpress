@@ -145,13 +145,6 @@ public class Express4RunnerTest {
     }
 
     @Test
-    public void stringTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        assertResultEquals(express4Runner, "'ccc\\tmb'", "ccc\\tmb");
-        assertResultEquals(express4Runner, "\"ccc\\tmb\"", "ccc\tmb");
-    }
-
-    @Test
     public void numberTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object[][] scriptAndExpects = new Object[][] {
@@ -381,7 +374,7 @@ public class Express4RunnerTest {
             express4Runner.execute("a=1;'aaa \n \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid RawStringLiteral", e.getReason());
+            assertEquals("invalid QuoteStringLiteral", e.getReason());
         }
 
         try {
@@ -390,6 +383,23 @@ public class Express4RunnerTest {
         } catch (QLException e) {
             assertEquals("invalid StringLiteral", e.getReason());
         }
+    }
+
+    @Test
+    public void chineseCommaPropertyTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("{'销售方地址、电话':'test'}.销售方地址、电话",
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("test", result);
+    }
+
+    @Test
+    public void stringEscapeTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // "'\na
+        Object result = express4Runner.execute("\"\\\"\"+'\\'\na'",
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("\"'\na", result);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

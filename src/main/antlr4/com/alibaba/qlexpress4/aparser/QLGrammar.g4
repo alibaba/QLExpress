@@ -53,8 +53,8 @@ THIS: 'this';
 
 // String Literals
 
-RawStringLiteral
-    :   '\'' RawStringCharacters? '\''
+QuoteStringLiteral
+    :   '\'' QuoteStringCharacters? '\''
     ;
 
 StringLiteral
@@ -70,13 +70,12 @@ fragment StringCharacter
     |   '\\' '"'?
     ;
 
-fragment RawStringCharacters
-    :   RawStringCharacter+
+fragment QuoteStringCharacters
+    :   QuoteStringCharacter+
     ;
 
-fragment RawStringCharacter
+fragment QuoteStringCharacter
     :   ~['\\]
-    // only escape \' in raw string
     |   '\\' '\''?
     ;
 
@@ -712,6 +711,7 @@ fragment IdStart
     | [\u31A0-\u31BA]
     | [\u31F0-\u31FF]
     | [\u3400-\u4DB5]
+    // chinese
     | [\u4E00-\u9FEA]
     | [\uA000-\uA48C]
     | [\uA4D0-\uA4FD]
@@ -804,6 +804,8 @@ fragment IdStart
 
 fragment IdPart
 	: IdStart
+	// 、
+	| [\u3001]
 	// 0-9
 	| [\u0030-\u0039]
 	| [\u007F-\u009F]
@@ -1259,7 +1261,7 @@ mapEntry
 mapKey
     : idMapKey # idKey
     | StringLiteral # stringKey
-    | RawStringLiteral # rawStringKey
+    | QuoteStringLiteral # quoteStringKey
     ;
 
 idMapKey
@@ -1312,7 +1314,7 @@ fieldId
     :   varId
     |   CLASS
     |   StringLiteral
-    |   RawStringLiteral
+    |   QuoteStringLiteral
     ;
 
 indexValueExpr
@@ -1329,7 +1331,7 @@ literal
     |   FloatingPointLiteral
     |   IntegerOrFloatingLiteral
     |   boolenLiteral
-    |   RawStringLiteral
+    |   QuoteStringLiteral
     |   StringLiteral
     |   NULL
     ;

@@ -174,19 +174,6 @@ public class SyntaxTreeFactoryTest {
     }
 
     @Test
-    public void rawStringEscapeTest() {
-        String script = "'ac\\'c\\'m\\n'";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
-        QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
-        programContext.accept(visitor);
-        List<QLInstruction> instructions = visitor.getInstructions();
-        ConstInstruction qlInstruction = (ConstInstruction) instructions.get(0);
-        String constObj = (String) qlInstruction.getConstObj();
-        assertEquals("ac'c'm\\n", constObj);
-    }
-
-    @Test
     public void stringEscapeTest() {
         // invalid escape \p will be ignored
         String script = "\"\\r\\n\\p\"";

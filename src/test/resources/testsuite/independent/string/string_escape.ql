@@ -1,4 +1,4 @@
-assert('\' \r \'' == "' \\r '")
+assert('\' \\r \'' == "' \\r '")
 
 assert('hello
 world' == "hello\nworld")

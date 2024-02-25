@@ -531,10 +531,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private String parseMsgKey(MapKeyContext mapKeyContext) {
         if (mapKeyContext instanceof IdKeyContext) {
             return mapKeyContext.getText();
-        } else if (mapKeyContext instanceof StringKeyContext) {
+        } else if (mapKeyContext instanceof StringKeyContext || mapKeyContext instanceof QuoteStringKeyContext) {
             return parseStringEscape(mapKeyContext.getText());
-        } else if (mapKeyContext instanceof RawStringKeyContext) {
-            return parseRawStringEscape(mapKeyContext.getText());
         }
         // shouldn't run here
         throw new IllegalStateException();
@@ -840,9 +838,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     private String parseFieldId(FieldIdContext ctx) {
-        TerminalNode rawStringLiteral = ctx.RawStringLiteral();
-        if (rawStringLiteral != null) {
-            return parseRawStringEscape(rawStringLiteral.getText());
+        TerminalNode quoteStringLiteral = ctx.QuoteStringLiteral();
+        if (quoteStringLiteral != null) {
+            return parseStringEscape(quoteStringLiteral.getText());
         }
 
         TerminalNode stringLiteral = ctx.StringLiteral();
@@ -1191,11 +1189,11 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             );
             return null;
         }
-        TerminalNode rawStringLiteral = literal.RawStringLiteral();
-        if (rawStringLiteral != null) {
-            String rawStr = parseRawStringEscape(rawStringLiteral.getText());
+        TerminalNode quoteStringLiteral = literal.QuoteStringLiteral();
+        if (quoteStringLiteral != null) {
+            String escapedStr = parseStringEscape(quoteStringLiteral.getText());
             addInstruction(
-                    new ConstInstruction(newReporterWithToken(rawStringLiteral.getSymbol()), rawStr)
+                    new ConstInstruction(newReporterWithToken(quoteStringLiteral.getSymbol()), escapedStr)
             );
             return null;
         }
@@ -1219,36 +1217,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             return null;
         }
         return null;
-    }
-
-    private String parseRawStringEscape(String originStr) {
-        StringBuilder result = new StringBuilder();
-        final byte init = 0;
-        final byte escape = 1;
-        byte state = 0;
-
-        int i = 1;
-        while (i < originStr.length() - 1) {
-            char cur = originStr.charAt(i++);
-            switch (state) {
-                case init:
-                    if (cur == '\\') {
-                        state = escape;
-                    } else {
-                        result.append(cur);
-                    }
-                    break;
-                case escape:
-                    state = init;
-                    if (cur == '\'') {
-                        result.append('\'');
-                    } else {
-                        result.append('\\').append(cur);
-                    }
-                    break;
-            }
-        }
-        return result.toString();
     }
 
     private int handleStringInterpolation(ErrorReporter errorReporter, String originStr) {

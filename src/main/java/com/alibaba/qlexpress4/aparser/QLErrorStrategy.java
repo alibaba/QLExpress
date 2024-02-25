@@ -60,7 +60,7 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
         } else if ("\"".equals(lexeme)) {
             syntaxErrorThrow(currentToken, "StringLiteral");
         } else if ("'".equals(lexeme)) {
-            syntaxErrorThrow(currentToken, "RawStringLiteral");
+            syntaxErrorThrow(currentToken, "QuoteStringLiteral");
         }
 
         syntaxErrorThrow(currentToken, ruleName);
