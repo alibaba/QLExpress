@@ -1,13 +1,6 @@
 package com.ql.util.express.instruction;
 
-import com.ql.util.express.CallResult;
-import com.ql.util.express.ExpressLoader;
-import com.ql.util.express.ExpressRunner;
-import com.ql.util.express.IExpressContext;
-import com.ql.util.express.InstructionSet;
-import com.ql.util.express.InstructionSetContext;
-import com.ql.util.express.OperateData;
-import com.ql.util.express.RunEnvironment;
+import com.ql.util.express.*;
 import com.ql.util.express.instruction.opdata.OperateDataArrayItem;
 import com.ql.util.express.instruction.opdata.OperateDataAttr;
 import com.ql.util.express.instruction.opdata.OperateDataField;
@@ -55,7 +48,8 @@ public class OperateDataCacheImpl implements IOperateDataCache {
             arrayList[i] = new OperateDataArrayItem(null, -1);
             keyValueList[i] = new OperateDataKeyValue(null, null);
             callResultList[i] = new CallResult(null, false);
-            environmentList[i] = new RunEnvironment(null, null, false);
+            environmentList[i] = new RunEnvironment(null, null, false,
+                    ExecuteTimeOut.NO_TIMEOUT);
             contextList[i] = new InstructionSetContext(false, null, null, null, false);
         }
     }
@@ -118,14 +112,14 @@ public class OperateDataCacheImpl implements IOperateDataCache {
 
     @Override
     public RunEnvironment fetRunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
-        boolean isTrace) {
+        boolean isTrace, ExecuteTimeOut executeTimeOut) {
         RunEnvironment result;
         if (environmentPoint < length) {
             result = environmentList[environmentPoint];
-            result.initial(instructionSet, instructionSetContext, isTrace);
+            result.initial(instructionSet, instructionSetContext, isTrace, executeTimeOut);
             environmentPoint = environmentPoint + 1;
         } else {
-            result = new RunEnvironment(instructionSet, instructionSetContext, isTrace);
+            result = new RunEnvironment(instructionSet, instructionSetContext, isTrace, executeTimeOut);
         }
         return result;
     }
