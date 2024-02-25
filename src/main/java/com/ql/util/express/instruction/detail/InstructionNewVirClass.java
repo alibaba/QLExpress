@@ -34,7 +34,7 @@ public class InstructionNewVirClass extends Instruction {
         OperateDataVirClass result = new OperateDataVirClass(className);
         environment.push(result);
         environment.programPointAddOne();
-        result.initialInstance(environment.getContext(), list, errorList, environment.isTrace());
+        result.initialInstance(environment, list, errorList, environment.isTrace());
     }
 
     @Override

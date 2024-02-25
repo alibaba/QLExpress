@@ -577,7 +577,7 @@ public class ExpressRunner {
     public Object executeByExpressName(String name, IExpressContext<String, Object> context, List<String> errorList,
         boolean isTrace, boolean isCatchException) throws Exception {
         return InstructionSetRunner.executeOuter(this, this.loader.getInstructionSet(name), this.loader, context,
-            errorList, isTrace, isCatchException, false);
+            errorList, isTrace, isCatchException, false, -1);
     }
 
     /**
@@ -593,7 +593,7 @@ public class ExpressRunner {
      */
     public Object execute(InstructionSet instructionSet, IExpressContext<String, Object> context,
         List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
-        return executeReentrant(instructionSet, context, errorList, isTrace, isCatchException);
+        return executeReentrant(instructionSet, context, errorList, isTrace, isCatchException, -1);
     }
 
     /**
@@ -604,19 +604,13 @@ public class ExpressRunner {
      * @param errorList     输出的错误信息List
      * @param isCache       是否使用Cache中的指令集
      * @param isTrace       是否输出详细的执行指令信息
-     * @param timeoutMillis 超时毫秒时间
+     * @param timeoutMillis 超时毫秒时间, -1 表示不给本次执行单独设置超时时间, 但是可能会有全局超时时间, 参考 {@link QLExpressTimer#setTimeout(long)}
      * @return
      * @throws Exception
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
         boolean isCache, boolean isTrace, long timeoutMillis) throws Exception {
-        //设置超时毫秒时间
-        QLExpressTimer.setTimer(timeoutMillis);
-        try {
-            return this.execute(expressString, context, errorList, isCache, isTrace);
-        } finally {
-            QLExpressTimer.reset();
-        }
+        return this.executeInner(expressString, context, errorList, isCache, isTrace, timeoutMillis);
     }
 
     /**
@@ -632,27 +626,34 @@ public class ExpressRunner {
      */
     public Object execute(String expressString, IExpressContext<String, Object> context, List<String> errorList,
         boolean isCache, boolean isTrace) throws Exception {
+        return executeInner(expressString, context, errorList, isCache, isTrace, -1);
+    }
+
+    private Object executeInner(String expressString, IExpressContext<String, Object> context, List<String> errorList,
+                                boolean isCache, boolean isTrace, long timeoutMillis) throws Exception {
         InstructionSet parseResult;
         if (isCache) {
             parseResult = getInstructionSetFromLocalCache(expressString);
         } else {
             parseResult = this.parseInstructionSet(expressString);
         }
-        return executeReentrant(parseResult, context, errorList, isTrace, false);
+
+        return executeReentrant(parseResult, context, errorList, isTrace, false, timeoutMillis);
     }
 
-    private Object executeReentrant(InstructionSet sets, IExpressContext<String, Object> iExpressContext,
-        List<String> errorList, boolean isTrace, boolean isCatchException) throws Exception {
+    private Object executeReentrant(InstructionSet parseResult, IExpressContext<String, Object> context, List<String> errorList,
+                                    boolean isTrace, boolean isCatchException, long timeoutMillis) throws Exception {
         try {
             int reentrantCount = threadReentrantCount.get() + 1;
             threadReentrantCount.set(reentrantCount);
 
             return reentrantCount > 1 ?
-                // 线程重入
-                InstructionSetRunner.execute(this, sets, this.loader, iExpressContext, errorList, isTrace,
-                    isCatchException, true, false) :
-                InstructionSetRunner.executeOuter(this, sets, this.loader, iExpressContext, errorList, isTrace,
-                    isCatchException, false);
+                    // 线程重入
+                    InstructionSetRunner.execute(this, parseResult, this.loader, context, errorList, isTrace,
+                            isCatchException, true, false,
+                            new ExecuteTimeOut(timeoutMillis)) :
+                    InstructionSetRunner.executeOuter(this, parseResult, this.loader, context, errorList, isTrace,
+                            isCatchException, false, timeoutMillis);
         } finally {
             threadReentrantCount.set(threadReentrantCount.get() - 1);
         }

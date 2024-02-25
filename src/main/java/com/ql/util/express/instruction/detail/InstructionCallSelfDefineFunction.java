@@ -58,8 +58,8 @@ public class InstructionCallSelfDefineFunction extends Instruction {
             context.addSymbol(operateDataLocalVar.getName(), operateDataLocalVar);
             operateDataLocalVar.setObject(context, parameters.get(i).getObject(environment.getContext()));
         }
-        Object result = InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false,
-            true);
+        Object result = InstructionSetRunner.execute(functionSet, context, errorList,
+                environment.isTrace(), false, true, environment.getExecuteTimeOut());
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 

@@ -3,10 +3,7 @@ package com.ql.util.express.test;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ql.util.express.DefaultContext;
-import com.ql.util.express.ExpressRunner;
-import com.ql.util.express.InstructionSet;
-import com.ql.util.express.InstructionSetRunner;
+import com.ql.util.express.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +22,8 @@ public class DynamicFieldTest {
         Map<String, Object> fee = new HashMap<>();
         context.put("费用", fee);
         InstructionSet set = runner.parseInstructionSet(express);
-        InstructionSetRunner.executeOuter(runner, set, null, context, null, true, false, true);
+        InstructionSetRunner.executeOuter(runner, set, null, context,
+                null, true, false, true, -1);
         runner.execute(express, context, null, false, true);
         System.out.println(context.get("费用"));
         Assert.assertEquals("动态属性错误", "100", fee.get("张三").toString());

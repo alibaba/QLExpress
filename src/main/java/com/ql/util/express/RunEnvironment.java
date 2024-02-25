@@ -14,17 +14,26 @@ public final class RunEnvironment {
     private InstructionSet instructionSet;
     private InstructionSetContext context;
 
-    public RunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext, boolean isTrace) {
+    /**
+     * 脚本运行时间限制
+     */
+    private ExecuteTimeOut executeTimeOut;
+
+    public RunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
+                          boolean isTrace, ExecuteTimeOut executeTimeOut) {
         dataContainer = new OperateData[INIT_DATA_LENGTH];
         this.instructionSet = instructionSet;
         this.context = instructionSetContext;
         this.isTrace = isTrace;
+        this.executeTimeOut = executeTimeOut;
     }
 
-    public void initial(InstructionSet instructionSet, InstructionSetContext instructionSetContext, boolean isTrace) {
+    public void initial(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
+                        boolean isTrace, ExecuteTimeOut executeTimeOut) {
         this.instructionSet = instructionSet;
         this.context = instructionSetContext;
         this.isTrace = isTrace;
+        this.executeTimeOut = executeTimeOut;
     }
 
     public void clear() {
@@ -37,6 +46,8 @@ public final class RunEnvironment {
 
         instructionSet = null;
         context = null;
+
+        executeTimeOut = null;
     }
 
     public InstructionSet getInstructionSet() {
@@ -149,5 +160,13 @@ public final class RunEnvironment {
             System.arraycopy(this.dataContainer, 0, tempList, 0, oldCapacity);
             this.dataContainer = tempList;
         }
+    }
+
+    public boolean isExecuteTimeout() {
+        return executeTimeOut != null && executeTimeOut.isExpired();
+    }
+
+    public ExecuteTimeOut getExecuteTimeOut() {
+        return executeTimeOut;
     }
 }
