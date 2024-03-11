@@ -211,6 +211,10 @@ public class ExpressParse {
                 treeNodeType = nodeTypeManager.findNodeType("CONST");
                 objectValue = Boolean.valueOf(tempWord);
                 point = point + 1;
+            } else if ("/**".equals(tempWord)) {
+                while ((++point) < wordObjects.length && !"**/".equals(wordObjects[point].word));
+                point++;
+                continue;
             } else {
                 tempType = nodeTypeManager.isExistNodeTypeDefine(tempWord);
                 if (tempType != null && tempType.getKind() != NodeTypeKind.KEYWORD) {
