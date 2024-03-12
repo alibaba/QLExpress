@@ -95,8 +95,6 @@ public class QLExpressRunStrategy {
         addRiskSecureConstructor(java.io.File.class);
         addRiskSecureConstructor(java.awt.Desktop.class);
         addRiskSecureConstructor(java.util.PropertyResourceBundle.class);
-        addRiskSecureConstructor(java.nio.file.Files.class);
-        addRiskSecureConstructor(java.nio.file.Path.class);
     }
 
     private QLExpressRunStrategy() {
