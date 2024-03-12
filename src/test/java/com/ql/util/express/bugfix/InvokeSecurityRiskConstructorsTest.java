@@ -5,21 +5,18 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.example.CustBean;
 import com.ql.util.express.exception.QLException;
-import com.ql.util.express.exception.QLSecurityRiskException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class InvokeSecurityRiskConstructorsTest {
     public InvokeSecurityRiskConstructorsTest(){
 
     }
-    private boolean preForbidInvokeSecurityRiskConstructors;
 
     @Before
     public void before() {
-        preForbidInvokeSecurityRiskConstructors = QLExpressRunStrategy.isForbidInvokeSecurityRiskConstructors();
-
         //系统默认阻止的方法黑名单:System.exit(1);Runtime.getRuntime().exec()两个函数
         QLExpressRunStrategy.setForbidInvokeSecurityRiskConstructors(true);
 
@@ -29,19 +26,19 @@ public class InvokeSecurityRiskConstructorsTest {
         QLExpressRunStrategy.addSecureConstructor(java.util.Date.class);
         QLExpressRunStrategy.addSecureConstructor(java.util.LinkedList.class);
 
-        //QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsTest.class);
+        QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsBlackListTest.class);
     }
 
+    private static final String[] expressList = new String[] {
+            "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
+                    "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();return w;"
+            ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
+            "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
+
     @Test
-    public void test() throws Exception {
+    public void testWhiteList() throws Exception {
         ExpressRunner expressRunner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
-
-        String[] expressList = new String[] {
-                "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsTest;" +
-                        "InvokeSecurityRiskConstructorsTest w = new InvokeSecurityRiskConstructorsTest();return w;"
-                ,   "import com.ql.util.express.bugfix.InvokeSecurityRiskMethodsTest;" +
-                "InvokeSecurityRiskMethodsTest w = new InvokeSecurityRiskMethodsTest();"};
 
         Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
         Assert.assertTrue(result instanceof InvokeSecurityRiskConstructorsTest);
@@ -56,7 +53,7 @@ public class InvokeSecurityRiskConstructorsTest {
     }
 
     @Test
-    public void testDefault() throws Exception {
+    public void testSystemBlackListAndToWhiteList() throws Exception {
         ExpressRunner expressRunner = new ExpressRunner();
         DefaultContext<String, Object> context = new DefaultContext<>();
         String[] expressList = new String[] {
@@ -74,5 +71,26 @@ public class InvokeSecurityRiskConstructorsTest {
 
         Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
         Assert.assertTrue(result instanceof java.net.Socket);
+    }
+
+    @Test
+    public void testManualBlackList() throws Exception {
+        ExpressRunner expressRunner = new ExpressRunner();
+        DefaultContext<String, Object> context = new DefaultContext<>();
+        String[] expressList = new String[] {
+                "import com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsBlackListTest;" +
+                        "return new InvokeSecurityRiskConstructorsBlackListTest();"};
+
+        try {
+            Object result = expressRunner.execute(expressList[0], context, null, false, false, 1000);
+            Assert.fail();
+        }catch (QLException e) {
+            //预期内走这里
+            Assert.assertEquals(e.getCause().getMessage(), "使用QLExpress调用了不安全的系统构造函數:public com.ql.util.express.bugfix.InvokeSecurityRiskConstructorsBlackListTest()");
+        }
+        QLExpressRunStrategy.addSecureConstructor(InvokeSecurityRiskConstructorsBlackListTest.class);
+
+        Object result = expressRunner.execute(expressList[0], context, null, true, false, 1000);
+        Assert.assertTrue(result instanceof InvokeSecurityRiskConstructorsBlackListTest);
     }
 }
