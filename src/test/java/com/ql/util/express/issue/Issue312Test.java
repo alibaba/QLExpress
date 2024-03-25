@@ -16,7 +16,7 @@ public class Issue312Test {
     @Test
     public void test() throws Exception {
         while (true) {
-            exeucte();
+            execute();
         }
     }
 
@@ -25,7 +25,7 @@ public class Issue312Test {
         for (int i = 0; i < 10; i++) {
             executorService.submit(() -> {
                 while (true) {
-                    exeucte();
+                    execute();
                 }
             });
         }
@@ -35,13 +35,13 @@ public class Issue312Test {
         semaphore.acquire();
     }
 
-    private static void exeucte() throws Exception {
+    private static void execute() throws Exception {
         ExpressRunner expressRunner = new ExpressRunner();
         expressRunner.setIgnoreConstChar(true);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("input", "bingo");
         String express = "input.equals(\"" + UUID.randomUUID() + "\")";
-        Object execute = expressRunner.execute(express, context, null, true, false);
-        //System.out.println(execute);
+        Object result = expressRunner.execute(express, context, null, true, false);
+        //System.out.println(result);
     }
 }
