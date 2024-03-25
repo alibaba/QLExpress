@@ -22,7 +22,7 @@ public class Issue264Test {
     @Test
     public void test() throws Exception {
         String exp = "a/b*c";
-        boolean isPrecise = false;
+        boolean isPrecise = true;
         ExpressRunner runner = new ExpressRunner(isPrecise, false);
         DefaultContext<String, Object> context = new DefaultContext<>();
         context.put("a", 20.0);
@@ -39,8 +39,11 @@ public class Issue264Test {
         System.out.printf("isPrecise:%s, result:%-18s, result == 10.0:%s\n", isPrecise, d1, d1 == 10.0);
 
         BigDecimal bigDecimal = new BigDecimal("20.0")
-            .divide(new BigDecimal("6"), 10, BigDecimal.ROUND_HALF_UP)
+            .divide(new BigDecimal("6"), 32, BigDecimal.ROUND_HALF_UP)
             .multiply(new BigDecimal("3"));
+        BigDecimal bigDecimal1 = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
+        System.out.println("bigDecimal = " + bigDecimal);
+        System.out.println("bigDecimal1 = " + bigDecimal1);
         double d2 = bigDecimal.doubleValue();
         System.out.printf("isPrecise:%s, result:%-18s,     d1 == d2  :%s\n", isPrecise, d2, d1 == d2);
     }
