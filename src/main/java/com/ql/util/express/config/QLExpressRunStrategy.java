@@ -92,7 +92,6 @@ public class QLExpressRunStrategy {
         }
         addRiskSecureConstructor(java.lang.ProcessBuilder.class);
         addRiskSecureConstructor(java.net.Socket.class);
-        addRiskSecureConstructor(java.io.File.class);
         addRiskSecureConstructor(java.awt.Desktop.class);
         addRiskSecureConstructor(java.util.PropertyResourceBundle.class);
     }
