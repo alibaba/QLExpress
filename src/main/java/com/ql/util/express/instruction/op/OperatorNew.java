@@ -61,7 +61,7 @@ public class OperatorNew extends OperatorBase {
             s.append(")");
             throw new QLException(s.toString());
         }
-
+        QLExpressRunStrategy.assertSecurityRiskConstructor(c);
         tmpObj = c.newInstance(objs);
         return OperateDataCacheManager.fetchOperateData(tmpObj, obj);
     }

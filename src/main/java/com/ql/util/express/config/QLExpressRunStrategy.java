@@ -1,5 +1,6 @@
 package com.ql.util.express.config;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -38,17 +39,20 @@ public class QLExpressRunStrategy {
     /**
      * 禁止调用不安全的方法
      */
-    private static boolean forbidInvokeSecurityRiskMethods = false;
+    private static boolean forbidInvokeSecurityRiskMethods = true;
+    private static boolean forbidInvokeSecurityRiskConstructors = true;
 
     /**
      * 黑名单控制
      */
     private static final Set<String> SECURITY_RISK_METHOD_LIST = new HashSet<>();
+    private static final Set<String> SECURE_RISK_CONSTRUCTOR_LIST = new HashSet<>();
 
     /**
      * 白名单控制
      */
     private static Set<String> SECURE_METHOD_LIST = new HashSet<>();
+    private static Set<String> SECURE_CONSTRUCTOR_LIST = new HashSet<>();
 
     /**
      * 最大申请的数组大小, 默认没有限制
@@ -86,6 +90,10 @@ public class QLExpressRunStrategy {
         for (Method method : QLExpressRunStrategy.class.getMethods()) {
             SECURITY_RISK_METHOD_LIST.add(QLExpressRunStrategy.class.getName() + "." + method.getName());
         }
+        addRiskSecureConstructor(java.lang.ProcessBuilder.class);
+        addRiskSecureConstructor(java.net.Socket.class);
+        addRiskSecureConstructor(java.awt.Desktop.class);
+        addRiskSecureConstructor(java.util.PropertyResourceBundle.class);
     }
 
     private QLExpressRunStrategy() {
@@ -132,6 +140,14 @@ public class QLExpressRunStrategy {
         QLExpressRunStrategy.forbidInvokeSecurityRiskMethods = forbidInvokeSecurityRiskMethods;
     }
 
+    public static boolean isForbidInvokeSecurityRiskConstructors() {
+        return forbidInvokeSecurityRiskConstructors;
+    }
+
+    public static void setForbidInvokeSecurityRiskConstructors(boolean forbidInvokeSecurityRiskConstructors) {
+        QLExpressRunStrategy.forbidInvokeSecurityRiskConstructors = forbidInvokeSecurityRiskConstructors;
+    }
+
     /**
      * TODO 未考虑方法重载的场景
      *
@@ -150,6 +166,14 @@ public class QLExpressRunStrategy {
         SECURE_METHOD_LIST.add(clazz.getName() + "." + methodName);
     }
 
+    public static void addRiskSecureConstructor(Class<?> clazz){
+        SECURE_RISK_CONSTRUCTOR_LIST.add(clazz.getName());
+    }
+
+    public static void addSecureConstructor(Class<?> clazz) {
+        SECURE_CONSTRUCTOR_LIST.add(clazz.getName());
+    }
+
     public static void assertSecurityRiskMethod(Method method) throws QLSecurityRiskException {
         if (!forbidInvokeSecurityRiskMethods || method == null) {
             return;
@@ -166,6 +190,24 @@ public class QLExpressRunStrategy {
 
         if (SECURITY_RISK_METHOD_LIST.contains(fullMethodName)) {
             throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统方法:" + method);
+        }
+    }
+
+    public static void assertSecurityRiskConstructor(Constructor constructor) throws QLSecurityRiskException {
+        if (!forbidInvokeSecurityRiskConstructors || constructor == null) {
+            return;
+        }
+        String fullConstructorName = constructor.getDeclaringClass().getName();
+        if (SECURE_CONSTRUCTOR_LIST != null && !SECURE_CONSTRUCTOR_LIST.isEmpty()) {
+            // 有白名单配置时则黑名单失效
+            if (!SECURE_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
+                throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);
+            }
+            return;
+        }
+
+        if (SECURE_RISK_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
+            throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);
         }
     }
 
