@@ -564,7 +564,12 @@ public class ExpressUtil {
     }
 
     public static Class<?> loadClass(String name) throws ClassNotFoundException {
-        return Class.forName(name);
+        ClassLoader customClassLoader = QLExpressRunStrategy.getCustomClassLoader();
+        if (customClassLoader != null) {
+            return Class.forName(name, true, customClassLoader);
+        } else {
+            return Class.forName(name);
+        }
     }
 
     /**
@@ -600,17 +605,24 @@ public class ExpressUtil {
             if (bean == null && QLExpressRunStrategy.isAvoidNullPointer()) {
                 return null;
             }
+            if (bean == null) {
+                throw new QLException("对象为空,不能获取属性:" + name);
+            }
             if (bean.getClass().isArray() && "length".equals(name)) {
                 return Array.getLength(bean);
             } else if (bean instanceof Class) {
                 if ("class".equals(name)) {
                     return bean;
+                } else if (QLExpressRunStrategy.isSandboxMode()) {
+                    throw new QLException("无法获取属性:" + name);
                 } else {
                     Field f = ((Class<?>)bean).getDeclaredField(name.toString());
                     return f.get(null);
                 }
             } else if (bean instanceof Map) {
                 return ((Map<?, ?>)bean).get(name);
+            } else if (QLExpressRunStrategy.isSandboxMode()) {
+                throw new QLException("无法获取属性:" + name);
             } else {
                 return QLAliasUtils.getProperty(bean, name.toString());
             }

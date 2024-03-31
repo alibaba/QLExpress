@@ -41,14 +41,8 @@ public class InstructionGoToWithCondition extends Instruction {
             throw new QLException(getExceptionPrefix() + "指令错误:" + o + " 不是Boolean");
         }
         if (r == this.condition) {
-            if (environment.isTrace() && log.isDebugEnabled()) {
-                log.debug("goto +" + this.offset);
-            }
             environment.gotoWithOffset(this.offset);
         } else {
-            if (environment.isTrace() && log.isDebugEnabled()) {
-                log.debug("programPoint ++ ");
-            }
             environment.programPointAddOne();
         }
     }

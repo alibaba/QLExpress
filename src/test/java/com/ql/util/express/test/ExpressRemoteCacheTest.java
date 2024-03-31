@@ -21,17 +21,17 @@ public class ExpressRemoteCacheTest {
         context.put("b", 2);
 
         if (cacheRunner.getCache("加法计算") != null) {
-            Object result = cacheRunner.execute("加法计算", context, null, false, true, null);
+            Object result = cacheRunner.execute("加法计算", context, null, false, true);
             Assert.assertTrue("加法计算", result.toString().equalsIgnoreCase("3"));
             System.out.println(result);
         }
         if (cacheRunner.getCache("加法计算") != null) {
-            Object result = cacheRunner.execute("减法计算", context, null, false, true, null);
+            Object result = cacheRunner.execute("减法计算", context, null, false, true);
             Assert.assertTrue("减法计算", result.toString().equalsIgnoreCase("-1"));
             System.out.println(result);
         }
         if (cacheRunner.getCache("乘法计算") != null) {
-            Object result = cacheRunner.execute("乘法计算", context, null, false, true, null);
+            Object result = cacheRunner.execute("乘法计算", context, null, false, true);
             Assert.assertTrue("乘法计算", result.toString().equalsIgnoreCase("2"));
             System.out.println(result);
         } else {

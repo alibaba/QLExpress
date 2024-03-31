@@ -169,6 +169,7 @@ public class QLExpressRunStrategy {
     public static void addRiskSecureConstructor(Class<?> clazz){
         SECURE_RISK_CONSTRUCTOR_LIST.add(clazz.getName());
     }
+
     public static void addSecureConstructor(Class<?> clazz) {
         SECURE_CONSTRUCTOR_LIST.add(clazz.getName());
     }

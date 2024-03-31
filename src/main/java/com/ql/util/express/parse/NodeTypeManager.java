@@ -6,11 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.ql.util.express.match.INodeTypeManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class NodeTypeManager implements INodeTypeManager {
-    private static final Log log = LogFactory.getLog(NodeTypeManager.class);
 
     public final String[] splitWord;
     private final String[] keyWords;
@@ -84,7 +81,6 @@ public class NodeTypeManager implements INodeTypeManager {
         String name = defineStr.substring(0, index).trim();
         NodeType define = nodeTypes.get(name);
         if (define != null) {
-            log.warn("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + defineStr);
             throw new RuntimeException("节点类型定义重复:" + name + " 定义1=" + define.getDefineStr() + " 定义2=" + defineStr);
         }
         define = new NodeType(this, name, defineStr);

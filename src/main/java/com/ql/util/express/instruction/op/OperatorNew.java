@@ -31,6 +31,11 @@ public class OperatorNew extends OperatorBase {
                 dimLength[index] = ((Number)(list.get(index + 1).getObject(parent)))
                     .intValue();
             }
+            if (dimLength.length > 0) {
+                if (!QLExpressRunStrategy.checkArrLength(dimLength[0])) {
+                    throw new QLException("超过了最大的数组申请限制");
+                }
+            }
             return OperateDataCacheManager.fetchOperateData(Array.newInstance(tmpClass, dimLength), obj);
         }
         Class<?>[] types = new Class[list.length - 1];

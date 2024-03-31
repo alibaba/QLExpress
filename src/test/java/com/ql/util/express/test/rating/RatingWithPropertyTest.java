@@ -38,7 +38,7 @@ public class RatingWithPropertyTest {
         SubjectManager subjectManager = new SubjectManager();
         context.put("费用", subjectManager);
 
-        runner.executeByExpressName("ratingWithProperty", context, null, false, false, null);
+        runner.executeByExpressName("ratingWithProperty", context, null, false, false);
         //输出分成结果
         System.out.println("----------分成结果----------------");
         for (Object item : subjectManager.getSubjectValues()) {

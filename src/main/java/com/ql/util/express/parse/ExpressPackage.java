@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ql.util.express.ExpressUtil;
+
 public class ExpressPackage {
     private List<String> packages;
     private Map<String, Class<?>> name2CallCache = null;
@@ -62,7 +64,7 @@ public class ExpressPackage {
             // 如果本身具有包名，这直接定位
             if (name.contains(".")) {
                 try {
-                    result = Class.forName(name);
+                    result = ExpressUtil.loadClass(name);
                 } catch (Throwable ignore) {
                 }
                 return result;
@@ -101,7 +103,7 @@ public class ExpressPackage {
                     tmp = aPackage + "." + name;
                 }
                 try {
-                    result = Class.forName(tmp);
+                    result = ExpressUtil.loadClass(tmp);
                 } catch (ClassNotFoundException ex) {
                     // 不做任何操作
                 }

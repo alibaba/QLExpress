@@ -7,7 +7,13 @@
 先后出现了1.0版本和2.0版本，到3.0版本之后，引入了比较系统的语法树推导，使语法的功能大大增强和稳定。
 之前svn的开源地址： http://code.taobao.org/p/QLExpress/src/branches/
 
-# 二、有记录的版本迭代
+# 二、版本升级可能会有的不兼容问题
+## 1、 版本3.2.3
+ 引入了不兼容的修改, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 1=="1" 为 true, 但是 3.2.3 及以后版本都是 false，升级时需要注意
+## 2、 版本3.3.1
+ 去除 log4j 和 apache common log 的依赖， 原先部分 execute 参数中含有 common log ，所以部分 execute 签名有不兼容变更
+
+# 三、有记录的版本迭代
 
 ## 1、3.0.7-SNAPSHOT 版本[2014-06-06 fixed]
 BigDecimal.divide()函数增加默认的策略BigDecimal.ROUND_HALF_UP，防止在高精度要求的除法计算时，某些情况下出现以下异常。
@@ -122,6 +128,8 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 (2)安全审核方法:InvokeSecurityRiskMethodsTest
 
 (3)区分异常类型：ThrowExceptionTest
+
+(4)**引入了不兼容的修改**, 将比较（==, >, >=, <. <=）由弱类型改成了强类型，比如在 3.2.2 中 `1=="1"` 为 true, 但是 3.3.3 及以后版本都是 false，升级时需要注意
 ## 3.2.4版本[2019-12-6]
 (1)增加null的数字比较方案"1>null"":NullCompareTest
 
@@ -136,3 +144,18 @@ public Object execute(InstructionSet[] instructionSets,IExpressContext<String,Ob
 
 ## 3.2.7版本[2021-12-10]
 (1)QLAliasTest 添加set方法
+
+## 3.3.0版本[2022-04-09]
+
+(1)高精度计算下的溢出问题修复 com.ql.util.express.test.NumberOperatorCalculatorTest
+
+(2)多级别安全控制与沙箱模式 com.ql.util.express.example.MultiLevelSecurityTest
+
+## 3.3.1版本[2023-02-03]
+
+(1) #188 break/continue 问题修复
+(2)内置脚本 cache 改成 concurrentHashMap
+(3)去除 log4j 和 apache common log 的依赖， 原先部分 `execute` 参数中含有 common log ，所以部分 `execute` 签名有不兼容变更。可能会导致升级后编译不通过
+(4)#233 相关安全增强
+    a. 扩充默认黑名单
+    b. 支持通过 com.ql.util.express.config.QLExpressRunStrategy#setMaxArrLength 限制脚本一次最多申请数组的大小

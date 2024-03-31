@@ -21,7 +21,7 @@ public class AClassDefineTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMultiExpress("ClassTest", express);
 
-        Object result = runner.executeByExpressName("ClassTest", context, null, false, false, null);
+        Object result = runner.executeByExpressName("ClassTest", context, null, false, false);
         Assert.assertTrue("VClass的作用域错误", result.toString().equalsIgnoreCase("300"));
     }
 
@@ -58,7 +58,7 @@ public class AClassDefineTest {
         DefaultContext<String, Object> context = new DefaultContext<>();
         runner.loadMultiExpress("", expressDefine);
         runner.loadMultiExpress("ClassTest", express);
-        Object r = runner.executeByExpressName("ClassTest", context, null, false, false, null);
+        Object r = runner.executeByExpressName("ClassTest", context, null, false, false);
         Assert.assertTrue("VClass的作用域错误", r.toString().equalsIgnoreCase("330--430--xuannan--xuanyu--199.99--11.11"));
     }
 }

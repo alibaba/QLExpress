@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Java template
 *.class
+!SelfDefineObject1.class
 
 target/*
 *.iml

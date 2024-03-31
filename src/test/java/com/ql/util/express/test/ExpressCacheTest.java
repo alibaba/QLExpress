@@ -1,12 +1,12 @@
 package com.ql.util.express.test;
 
 import java.util.Date;
-
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRemoteCacheRunner;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
 import com.ql.util.express.LocalExpressCacheRunner;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -17,6 +17,9 @@ import org.junit.Test;
 public class ExpressCacheTest {
     private final ExpressRunner runner = new ExpressRunner();
 
+    /**
+     * Single td invoke
+     */
     @Test
     public void testScriptCache() throws Exception {
         runner.addMacro("计算平均成绩", "(语文+数学+英语)/3.0");
@@ -29,16 +32,17 @@ public class ExpressCacheTest {
         while (times-- > 0) {
             calculateTask(false, context);
         }
-        long end = new Date().getTime();
-        echo("不做缓存耗时：" + (end - start) + " ms");
+        long a = new Date().getTime() - start;
+        echo("不做缓存耗时：" + a + " ms");
 
         times = 10000;
         start = new Date().getTime();
         while (times-- > 0) {
             calculateTask(true, context);
         }
-        end = new Date().getTime();
-        echo("做缓存耗时：" + (end - start) + " ms");
+        long b = new Date().getTime() - start;
+        echo("做缓存耗时：" + b + " ms");
+        Assert.assertTrue(b < a);
     }
 
     @Test
@@ -66,14 +70,14 @@ public class ExpressCacheTest {
         context.put("数学", 99);
         context.put("英语", 95);
         //ExpressRemoteCacheRunner都只能执行自己原有的脚本内容，而且相互之间隔离，保证最高的脚本安全性
-        echo(cacheRunner.execute("计算平均成绩", context, null, false, false, null));
+        echo(cacheRunner.execute("计算平均成绩", context, null, false, false));
         try {
-            echo(cacheRunner.execute("计算平均成绩>90", context, null, false, false, null));
+            echo(cacheRunner.execute("计算平均成绩>90", context, null, false, false));
         } catch (Exception e) {
             echo("ExpressRemoteCacheRunner只支持预先加载的脚本内容");
         }
         try {
-            echo(cacheRunner.execute("是否优秀", context, null, false, false, null));
+            echo(cacheRunner.execute("是否优秀", context, null, false, false));
         } catch (Exception e) {
             echo("ExpressRemoteCacheRunner不支持脚本间的相互调用");
         }

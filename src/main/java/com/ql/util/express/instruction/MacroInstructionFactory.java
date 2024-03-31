@@ -17,7 +17,7 @@ public class MacroInstructionFactory extends InstructionFactory {
         for (ExpressNode tempNode : children[1].getChildrenArray()) {
             macroRoot.addChild(tempNode);
         }
-        InstructionSet macroInstructionSet = expressRunner.createInstructionSet(macroRoot, InstructionSet.TYPE_MARCO);
+        InstructionSet macroInstructionSet = expressRunner.createInstructionSet(macroRoot, InstructionSet.TYPE_MACRO);
         result.addMacroDefine(macroName, new FunctionInstructionSet(macroName, "macro", macroInstructionSet));
         return false;
     }

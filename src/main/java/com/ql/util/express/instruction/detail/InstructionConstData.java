@@ -19,13 +19,6 @@ public class InstructionConstData extends Instruction {
 
     @Override
     public void execute(RunEnvironment environment, List<String> errorList) throws Exception {
-        if (environment.isTrace() && log.isDebugEnabled()) {
-            if (this.operateData instanceof OperateDataAttr) {
-                log.debug(this + ":" + this.operateData.getObject(environment.getContext()));
-            } else {
-                log.debug(this);
-            }
-        }
         environment.push(this.operateData);
         environment.programPointAddOne();
     }

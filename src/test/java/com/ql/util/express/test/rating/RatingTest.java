@@ -38,7 +38,7 @@ public class RatingTest {
         context.put("仓储订单", goodsOrder);
         context.put("费用科目", subjectValue);
         //执行指令
-        runner.executeByExpressName("rating", context, null, false, false, null);
+        runner.executeByExpressName("rating", context, null, false, false);
         //runner.executeByExpressName("rating", context, null, false, false, null);
         //while (true) {
         //    runner.executeByExpressName("rating", context, null, false, false, null);

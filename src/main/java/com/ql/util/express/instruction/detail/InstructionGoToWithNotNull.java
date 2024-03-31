@@ -25,14 +25,8 @@ public class InstructionGoToWithNotNull extends Instruction {
             o = environment.pop().getObject(environment.getContext());
         }
         if (o != null) {
-            if (environment.isTrace() && log.isDebugEnabled()) {
-                log.debug("goto +" + this.offset);
-            }
             environment.gotoWithOffset(this.offset);
         } else {
-            if (environment.isTrace() && log.isDebugEnabled()) {
-                log.debug("programPoint ++ ");
-            }
             environment.programPointAddOne();
         }
     }
