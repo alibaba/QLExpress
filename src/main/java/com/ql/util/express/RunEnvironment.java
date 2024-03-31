@@ -17,10 +17,10 @@ public final class RunEnvironment {
     /**
      * 脚本运行时间限制
      */
-    private ExecuteTimeOut executeTimeOut;
+    private ExecuteTimeout executeTimeOut;
 
     public RunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
-                          boolean isTrace, ExecuteTimeOut executeTimeOut) {
+                          boolean isTrace, ExecuteTimeout executeTimeOut) {
         dataContainer = new OperateData[INIT_DATA_LENGTH];
         this.instructionSet = instructionSet;
         this.context = instructionSetContext;
@@ -29,7 +29,7 @@ public final class RunEnvironment {
     }
 
     public void initial(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
-                        boolean isTrace, ExecuteTimeOut executeTimeOut) {
+                        boolean isTrace, ExecuteTimeout executeTimeOut) {
         this.instructionSet = instructionSet;
         this.context = instructionSetContext;
         this.isTrace = isTrace;
@@ -166,7 +166,7 @@ public final class RunEnvironment {
         return executeTimeOut != null && executeTimeOut.isExpired();
     }
 
-    public ExecuteTimeOut getExecuteTimeOut() {
+    public ExecuteTimeout getExecuteTimeOut() {
         return executeTimeOut;
     }
 }

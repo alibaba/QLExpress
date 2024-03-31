@@ -1,7 +1,5 @@
 package com.ql.util.express.config;
 
-import com.ql.util.express.exception.QLTimeoutException;
-
 /**
  * @author tianqiao@taobao.com
  * @since 2019/6/17 4:12 PM

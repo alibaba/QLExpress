@@ -3,19 +3,19 @@ package com.ql.util.express;
 /**
  * Author: DQinYuan
  */
-public class ExecuteTimeOut {
+public class ExecuteTimeout {
     /**
      * 表示不限制时间的实例
      */
-    public static final ExecuteTimeOut NO_TIMEOUT = new ExecuteTimeOut(-1);
+    public static final ExecuteTimeout NO_TIMEOUT = new ExecuteTimeout(-1);
 
     private final long timeoutMillis;
 
     private final long endTime;
 
-    public ExecuteTimeOut(long timeoutMillis) {
+    public ExecuteTimeout(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
-        this.endTime = timeoutMillis != -1? System.currentTimeMillis() + timeoutMillis: -1;
+        this.endTime = timeoutMillis != -1 ? System.currentTimeMillis() + timeoutMillis : -1;
     }
 
     public boolean isExpired() {

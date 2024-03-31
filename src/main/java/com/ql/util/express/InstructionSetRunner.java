@@ -20,11 +20,11 @@ public class InstructionSetRunner {
                     true, isSupportDynamicFieldName,
                     timeoutMills != -1?
                         // 优先使用参数传入
-                        new ExecuteTimeOut(timeoutMills):
+                        new ExecuteTimeout(timeoutMills):
                         // 如果参数未传入, 则看一下是否有全局设置
                         QLExpressTimer.getTimeout() != -1?
-                            new ExecuteTimeOut(QLExpressTimer.getTimeout()):
-                            ExecuteTimeOut.NO_TIMEOUT);
+                            new ExecuteTimeout(QLExpressTimer.getTimeout()):
+                            ExecuteTimeout.NO_TIMEOUT);
         } finally {
             OperateDataCacheManager.resetCache();
         }
@@ -48,7 +48,7 @@ public class InstructionSetRunner {
      */
     public static Object execute(ExpressRunner runner, InstructionSet instructionSet, ExpressLoader loader,
         IExpressContext<String, Object> iExpressContext, List<String> errorList, boolean isTrace,
-        boolean isCatchException, boolean isReturnLastData, boolean isSupportDynamicFieldName, ExecuteTimeOut executeTimeOut)
+        boolean isCatchException, boolean isReturnLastData, boolean isSupportDynamicFieldName, ExecuteTimeout executeTimeOut)
         throws Exception {
         InstructionSetContext context = OperateDataCacheManager.fetchInstructionSetContext(true, runner,
             iExpressContext, loader, isSupportDynamicFieldName);
@@ -56,7 +56,7 @@ public class InstructionSetRunner {
     }
 
     public static Object execute(InstructionSet set, InstructionSetContext context, List<String> errorList,
-        boolean isTrace, boolean isCatchException, boolean isReturnLastData, ExecuteTimeOut executeTimeOut) throws Exception {
+        boolean isTrace, boolean isCatchException, boolean isReturnLastData, ExecuteTimeout executeTimeOut) throws Exception {
         RunEnvironment environment;
         Object result = null;
         environment = OperateDataCacheManager.fetRunEnvironment(set, context, isTrace, executeTimeOut);

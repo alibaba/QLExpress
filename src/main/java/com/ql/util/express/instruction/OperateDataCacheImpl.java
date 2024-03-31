@@ -48,8 +48,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
             arrayList[i] = new OperateDataArrayItem(null, -1);
             keyValueList[i] = new OperateDataKeyValue(null, null);
             callResultList[i] = new CallResult(null, false);
-            environmentList[i] = new RunEnvironment(null, null, false,
-                    ExecuteTimeOut.NO_TIMEOUT);
+            environmentList[i] = new RunEnvironment(null, null, false, ExecuteTimeout.NO_TIMEOUT);
             contextList[i] = new InstructionSetContext(false, null, null, null, false);
         }
     }
@@ -112,7 +111,7 @@ public class OperateDataCacheImpl implements IOperateDataCache {
 
     @Override
     public RunEnvironment fetRunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
-        boolean isTrace, ExecuteTimeOut executeTimeOut) {
+        boolean isTrace, ExecuteTimeout executeTimeOut) {
         RunEnvironment result;
         if (environmentPoint < length) {
             result = environmentList[environmentPoint];

@@ -2,7 +2,12 @@ package com.ql.util.express.instruction.opdata;
 
 import java.util.List;
 
-import com.ql.util.express.*;
+import com.ql.util.express.ExecuteTimeout;
+import com.ql.util.express.InstructionSet;
+import com.ql.util.express.InstructionSetContext;
+import com.ql.util.express.InstructionSetRunner;
+import com.ql.util.express.OperateData;
+import com.ql.util.express.RunEnvironment;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 
@@ -71,7 +76,7 @@ public class OperateDataVirClass extends OperateDataAttr {
             operateDataLocalVar.setObject(tempContext, parameters[i].getObject(this.context));
         }
         Object result = InstructionSetRunner.execute(functionSet, tempContext, null,
-                this.isTrace, false, true, ExecuteTimeOut.NO_TIMEOUT);
+                this.isTrace, false, true, ExecuteTimeout.NO_TIMEOUT);
         return OperateDataCacheManager.fetchOperateData(result, null);
     }
 
@@ -89,7 +94,7 @@ public class OperateDataVirClass extends OperateDataAttr {
                 this.context.isSupportDynamicFieldName());
             Object result = InstructionSetRunner.execute(this.context.getExpressRunner(), (InstructionSet)o,
                 this.context.getExpressLoader(), tempContext, null, this.isTrace, false, false,
-                this.context.isSupportDynamicFieldName(), ExecuteTimeOut.NO_TIMEOUT);
+                this.context.isSupportDynamicFieldName(), ExecuteTimeout.NO_TIMEOUT);
             if (result instanceof OperateData) {
                 return ((OperateData)result).getObject(this.context);
             } else {

@@ -7,13 +7,13 @@ import static org.junit.Assert.*;
 /**
  * Author: DQinYuan
  */
-public class ExecuteTimeOutTest {
+public class ExecuteTimeoutTest {
 
     @Test
     public void noTimeoutTest() throws InterruptedException {
-        assertFalse(ExecuteTimeOut.NO_TIMEOUT.isExpired());
+        assertFalse(ExecuteTimeout.NO_TIMEOUT.isExpired());
 
-        ExecuteTimeOut timeOut = new ExecuteTimeOut(20);
+        ExecuteTimeout timeOut = new ExecuteTimeout(20);
         Thread.sleep(15);
         assertFalse(timeOut.isExpired());
         Thread.sleep(6);

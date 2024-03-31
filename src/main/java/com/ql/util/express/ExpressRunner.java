@@ -651,7 +651,7 @@ public class ExpressRunner {
                     // 线程重入
                     InstructionSetRunner.execute(this, parseResult, this.loader, context, errorList, isTrace,
                             isCatchException, true, false,
-                            new ExecuteTimeOut(timeoutMillis)) :
+                            new ExecuteTimeout(timeoutMillis)) :
                     InstructionSetRunner.executeOuter(this, parseResult, this.loader, context, errorList, isTrace,
                             isCatchException, false, timeoutMillis);
         } finally {
