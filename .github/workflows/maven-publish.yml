@@ -14,15 +14,15 @@ jobs:
           distribution: temurin
           java-version: 8
           server-id: ossrh
-          server-username: ${{ secrets.OSSRH_USER }}
-          server-password: ${{ secrets.OSSRH_PASSWORD }}
+          server-username: 'OSSRH_USER'
+          server-password: 'OSSRH_PASSWORD'
+          gpg-passphrase:  'GPG_PASSWORD'
           gpg-private-key: ${{ secrets.GPG_SECRET }}
-          gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
-      - name: print settings.xml
+      - name: debug settings.xml
         run: cat /home/runner/.m2/settings.xml
       - name: Publish to Maven Central Repo
         run: mvn clean deploy --batch-mode
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USER }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
