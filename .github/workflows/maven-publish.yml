@@ -21,6 +21,7 @@ jobs:
       - name: debug settings.xml
         run: cat /home/runner/.m2/settings.xml
       - name: Publish to Maven Central Repo
+        working-directory: /home/runner
         run: mvn clean deploy --batch-mode --activate-profiles deploy
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
