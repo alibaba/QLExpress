@@ -16,17 +16,13 @@ jobs:
           server-id: sonatype-nexus-staging
           server-username: 'OSSRH_USER'
           server-password: 'OSSRH_PASSWORD'
-          gpg-passphrase:  'GPG_PASSWORD'
+          gpg-passphrase:  'MAVEN_GPG_PASSPHRASE'
+          gpg-private-key: ${{ secrets.GPG_SECRET }}
       - name: debug settings.xml
         run: cat /home/runner/.m2/settings.xml
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_SECRET }}
-          passphrase: ${{ secrets.GPG_PASSWORD }}
       - name: Publish to Maven Central Repo
         run: mvn clean deploy --batch-mode --activate-profiles deploy
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
