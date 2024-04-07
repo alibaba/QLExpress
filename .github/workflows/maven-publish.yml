@@ -22,7 +22,7 @@ jobs:
         run: cat /home/runner/.m2/settings.xml
       - name: Publish to Maven Central Repo
         run:  |
-          echo $GPG_SECRET | base64 --decode | gpg --import
+          echo -n "$GPG_SECRET" | base64 --decode | gpg --import
           mvn clean deploy --batch-mode --activate-profiles deploy
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
