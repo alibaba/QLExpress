@@ -11,7 +11,8 @@ jobs:
       - name: Set up Maven Central Repo
         uses: actions/setup-java@v4
         with:
-          java-version: 1.8
+          distribution: oracle
+          java-version: 8
           server-id: ossrh
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
