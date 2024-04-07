@@ -20,6 +20,10 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_SECRET }}
       - name: debug settings.xml
         run: cat /home/runner/.m2/settings.xml
+      - name: debug echo
+        run: echo $GPG_SECRET
+        env:
+          GPG_SECRET: ${{ secrets.GPG_SECRET }}
       - name: Write gpg key
         run: echo $GPG_SECRET >> /home/runner/private-key.txt
         env:
