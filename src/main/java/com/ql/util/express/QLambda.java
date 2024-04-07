@@ -35,7 +35,8 @@ public class QLambda {
             operateDataLocalVar.setObject(context, params.length > i ? params[i] : null);
         }
 
-        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(), false, true);
+        return InstructionSetRunner.execute(functionSet, context, errorList, environment.isTrace(),
+                false, true, environment.getExecuteTimeOut());
     }
 
     /**

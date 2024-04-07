@@ -3,6 +3,7 @@ package com.ql.util.express.instruction;
 import java.util.Stack;
 
 import com.ql.util.express.CallResult;
+import com.ql.util.express.ExecuteTimeout;
 import com.ql.util.express.ExpressLoader;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
@@ -56,9 +57,9 @@ public class OperateDataCacheManager {
         return getOperateDataCache().fetchOperateDataKeyValue(key, value);
     }
 
-    public static RunEnvironment fetRunEnvironment(InstructionSet instructionSet,
-        InstructionSetContext instructionSetContext, boolean isTrace) {
-        return getOperateDataCache().fetRunEnvironment(instructionSet, instructionSetContext, isTrace);
+    public static RunEnvironment fetRunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
+                                                   boolean isTrace, ExecuteTimeout executeTimeOut) {
+        return getOperateDataCache().fetRunEnvironment(instructionSet, instructionSetContext, isTrace, executeTimeOut);
     }
 
     public static CallResult fetchCallResult(Object returnValue, boolean isExit) {
@@ -66,8 +67,8 @@ public class OperateDataCacheManager {
     }
 
     public static InstructionSetContext fetchInstructionSetContext(boolean isExpandToParent,
-        ExpressRunner expressRunner, IExpressContext<String, Object> parent, ExpressLoader expressLoader,
-        boolean isSupportDynamicFieldName) {
+                                                                   ExpressRunner expressRunner, IExpressContext<String, Object> parent, ExpressLoader expressLoader,
+                                                                   boolean isSupportDynamicFieldName) {
         return getOperateDataCache().fetchInstructionSetContext(isExpandToParent, expressRunner, parent, expressLoader,
             isSupportDynamicFieldName);
     }

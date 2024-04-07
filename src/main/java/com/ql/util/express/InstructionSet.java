@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLException;
+import com.ql.util.express.exception.QLTimeoutException;
 import com.ql.util.express.instruction.FunctionInstructionSet;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.detail.Instruction;
@@ -191,7 +192,10 @@ public class InstructionSet {
         Instruction instruction = null;
         try {
             while (environment.programPoint < this.instructionList.length) {
-                QLExpressTimer.assertTimeOut();
+                if (environment.isExecuteTimeout()) {
+                    throw new QLTimeoutException("运行QLExpress脚本的下一条指令超过了限定时间:"
+                        + environment.getExecuteTimeOut().getTimeoutMillis() + "ms");
+                }
                 instruction = this.instructionList[environment.programPoint];
                 instruction.execute(environment, errorList);
             }

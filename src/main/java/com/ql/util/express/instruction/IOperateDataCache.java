@@ -1,6 +1,7 @@
 package com.ql.util.express.instruction;
 
 import com.ql.util.express.CallResult;
+import com.ql.util.express.ExecuteTimeout;
 import com.ql.util.express.ExpressLoader;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
@@ -28,12 +29,12 @@ public interface IOperateDataCache {
     OperateDataKeyValue fetchOperateDataKeyValue(OperateData key, OperateData value);
 
     RunEnvironment fetRunEnvironment(InstructionSet instructionSet, InstructionSetContext instructionSetContext,
-        boolean isTrace);
+                                     boolean isTrace, ExecuteTimeout executeTimeOut);
 
     CallResult fetchCallResult(Object returnValue, boolean isExit);
 
     InstructionSetContext fetchInstructionSetContext(boolean isExpandToParent, ExpressRunner expressRunner,
-        IExpressContext<String, Object> parent, ExpressLoader expressLoader, boolean isSupportDynamicFieldName);
+                                                     IExpressContext<String, Object> parent, ExpressLoader expressLoader, boolean isSupportDynamicFieldName);
 
     void resetCache();
 
