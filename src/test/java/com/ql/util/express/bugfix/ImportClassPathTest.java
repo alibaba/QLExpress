@@ -15,16 +15,11 @@ public class ImportClassPathTest {
         ExpressRunner runner = new ExpressRunner();
         String exp = "return new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(new Date())";
         IExpressContext<String, Object> context = new DefaultContext<>();
-        Object result;
         try {
-            result = runner.execute(exp, context, null, false, false);
-            System.out.println(result);
+            runner.execute(exp, context, null, false, false);
+            Assert.fail();
         } catch (Exception e) {
-            System.out.println("SimpleDateFormat 没有定义，此处应该报错");
-            Assert.assertTrue(true);
-            return;
         }
-        Assert.fail();
     }
 
     @Test

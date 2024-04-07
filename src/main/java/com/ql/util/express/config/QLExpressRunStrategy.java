@@ -52,7 +52,7 @@ public class QLExpressRunStrategy {
      * 白名单控制
      */
     private static Set<String> SECURE_METHOD_LIST = new HashSet<>();
-    private static Set<String> SECURE_CONSTRUCTOR_LIST = new HashSet<>();
+    private static final Set<String> SECURE_CONSTRUCTOR_LIST = new HashSet<>();
 
     /**
      * 最大申请的数组大小, 默认没有限制
@@ -198,7 +198,7 @@ public class QLExpressRunStrategy {
             return;
         }
         String fullConstructorName = constructor.getDeclaringClass().getName();
-        if (SECURE_CONSTRUCTOR_LIST != null && !SECURE_CONSTRUCTOR_LIST.isEmpty()) {
+        if (!SECURE_CONSTRUCTOR_LIST.isEmpty()) {
             // 有白名单配置时则黑名单失效
             if (!SECURE_CONSTRUCTOR_LIST.contains(fullConstructorName)) {
                 throw new QLSecurityRiskException("使用QLExpress调用了不安全的系统构造函數:" + constructor);

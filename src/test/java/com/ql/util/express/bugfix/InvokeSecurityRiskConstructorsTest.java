@@ -5,8 +5,11 @@ import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.example.CustBean;
 import com.ql.util.express.exception.QLException;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -15,8 +18,8 @@ public class InvokeSecurityRiskConstructorsTest {
 
     }
 
-    @Before
-    public void before() {
+    @BeforeClass
+    public static void before() {
         //系统默认阻止的方法黑名单:System.exit(1);Runtime.getRuntime().exec()两个函数
         QLExpressRunStrategy.setForbidInvokeSecurityRiskConstructors(true);
 
@@ -27,6 +30,11 @@ public class InvokeSecurityRiskConstructorsTest {
         QLExpressRunStrategy.addSecureConstructor(java.util.LinkedList.class);
 
         QLExpressRunStrategy.addRiskSecureConstructor(InvokeSecurityRiskConstructorsBlackListTest.class);
+    }
+
+    @AfterClass
+    public static void after() {
+        QLExpressRunStrategy.setForbidInvokeSecurityRiskConstructors(false);
     }
 
     private static final String[] expressList = new String[] {
@@ -44,7 +52,7 @@ public class InvokeSecurityRiskConstructorsTest {
         Assert.assertTrue(result instanceof InvokeSecurityRiskConstructorsTest);
 
         try {
-            result = expressRunner.execute(expressList[1], context, null, true, false, 1000);
+            expressRunner.execute(expressList[1], context, null, true, false, 1000);
             Assert.fail();
         }catch (QLException e) {
             //预期内走这里
