@@ -16,12 +16,13 @@ jobs:
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
           gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
-      - name: show gpg version
-        run: gpg --version
-      - name: Publish to Maven Central Repo
-        uses: samuelmeuli/action-maven-publish@v1
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET }}
-          gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
-          nexus_username: ${{ secrets.OSSRH_USER }}
-          nexus_password: ${{ secrets.OSSRH_PASSWORD }}
+          passphrase: ${{ secrets.GPG_PASSWORD }}
+      - name: Publish to Maven Central Repo
+        run: mvn clean deploy --batch-mode
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USER }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
