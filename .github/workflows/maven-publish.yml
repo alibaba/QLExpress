@@ -12,7 +12,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: oracle
-          java-version: 8
+          java-version: 18
           server-id: ossrh
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
