@@ -16,11 +16,11 @@ jobs:
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
           gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
-          settings-path: '/home/runner/work/_actions/samuelmeuli/action-maven-publish/v1/'
       - name: show gpg version
         run: gpg --version
       - name: Publish to Maven Central Repo
         uses: samuelmeuli/action-maven-publish@v1
+        working-directory: /home/runner
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET }}
           gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
