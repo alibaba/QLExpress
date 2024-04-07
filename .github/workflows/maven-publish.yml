@@ -25,6 +25,8 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET }}
           passphrase: ${{ secrets.GPG_PASSWORD }}
+      - name: debug private key
+        run: cat /home/runner/.m2/private-key.txt
       - name: Publish to Maven Central Repo
         run: mvn clean deploy --batch-mode --activate-profiles deploy
         env:
