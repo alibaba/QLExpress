@@ -16,11 +16,14 @@ jobs:
           server-id: ossrh
           server-username: ${{ secrets.OSSRH_USER }}
           server-password: ${{ secrets.OSSRH_PASSWORD }}
-          gpg-private-key: ${{ secrets.GPG_SECRET }}
-          gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_SECRET }}
+          passphrase: ${{ secrets.GPG_PASSWORD }}
       - name: Publish to Maven Central Repo
         run: mvn clean deploy --batch-mode
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USER }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
