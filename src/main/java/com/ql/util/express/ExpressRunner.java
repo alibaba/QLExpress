@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLCompileException;
@@ -90,7 +92,7 @@ public class ExpressRunner {
     /**
      * 线程重入次数
      */
-    private final ThreadLocal<Integer> threadReentrantCount = ThreadLocal.withInitial(() -> 0);
+    private static final ThreadLocal<Integer> threadReentrantCount = ThreadLocal.withInitial(() -> 0);
 
     public AppendingClassMethodManager getAppendingClassMethodManager() {
         return appendingClassMethodManager;
@@ -104,11 +106,11 @@ public class ExpressRunner {
 
     private AppendingClassFieldManager appendingClassFieldManager;
 
-    private final ThreadLocal<IOperateDataCache> operateDataCacheThreadLocal = ThreadLocal.withInitial(
+    private static final ThreadLocal<IOperateDataCache> operateDataCacheThreadLocal = ThreadLocal.withInitial(
         () -> new OperateDataCacheImpl(30));
 
-    public IOperateDataCache getOperateDataCache() {
-        return this.operateDataCacheThreadLocal.get();
+    public static IOperateDataCache getOperateDataCache() {
+        return operateDataCacheThreadLocal.get();
     }
 
     public ExpressRunner() {
@@ -129,7 +131,7 @@ public class ExpressRunner {
      * @param cacheMap  user can define safe and efficient cache or use default concurrentMap
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace,
-                         Map<String, Future<InstructionSet>> cacheMap) {
+        Map<String, Future<InstructionSet>> cacheMap) {
         this(isPrecise, isTrace, new DefaultExpressResourceLoader(), null, cacheMap);
     }
 
@@ -143,9 +145,9 @@ public class ExpressRunner {
      * @param iExpressResourceLoader 表达式的资源装载器
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-                         NodeTypeManager nodeTypeManager) {
+        NodeTypeManager nodeTypeManager) {
         this(isPrecise, isTrace, iExpressResourceLoader,
-                nodeTypeManager, null);
+            nodeTypeManager, null);
     }
 
     /**
@@ -155,7 +157,7 @@ public class ExpressRunner {
      * @param cacheMap               指令集缓存, 必须是线程安全的集合
      */
     public ExpressRunner(boolean isPrecise, boolean isTrace, IExpressResourceLoader iExpressResourceLoader,
-                         NodeTypeManager nodeTypeManager, Map<String, Future<InstructionSet>> cacheMap) {
+        NodeTypeManager nodeTypeManager, Map<String, Future<InstructionSet>> cacheMap) {
         this.isTrace = isTrace;
         this.isPrecise = isPrecise;
         this.expressResourceLoader = iExpressResourceLoader;
@@ -720,7 +722,7 @@ public class ExpressRunner {
             if (!(originThrow instanceof Exception)) {
                 throw e;
             }
-            throw (Exception) originThrow;
+            throw (Exception)originThrow;
         }
     }
 
