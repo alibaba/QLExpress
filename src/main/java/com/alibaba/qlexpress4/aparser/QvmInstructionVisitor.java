@@ -691,16 +691,18 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             String eName = catchParamsContext.varId().getText();
             String catchBodyName = generatorScope.getName() + SCOPE_SEPARATOR +
                     TRY_PREFIX + tryCount + CATCH_SUFFIX;
-            QvmInstructionVisitor catchSubVisitor = parseWithSubVisitor(tryCatchContext.blockStatements(),
-                    new GeneratorScope(catchBodyName, generatorScope), Context.BLOCK);
+            QvmInstructionVisitor catchSubVisitor = tryCatchContext.blockStatements() == null? null:
+                    parseWithSubVisitor(tryCatchContext.blockStatements(), new GeneratorScope(catchBodyName, generatorScope), Context.BLOCK);
 
             List<DeclTypeContext> catchDeclTypes = catchParamsContext.declType();
             if (catchDeclTypes.isEmpty()) {
                 QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(eName, Object.class);
-                QLambdaDefinition exceptionHandlerDefinition = new QLambdaDefinitionInner(
-                        catchBodyName, catchSubVisitor.getInstructions(),
-                        Collections.singletonList(param), catchSubVisitor.getMaxStackSize()
-                );
+                QLambdaDefinition exceptionHandlerDefinition = catchSubVisitor == null?
+                        QLambdaDefinitionEmpty.INSTANCE:
+                        new QLambdaDefinitionInner(
+                                catchBodyName, catchSubVisitor.getInstructions(),
+                                Collections.singletonList(param), catchSubVisitor.getMaxStackSize()
+                        );
                 exceptionTable.add(new AbstractMap.SimpleEntry<>(Object.class, exceptionHandlerDefinition));
             }
             for (DeclTypeContext declTypeContext : catchDeclTypes) {
@@ -708,10 +710,11 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(
                         eName, exceptionType
                 );
-                QLambdaDefinition exceptionHandlerDefinition = new QLambdaDefinitionInner(
-                        catchBodyName, catchSubVisitor.getInstructions(),
-                        Collections.singletonList(param), catchSubVisitor.getMaxStackSize()
-                );
+                QLambdaDefinition exceptionHandlerDefinition = catchSubVisitor == null? QLambdaDefinitionEmpty.INSTANCE:
+                        new QLambdaDefinitionInner(
+                                catchBodyName, catchSubVisitor.getInstructions(),
+                                Collections.singletonList(param), catchSubVisitor.getMaxStackSize()
+                        );
                 exceptionTable.add(new AbstractMap.SimpleEntry<>(exceptionType, exceptionHandlerDefinition));
             }
         }
