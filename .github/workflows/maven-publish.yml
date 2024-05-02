@@ -19,7 +19,6 @@ jobs:
           gpg-passphrase:  'MAVEN_GPG_PASSPHRASE'
           gpg-private-key: ${{ secrets.GPG_SECRET }}
       - name: Publish to Maven Central Repo
-        working-directory: /home/runner
         run: mvn clean deploy --batch-mode --activate-profiles deploy
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
