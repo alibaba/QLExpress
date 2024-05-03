@@ -1057,7 +1057,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                         @Override
                         public QLambdaDefinition generateLambdaDefinition(ExpressionContext expressionContext, List<QLambdaDefinitionInner.Param> params) {
                             QvmInstructionVisitor subVisitor = parseExprBodyWithSubVisitor(expressionContext, generatorScope, context);
-                            subVisitor.visitBodyExpression(expressionContext);
                             return new QLambdaDefinitionInner(functionName, subVisitor.getInstructions(), params, subVisitor.getMaxStackSize());
                         }
 

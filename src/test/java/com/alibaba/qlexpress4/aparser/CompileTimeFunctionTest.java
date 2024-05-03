@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
@@ -24,8 +25,6 @@ public class CompileTimeFunctionTest {
     public static class ForEachFunction implements CompileTimeFunction {
 
         private static final String SCOPE_NAME = "FOR_EACH_FUNCTION";
-        private static final String IT_VAR = "_IT";
-        private static final String RESULT_VAR = "_RES";
 
         // load iterator
         // load lambda 第二个参数编译而来
@@ -84,5 +83,25 @@ public class CompileTimeFunctionTest {
         Object result = express4Runner.execute("FOR_EACH([1,2,3,4], _+1)", new HashMap<>(),
                 QLOptions.DEFAULT_OPTIONS);
         assertEquals(Arrays.asList(2, 3, 4, 5), result);
+    }
+
+    public static class GenInstructionNumFunction implements CompileTimeFunction {
+        @Override
+        public void createFunctionInstruction(String functionName, List<QLGrammarParser.ExpressionContext> arguments,
+                                              OperatorFactory operatorFactory, CodeGenerator codeGenerator) {
+            QLambdaDefinition lambdaDefinition = codeGenerator.generateLambdaDefinition(
+                    arguments.get(0), Collections.emptyList()
+            );
+            assertEquals(2, ((QLambdaDefinitionInner) lambdaDefinition).getInstructions().length);
+        }
+    }
+
+    @Test
+    public void genInstructionNumTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        express4Runner.addCompileTimeFunction("GEN_INST_NUM", new GenInstructionNumFunction());
+        express4Runner.parseToLambda("GEN_INST_NUM(1)", new MapExpressContext(new HashMap<>()), QLOptions.DEFAULT_OPTIONS);
     }
 }
