@@ -7,6 +7,8 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.op.OperatorBase;
 
+import static com.ql.util.express.config.QLExpressRunStrategy.isCompareDiffTypeEqualAsFalse;
+
 /**
  * 操作符的基类
  *
@@ -45,12 +47,17 @@ public abstract class Operator extends OperatorBase {
      * @param op2
      * @return
      */
-    public static boolean objectEquals(Object op1, Object op2) {
+    public static boolean objectEquals(Object op1, Object op2) throws Exception {
         if (op1 == null && op2 == null) {
             return true;
         }
         if (op1 == null || op2 == null) {
             return false;
+        }
+
+        // 兼容若类型比较
+        if (!isCompareDiffTypeEqualAsFalse()) {
+            return 0 == compareData(op1, op2);
         }
 
         //Character的值比较

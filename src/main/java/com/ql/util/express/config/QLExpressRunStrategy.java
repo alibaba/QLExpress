@@ -34,6 +34,12 @@ public class QLExpressRunStrategy {
      */
     private static boolean compareNullLessMoreAsFalse = false;
 
+    /**
+     * 默认 强类型比较
+     * 不同类型比较时，返回false, 例如 true == "true" 返回false
+     */
+    private static boolean compareDiffTypeEqualAsFalse = true;
+
     private static ClassLoader customClassLoader = null;
 
     /**
@@ -114,6 +120,14 @@ public class QLExpressRunStrategy {
 
     public static void setCompareNullLessMoreAsFalse(boolean compareNullLessMoreAsFalse) {
         QLExpressRunStrategy.compareNullLessMoreAsFalse = compareNullLessMoreAsFalse;
+    }
+
+    public static boolean isCompareDiffTypeEqualAsFalse() {
+        return compareDiffTypeEqualAsFalse;
+    }
+
+    public static void setCompareDiffTypeEqualAsFalse(boolean compareDiffTypeEqualAsFalse) {
+        QLExpressRunStrategy.compareDiffTypeEqualAsFalse = compareDiffTypeEqualAsFalse;
     }
 
     public static boolean isAvoidNullPointer() {
