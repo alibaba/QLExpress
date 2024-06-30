@@ -1179,7 +1179,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                         newReporterWithToken(integerOrFloatingLiteral.getSymbol()), numberResult)
                 );
             } catch (NumberFormatException nfe) {
-                throw reportParseErr(floatingPointLiteral.getSymbol(), "INVALID_NUMBER", "invalid number");
+                throw reportParseErr(integerOrFloatingLiteral.getSymbol(), "INVALID_NUMBER", "invalid number");
             }
             return null;
         }
@@ -1304,16 +1304,20 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         switch (floatingTypeFlag) {
             case 'f':
             case 'F':
-                BigDecimal baseDecimal = new BigDecimal(floatingText.substring(0, floatingText.length() - 1));
-                return baseDecimal.floatValue();
+                return new BigDecimal(floatingText.substring(0, floatingText.length() - 1)).floatValue();
             case 'd':
             case 'D':
-                baseDecimal = new BigDecimal(floatingText.substring(0, floatingText.length() - 1));
-                return baseDecimal.doubleValue();
+                return new BigDecimal(floatingText.substring(0, floatingText.length() - 1)).doubleValue();
             default:
-                baseDecimal = new BigDecimal(floatingText);
-                return baseDecimal.compareTo(MAX_DOUBLE) <= 0 ? baseDecimal.doubleValue() : baseDecimal;
+                BigDecimal baseDecimal = new BigDecimal(floatingText);
+                return baseDecimal.compareTo(MAX_DOUBLE) <= 0 ? maybePresentWithDouble(baseDecimal): baseDecimal;
         }
+    }
+
+    private Number maybePresentWithDouble(BigDecimal origin) {
+        double doubleValue = origin.doubleValue();
+        BigDecimal reference = new BigDecimal(doubleValue);
+        return reference.compareTo(origin) == 0? doubleValue: origin;
     }
 
     private Number parseInteger(String intText) {

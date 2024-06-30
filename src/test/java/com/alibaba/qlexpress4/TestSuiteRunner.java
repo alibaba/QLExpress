@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/map/string_literal_as_field_access.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/number/precise.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

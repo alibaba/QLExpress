@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Predicate;
@@ -152,9 +153,9 @@ public class Express4RunnerTest {
                 {"2147483647", 2147483647},
                 {"9223372036854775807", 9223372036854775807L},
                 {"18446744073709552000", new BigInteger("18446744073709552000")},
-                {"1.1", 1.1},
-                {"1.7976931348623157E308", Double.MAX_VALUE},
-                {"1.", 1.0}, {".1", 0.1},
+                {"1.1", new BigDecimal("1.1")},
+                {"1.25", 1.25d},
+                {"1.", 1.0}, {".1", new BigDecimal("0.1")},
                 {"0xfff", 4095}, {"0b11", 3}, {"072", 58},
                 {"12e1", 120.0}, {"12.1E2", 1210.0},
                 {"10l", 10L}, {"10L", 10L}, {"10d", 10.0}, {"10.313D", 10.313d}, {"10.2f", 10.2f}, {"10.2F", 10.2f}
@@ -408,7 +409,7 @@ public class Express4RunnerTest {
 
     private void assertResultPredicate(Express4Runner express4Runner, String script, Predicate<Object> predicate) {
         Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
-        assertTrue(predicate.test(result));
+        assertTrue(script, predicate.test(result));
     }
 
     private void assertErrorCode(Express4Runner express4Runner, String script, String errCode) {
