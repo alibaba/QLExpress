@@ -838,4 +838,4 @@ runner.execute(code, new DefaultContext<>(), null, false, false, 20);
 ## links for us
 -  Gitter channel - Online chat room with QLExpress developers. [Gitter channel ](https://gitter.im/QLExpress/Lobby)
 -  email:tianqiao@alibaba-inc.com,baoxingjie@126.com
--  wechart:371754252
+-  wechat:371754252
