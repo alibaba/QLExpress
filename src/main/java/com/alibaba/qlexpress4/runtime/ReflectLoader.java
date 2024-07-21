@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * java reflect util with cache
@@ -36,9 +38,13 @@ public class ReflectLoader {
 
     private final Map<MethodCacheKey, Method> memberMethodCache = new ConcurrentHashMap<>();
 
-    public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
+    private final List<ExtensionFunction> extensionFunctions;
+
+    public ReflectLoader(QLSecurityStrategy securityStrategy,
+                         List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
+        this.extensionFunctions = extensionFunctions;
     }
 
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
@@ -77,24 +83,53 @@ public class ReflectLoader {
         }
     }
 
-    public Method loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
-        Class<?> clz = bean instanceof MetaClass? ((MetaClass) bean).getClz(): bean.getClass();
+    public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
+        boolean isStaticMethod = bean instanceof MetaClass;
+        Class<?> clz = isStaticMethod ? ((MetaClass) bean).getClz(): bean.getClass();
         MethodCacheKey cacheKey = new MethodCacheKey(clz, methodName, argTypes);
-        Map<MethodCacheKey, Method> methodCache = bean instanceof MetaClass? staticMethodCache: memberMethodCache;
+        Map<MethodCacheKey, Method> methodCache = isStaticMethod ? staticMethodCache: memberMethodCache;
         Method cachedMethod = methodCache.get(cacheKey);
         if (cachedMethod != null) {
-            return cachedMethod;
+            return new JvmIMethod(cachedMethod);
+        }
+
+        // only support member extension method
+        if (!isStaticMethod) {
+            IMethod extendFunction = loadExtendFunction(clz, methodName, argTypes);
+            if (extendFunction != null) {
+                return extendFunction;
+            }
         }
 
         Method method = securityFilter(
-                MemberResolver.resolveMethod(clz, methodName, argTypes, bean instanceof MetaClass, allowPrivateAccess)
+                MemberResolver.resolveMethod(clz, methodName, argTypes, isStaticMethod, allowPrivateAccess)
         );
         if (method == null) {
             return null;
         }
 
         methodCache.put(cacheKey, method);
-        return method;
+        return new JvmIMethod(method);
+    }
+
+    private IMethod loadExtendFunction(Class<?> clz, String methodName, Class<?>[] argTypes) {
+        List<ExtensionFunction> assignableExtensionFunctions = extensionFunctions.stream()
+                .filter(extensionFunction -> extensionFunction.getDeclaringClass().isAssignableFrom(clz) &&
+                        methodName.equals(extensionFunction.getName()))
+                .collect(Collectors.toList());
+        if (assignableExtensionFunctions.isEmpty()) {
+            return null;
+        }
+
+        Class<?>[][] candidates = new Class<?>[assignableExtensionFunctions.size()][];
+        for (int i = 0; i < assignableExtensionFunctions.size(); i++) {
+            candidates[i] = assignableExtensionFunctions.get(i).getParameterTypes();
+        }
+        Integer bestIndex = MemberResolver.resolveBestMatch(candidates, argTypes);
+        if (bestIndex == null) {
+            return null;
+        }
+        return assignableExtensionFunctions.get(bestIndex);
     }
 
     private Value loadJavaField(Class<?> cls, Object bean, String fieldName, ErrorReporter errorReporter) {
@@ -297,6 +332,37 @@ public class ReflectLoader {
             this.getterSupplier = getterSupplier;
             this.setterSupplier = setterSupplier;
             this.defType = defType;
+        }
+    }
+
+    private static class ExtensionMapKey {
+        private final Class<?> cls;
+        private final String methodName;
+
+        public ExtensionMapKey(Class<?> cls, String methodName) {
+            this.cls = cls;
+            this.methodName = methodName;
+        }
+
+        public Class<?> getCls() {
+            return cls;
+        }
+
+        public String getMethodName() {
+            return methodName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ExtensionMapKey that = (ExtensionMapKey) o;
+            return Objects.equals(cls, that.cls) && Objects.equals(methodName, that.methodName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(cls, methodName);
         }
     }
 

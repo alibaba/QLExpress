@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.runtime.function;
 
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
+import com.alibaba.qlexpress4.runtime.IMethod;
+import com.alibaba.qlexpress4.runtime.JvmIMethod;
 import com.alibaba.qlexpress4.runtime.MemberResolver;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
@@ -18,11 +20,11 @@ public class QMethodFunction implements CustomFunction {
 
     private final Object object;
 
-    private final Method method;
+    private final IMethod method;
 
     public QMethodFunction(Object object, Method method) {
         this.object = object;
-        this.method = method;
+        this.method = new JvmIMethod(method);
     }
 
     @Override

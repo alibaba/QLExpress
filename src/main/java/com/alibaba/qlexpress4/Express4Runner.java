@@ -38,7 +38,8 @@ public class Express4Runner {
 
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
-        this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.allowPrivateAccess());
+        this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.getExtensionFunctions(),
+                initOptions.allowPrivateAccess());
         SyntaxTreeFactory.warmUp();
     }
 

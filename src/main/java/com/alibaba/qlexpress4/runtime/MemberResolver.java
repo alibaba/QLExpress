@@ -210,7 +210,7 @@ public class MemberResolver {
         return varParamTypes;
     }
 
-    private static Integer resolveBestMatch(Class<?>[][] candidates, Class<?>[] argTypes) {
+    public static Integer resolveBestMatch(Class<?>[][] candidates, Class<?>[] argTypes) {
         Integer bestMatchIndex = null;
         int bestPriority = MatchPriority.MISMATCH.priority;
         for (int i = 0; i < candidates.length; i++) {

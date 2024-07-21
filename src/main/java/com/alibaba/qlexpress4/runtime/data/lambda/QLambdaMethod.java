@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.data.lambda;
 
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
+import com.alibaba.qlexpress4.runtime.IMethod;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.ReflectLoader;
@@ -9,7 +10,6 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
@@ -30,7 +30,7 @@ public class QLambdaMethod implements QLambda {
     @Override
     public QResult call(Object... params) throws Exception {
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
-        Method method = reflectLoader.loadMethod(bean, methodName, type);
+        IMethod method = reflectLoader.loadMethod(bean, methodName, type);
         if (method == null) {
             throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
                     "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));

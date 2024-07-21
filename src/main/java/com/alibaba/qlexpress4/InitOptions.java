@@ -2,6 +2,9 @@ package com.alibaba.qlexpress4;
 
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.Arrays;
@@ -49,6 +52,12 @@ public class InitOptions {
     private final QLSecurityStrategy securityStrategy;
 
     /**
+     * qlexpress extension functions
+     * default is some collection convenience functions
+     */
+    private final List<ExtensionFunction> extensionFunctions;
+
+    /**
      * allow access private field and method
      * default false
      */
@@ -57,13 +66,15 @@ public class InitOptions {
     private InitOptions(boolean useCacheClear, ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
-                        QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
+                        QLSecurityStrategy securityStrategy,
+                        List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess) {
         this.useCacheClear = useCacheClear;
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
         this.debugInfoConsumer = debugInfoConsumer;
         this.securityStrategy = securityStrategy;
+        this.extensionFunctions = extensionFunctions;
         this.allowPrivateAccess = allowPrivateAccess;
     }
 
@@ -95,6 +106,10 @@ public class InitOptions {
         return securityStrategy;
     }
 
+    public List<ExtensionFunction> getExtensionFunctions() {
+        return extensionFunctions;
+    }
+
     public boolean allowPrivateAccess() {
         return allowPrivateAccess;
     }
@@ -112,6 +127,10 @@ public class InitOptions {
         private boolean debug = false;
         private Consumer<String> debugInfoConsumer = System.out::println;
         private QLSecurityStrategy securityStrategy = QLSecurityStrategy.isolation();
+        private List<ExtensionFunction> extensionFunctions = Arrays.asList(
+                FilterExtensionFunction.INSTANCE,
+                MapExtensionFunction.INSTANCE
+        );
         private boolean allowPrivateAccess = false;
 
         public Builder useCacheClear(boolean useCacheClear) {
@@ -144,6 +163,11 @@ public class InitOptions {
             return this;
         }
 
+        public Builder extensionFunctions(List<ExtensionFunction> extensionFunctions) {
+            this.extensionFunctions = extensionFunctions;
+            return this;
+        }
+
         public Builder allowPrivateAccess(boolean allowPrivateAccess) {
             this.allowPrivateAccess = allowPrivateAccess;
             return this;
@@ -151,7 +175,7 @@ public class InitOptions {
 
         public InitOptions build() {
             return new InitOptions(useCacheClear, classSupplier, defaultImport,
-                    debug, debugInfoConsumer, securityStrategy, allowPrivateAccess);
+                    debug, debugInfoConsumer, securityStrategy, extensionFunctions, allowPrivateAccess);
         }
     }
 }

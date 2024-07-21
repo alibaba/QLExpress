@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.member;
 
+import com.alibaba.qlexpress4.runtime.IMethod;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -66,9 +67,9 @@ public class MethodHandler {
     }
 
     public static class Access {
-        public static Object accessMethodValue(Method method, Object bean, Object[] args) throws
+        public static Object accessMethodValue(IMethod method, Object bean, Object[] args) throws
                 IllegalArgumentException, InvocationTargetException, IllegalAccessException {
-            if (!BasicUtil.isAccess(method)) {
+            if (!method.isAccess()) {
                 method.setAccessible(true);
             }
             return method.invoke(bean, args);

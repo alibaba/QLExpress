@@ -10,7 +10,6 @@ import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -58,7 +57,7 @@ public class MethodInvokeInstruction extends QLInstruction {
                     "GET_METHOD_FROM_NULL", "can not get method from null");
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
-        Method method = reflectLoader.loadMethod(bean, methodName, type);
+        IMethod method = reflectLoader.loadMethod(bean, methodName, type);
         if (method == null) {
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
             if (qLambdaInnerMethod != null) {

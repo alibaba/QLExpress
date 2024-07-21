@@ -69,10 +69,6 @@ public class BasicUtil {
         return null;
     }
 
-    public static boolean isAccess(Member member) {
-        return Modifier.isPublic(member.getDeclaringClass().getModifiers()) && Modifier.isPublic(member.getModifiers());
-    }
-
     public static boolean isPublic(Member member) {
         return Modifier.isPublic(member.getModifiers());
     }

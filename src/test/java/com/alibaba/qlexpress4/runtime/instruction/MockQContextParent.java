@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ public class MockQContextParent implements QContext {
 
     public MockQContextParent(boolean allowPrivateAccess) {
         this.allowPrivateAccess = allowPrivateAccess;
-        this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), allowPrivateAccess);
+        this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), Collections.emptyList(), allowPrivateAccess);
     }
 
     public Value getValue() {
