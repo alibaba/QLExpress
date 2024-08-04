@@ -520,15 +520,41 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         MapEntriesContext mapEntriesContext = ctx.mapEntries();
         List<MapEntryContext> mapEntryContexts = mapEntriesContext.mapEntry();
         List<String> keys = new ArrayList<>(mapEntryContexts.size());
+        Class<?> cls = null;
         for (MapEntryContext mapEntryContext : mapEntryContexts) {
-            keys.add(parseMsgKey(mapEntryContext.mapKey()));
-            mapEntryContext.expression().accept(this);
+            MapValueContext valueContext = mapEntryContext.mapValue();
+            if (valueContext instanceof EValueContext) {
+                EValueContext eValueContext = (EValueContext) valueContext;
+                keys.add(parseMapKey(mapEntryContext.mapKey()));
+                eValueContext.expression().accept(this);
+                continue;
+            }
+            if (valueContext instanceof ClsValueContext) {
+                ClsValueContext clsValueContext = (ClsValueContext) valueContext;
+                String clsText = clsValueContext.cls.getText();
+                String clsName = clsText.substring(1, clsText.length() - 1);
+                Class<?> mayBeCls = importManager.loadQualified(clsName);
+                if (mayBeCls == null) {
+                    String clsKeyText = mapEntryContext.mapKey().getText();
+                    keys.add(clsKeyText.substring(1, clsKeyText.length() - 1));
+                    addInstruction(new ConstInstruction(newReporterWithToken(clsValueContext.cls),
+                            parseStringEscape(clsValueContext.cls.getText())));
+                    // @class override
+                    cls = null;
+                } else {
+                    cls = mayBeCls;
+                }
+            }
         }
-        addInstruction(new NewMapInstruction(newReporterWithToken(ctx.getStart()), keys));
+        if (cls == null) {
+            addInstruction(new NewMapInstruction(newReporterWithToken(ctx.getStart()), keys));
+        } else {
+            addInstruction(new NewFilledInstanceInstruction(newReporterWithToken(ctx.getStart()), cls, keys));
+        }
         return null;
     }
 
-    private String parseMsgKey(MapKeyContext mapKeyContext) {
+    private String parseMapKey(MapKeyContext mapKeyContext) {
         if (mapKeyContext instanceof IdKeyContext) {
             return mapKeyContext.getText();
         } else if (mapKeyContext instanceof StringKeyContext || mapKeyContext instanceof QuoteStringKeyContext) {
@@ -546,7 +572,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             argumentListContext.accept(this);
         }
         int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
-        addInstruction(new NewInstruction(newReporterWithToken(ctx.NEW().getSymbol()), newCls, argNum));
+        addInstruction(new NewInstanceInstruction(newReporterWithToken(ctx.NEW().getSymbol()), newCls, argNum));
         return null;
     }
 
@@ -764,13 +790,13 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 break;
             }
         }
-        ImportManager.LoadQualifiedResult loadQualifiedResult = importManager.loadQualified(headPartIds);
-        if (loadQualifiedResult.getCls() != null) {
-            int restIndex = loadQualifiedResult.getRestIndex() - 1;
+        ImportManager.LoadPartQualifiedResult loadPartQualifiedResult = importManager.loadPartQualified(headPartIds);
+        if (loadPartQualifiedResult.getCls() != null) {
+            int restIndex = loadPartQualifiedResult.getRestIndex() - 1;
             Token clsReportToken = restIndex == 0 ? idContext.getStart() : pathPartContexts.get(restIndex - 1).getStop();
             int dimPartNum = parseDimParts(restIndex, pathPartContexts);
-            Class<?> cls = dimPartNum > 0 ? wrapInArray(loadQualifiedResult.getCls(), dimPartNum) :
-                    loadQualifiedResult.getCls();
+            Class<?> cls = dimPartNum > 0 ? wrapInArray(loadPartQualifiedResult.getCls(), dimPartNum) :
+                    loadPartQualifiedResult.getCls();
 
             addInstruction(new ConstInstruction(newReporterWithToken(clsReportToken), new MetaClass(cls)));
             return restIndex + dimPartNum;
@@ -1418,13 +1444,13 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         List<String> fieldIds = varIdContexts.stream()
                 .map(RuleContext::getText)
                 .collect(Collectors.toList());
-        ImportManager.LoadQualifiedResult loadQualifiedResult = importManager.loadQualified(fieldIds);
-        if (loadQualifiedResult.getCls() == null || loadQualifiedResult.getRestIndex() != fieldIds.size()) {
+        ImportManager.LoadPartQualifiedResult loadPartQualifiedResult = importManager.loadPartQualified(fieldIds);
+        if (loadPartQualifiedResult.getCls() == null || loadPartQualifiedResult.getRestIndex() != fieldIds.size()) {
             Token lastIdToken = varIdContexts.get(varIdContexts.size() - 1).getStart();
             throw reportParseErr(lastIdToken, "CLASS_NOT_FOUND",
                     "can not find class: " + String.join(".", fieldIds));
         }
-        return loadQualifiedResult.getCls();
+        return loadPartQualifiedResult.getCls();
     }
 
     private QLSyntaxException reportParseErr(Token token, String errCode, String errReason) {

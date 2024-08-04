@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -14,7 +15,7 @@ public class DefaultClassSupplier implements ClassSupplier {
         return INSTANCE;
     }
 
-    private final Map<String, NullableCls> cache = new ConcurrentHashMap<>();
+    private final Map<String, Optional<Class<?>>> cache = new ConcurrentHashMap<>();
 
     /**
      * @param clsQualifiedName qualified name of class
@@ -22,26 +23,16 @@ public class DefaultClassSupplier implements ClassSupplier {
      */
     @Override
     public Class<?> loadCls(String clsQualifiedName) {
-        NullableCls nullableCls = cache.computeIfAbsent(clsQualifiedName, this::loadClsInner);
-        return nullableCls.found? nullableCls.cls: null;
+        Optional<Class<?>> clsOp = cache.computeIfAbsent(clsQualifiedName, this::loadClsInner);
+        return clsOp.orElse(null);
     }
 
-    private NullableCls loadClsInner(String clsQualifiedName) {
+    private Optional<Class<?>> loadClsInner(String clsQualifiedName) {
         try {
             Class<?> aClass = Class.forName(clsQualifiedName);
-            return new NullableCls(aClass, true);
+            return Optional.of(aClass);
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            return new NullableCls(null, false);
-        }
-    }
-
-    private static class NullableCls {
-        private final Class<?> cls;
-        private final boolean found;
-
-        public NullableCls(Class<?> cls, boolean found) {
-            this.cls = cls;
-            this.found = found;
+            return Optional.empty();
         }
     }
 }

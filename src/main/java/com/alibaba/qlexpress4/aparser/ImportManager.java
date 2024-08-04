@@ -51,7 +51,11 @@ public class ImportManager {
         }
     }
 
-    public LoadQualifiedResult loadQualified(List<String> fieldIds) {
+    public Class<?> loadQualified(String qualifiedCls) {
+        return classSupplier.loadCls(qualifiedCls);
+    }
+
+    public LoadPartQualifiedResult loadPartQualified(List<String> fieldIds) {
         Class<?> qualifiedCls = null;
         List<String> qualifiedPath = null;
         String innerClsId = null;
@@ -98,7 +102,7 @@ public class ImportManager {
                                     break;
                             }
                         }
-                        return new LoadQualifiedResult(null, 0);
+                        return new LoadPartQualifiedResult(null, 0);
                     }
                     state = continueState;
                     qualifiedPath = new ArrayList<>();
@@ -109,7 +113,7 @@ public class ImportManager {
                         state = loadInnerClsState;
                         innerClsId = fieldId;
                     } else {
-                        return new LoadQualifiedResult(qualifiedCls, i);
+                        return new LoadPartQualifiedResult(qualifiedCls, i);
                     }
                     break;
                 case continueState:
@@ -121,26 +125,26 @@ public class ImportManager {
                 case loadClsState:
                     qualifiedCls = classSupplier.loadCls(String.join(".", qualifiedPath));
                     if (qualifiedCls == null){
-                        return new LoadQualifiedResult(null, 0);
+                        return new LoadPartQualifiedResult(null, 0);
                     }
                     if (!Character.isLowerCase(fieldId.charAt(0))) {
                         qualifiedPath = null;
                         innerClsId = fieldId;
                         state = loadInnerClsState;
                     } else {
-                        return new LoadQualifiedResult(qualifiedCls, i);
+                        return new LoadPartQualifiedResult(qualifiedCls, i);
                     }
                     break;
                 case loadInnerClsState:
                     Class<?> innerCls = classSupplier.loadCls(qualifiedCls.getName() + "$" + innerClsId);
                     if (innerCls == null) {
-                        return new LoadQualifiedResult(qualifiedCls, i - 1);
+                        return new LoadPartQualifiedResult(qualifiedCls, i - 1);
                     }
                     if (!Character.isLowerCase(fieldId.charAt(0))) {
                         qualifiedCls = innerCls;
                         innerClsId = fieldId;
                     } else {
-                        return new LoadQualifiedResult(innerCls, i);
+                        return new LoadPartQualifiedResult(innerCls, i);
                     }
                     break;
             }
@@ -148,30 +152,30 @@ public class ImportManager {
 
         switch (state) {
             case continueState:
-                return new LoadQualifiedResult(null, 0);
+                return new LoadPartQualifiedResult(null, 0);
             case loadClsState:
                 qualifiedCls = classSupplier.loadCls(String.join(".", qualifiedPath));
-                return qualifiedCls == null? new LoadQualifiedResult(null, fieldIds.size()):
-                        new LoadQualifiedResult(qualifiedCls, fieldIds.size());
+                return qualifiedCls == null? new LoadPartQualifiedResult(null, fieldIds.size()):
+                        new LoadPartQualifiedResult(qualifiedCls, fieldIds.size());
             case preLoadInnerClsState:
-                return new LoadQualifiedResult(qualifiedCls, fieldIds.size());
+                return new LoadPartQualifiedResult(qualifiedCls, fieldIds.size());
             case loadInnerClsState:
                 Class<?> innerCls = classSupplier.loadCls(qualifiedCls.getName() + "$" + innerClsId);
-                return innerCls == null? new LoadQualifiedResult(qualifiedCls, fieldIds.size() - 1):
-                        new LoadQualifiedResult(innerCls, fieldIds.size());
+                return innerCls == null? new LoadPartQualifiedResult(qualifiedCls, fieldIds.size() - 1):
+                        new LoadPartQualifiedResult(innerCls, fieldIds.size());
             default:
-                return new LoadQualifiedResult(null, 0);
+                return new LoadPartQualifiedResult(null, 0);
         }
     }
 
-    public static class LoadQualifiedResult {
+    public static class LoadPartQualifiedResult {
         private final Class<?> cls;
         /**
          * first no class path field index
          */
         private final int restIndex;
 
-        public LoadQualifiedResult(Class<?> cls, int restIndex) {
+        public LoadPartQualifiedResult(Class<?> cls, int restIndex) {
             this.cls = cls;
             this.restIndex = restIndex;
         }

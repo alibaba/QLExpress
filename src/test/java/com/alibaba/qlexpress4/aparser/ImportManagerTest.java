@@ -25,30 +25,30 @@ public class ImportManagerTest {
     public void loadTest() {
         ImportManager importManager = new ImportManager(DefaultClassSupplier.getInstance(),
                 new ArrayList<>(), new HashMap<>());
-        ImportManager.LoadQualifiedResult result0 = importManager.loadQualified(Arrays.asList("Function"));
+        ImportManager.LoadPartQualifiedResult result0 = importManager.loadPartQualified(Arrays.asList("Function"));
         assertNull(result0.getCls());
         importManager.addImport(ImportManager.importPack("java.util.function"));
 
-        ImportManager.LoadQualifiedResult result1 = importManager.loadQualified(Arrays.asList("Function"));
+        ImportManager.LoadPartQualifiedResult result1 = importManager.loadPartQualified(Arrays.asList("Function"));
         assertEquals(Function.class, result1.getCls());
         assertEquals(1, result1.getRestIndex());
 
-        ImportManager.LoadQualifiedResult result2 = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result2 = importManager.loadPartQualified(
                 Arrays.asList("java", "util", "function", "Function", "a", "b"));
         assertEquals(Function.class, result2.getCls());
         assertEquals(4, result2.getRestIndex());
 
-        ImportManager.LoadQualifiedResult result3 = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result3 = importManager.loadPartQualified(
                 Arrays.asList("com", "alibaba", "qlexpress4", "aparser",
                         "ImportManagerTest", "TestImportInner", "TestImportInner2"));
         assertEquals(TestImportInner.TestImportInner2.class, result3.getCls());
 
-        ImportManager.LoadQualifiedResult result4 = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result4 = importManager.loadPartQualified(
                 Arrays.asList("Function", "value"));
         assertEquals(Function.class, result4.getCls());
         assertEquals(1, result4.getRestIndex());
 
-        ImportManager.LoadQualifiedResult result5 = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result5 = importManager.loadPartQualified(
                 Arrays.asList("Function", "TT", "v"));
         assertEquals(1, result5.getRestIndex());
     }
@@ -59,11 +59,11 @@ public class ImportManagerTest {
                 new ArrayList<>(), new HashMap<>());
         importManager.addImport(ImportManager.importInnerCls(
                 "com.alibaba.qlexpress4.aparser.ImportManagerTest"));
-        ImportManager.LoadQualifiedResult result = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(
                 Arrays.asList("TestImportInner", "TestImportInner2"));
         assertEquals(TestImportInner.TestImportInner2.class, result.getCls());
 
-        ImportManager.LoadQualifiedResult result2 = importManager.loadQualified(
+        ImportManager.LoadPartQualifiedResult result2 = importManager.loadPartQualified(
                 Arrays.asList("TestImportInner", "testImportInner2"));
         assertEquals(TestImportInner.class, result2.getCls());
         assertEquals(1, result2.getRestIndex());

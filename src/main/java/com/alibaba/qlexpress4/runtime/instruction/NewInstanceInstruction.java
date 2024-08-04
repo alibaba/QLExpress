@@ -19,13 +19,13 @@ import java.util.function.Consumer;
  * <p>
  * Author: DQinYuan
  */
-public class NewInstruction extends QLInstruction {
+public class NewInstanceInstruction extends QLInstruction {
 
     private final Class<?> newClz;
 
     private final int argNum;
 
-    public NewInstruction(ErrorReporter errorReporter, Class<?> newClz, int argNum) {
+    public NewInstanceInstruction(ErrorReporter errorReporter, Class<?> newClz, int argNum) {
         super(errorReporter);
         this.newClz = newClz;
         this.argNum = argNum;
@@ -80,7 +80,7 @@ public class NewInstruction extends QLInstruction {
 
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, index + ": New cls " + newClz.getSimpleName()
+        PrintlnUtils.printlnByCurDepth(depth, index + ": New instance of cls " + newClz.getSimpleName()
                 + " with argNum " + argNum, debug);
     }
 }

@@ -33,7 +33,6 @@ public class NewMapInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters initItems = qContext.pop(keys.size());
         Map<String, Object> m = new LinkedHashMap<>();
-        // TODO: 遍历逻辑优化
         for (int i = 0; i < keys.size(); i++) {
             m.put(keys.get(i), initItems.get(i).get());
         }

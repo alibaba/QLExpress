@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.operator.base;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.alibaba.qlexpress4.QErrorCode;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
@@ -48,7 +49,8 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected void assertLeftValue(Value left, ErrorReporter errorReporter) {
         if (!(left instanceof LeftValue)) {
-            throw errorReporter.report("INVALID_ASSIGNMENT", "value on the left side of '=' is not assignable");
+            throw errorReporter.reportFormat(QErrorCode.INVALID_ASSIGNMENT.name(),
+                    QErrorCode.INVALID_ASSIGNMENT.getErrMsg(), "on the left side");
         }
     }
 

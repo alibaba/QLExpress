@@ -32,7 +32,7 @@ public class ReflectLoader {
 
     private final Map<List<Class<?>>, Constructor<?>> constructorCache = new ConcurrentHashMap<>();
 
-    private final Map<List<?>, FieldReflectCache> fieldCache = new ConcurrentHashMap<>();
+    private final Map<List<?>, Optional<FieldReflectCache>> fieldCache = new ConcurrentHashMap<>();
 
     private final Map<MethodCacheKey, Method> staticMethodCache = new ConcurrentHashMap<>();
 
@@ -147,29 +147,26 @@ public class ReflectLoader {
 
     private FieldReflectCache loadFieldReflectCache(Class<?> cls, String fieldName) {
         List<Serializable> cacheKey = Arrays.asList(cls, fieldName);
-        FieldReflectCache cachedField = fieldCache.get(cacheKey);
-        if (cachedField != null) {
-            return cachedField;
+        Optional<FieldReflectCache> cachedFieldOp = fieldCache.get(cacheKey);
+        if (cachedFieldOp != null) {
+            return cachedFieldOp.orElse(null);
         }
 
-        FieldReflectCache fieldReflect = loadJavaFieldInner(cls, fieldName);
-        if (fieldReflect == null) {
-            return null;
-        }
-        fieldCache.put(cacheKey, fieldReflect);
-        return fieldReflect;
+        Optional<FieldReflectCache> fieldReflectOp = loadJavaFieldInner(cls, fieldName);
+        fieldCache.put(cacheKey, fieldReflectOp);
+        return fieldReflectOp.orElse(null);
     }
 
-    private FieldReflectCache loadJavaFieldInner(Class<?> cls, String fieldName) {
+    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName) {
         Method getMethod = securityFilter(MethodHandler.getGetter(cls, fieldName));
         Field field = securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
         BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier = fieldGetter(getMethod, field);
         if (getterSupplier == null) {
-            return null;
+            return Optional.empty();
         }
         Method setMethod = securityFilter(MethodHandler.getSetter(cls, fieldName));
         BiFunction<ErrorReporter, Object, Consumer<Object>> setterSupplier = fieldSetter(setMethod, field);
-        return new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field));
+        return Optional.of(new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field)));
     }
 
     private <T extends Member> T securityFilter(T member) {

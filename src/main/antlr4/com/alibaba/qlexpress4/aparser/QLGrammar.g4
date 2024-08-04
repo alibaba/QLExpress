@@ -47,6 +47,8 @@ CATCH: 'catch';
 FINALLY: 'finally';
 THROW: 'throw';
 
+
+
 // unuseful now, but reserve them for future
 CLASS: 'class';
 THIS: 'this';
@@ -1255,7 +1257,12 @@ mapEntries
     ;
 
 mapEntry
-    : mapKey ':' expression
+    : mapKey ':' mapValue
+    ;
+
+mapValue
+    : {_input.LT(-2).getText().equals("'@class'")}? cls=(StringLiteral | QuoteStringLiteral) # clsValue
+    | expression # eValue
     ;
 
 mapKey

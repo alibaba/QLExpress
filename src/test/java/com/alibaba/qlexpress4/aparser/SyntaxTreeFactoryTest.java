@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.QLPrecedences;
+import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
 import com.alibaba.qlexpress4.runtime.instruction.*;
@@ -401,4 +402,16 @@ public class SyntaxTreeFactoryTest {
         List<QLInstruction> instructions = visitor.getInstructions();
         assertEquals("doubleValue", ((MethodInvokeInstruction) instructions.get(1)).getMethodName());
     }
+
+    @Test
+    public void classifiedJsonTest() {
+        String script = "{'@class':'java.lang.Object', 'a': 'cccc'}";
+        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println);
+        QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
+        programContext.accept(visitor);
+        List<QLInstruction> instructions = visitor.getInstructions();
+        assertTrue(instructions.get(1) instanceof NewFilledInstanceInstruction);
+    }
+
 }
