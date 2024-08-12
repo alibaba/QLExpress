@@ -12,7 +12,7 @@ public class Issue337CommentInImportTest {
     @Test
     public void testCommentInImport() throws Exception {
         String express = ""
-                + "/** 注释 **/\n"
+                + "/** 注释 **/;"
                 + "import java.util.ArrayList;"
                 + "import com.ql.util.express.issue.Bean337Example;"
                 + "abc = new Bean337Example();"
