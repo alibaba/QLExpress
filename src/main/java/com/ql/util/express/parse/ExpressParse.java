@@ -1,5 +1,12 @@
 package com.ql.util.express.parse;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.IExpressResourceLoader;
 import com.ql.util.express.config.QLExpressRunStrategy;
@@ -7,9 +14,6 @@ import com.ql.util.express.exception.QLCompileException;
 import com.ql.util.express.exception.QLSecurityRiskException;
 import com.ql.util.express.match.QLMatchResult;
 import com.ql.util.express.match.QLPattern;
-
-import java.math.BigDecimal;
-import java.util.*;
 
 public class ExpressParse {
 
@@ -35,7 +39,7 @@ public class ExpressParse {
     }
 
     public ExpressParse(NodeTypeManager nodeTypeManager, IExpressResourceLoader iExpressResourceLoader,
-                        boolean isPrecise) {
+        boolean isPrecise) {
         this.nodeTypeManager = nodeTypeManager;
         this.expressResourceLoader = iExpressResourceLoader;
         this.isPrecise = isPrecise;
@@ -81,7 +85,7 @@ public class ExpressParse {
      * @throws Exception
      */
     public List<ExpressNode> transferWord2ExpressNode(ExpressPackage rootExpressPackage, Word[] wordObjects,
-                                                      Map<String, String> selfClassDefine, boolean dealJavaClass) throws Exception {
+        Map<String, String> selfClassDefine, boolean dealJavaClass) throws Exception {
         List<ExpressNode> result = new ArrayList<>();
         String tempWord;
         NodeType tempType;
@@ -128,14 +132,14 @@ public class ExpressParse {
                     // 对负号进行特殊处理
                     if ("-".equals(result.get(result.size() - 1).getValue())) {
                         if (result.size() == 1
-                                || result.size() >= 2
-                                && (result.get(result.size() - 2).isTypeEqualsOrChild("OP_LIST")
-                                || result.get(result.size() - 2).isTypeEqualsOrChild(",")
-                                || result.get(result.size() - 2).isTypeEqualsOrChild("return")
-                                || result.get(result.size() - 2).isTypeEqualsOrChild("?")
-                                || result.get(result.size() - 2).isTypeEqualsOrChild(":"))
-                                && !result.get(result.size() - 2).isTypeEqualsOrChild(")")
-                                && !result.get(result.size() - 2).isTypeEqualsOrChild("]")
+                            || result.size() >= 2
+                            && (result.get(result.size() - 2).isTypeEqualsOrChild("OP_LIST")
+                            || result.get(result.size() - 2).isTypeEqualsOrChild(",")
+                            || result.get(result.size() - 2).isTypeEqualsOrChild("return")
+                            || result.get(result.size() - 2).isTypeEqualsOrChild("?")
+                            || result.get(result.size() - 2).isTypeEqualsOrChild(":"))
+                            && !result.get(result.size() - 2).isTypeEqualsOrChild(")")
+                            && !result.get(result.size() - 2).isTypeEqualsOrChild("]")
                         ) {
                             result.remove(result.size() - 1);
                             tempWord = "-" + tempWord;
@@ -173,7 +177,7 @@ public class ExpressParse {
                     long tempLong = Long.parseLong(tempWord);
                     if (tempLong <= Integer.MAX_VALUE && tempLong >= Integer.MIN_VALUE) {
                         tempType = nodeTypeManager.findNodeType("CONST_INTEGER");
-                        objectValue = (int) tempLong;
+                        objectValue = (int)tempLong;
                     } else {
                         tempType = nodeTypeManager.findNodeType("CONST_LONG");
                         objectValue = tempLong;
@@ -213,7 +217,7 @@ public class ExpressParse {
                 objectValue = Boolean.valueOf(tempWord);
                 point = point + 1;
             } else if ("/**".equals(tempWord)) {
-                while ((++point) < wordObjects.length && !"**/".equals(wordObjects[point].word)) ;
+                while ((++point) < wordObjects.length && !"**/".equals(wordObjects[point].word));
                 point++;
                 continue;
             } else {
@@ -238,7 +242,7 @@ public class ExpressParse {
                                 if (!tmpClass.isPrimitive() &&
                                         !QLExpressRunStrategy.checkWhiteClassList(tmpClass)) {
                                     throw new QLSecurityRiskException("脚本中引用了不安全的类： " +
-                                                                              tmpClass.getCanonicalName());
+                                            tmpClass.getCanonicalName());
                                 }
                                 break;
                             }
@@ -271,7 +275,7 @@ public class ExpressParse {
                 }
             }
             result.add(new ExpressNode(tempType, tempWord, originalValue, objectValue, treeNodeType, tmpWordObject.line,
-                                       tmpWordObject.col));
+                tmpWordObject.col));
             treeNodeType = null;
             objectValue = null;
             originalValue = null;
@@ -331,7 +335,7 @@ public class ExpressParse {
     }
 
     public ExpressNode parse(ExpressPackage rootExpressPackage, String express, boolean isTrace,
-                             Map<String, String> selfDefineClass) throws Exception {
+        Map<String, String> selfDefineClass) throws Exception {
         Word[] words = splitWords(express, isTrace, selfDefineClass);
         return parse(rootExpressPackage, words, express, isTrace, selfDefineClass);
     }
@@ -359,15 +363,15 @@ public class ExpressParse {
     }
 
     public ExpressNode parse(ExpressPackage rootExpressPackage, Word[] words, String express, boolean isTrace,
-                             Map<String, String> selfDefineClass) throws Exception {
+        Map<String, String> selfDefineClass) throws Exception {
         return parse(rootExpressPackage, words, express, isTrace, selfDefineClass, false);
     }
 
     public ExpressNode parse(ExpressPackage rootExpressPackage, Word[] words, String express, boolean isTrace,
-                             Map<String, String> selfDefineClass, boolean mockRemoteJavaClass) throws Exception {
+        Map<String, String> selfDefineClass, boolean mockRemoteJavaClass) throws Exception {
 
         List<ExpressNode> tempList = this.transferWord2ExpressNode(rootExpressPackage, words, selfDefineClass,
-                                                                   !QLExpressRunStrategy.isSandboxMode());
+                !QLExpressRunStrategy.isSandboxMode());
         if (isTrace) {
             System.out.println("单词分析结果:" + printInfo(tempList, ","));
         }
@@ -377,7 +381,7 @@ public class ExpressParse {
             for (int i = 0; i < tempList.size(); i++) {
                 ExpressNode node = tempList.get(i);
                 if ("new".equals(node.getValue()) && node.getNodeType().getKind() == NodeTypeKind.KEYWORD
-                        && i + 1 < tempList.size() && !"CONST_CLASS".equals(tempList.get(i + 1).getNodeType().getName())) {
+                    && i + 1 < tempList.size() && !"CONST_CLASS".equals(tempList.get(i + 1).getNodeType().getName())) {
                     tempList2.add(node);
                     //取出 ( 前面的类路径作为configClass名称
                     int end = i + 1;
@@ -403,7 +407,7 @@ public class ExpressParse {
         }
 
         QLMatchResult result = QLPattern.findMatchStatement(this.nodeTypeManager, this.nodeTypeManager
-                .findNodeType("PROGRAM").getPatternNode(), tempList, 0);
+            .findNodeType("PROGRAM").getPatternNode(), tempList, 0);
         if (result == null) {
             throw new QLCompileException("语法匹配失败");
         }
@@ -411,11 +415,11 @@ public class ExpressParse {
             int maxPoint = result.getMatchLastIndex();
             ExpressNode tempNode = tempList.get(maxPoint);
             throw new QLCompileException(
-                    "还有单词没有完成语法匹配：" + result.getMatchLastIndex() + "[" + tempNode.getValue() + ":line=" + tempNode.getLine()
-                            + ",col=" + tempNode.getCol() + "] 之后的单词 \n" + express);
+                "还有单词没有完成语法匹配：" + result.getMatchLastIndex() + "[" + tempNode.getValue() + ":line=" + tempNode.getLine()
+                    + ",col=" + tempNode.getCol() + "] 之后的单词 \n" + express);
         }
         result.getMatches().get(0).buildExpressNodeTree();
-        ExpressNode root = (ExpressNode) result.getMatches().get(0).getRef();
+        ExpressNode root = (ExpressNode)result.getMatches().get(0).getRef();
 
         //为了生成代码时候进行判断，需要设置每个节点的父亲
         resetParent(root, null);
