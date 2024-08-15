@@ -16,7 +16,7 @@ public class Issue187InEqualitySignTest {
 
         String express = "1 <> 2";
         Object result = runner.execute(express, context, null, true, true);
-        System.out.println(result);
+        Assert.assertTrue((Boolean)result);
 
     }
 }
