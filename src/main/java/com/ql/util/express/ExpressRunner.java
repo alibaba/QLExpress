@@ -61,7 +61,7 @@ public class ExpressRunner {
      * 一段文本对应的指令集的缓存
      * default: ConcurrentHashMap with no eviction policy
      */
-    private final Map<String, Future<InstructionSet>> expressInstructionSetCache;
+    private static final Map<String, Future<InstructionSet>> expressInstructionSetCache = new ConcurrentHashMap<>();;
 
     private final ExpressLoader loader;
 
@@ -165,10 +165,8 @@ public class ExpressRunner {
             manager = nodeTypeManager;
         }
 
-        if (Objects.isNull(cacheMap)) {
-            expressInstructionSetCache = new ConcurrentHashMap<>();
-        } else {
-            expressInstructionSetCache = cacheMap;
+        if (!Objects.isNull(cacheMap)) {
+            expressInstructionSetCache.putAll(cacheMap);
         }
         this.operatorManager = new OperatorFactory(this.isPrecise);
         this.loader = new ExpressLoader(this);
