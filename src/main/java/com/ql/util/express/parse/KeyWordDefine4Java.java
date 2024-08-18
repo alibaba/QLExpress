@@ -12,7 +12,7 @@ public class KeyWordDefine4Java {
         ".", ",", ":", ";", "(", ")", "{", "}", "[", "]", "?",
 
         //Boolean运算符号
-        "!", "<", ">", "<=", ">=", "==", "!=", "&&", "||",
+        "!", "<", ">", "<=", ">=", "==", "!=","<>", "&&", "||",
 
         "=", "/**", "**/",
 
@@ -66,7 +66,7 @@ public class KeyWordDefine4Java {
         "OP_LEVEL4:TYPE=OPERATOR,DEFINE=*|/|mod|%",
         "OP_LEVEL5:TYPE=OPERATOR,DEFINE=+|-",
         "OP_LEVEL6:TYPE=OPERATOR,DEFINE=in|like",
-        "OP_LEVEL7:TYPE=OPERATOR,DEFINE=>|>=|<|<=|==|!=",
+        "OP_LEVEL7:TYPE=OPERATOR,DEFINE=>|>=|<|<=|==|!=|<>",
         "OP_LEVEL8:TYPE=OPERATOR,DEFINE=&&",
         "OP_LEVEL9:TYPE=OPERATOR,DEFINE=OR_INNER|nor",
 
@@ -157,7 +157,7 @@ public class KeyWordDefine4Java {
         "PROGRAM:TYPE=BLOCK,DEFINE=STAT_LIST#STAT_BLOCK",
     };
     public final String[][] instructionFactoryMapping = {
-        {"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL",
+        {"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,<>,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL",
             "com.ql.util.express.instruction.OperatorInstructionFactory"},
         {"in", "com.ql.util.express.instruction.InInstructionFactory"},
         {"exportDef", "com.ql.util.express.instruction.OperatorInstructionFactory"},
