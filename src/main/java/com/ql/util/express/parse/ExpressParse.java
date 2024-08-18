@@ -97,6 +97,11 @@ public class ExpressParse {
             boolean isImport = false;
             StringBuilder importName = new StringBuilder();
             while (point < wordObjects.length) {
+                if ("/**".equals(wordObjects[point].word)) {
+                    while ((++point) < wordObjects.length && !"**/".equals(wordObjects[point].word)) ;
+                    point++;
+                    continue;
+                }
                 if ("import".equals(wordObjects[point].word)) {
                     isImport = true;
                     importName.setLength(0);
