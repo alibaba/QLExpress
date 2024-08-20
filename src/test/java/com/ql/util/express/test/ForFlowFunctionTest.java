@@ -25,7 +25,7 @@ public class ForFlowFunctionTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
     @Before
-    public void setUpStreams() {System.setOut(new MyPrintStream01(outContent));
+    public void setUpStreams() {
         System.setOut(new MyPrintStream01(outContent));
     }
 
