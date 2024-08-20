@@ -2,10 +2,37 @@ package com.ql.util.express.test;
 
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 public class ForFlowFunctionTest {
+    class MyPrintStream01 extends PrintStream {
+        public MyPrintStream01(OutputStream out) {
+            super(out);
+        }
+
+        @Override
+        public void println(String x) {
+            super.println(x);
+        }
+    }
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    @Before
+    public void setUpStreams() {System.setOut(new MyPrintStream01(outContent));
+        System.setOut(new MyPrintStream01(outContent));
+    }
+
+    @After
+    public void restoreStreams() {
+        System.setOut(originalOut);
+    }
 
     @Test
     public void testABC() throws Exception {
