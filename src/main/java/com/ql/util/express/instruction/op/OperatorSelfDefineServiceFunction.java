@@ -72,8 +72,10 @@ public class OperatorSelfDefineServiceFunction extends OperatorBase implements C
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         Object[] parameters = DynamicParamsUtil.transferDynamicParams(parent, list, parameterClasses,
             this.maybeDynamicParams);
+        boolean oldA = method.isAccessible();
         method.setAccessible(true);
         Object obj = this.method.invoke(this.serviceObject, ExpressUtil.transferArray(parameters, parameterClasses));
+        method.setAccessible(oldA);
         if (obj != null) {
             return OperateDataCacheManager.fetchOperateData(obj, obj.getClass());
         }
