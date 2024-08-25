@@ -15,3 +15,10 @@ a = 3;
 add;
 assert(c == 13);
 assert(add == 100);
+
+// expression auto return
+function macroReturn(a, b) {
+  add
+}
+
+assert(macroReturn(6,7)==13)

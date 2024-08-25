@@ -14,7 +14,8 @@ public interface LeftValue extends Value {
 
     @Override
     default Class<?> getType() {
-        return getDefinedType();
+        Class<?> definedType = getDefinedType();
+        return definedType == null? Value.super.getType(): definedType;
     }
 
     default void set(Object newValue, ErrorReporter errorReporter) {

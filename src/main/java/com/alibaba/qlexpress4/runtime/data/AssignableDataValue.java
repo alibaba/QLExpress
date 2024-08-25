@@ -16,7 +16,7 @@ public class AssignableDataValue implements LeftValue {
     public AssignableDataValue(String symbolName, Object value) {
         this.symbolName = symbolName;
         this.value = value;
-        this.defineType = Object.class;
+        this.defineType = null;
     }
 
     public AssignableDataValue(String symbolName, Object value, Class<?> defineType) {

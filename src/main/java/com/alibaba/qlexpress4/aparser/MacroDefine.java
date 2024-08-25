@@ -11,18 +11,18 @@ public class MacroDefine {
 
     private final List<QLInstruction> instructions;
 
-    private final QLGrammarParser.BlockStatementContext lastStmt;
+    private final boolean lastStmtExpress;
 
-    public MacroDefine(List<QLInstruction> instructions, QLGrammarParser.BlockStatementContext lastStmt) {
+    public MacroDefine(List<QLInstruction> instructions, boolean lastStmtExpress) {
         this.instructions = instructions;
-        this.lastStmt = lastStmt;
+        this.lastStmtExpress = lastStmtExpress;
     }
 
     public List<QLInstruction> getMacroInstructions() {
         return instructions;
     }
 
-    public QLGrammarParser.BlockStatementContext getLastStmt() {
-        return lastStmt;
+    public boolean isLastStmtExpress() {
+        return lastStmtExpress;
     }
 }

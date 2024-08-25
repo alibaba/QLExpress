@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.DefaultClassSupplier;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.DefaultErrReporter;
+import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
@@ -58,7 +59,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private static final int TIMEOUT_CHECK_GAP = 5;
 
-    enum Context {
+    public enum Context {
         BLOCK, MACRO
     }
 
@@ -94,11 +95,12 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
      * main constructor
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
+                                 GeneratorScope globalScope,
                                  OperatorFactory operatorFactory,
                                  Map<String, CompileTimeFunction> compileTimeFunctions) {
         this.script = script;
         this.importManager = importManager;
-        this.generatorScope = new GeneratorScope("main", null);
+        this.generatorScope = new GeneratorScope("main", globalScope);
         this.operatorFactory = operatorFactory;
         this.context = Context.BLOCK;
         this.compileTimeFunctions = compileTimeFunctions;
@@ -125,7 +127,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         this.script = script;
         this.importManager = new ImportManager(DefaultClassSupplier.getInstance(),
                 new ArrayList<>(), new HashMap<>());
-        this.generatorScope = new GeneratorScope("MAIN", null);
+        this.generatorScope = new GeneratorScope("test-main", null);
         this.operatorFactory = new OperatorManager();
         this.context = Context.BLOCK;
         this.compileTimeFunctions = new HashMap<>();
@@ -157,24 +159,21 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitBlockStatements(BlockStatementsContext blockStatementsContext) {
-        BlockStatementContext preStatement = null;
+        boolean isPreExpress = false;
         int childCount = blockStatementsContext.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            if (preStatement instanceof ExpressionStatementContext) {
+            if (isPreExpress) {
                 // pop if expression without acceptor
-                addInstruction(new PopInstruction(
-                                newReporterWithToken(preStatement.getStart())
-                        )
-                );
+                addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
             }
             BlockStatementContext child = blockStatementsContext.getChild(BlockStatementContext.class, i);
-            preStatement = handleStmt(child);
+            isPreExpress = handleStmt(child);
         }
 
         if (context == Context.BLOCK) {
-            if (preStatement instanceof ExpressionStatementContext) {
+            if (isPreExpress) {
                 addInstruction(new ReturnInstruction(
-                        newReporterWithToken(preStatement.getStart()),
+                        PureErrReporter.INSTANCE,
                         QResult.ResultType.CONTINUE)
                 );
             }
@@ -969,7 +968,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
         BlockStatementContext lastStmt = getMacroLastStmt(ctx, macroBlockStatementsContext);
         generatorScope.defineMacro(macroId, new MacroDefine(
-                getMacroInstructions(macroBlockStatementsContext), lastStmt));
+                getMacroInstructions(macroBlockStatementsContext),
+                lastStmt instanceof ExpressionStatementContext)
+        );
         return null;
     }
 
@@ -1516,22 +1517,23 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                                                               GeneratorScope generatorScope, Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
                 generatorScope, operatorFactory, context, compileTimeFunctions);
+        // reduce the level of syntax tree when expression is a block
         subVisitor.visitBodyExpression(expressionContext);
         return subVisitor;
     }
 
-    private BlockStatementContext handleStmt(BlockStatementContext statementContext) {
+    private boolean handleStmt(BlockStatementContext statementContext) {
         if (maybeMacroCall(statementContext)) {
             String macroName = statementContext.getStart().getText();
             MacroDefine macroDefine = generatorScope.getMacroInstructions(macroName);
             if (macroDefine != null) {
                 macroDefine.getMacroInstructions().forEach(this::pureAddInstruction);
                 addTimeoutInstruction();
-                return macroDefine.getLastStmt();
+                return macroDefine.isLastStmtExpress();
             }
         }
         statementContext.accept(this);
-        return statementContext;
+        return statementContext instanceof ExpressionStatementContext;
     }
 
     private boolean maybeMacroCall(BlockStatementContext statementContext) {

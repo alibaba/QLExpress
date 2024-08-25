@@ -127,7 +127,7 @@ public class ObjTypeConvertor {
     }
 
     private static boolean noNeedConvert(Object value, Class<?> type) {
-        return value == null || type.isInstance(value);
+        return type == null || value == null || type.isInstance(value);
     }
 
     private static QConverted converted(Object converted) {

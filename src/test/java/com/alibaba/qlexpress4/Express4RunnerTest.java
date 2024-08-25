@@ -403,6 +403,16 @@ public class Express4RunnerTest {
         assertEquals("\"'\na", result);
     }
 
+    @Test
+    public void addMacroTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        express4Runner.addMacro("mergeList", "l = [];l.addAll(a);l.addAll(b);l");
+        Object result = express4Runner.execute("a=[1,2]\nb=[3,4]\nmergeList", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(express4Runner.execute("[1,2,3,4]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS), result);
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

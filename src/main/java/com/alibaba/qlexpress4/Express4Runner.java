@@ -20,6 +20,7 @@ import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
+import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.utils.BasicUtil;
@@ -33,6 +34,7 @@ public class Express4Runner {
     private final Map<String, Future<QLambdaDefinitionInner>> compileCache = new ConcurrentHashMap<>();
     private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
     private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
+    private final GeneratorScope globalScope = new GeneratorScope(null, "global", new ConcurrentHashMap<>());
     private final ReflectLoader reflectLoader;
     private final InitOptions initOptions;
 
@@ -88,6 +90,26 @@ public class Express4Runner {
         OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor();
         programContext.accept(outVarNamesVisitor);
         return outVarNamesVisitor.getOutVars();
+    }
+
+    /**
+     * add user defined global macro to QLExpress engine
+     * @param name macro name
+     * @param macroScript script for macro
+     * @return true if add macro successfully. fail if macro name already exists.
+     */
+    public boolean addMacro(String name, String macroScript) {
+        QLGrammarParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
+        QvmInstructionVisitor macroVisitor = new QvmInstructionVisitor(macroScript,
+                inheritDefaultImport(), new GeneratorScope("MACRO_" + name, globalScope),
+                operatorManager, QvmInstructionVisitor.Context.MACRO, compileTimeFunctions);
+        macroProgram.accept(macroVisitor);
+        List<QLInstruction> macroInstructions = macroVisitor.getInstructions();
+        List<QLGrammarParser.BlockStatementContext> blockStatementContexts = macroProgram.blockStatements()
+                .blockStatement();
+        boolean lastStmtExpress = !blockStatementContexts.isEmpty() &&
+                blockStatementContexts.get(blockStatementContexts.size() - 1) instanceof QLGrammarParser.ExpressionStatementContext;
+        return globalScope.defineMacroIfAbsent(name, new MacroDefine(macroInstructions, lastStmtExpress));
     }
 
     /**
@@ -231,8 +253,8 @@ public class Express4Runner {
 
     private QLambdaDefinitionInner parseDefinition(String script) {
         QLGrammarParser.ProgramContext program = parseToSyntaxTree(script);
-        QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script,
-                inheritDefaultImport(), operatorManager, compileTimeFunctions);
+        QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script, inheritDefaultImport(),
+                globalScope, operatorManager, compileTimeFunctions);
         program.accept(qvmInstructionVisitor);
 
         return new QLambdaDefinitionInner("main",
