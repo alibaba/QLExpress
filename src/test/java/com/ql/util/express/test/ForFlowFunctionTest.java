@@ -12,26 +12,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 public class ForFlowFunctionTest {
-    class MyPrintStream01 extends PrintStream {
-        public MyPrintStream01(OutputStream out) {
-            super(out);
-        }
-
-        @Override
-        public void println(String x) {
-            super.println(x);
-        }
-    }
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
     @Before
     public void setUpStreams() {
-        System.setOut(new MyPrintStream01(outContent));
+        System.setOut(new PrintStream(new ByteArrayOutputStream()));
     }
 
     @After
     public void restoreStreams() {
-        System.setOut(originalOut);
+        System.setOut(System.out);
     }
 
     @Test
