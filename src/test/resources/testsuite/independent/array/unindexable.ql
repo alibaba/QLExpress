@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "NONSUPPORT_INDEX"
+  "errCode": "NONINDEXABLE_OBJECT"
 }
 */
 a = new HashSet();

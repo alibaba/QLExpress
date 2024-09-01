@@ -58,7 +58,8 @@ public class IndexInstruction extends QLInstruction {
         } else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
             qContext.push(Value.NULL_VALUE);
         } else {
-            throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
+            throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(),
+                    QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
                     indexAble == null? "null": indexAble.getClass().getName());
         }
         return QResult.NEXT_INSTRUCTION;

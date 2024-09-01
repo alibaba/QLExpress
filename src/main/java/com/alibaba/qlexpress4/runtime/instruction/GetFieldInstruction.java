@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -36,11 +37,12 @@ public class GetFieldInstruction extends QLInstruction {
                 return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.report(new NullPointerException(),
-                    "GET_FIELD_FROM_NULL", "can not get field from null");
+                    QLErrorCodes.GET_FIELD_FROM_NULL.name(), QLErrorCodes.GET_FIELD_FROM_NULL.getErrorMsg());
         }
         Value fieldValue = qContext.getReflectLoader().loadField(bean, fieldName, errorReporter);
         if (fieldValue == null) {
-            throw errorReporter.report("FIELD_NOT_FOUND", "'" + fieldName + "' not found");
+            throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
+                    QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(), fieldName);
         }
         qContext.push(fieldValue);
         return QResult.NEXT_INSTRUCTION;

@@ -836,6 +836,20 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitSpreadMethodInvoke(SpreadMethodInvokeContext ctx) {
+        ArgumentListContext argumentListContext = ctx.argumentList();
+        if (argumentListContext != null) {
+            argumentListContext.accept(this);
+        }
+        VarIdContext methodName = ctx.varId();
+        int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
+        addInstruction(new SpreadMethodInvokeInstruction(
+                newReporterWithToken(methodName.getStart()), methodName.getText(), argNum
+        ));
+        return null;
+    }
+
     private void visitMethodInvokeInner(ArgumentListContext argumentListContext, VarIdContext methodName,
                                         boolean optional) {
         if (argumentListContext != null) {
@@ -861,6 +875,15 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         Token fieldNameToken = ctx.getStop();
         addInstruction(new GetFieldInstruction(
                 newReporterWithToken(fieldNameToken), parseFieldId(ctx.fieldId()), true
+        ));
+        return null;
+    }
+
+    @Override
+    public Void visitSpreadFieldAccess(SpreadFieldAccessContext ctx) {
+        Token fieldNameToken = ctx.getStop();
+        addInstruction(new SpreadGetFieldInstruction(
+                newReporterWithToken(fieldNameToken), parseFieldId(ctx.fieldId())
         ));
         return null;
     }

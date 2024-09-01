@@ -70,7 +70,7 @@ public class BasicUtil {
     }
 
     public static boolean isPublic(Member member) {
-        return Modifier.isPublic(member.getModifiers());
+        return Modifier.isPublic(member.getModifiers()) && Modifier.isPublic(member.getDeclaringClass().getModifiers());
     }
 
     public static boolean isStatic(Member member) {

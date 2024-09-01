@@ -55,7 +55,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/map/classified_json.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/spread/spread_avoid_null.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

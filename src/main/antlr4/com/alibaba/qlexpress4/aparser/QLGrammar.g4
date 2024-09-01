@@ -299,6 +299,7 @@ NOEQ: '<>';
 RIGHSHIFT_ASSGIN: '>>=';
 RIGHSHIFT: '>>';
 OPTIONAL_CHAINING: '?.';
+SPREAD_CHAINING: '*.';
 URSHIFT_ASSGIN: '>>>=';
 URSHIFT: '>>>';
 LSHIFT_ASSGIN: '<<=';
@@ -1309,8 +1310,10 @@ idMapKey
 pathPart
     :   '.' varId '(' argumentList? ')' # methodInvoke
     |   OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
+    |   SPREAD_CHAINING varId '(' argumentList? ')' # spreadMethodInvoke
     |   '.' fieldId # fieldAccess
     |   OPTIONAL_CHAINING fieldId # optionalFieldAccess
+    |   SPREAD_CHAINING fieldId # spreadFieldAccess
     |   DCOLON varId # methodAccess
     |   '(' argumentList? ')' # callExpr
     |   '[' indexValueExpr? ']' # indexExpr

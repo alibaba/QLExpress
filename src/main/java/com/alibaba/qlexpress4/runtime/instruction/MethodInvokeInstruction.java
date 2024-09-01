@@ -2,11 +2,13 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
+import com.alibaba.qlexpress4.runtime.util.MethodInvokeUtils;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
@@ -53,39 +55,11 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report(new NullPointerException(),
-                    "GET_METHOD_FROM_NULL", "can not get method from null");
+            throw errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
+                    QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
         }
-        ReflectLoader reflectLoader = qContext.getReflectLoader();
-        IMethod method = reflectLoader.loadMethod(bean, methodName, type);
-        if (method == null) {
-            QLambda qLambdaInnerMethod = findQLambdaInstance(bean);
-            if (qLambdaInnerMethod != null) {
-                try {
-                    QResult qResult = qLambdaInnerMethod.call(params);
-                    Value dataValue = new DataValue(qResult.getResult());
-                    qContext.push(dataValue);
-                } catch (UserDefineException e) {
-                    throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-                } catch (Throwable t) {
-                    throw ThrowUtils.wrapThrowable(t, errorReporter,
-                            "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
-                }
-            } else {
-                throw errorReporter.report("METHOD_NOT_FOUND", "method '" + methodName + "' not found");
-            }
-        } else {
-            // method invoke
-            Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
-            try {
-                Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
-                Value dataValue = new DataValue(value);
-                qContext.push(dataValue);
-            } catch (Exception e) {
-                throw ReflectLoader.unwrapMethodInvokeEx(errorReporter, methodName, e);
-            }
-        }
-
+        Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(bean, methodName, params, type, qContext.getReflectLoader(), errorReporter);
+        qContext.push(invokeRes);
         return QResult.NEXT_INSTRUCTION;
     }
 
@@ -109,14 +83,5 @@ public class MethodInvokeInstruction extends QLInstruction {
         return methodName;
     }
 
-    protected QLambda findQLambdaInstance(Object bean) {
-        if (bean instanceof Map) {
-            Map map = (Map) bean;
-            Object mapValue = map.get(methodName);
-            if (mapValue instanceof QLambda) {
-                return (QLambda) mapValue;
-            }
-        }
-        return null;
-    }
+
 }

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
@@ -34,8 +35,8 @@ public class GetMethodInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw this.errorReporter.report(new NullPointerException(),
-                    "GET_METHOD_FROM_NULL", "can not get method from null");
+            throw this.errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
+                    QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
         qContext.push(new DataValue(new QLambdaMethod(methodName, reflectLoader, bean)));
