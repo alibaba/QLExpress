@@ -39,4 +39,43 @@ public class GetExpressAttrNamesTest {
         Assert.assertEquals("获取外部属性错误", 1, names.length);
         Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("a"));
     }
+
+    @Test
+    public void testFullA() throws Exception {
+        String express = "if(a!=null) return a;";
+        ExpressRunner runner = new ExpressRunner(true, true);
+        String[] names = runner.getFullOutVarNames(express);
+        runner.execute(express, new DefaultContext<>(), null, false, false);
+        for (String s : names) {
+            System.out.println("var : " + s);
+        }
+        Assert.assertEquals("获取外部属性错误", 1, names.length);
+        Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("a"));
+    }
+
+    @Test
+    public void testFullABCD() throws Exception {
+        String express = "if(a.b.c.d!=null) return a.b.c.d;";
+        ExpressRunner runner = new ExpressRunner(true, true);
+        String[] names = runner.getFullOutVarNames(express);
+        // runner.execute(express, new DefaultContext<>(), null, false, false);
+        for (String s : names) {
+            System.out.println("var : " + s);
+        }
+        Assert.assertEquals("获取外部属性错误", 1, names.length);
+        Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("a.b.c.d"));
+    }
+
+    @Test
+    public void testFunctionFullABCD() throws Exception {
+        String express = "if(func(a.b.c.d)!=null) return a.b.c.d;";
+        ExpressRunner runner = new ExpressRunner(true, true);
+        String[] names = runner.getFullOutVarNames(express);
+        // runner.execute(express, new DefaultContext<>(), null, false, false);
+        for (String s : names) {
+            System.out.println("var : " + s);
+        }
+        Assert.assertEquals("获取外部属性错误", 1, names.length);
+        Assert.assertTrue("获取外部属性错误", names[0].equalsIgnoreCase("a.b.c.d"));
+    }
 }
