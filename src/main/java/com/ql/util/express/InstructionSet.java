@@ -1,6 +1,10 @@
 package com.ql.util.express;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.exception.QLTimeoutException;
