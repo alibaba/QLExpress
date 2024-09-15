@@ -344,7 +344,7 @@ public class Express4RunnerTest {
             express4Runner.execute("1+testExp()+10", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         } catch (QLException e) {
             assertEquals("inner test", e.getCause().getMessage());
-            assertEquals("[Error FUNCTION_INNER_EXCEPTION: function 'testExp',inner test]\n" +
+            assertEquals("[Error INVOKE_FUNCTION_INNER_ERROR: exception from inner when invoking function 'testExp', error message: inner test]\n" +
                     "[Near: 1+testExp()+10]\n" +
                     "         ^^^^^^^\n" +
                     "[Line: 1, Column: 2]", e.getMessage());

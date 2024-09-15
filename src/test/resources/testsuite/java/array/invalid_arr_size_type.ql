@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "ARRAY_INVALID_SIZE_TYPE"
+  "errCode": "ARRAY_SIZE_NUM_REQUIRED"
 }
 */
 a = 'aaa';

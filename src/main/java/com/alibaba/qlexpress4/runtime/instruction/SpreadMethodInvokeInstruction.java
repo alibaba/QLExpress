@@ -64,8 +64,8 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
                         result.add(null);
                         continue;
                     }
-                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
-                            QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
+                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                            QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
                 }
                 Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(item, methodName, params, type,
                         qContext.getReflectLoader(), errorReporter);
@@ -82,8 +82,8 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
                         result.add(null);
                         continue;
                     }
-                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
-                            QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
+                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                            QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
                 }
                 Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(item, methodName, params, type,
                         qContext.getReflectLoader(), errorReporter);

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
@@ -54,7 +55,7 @@ public class ForInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        // TODO: map 容量根据编译时变量数目决定
+        // TODO: The capacity of the map can be determined by the number of variables at compile time.
         QContext forScopeContext = needForScope()? new DelegateQContext(qContext,
                 new QvmBlockScope(qContext, new HashMap<>(1),
                         forScopeMaxStackSize, ExceptionTable.EMPTY)):
@@ -64,7 +65,7 @@ public class ForInstruction extends QLInstruction {
             try {
                 initLambda.call();
             } catch (Throwable t) {
-                throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_INIT_ERROR", "for init error");
+                throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.FOR_INIT_ERROR.name(), QLErrorCodes.FOR_INIT_ERROR.getErrorMsg());
             }
         }
 
@@ -85,7 +86,7 @@ public class ForInstruction extends QLInstruction {
                         break forBody;
                 }
             } catch (Throwable t) {
-                throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_BODY_EXECUTE_ERROR", "for body execute error");
+                throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.FOR_BODY_ERROR.name(), QLErrorCodes.FOR_BODY_ERROR.getErrorMsg());
             }
             if (updateLambda != null) {
                 runUpdate(updateLambda);
@@ -102,7 +103,7 @@ public class ForInstruction extends QLInstruction {
         try {
             updateLambda.call();
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "FOR_UPDATE_ERROR", "for update error");
+            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.FOR_UPDATE_ERROR.name(), QLErrorCodes.FOR_UPDATE_ERROR.getErrorMsg());
         }
     }
 
@@ -110,13 +111,13 @@ public class ForInstruction extends QLInstruction {
         try {
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
-                throw conditionErrorReporter.report("FOR_CONDITION_NOT_BOOL",
-                        "for condition must return bool");
+                throw conditionErrorReporter.report(QLErrorCodes.FOR_CONDITION_BOOL_REQUIRED.name(),
+                        QLErrorCodes.FOR_CONDITION_BOOL_REQUIRED.getErrorMsg());
             }
             return (boolean) conditionResult;
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, conditionErrorReporter, "FOR_CONDITION_EVAL_ERROR",
-                    "for condition evaluate error");
+            throw ThrowUtils.wrapThrowable(t, conditionErrorReporter, QLErrorCodes.FOR_CONDITION_ERROR.name(),
+                    QLErrorCodes.FOR_CONDITION_ERROR.getErrorMsg());
         }
     }
 

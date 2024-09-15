@@ -32,7 +32,7 @@ public class QLambdaMethod implements QLambda {
         Class<?>[] type = BasicUtil.getTypeOfObject(params);
         IMethod method = reflectLoader.loadMethod(bean, methodName, type);
         if (method == null) {
-            throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
+            throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
                     "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));
         }
         Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());

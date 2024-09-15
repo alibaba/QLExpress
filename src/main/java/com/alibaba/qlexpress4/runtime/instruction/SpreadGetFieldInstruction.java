@@ -11,7 +11,6 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -56,7 +55,7 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                         continue;
                     }
                     throw errorReporter.report(new NullPointerException(),
-                            QLErrorCodes.GET_FIELD_FROM_NULL.name(), QLErrorCodes.GET_FIELD_FROM_NULL.getErrorMsg());
+                            QLErrorCodes.NULL_FIELD_ACCESS.name(), QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
                 }
                 Value fieldValue = qContext.getReflectLoader().loadField(item, fieldName, errorReporter);
                 if (fieldValue == null) {
@@ -91,7 +90,7 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                         continue;
                     }
                     throw errorReporter.report(new NullPointerException(),
-                            QLErrorCodes.GET_FIELD_FROM_NULL.name(), QLErrorCodes.GET_FIELD_FROM_NULL.getErrorMsg());
+                            QLErrorCodes.NULL_FIELD_ACCESS.name(), QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
                 }
                 Value fieldValue = qContext.getReflectLoader().loadField(item, fieldName, errorReporter);
                 if (fieldValue == null) {

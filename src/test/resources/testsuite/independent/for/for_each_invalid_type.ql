@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "FOR_EACH_ACCEPT_INVALID_TYPE"
+  "errCode": "FOR_EACH_TYPE_MISMATCH"
 }
 */
 a = [1,2,"abc"];

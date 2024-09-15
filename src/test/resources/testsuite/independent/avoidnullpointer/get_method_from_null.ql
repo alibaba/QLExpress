@@ -1,4 +1,4 @@
 /*{
-  "errCode": "GET_METHOD_FROM_NULL"
+  "errCode": "NULL_METHOD_ACCESS"
 }*/
 a::b

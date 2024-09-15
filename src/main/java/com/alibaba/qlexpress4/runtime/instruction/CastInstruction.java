@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
@@ -35,8 +36,8 @@ public class CastInstruction extends QLInstruction {
         }
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(value.get(), targetClz);
         if (!result.isConvertible()) {
-            throw errorReporter.report("INCOMPATIBLE_TYPE_CAST", "incompatible cast from type:"
-                    + value.getTypeName() + " to type:" + targetClz.getName());
+            throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_TYPE_CAST.name(),
+                    QLErrorCodes.INCOMPATIBLE_TYPE_CAST.getErrorMsg(), value.getTypeName(), targetClz.getName());
         }
         Value dataCast = new DataValue(result.getConverted());
         qContext.push(dataCast);
@@ -49,8 +50,8 @@ public class CastInstruction extends QLInstruction {
         } else if (target instanceof Class) {
             return (Class<?>) target;
         }
-        throw errorReporter.reportFormat("INVALID_CAST_TARGET",
-                "cast target must be a class, but accept %s",
+        throw errorReporter.reportFormat(QLErrorCodes.INVALID_CAST_TARGET.name(),
+                QLErrorCodes.INVALID_CAST_TARGET.getErrorMsg(),
                 target == null ? "null" : target.getClass().getName());
     }
 

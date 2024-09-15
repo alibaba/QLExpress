@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
 
 /**
@@ -22,8 +23,8 @@ public interface LeftValue extends Value {
         Class<?> defineType = getDefinedType();
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(newValue, defineType);
         if (!result.isConvertible()) {
-            throw errorReporter.reportFormat("INCOMPATIBLE_TYPE_FOR_ASSIGNMENT",
-                    "variable declared type %s, assigned with incompatible value type %s",
+            throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.name(),
+                    QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.getErrorMsg(),
                     newValue == null? "null": newValue.getClass().getName(), defineType.getName());
         }
         setInner(result.getConverted());

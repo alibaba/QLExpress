@@ -36,7 +36,6 @@ public class LogicAndOperator extends BaseBinaryOperator {
         ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
-        // 抽取至类型转换工具类
         if (leftValue == null) {
             leftValue = false;
         }

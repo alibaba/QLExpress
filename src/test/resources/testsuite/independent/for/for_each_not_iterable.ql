@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "FOR_EACH_NOT_ITERABLE"
+  "errCode": "FOR_EACH_ITERABLE_REQUIRED"
 }
 */
 for (c : 100) {

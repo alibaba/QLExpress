@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -27,8 +28,11 @@ public class CheckTimeOutInstruction extends QLInstruction {
         }
         if (System.currentTimeMillis() - qContext.scriptStartTimeStamp() > qlOptions.getTimeoutMillis()) {
             // timeout
-            throw errorReporter.report("SCRIPT_TIME_OUT",
-                    "script exceeds timeout milliseconds, which is " + qlOptions.getTimeoutMillis() + " ms");
+            throw errorReporter.reportFormat(
+                    QLErrorCodes.SCRIPT_TIME_OUT.name(),
+                    QLErrorCodes.SCRIPT_TIME_OUT.getErrorMsg(),
+                    qlOptions.getTimeoutMillis()
+            );
         }
         return QResult.NEXT_INSTRUCTION;
     }

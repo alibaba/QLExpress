@@ -3,11 +3,7 @@ package com.alibaba.qlexpress4.aparser;
 import com.alibaba.qlexpress4.DefaultClassSupplier;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
-import com.alibaba.qlexpress4.exception.DefaultErrReporter;
-import com.alibaba.qlexpress4.exception.PureErrReporter;
-import com.alibaba.qlexpress4.exception.ErrorReporter;
-import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.exception.*;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
@@ -927,7 +923,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public Void visitIndexExpr(IndexExprContext ctx) {
         IndexValueExprContext indexValueExprContext = ctx.indexValueExpr();
         if (indexValueExprContext == null) {
-            throw reportParseErr(ctx.getStop(), "MISSING_INDEX", "missing index expression");
+            throw reportParseErr(ctx.getStop(), QLErrorCodes.MISSING_INDEX.name(), QLErrorCodes.MISSING_INDEX.getErrorMsg());
         }
         ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
         if (indexValueExprContext instanceof SingleIndexContext) {
@@ -1202,8 +1198,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                 Number intResult = parseInteger(remove(integerLiteral.getText(), '_'));
                 addInstruction(new ConstInstruction(newReporterWithToken(integerLiteral.getSymbol()), intResult));
             } catch (NumberFormatException nfe) {
-                throw reportParseErr(integerLiteral.getSymbol(),
-                        "INVALID_NUMBER", "invalid number");
+                throw reportParseErr(integerLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
             }
             return null;
         }
@@ -1215,7 +1210,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                         newReporterWithToken(floatingPointLiteral.getSymbol()), floatingResult)
                 );
             } catch (NumberFormatException nfe) {
-                throw reportParseErr(floatingPointLiteral.getSymbol(), "INVALID_NUMBER", "invalid number");
+                throw reportParseErr(floatingPointLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
             }
             return null;
         }
@@ -1229,7 +1224,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                         newReporterWithToken(integerOrFloatingLiteral.getSymbol()), numberResult)
                 );
             } catch (NumberFormatException nfe) {
-                throw reportParseErr(integerOrFloatingLiteral.getSymbol(), "INVALID_NUMBER", "invalid number");
+                throw reportParseErr(integerOrFloatingLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
             }
             return null;
         }
@@ -1471,8 +1466,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         ImportManager.LoadPartQualifiedResult loadPartQualifiedResult = importManager.loadPartQualified(fieldIds);
         if (loadPartQualifiedResult.getCls() == null || loadPartQualifiedResult.getRestIndex() != fieldIds.size()) {
             Token lastIdToken = varIdContexts.get(varIdContexts.size() - 1).getStart();
-            throw reportParseErr(lastIdToken, "CLASS_NOT_FOUND",
-                    "can not find class: " + String.join(".", fieldIds));
+            throw reportParseErr(lastIdToken, QLErrorCodes.CLASS_NOT_FOUND.name(),
+                    String.format(QLErrorCodes.CLASS_NOT_FOUND.getErrorMsg(), String.join(".", fieldIds))
+            );
         }
         return loadPartQualifiedResult.getCls();
     }

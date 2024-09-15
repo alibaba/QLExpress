@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "CONSTRUCTOR_NOT_FOUND"
+  "errCode": "NO_SUITABLE_CONSTRUCTOR"
 }
 */
 import com.alibaba.qlexpress4.test.constructor.HelloConstructor;

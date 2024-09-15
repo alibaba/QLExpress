@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INVALID_OPERAND_TYPE"
+  "errCode": "INVALID_BINARY_OPERAND"
 }
 */
 "ABCD" like 200

@@ -44,7 +44,7 @@ public class NewInstanceInstructionTest {
             newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
             Assert.fail();
         } catch (QLRuntimeException e) {
-            Assert.assertEquals("CONSTRUCTOR_NOT_FOUND", e.getErrorCode());
+            Assert.assertEquals("NO_SUITABLE_CONSTRUCTOR", e.getErrorCode());
         }
     }
 

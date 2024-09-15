@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "WHILE_CONDITION_NOT_BOOL"
+  "errCode": "WHILE_CONDITION_BOOL_REQUIRED"
 }
 */
 while (1) {

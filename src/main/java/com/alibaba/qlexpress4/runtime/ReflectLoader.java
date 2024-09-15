@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.member.FieldHandler;
 import com.alibaba.qlexpress4.member.MethodHandler;
@@ -244,8 +245,8 @@ public class ReflectLoader {
             try {
                 field.set(bean, newValue);
             } catch (Exception e) {
-                throw errorReporter.report(e, "FIELD_SET_UNKNOWN_ERROR",
-                        "'" + field.getName() + "' field set unknown error");
+                throw errorReporter.report(e, QLErrorCodes.SET_FIELD_UNKNOWN_ERROR.name(),
+                        String.format(QLErrorCodes.SET_FIELD_UNKNOWN_ERROR.getErrorMsg(), field.getName()));
             }
         };
     }
@@ -256,8 +257,8 @@ public class ReflectLoader {
                 field.setAccessible(true);
                 field.set(bean, newValue);
             } catch (Exception e) {
-                throw errorReporter.report(e, "FIELD_SET_UNKNOWN_ERROR",
-                        "'" + field.getName() + "' field set unknown error");
+                throw errorReporter.report(e, QLErrorCodes.SET_FIELD_UNKNOWN_ERROR.name(),
+                        String.format(QLErrorCodes.SET_FIELD_UNKNOWN_ERROR.getErrorMsg(), field.getName()));
             }
         };
     }
@@ -288,8 +289,8 @@ public class ReflectLoader {
             try {
                 return field.get(bean);
             } catch (Exception e) {
-                throw errorReporter.report(e, "FIELD_GET_UNKNOWN_ERROR",
-                        "'" + field.getName() + "' field get unknown error");
+                throw errorReporter.report(e, QLErrorCodes.GET_FIELD_UNKNOWN_ERROR.name(),
+                        String.format(QLErrorCodes.GET_FIELD_UNKNOWN_ERROR.getErrorMsg(), field.getName()));
             }
         };
     }
@@ -300,22 +301,23 @@ public class ReflectLoader {
                 field.setAccessible(true);
                 return field.get(bean);
             } catch (Exception e) {
-                throw errorReporter.report(e, "FIELD_GET_UNKNOWN_ERROR",
-                        "'" + field.getName() + "' field get unknown error");
+                throw errorReporter.report(e, QLErrorCodes.GET_FIELD_UNKNOWN_ERROR.name(),
+                        String.format(QLErrorCodes.GET_FIELD_UNKNOWN_ERROR.getErrorMsg(), field.getName()));
             }
         };
     }
 
     public static QLRuntimeException unwrapMethodInvokeEx(ErrorReporter errorReporter, String methodName, Exception ex) {
         if (ex instanceof IllegalArgumentException) {
-            return errorReporter.reportFormat("METHOD_INVOKE_WITH_WRONG_ARGUMENT",
-                    "'" + methodName + "' method invoke with wrong argument");
+            return errorReporter.reportFormat(QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.name(),
+                    String.format(QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.getErrorMsg(), methodName));
         } else if (ex instanceof InvocationTargetException) {
             return errorReporter.report(((InvocationTargetException) ex).getTargetException(),
-                    "METHOD_INNER_EXCEPTION", "'" + methodName + "' method invoke inner exception");
+                    QLErrorCodes.INVOKE_METHOD_INNER_ERROR.name(),
+                    String.format(QLErrorCodes.INVOKE_METHOD_INNER_ERROR.getErrorMsg(), methodName));
         } else {
-            return errorReporter.report(ex, "METHOD_INVOKE_UNKNOWN_EXCEPTION",
-                    "'" + methodName + "' method invoke with unknown error");
+            return errorReporter.report(ex, QLErrorCodes.INVOKE_METHOD_UNKNOWN_ERROR.name(),
+                    String.format(QLErrorCodes.INVOKE_METHOD_UNKNOWN_ERROR.getErrorMsg(), methodName));
         }
     }
 

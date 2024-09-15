@@ -76,7 +76,8 @@ public class SliceInstruction extends QLInstruction {
             qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;
         } else {
-            throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
+            throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(),
+                    QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
                     indexAble == null? "null": indexAble.getClass().getName());
         }
     }
@@ -87,7 +88,7 @@ public class SliceInstruction extends QLInstruction {
         } else if (indexAble != null && indexAble.getClass().isArray()) {
             return Array.getLength(indexAble);
         } else {
-            throw errorReporter.reportFormat("NONSUPPORT_INDEX", "%s not support index",
+            throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(), QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
                     indexAble == null? "null": indexAble.getClass().getName());
         }
     }

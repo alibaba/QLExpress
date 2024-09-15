@@ -32,7 +32,6 @@ public class NewListInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters initItems = qContext.pop(initLength);
         List<? super Object> l = new ArrayList<>(initLength);
-        // TODO: 遍历逻辑优化
         for (int i = 0; i < initLength; i++) {
             l.add(initItems.getValue(i));
         }

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "GET_FIELD_FROM_NULL"
+  "errCode": "NULL_FIELD_ACCESS"
 }
 */
 a.b

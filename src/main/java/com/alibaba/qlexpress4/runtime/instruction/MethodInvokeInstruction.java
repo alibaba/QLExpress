@@ -3,16 +3,11 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
-import com.alibaba.qlexpress4.exception.UserDefineException;
-import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.runtime.util.MethodInvokeUtils;
-import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -55,8 +50,8 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
-                    QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
+            throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                    QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
         }
         Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(bean, methodName, params, type, qContext.getReflectLoader(), errorReporter);
         qContext.push(invokeRes);

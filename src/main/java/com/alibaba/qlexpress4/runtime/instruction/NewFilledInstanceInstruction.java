@@ -1,8 +1,8 @@
 package com.alibaba.qlexpress4.runtime.instruction;
 
-import com.alibaba.qlexpress4.QErrorCode;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
@@ -48,8 +48,8 @@ public class NewFilledInstanceInstruction extends QLInstruction {
                 continue;
             }
             if (!(fieldValue instanceof LeftValue)) {
-                throw errorReporter.reportFormat(QErrorCode.INVALID_ASSIGNMENT.name(),
-                        QErrorCode.INVALID_ASSIGNMENT.getErrMsg(), "of field '" + fieldName + "'");
+                throw errorReporter.reportFormat(QLErrorCodes.INVALID_ASSIGNMENT.name(),
+                        QLErrorCodes.INVALID_ASSIGNMENT.getErrorMsg(), "of field '" + fieldName + "'");
             }
             ((LeftValue) fieldValue).set(initValue, errorReporter);
         }
@@ -62,10 +62,11 @@ public class NewFilledInstanceInstruction extends QLInstruction {
         try {
             return constructor.newInstance();
         } catch (InvocationTargetException e) {
-            throw errorReporter.report(e.getTargetException(), "CONSTRUCTOR_INNER_EXCEPTION",
-                    "constructor inner exception");
+            throw errorReporter.report(e.getTargetException(), QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.name(),
+                    QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
         } catch (Exception e) {
-            throw errorReporter.report("CONSTRUCTOR_UNKNOWN_EXCEPTION", "constructor unknown exception");
+            throw errorReporter.report(QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
+                    QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
         }
     }
 

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
@@ -34,8 +35,8 @@ public class NewArrayInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         if (!qlOptions.checkArrLen(length)) {
-            throw errorReporter.reportFormat("EXCEED_MAX_ARR_LENGTH",
-                    "new array length %d, exceed max allowed length %d", length, qlOptions.getMaxArrLength());
+            throw errorReporter.reportFormat(QLErrorCodes.EXCEED_MAX_ARR_LENGTH.name(),
+                    QLErrorCodes.EXCEED_MAX_ARR_LENGTH.getErrorMsg(), length, qlOptions.getMaxArrLength());
         }
         Object array = Array.newInstance(clz, length);
         Parameters initItems = qContext.pop(length);
@@ -43,8 +44,8 @@ public class NewArrayInstruction extends QLInstruction {
             Object initItemObj = initItems.get(i).get();
             ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initItemObj, clz);
             if (!qlConvertResult.isConvertible()) {
-                throw errorReporter.reportFormat("INCOMPATIBLE_ARRAY_ITEM_TYPE",
-                        "item %s with type %s incompatible with array type %s", i,
+                throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_ARRAY_ITEM_TYPE.name(),
+                        QLErrorCodes.INCOMPATIBLE_ARRAY_ITEM_TYPE.getErrorMsg(), i,
                         initItemObj == null? "null": initItemObj.getClass().getName(), clz.getName());
             }
             Array.set(array, i, qlConvertResult.getConverted());

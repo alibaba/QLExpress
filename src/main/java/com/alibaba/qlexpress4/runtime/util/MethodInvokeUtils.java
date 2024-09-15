@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.util;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.IMethod;
@@ -32,10 +33,14 @@ public class MethodInvokeUtils {
                     throw ThrowUtils.reportUserDefinedException(errorReporter, e);
                 } catch (Throwable t) {
                     throw ThrowUtils.wrapThrowable(t, errorReporter,
-                            "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
+                            QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
+                            QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg()
+                    );
                 }
             } else {
-                throw errorReporter.report("METHOD_NOT_FOUND", "method '" + methodName + "' not found");
+                throw errorReporter.report(QLErrorCodes.METHOD_NOT_FOUND.name(),
+                        String.format(QLErrorCodes.METHOD_NOT_FOUND.getErrorMsg(), methodName)
+                );
             }
         } else {
             // method invoke

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -40,8 +41,8 @@ public class JumpIfInstruction extends QLInstruction {
             return !expect;
         }
         if (!(condition instanceof Boolean)) {
-            throw errorReporter.report("CONDITION_EXPECT_BOOL",
-                    "condition expression result must be bool");
+            throw errorReporter.report(QLErrorCodes.CONDITION_BOOL_REQUIRED.name(),
+                    QLErrorCodes.CONDITION_BOOL_REQUIRED.getErrorMsg());
         }
         return (boolean) condition;
     }

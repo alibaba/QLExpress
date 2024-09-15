@@ -1,9 +1,9 @@
 assertErrorCode(() -> {
     String s = "as";
     char a = s;
-}, "INCOMPATIBLE_TYPE_FOR_ASSIGNMENT");
+}, "INCOMPATIBLE_ASSIGNMENT_TYPE");
 
 assertErrorCode(() -> {
     String s = "as";
     s = 1;
-}, "INCOMPATIBLE_TYPE_FOR_ASSIGNMENT");
+}, "INCOMPATIBLE_ASSIGNMENT_TYPE");

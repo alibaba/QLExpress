@@ -3,9 +3,9 @@ package com.alibaba.qlexpress4.runtime.operator.base;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.alibaba.qlexpress4.QErrorCode;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
@@ -49,8 +49,8 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected void assertLeftValue(Value left, ErrorReporter errorReporter) {
         if (!(left instanceof LeftValue)) {
-            throw errorReporter.reportFormat(QErrorCode.INVALID_ASSIGNMENT.name(),
-                    QErrorCode.INVALID_ASSIGNMENT.getErrMsg(), "on the left side");
+            throw errorReporter.reportFormat(QLErrorCodes.INVALID_ASSIGNMENT.name(),
+                    QLErrorCodes.INVALID_ASSIGNMENT.getErrorMsg(), "on the left side");
         }
     }
 
@@ -123,7 +123,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
                     return NumberMath.divide((Number)leftValue, (Number)rightValue);
                 }
             } catch (ArithmeticException arithmeticException) {
-                throw errorReporter.report(arithmeticException, "INVALID_ARITHMETIC", arithmeticException.getMessage());
+                throw errorReporter.report(arithmeticException, QLErrorCodes.INVALID_ARITHMETIC.name(), arithmeticException.getMessage());
             }
         }
 
@@ -258,8 +258,8 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
         ErrorReporter errorReporter) {
-        return errorReporter.reportFormat("INVALID_OPERAND_TYPE",
-            "Cannot use %s operator on leftType:%s with leftValue:%s and rightType:%s with rightValue:%s",
+        return errorReporter.reportFormat(QLErrorCodes.INVALID_BINARY_OPERAND.name(),
+            QLErrorCodes.INVALID_BINARY_OPERAND.getErrorMsg(),
             getOperator(), left.getTypeName(), left.get(), right.getTypeName(), right.get());
     }
 }

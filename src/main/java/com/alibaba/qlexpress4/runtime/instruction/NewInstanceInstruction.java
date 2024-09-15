@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
@@ -45,8 +46,9 @@ public class NewInstanceInstruction extends QLInstruction {
         ReflectLoader reflectLoader = qContext.getReflectLoader();
         Constructor<?> constructor = reflectLoader.loadConstructor(newClz, paramTypes);
         if (constructor == null) {
-            throw errorReporter.reportFormat("CONSTRUCTOR_NOT_FOUND",
-                    "constructor not found for types %s", Arrays.toString(paramTypes));
+            throw errorReporter.reportFormat(QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.name(),
+                    QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.getErrorMsg(), Arrays.toString(paramTypes)
+            );
         }
         Object[] convertResult = ParametersTypeConvertor.cast(
                 objs, constructor.getParameterTypes(), constructor.isVarArgs()
@@ -61,10 +63,11 @@ public class NewInstanceInstruction extends QLInstruction {
         try {
             return constructor.newInstance(params);
         } catch (InvocationTargetException e) {
-            throw errorReporter.report(e.getTargetException(), "CONSTRUCTOR_INNER_EXCEPTION",
-                    "constructor inner exception");
+            throw errorReporter.report(e.getTargetException(), QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.name(),
+                    QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
         } catch (Exception e) {
-            throw errorReporter.report("CONSTRUCTOR_UNKNOWN_EXCEPTION", "constructor unknown exception");
+            throw errorReporter.report(QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
+                    QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
         }
     }
 

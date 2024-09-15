@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
@@ -37,13 +38,13 @@ public class MultiNewArrayInstruction extends QLInstruction {
         for (int i = 0; i < dims; i++) {
             Object dimValue = dimValues.get(i).get();
             if (!(dimValue instanceof Number)) {
-                throw errorReporter.reportFormat("ARRAY_INVALID_SIZE_TYPE",
-                        "array size must be number, %s dim is invalid", i);
+                throw errorReporter.reportFormat(QLErrorCodes.ARRAY_SIZE_NUM_REQUIRED.name(),
+                        QLErrorCodes.ARRAY_SIZE_NUM_REQUIRED.getErrorMsg());
             }
             int dimLen = ((Number) dimValue).intValue();
             if (!qlOptions.checkArrLen(dimLen)) {
-                throw errorReporter.reportFormat("EXCEED_MAX_ARR_LENGTH",
-                        "new array length %d, exceed max allowed length %d", dimLen, qlOptions.getMaxArrLength());
+                throw errorReporter.reportFormat(QLErrorCodes.EXCEED_MAX_ARR_LENGTH.name(),
+                        QLErrorCodes.EXCEED_MAX_ARR_LENGTH.getErrorMsg(), dimLen, qlOptions.getMaxArrLength());
             }
             dimArray[i] = dimLen;
         }

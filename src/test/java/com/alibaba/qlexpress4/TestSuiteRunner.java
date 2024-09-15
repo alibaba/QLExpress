@@ -17,6 +17,7 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +56,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/spread/spread_avoid_null.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/implicit/incompatible_assignment_type.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
@@ -123,6 +124,7 @@ public class TestSuiteRunner {
         String expectErrCode, boolean printE) {
         try {
             runner.execute(qlScript, Collections.emptyMap(), qlOptions);
+            Assert.fail("expect error codes:" + expectErrCode + ", but end normally");
         } catch (QLException qlException) {
             if (printE) {
                 qlException.printStackTrace();

@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
@@ -10,7 +11,6 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -83,8 +83,8 @@ public class TryCatchInstruction extends QLInstruction {
         try {
             finalLambda.call();
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "TRY_CATCH_FINAL_EXECUTE_ERROR",
-                    "try...catch...final(x) execute error");
+            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.EXECUTE_FINAL_BLOCK_ERROR.name(),
+                    QLErrorCodes.EXECUTE_FINAL_BLOCK_ERROR.getErrorMsg());
         }
     }
 
@@ -106,8 +106,8 @@ public class TryCatchInstruction extends QLInstruction {
         } catch (Throwable t) {
             QResult result = callExceptionHandler(t, qContext, qlOptions);
             if (result == null) {
-                throw ThrowUtils.wrapThrowable(t, errorReporter, "TRY_CATCH_BODY_EXECUTE_ERROR",
-                        "try... body execute error");
+                throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.EXECUTE_TRY_BLOCK_ERROR.name(),
+                        QLErrorCodes.EXECUTE_TRY_BLOCK_ERROR.getErrorMsg());
             }
             return result;
         }
@@ -123,8 +123,8 @@ public class TryCatchInstruction extends QLInstruction {
         try {
             return catchHandlerLambda.call(catchObj);
         } catch (Throwable th) {
-            throw ThrowUtils.wrapThrowable(th, errorReporter, "CATCH_HANDLER_EXECUTE_ERROR",
-                    "try...catch... handler of '%s' execute error", catchObj.getClass().getName());
+            throw ThrowUtils.wrapThrowable(th, errorReporter, QLErrorCodes.EXECUTE_CATCH_HANDLER_ERROR.name(),
+                    QLErrorCodes.EXECUTE_CATCH_HANDLER_ERROR.getErrorMsg(), catchObj.getClass().getName());
         }
     }
 

@@ -34,7 +34,7 @@ public class QMethodFunction implements CustomFunction {
 
         int priority = MemberResolver.resolvePriority(method.getParameterTypes(), typeArr);
         if (priority == MemberResolver.MatchPriority.MISMATCH.priority) {
-            throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
+            throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
                     "invalid argument types " + Arrays.toString(typeArr) + " for java method '" + method.getName() + "'"
                     + " in declaring java class '" + method.getDeclaringClass().getName() + "'"
             );

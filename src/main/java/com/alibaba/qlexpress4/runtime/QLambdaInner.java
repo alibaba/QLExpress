@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
@@ -62,7 +63,7 @@ public class QLambdaInner implements QLambda {
             Class<?> targetCls = paramDefinition.getClazz();
             ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(originParamI, targetCls);
             if (!qlConvertResult.isConvertible()) {
-                throw new UserDefineException(UserDefineException.INVALID_ARGUMENT,
+                throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
                         MessageFormat.format(
                                 "invalid argument at index {0} (start from 0), required type {1}, but {2} provided",
                                 i, targetCls.getName(),

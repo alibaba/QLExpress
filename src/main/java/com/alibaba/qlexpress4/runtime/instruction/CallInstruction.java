@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -36,13 +37,13 @@ public class CallInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             } else {
-                throw this.errorReporter.report(new NullPointerException(), "NULL_NOT_CALLABLE",
-                        "null is not callable");
+                throw this.errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_CALL.name(),
+                        QLErrorCodes.NULL_CALL.getErrorMsg());
             }
         }
         if (!(bean instanceof QLambda)) {
-            throw this.errorReporter.report("OBJECT_NOT_CALLABLE",
-                    "left side is not callable");
+            throw this.errorReporter.report(QLErrorCodes.OBJECT_NOT_CALLABLE.name(),
+                    String.format(QLErrorCodes.OBJECT_NOT_CALLABLE.getErrorMsg(), bean.getClass().getName()));
         }
         Object[] params = new Object[this.argNum];
         for (int i = 0; i < this.argNum; i++) {
@@ -56,7 +57,8 @@ public class CallInstruction extends QLInstruction {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Throwable t) {
             throw ThrowUtils.wrapThrowable(t, errorReporter,
-                    "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
+                    QLErrorCodes.INVOKE_LAMBDA_ERROR.name(), QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg()
+            );
         }
     }
 

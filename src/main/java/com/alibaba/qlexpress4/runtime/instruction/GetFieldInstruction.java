@@ -37,7 +37,7 @@ public class GetFieldInstruction extends QLInstruction {
                 return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.report(new NullPointerException(),
-                    QLErrorCodes.GET_FIELD_FROM_NULL.name(), QLErrorCodes.GET_FIELD_FROM_NULL.getErrorMsg());
+                    QLErrorCodes.NULL_FIELD_ACCESS.name(), QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
         }
         Value fieldValue = qContext.getReflectLoader().loadField(bean, fieldName, errorReporter);
         if (fieldValue == null) {

@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.util;
 
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 
@@ -18,10 +19,10 @@ public class ThrowUtils {
     }
 
     public static QLRuntimeException reportUserDefinedException(ErrorReporter errorReporter, UserDefineException e) {
-        if (Objects.equals(e.getType(), UserDefineException.INVALID_ARGUMENT)) {
-            throw errorReporter.report(UserDefineException.INVALID_ARGUMENT, e.getMessage());
+        if (Objects.equals(e.getType(), UserDefineException.ExceptionType.INVALID_ARGUMENT)) {
+            throw errorReporter.report(QLErrorCodes.INVALID_ARGUMENT.name(), e.getMessage());
         } else {
-            throw errorReporter.report("BIZ_EXCEPTION", e.getMessage());
+            throw errorReporter.report(QLErrorCodes.BIZ_EXCEPTION.name(), e.getMessage());
         }
     }
 }

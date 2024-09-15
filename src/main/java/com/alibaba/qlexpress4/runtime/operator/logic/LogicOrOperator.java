@@ -11,9 +11,6 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * org.codehaus.groovy.runtime.DefaultGroovyMethods.asBoolean方法
- * 普通类：null-false, 非null-true
- *
  * @author bingo
  */
 public class LogicOrOperator extends BaseBinaryOperator {

@@ -21,9 +21,9 @@ methodMaps = [
 assert(methodMaps*.getNum()==[100,101,102])
 
 a = [{"c":2}, null]
-assertErrorCode(() -> a*.c, "GET_FIELD_FROM_NULL")
+assertErrorCode(() -> a*.c, "NULL_FIELD_ACCESS")
 assertErrorCode(() -> notExist*.c, "NONTRAVERSABLE_OBJECT")
 
 b = [{"get100": () -> 100}, null]
-assertErrorCode(() -> b*.get100(), "GET_METHOD_FROM_NULL")
+assertErrorCode(() -> b*.get100(), "NULL_METHOD_ACCESS")
 assertErrorCode(() -> notExist*.get100(), "NONTRAVERSABLE_OBJECT")

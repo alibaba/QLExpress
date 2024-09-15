@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
@@ -41,8 +42,8 @@ public class ForEachInstruction extends QLInstruction {
         if (mayBeIterable != null && mayBeIterable.getClass().isArray()) {
             mayBeIterable = new ReflectArrayIterable(mayBeIterable);
         } else if (!(mayBeIterable instanceof Iterable)) {
-            throw targetErrorReporter.report("FOR_EACH_NOT_ITERABLE",
-                    "for-each can only be applied to iterable");
+            throw targetErrorReporter.report(QLErrorCodes.FOR_EACH_ITERABLE_REQUIRED.name(),
+                    QLErrorCodes.FOR_EACH_ITERABLE_REQUIRED.getErrorMsg());
         }
         Iterable<?> iterable = (Iterable<?>) mayBeIterable;
         QLambda bodyLambda = body.toLambda(qContext, qlOptions, true);
@@ -57,16 +58,16 @@ public class ForEachInstruction extends QLInstruction {
                         break forEachBody;
                 }
             } catch (UserDefineException e) {
-                throw errorReporter.report("FOR_EACH_ACCEPT_INVALID_TYPE",
-                        MessageFormat.format("for-each accept invalid type, required {0}, but {1} provided",
-                                itCls.getName(), item == null? "null": item.getClass().getName()));
+                throw errorReporter.reportFormat(QLErrorCodes.FOR_EACH_TYPE_MISMATCH.name(),
+                        QLErrorCodes.FOR_EACH_TYPE_MISMATCH.getErrorMsg(), itCls.getName(),
+                        item == null? "null": item.getClass().getName());
             } catch (Throwable t) {
                 if (t instanceof QLRuntimeException) {
                     throw (QLRuntimeException) t;
                 }
                 // should not run there
-                throw errorReporter.report("FOR_EACH_UNKNOWN_EXCEPTION",
-                        "for-each unknown exception");
+                throw errorReporter.report(QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.name(),
+                        QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.getErrorMsg());
             }
         }
         return QResult.NEXT_INSTRUCTION;

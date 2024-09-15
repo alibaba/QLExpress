@@ -6,22 +6,22 @@ package com.alibaba.qlexpress4.exception;
  */
 public class UserDefineException extends Exception {
 
-    public static final String INVALID_ARGUMENT = "INVALID_ARGUMENT";
+    public enum ExceptionType {
+        INVALID_ARGUMENT, BIZ_EXCEPTION
+    };
 
-    public static final String BIZ_EXCEPTION = "BIZ_EXCEPTION";
-
-    private final String type;
+    private final ExceptionType type;
 
     public UserDefineException(String message) {
-        this(BIZ_EXCEPTION, message);
+        this(ExceptionType.BIZ_EXCEPTION, message);
     }
 
-    public UserDefineException(String type, String message) {
+    public UserDefineException(ExceptionType type, String message) {
         super(message);
         this.type = type;
     }
 
-    public String getType() {
+    public ExceptionType getType() {
         return type;
     }
 }

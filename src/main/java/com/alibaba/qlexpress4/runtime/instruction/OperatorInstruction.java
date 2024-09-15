@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Value;
@@ -37,8 +38,8 @@ public class OperatorInstruction extends QLInstruction {
             qContext.push(new DataValue(result));
             return QResult.NEXT_INSTRUCTION;
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_EXECUTE_EXCEPTION",
-                "execute %s %s %s throw exception", String.valueOf(leftValue.get()), operator.getOperator(),
+            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.EXECUTE_OPERATOR_EXCEPTION.name(),
+                    QLErrorCodes.EXECUTE_OPERATOR_EXCEPTION.getErrorMsg(), String.valueOf(leftValue.get()), operator.getOperator(),
                 String.valueOf(rightValue.get()));
         }
     }

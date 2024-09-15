@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.aparser;
 
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import org.antlr.v4.runtime.*;
 
@@ -46,17 +47,20 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
         } else if (IMPORT_SYMBOL.equals(symbolicName)) {
             throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + lexeme.length(),
-                    lexeme, "IMPORT_STATEMENT_NOT_AT_BEGINNING", "import declaration must at beginning");
+                    lexeme, QLErrorCodes.IMPORT_STATEMENT_NOT_AT_BEGINNING.name(),
+                    QLErrorCodes.IMPORT_STATEMENT_NOT_AT_BEGINNING.getErrorMsg());
         } else if (IMPORT_DECLARATION_RULE.equals(ruleName) && STATIC_SYMBOL.equals(symbolicName)) {
             throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + lexeme.length(),
-                    lexeme, "NOT_SUPPORT_IMPORT_STATIC", "not support 'import static'");
+                    lexeme, QLErrorCodes.IMPORT_STATIC_NOT_SUPPORTED.name(),
+                    QLErrorCodes.IMPORT_STATIC_NOT_SUPPORTED.getErrorMsg());
         } else if (BLOCK_STATEMENTS_RULE.equals(ruleName) &&
                 (OPID_SYMBOL.equals(symbolicName) || ID_SYMBOL.equals(symbolicName) || DOTMUL_SYMBOL.equals(symbolicName))
         ) {
             throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + lexeme.length(),
-                    lexeme, "UNKNOWN_OPERATOR", "unknown operator");
+                    lexeme, QLErrorCodes.UNKNOWN_OPERATOR.name(),
+                    QLErrorCodes.UNKNOWN_OPERATOR.getErrorMsg());
         } else if ("\"".equals(lexeme)) {
             syntaxErrorThrow(currentToken, "StringLiteral");
         } else if ("'".equals(lexeme)) {

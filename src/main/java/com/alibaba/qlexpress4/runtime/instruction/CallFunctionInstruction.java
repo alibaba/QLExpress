@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -44,8 +45,9 @@ public class CallFunctionInstruction extends QLInstruction {
         } catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "FUNCTION_INNER_EXCEPTION",
-                    String.format("function '%s'," + t.getMessage(), functionName));
+            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.name(),
+                    String.format(QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.getErrorMsg(), functionName, t.getMessage())
+            );
         }
     }
 
@@ -56,14 +58,17 @@ public class CallFunctionInstruction extends QLInstruction {
                 qContext.pop(argNum);
                 qContext.push(DataValue.NULL_VALUE);
             } else {
-                throw errorReporter.report(new NullPointerException(), "FUNCTION_NOT_FOUND",
-                        "function not found: " + functionName);
+                throw errorReporter.report(new NullPointerException(), QLErrorCodes.FUNCTION_NOT_FOUND.name(),
+                        String.format(QLErrorCodes.FUNCTION_NOT_FOUND.getErrorMsg(), functionName)
+                );
             }
             return;
         }
         if (!(lambdaSymbol instanceof QLambda)) {
             throw errorReporter.report(
-                    "CAN_NOT_FIND_FUNCTION", "can not find function " + functionName);
+                    QLErrorCodes.FUNCTION_TYPE_MISMATCH.name(),
+                    String.format(QLErrorCodes.FUNCTION_TYPE_MISMATCH.getErrorMsg(), functionName)
+            );
         }
         Parameters parameters = qContext.pop(argNum);
         Object[] parametersArr = new Object[parameters.size()];
@@ -77,7 +82,9 @@ public class CallFunctionInstruction extends QLInstruction {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
         } catch (Throwable t) {
             throw ThrowUtils.wrapThrowable(t, errorReporter,
-                    "LAMBDA_EXECUTE_EXCEPTION", "lambda execute exception");
+                    QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
+                    QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg()
+            );
         }
     }
 

@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "INCOMPATIBLE_TYPE_FOR_ASSIGNMENT"
+  "errCode": "INCOMPATIBLE_ASSIGNMENT_TYPE"
 }
 */
 char a = 'aa';

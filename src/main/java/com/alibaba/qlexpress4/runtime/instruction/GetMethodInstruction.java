@@ -8,7 +8,6 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.lambda.QLambdaMethod;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -35,8 +34,8 @@ public class GetMethodInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw this.errorReporter.report(new NullPointerException(), QLErrorCodes.GET_METHOD_FROM_NULL.name(),
-                    QLErrorCodes.GET_METHOD_FROM_NULL.getErrorMsg());
+            throw this.errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                    QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
         qContext.push(new DataValue(new QLambdaMethod(methodName, reflectLoader, bean)));

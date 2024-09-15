@@ -27,12 +27,12 @@ public class InstanceOfOperator extends BaseBinaryOperator {
         Object sourceObject = left.get();
         Object targetClass = right.get();
         if (targetClass == null) {
-            throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is null");
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
         if (targetClass instanceof MetaClass) {
             targetClass = ((MetaClass)targetClass).getClz();
         } else if (!(targetClass instanceof Class)) {
-            throw errorReporter.report("INVALID_OPERAND", "value on the right side of 'instanceof' is not Class");
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
         if (sourceObject == null) {
             return false;

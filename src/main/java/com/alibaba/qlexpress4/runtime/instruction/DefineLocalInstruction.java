@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
@@ -33,8 +34,8 @@ public class DefineLocalInstruction extends QLInstruction {
         Object initValue = qContext.pop().get();
         ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(initValue, defineClz);
         if (!qlConvertResult.isConvertible()) {
-            throw errorReporter.reportFormat("INCOMPATIBLE_TYPE_FOR_ASSIGNMENT",
-                    "variable declared type %s, assigned with incompatible value type %s",
+            throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.name(),
+                    QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.getErrorMsg(),
                     defineClz.getName(), initValue == null? "null": initValue.getClass().getName());
         }
         qContext.defineLocalSymbol(variableName, defineClz, qlConvertResult.getConverted());

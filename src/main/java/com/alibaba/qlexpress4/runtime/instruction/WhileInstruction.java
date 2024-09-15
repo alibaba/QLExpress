@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
@@ -81,13 +82,13 @@ public class WhileInstruction extends QLInstruction {
         try {
             Object conditionResult = conditionLambda.call().getResult().get();
             if (!(conditionResult instanceof Boolean)) {
-                throw errorReporter.report("WHILE_CONDITION_NOT_BOOL",
-                        "condition must be bool");
+                throw errorReporter.report(QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.name(),
+                        QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.getErrorMsg());
             }
             return (boolean) conditionResult;
         } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, "CONDITION_EVAL_ERROR",
-                    "condition evaluate error");
+            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.WHILE_CONDITION_ERROR.name(),
+                    QLErrorCodes.WHILE_CONDITION_ERROR.getErrorMsg());
         }
     }
 }
