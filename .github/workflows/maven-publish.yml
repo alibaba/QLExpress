@@ -9,19 +9,20 @@ jobs:
       - name: Checkout Git Repo
         uses: actions/checkout@v2
       - name: Set up Maven Central Repo
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.8
-          server-id: sonatype-nexus-staging
-          server-username: ${{ secrets.OSSRH_USER }}
-          server-password: ${{ secrets.OSSRH_PASSWORD }}
-          gpg-passphrase:  ${{ secrets.GPG_PASSWORD }}
-      - name: show gpg version
-        run: gpg --version
+          distribution: temurin
+          java-version: 8
+          server-id: ossrh
+          server-username: 'OSSRH_USER'
+          server-password: 'OSSRH_PASSWORD'
+          gpg-passphrase:  'MAVEN_GPG_PASSPHRASE'
+          gpg-private-key: ${{ secrets.GPG_SECRET }}
+      - name: debug settings.xml
+        run: cat /home/runner/.m2/settings.xml
       - name: Publish to Maven Central Repo
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.GPG_SECRET }}
-          gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
-          nexus_username: ${{ secrets.OSSRH_USER }}
-          nexus_password: ${{ secrets.OSSRH_PASSWORD }}
+        run: mvn clean deploy --batch-mode --activate-profiles deploy
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
