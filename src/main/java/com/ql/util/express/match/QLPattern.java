@@ -27,10 +27,10 @@ public class QLPattern {
             arrayListCache);
         QLMatchResult result = findMatchStatementWithAddRootOptimizeStack(staticParams, pattern, point, 1);
         if (result == null || result.getMatchSize() == 0) {
-            throw new QLCompileException("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配致[0:" + (maxMatchPoint.longValue() - 1) + "]");
+            throw new QLCompileException("程序错误，不满足语法规范，没有匹配到合适的语法,最大匹配至[0:" + (maxMatchPoint.longValue() - 1) + "]");
         } else if (result.getMatchSize() != 1) {
             throw new QLCompileException(
-                "程序错误，不满足语法规范，必须有一个根节点：" + pattern + ",最大匹配致[0:" + (maxMatchPoint.longValue() - 1) + "]");
+                "程序错误，不满足语法规范，必须有一个根节点：" + pattern + ",最大匹配至[0:" + (maxMatchPoint.longValue() - 1) + "]");
         }
         return result;
     }
