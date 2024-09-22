@@ -42,7 +42,7 @@ public class NewFilledInstanceInstruction extends QLInstruction {
         for (int i = 0; i < keys.size(); i++) {
             Object initValue = initItems.get(i).get();
             String fieldName = keys.get(i);
-            Value fieldValue = qContext.getReflectLoader().loadField(instance, fieldName, errorReporter);
+            Value fieldValue = qContext.getReflectLoader().loadField(instance, fieldName, false, errorReporter);
             if (fieldValue == null) {
                 // ignore field that don't exist
                 continue;

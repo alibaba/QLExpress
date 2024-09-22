@@ -18,6 +18,7 @@ import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
+import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
@@ -53,8 +54,28 @@ public class Express4Runner {
         return compileTimeFunctions.get(functionName);
     }
 
+    /**
+     * execute the script with variables set in the context, where the key corresponds to the variable name.
+     * @param script
+     * @param context
+     * @param qlOptions
+     * @return result of script
+     * @throws QLException
+     */
     public Object execute(String script, Map<String, Object> context, QLOptions qlOptions) throws QLException {
         return execute(script, new MapExpressContext(context), qlOptions);
+    }
+
+    /**
+     * execute the script with variables set in the context, where the key corresponds to the field name of context object
+     * @param script
+     * @param context
+     * @param qlOptions
+     * @return
+     * @throws QLException
+     */
+    public Object execute(String script, Object context, QLOptions qlOptions) throws QLException {
+        return execute(script, new ObjectFieldExpressContext(context, reflectLoader), qlOptions);
     }
 
     public Object execute(String script, ExpressContext context, QLOptions qlOptions) {

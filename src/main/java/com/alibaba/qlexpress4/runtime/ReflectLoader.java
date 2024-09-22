@@ -66,7 +66,7 @@ public class ReflectLoader {
         return constructor;
     }
 
-    public Value loadField(Object bean, String fieldName, ErrorReporter errorReporter) {
+    public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(((Object[]) bean).length);
         } else if (bean instanceof List && BasicUtil.LENGTH.equals(fieldName)) {
@@ -76,11 +76,11 @@ public class ReflectLoader {
             if (BasicUtil.CLASS.equals(fieldName)) {
                 return new DataValue(metaClass.getClz());
             }
-            return loadJavaField(metaClass.getClz(), null, fieldName, errorReporter);
+            return loadJavaField(metaClass.getClz(), null, fieldName, skipSecurity, errorReporter);
         } else if (bean instanceof Map) {
             return new MapItemValue((Map<?, ?>) bean, fieldName);
         } else {
-            return loadJavaField(bean.getClass(), bean, fieldName, errorReporter);
+            return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
     }
 
@@ -133,8 +133,8 @@ public class ReflectLoader {
         return assignableExtensionFunctions.get(bestIndex);
     }
 
-    private Value loadJavaField(Class<?> cls, Object bean, String fieldName, ErrorReporter errorReporter) {
-        FieldReflectCache fieldReflectCache = loadFieldReflectCache(cls, fieldName);
+    private Value loadJavaField(Class<?> cls, Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
+        FieldReflectCache fieldReflectCache = loadFieldReflectCache(cls, fieldName, skipSecurity);
         if (fieldReflectCache == null) {
             return null;
         }
@@ -146,21 +146,22 @@ public class ReflectLoader {
         return new FieldValue(getterOp, setterOp, fieldReflectCache.defType);
     }
 
-    private FieldReflectCache loadFieldReflectCache(Class<?> cls, String fieldName) {
+    private FieldReflectCache loadFieldReflectCache(Class<?> cls, String fieldName, boolean skipSecurity) {
         List<Serializable> cacheKey = Arrays.asList(cls, fieldName);
         Optional<FieldReflectCache> cachedFieldOp = fieldCache.get(cacheKey);
         if (cachedFieldOp != null) {
             return cachedFieldOp.orElse(null);
         }
 
-        Optional<FieldReflectCache> fieldReflectOp = loadJavaFieldInner(cls, fieldName);
+        Optional<FieldReflectCache> fieldReflectOp = loadJavaFieldInner(cls, fieldName, skipSecurity);
         fieldCache.put(cacheKey, fieldReflectOp);
         return fieldReflectOp.orElse(null);
     }
 
-    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName) {
-        Method getMethod = securityFilter(MethodHandler.getGetter(cls, fieldName));
-        Field field = securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
+    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName, boolean skipSecurity) {
+        Method getMethod = skipSecurity? MethodHandler.getGetter(cls, fieldName): securityFilter(MethodHandler.getGetter(cls, fieldName));
+        Field field = skipSecurity? FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName):
+                securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
         BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier = fieldGetter(getMethod, field);
         if (getterSupplier == null) {
             return Optional.empty();
