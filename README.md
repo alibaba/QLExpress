@@ -20,7 +20,7 @@ QLExpress脚本引擎被广泛应用在阿里的电商业务场景，具有以�
 <dependency>
   <groupId>com.alibaba</groupId>
   <artifactId>QLExpress</artifactId>
-  <version>3.3.3</version>
+  <version>3.3.4</version>
 </dependency>
 ```
 
