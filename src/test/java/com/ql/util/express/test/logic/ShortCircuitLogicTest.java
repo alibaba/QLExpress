@@ -28,7 +28,7 @@ public class ShortCircuitLogicTest {
     }
 
     /**
-     * 测试非短路逻辑,并且输出出错信息
+     * 测试短路逻辑,并且输出出错信息
      *
      * @throws Exception
      */
