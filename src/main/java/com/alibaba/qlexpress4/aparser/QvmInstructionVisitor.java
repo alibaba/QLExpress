@@ -496,18 +496,20 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitListExpr(ListExprContext ctx) {
-        ListItemsContext listItemsContext = ctx.listItems();
-        ErrorReporter listErrorReporter = newReporterWithToken(ctx.getStart());
+        visitListExprInner(ctx.listItems(), newReporterWithToken(ctx.getStart()));
+        return null;
+    }
+
+    private void visitListExprInner(ListItemsContext listItemsContext, ErrorReporter listErrorReporter) {
         if (listItemsContext == null) {
             addInstruction(new ConstInstruction(listErrorReporter, new ArrayList<>()));
-            return null;
+            return;
         }
         List<ExpressionContext> expressions = listItemsContext.expression();
         for (ExpressionContext expression : expressions) {
             expression.accept(this);
         }
         addInstruction(new NewListInstruction(listErrorReporter, expressions.size()));
-        return null;
     }
 
     @Override

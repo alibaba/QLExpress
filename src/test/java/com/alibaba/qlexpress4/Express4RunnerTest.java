@@ -413,6 +413,23 @@ public class Express4RunnerTest {
         assertEquals(express4Runner.execute("[1,2,3,4]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS), result);
     }
 
+    public static class MyObj {
+        public int a;
+        public String b;
+    }
+
+    @Test
+    public void executeWithObjContextTest() {
+        MyObj myObj = new MyObj();
+        myObj.a = 1;
+        myObj.b = "test";
+
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .build());
+        Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS);
+        assertEquals("1test", result);
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

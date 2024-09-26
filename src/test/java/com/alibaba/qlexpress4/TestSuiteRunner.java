@@ -56,7 +56,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/implicit/incompatible_assignment_type.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/for/return_from_for.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
