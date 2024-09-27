@@ -23,6 +23,6 @@ jobs:
       - name: Publish to Maven Central Repo
         run: mvn clean deploy --batch-mode --activate-profiles deploy
         env:
-          OSSRH_USER: ${{ secrets.OSSRH_TOKEN_USER }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN_PASSWORD }}
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSWORD }}
