@@ -756,6 +756,18 @@ public class ExpressRunner {
         return this.parseInstructionSet(express).getOutAttrNames();
     }
 
+    /**
+     * 获取一个表达式需要的外部变量全属性名称列表
+     * 例如：返回外部字段全名 a.b.c
+     * @param express
+     * @return
+     * @throws Exception
+     */
+    public String[] getFullOutVarNames(String express) throws Exception {
+        return this.parseInstructionSet(express).getFullOutAttrNames();
+    }
+
+
     public String[] getOutFunctionNames(String express) throws Exception {
         return this.parseInstructionSet(express).getOutFunctionNames();
     }

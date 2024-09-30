@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.ql.util.express.config.QLExpressTimer;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.exception.QLTimeoutException;
 import com.ql.util.express.instruction.FunctionInstructionSet;
@@ -17,6 +16,8 @@ import com.ql.util.express.instruction.detail.InstructionConstData;
 import com.ql.util.express.instruction.detail.InstructionLoadAttr;
 import com.ql.util.express.instruction.detail.InstructionNewVirClass;
 import com.ql.util.express.instruction.detail.InstructionOperator;
+import com.ql.util.express.instruction.op.OperatorBase;
+import com.ql.util.express.instruction.op.OperatorField;
 import com.ql.util.express.instruction.opdata.OperateDataLocalVar;
 
 /**
@@ -79,6 +80,54 @@ public class InstructionSet {
             }
         }
         return result.keySet().toArray(new String[0]);
+    }
+
+    public String[] getFullOutAttrNames() throws Exception {
+        Map<String, String> result = new TreeMap<>();
+        StringBuilder tempFullName = new StringBuilder();
+        for (int i = 0; i < instructionList.length; i++) {
+            Instruction instruction = instructionList[i];
+            // 代表找到属性值的起点位置
+            if (instruction instanceof InstructionLoadAttr && !"null".equals(((InstructionLoadAttr)instruction).getAttrName())) {
+                tempFullName.append(((InstructionLoadAttr)instruction).getAttrName());
+                // 判断后续相邻是否有字段属性
+                for (int j = i + 1; j < instructionList.length; j++) {
+                    Instruction fieldInstruction = instructionList[j];
+                    if (fieldInstruction instanceof InstructionOperator
+                            && ((InstructionOperator) fieldInstruction).getOperator() instanceof OperatorField) {
+                        OperatorBase operator = ((InstructionOperator) fieldInstruction).getOperator();
+                        tempFullName.append(".").append(((OperatorField)operator).getFiledName());
+                    } else {
+                        result.put(tempFullName.toString(), null);
+                        tempFullName.setLength(0);
+                        i = j;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //剔除本地变量定义和别名定义
+        for (int i = 0; i < instructionList.length; i++) {
+            Instruction instruction = instructionList[i];
+            if (instruction instanceof InstructionOperator) {
+                String opName = ((InstructionOperator)instruction).getOperator().getName();
+                //addOperator(op)中op.name有可能为空
+                if (opName != null) {
+                    if ("def".equalsIgnoreCase(opName) || "exportDef".equalsIgnoreCase(opName)) {
+                        String varLocalName = (String)((InstructionConstData)instructionList[i - 1]).getOperateData()
+                                .getObject(null);
+                        result.remove(varLocalName);
+                    } else if ("alias".equalsIgnoreCase(opName) || "exportAlias".equalsIgnoreCase(opName)) {
+                        String varLocalName = (String)((InstructionConstData)instructionList[i - 2]).getOperateData()
+                                .getObject(null);
+                        result.remove(varLocalName);
+                    }
+                }
+            }
+        }
+        return result.keySet().toArray(new String[0]);
+
     }
 
     public String[] getOutAttrNames() throws Exception {

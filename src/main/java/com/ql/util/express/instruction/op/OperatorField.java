@@ -18,6 +18,10 @@ public class OperatorField extends OperatorBase {
         this.filedName = fieldName;
     }
 
+    public String getFiledName() {
+        return this.filedName;
+    }
+
     @Override
     public OperateData executeInner(InstructionSetContext parent, ArraySwap list) throws Exception {
         OperateData operateData = list.get(0);
