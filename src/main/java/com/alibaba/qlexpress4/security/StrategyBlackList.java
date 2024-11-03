@@ -4,6 +4,8 @@ import java.lang.reflect.Member;
 import java.util.Set;
 
 /**
+ *
+ * A security policy that prohibits access to Java members in the blacklist.
  * Author: DQinYuan
  */
 public class StrategyBlackList implements QLSecurityStrategy {

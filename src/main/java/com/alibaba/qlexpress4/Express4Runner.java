@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -151,11 +152,11 @@ public class Express4Runner {
         });
     }
 
-    public boolean addFunction(String name, QLFunctionalVarargs functionalVarargs) {
+    public boolean addVarArgsFunction(String name, QLFunctionalVarargs functionalVarargs) {
         return addFunction(name, (qContext, parameters) -> {
             Object[] paramArr = new Object[parameters.size()];
             for (int i = 0; i < paramArr.length; i++) {
-                paramArr[i] = parameters.get(i);
+                paramArr[i] = parameters.get(i).get();
             }
             return functionalVarargs.call(paramArr);
         });
@@ -285,6 +286,12 @@ public class Express4Runner {
 
     private ImportManager inheritDefaultImport() {
         return new ImportManager(initOptions.getClassSupplier(), initOptions.getDefaultImport());
+    }
+
+    public <T,U,R> boolean addOperatorBiFunction(String operator, BiFunction<T,U,R> biFunction) {
+        return operatorManager.addBinaryOperator(operator, (left, right) ->
+                biFunction.apply((T) left.get(), (U) right.get()), QLPrecedences.MULTI
+        );
     }
 
     /**

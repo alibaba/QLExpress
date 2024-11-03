@@ -4,6 +4,7 @@ import java.lang.reflect.Member;
 import java.util.Set;
 
 /**
+ * A security policy that only permits access to Java members in the whitelist.
  * Author: DQinYuan
  */
 public class StrategyWhiteList implements QLSecurityStrategy {

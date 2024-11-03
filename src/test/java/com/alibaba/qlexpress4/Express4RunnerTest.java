@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.annotation.QLFunction;
+import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
@@ -8,6 +9,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -22,6 +24,99 @@ import static org.junit.Assert.*;
  * Author: DQinYuan
  */
 public class Express4RunnerTest {
+
+    @Test
+    public void docQuickStartTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", 3);
+        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(7, result);
+    }
+
+    @Test
+    public void docAddFunctionAndOperatorTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // custom function
+        express4Runner.addVarArgsFunction("join", params ->
+                Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
+        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("1,2,3", resultFunction);
+
+        // custom operator
+        express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
+        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("1,2,3", resultOperator);
+    }
+
+    @Test
+    public void docImportJavaTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                // open security strategy, which allows access to all Java classes within the application.
+                .securityStrategy(QLSecurityStrategy.open())
+                .build()
+        );
+        // Import Java classes using the import statement.
+        Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
+                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(3, result);
+    }
+
+    @Test
+    public void docDefaultImportJavaTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .defaultImport(
+                        Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
+                )
+                .securityStrategy(QLSecurityStrategy.open())
+                .build()
+        );
+        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(3, result);
+    }
+
+    @Test
+    public void docExpressTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .defaultImport(
+                        Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
+                )
+                .securityStrategy(QLSecurityStrategy.open())
+                .build()
+        );
+        Object result = express4Runner.execute("1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(2, result);
+    }
+
+    @Test
+    public void docTryCatchTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("1 + try {\n" +
+                "  100 + 1/0\n" +
+                "} catch(e) {\n" +
+                "  // Throw a zero-division exception\n" +
+                "  11\n" +
+                "}", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(12, result);
+    }
+
+    @Test
+    public void docPreciseTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertTrue(result instanceof BigDecimal);
+        assertNotEquals(0.3, 0.1 + 0.2, 0.0);
+        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 0.1);
+        context.put("b", 0.2);
+        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()));
+    }
+
 
     @Test
     public void mapSetGetTest() {

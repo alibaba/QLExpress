@@ -18,8 +18,6 @@ public class InitOptions {
 
     public static InitOptions DEFAULT_OPTIONS = InitOptions.builder().build();
 
-    private final boolean useCacheClear;
-
     private final ClassSupplier classSupplier;
 
     /**
@@ -63,12 +61,11 @@ public class InitOptions {
      */
     private final boolean allowPrivateAccess;
 
-    private InitOptions(boolean useCacheClear, ClassSupplier classSupplier,
+    private InitOptions(ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
                         QLSecurityStrategy securityStrategy,
                         List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess) {
-        this.useCacheClear = useCacheClear;
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -80,10 +77,6 @@ public class InitOptions {
 
     public static InitOptions.Builder builder() {
         return new Builder();
-    }
-
-    public boolean enableUseCacheClear() {
-        return useCacheClear;
     }
 
     public List<ImportManager.QLImport> getDefaultImport() {
@@ -115,7 +108,6 @@ public class InitOptions {
     }
 
     public static class Builder {
-        private boolean useCacheClear = false;
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         private List<ImportManager.QLImport> defaultImport = Arrays.asList(
                 ImportManager.importPack("java.lang"),
@@ -132,11 +124,6 @@ public class InitOptions {
                 MapExtensionFunction.INSTANCE
         );
         private boolean allowPrivateAccess = false;
-
-        public Builder useCacheClear(boolean useCacheClear) {
-            this.useCacheClear = useCacheClear;
-            return this;
-        }
 
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
@@ -174,7 +161,7 @@ public class InitOptions {
         }
 
         public InitOptions build() {
-            return new InitOptions(useCacheClear, classSupplier, defaultImport,
+            return new InitOptions(classSupplier, defaultImport,
                     debug, debugInfoConsumer, securityStrategy, extensionFunctions, allowPrivateAccess);
         }
     }
