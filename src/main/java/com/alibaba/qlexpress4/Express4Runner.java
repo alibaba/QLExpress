@@ -20,6 +20,7 @@ import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
+import com.alibaba.qlexpress4.runtime.context.QLAliasContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
@@ -77,6 +78,20 @@ public class Express4Runner {
      */
     public Object execute(String script, Object context, QLOptions qlOptions) throws QLException {
         return execute(script, new ObjectFieldExpressContext(context, reflectLoader), qlOptions);
+    }
+
+    /**
+     * Execute the script using objects that have been annotated with the com.alibaba.qlexpress4.annotation.QLAlias.
+     * The QLAlias.value will serve as the context keys for these objects.
+     * Objects without the QLAlias annotation will be disregarded.
+     * @param script
+     * @param qlOptions
+     * @param objects
+     * @return
+     * @throws QLException
+     */
+    public Object executeWithAliasObjects(String script, QLOptions qlOptions, Object...objects) {
+        return execute(script, new QLAliasContext(objects), qlOptions);
     }
 
     public Object execute(String script, ExpressContext context, QLOptions qlOptions) {

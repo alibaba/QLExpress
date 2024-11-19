@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+import com.alibaba.qlexpress4.security.StrategyIsolation;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.io.Serializable;
@@ -33,7 +34,7 @@ public class ReflectLoader {
 
     private final Map<List<Class<?>>, Constructor<?>> constructorCache = new ConcurrentHashMap<>();
 
-    private final Map<List<?>, Optional<FieldReflectCache>> fieldCache = new ConcurrentHashMap<>();
+    private final Map<List<?>, FieldReflectCache> fieldCache = new ConcurrentHashMap<>();
 
     private final Map<MethodCacheKey, Method> staticMethodCache = new ConcurrentHashMap<>();
 
@@ -49,6 +50,10 @@ public class ReflectLoader {
     }
 
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
+        if (securityStrategy instanceof StrategyIsolation) {
+            return null;
+        }
+
         List<Class<?>> cacheKey = new ArrayList<>(paramTypes.length + 1);
         cacheKey.add(cls);
         cacheKey.addAll(Arrays.asList(paramTypes));
@@ -71,14 +76,16 @@ public class ReflectLoader {
             return new DataValue(((Object[]) bean).length);
         } else if (bean instanceof List && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(((List<?>) bean).size());
+        } else if (bean instanceof Map) {
+            return new MapItemValue((Map<?, ?>) bean, fieldName);
+        } else if (!skipSecurity && securityStrategy instanceof StrategyIsolation) {
+            return null;
         } else if (bean instanceof MetaClass) {
             MetaClass metaClass = (MetaClass) bean;
             if (BasicUtil.CLASS.equals(fieldName)) {
                 return new DataValue(metaClass.getClz());
             }
             return loadJavaField(metaClass.getClz(), null, fieldName, skipSecurity, errorReporter);
-        } else if (bean instanceof Map) {
-            return new MapItemValue((Map<?, ?>) bean, fieldName);
         } else {
             return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
@@ -87,19 +94,23 @@ public class ReflectLoader {
     public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         boolean isStaticMethod = bean instanceof MetaClass;
         Class<?> clz = isStaticMethod ? ((MetaClass) bean).getClz(): bean.getClass();
-        MethodCacheKey cacheKey = new MethodCacheKey(clz, methodName, argTypes);
-        Map<MethodCacheKey, Method> methodCache = isStaticMethod ? staticMethodCache: memberMethodCache;
-        Method cachedMethod = methodCache.get(cacheKey);
-        if (cachedMethod != null) {
-            return new JvmIMethod(cachedMethod);
-        }
-
         // only support member extension method
         if (!isStaticMethod) {
             IMethod extendFunction = loadExtendFunction(clz, methodName, argTypes);
             if (extendFunction != null) {
                 return extendFunction;
             }
+        }
+
+        if (securityStrategy instanceof StrategyIsolation) {
+            return null;
+        }
+
+        MethodCacheKey cacheKey = new MethodCacheKey(clz, methodName, argTypes);
+        Map<MethodCacheKey, Method> methodCache = isStaticMethod ? staticMethodCache: memberMethodCache;
+        Method cachedMethod = methodCache.get(cacheKey);
+        if (cachedMethod != null) {
+            return new JvmIMethod(cachedMethod);
         }
 
         Method method = securityFilter(
@@ -148,27 +159,30 @@ public class ReflectLoader {
 
     private FieldReflectCache loadFieldReflectCache(Class<?> cls, String fieldName, boolean skipSecurity) {
         List<Serializable> cacheKey = Arrays.asList(cls, fieldName);
-        Optional<FieldReflectCache> cachedFieldOp = fieldCache.get(cacheKey);
-        if (cachedFieldOp != null) {
-            return cachedFieldOp.orElse(null);
+        FieldReflectCache cachedField = fieldCache.get(cacheKey);
+        if (cachedField != null) {
+            return cachedField;
         }
 
-        Optional<FieldReflectCache> fieldReflectOp = loadJavaFieldInner(cls, fieldName, skipSecurity);
-        fieldCache.put(cacheKey, fieldReflectOp);
-        return fieldReflectOp.orElse(null);
+        FieldReflectCache fieldReflect = loadJavaFieldInner(cls, fieldName, skipSecurity);
+        if (fieldReflect != null) {
+            fieldCache.put(cacheKey, fieldReflect);
+        }
+        return fieldReflect;
     }
 
-    private Optional<FieldReflectCache> loadJavaFieldInner(Class<?> cls, String fieldName, boolean skipSecurity) {
-        Method getMethod = skipSecurity? MethodHandler.getGetter(cls, fieldName): securityFilter(MethodHandler.getGetter(cls, fieldName));
-        Field field = skipSecurity? FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName):
-                securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, fieldName));
+    private FieldReflectCache loadJavaFieldInner(Class<?> cls, String fieldName, boolean skipSecurity) {
+        String preHandledName = FieldHandler.Preferred.preHandleAlias(cls, fieldName);
+        Method getMethod = skipSecurity? MethodHandler.getGetter(cls, preHandledName): securityFilter(MethodHandler.getGetter(cls, preHandledName));
+        Field field = skipSecurity? FieldHandler.Preferred.gatherFieldRecursive(cls, preHandledName):
+                securityFilter(FieldHandler.Preferred.gatherFieldRecursive(cls, preHandledName));
         BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier = fieldGetter(getMethod, field);
         if (getterSupplier == null) {
-            return Optional.empty();
+            return null;
         }
-        Method setMethod = securityFilter(MethodHandler.getSetter(cls, fieldName));
+        Method setMethod = securityFilter(MethodHandler.getSetter(cls, preHandledName));
         BiFunction<ErrorReporter, Object, Consumer<Object>> setterSupplier = fieldSetter(setMethod, field);
-        return Optional.of(new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field)));
+        return new FieldReflectCache(getterSupplier, setterSupplier, fieldDefCls(setMethod, field));
     }
 
     private <T extends Member> T securityFilter(T member) {

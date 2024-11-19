@@ -9,6 +9,8 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+import com.alibaba.qlexpress4.test.qlalias.Patient;
+import com.alibaba.qlexpress4.test.qlalias.Person;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,19 +77,6 @@ public class Express4RunnerTest {
         );
         Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(3, result);
-    }
-
-    @Test
-    public void docExpressTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .defaultImport(
-                        Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
-                )
-                .securityStrategy(QLSecurityStrategy.open())
-                .build()
-        );
-        Object result = express4Runner.execute("1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(2, result);
     }
 
     @Test
@@ -216,7 +205,8 @@ public class Express4RunnerTest {
 
     @Test
     public void classFieldTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open()).build());
         assertEquals(List.class, express4Runner.execute("List.class", Collections.emptyMap(),
                 QLOptions.DEFAULT_OPTIONS));
         assertEquals(List.class, express4Runner.execute("java.util.List.class", Collections.emptyMap(),
@@ -319,6 +309,15 @@ public class Express4RunnerTest {
         express4Runner.addStaticFunction(MyFunctionUtil.class);
         Object result1 = express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(10 ,result1);
+    }
+
+    @Test
+    public void variableStartsWithWellNumber() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        HashMap<Object, Object> context = new HashMap<>();
+        context.put("#cost", 10);
+        Object result = express4Runner.execute("#cost + 1", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(11, result);
     }
 
     @Test
@@ -519,10 +518,33 @@ public class Express4RunnerTest {
         myObj.a = 1;
         myObj.b = "test";
 
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS);
         assertEquals("1test", result);
+    }
+
+    @Test
+    public void qlAliasTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open()).build());
+        String[] exps = new String[] {
+                "患者.birth", "1987-02-23",
+                "患者.生日()", "1987-02-23",
+                "患者.患者姓名", "老王",
+                "患者.姓名", "老王",
+                "患者.getBirth()==患者.出生年月()", "true",//方法注解
+                "患者.生日()==患者.生日", "true",//get方法和字段名字一样是不冲突的
+                "患者.患者姓名 + ' 今年 '+ 患者.获取年龄() +' 岁'", "老王 今年 34 岁",//任意方法的注解
+                "患者.级别='低风险';return 患者.级别;", "低风险",
+        };
+        Person person = new Patient();
+        person.setName("老王");
+        person.setSex("男");
+        person.setBirth("1987-02-23");
+        for (int i = 0; i < exps.length; i += 2) {
+            Object result = express4Runner.executeWithAliasObjects(exps[i], QLOptions.DEFAULT_OPTIONS, person);
+            assertEquals(result.toString(), exps[i + 1]);
+        }
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

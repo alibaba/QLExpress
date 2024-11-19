@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime;
 import com.alibaba.qlexpress4.annotation.QLAlias;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.CacheUtil;
+import com.alibaba.qlexpress4.utils.QLAliasUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -172,7 +173,8 @@ public class MemberResolver {
             if (Modifier.isAbstract(declaredMethod.getModifiers())) {
                 continue;
             }
-            if (!methodName.equals(declaredMethod.getName()) && !aliasNameEq(declaredMethod, methodName)) {
+            if (!methodName.equals(declaredMethod.getName()) &&
+                    !QLAliasUtils.matchQLAlias(methodName, declaredMethod.getAnnotationsByType(QLAlias.class))) {
                 continue;
             }
             if ((!isStatic || BasicUtil.isStatic(declaredMethod)) && (allowPrivate || BasicUtil.isPublic(declaredMethod))) {
@@ -180,23 +182,6 @@ public class MemberResolver {
             }
         }
         return result.toArray(new Method[0]);
-    }
-
-    private static boolean aliasNameEq(Method declaredMethod, String name) {
-        QLAlias qlAlias = declaredMethod.getAnnotation(QLAlias.class);
-        if (qlAlias == null) {
-            return false;
-        }
-        String[] aliases = qlAlias.value();
-        if (aliases == null) {
-            return false;
-        }
-        for (String alias : aliases) {
-            if (name.equals(alias)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static Class<?>[] adapt2VarArgTypes(Class<?>[] parameterTypes, int argLength) {

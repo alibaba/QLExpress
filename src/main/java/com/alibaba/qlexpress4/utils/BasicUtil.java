@@ -15,13 +15,8 @@ import static java.lang.Character.toUpperCase;
  * Author: TaoKan
  */
 public class BasicUtil {
-    public static final String NULL_SIGN = "null";
     public static final String LENGTH = "length";
     public static final String CLASS = "class";
-
-    public static final int LEVEL_FACTOR = 10000;
-    public static final int DEFAULT_MATCH_INDEX = -1;
-    public static final int DEFAULT_WEIGHT = Integer.MAX_VALUE;
 
     private static final Map<Class<?>,Class<?>> primitiveMap;
 

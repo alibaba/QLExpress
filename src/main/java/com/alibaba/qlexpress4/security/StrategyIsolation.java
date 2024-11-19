@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.security;
 import java.lang.reflect.Member;
 
 /**
+ * A security policy that isolates qlexpress script with jvm
  * Author: DQinYuan
  */
 public class StrategyIsolation implements QLSecurityStrategy {
@@ -15,6 +16,6 @@ public class StrategyIsolation implements QLSecurityStrategy {
 
     @Override
     public boolean check(Member member) {
-        return false;
+        throw new IllegalStateException();
     }
 }

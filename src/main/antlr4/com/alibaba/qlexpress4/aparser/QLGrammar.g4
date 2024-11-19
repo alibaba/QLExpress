@@ -393,8 +393,8 @@ ID
 // unicode chart
 // https://www.ssec.wisc.edu/~tomw/java/unicode.html
 fragment IdStart
-    // $
-    : [\u0024]
+    // # $
+    : [\u0023-\u0024]
     // A-Z
     | [\u0041-\u005A]
     // _
