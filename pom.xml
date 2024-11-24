@@ -178,6 +178,7 @@
                 <configuration>
                     <listener>true</listener>
                     <visitor>true</visitor>
+                    <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/alibaba/qlexpress4/aparser</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>

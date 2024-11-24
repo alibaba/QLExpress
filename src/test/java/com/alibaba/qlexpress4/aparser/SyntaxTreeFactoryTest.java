@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.QLPrecedences;
-import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.MetaClass;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
 import com.alibaba.qlexpress4.runtime.instruction.*;
@@ -101,8 +100,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void visitPathExprTestWhenMix() {
         String script = "java.util.function.Function.a.b.cc()";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -121,8 +120,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void visitPathExprTestWhenInnerCls() {
         String script = "com.alibaba.qlexpress4.aparser.ImportManagerTest.TestImportInner.TestImportInner2.pp[m]";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -140,8 +139,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void visitCallTest() {
         String script = "call(mm)";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -153,8 +152,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void numberTest() {
         String script = "10_0_0l";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -166,8 +165,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void macroDefineTest() {
         String script = "macro add {a+b} add;int c = 10;";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -178,8 +177,8 @@ public class SyntaxTreeFactoryTest {
     public void stringEscapeTest() {
         // invalid escape \p will be ignored
         String script = "\"\\r\\n\\p\"";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -191,8 +190,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void castTest() {
         String script = "1+(int)3L";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory
-                .buildTree(script, new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory
+                .buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -202,17 +201,17 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void cusOpTest() {
         String script = "c.*d";
-        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println);
+        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
 
         String script1 = "c>>>d";
-        SyntaxTreeFactory.buildTree(script1, new MockOpM(), true, false, System.out::println);
+        SyntaxTreeFactory.buildTree(script1, new MockOpM(), true, false, System.out::println, InterpolationMode.VARIABLE);
     }
 
     @Test
     public void pathPartTest() {
         String script = "assert((java.lang.Object) a == 1)";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -226,8 +225,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void fieldExpressionTest() {
         String script = "\"null\".equals(b)";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -243,8 +242,8 @@ public class SyntaxTreeFactoryTest {
                 "} catch (java.lang.Exception e) {\n" +
                 "  10\n" +
                 "};";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -256,8 +255,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void lambdaBlockBodyTest() {
         String script = "f = e -> {10};";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -270,8 +269,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void lambdaMapBodyTest() {
         String script = "f = e -> {'test': 1234};";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -283,8 +282,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void newArrayTest() {
         String script = "new int[][] {new int[] {1,2}, new int[] {3,4}}";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -295,8 +294,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void instanceOfTest() {
         String script = "1 instanceof int";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -308,8 +307,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void instanceOfStrArrTest() {
         String script = "1 instanceof java.lang.String[][][]";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -321,8 +320,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void instanceOfIntArrTest() {
         String script = "1 instanceof int[][][]";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -339,8 +338,8 @@ public class SyntaxTreeFactoryTest {
     }
 
     private void assertOperator(String script, String expectOp) {
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -351,8 +350,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void opPrecedencesTest() {
         String script = "a = 1+2*3+10";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -365,8 +364,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void ternaryTest() {
         String script = "l = (x) -> x > 10 ? 11 : 100";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -380,8 +379,8 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void functionInterfaceTest() {
         String script = "java.lang.Runnable r = () -> a = 8;";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
     }
@@ -389,14 +388,15 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void groupPriorityTest()  {
         String script = "a.*b.*c[2]+d.*e[1:2]";
-        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println);
+        SyntaxTreeFactory.buildTree(script, new MockOpM(), false, false, System.out::println,
+                InterpolationMode.VARIABLE);
     }
 
     @Test
     public void numberAmbiguousValueTest() {
         String script = "1.doubleValue()";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
@@ -406,12 +406,68 @@ public class SyntaxTreeFactoryTest {
     @Test
     public void classifiedJsonTest() {
         String script = "{'@class':'java.lang.Object', 'a': 'cccc'}";
-        QLGrammarParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println);
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, InterpolationMode.VARIABLE);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         List<QLInstruction> instructions = visitor.getInstructions();
         assertTrue(instructions.get(1) instanceof NewFilledInstanceInstruction);
     }
 
+    @Test
+    public void selectorTest() {
+        List<QLInstruction> instructions = getScriptInstructions("${ TextField-AXXE } + ${v231}", InterpolationMode.SCRIPT);
+        LoadInstruction loadInstruction0 = (LoadInstruction) instructions.get(0);
+        assertEquals("TextField-AXXE", loadInstruction0.getName());
+        LoadInstruction loadInstruction1 = (LoadInstruction) instructions.get(1);
+        assertEquals("v231", loadInstruction1.getName());
+
+        List<QLInstruction> instructions1 = getScriptInstructions("${ TextField-A} + ${v2}", InterpolationMode.VARIABLE);
+        LoadInstruction loadInstruction10 = (LoadInstruction) instructions1.get(0);
+        assertEquals("TextField-A", loadInstruction10.getName());
+        LoadInstruction loadInstruction11 = (LoadInstruction) instructions1.get(1);
+        assertEquals("v2", loadInstruction11.getName());
+    }
+
+    @Test
+    public void doubleQuoteStringScriptTest() {
+        List<QLInstruction> instructs = getScriptInstructions("\"a ${v-1$}\"", InterpolationMode.SCRIPT);
+        ConstInstruction i0 = (ConstInstruction) instructs.get(0);
+        assertEquals("a ", i0.getConstObj());
+        LoadInstruction i1 = (LoadInstruction) instructs.get(1);
+        assertEquals("v", i1.getName());
+        ConstInstruction i2 = (ConstInstruction) instructs.get(2);
+        assertEquals(1, i2.getConstObj());
+        OperatorInstruction i3 = (OperatorInstruction) instructs.get(3);
+        assertEquals("-", i3.getOperator().getOperator());
+        StringJoinInstruction i4 = (StringJoinInstruction) instructs.get(4);
+        assertEquals(2, i4.getN());
+    }
+
+    @Test
+    public void doubleQuoteStringScriptTest2() {
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree("\"Hello ${a$} ccc\"",
+                new MockOpM(), true, false, System.out::println, InterpolationMode.SCRIPT);
+    }
+
+    @Test
+    public void doubleQuoteStringVariableTest() {
+        List<QLInstruction> instructions = getScriptInstructions("\"a ${ v-1 } b\"", InterpolationMode.VARIABLE);
+        ConstInstruction i0 = (ConstInstruction) instructions.get(0);
+        assertEquals("a ", i0.getConstObj());
+        LoadInstruction i1 = (LoadInstruction) instructions.get(1);
+        assertEquals("v-1", i1.getName());
+        ConstInstruction i2 = (ConstInstruction) instructions.get(2);
+        assertEquals(" b", i2.getConstObj());
+        StringJoinInstruction i3 = (StringJoinInstruction) instructions.get(3);
+        assertEquals(3, i3.getN());
+    }
+
+    private List<QLInstruction> getScriptInstructions(String script, InterpolationMode interpolationMode) {
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
+                new MockOpM(), false, false, System.out::println, interpolationMode);
+        QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
+        programContext.accept(visitor);
+        return visitor.getInstructions();
+    }
 }

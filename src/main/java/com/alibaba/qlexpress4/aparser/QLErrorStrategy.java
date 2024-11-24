@@ -40,9 +40,9 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
         ParserRuleContext ruleContext = recognizer.getRuleContext();
         String lexeme = currentToken.getText();
 
-        if (ruleContext instanceof QLGrammarParser.WhileStatementContext) {
+        if (ruleContext instanceof QLParser.WhileStatementContext) {
             syntaxErrorThrow(currentToken, "whileStatement");
-        } else if (ruleContext instanceof QLGrammarParser.MacroStatementContext) {
+        } else if (ruleContext instanceof QLParser.MacroStatementContext) {
             syntaxErrorThrow(currentToken, "macroStatement");
         } else if (IMPORT_SYMBOL.equals(symbolicName)) {
             throw QLException.reportScannerErr(script, currentToken.getStartIndex(),

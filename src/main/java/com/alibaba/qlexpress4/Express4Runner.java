@@ -44,7 +44,7 @@ public class Express4Runner {
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.getExtensionFunctions(),
-                initOptions.allowPrivateAccess());
+                initOptions.isAllowPrivateAccess());
         SyntaxTreeFactory.warmUp();
     }
 
@@ -123,7 +123,7 @@ public class Express4Runner {
     }
 
     public Set<String> getOutVarNames(String script) {
-        QLGrammarParser.ProgramContext programContext = parseToSyntaxTree(script);
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
         OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor();
         programContext.accept(outVarNamesVisitor);
         return outVarNamesVisitor.getOutVars();
@@ -136,16 +136,17 @@ public class Express4Runner {
      * @return true if add macro successfully. fail if macro name already exists.
      */
     public boolean addMacro(String name, String macroScript) {
-        QLGrammarParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
+        QLParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
         QvmInstructionVisitor macroVisitor = new QvmInstructionVisitor(macroScript,
                 inheritDefaultImport(), new GeneratorScope("MACRO_" + name, globalScope),
-                operatorManager, QvmInstructionVisitor.Context.MACRO, compileTimeFunctions);
+                operatorManager, QvmInstructionVisitor.Context.MACRO,
+                compileTimeFunctions, initOptions.getInterpolationMode());
         macroProgram.accept(macroVisitor);
         List<QLInstruction> macroInstructions = macroVisitor.getInstructions();
-        List<QLGrammarParser.BlockStatementContext> blockStatementContexts = macroProgram.blockStatements()
+        List<QLParser.BlockStatementContext> blockStatementContexts = macroProgram.blockStatements()
                 .blockStatement();
         boolean lastStmtExpress = !blockStatementContexts.isEmpty() &&
-                blockStatementContexts.get(blockStatementContexts.size() - 1) instanceof QLGrammarParser.ExpressionStatementContext;
+                blockStatementContexts.get(blockStatementContexts.size() - 1) instanceof QLParser.ExpressionStatementContext;
         return globalScope.defineMacroIfAbsent(name, new MacroDefine(macroInstructions, lastStmtExpress));
     }
 
@@ -245,10 +246,10 @@ public class Express4Runner {
         return compileTimeFunctions.putIfAbsent(name, compileTimeFunction) == null;
     }
 
-    public QLGrammarParser.ProgramContext parseToSyntaxTree(String script) {
+    public QLParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(
                 script, operatorManager, initOptions.isDebug(), false,
-                initOptions.getDebugInfoConsumer()
+                initOptions.getDebugInfoConsumer(), initOptions.getInterpolationMode()
         );
     }
 
@@ -289,9 +290,9 @@ public class Express4Runner {
     }
 
     private QLambdaDefinitionInner parseDefinition(String script) {
-        QLGrammarParser.ProgramContext program = parseToSyntaxTree(script);
+        QLParser.ProgramContext program = parseToSyntaxTree(script);
         QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script, inheritDefaultImport(),
-                globalScope, operatorManager, compileTimeFunctions);
+                globalScope, operatorManager, compileTimeFunctions, initOptions.getInterpolationMode());
         program.accept(qvmInstructionVisitor);
 
         return new QLambdaDefinitionInner("main",

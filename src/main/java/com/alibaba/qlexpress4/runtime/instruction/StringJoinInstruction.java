@@ -37,6 +37,10 @@ public class StringJoinInstruction extends QLInstruction {
         return QResult.NEXT_INSTRUCTION;
     }
 
+    public int getN() {
+        return n;
+    }
+
     @Override
     public int stackInput() {
         return n;

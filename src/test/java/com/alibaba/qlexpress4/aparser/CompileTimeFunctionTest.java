@@ -31,7 +31,7 @@ public class CompileTimeFunctionTest {
         // load lambda 自定义, 循环 iterator, 调用 lambda 返回结果 list
         // call
         @Override
-        public void createFunctionInstruction(String functionName, List<QLGrammarParser.ExpressionContext> arguments,
+        public void createFunctionInstruction(String functionName, List<QLParser.ExpressionContext> arguments,
                                               OperatorFactory operatorFactory, CodeGenerator codeGenerator) {
             if (arguments.size() != 2) {
                 throw codeGenerator.reportParseErr("INVALID_ARGUMENTS",
@@ -42,7 +42,7 @@ public class CompileTimeFunctionTest {
             codeGenerator.addInstruction(new NewScopeInstruction(functionErrReporter, SCOPE_NAME));
 
             // load iterator
-            QLGrammarParser.ExpressionContext arg0 = arguments.get(0);
+            QLParser.ExpressionContext arg0 = arguments.get(0);
             codeGenerator.addInstructionsByTree(arg0);
             codeGenerator.addInstruction(
                     new MethodInvokeInstruction(
@@ -51,7 +51,7 @@ public class CompileTimeFunctionTest {
             );
 
             // load lambda
-            QLGrammarParser.ExpressionContext arg1 = arguments.get(1);
+            QLParser.ExpressionContext arg1 = arguments.get(1);
             QLambdaDefinition bodyDefinition = codeGenerator.generateLambdaDefinition(arg1,
                     Collections.singletonList(new QLambdaDefinitionInner.Param("_", Object.class))
             );
@@ -87,7 +87,7 @@ public class CompileTimeFunctionTest {
 
     public static class GenInstructionNumFunction implements CompileTimeFunction {
         @Override
-        public void createFunctionInstruction(String functionName, List<QLGrammarParser.ExpressionContext> arguments,
+        public void createFunctionInstruction(String functionName, List<QLParser.ExpressionContext> arguments,
                                               OperatorFactory operatorFactory, CodeGenerator codeGenerator) {
             QLambdaDefinition lambdaDefinition = codeGenerator.generateLambdaDefinition(
                     arguments.get(0), Collections.emptyList()

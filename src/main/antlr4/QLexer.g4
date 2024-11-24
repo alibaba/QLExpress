@@ -1,15 +1,15 @@
-grammar QLGrammar;
+lexer grammar QLexer;
 
 @header {
-    import static com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType.*;
-    import static com.alibaba.qlexpress4.QLPrecedences.*;
+    package com.alibaba.qlexpress4.aparser;
+    import static com.alibaba.qlexpress4.aparser.InterpolationMode.*;
 }
 
-@parser::members {
-    ParserOperatorManager opM;
-    public QLGrammarParser(TokenStream input, ParserOperatorManager opM) {    // custom constructor
+@members {
+    InterpolationMode interpolationMode;
+    public QLexer(CharStream input, InterpolationMode interpolationMode) {
         this(input);
-        this.opM = opM;
+        this.interpolationMode = interpolationMode;
     }
 }
 
@@ -57,19 +57,6 @@ THIS: 'this';
 
 QuoteStringLiteral
     :   '\'' QuoteStringCharacters? '\''
-    ;
-
-StringLiteral
-    :   '"' StringCharacters? '"'
-    ;
-
-fragment StringCharacters
-	:	StringCharacter+
-	;
-
-fragment StringCharacter
-    :   ~["\\]
-    |   '\\' '"'?
     ;
 
 fragment QuoteStringCharacters
@@ -263,16 +250,6 @@ fragment ExponentIndicator
     :   [eE]
     ;
 
-// Value Selector
-
-ContextSelector
-    :   '${' ContextSelectorCharacter+ '}'
-    ;
-
-fragment ContextSelectorCharacter
-    :   ~[}\r\n]
-    ;
-
 // operator
 
 LPAREN : '(';
@@ -393,8 +370,8 @@ ID
 // unicode chart
 // https://www.ssec.wisc.edu/~tomw/java/unicode.html
 fragment IdStart
-    // # $
-    : [\u0023-\u0024]
+    // #
+    : [\u0023]
     // A-Z
     | [\u0041-\u005A]
     // _
@@ -1040,383 +1017,143 @@ fragment IdPart
 	| [\uFFF9-\uFFFB]
 	;
 
+// string expression
+
+DOUBLE_QUOTE_OPEN: '"' -> pushMode(DynamicString);
+SELECTOR_START: '${' -> pushMode(SelectorVariable);
+
 CATCH_ALL:   . ;
 
-// grammar
+mode DynamicString;
 
-program
-    : importDeclaration* blockStatements? EOF
+DyStrExprStart: '${' {
+    if (interpolationMode == SCRIPT) {
+        pushMode(StringExpression);
+    } else {
+        pushMode(SelectorVariable);
+    }
+};
+
+DyStrText: DyStringCharacter+;
+
+fragment DyStringCharacter
+    : ~["\\$]
+    | '\\' ('"' | '$')?
     ;
 
-blockStatements
-    :   blockStatement+
-    ;
+DOUBLE_QUOTE_CLOSE: '"' -> popMode;
 
-blockStatement
-    :   localVariableDeclaration ';' # localVariableDeclarationStatement
-    |   THROW expression ';' # throwStatement
-    |   WHILE '(' expression ')' blockStatement # whileStatement
-    |   FOR '(' forInit (forCondition=expression)? ';' (forUpdate=expression)? ')' blockStatement # traditionalForStatement
-    |   FOR '(' declType? varId ':' expression ')' blockStatement # forEachStatement
-    |   FUNCTION varId '(' formalOrInferredParameterList? ')' '{' blockStatements? '}' # functionStatement
-    |   MACRO varId '{' blockStatements? '}' # macroStatement
-    |   (BREAK | CONTINUE) ';' # breakContinueStatement
-    |   RETURN expression? ';' # returnStatement
-    |   ';' # emptyStatement
-    |   expression ';'? # expressionStatement
-    ;
+mode SelectorVariable;
 
-localVariableDeclaration
-    :   declType variableDeclaratorList
-    ;
+SelectorVariable_VANME: ~[}]+;
 
-forInit
-    : localVariableDeclaration ';'
-    | expression ';'
-    | ';'
-    ;
+SelectorVariable_RBRACE: RBRACE -> popMode, type(RBRACE);
 
-variableDeclaratorList
-    :   variableDeclarator (',' variableDeclarator)*
-    ;
+mode StringExpression;
 
-variableDeclarator
-    :   variableDeclaratorId (EQ variableInitializer)?
-    ;
+StrExpr_END: '$}' -> popMode;
 
-variableDeclaratorId
-    :   varId dims?
-    ;
+StrExpr_FOR: FOR -> type(FOR);
+StrExpr_IF: IF -> type(IF);
+StrExpr_ELSE: ELSE -> type(ELSE);
+StrExpr_WHILE: WHILE -> type(WHILE);
+StrExpr_BREAK: BREAK -> type(BREAK);
+StrExpr_CONTINUE: CONTINUE -> type(CONTINUE);
+StrExpr_RETURN: RETURN -> type(RETURN);
+StrExpr_FUNCTION: FUNCTION -> type(FUNCTION);
+StrExpr_MACRO: MACRO -> type(MACRO);
+StrExpr_IMPORT: IMPORT -> type(IMPORT);
+StrExpr_STATIC: STATIC -> type(STATIC);
+StrExpr_NEW: NEW -> type(NEW);
+StrExpr_BYTE: BYTE -> type(BYTE);
+StrExpr_SHORT: SHORT -> type(SHORT);
+StrExpr_INT: INT -> type(INT);
+StrExpr_LONG: LONG -> type(LONG);
+StrExpr_FLOAT: FLOAT -> type(FLOAT);
+StrExpr_DOUBLE: DOUBLE -> type(DOUBLE);
+StrExpr_CHAR: CHAR -> type(CHAR);
+StrExpr_BOOL: BOOL -> type(BOOL);
+StrExpr_NULL: NULL -> type(NULL);
+StrExpr_TRUE: TRUE -> type(TRUE);
+StrExpr_FALSE: FALSE -> type(FALSE);
+StrExpr_EXTENDS: EXTENDS -> type(EXTENDS);
+StrExpr_SUPER: SUPER -> type(SUPER);
+StrExpr_TRY: TRY -> type(TRY);
+StrExpr_CATCH: CATCH -> type(CATCH);
+StrExpr_FINALLY: FINALLY -> type(FINALLY);
+StrExpr_THROW: THROW -> type(THROW);
 
-variableInitializer
-    :   expression
-    |   arrayInitializer
-    ;
+StrExpr_CLASS: CLASS -> type(CLASS);
+StrExpr_THIS: THIS -> type(THIS);
 
-arrayInitializer
-    :   LBRACE variableInitializerList? ','? RBRACE
-    ;
+StrExpr_QuoteStringLiteral: QuoteStringLiteral -> type(QuoteStringLiteral);
 
-variableInitializerList
-    :   variableInitializer (',' variableInitializer)*
-    ;
+StrExpr_IntegerLiteral: IntegerLiteral -> type(IntegerLiteral);
+StrExpr_FloatingPointLiteral: FloatingPointLiteral -> type(FloatingPointLiteral);
+StrExpr_IntegerOrFloatingLiteral: IntegerOrFloatingLiteral -> type(IntegerOrFloatingLiteral);
 
-// decl type
+StrExpr_LPAREN: LPAREN -> type(LPAREN);
+StrExpr_RPAREN: RPAREN -> type(RPAREN);
+StrExpr_LBRACE: LBRACE -> type(LBRACE);
+StrExpr_RBRACE: RBRACE -> type(RBRACE);
+StrExpr_LBRACK: LBRACK -> type(LBRACK);
+StrExpr_RBRACK: RBRACK -> type(RBRACK);
 
-declType
-    :   primitiveType dims?
-    |   clsType dims?
-    ;
+StrExpr_DOT: DOT -> type(DOT);
+StrExpr_ARROW: ARROW -> type(ARROW);
+StrExpr_SEMI: SEMI -> type(SEMI);
+StrExpr_COMMA: COMMA -> type(COMMA);
+StrExpr_QUESTION: QUESTION -> type(QUESTION);
+StrExpr_COLON: COLON -> type(COLON);
+StrExpr_DCOLON: DCOLON -> type(DCOLON);
+StrExpr_GT: GT -> type(GT);
+StrExpr_LT: LT -> type(LT);
+StrExpr_EQ: EQ -> type(EQ);
+StrExpr_NOEQ: NOEQ -> type(NOEQ);
+StrExpr_RIGHSHIFT_ASSGIN: RIGHSHIFT_ASSGIN -> type(RIGHSHIFT_ASSGIN);
+StrExpr_RIGHSHIFT: RIGHSHIFT -> type(RIGHSHIFT);
+StrExpr_OPTIONAL_CHAINING: OPTIONAL_CHAINING -> type(OPTIONAL_CHAINING);
+StrExpr_SPREAD_CHAINING: SPREAD_CHAINING -> type(SPREAD_CHAINING);
+StrExpr_URSHIFT_ASSGIN: URSHIFT_ASSGIN -> type(URSHIFT_ASSGIN);
+StrExpr_URSHIFT: URSHIFT -> type(URSHIFT);
+StrExpr_LSHIFT_ASSGIN: LSHIFT_ASSGIN -> type(LSHIFT_ASSGIN);
+StrExpr_LEFTSHIFT: LEFTSHIFT -> type(LEFTSHIFT);
+StrExpr_GE: GE -> type(GE);
+StrExpr_LE: LE -> type(LE);
+StrExpr_DOTMUL: DOTMUL -> type(DOTMUL);
+StrExpr_CARET: CARET -> type(CARET);
+StrExpr_ADD_ASSIGN: ADD_ASSIGN -> type(ADD_ASSIGN);
+StrExpr_SUB_ASSIGN: SUB_ASSIGN -> type(SUB_ASSIGN);
+StrExpr_AND_ASSIGN: AND_ASSIGN -> type(AND_ASSIGN);
+StrExpr_OR_ASSIGN: OR_ASSIGN -> type(OR_ASSIGN);
+StrExpr_MUL_ASSIGN: MUL_ASSIGN -> type(MUL_ASSIGN);
+StrExpr_MOD_ASSIGN: MOD_ASSIGN -> type(MOD_ASSIGN);
+StrExpr_DIV_ASSIGN: DIV_ASSIGN -> type(DIV_ASSIGN);
+StrExpr_XOR_ASSIGN: XOR_ASSIGN -> type(XOR_ASSIGN);
 
-declTypeNoArr
-    : primitiveType
-    | clsType
-    ;
+StrExpr_BANG: BANG -> type(BANG);
+StrExpr_TILDE: TILDE -> type(TILDE);
 
-primitiveType
-    :   'byte'
-    |   'short'
-    |   'int'
-    |   'long'
-    |   'float'
-    |   'double'
-    |   'boolean'
-    |   'char'
-    ;
+StrExpr_ADD: ADD -> type(ADD);
+StrExpr_SUB: SUB -> type(SUB);
+StrExpr_MUL: MUL -> type(MUL);
+StrExpr_DIV: DIV -> type(DIV);
+StrExpr_BIT_AND: BIT_AND -> type(BIT_AND);
+StrExpr_BIT_OR: BIT_OR -> type(BIT_OR);
+StrExpr_MOD: MOD -> type(MOD);
 
-referenceType
-    :   clsType dims?
-    |   primitiveType dims
-    ;
+StrExpr_INC: INC -> type(INC);
+StrExpr_DEC: DEC -> type(DEC);
 
-dims
-    :   LBRACK RBRACK (LBRACK RBRACK)*
-    ;
+StrExpr_WS: WS -> skip;
 
-clsTypeNoTypeArguments
-    :   varId ('.' varId)*
-    ;
+StrExpr_COMMENT: COMMENT -> type(COMMENT);
 
-clsType
-    :   varId ('.' varId)* typeArguments?
-    ;
+StrExpr_LINE_COMMENT: LINE_COMMENT -> type(LINE_COMMENT);
 
-typeArguments
-    :   LT typeArgumentList? (GT | RIGHSHIFT | URSHIFT)?
-    |   NOEQ
-    ;
+StrExpr_OPID: OPID -> type(OPID);
 
-typeArgumentList
-    :   typeArgument (',' typeArgument)*
-    ;
+StrExpr_ID: ID -> type(ID);
 
-typeArgument
-    :   referenceType
-    |   wildcard
-    ;
-
-wildcard
-    :   '?' wildcardBounds?
-    ;
-
-wildcardBounds
-    :   'extends' referenceType
-    |   'super' referenceType
-    ;
-
-// expression
-
-expression
-    :   leftHandSide assignOperator expression
-    |   ternaryExpr
-    ;
-
-leftHandSide
-    :   varId (pathPart)*
-    ;
-
-ternaryExpr
-    :   condition=baseExpr[1] (QUESTION thenExpr=baseExpr[0] COLON elseExpr=expression)?
-    ;
-
-baseExpr [int p]
-    : primary ({_input.LT(1).getType() != Token.EOF &&
-        opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) >= $p}? leftAsso)*
-    ;
-
-leftAsso
-    : binaryop baseExpr[opM.precedence(_input.LT(-1).getText()) + 1];
-
-binaryop
-    : opId | varId
-    ;
-
-// primary
-
-primary
-    : (prefixExpress)? primaryNoFix (pathPart)* (suffixExpress)?
-    ;
-
-prefixExpress
-    : {_input.LT(1).getType() != Token.EOF && opM.isOpType(_input.LT(1).getText(), PREFIX)}? opId
-    ;
-
-suffixExpress
-    : {_input.LT(1).getType() != Token.EOF && opM.isOpType(_input.LT(1).getText(), SUFFIX)}? opId
-    ;
-
-primaryNoFix
-    :   literal # constExpr
-    |   '(' declType ')' primary # castExpr
-    |   '(' expression ')' # groupExpr
-    |   NEW varId ('.' varId)* typeArguments? '(' argumentList? ')' # newObjExpr
-    |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
-    |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    |   lambdaParameters ARROW ( '{' blockStatements? '}' | expression) # lambdaExpr
-    |   varId # varIdExpr
-    |   primitiveType # typeExpr
-    |   '[' listItems? ']' # listExpr
-    |   '{' mapEntries '}' # mapExpr
-    |   '{' blockStatements? '}' # blockExpr
-    |   IF '(' condition=expression ')' thenBody=ifBody ('else' elseBody=ifBody)? # ifExpr
-    |   TRY '{' blockStatements? '}' tryCatches? tryFinally? # tryCatchExpr
-    |   ContextSelector # contextSelectExpr
-    ;
-
-ifBody
-    :   '{' blockStatements? '}'
-    |   blockStatement
-    ;
-
-listItems
-    : expression (',' expression)*
-    ;
-
-dimExprs
-    :   '[' expression ']' ('[' expression ']')*
-    ;
-
-tryCatches
-    : tryCatch tryCatch*
-    ;
-
-tryCatch
-    : 'catch' '(' catchParams ')' '{' blockStatements? '}'
-    ;
-
-catchParams
-    : (declType ('|' declType)*)? varId
-    ;
-
-tryFinally
-    : FINALLY '{' blockStatements? '}'
-    ;
-
-mapEntries
-    : ':'
-    | mapEntry (',' mapEntry)* ','?
-    ;
-
-mapEntry
-    : mapKey ':' mapValue
-    ;
-
-mapValue
-    : {_input.LT(-2).getText().equals("'@class'")}? cls=(StringLiteral | QuoteStringLiteral) # clsValue
-    | expression # eValue
-    ;
-
-mapKey
-    : idMapKey # idKey
-    | StringLiteral # stringKey
-    | QuoteStringLiteral # quoteStringKey
-    ;
-
-idMapKey
-    :   varId
-    |   FOR
-    |   IF
-    |   ELSE
-    |   WHILE
-    |   BREAK
-    |   CONTINUE
-    |   RETURN
-    |   FUNCTION
-    |   MACRO
-    |   IMPORT
-    |   STATIC
-    |   NEW
-    |   BYTE
-    |   SHORT
-    |   INT
-    |   LONG
-    |   FLOAT
-    |   DOUBLE
-    |   CHAR
-    |   BOOL
-    |   NULL
-    |   TRUE
-    |   FALSE
-    |   EXTENDS
-    |   SUPER
-    |   TRY
-    |   CATCH
-    |   FINALLY
-    |   THROW
-    |   CLASS
-    |   THIS
-    ;
-
-pathPart
-    :   '.' varId '(' argumentList? ')' # methodInvoke
-    |   OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
-    |   SPREAD_CHAINING varId '(' argumentList? ')' # spreadMethodInvoke
-    |   '.' fieldId # fieldAccess
-    |   OPTIONAL_CHAINING fieldId # optionalFieldAccess
-    |   SPREAD_CHAINING fieldId # spreadFieldAccess
-    |   DCOLON varId # methodAccess
-    |   '(' argumentList? ')' # callExpr
-    |   '[' indexValueExpr? ']' # indexExpr
-    |   {opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
-    ;
-
-fieldId
-    :   varId
-    |   CLASS
-    |   StringLiteral
-    |   QuoteStringLiteral
-    ;
-
-indexValueExpr
-    :   expression # singleIndex
-    |   start=expression? ':' end=expression? # sliceIndex
-    ;
-
-argumentList
-    :   expression (',' expression)*
-    ;
-
-literal
-    :   IntegerLiteral
-    |   FloatingPointLiteral
-    |   IntegerOrFloatingLiteral
-    |   boolenLiteral
-    |   QuoteStringLiteral
-    |   StringLiteral
-    |   NULL
-    ;
-
-boolenLiteral
-    :   TRUE
-    |   FALSE
-    ;
-
-lambdaParameters
-    :   varId
-    |   '(' formalOrInferredParameterList? ')'
-    ;
-
-formalOrInferredParameterList
-    :   formalOrInferredParameter (',' formalOrInferredParameter)*
-    ;
-
-formalOrInferredParameter
-    :   declType? varId
-    ;
-
-// import (not support import static now)
-
-importDeclaration
-    //  import xxx
-    :   IMPORT varId ('.' varId)* ';' # importCls
-    // import .*
-    |   IMPORT varId ('.' varId)* (DOT MUL | DOTMUL) ';' # importPack
-    ;
-
-// id
-
-assignOperator
-    :   EQ
-    |   RIGHSHIFT_ASSGIN
-    |   URSHIFT_ASSGIN
-    |   LSHIFT_ASSGIN
-    |   ADD_ASSIGN
-    |   SUB_ASSIGN
-    |   AND_ASSIGN
-    |   OR_ASSIGN
-    |   MUL_ASSIGN
-    |   MOD_ASSIGN
-    |   DIV_ASSIGN
-    |   XOR_ASSIGN
-    ;
-
-opId
-    :   GT
-    |   LT
-    |   GE
-    |   LE
-    |   BANG
-    |   TILDE
-    |   ADD
-    |   SUB
-    |   MUL
-    |   DIV
-    |   INC
-    |   DEC
-    |   DOTMUL
-    |   NOEQ
-    |   RIGHSHIFT
-    |   URSHIFT
-    |   LEFTSHIFT
-    |   BIT_AND
-    |   BIT_OR
-    |   MOD
-    |   CARET
-    |   assignOperator
-    |   OPID
-    ;
-
-varId
-    : ID
-    | FUNCTION
-    ;
+StrExpr_DOUBLE_QUOTE_OPEN: DOUBLE_QUOTE_OPEN -> type(DOUBLE_QUOTE_OPEN), pushMode(DynamicString);
+StrExpr_SELECTOR_START: SELECTOR_START -> type(SELECTOR_START);

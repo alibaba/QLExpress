@@ -21,12 +21,12 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.alibaba.qlexpress4.aparser.QLGrammarParser.*;
+import static com.alibaba.qlexpress4.aparser.QLParser.*;
 
 /**
  * Author: DQinYuan
  */
-public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
+public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private static final String SCOPE_SEPARATOR = "$";
     private static final String BLOCK_LAMBDA_NAME_PREFIX = "BLOCK_";
     private static final String IF_PREFIX = "IF_";
@@ -69,6 +69,8 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     private final Map<String, CompileTimeFunction> compileTimeFunctions;
 
+    private final InterpolationMode interpolationMode;
+
     private final Context context;
 
     private final List<QLInstruction> instructionList = new ArrayList<>();
@@ -93,13 +95,15 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  GeneratorScope globalScope,
                                  OperatorFactory operatorFactory,
-                                 Map<String, CompileTimeFunction> compileTimeFunctions) {
+                                 Map<String, CompileTimeFunction> compileTimeFunctions,
+                                 InterpolationMode interpolationMode) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = new GeneratorScope("main", globalScope);
         this.operatorFactory = operatorFactory;
         this.context = Context.BLOCK;
         this.compileTimeFunctions = compileTimeFunctions;
+        this.interpolationMode = interpolationMode;
     }
 
     /*
@@ -107,13 +111,15 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
      */
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  GeneratorScope generatorScope, OperatorFactory operatorFactory,
-                                 Context context, Map<String, CompileTimeFunction> compileTimeFunctions) {
+                                 Context context, Map<String, CompileTimeFunction> compileTimeFunctions,
+                                 InterpolationMode interpolationMode) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
         this.operatorFactory = operatorFactory;
         this.context = context;
         this.compileTimeFunctions = compileTimeFunctions;
+        this.interpolationMode = interpolationMode;
     }
 
     /*
@@ -127,6 +133,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         this.operatorFactory = new OperatorManager();
         this.context = Context.BLOCK;
         this.compileTimeFunctions = new HashMap<>();
+        this.interpolationMode = InterpolationMode.VARIABLE;
     }
 
     @Override
@@ -528,14 +535,15 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             }
             if (valueContext instanceof ClsValueContext) {
                 ClsValueContext clsValueContext = (ClsValueContext) valueContext;
-                String clsText = clsValueContext.cls.getText();
+                TerminalNode clsLiteral = clsValueContext.QuoteStringLiteral();
+                String clsText = clsLiteral.getText();
                 String clsName = clsText.substring(1, clsText.length() - 1);
                 Class<?> mayBeCls = importManager.loadQualified(clsName);
                 if (mayBeCls == null) {
                     String clsKeyText = mapEntryContext.mapKey().getText();
                     keys.add(clsKeyText.substring(1, clsKeyText.length() - 1));
-                    addInstruction(new ConstInstruction(newReporterWithToken(clsValueContext.cls),
-                            parseStringEscape(clsValueContext.cls.getText())));
+                    addInstruction(new ConstInstruction(newReporterWithToken(clsLiteral.getSymbol()),
+                            parseStringEscape(clsText)));
                     // @class override
                     cls = null;
                 } else {
@@ -891,12 +899,6 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         if (quoteStringLiteral != null) {
             return parseStringEscape(quoteStringLiteral.getText());
         }
-
-        TerminalNode stringLiteral = ctx.StringLiteral();
-        if (stringLiteral != null) {
-            return parseStringEscape(stringLiteral.getText());
-        }
-
         return ctx.getStart().getText();
     }
 
@@ -1186,8 +1188,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitContextSelectExpr(ContextSelectExprContext ctx) {
-        String text = ctx.ContextSelector().getText();
-        String variableName = text.substring(2, text.length() - 1).trim();
+        String variableName = ctx.SelectorVariable_VANME().getText().trim();
         addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), variableName));
         return null;
     }
@@ -1246,16 +1247,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             );
             return null;
         }
-        TerminalNode stringLiteral = literal.StringLiteral();
-        if (stringLiteral != null) {
-            ErrorReporter errorReporter = newReporterWithToken(stringLiteral.getSymbol());
-            int strPartNum = handleStringInterpolation(
-                    errorReporter,
-                    parseStringEscape(stringLiteral.getText())
-            );
-            if (strPartNum > 1) {
-                addInstruction(new StringJoinInstruction(errorReporter, strPartNum));
-            }
+        DoubleQuoteStringLiteralContext doubleQuoteStringLiteral = literal.doubleQuoteStringLiteral();
+        if (doubleQuoteStringLiteral != null) {
+            visitDoubleQuoteStringLiteral(doubleQuoteStringLiteral);
             return null;
         }
         TerminalNode nullLiteral = literal.NULL();
@@ -1268,41 +1262,48 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
         return null;
     }
 
-    private int handleStringInterpolation(ErrorReporter errorReporter, String originStr) {
-        int dollarIndex = originStr.indexOf("${");
-        int dollarCloseIndex = dollarIndex == -1 ? -1 : originStr.indexOf('}', dollarIndex);
-        if (dollarIndex == -1 || dollarCloseIndex == -1) {
-            addInstruction(
-                    new ConstInstruction(errorReporter, originStr)
-            );
-            return 1;
+    @Override
+    public Void visitDoubleQuoteStringLiteral(DoubleQuoteStringLiteralContext ctx) {
+        int childCount = ctx.getChildCount();
+        for (int i = 1; i < childCount - 1; i++) {
+            ParseTree child = ctx.getChild(i);
+            if (child instanceof StringExpressionContext) {
+                StringExpressionContext stringExpression = (StringExpressionContext) child;
+                ExpressionContext expression = stringExpression.expression();
+                if (expression != null) {
+                    visitExpression(expression);
+                } else {
+                    TerminalNode varTerminalNode = stringExpression.SelectorVariable_VANME();
+                    String varName = varTerminalNode.getText().trim();
+                    addInstruction(new LoadInstruction(newReporterWithToken(varTerminalNode.getSymbol()), varName));
+                }
+            } else if (child instanceof TerminalNode) {
+                TerminalNode terminalNode = (TerminalNode) child;
+                String originStr = terminalNode.getText();
+                addInstruction(
+                    new ConstInstruction(
+                        newReporterWithToken(terminalNode.getSymbol()),
+                        parseStringEscapeStartEnd(originStr, 0, originStr.length())
+                    )
+                );
+            }
         }
-        String left = originStr.substring(0, dollarIndex);
-        String variableName = originStr.substring(dollarIndex + 2, dollarCloseIndex).trim();
-        String right = originStr.substring(dollarCloseIndex + 1);
-
-        // left const string
-        addInstruction(
-                new ConstInstruction(errorReporter, left)
-        );
-
-        // variable
-        addInstruction(
-                new LoadInstruction(errorReporter, variableName)
-        );
-
-        // right
-        return 2 + handleStringInterpolation(errorReporter, right);
+        addInstruction(new StringJoinInstruction(newReporterWithToken(ctx.getStart()), childCount - 2));
+        return null;
     }
 
     private String parseStringEscape(String originStr) {
+        return parseStringEscapeStartEnd(originStr, 1, originStr.length() - 1);
+    }
+
+    private String parseStringEscapeStartEnd(String originStr, int start, int end) {
         StringBuilder result = new StringBuilder();
         final byte init = 0;
         final byte escape = 1;
         byte state = 0;
 
-        int i = 1;
-        while (i < originStr.length() - 1) {
+        int i = start;
+        while (i < end) {
             char cur = originStr.charAt(i++);
             switch (state) {
                 case init:
@@ -1338,6 +1339,9 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
                             break;
                         case '\\':
                             result.append('\\');
+                            break;
+                        case '$':
+                            result.append('$');
                             break;
                     }
                     break;
@@ -1529,7 +1533,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private QvmInstructionVisitor parseWithSubVisitor(RuleContext ruleContext, GeneratorScope generatorScope,
                                                       Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context, compileTimeFunctions);
+                generatorScope, operatorFactory, context, compileTimeFunctions, interpolationMode);
         ruleContext.accept(subVisitor);
         return subVisitor;
     }
@@ -1537,7 +1541,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
     private QvmInstructionVisitor parseExprBodyWithSubVisitor(ExpressionContext expressionContext,
                                                               GeneratorScope generatorScope, Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context, compileTimeFunctions);
+                generatorScope, operatorFactory, context, compileTimeFunctions, interpolationMode);
         // reduce the level of syntax tree when expression is a block
         subVisitor.visitBodyExpression(expressionContext);
         return subVisitor;
@@ -1562,7 +1566,7 @@ public class QvmInstructionVisitor extends QLGrammarBaseVisitor<Void> {
             ExpressionContext expressionContext = ((ExpressionStatementContext) statementContext).expression();
             if (expressionContext != null) {
                 if (expressionContext.getStart() == expressionContext.getStop()) {
-                    return expressionContext.getStart().getType() == QLGrammarLexer.ID;
+                    return expressionContext.getStart().getType() == QLexer.ID;
                 }
             }
         }

@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.aparser.compiletimefunction;
 
 import com.alibaba.qlexpress4.aparser.OperatorFactory;
-import com.alibaba.qlexpress4.aparser.QLGrammarParser;
+import com.alibaba.qlexpress4.aparser.QLParser;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface CompileTimeFunction {
      * @param operatorFactory operator factory
      * @param codeGenerator tool for code generate
      */
-    void createFunctionInstruction(String functionName, List<QLGrammarParser.ExpressionContext> arguments,
+    void createFunctionInstruction(String functionName, List<QLParser.ExpressionContext> arguments,
                                    OperatorFactory operatorFactory, CodeGenerator codeGenerator);
 
 }

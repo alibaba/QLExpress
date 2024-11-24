@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4;
 
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
@@ -61,11 +62,18 @@ public class InitOptions {
      */
     private final boolean allowPrivateAccess;
 
+    /**
+     * How to manage string interpolation, for instance, "a ${t-c} b"
+     * default SCRIPT
+     */
+    private final InterpolationMode interpolationMode;
+
     private InitOptions(ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
                         QLSecurityStrategy securityStrategy,
-                        List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess) {
+                        List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess,
+                        InterpolationMode interpolationMode) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -73,6 +81,7 @@ public class InitOptions {
         this.securityStrategy = securityStrategy;
         this.extensionFunctions = extensionFunctions;
         this.allowPrivateAccess = allowPrivateAccess;
+        this.interpolationMode = interpolationMode;
     }
 
     public static InitOptions.Builder builder() {
@@ -103,8 +112,12 @@ public class InitOptions {
         return extensionFunctions;
     }
 
-    public boolean allowPrivateAccess() {
+    public boolean isAllowPrivateAccess() {
         return allowPrivateAccess;
+    }
+
+    public InterpolationMode getInterpolationMode() {
+        return interpolationMode;
     }
 
     public static class Builder {
@@ -124,6 +137,7 @@ public class InitOptions {
                 MapExtensionFunction.INSTANCE
         );
         private boolean allowPrivateAccess = false;
+        private InterpolationMode interpolationMode = InterpolationMode.SCRIPT;
 
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
@@ -162,7 +176,8 @@ public class InitOptions {
 
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport,
-                    debug, debugInfoConsumer, securityStrategy, extensionFunctions, allowPrivateAccess);
+                    debug, debugInfoConsumer, securityStrategy, extensionFunctions,
+                    allowPrivateAccess, interpolationMode);
         }
     }
 }

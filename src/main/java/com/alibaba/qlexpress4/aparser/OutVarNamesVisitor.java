@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Author: DQinYuan
  */
-public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
+public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
 
     private final Set<String> outVars = new HashSet<>();
 
@@ -43,7 +43,7 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
 
     // scope
     @Override
-    public Void visitBlockExpr(QLGrammarParser.BlockExprContext ctx) {
+    public Void visitBlockExpr(QLParser.BlockExprContext ctx) {
         this.existVarStack = this.existVarStack.push();
         super.visitBlockExpr(ctx);
         this.existVarStack = this.existVarStack.pop();
@@ -51,7 +51,7 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitIfExpr(QLGrammarParser.IfExprContext ctx) {
+    public Void visitIfExpr(QLParser.IfExprContext ctx) {
         ctx.condition.accept(this);
 
         this.existVarStack = this.existVarStack.push();
@@ -66,21 +66,21 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitTryCatchExpr(QLGrammarParser.TryCatchExprContext ctx) {
-        QLGrammarParser.BlockStatementsContext blockStatementsContext = ctx.blockStatements();
+    public Void visitTryCatchExpr(QLParser.TryCatchExprContext ctx) {
+        QLParser.BlockStatementsContext blockStatementsContext = ctx.blockStatements();
         if (blockStatementsContext != null) {
             this.existVarStack = this.existVarStack.push();
             blockStatementsContext.accept(this);
             this.existVarStack = this.existVarStack.pop();
         }
 
-        QLGrammarParser.TryCatchesContext tryCatchesContext = ctx.tryCatches();
+        QLParser.TryCatchesContext tryCatchesContext = ctx.tryCatches();
         if (tryCatchesContext != null) {
             tryCatchesContext.accept(this);
         }
 
 
-        QLGrammarParser.TryFinallyContext tryFinallyContext = ctx.tryFinally();
+        QLParser.TryFinallyContext tryFinallyContext = ctx.tryFinally();
         if (tryFinallyContext != null) {
             this.existVarStack = this.existVarStack.push();
             tryFinallyContext.accept(this);
@@ -91,7 +91,7 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitTryCatch(QLGrammarParser.TryCatchContext ctx) {
+    public Void visitTryCatch(QLParser.TryCatchContext ctx) {
         this.existVarStack = this.existVarStack.push();
         super.visitTryCatch(ctx);
         this.existVarStack = this.existVarStack.pop();
@@ -105,15 +105,15 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
      * @return a
      */
     @Override
-    public Void visitVariableDeclaratorId(QLGrammarParser.VariableDeclaratorIdContext ctx) {
-        QLGrammarParser.VarIdContext varIdContext = ctx.varId();
+    public Void visitVariableDeclaratorId(QLParser.VariableDeclaratorIdContext ctx) {
+        QLParser.VarIdContext varIdContext = ctx.varId();
         existVarStack.add(varIdContext.getText());
         return null;
     }
 
     @Override
-    public Void visitLeftHandSide(QLGrammarParser.LeftHandSideContext ctx) {
-        List<QLGrammarParser.PathPartContext> pathPartContexts = ctx.pathPart();
+    public Void visitLeftHandSide(QLParser.LeftHandSideContext ctx) {
+        List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         String leftVarName = ctx.varId().getText();
         if (pathPartContexts.isEmpty()) {
             existVarStack.add(leftVarName);
@@ -126,7 +126,7 @@ public class OutVarNamesVisitor extends QLGrammarBaseVisitor<Void> {
     // collect out variables name
 
     @Override
-    public Void visitVarIdExpr(QLGrammarParser.VarIdExprContext ctx) {
+    public Void visitVarIdExpr(QLParser.VarIdExprContext ctx) {
         String varName = ctx.varId().getText();
         if (!existVarStack.exist(varName)) {
             outVars.add(varName);

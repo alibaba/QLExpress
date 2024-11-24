@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.aparser.compiletimefunction;
 
-import com.alibaba.qlexpress4.aparser.QLGrammarParser;
+import com.alibaba.qlexpress4.aparser.QLParser;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
@@ -22,7 +22,7 @@ public interface CodeGenerator {
 
     QLSyntaxException reportParseErr(String errCode, String errReason);
 
-    QLambdaDefinition generateLambdaDefinition(QLGrammarParser.ExpressionContext expressionContext,
+    QLambdaDefinition generateLambdaDefinition(QLParser.ExpressionContext expressionContext,
                                                List<QLambdaDefinitionInner.Param> params);
 
     ErrorReporter getErrorReporter();

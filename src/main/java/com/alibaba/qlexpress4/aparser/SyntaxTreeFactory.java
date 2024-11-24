@@ -34,21 +34,22 @@ public class SyntaxTreeFactory {
     }
 
     private static void warmUpExpress(String script) {
-        buildTree(script, new OperatorManager(), false, false, s -> {});
+        buildTree(script, new OperatorManager(), false, false, s -> {}, InterpolationMode.SCRIPT);
     }
 
 
-    public static QLGrammarParser.ProgramContext buildTree(String script, ParserOperatorManager operatorManager,
-                                                           boolean printTree, boolean profile, Consumer<String> printer) {
-        QLGrammarLexer lexer = new QLGrammarLexer(CharStreams.fromString(script));
+    public static QLParser.ProgramContext buildTree(String script, ParserOperatorManager operatorManager,
+                                                           boolean printTree, boolean profile, Consumer<String> printer,
+                                                    InterpolationMode interpolationMode) {
+        QLexer lexer = new QLexer(CharStreams.fromString(script), interpolationMode);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        QLGrammarParser qlGrammarParser = new QLGrammarParser(tokens, operatorManager);
+        QLParser qlGrammarParser = new QLParser(tokens, operatorManager, interpolationMode);
         qlGrammarParser.setErrorHandler(new QLErrorStrategy(script));
         qlGrammarParser.getInterpreter().setPredictionMode(PredictionMode.SLL);
         if (profile) {
             qlGrammarParser.setProfile(true);
         }
-        QLGrammarParser.ProgramContext programContext = qlGrammarParser.program();
+        QLParser.ProgramContext programContext = qlGrammarParser.program();
         if (printTree) {
             printer.accept(tokens.getTokens().stream()
                     .map(Token::getText).collect(Collectors.joining(" | ")));

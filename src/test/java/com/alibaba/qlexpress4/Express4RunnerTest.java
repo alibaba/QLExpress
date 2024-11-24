@@ -476,7 +476,7 @@ public class Express4RunnerTest {
             express4Runner.execute("\"aaa \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid StringLiteral", e.getReason());
+            assertEquals("invalid doubleQuoteStringLiteral", e.getReason());
         }
     }
 
