@@ -56,6 +56,8 @@ public class OperatorFactory {
         addOperator("function", new OperatorFunction("function"));
         addOperator("in", new OperatorIn("in"));
         addOperator("like", new OperatorLike("like"));
+        addOperator("notIn", new OperatorNotIn("notIn"));
+        addOperator("notLike", new OperatorNotLike("notLike"));
 
         // bit operator
         addOperator("&", new OperatorBit("&"));

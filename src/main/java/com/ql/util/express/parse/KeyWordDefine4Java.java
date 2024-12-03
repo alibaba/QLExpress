@@ -20,7 +20,7 @@ public class KeyWordDefine4Java {
         "->"
     };
     public final String[] keyWords = new String[] {
-        "mod", "nor", "in",
+        "mod", "nor", "in","notIn","notLike",
         "for", "if", "when", "then", "else", "exportAlias", "alias",
         "break", "continue", "return", "macro", "function",
         "def", "exportDef", "new", "array", "anonymousNewArray",
@@ -65,7 +65,7 @@ public class KeyWordDefine4Java {
         "OP_LEVEL3:TYPE=OPERATOR,DEFINE=&|MAYBE|XOR|<<|>>",
         "OP_LEVEL4:TYPE=OPERATOR,DEFINE=*|/|mod|%",
         "OP_LEVEL5:TYPE=OPERATOR,DEFINE=+|-",
-        "OP_LEVEL6:TYPE=OPERATOR,DEFINE=in|like",
+        "OP_LEVEL6:TYPE=OPERATOR,DEFINE=in|like|notIn|notLike",
         "OP_LEVEL7:TYPE=OPERATOR,DEFINE=>|>=|<|<=|==|!=|<>",
         "OP_LEVEL8:TYPE=OPERATOR,DEFINE=&&",
         "OP_LEVEL9:TYPE=OPERATOR,DEFINE=OR_INNER|nor",
@@ -157,9 +157,10 @@ public class KeyWordDefine4Java {
         "PROGRAM:TYPE=BLOCK,DEFINE=STAT_LIST#STAT_BLOCK",
     };
     public final String[][] instructionFactoryMapping = {
-        {"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,>,>=,<,<=,==,!=,<>,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL",
+        {"^,~,!,++,--,&,|,<<,>>,*,/,mod,%,+,-,like,notLike,>,>=,<,<=,==,!=,<>,&&,||,nor,=,return,alias,exportAlias,ARRAY_CALL",
             "com.ql.util.express.instruction.OperatorInstructionFactory"},
         {"in", "com.ql.util.express.instruction.InInstructionFactory"},
+        {"notIn", "com.ql.util.express.instruction.NotInInstructionFactory"},
         {"exportDef", "com.ql.util.express.instruction.OperatorInstructionFactory"},
         {"ID", "com.ql.util.express.instruction.LoadAttrInstructionFactory"},
         {"CONST,CONST_CLASS", "com.ql.util.express.instruction.ConstDataInstructionFactory"},
