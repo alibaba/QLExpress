@@ -3,6 +3,9 @@ package com.alibaba.qlexpress4.runtime;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 
@@ -50,5 +53,12 @@ public class MemberResolverTest {
 
         int result1 = MemberResolver.resolvePriority(new Class[]{}, new Class[]{});
         assertEquals(MemberResolver.MatchPriority.EQUAL.priority, result1);
+    }
+
+    @Test
+    public void resolveStreamTest() {
+        Method result = MemberResolver.resolveMethod(new ArrayList().stream().getClass(), "filter",
+                new Class[]{Predicate.class}, false, false);
+        assertNotNull(result);
     }
 }

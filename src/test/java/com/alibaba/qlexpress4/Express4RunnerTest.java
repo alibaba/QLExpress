@@ -8,12 +8,17 @@ import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+import com.alibaba.qlexpress4.test.function.HelloFunction;
+import com.alibaba.qlexpress4.test.qlalias.Order;
 import com.alibaba.qlexpress4.test.qlalias.Patient;
 import com.alibaba.qlexpress4.test.qlalias.Person;
+import com.alibaba.qlexpress4.test.qlalias.User;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -69,7 +74,7 @@ public class Express4RunnerTest {
     @Test
     public void docDefaultImportJavaTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .defaultImport(
+                .addDefaultImport(
                         Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
                 )
                 .securityStrategy(QLSecurityStrategy.open())
@@ -220,6 +225,37 @@ public class Express4RunnerTest {
         assertErrorCode(express4Runner, "a abcd bb", "UNKNOWN_OPERATOR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "a.*bbb", "UNKNOWN_OPERATOR");
+    }
+
+    @Test
+    public void extensionFunctionTest() {
+        ExtensionFunction helloFunction = new ExtensionFunction() {
+            @Override
+            public Class<?>[] getParameterTypes() {
+                return new Class[0];
+            }
+
+            @Override
+            public String getName() {
+                return "hello";
+            }
+
+            @Override
+            public Class<?> getDeclaringClass() {
+                return String.class;
+            }
+
+            @Override
+            public Object invoke(Object obj, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                String originStr = (String) obj;
+                return "Hello," + originStr;
+            }
+        };
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .addExtensionFunctions(Collections.singletonList(helloFunction))
+                .build());
+        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("Hello,jack", result);
     }
 
     @Test
@@ -545,6 +581,36 @@ public class Express4RunnerTest {
             Object result = express4Runner.executeWithAliasObjects(exps[i], QLOptions.DEFAULT_OPTIONS, person);
             assertEquals(result.toString(), exps[i + 1]);
         }
+    }
+
+    @Test
+    public void qlAliasDocTest() {
+        Order order = new Order();
+        order.setOrderNum("OR123455");
+        order.setAmount(100);
+
+        User user = new User();
+        user.setName("jack");
+        user.setVip(true);
+
+        // Calculate the Final Order Amount
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open()).build());
+        Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
+                QLOptions.DEFAULT_OPTIONS, order, user);
+        assertEquals(80, result.intValue());
+    }
+
+    @Test
+    public void customFunctionDocTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("hello", new HelloFunction());
+        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+                .attachments(Collections.singletonMap("tenant", "jack")).build());
+        assertEquals("hello,jack", resultJack);
+        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+                .attachments(Collections.singletonMap("tenant", "lucy")).build());
+        assertEquals("hello,lucy", resultLucy);
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

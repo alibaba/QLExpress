@@ -3,7 +3,7 @@ package com.alibaba.qlexpress4.test.qlalias;
 import com.alibaba.qlexpress4.annotation.QLAlias;
 
 @QLAlias("患者")
-public class Patient  extends Person {
+public class Patient extends Person {
 
     @QLAlias("级别")
     private String level = "高危";

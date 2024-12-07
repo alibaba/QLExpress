@@ -34,7 +34,7 @@ public class TestSuiteRunner {
 
     private static final Express4Runner CONFIG_RUNNER = new Express4Runner(InitOptions.builder()
         .securityStrategy(QLSecurityStrategy.open())
-        .defaultImport(Arrays.asList(
+        .addDefaultImport(Arrays.asList(
             ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
             ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
         .build());
@@ -56,7 +56,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/string/interpolation.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/stream/java_stream.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

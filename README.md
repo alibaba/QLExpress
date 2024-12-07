@@ -44,19 +44,51 @@ assertEquals(7, result);
 
 ## 添加自定义函数与操作符
 
+最简单的方式是通过 Java Lambda 表达式快速定义函数/操作符的逻辑：
+
 ```java
 Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-// custom function
+// 自定义函数
 express4Runner.addVarArgsFunction("join", params ->
         Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
 Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
 assertEquals("1,2,3", resultFunction);
 
-// custom operator
+// 自定义操作符
 express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
 Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
 assertEquals("1,2,3", resultOperator);
 ```
+
+如果自定义函数的逻辑比较复杂，或者需要获得脚本的上下文信息，也可以通过继承 `CustomFunction` 的方式实现。
+
+比如下面的 `hello` 自定义函数，根据租户不同，返回不同的欢迎信息：
+
+```java
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+
+public class HelloFunction implements CustomFunction {
+    @Override
+    public Object call(QContext qContext, Parameters parameters) throws Throwable {
+        String tenant = (String) qContext.attachment().get("tenant");
+        return "hello," + tenant;
+    }
+}
+```
+
+```java
+Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+express4Runner.addFunction("hello", new HelloFunction());
+String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+       .attachments(Collections.singletonMap("tenant", "jack")).build());
+assertEquals("hello,jack", resultJack);
+String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+       .attachments(Collections.singletonMap("tenant", "lucy")).build());
+assertEquals("hello,lucy", resultLucy);
+```
+
 ## 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
@@ -151,6 +183,133 @@ express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder()
         .cache(true).build());
 ```
 
+## 扩展函数
+
+利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
+
+扩展函数是基于 QLExpress 运行时实现的，因此仅仅在 QLExpress 脚本中有效。
+
+下面的示例代码给 String 类添加了一个 `hello()` 扩展函数：
+
+```java
+        ExtensionFunction helloFunction = new ExtensionFunction() {
+            @Override
+            public Class<?>[] getParameterTypes() {
+                return new Class[0];
+            }
+
+            @Override
+            public String getName() {
+                return "hello";
+            }
+
+            @Override
+            public Class<?> getDeclaringClass() {
+                return String.class;
+            }
+
+            @Override
+            public Object invoke(Object obj, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                String originStr = (String) obj;
+                return "Hello," + originStr;
+            }
+        };
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .addExtensionFunctions(Collections.singletonList(helloFunction))
+                .build());
+        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("Hello,jack", result);
+```
+
+## 对象,字段和函数别名
+
+QLExpress 支持通过 `QLAlias` 注解给对象，字段或者函数定义一个或多个别名，方便非技术人员使用表达式定义规则。
+
+下面的例子中，根据用户是否 vip 计算订单最终金额。
+
+用户类定义：
+
+```java
+import com.alibaba.qlexpress4.annotation.QLAlias;
+
+@QLAlias("用户")
+public class User {
+
+    @QLAlias("是vip")
+    private boolean vip;
+
+    @QLAlias("用户名")
+    private String name;
+
+    public boolean isVip() {
+        return vip;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+订单类定义：
+
+```java
+import com.alibaba.qlexpress4.annotation.QLAlias;
+
+@QLAlias("订单")
+public class Order {
+
+    @QLAlias("订单号")
+    private String orderNum;
+
+    @QLAlias("金额")
+    private int amount;
+
+    public String getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(String orderNum) {
+        this.orderNum = orderNum;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+}
+```
+
+通过 QLExpress 脚本规则计算最终订单金额：
+
+```java
+        Order order = new Order();
+        order.setOrderNum("OR123455");
+        order.setAmount(100);
+
+        User user = new User();
+        user.setName("jack");
+        user.setVip(true);
+
+        // Calculate the Final Order Amount
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open()).build());
+        Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
+                QLOptions.DEFAULT_OPTIONS, order, user);
+        assertEquals(80, result.intValue());
+```
+
 # 语法入门
 
 QLExpress4 兼容 Java8 语法的同时，也提供了很多更加灵活宽松的语法模式，帮助用户更快捷地编写表达式。
@@ -205,6 +364,26 @@ QLExpress会根据其所属范围自动从 int, long, BigInteger, BigDecimal 等
 ```
 
 因此在自定义函数或者操作符时，建议使用 Number 类型进行接收，因为数字类型是无法事先确定的。
+
+## 动态字符串
+
+QLExpress 支持 `${expression$}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+
+```qlexpress
+a = 123;
+// Output: hello,122
+"hello,${a-1$}"
+```
+
+```qlexpress
+b = "test"
+// Output: m xx YYY
+"m xx ${
+  if (b like 't%') {
+      "YYY"
+  }
+$}"
+```
 
 ## 分号
 
@@ -324,15 +503,84 @@ try {
 }
 ```
 
+### 函数定义
+
+以下脚本的输出为 2：
+
+```qlexpress
+function sub(a, b) {
+    return a-b;
+}
+sub(3,1)
+```
+
+### Lambda表达式
+
+QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
+
+以下脚本的输出为 3：
+
+```qlexpress
+add = (a, b) -> {
+  return a + b;
+};
+add(1,2)
+```
+
+### 列表过滤和映射
+
+支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
+底层通过在列表类型添加 [扩展函数](#扩展函数) 实现，注意和 [Stream Api](#stream-api) 中同名方法区分。
+相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
+
+```qlexpress
+l = ["a-111", "a-222", "b-333", "c-888"]
+// Output: ["111", "222"]
+l.filter(i -> i.startsWith("a-")).map(i -> i.split("-")[1]);
+```
+
+### 兼容 Java8 语法
+
+QLExpress 可以兼容 Java8 的常见语法。
+
+比如 [for-each循环](#for-each-循环), Stream 语法, 函数式接口等等。
+
+### Stream Api
+
+可以直接使用 Java 集合中的 stream api 对集合进行操作。
+
+因为此时的 stream api 都是来自 Java 中的方法，参考 [调用应用中的 Java 类](#调用应用中的-java-类) 打开安全选项，以下脚本才能正常执行。
+
+```qlexpress
+l = ["a-111", "a-222", "b-333", "c-888"]
+
+// Output: ["111", "222"]
+l.stream()
+      .filter(i -> i.startsWith("a-"))
+      .map(i -> i.split("-")[1])
+      .collect(Collectors.toList())
+```
+
+### 函数式接口
+
+Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 [Lambda表达式](#lambda表达式) 可以赋值给这些接口，
+或者作为接收这些接口的方法参数：
+
+```qlexpress
+Supplier s = () -> "test";
+// Output: test
+s.get()
+```
+
 # 附录一 QLExpress4性能提升
 
 [QLExpress4与3性能对比](https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B)
 
-总结：常见场景下，无缓存时，QLExpress4能比3有接近10倍性能提升；有缓存，也有一倍性能提升。
+总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
 
 # 附录二 开发者联系方式
 
- - email:tianqiao@alibaba-inc.com,baoxingjie@126.com
+ - email:qinyuan.dqy@alibaba-inc.com,yumin.pym@taobao.com,704643716@qq.com
  - wechat:
    - xuanheng: dqy932087612
    - binggou: pymbupt

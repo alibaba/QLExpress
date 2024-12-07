@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -122,20 +123,20 @@ public class InitOptions {
 
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
-        private List<ImportManager.QLImport> defaultImport = Arrays.asList(
+        private final List<ImportManager.QLImport> defaultImport = new ArrayList<>(Arrays.asList(
                 ImportManager.importPack("java.lang"),
                 ImportManager.importPack("java.util"),
                 ImportManager.importPack("java.math"),
                 ImportManager.importPack("java.util.stream"),
                 ImportManager.importPack("java.util.function")
-        );
+        ));
         private boolean debug = false;
         private Consumer<String> debugInfoConsumer = System.out::println;
         private QLSecurityStrategy securityStrategy = QLSecurityStrategy.isolation();
-        private List<ExtensionFunction> extensionFunctions = Arrays.asList(
+        private final List<ExtensionFunction> extensionFunctions = new ArrayList<>(Arrays.asList(
                 FilterExtensionFunction.INSTANCE,
                 MapExtensionFunction.INSTANCE
-        );
+        ));
         private boolean allowPrivateAccess = false;
         private InterpolationMode interpolationMode = InterpolationMode.SCRIPT;
 
@@ -144,8 +145,8 @@ public class InitOptions {
             return this;
         }
 
-        public Builder defaultImport(List<ImportManager.QLImport> defaultImport) {
-            this.defaultImport = defaultImport;
+        public Builder addDefaultImport(List<ImportManager.QLImport> defaultImport) {
+            this.defaultImport.addAll(defaultImport);
             return this;
         }
 
@@ -164,13 +165,18 @@ public class InitOptions {
             return this;
         }
 
-        public Builder extensionFunctions(List<ExtensionFunction> extensionFunctions) {
-            this.extensionFunctions = extensionFunctions;
+        public Builder addExtensionFunctions(List<ExtensionFunction> extensionFunctions) {
+            this.extensionFunctions.addAll(extensionFunctions);
             return this;
         }
 
         public Builder allowPrivateAccess(boolean allowPrivateAccess) {
             this.allowPrivateAccess = allowPrivateAccess;
+            return this;
+        }
+
+        public Builder interpolationMode(InterpolationMode interpolationMode) {
+            this.interpolationMode = interpolationMode;
             return this;
         }
 
