@@ -21,6 +21,7 @@ import com.ql.util.express.annotation.QLAlias;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.util.QLAliasUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 表达式工具类
@@ -753,5 +754,12 @@ public class ExpressUtil {
             }
         }
         return count == 1;
+    }
+    
+    public static boolean isNumber(String tempWord) {
+        if (StringUtils.isBlank(tempWord)) {
+            return false;
+        }
+        return tempWord.substring(0, tempWord.length() - 1).matches("\\d+");
     }
 }

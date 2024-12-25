@@ -127,7 +127,7 @@ public class ExpressParse {
 
             char firstChar = tempWord.charAt(0);
             char lastChar = tempWord.substring(tempWord.length() - 1).toLowerCase().charAt(0);
-            if (firstChar >= '0' && firstChar <= '9') {
+            if (ExpressUtil.isNumber(tempWord)) {
                 if (!result.isEmpty()) {
                     // 对负号进行特殊处理
                     if ("-".equals(result.get(result.size() - 1).getValue())) {
