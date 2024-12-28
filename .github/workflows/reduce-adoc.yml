@@ -1,0 +1,21 @@
+name: Reduce Adoc
+on:
+  push:
+    paths:
+      - README-source.adoc
+    branches: ['**']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install Asciidoctor Reducer
+        run: sudo gem install asciidoctor-reducer
+      - name: Reduce README
+        # to preserve preprocessor conditionals, add the --preserve-conditionals option
+        run: asciidoctor-reducer --preserve-conditionals -o README.adoc README-source.adoc
+      - name: Commit and Push README
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: README.adoc
