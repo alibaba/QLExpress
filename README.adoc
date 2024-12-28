@@ -1,0 +1,42 @@
+= QLExpress4
+
+== 背景介绍
+
+由阿里的电商业务规则演化而来的嵌入式Java动态脚本工具，在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
+
+在基本的表达式计算的基础上，增加以下特色功能：
+
+* 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
+* 兼容Java语法，最新的QLExpress4可以兼容Java8语法，方便Java程序员快速熟悉
+* 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
+* 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
+
+QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱Java8和函数式编程，在性能和表达式能力上都进行了进一步增强。
+场景举例：
+
+* 电商优惠券规则配置：通过 QLExpress 自定义函数和操作符快速实现优惠规则 DSL，供运营人员根据需求自行动态配置
+* 表单搭建控件关联规则配置：表单搭建平台允许用户拖拽控件搭建自定义的表单，利用 QLExpress 脚本配置不同控件间的关联关系
+* 流程引擎条件规则配置
+* 广告系统计费规则配置
+
+\...\...
+
+== API 快速入门
+
+=== 引入依赖
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>QLExpress4</artifactId>
+    <version>4.0.0-beta</version>
+</dependency>
+----
+
+=== 第一个 QLExpress 程序
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
+----

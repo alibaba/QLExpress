@@ -34,6 +34,7 @@ public class Express4RunnerTest {
 
     @Test
     public void docQuickStartTest() {
+        // tag::firstQl[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Map<String, Object> context = new HashMap<>();
         context.put("a", 1);
@@ -41,6 +42,7 @@ public class Express4RunnerTest {
         context.put("c", 3);
         Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS);
         assertEquals(7, result);
+        // end::firstQl[]
     }
 
     @Test
