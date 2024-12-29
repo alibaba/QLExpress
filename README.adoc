@@ -1,4 +1,6 @@
-= QLExpress4
+:toc:
+
+= QLExpress
 
 == 背景介绍
 
@@ -30,7 +32,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>QLExpress4</artifactId>
-    <version>4.0.0-beta</version>
+    <version>4.0.0-beta.2</version>
 </dependency>
 ----
 
@@ -46,3 +48,597 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
         Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS);
         assertEquals(7, result);
 ----
+
+=== 添加自定义函数与操作符
+
+最简单的方式是通过 Java Lambda 表达式快速定义函数/操作符的逻辑：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // custom function
+        express4Runner.addVarArgsFunction("join", params ->
+                Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
+        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("1,2,3", resultFunction);
+
+        // custom operator
+        express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
+        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("1,2,3", resultOperator);
+----
+
+如果自定义函数的逻辑比较复杂，或者需要获得脚本的上下文信息，也可以通过继承 `CustomFunction` 的方式实现。
+
+比如下面的 `hello` 自定义函数，根据租户不同，返回不同的欢迎信息：
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.test.function;
+
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+
+public class HelloFunction implements CustomFunction {
+    @Override
+    public Object call(QContext qContext, Parameters parameters) throws Throwable {
+        String tenant = (String) qContext.attachment().get("tenant");
+        return "hello," + tenant;
+    }
+}
+----
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("hello", new HelloFunction());
+        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+                .attachments(Collections.singletonMap("tenant", "jack")).build());
+        assertEquals("hello,jack", resultJack);
+        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
+                .attachments(Collections.singletonMap("tenant", "lucy")).build());
+        assertEquals("hello,lucy", resultLucy);
+----
+
+=== 高精度计算
+
+QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
+
+> 举例：0.1 在 double 中无法精确表示
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertTrue(result instanceof BigDecimal);
+----
+
+通过这种方式能够解决一些计算精度问题：
+
+比如 0.1+0.2 因为精度问题，在 Java 中是不等于 0.3 的。
+而 QLExpress 能够自动识别出 0.1 和 0.2 无法用双精度精确表示，改成用 BigDecimal 表示，确保其结果等于0.3
+
+[source,java,indent=0]
+----
+        assertNotEquals(0.3, 0.1 + 0.2, 0.0);
+        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+----
+
+除了默认的精度保证外，还提供了 `precise` 开关，打开后所有的计算都使用BigDecimal，防止外部传入的低精度数字导致的问题：
+
+[source,java,indent=0]
+----
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 0.1);
+        context.put("b", 0.2);
+        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS));
+        // open precise switch
+        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()));
+----
+
+=== 调用应用中的 Java 类
+
+> 需要放开安全策略，不建议用于终端用户输入
+
+假设应用中有如下的 Java 类(`com.alibaba.qlexpress4.QLImportTester`)：
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4;
+
+public class QLImportTester {
+
+    public static int add(int a, int b) {
+        return a + b;
+    }
+
+}
+----
+
+在 QLExpress 中有如下两种调用方式。
+
+==== 1. 在脚本中使用 `import` 语句导入类并且使用
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                // open security strategy, which allows access to all Java classes within the application.
+                .securityStrategy(QLSecurityStrategy.open())
+                .build()
+        );
+        // Import Java classes using the import statement.
+        Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
+                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(3, result);
+----
+
+==== 2. 在创建 `Express4Runner` 时默认导入该类，此时脚本中就不需要额外的 `import` 语句
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .addDefaultImport(
+                        Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
+                )
+                .securityStrategy(QLSecurityStrategy.open())
+                .build()
+        );
+        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(3, result);
+----
+
+=== 表达式缓存
+
+通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
+
+注意该缓存没有限制大小，只适合在表达式为有限数量的情况下使用：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // open cache switch
+        express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder()
+                .cache(true).build());
+----
+
+=== 扩展函数
+
+利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
+
+扩展函数是基于 QLExpress 运行时实现的，因此仅仅在 QLExpress 脚本中有效。
+
+下面的示例代码给 String 类添加了一个 `hello()` 扩展函数：
+
+[source,java,indent=0]
+----
+        ExtensionFunction helloFunction = new ExtensionFunction() {
+            @Override
+            public Class<?>[] getParameterTypes() {
+                return new Class[0];
+            }
+
+            @Override
+            public String getName() {
+                return "hello";
+            }
+
+            @Override
+            public Class<?> getDeclaringClass() {
+                return String.class;
+            }
+
+            @Override
+            public Object invoke(Object obj, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                String originStr = (String) obj;
+                return "Hello," + originStr;
+            }
+        };
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .addExtensionFunctions(Collections.singletonList(helloFunction))
+                .build());
+        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals("Hello,jack", result);
+----
+
+=== 对象,字段和函数别名
+
+QLExpress 支持通过 `QLAlias` 注解给对象，字段或者函数定义一个或多个别名，方便非技术人员使用表达式定义规则。
+
+下面的例子中，根据用户是否 vip 计算订单最终金额。
+
+用户类定义：
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.test.qlalias;
+
+import com.alibaba.qlexpress4.annotation.QLAlias;
+
+@QLAlias("用户")
+public class User {
+
+    @QLAlias("是vip")
+    private boolean vip;
+
+    @QLAlias("用户名")
+    private String name;
+
+    public boolean isVip() {
+        return vip;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+----
+
+订单类定义：
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.test.qlalias;
+
+import com.alibaba.qlexpress4.annotation.QLAlias;
+
+@QLAlias("订单")
+public class Order {
+
+    @QLAlias("订单号")
+    private String orderNum;
+
+    @QLAlias("金额")
+    private int amount;
+
+    public String getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(String orderNum) {
+        this.orderNum = orderNum;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+}
+----
+
+通过 QLExpress 脚本规则计算最终订单金额：
+
+[source,java,indent=0]
+----
+        Order order = new Order();
+        order.setOrderNum("OR123455");
+        order.setAmount(100);
+
+        User user = new User();
+        user.setName("jack");
+        user.setVip(true);
+
+        // Calculate the Final Order Amount
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open()).build());
+        Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
+                QLOptions.DEFAULT_OPTIONS, order, user);
+        assertEquals(80, result.intValue());
+----
+
+== 语法入门
+
+QLExpress4 兼容 Java8 语法的同时，也提供了很多更加灵活宽松的语法模式，帮助用户更快捷地编写表达式。
+
+基于表达式优先的语法设计，复杂的条件判断语句也可以直接当作表达式使用。
+
+在本章节中出现的代码片段都是 qlexpress 脚本，
+`assert` 是测试框架往引擎中注入的断言方法，会确保其参数为 `true`。
+`assertErrCode` 会确保其 lambda 参数表达式的执行一定会抛出含第二个参数 error code 的 QLException。
+
+=== 变量声明
+
+同时支持静态类型和动态类型：
+
+ * 变量声明时不写类型，则变量是动态类型，也同时是一个赋值表达式
+ * 变量声明如果写类型，则是静态类型，此时是一个变量声明语句
+
+[source,java]
+----
+// Dynamic Typeing
+a = 1;
+a = "1";
+// Static Typing
+int b = 2;
+// throw QLException with error code INCOMPATIBLE_ASSIGNMENT_TYPE when assign with incompatible type String
+assertErrorCode(() -> b = "1", "INCOMPATIBLE_ASSIGNMENT_TYPE")
+
+----
+
+=== 方便语法元素
+
+列表(List)，映射(Map)等常用语法元素在 QLExpress 中都有非常方便的构造语法糖：
+
+[source,java]
+----
+// list
+l = [1,2,3]
+assert(l[0]==1)
+// Underlying data type of list is ArrayList in Java
+assert(l instanceof ArrayList)
+// map
+m = {
+  "aa": 10,
+  "bb": {
+    "cc": "cc1",
+    "dd": "dd1"
+  }
+}
+assert(m['aa']==10)
+// Underlying data type of map is ArrayList in Java
+assert(m instanceof LinkedHashMap)
+----
+
+=== 数字
+
+对于未声明类型的数字，
+QLExpress会根据其所属范围自动从 int, long, BigInteger, double, BigDecimal 等数据类型中选择一个最合适的：
+
+[source,java]
+----
+assert(2147483647 instanceof Integer);
+assert(9223372036854775807 instanceof Long);
+assert(18446744073709552000 instanceof BigInteger);
+// 0.25 can be precisely presented with double
+assert(0.25 instanceof Double);
+assert(2.7976931348623157E308 instanceof BigDecimal);
+----
+
+因此在自定义函数或者操作符时，建议使用 Number 类型进行接收，因为数字类型是无法事先确定的。
+
+=== 动态字符串
+
+QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+
+
+[source,java]
+----
+a = 123
+assert("hello,${a-1}" == "hello,122")
+
+b = "test"
+assert("m xx ${
+  if (b like 't%') {
+      'YYY'
+  }
+}" == "m xx YYY")
+----
+
+=== 分号
+
+表达式语句可以省略结尾的分号，整个脚本的返回值就是最后一个表达式的计算结果。
+
+以下脚本的返回值为 2：
+
+[source,java]
+----
+a = 1
+b = 2
+// last express
+1+1
+----
+
+等价于以下写法：
+
+[source,java]
+----
+a = 1
+b = 2
+// return statment
+return 1+1;
+----
+
+=== 表达式
+
+QLExpress 采用表达式优先的设计，其中 除了 import， return 和循环等结构外，几乎都是表达式。
+
+if 语句也是一个表达式：
+
+[source,java]
+----
+assert(if (11 == 11) {
+  10
+} else {
+  20 + 2
+} + 1 == 11)
+----
+
+try catch 结构也是一个表达式：
+
+[source,java]
+----
+assert(1 + try {
+    100 + 1/0
+} catch(e) {
+    // Throw a zero-division exception
+    11
+} == 12)
+----
+
+=== 控制结构
+
+==== if 分支
+
+[source,java]
+----
+a = 11;
+assert(if (a >= 0 && a < 5) {
+  true
+} else if (a >= 5 && a < 10) {
+  false
+} else if (a >= 10 && a < 15) {
+  true
+} == true)
+----
+
+==== while 循环
+
+[source,java]
+----
+i = 0;
+while (i < 5) {
+  if (++i == 2) {
+    break;
+  }
+}
+assert(i==2)
+----
+
+==== for 循环
+
+[source,java]
+----
+l = [];
+for (int i = 3; i < 6; i++) {
+  l.add(i);
+}
+assert(l==[3,4,5])
+----
+
+==== for-each 循环
+
+[source,java]
+----
+sum = 0;
+for (i: [0,1,2,3,4]) {
+  if (i == 2) {
+    continue;
+  }
+  sum += i;
+}
+assert(sum==8)
+----
+
+==== try-catch
+
+[source,java]
+----
+assert(try {
+    100 + 1/0
+} catch(e) {
+    // Throw a zero-division exception
+    11
+} == 11)
+----
+
+==== 函数定义
+
+[source,java]
+----
+function sub(a, b) {
+    return a-b;
+}
+assert(sub(3,1)==2)
+----
+
+==== Lambda 表达式
+
+QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
+
+[source,java]
+----
+add = (a, b) -> {
+  return a + b;
+}
+assert(add(1,2)==3)
+----
+
+==== 列表过滤和映射
+
+支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
+
+底层通过在列表类型添加 link:#_扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
+
+相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
+
+[source,java]
+----
+l = ["a-111", "a-222", "b-333", "c-888"]
+assert(l.filter(i -> i.startsWith("a-"))
+        .map(i -> i.split("-")[1]) == ["111", "222"])
+----
+
+==== 兼容 Java8 语法
+
+QLExpress 可以兼容 Java8 的常见语法。
+
+比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
+
+===== Stream API
+
+可以直接使用 Java 集合中的 stream api 对集合进行操作。
+
+因为此时的 stream api 都是来自 Java 中的方法，参考 link:#_调用应用中的_java_类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
+
+[source,java]
+----
+l = ["a-111", "a-222", "b-333", "c-888"]
+
+l2 = l.stream()
+      .filter(i -> i.startsWith("a-"))
+      .map(i -> i.split("-")[1])
+      .collect(Collectors.toList());
+assert(l2 == ["111", "222"]);
+----
+
+===== 函数式接口
+
+Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
+
+[source,java]
+----
+Runnable r = () -> a = 8;
+r.run();
+assert(a == 8);
+
+Supplier s = () -> "test";
+assert(s.get() == 'test');
+
+Consumer c = (a) -> b = a + "-te";
+c.accept("ccc");
+assert(b == 'ccc-te');
+
+Function f = a -> a + 3;
+assert(f.apply(1) == 4);
+
+Function f1 = (a, b) -> a + b;
+assert(f1.apply("test-") == "test-null");
+----
+
+== 附录一 QLExpress4性能提升
+
+link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
+
+总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
+
+== 附录二 开发者联系方式
+
+ * email:
+ ** qinyuan.dqy@alibaba-inc.com
+ ** yumin.pym@taobao.com
+ ** 704643716@qq.com
+ * wechat:
+ ** xuanheng: dqy932087612
+ ** binggou: pymbupt
+ ** linxiang: tkk33362
