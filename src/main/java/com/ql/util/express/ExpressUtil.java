@@ -760,6 +760,27 @@ public class ExpressUtil {
         if (StringUtils.isBlank(tempWord)) {
             return false;
         }
-        return tempWord.substring(0, tempWord.length() - 1).matches("\\d+");
+        if (tempWord.length() == 1) {
+            char c = tempWord.charAt(0);
+            return c >= '0' && c <= '9';
+        }
+        int lastIndex = tempWord.length() - 1;
+        boolean hasDecimalPoint = false;
+        for (int i = 0; i <= lastIndex; i++) {
+            char c = Character.toLowerCase(tempWord.charAt(i));
+            if (c == '.' && !hasDecimalPoint) {
+                hasDecimalPoint = true;
+                continue;
+            }
+            if (i == lastIndex) {
+                if (c == 'd' || c == 'f'  || c == 'l') {
+                    return true;
+                }
+            }
+            if (!Character.isDigit(c)){
+                return false;
+            }
+        }
+        return true;
     }
 }
