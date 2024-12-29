@@ -56,7 +56,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/stream/java_stream.ql");
+        Path filePath = getTestSuiteRoot().resolve("independent/doc/dynamic_typing.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 

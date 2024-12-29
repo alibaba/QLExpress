@@ -1051,8 +1051,6 @@ SelectorVariable_RBRACE: RBRACE -> popMode, type(RBRACE);
 
 mode StringExpression;
 
-StrExpr_END: '$}' -> popMode;
-
 StrExpr_FOR: FOR -> type(FOR);
 StrExpr_IF: IF -> type(IF);
 StrExpr_ELSE: ELSE -> type(ELSE);
@@ -1094,8 +1092,8 @@ StrExpr_IntegerOrFloatingLiteral: IntegerOrFloatingLiteral -> type(IntegerOrFloa
 
 StrExpr_LPAREN: LPAREN -> type(LPAREN);
 StrExpr_RPAREN: RPAREN -> type(RPAREN);
-StrExpr_LBRACE: LBRACE -> type(LBRACE);
-StrExpr_RBRACE: RBRACE -> type(RBRACE);
+StrExpr_LBRACE: LBRACE -> pushMode(StringExpression), type(LBRACE);
+StrExpr_RBRACE: RBRACE -> popMode, type(RBRACE);
 StrExpr_LBRACK: LBRACK -> type(LBRACK);
 StrExpr_RBRACK: RBRACK -> type(RBRACK);
 

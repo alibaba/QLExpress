@@ -329,7 +329,7 @@ doubleQuoteStringLiteral
     ;
 
 stringExpression
-    : {interpolationMode == SCRIPT}? DyStrExprStart expression StrExpr_END
+    : {interpolationMode == SCRIPT}? DyStrExprStart expression RBRACE
     | {interpolationMode == VARIABLE}? DyStrExprStart SelectorVariable_VANME RBRACE
     ;
 

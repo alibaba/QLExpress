@@ -431,7 +431,7 @@ public class SyntaxTreeFactoryTest {
 
     @Test
     public void doubleQuoteStringScriptTest() {
-        List<QLInstruction> instructs = getScriptInstructions("\"a ${v-1$}\"", InterpolationMode.SCRIPT);
+        List<QLInstruction> instructs = getScriptInstructions("\"a ${v-1}\"", InterpolationMode.SCRIPT);
         ConstInstruction i0 = (ConstInstruction) instructs.get(0);
         assertEquals("a ", i0.getConstObj());
         LoadInstruction i1 = (LoadInstruction) instructs.get(1);
@@ -446,7 +446,7 @@ public class SyntaxTreeFactoryTest {
 
     @Test
     public void doubleQuoteStringScriptTest2() {
-        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree("\"Hello ${a$} ccc\"",
+        QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree("\"Hello ${a} ccc\"",
                 new MockOpM(), true, false, System.out::println, InterpolationMode.SCRIPT);
     }
 

@@ -1,4 +1,6 @@
-= QLExpress4
+:toc:
+
+= QLExpress
 
 == 背景介绍
 
@@ -30,7 +32,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>QLExpress4</artifactId>
-    <version>4.0.0-beta</version>
+    <version>4.0.0-beta.2</version>
 </dependency>
 ----
 
@@ -40,3 +42,337 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
 ----
+
+=== 添加自定义函数与操作符
+
+最简单的方式是通过 Java Lambda 表达式快速定义函数/操作符的逻辑：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addFunctionAndOperator]
+----
+
+如果自定义函数的逻辑比较复杂，或者需要获得脚本的上下文信息，也可以通过继承 `CustomFunction` 的方式实现。
+
+比如下面的 `hello` 自定义函数，根据租户不同，返回不同的欢迎信息：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java[]
+----
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
+----
+
+=== 高精度计算
+
+QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
+
+> 举例：0.1 在 double 中无法精确表示
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=bigDecimalForPrecise]
+----
+
+通过这种方式能够解决一些计算精度问题：
+
+比如 0.1+0.2 因为精度问题，在 Java 中是不等于 0.3 的。
+而 QLExpress 能够自动识别出 0.1 和 0.2 无法用双精度精确表示，改成用 BigDecimal 表示，确保其结果等于0.3
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=preciseComparisonWithJava]
+----
+
+除了默认的精度保证外，还提供了 `precise` 开关，打开后所有的计算都使用BigDecimal，防止外部传入的低精度数字导致的问题：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=preciseSwitch]
+----
+
+=== 调用应用中的 Java 类
+
+> 需要放开安全策略，不建议用于终端用户输入
+
+假设应用中有如下的 Java 类(`com.alibaba.qlexpress4.QLImportTester`)：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/QLImportTester.java[]
+----
+
+在 QLExpress 中有如下两种调用方式。
+
+==== 1. 在脚本中使用 `import` 语句导入类并且使用
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=importJavaCls]
+----
+
+==== 2. 在创建 `Express4Runner` 时默认导入该类，此时脚本中就不需要额外的 `import` 语句
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defaultImport]
+----
+
+=== 表达式缓存
+
+通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
+
+注意该缓存没有限制大小，只适合在表达式为有限数量的情况下使用：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cacheSwitch]
+----
+
+=== 扩展函数
+
+利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
+
+扩展函数是基于 QLExpress 运行时实现的，因此仅仅在 QLExpress 脚本中有效。
+
+下面的示例代码给 String 类添加了一个 `hello()` 扩展函数：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=extensionFunction]
+----
+
+=== 对象,字段和函数别名
+
+QLExpress 支持通过 `QLAlias` 注解给对象，字段或者函数定义一个或多个别名，方便非技术人员使用表达式定义规则。
+
+下面的例子中，根据用户是否 vip 计算订单最终金额。
+
+用户类定义：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/qlalias/User.java[]
+----
+
+订单类定义：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/qlalias/Order.java[]
+----
+
+通过 QLExpress 脚本规则计算最终订单金额：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=qlAlias]
+----
+
+== 语法入门
+
+QLExpress4 兼容 Java8 语法的同时，也提供了很多更加灵活宽松的语法模式，帮助用户更快捷地编写表达式。
+
+基于表达式优先的语法设计，复杂的条件判断语句也可以直接当作表达式使用。
+
+在本章节中出现的代码片段都是 qlexpress 脚本，
+`assert` 是测试框架往引擎中注入的断言方法，会确保其参数为 `true`。
+`assertErrCode` 会确保其 lambda 参数表达式的执行一定会抛出含第二个参数 error code 的 QLException。
+
+=== 变量声明
+
+同时支持静态类型和动态类型：
+
+ * 变量声明时不写类型，则变量是动态类型，也同时是一个赋值表达式
+ * 变量声明如果写类型，则是静态类型，此时是一个变量声明语句
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/dynamic_typing.ql[]
+----
+
+=== 方便语法元素
+
+列表(List)，映射(Map)等常用语法元素在 QLExpress 中都有非常方便的构造语法糖：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/convenient_syntax_elements.ql[]
+----
+
+=== 数字
+
+对于未声明类型的数字，
+QLExpress会根据其所属范围自动从 int, long, BigInteger, double, BigDecimal 等数据类型中选择一个最合适的：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/number/number_auto_type.ql[]
+----
+
+因此在自定义函数或者操作符时，建议使用 Number 类型进行接收，因为数字类型是无法事先确定的。
+
+=== 动态字符串
+
+QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
+----
+
+=== 分号
+
+表达式语句可以省略结尾的分号，整个脚本的返回值就是最后一个表达式的计算结果。
+
+以下脚本的返回值为 2：
+
+[source,java]
+----
+a = 1
+b = 2
+// last express
+1+1
+----
+
+等价于以下写法：
+
+[source,java]
+----
+a = 1
+b = 2
+// return statment
+return 1+1;
+----
+
+=== 表达式
+
+QLExpress 采用表达式优先的设计，其中 除了 import， return 和循环等结构外，几乎都是表达式。
+
+if 语句也是一个表达式：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/if_as_expr.ql[]
+----
+
+try catch 结构也是一个表达式：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
+----
+
+=== 控制结构
+
+==== if 分支
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/if.ql[]
+----
+
+==== while 循环
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/while.ql[]
+----
+
+==== for 循环
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/for.ql[]
+----
+
+==== for-each 循环
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/for_each.ql[]
+----
+
+==== try-catch
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/try_catch.ql[]
+----
+
+==== 函数定义
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/function.ql[]
+----
+
+==== Lambda 表达式
+
+QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
+----
+
+==== 列表过滤和映射
+
+支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
+
+底层通过在列表类型添加 link:#_扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
+
+相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/list_map_filter.ql[]
+----
+
+==== 兼容 Java8 语法
+
+QLExpress 可以兼容 Java8 的常见语法。
+
+比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
+
+===== Stream API
+
+可以直接使用 Java 集合中的 stream api 对集合进行操作。
+
+因为此时的 stream api 都是来自 Java 中的方法，参考 link:#_调用应用中的_java_类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/stream/java_stream.ql[]
+----
+
+===== 函数式接口
+
+Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/lambda/java_functional_interface.ql[]
+----
+
+== 附录一 QLExpress4性能提升
+
+link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
+
+总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
+
+== 附录二 开发者联系方式
+
+ * email:
+ ** qinyuan.dqy@alibaba-inc.com
+ ** yumin.pym@taobao.com
+ ** 704643716@qq.com
+ * wechat:
+ ** xuanheng: dqy932087612
+ ** binggou: pymbupt
+ ** linxiang: tkk33362
+

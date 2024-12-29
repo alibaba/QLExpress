@@ -33,6 +33,16 @@ import static org.junit.Assert.*;
 public class Express4RunnerTest {
 
     @Test
+    public void cacheDocTest() {
+        // tag::cacheSwitch[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // open cache switch
+        express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder()
+                .cache(true).build());
+        // end::cacheSwitch[]
+    }
+
+    @Test
     public void docQuickStartTest() {
         // tag::firstQl[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
@@ -47,6 +57,7 @@ public class Express4RunnerTest {
 
     @Test
     public void docAddFunctionAndOperatorTest() {
+        // tag::addFunctionAndOperator[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // custom function
         express4Runner.addVarArgsFunction("join", params ->
@@ -58,10 +69,12 @@ public class Express4RunnerTest {
         express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
         Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals("1,2,3", resultOperator);
+        // end::addFunctionAndOperator[]
     }
 
     @Test
     public void docImportJavaTest() {
+        // tag::importJavaCls[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 // open security strategy, which allows access to all Java classes within the application.
                 .securityStrategy(QLSecurityStrategy.open())
@@ -71,10 +84,12 @@ public class Express4RunnerTest {
         Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
                 "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(3, result);
+        // end::importJavaCls[]
     }
 
     @Test
     public void docDefaultImportJavaTest() {
+        // tag::defaultImport[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .addDefaultImport(
                         Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
@@ -84,6 +99,7 @@ public class Express4RunnerTest {
         );
         Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(3, result);
+        // end::defaultImport[]
     }
 
     @Test
@@ -100,17 +116,25 @@ public class Express4RunnerTest {
 
     @Test
     public void docPreciseTest() {
+        // tag::bigDecimalForPrecise[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertTrue(result instanceof BigDecimal);
+        // end::bigDecimalForPrecise[]
+
+        // tag::preciseComparisonWithJava[]
         assertNotEquals(0.3, 0.1 + 0.2, 0.0);
         assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        // end::preciseComparisonWithJava[]
 
+        // tag::preciseSwitch[]
         Map<String, Object> context = new HashMap<>();
         context.put("a", 0.1);
         context.put("b", 0.2);
         assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS));
+        // open precise switch
         assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()));
+        // end::preciseSwitch[]
     }
 
 
@@ -231,6 +255,7 @@ public class Express4RunnerTest {
 
     @Test
     public void extensionFunctionTest() {
+        // tag::extensionFunction[]
         ExtensionFunction helloFunction = new ExtensionFunction() {
             @Override
             public Class<?>[] getParameterTypes() {
@@ -258,6 +283,7 @@ public class Express4RunnerTest {
                 .build());
         Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals("Hello,jack", result);
+        // end::extensionFunction[]
     }
 
     @Test
@@ -587,6 +613,7 @@ public class Express4RunnerTest {
 
     @Test
     public void qlAliasDocTest() {
+        // tag::qlAlias[]
         Order order = new Order();
         order.setOrderNum("OR123455");
         order.setAmount(100);
@@ -601,10 +628,12 @@ public class Express4RunnerTest {
         Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
                 QLOptions.DEFAULT_OPTIONS, order, user);
         assertEquals(80, result.intValue());
+        // end::qlAlias[]
     }
 
     @Test
-    public void customFunctionDocTest() {
+    public void customComplexFunctionDocTest() {
+        // tag::customComplexFunction[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("hello", new HelloFunction());
         String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
@@ -613,6 +642,7 @@ public class Express4RunnerTest {
         String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
                 .attachments(Collections.singletonMap("tenant", "lucy")).build());
         assertEquals("hello,lucy", resultLucy);
+        // end::customComplexFunction[]
     }
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
