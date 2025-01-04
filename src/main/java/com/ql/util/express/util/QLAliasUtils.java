@@ -96,4 +96,8 @@ public class QLAliasUtils {
         }
         return null;
     }
+
+    public static void cleanUp(){
+        FIELD_CACHE.clear();
+    }
 }

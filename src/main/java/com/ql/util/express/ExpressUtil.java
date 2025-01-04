@@ -754,4 +754,9 @@ public class ExpressUtil {
         }
         return count == 1;
     }
+
+    public static void cleanUp(){
+        METHOD_CACHE.clear();
+        IS_FUNCTION_INTERFACE_CACHE.clear();
+    }
 }
