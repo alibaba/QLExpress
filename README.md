@@ -1,6 +1,6 @@
 QLExpress 最新的大版本 4.0 已经处于 Beta 阶段啦！ :confetti_ball:
 
-4.0 对 3 进行了大幅度重构，为了更好的用户体验和表达能力，放弃了对 3 的部分兼容。
+4.0 对 3 进行了大幅度重构，放下了部分历史包袱，拥抱更好的用户体验和表达能力。
 
 欢迎朋友们试用并给予反馈，[帮助文档](https://github.com/alibaba/QLExpress/blob/branch_version_4.0.0.dev/README.adoc)
 
