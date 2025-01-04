@@ -1,4 +1,4 @@
-QLExpress4 最新的大版本 4.0 已经处于 Beta 阶段啦！ :confetti_ball:
+QLExpress 最新的大版本 4.0 已经处于 Beta 阶段啦！ :confetti_ball:
 
 4.0 对 3 进行了大幅度重构，为了更好的用户体验和表达能力，放弃了对 3 的部分兼容。
 
