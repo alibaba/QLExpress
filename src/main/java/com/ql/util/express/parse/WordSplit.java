@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ql.util.express.ExpressUtil;
 import com.ql.util.express.exception.QLCompileException;
 
 /**
@@ -136,12 +137,7 @@ public class WordSplit {
     }
 
     protected static boolean isNumber(String str) {
-        if (str == null || "".equals(str)) {
-            return false;
-        }
-        char c = str.charAt(0);
-        // 数字
-        return c >= '0' && c <= '9';
+        return ExpressUtil.isNumber(str);
     }
 
     public static String getPrintInfo(Object[] list, String splitOp) {
