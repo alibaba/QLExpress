@@ -10,6 +10,7 @@ import com.ql.util.express.instruction.detail.InstructionGoToWithNotNull;
 import com.ql.util.express.instruction.detail.InstructionOperator;
 import com.ql.util.express.instruction.detail.InstructionReturn;
 import com.ql.util.express.instruction.op.OperatorBase;
+import com.ql.util.express.instruction.op.OperatorUnaryMinus;
 import com.ql.util.express.parse.ExpressNode;
 
 class OperatorInstructionFactory extends InstructionFactory {
@@ -18,6 +19,28 @@ class OperatorInstructionFactory extends InstructionFactory {
         Stack<ForRelBreakContinue> forStack, ExpressNode node, boolean isRoot) throws Exception {
         boolean returnVal = false;
         ExpressNode[] children = node.getChildrenArray();
+        //
+        //// 检查是否是一元减号
+        //if ((node.isTypeEqualsOrChild("-") || node.isTypeEqualsOrChild("+")) && children.length == 1) {
+        //    // 处理一元减号的子表达式
+        //    boolean tmpHas = expressRunner.createInstructionSetPrivate(result, forStack, children[0], false);
+        //    returnVal = returnVal || tmpHas;
+        //
+        //    if (node.isTypeEqualsOrChild("+")) {
+        //        OperatorBase unaryPlusOp = new OperatorUnaryMinus("+");
+        //        result.addInstruction(new InstructionOperator(unaryPlusOp, 1).setLine(node.getLine()));
+        //    }
+        //
+        //    if (node.isTypeEqualsOrChild("-")) {
+        //        // 创建一元减号操作符
+        //        OperatorBase unaryMinusOp = new OperatorUnaryMinus("-");
+        //        // 添加一元减号指令
+        //        result.addInstruction(new InstructionOperator(unaryMinusOp, 1).setLine(node.getLine()));
+        //    }
+        //
+        //    return returnVal;
+        //}
+
         int[] finishPoint = new int[children.length];
         for (int i = 0; i < children.length; i++) {
             ExpressNode tmpNode = children[i];
