@@ -46,8 +46,7 @@ TRY: 'try';
 CATCH: 'catch';
 FINALLY: 'finally';
 THROW: 'throw';
-
-
+THEN: 'then';
 
 // unuseful now, but reserve them for future
 CLASS: 'class';
@@ -1051,6 +1050,7 @@ SelectorVariable_RBRACE: RBRACE -> popMode, type(RBRACE);
 
 mode StringExpression;
 
+StrExpr_THEN: THEN -> type(THEN);
 StrExpr_FOR: FOR -> type(FOR);
 StrExpr_IF: IF -> type(IF);
 StrExpr_ELSE: ELSE -> type(ELSE);
