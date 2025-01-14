@@ -12,7 +12,7 @@ public interface ParserOperatorManager {
     }
 
     /**
-     * judge lexeme is opType or not
+     * determine whether lexeme is opType or not
      * @param lexeme lexeme
      * @param opType type of operator
      * @return true if lexeme is opType
@@ -26,4 +26,10 @@ public interface ParserOperatorManager {
      */
     Integer precedence(String lexeme);
 
+    /**
+     * get alias token type of lexeme
+     * @param lexeme
+     * @return alias token type
+     */
+    Integer getAlias(String lexeme);
 }

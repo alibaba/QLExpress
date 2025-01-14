@@ -197,7 +197,7 @@ primaryNoFix
     |   '[' listItems? ']' # listExpr
     |   '{' mapEntries RBRACE # mapExpr
     |   '{' blockStatements? RBRACE # blockExpr
-    |   IF '(' condition=expression ')' THEN? thenBody=ifBody ('else' elseBody=ifBody)? # ifExpr
+    |   IF '(' condition=expression ')' THEN? thenBody=ifBody (ELSE elseBody=ifBody)? # ifExpr
     |   TRY '{' blockStatements? RBRACE tryCatches? tryFinally? # tryCatchExpr
     |   SELECTOR_START SelectorVariable_VANME RBRACE # contextSelectExpr
     ;

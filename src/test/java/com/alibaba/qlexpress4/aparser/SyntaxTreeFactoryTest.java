@@ -95,6 +95,12 @@ public class SyntaxTreeFactoryTest {
                     throw new IllegalStateException("unknown op");
             }
         }
+
+        @Override
+        public Integer getAlias(String lexeme) {
+            return null;
+        }
+
     }
 
     @Test

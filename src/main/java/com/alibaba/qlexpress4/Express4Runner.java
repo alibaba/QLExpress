@@ -223,7 +223,7 @@ public class Express4Runner {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (!BasicUtil.isPublic(method)) {
-                result.getSucc().add(method.getName());
+                result.getFail().add(method.getName());
                 continue;
             }
             if (QLFunctionUtil.containsQLFunctionForMethod(method)) {
@@ -338,5 +338,27 @@ public class Express4Runner {
      */
     public boolean replaceDefaultOperator(String operator, CustomBinaryOperator customBinaryOperator) {
         return operatorManager.replaceDefaultOperator(operator, customBinaryOperator);
+    }
+
+    /**
+     * add alias for keyWord, operator and function
+     * @param alias must be a valid id
+     * @param originToken key word in qlexpress
+     * @return true if add alias successfully
+     */
+    public boolean addAlias(String alias, String originToken) {
+        boolean addKeyWordAliasResult = operatorManager.addKeyWordAlias(alias, originToken);
+        boolean addOperatorAliasResult = operatorManager.addOperatorAlias(alias, originToken);
+        boolean addFunctionAliasResult = addFunctionAlias(alias, originToken);
+
+        return addKeyWordAliasResult || addOperatorAliasResult || addFunctionAliasResult;
+    }
+
+    private boolean addFunctionAlias(String alias, String originToken) {
+        CustomFunction customFunction = userDefineFunction.get(originToken);
+        if (customFunction != null) {
+            return userDefineFunction.putIfAbsent(alias, customFunction) == null;
+        }
+        return false;
     }
 }

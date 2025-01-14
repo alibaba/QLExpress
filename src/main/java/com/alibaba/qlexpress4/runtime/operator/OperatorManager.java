@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.aparser.OperatorFactory;
 import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
+import com.alibaba.qlexpress4.aparser.QLexer;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.QRuntime;
@@ -130,7 +131,28 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         }
     }
 
+    private static final Map<String, Integer> ALIASABLE_KEYWORDS = new HashMap<>();
+
+    static {
+        ALIASABLE_KEYWORDS.put("if", QLexer.IF);
+        ALIASABLE_KEYWORDS.put("then", QLexer.THEN);
+        ALIASABLE_KEYWORDS.put("else", QLexer.ELSE);
+        ALIASABLE_KEYWORDS.put("for", QLexer.FOR);
+        ALIASABLE_KEYWORDS.put("while", QLexer.WHILE);
+        ALIASABLE_KEYWORDS.put("break", QLexer.BREAK);
+        ALIASABLE_KEYWORDS.put("continue", QLexer.CONTINUE);
+        ALIASABLE_KEYWORDS.put("return", QLexer.RETURN);
+        ALIASABLE_KEYWORDS.put("function", QLexer.FUNCTION);
+        ALIASABLE_KEYWORDS.put("macro", QLexer.MACRO);
+        ALIASABLE_KEYWORDS.put("new", QLexer.NEW);
+        ALIASABLE_KEYWORDS.put("null", QLexer.NULL);
+        ALIASABLE_KEYWORDS.put("true", QLexer.TRUE);
+        ALIASABLE_KEYWORDS.put("false", QLexer.FALSE);
+    }
+
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
+
+    private final Map<String, Integer> keyWordAliases = new ConcurrentHashMap<>();
 
     /**
      * @param operatorName
@@ -235,5 +257,54 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     @Override
     public Integer precedence(String lexeme) {
         return getBinaryOperator(lexeme).getPriority();
+    }
+
+    @Override
+    public Integer getAlias(String lexeme) {
+        return keyWordAliases.get(lexeme);
+    }
+
+    public boolean addKeyWordAlias(String lexeme, String keyWord) {
+        Integer keyWordId = ALIASABLE_KEYWORDS.get(keyWord);
+        if (keyWordId == null) {
+            return false;
+        }
+        keyWordAliases.put(lexeme, keyWordId);
+        return true;
+    }
+
+    public boolean addOperatorAlias(String lexeme, String operator) {
+        BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
+        if (originDefaultOp != null) {
+            BinaryOperator newOperator = adaptOriginOperator(originDefaultOp, lexeme);
+            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
+            return prev == null;
+        }
+        BinaryOperator originCusOp = customBinaryOperatorMap.get(operator);
+        if (originCusOp != null) {
+            BinaryOperator newOperator = adaptOriginOperator(originCusOp, lexeme);
+            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
+            return prev == null;
+        }
+        return false;
+    }
+
+    private BinaryOperator adaptOriginOperator(BinaryOperator originOperator, String lexeme) {
+        return new BinaryOperator() {
+            @Override
+            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+                return originOperator.execute(left, right, qRuntime, qlOptions, errorReporter);
+            }
+
+            @Override
+            public String getOperator() {
+                return lexeme;
+            }
+
+            @Override
+            public int getPriority() {
+                return originOperator.getPriority();
+            }
+        };
     }
 }

@@ -21,7 +21,15 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,6 +39,29 @@ import static org.junit.Assert.*;
  * Author: DQinYuan
  */
 public class Express4RunnerTest {
+
+    @Test
+    public void keyWordAliasTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("zero", (String ignore) -> 0);
+
+        assertTrue(express4Runner.addAlias("如果", "if"));
+        assertTrue(express4Runner.addAlias("则", "then"));
+        assertTrue(express4Runner.addAlias("否则", "else"));
+        assertTrue(express4Runner.addAlias("大于", ">"));
+        assertTrue(express4Runner.addAlias("零", "zero"));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("语文", 90);
+        context.put("数学", 90);
+        context.put("英语", 90);
+
+        Object result = express4Runner.execute(
+                "如果 (语文 + 数学 + 英语 大于 270) 则 {return 1;} 否则 {return 零();}",
+                context, QLOptions.DEFAULT_OPTIONS
+        );
+        assertEquals(0, result);
+    }
 
     @Test
     public void cacheDocTest() {
