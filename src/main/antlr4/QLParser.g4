@@ -33,14 +33,14 @@ blockStatements
 
 blockStatement
     :   localVariableDeclaration ';' # localVariableDeclarationStatement
-    |   THROW expression ';' # throwStatement
+    |   THROW expression ';'? # throwStatement
     |   WHILE '(' expression ')' blockStatement # whileStatement
     |   FOR '(' forInit (forCondition=expression)? ';' (forUpdate=expression)? ')' blockStatement # traditionalForStatement
     |   FOR '(' declType? varId ':' expression ')' blockStatement # forEachStatement
-    |   FUNCTION varId '(' formalOrInferredParameterList? ')' '{' blockStatements? RBRACE # functionStatement
-    |   MACRO varId '{' blockStatements? RBRACE # macroStatement
-    |   (BREAK | CONTINUE) ';' # breakContinueStatement
-    |   RETURN expression? ';' # returnStatement
+    |   FUNCTION varId '(' formalOrInferredParameterList? ')' LBRACE blockStatements? RBRACE # functionStatement
+    |   MACRO varId LBRACE blockStatements? RBRACE # macroStatement
+    |   (BREAK | CONTINUE) ';'? # breakContinueStatement
+    |   RETURN expression? ';'? # returnStatement
     |   ';' # emptyStatement
     |   expression ';'? # expressionStatement
     ;

@@ -71,9 +71,11 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
     }
 
     private void syntaxErrorThrow(Token currentToken, String ruleName) {
-        throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
-                currentToken.getLine(), currentToken.getCharPositionInLine() + currentToken.getText().length(),
-                currentToken.getText(), "SYNTAX_ERROR",
+        String tokenText = currentToken.getType() == Token.EOF? "<EOF>": currentToken.getText();
+        String preHandledScript = currentToken.getType() == Token.EOF? script + "<EOF>": script;
+        throw QLException.reportScannerErr(preHandledScript, currentToken.getStartIndex(),
+                currentToken.getLine(), currentToken.getCharPositionInLine(),
+                tokenText, "SYNTAX_ERROR",
                 "invalid " + ruleName);
     }
 

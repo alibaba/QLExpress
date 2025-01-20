@@ -41,6 +41,22 @@ import static org.junit.Assert.*;
 public class Express4RunnerTest {
 
     @Test
+    public void checkExpressTest() {
+        try {
+            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals(2, e.getLineNo());
+            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+                    "[Near: a+b; (a+b<EOF>]\n" +
+                    "                ^^^^^\n" +
+                    "[Line: 2, Column: 4]", e.getMessage());
+        }
+    }
+
+    @Test
     public void keyWordAliasTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("zero", (String ignore) -> 0);
