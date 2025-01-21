@@ -10,6 +10,7 @@
 
 * 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
 * 兼容Java语法，最新的QLExpress4可以兼容Java8语法，方便Java程序员快速熟悉
+* 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
 * 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
 * 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
 * 代码精简，依赖最小，适合所有java的运行环境
@@ -67,6 +68,15 @@ include::./src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
 ----
 
+=== 校验语法正确性
+
+在不执行脚本的情况下，单纯校验语法的正确性: 调用 `parseToSyntaxTree` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
+----
+
 === 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
@@ -122,6 +132,16 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=impo
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defaultImport]
 ----
 
+除了用 `ImportManager.importCls` 导入单个类外，还有其他更方便的导入方式：
+
+ * `ImportManager.importPack` 直接导入包路径下的所有类，比如 `ImportManager.importPack("java.util")` 会导入 `java.util` 包下的所有类，QLExpress 默认就会导入下面的包
+ ** `ImportManager.importPack("java.lang")`
+ ** `ImportManager.importPack("java.util")`
+ ** `ImportManager.importPack("java.math")`
+ ** `ImportManager.importPack("java.util.stream")`
+ ** `ImportManager.importPack("java.util.function")`
+ * `ImportManager.importInnerCls` 导入给定类路径里的所有内部类
+
 === 表达式缓存
 
 通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
@@ -146,9 +166,9 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cach
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=extensionFunction]
 ----
 
-=== 对象,字段和函数别名
+=== Java类的对象,字段和方法别名
 
-QLExpress 支持通过 `QLAlias` 注解给对象，字段或者函数定义一个或多个别名，方便非技术人员使用表达式定义规则。
+QLExpress 支持通过 `QLAlias` 注解给对象，字段或者方法定义一个或多个别名，方便非技术人员使用表达式定义规则。
 
 下面的例子中，根据用户是否 vip 计算订单最终金额。
 
@@ -172,6 +192,32 @@ include::./src/test/java/com/alibaba/qlexpress4/test/qlalias/Order.java[]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=qlAlias]
 ----
+
+=== 关键字，操作符和函数别名
+
+为了进一步方面非技术人员编写规则，QLExpress 提供 `addAlias` 给原始关键字，操作符和函数增加别名。让整个脚本的表述更加贴近自然语言。
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addAlias]
+----
+
+支持设置别名的关键字有:
+
+ * if
+ * then
+ * else
+ * for
+ * while
+ * break
+ * continue
+ * return
+ * function
+ * macro
+ * new
+ * null
+ * true
+ * false
 
 == 语法入门
 
@@ -271,6 +317,8 @@ include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
 === 控制结构
 
 ==== if 分支
+
+除了完全兼容 Java 中的 `if` 写法，还支持类似规则引擎的 `if ... then ... else ...` 的写法，其中 `then` 可以当成一个可以省略的关键字：
 
 [source,java]
 ----

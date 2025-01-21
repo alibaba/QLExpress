@@ -41,30 +41,40 @@ import static org.junit.Assert.*;
 public class Express4RunnerTest {
 
     @Test
-    public void checkExpressTest() {
+    public void checkSyntaxTest() {
+        // tag::checkSyntax[]
         try {
             Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
         } catch (QLSyntaxException e) {
             assertEquals(2, e.getLineNo());
+            assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            // <EOF> represents the end of script
             assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
                     "[Near: a+b; (a+b<EOF>]\n" +
                     "                ^^^^^\n" +
                     "[Line: 2, Column: 4]", e.getMessage());
         }
+        // end::checkSyntax[]
     }
 
     @Test
-    public void keyWordAliasTest() {
+    public void addAliasTest() {
+        // tag::addAlias[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // add custom function zero
         express4Runner.addFunction("zero", (String ignore) -> 0);
 
+        // keyword alias
         assertTrue(express4Runner.addAlias("如果", "if"));
         assertTrue(express4Runner.addAlias("则", "then"));
         assertTrue(express4Runner.addAlias("否则", "else"));
+        assertTrue(express4Runner.addAlias("返回", "return"));
+        // operator alias
         assertTrue(express4Runner.addAlias("大于", ">"));
+        // function alias
         assertTrue(express4Runner.addAlias("零", "zero"));
 
         Map<String, Object> context = new HashMap<>();
@@ -73,10 +83,11 @@ public class Express4RunnerTest {
         context.put("英语", 90);
 
         Object result = express4Runner.execute(
-                "如果 (语文 + 数学 + 英语 大于 270) 则 {return 1;} 否则 {return 零();}",
+                "如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}",
                 context, QLOptions.DEFAULT_OPTIONS
         );
         assertEquals(0, result);
+        // end::addAlias[]
     }
 
     @Test
@@ -683,11 +694,16 @@ public class Express4RunnerTest {
         // tag::customComplexFunction[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("hello", new HelloFunction());
-        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
-                .attachments(Collections.singletonMap("tenant", "jack")).build());
+        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(),
+                // Additional information(tenant for example) can be brought into the custom function from outside via attachments
+                QLOptions.builder()
+                        .attachments(Collections.singletonMap("tenant", "jack"))
+                        .build());
         assertEquals("hello,jack", resultJack);
-        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
-                .attachments(Collections.singletonMap("tenant", "lucy")).build());
+        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(),
+                QLOptions.builder()
+                        .attachments(Collections.singletonMap("tenant", "lucy"))
+                        .build());
         assertEquals("hello,lucy", resultLucy);
         // end::customComplexFunction[]
     }
