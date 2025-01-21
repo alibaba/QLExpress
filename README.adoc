@@ -10,6 +10,7 @@
 
 * 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
 * 兼容Java语法，最新的QLExpress4可以兼容Java8语法，方便Java程序员快速熟悉
+* 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
 * 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
 * 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
 * 代码精简，依赖最小，适合所有java的运行环境
@@ -94,12 +95,39 @@ public class HelloFunction implements CustomFunction {
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("hello", new HelloFunction());
-        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
-                .attachments(Collections.singletonMap("tenant", "jack")).build());
+        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(),
+                // Additional information(tenant for example) can be brought into the custom function from outside via attachments
+                QLOptions.builder()
+                        .attachments(Collections.singletonMap("tenant", "jack"))
+                        .build());
         assertEquals("hello,jack", resultJack);
-        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(), QLOptions.builder()
-                .attachments(Collections.singletonMap("tenant", "lucy")).build());
+        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(),
+                QLOptions.builder()
+                        .attachments(Collections.singletonMap("tenant", "lucy"))
+                        .build());
         assertEquals("hello,lucy", resultLucy);
+----
+
+=== 校验语法正确性
+
+在不执行脚本的情况下，单纯校验语法的正确性: 调用 `parseToSyntaxTree` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
+
+[source,java,indent=0]
+----
+        try {
+            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals(2, e.getLineNo());
+            assertEquals(4, e.getColNo());
+            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            // <EOF> represents the end of script
+            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+                    "[Near: a+b; (a+b<EOF>]\n" +
+                    "                ^^^^^\n" +
+                    "[Line: 2, Column: 4]", e.getMessage());
+        }
 ----
 
 === 高精度计算
@@ -189,6 +217,16 @@ public class QLImportTester {
         Assert.assertEquals(3, result);
 ----
 
+除了用 `ImportManager.importCls` 导入单个类外，还有其他更方便的导入方式：
+
+ * `ImportManager.importPack` 直接导入包路径下的所有类，比如 `ImportManager.importPack("java.util")` 会导入 `java.util` 包下的所有类，QLExpress 默认就会导入下面的包
+ ** `ImportManager.importPack("java.lang")`
+ ** `ImportManager.importPack("java.util")`
+ ** `ImportManager.importPack("java.math")`
+ ** `ImportManager.importPack("java.util.stream")`
+ ** `ImportManager.importPack("java.util.function")`
+ * `ImportManager.importInnerCls` 导入给定类路径里的所有内部类
+
 === 表达式缓存
 
 通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
@@ -242,9 +280,9 @@ public class QLImportTester {
         assertEquals("Hello,jack", result);
 ----
 
-=== 对象,字段和函数别名
+=== Java类的对象,字段和方法别名
 
-QLExpress 支持通过 `QLAlias` 注解给对象，字段或者函数定义一个或多个别名，方便非技术人员使用表达式定义规则。
+QLExpress 支持通过 `QLAlias` 注解给对象，字段或者方法定义一个或多个别名，方便非技术人员使用表达式定义规则。
 
 下面的例子中，根据用户是否 vip 计算订单最终金额。
 
@@ -337,6 +375,55 @@ public class Order {
                 QLOptions.DEFAULT_OPTIONS, order, user);
         assertEquals(80, result.intValue());
 ----
+
+=== 关键字，操作符和函数别名
+
+为了进一步方面非技术人员编写规则，QLExpress 提供 `addAlias` 给原始关键字，操作符和函数增加别名。让整个脚本的表述更加贴近自然语言。
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // add custom function zero
+        express4Runner.addFunction("zero", (String ignore) -> 0);
+
+        // keyword alias
+        assertTrue(express4Runner.addAlias("如果", "if"));
+        assertTrue(express4Runner.addAlias("则", "then"));
+        assertTrue(express4Runner.addAlias("否则", "else"));
+        assertTrue(express4Runner.addAlias("返回", "return"));
+        // operator alias
+        assertTrue(express4Runner.addAlias("大于", ">"));
+        // function alias
+        assertTrue(express4Runner.addAlias("零", "zero"));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("语文", 90);
+        context.put("数学", 90);
+        context.put("英语", 90);
+
+        Object result = express4Runner.execute(
+                "如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}",
+                context, QLOptions.DEFAULT_OPTIONS
+        );
+        assertEquals(0, result);
+----
+
+支持设置别名的关键字有:
+
+ * if
+ * then
+ * else
+ * for
+ * while
+ * break
+ * continue
+ * return
+ * function
+ * macro
+ * new
+ * null
+ * true
+ * false
 
 == 语法入门
 
@@ -481,9 +568,12 @@ assert(1 + try {
 
 ==== if 分支
 
+除了完全兼容 Java 中的 `if` 写法，还支持类似规则引擎的 `if ... then ... else ...` 的写法，其中 `then` 可以当成一个可以省略的关键字：
+
 [source,java]
 ----
 a = 11;
+// if ... else ...
 assert(if (a >= 0 && a < 5) {
   true
 } else if (a >= 5 && a < 10) {
@@ -491,6 +581,10 @@ assert(if (a >= 0 && a < 5) {
 } else if (a >= 10 && a < 15) {
   true
 } == true)
+
+// if ... then ... else ...
+r = if (a == 11) then true else false
+assert(r == true)
 ----
 
 ==== while 循环
