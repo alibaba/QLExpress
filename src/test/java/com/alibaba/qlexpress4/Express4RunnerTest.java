@@ -91,6 +91,15 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void inTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addAlias("属于", "in");
+        assertTrue((Boolean) express4Runner.execute("1 属于 [1,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS));
+        assertFalse((Boolean) express4Runner.execute("1 属于 [3,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS));
+    }
+
+
+    @Test
     public void cacheDocTest() {
         // tag::cacheSwitch[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);

@@ -34,7 +34,7 @@ public class InOperator extends BaseBinaryOperator {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
-        Collection<?> rightCollection = (Collection<?>)right;
+        Collection<?> rightCollection = (Collection<?>) rightOperand;
         for (Object rightElement : rightCollection) {
             boolean executeResult = compare(left, new DataValue(rightElement), errorReporter) == 0;
             if (executeResult) {
