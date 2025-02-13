@@ -14,3 +14,5 @@ assert((char)'a' <> 98);
 assert((char)'a' < (char)'b');
 assert((char)'b' == (char)'b');
 assert((char)'c' > (char)'b');
+
+assertErrorCode(() -> {'测试一下' > 1}, "INVALID_BINARY_OPERAND")

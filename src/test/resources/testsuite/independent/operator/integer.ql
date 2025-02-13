@@ -45,6 +45,10 @@ assert(z == 12)
 x = 6 - 2
 assert(x == 4)
 
+x = 6
+x -= 2
+assert(x == 4)
+
 y = x - 1
 assert(y == 3)
 
@@ -84,6 +88,10 @@ assert(y == 12)
 
 // divide
 x = 80 / 4
+assert(x == 20.0)
+
+x = 80
+x /= 4
 assert(x == 20.0)
 
 y = x / 2

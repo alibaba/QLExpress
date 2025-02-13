@@ -140,3 +140,6 @@ a = 13;
 assert(~a == -14); // ~0x0000000D = 0xFFFFFFF2
 assert(~(~a) == 13); // ~~0x0000000D = ~0xFFFFFFF2 = 0x0000000D
 assert(-(~a) == 14); // -~0x0000000D = -0xFFFFFFF2 = 0x0000000E
+
+// bitwise exception
+assertErrorCode(()-> {~"8"}, "INVALID_UNARY_OPERAND")
