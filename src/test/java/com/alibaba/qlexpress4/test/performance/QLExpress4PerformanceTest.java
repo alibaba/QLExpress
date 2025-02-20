@@ -20,17 +20,17 @@ public class QLExpress4PerformanceTest {
     private static final AtomicLong executeTimeCostNs = new AtomicLong(0);
 
     static {
-express4Runner.addOperator("not_in", (left, right) -> {
-    long start = System.nanoTime();
-    try {
-        Object leftValue = left.get();
-        Collection<?> rightCollection = (Collection<?>)right.get();
-        return rightCollection == null || !rightCollection.contains(leftValue);
-    } finally {
-        long end = System.nanoTime();
-        notInOperatorTimeCostNs.addAndGet(end - start);
-    }
-});
+        express4Runner.addOperator("not_in", (left, right) -> {
+            long start = System.nanoTime();
+            try {
+                Object leftValue = left.get();
+                Collection<?> rightCollection = (Collection<?>)right.get();
+                return rightCollection == null || !rightCollection.contains(leftValue);
+            } finally {
+                long end = System.nanoTime();
+                notInOperatorTimeCostNs.addAndGet(end - start);
+            }
+        });
     }
 
     /**
