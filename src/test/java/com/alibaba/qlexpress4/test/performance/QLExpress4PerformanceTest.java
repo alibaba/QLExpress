@@ -20,17 +20,17 @@ public class QLExpress4PerformanceTest {
     private static final AtomicLong executeTimeCostNs = new AtomicLong(0);
 
     static {
-        express4Runner.addOperator("not_in", (left, right) -> {
-            long start = System.nanoTime();
-            try {
-                Object leftValue = left.get();
-                Collection<?> rightCollection = (Collection<?>)right.get();
-                return rightCollection == null || !rightCollection.contains(leftValue);
-            } finally {
-                long end = System.nanoTime();
-                notInOperatorTimeCostNs.addAndGet(end - start);
-            }
-        });
+express4Runner.addOperator("not_in", (left, right) -> {
+    long start = System.nanoTime();
+    try {
+        Object leftValue = left.get();
+        Collection<?> rightCollection = (Collection<?>)right.get();
+        return rightCollection == null || !rightCollection.contains(leftValue);
+    } finally {
+        long end = System.nanoTime();
+        notInOperatorTimeCostNs.addAndGet(end - start);
+    }
+});
     }
 
     /**
@@ -40,8 +40,8 @@ public class QLExpress4PerformanceTest {
      */
     @Test
     public void test_short_collection() {
-        String expression = "sellerId not_in [2025]";
-        execute(expression, Collections.singletonMap("sellerId", 2005L), 100L);
+        String expression = "sellerId not_in [3438]";
+        execute(expression, Collections.singletonMap("sellerId", 2025L), 100L);
     }
 
     /**
@@ -51,8 +51,8 @@ public class QLExpress4PerformanceTest {
      */
     @Test
     public void test_long_collection() {
-        String expression = "sellerId not_in [2025,3438,8287,10620,10663,11175,11740,15670,16724,17692,18198,19362,21054,23139,23743,24561,29708,29848,32330,32833,33366,35044,41363,41387,44712,46066,47147,48580,50706,52144,52150,52402,54712,59575,62492,72218,74553,74901,79447,79459,81348,83046,86399,87885,89547,90600,90609,93714,94507,97043,99115]";
-        execute(expression, Collections.singletonMap("sellerId", 2005L), 100L);
+        String expression = "sellerId not_in [3438,8287,10620,10663,11175,11740,15670,16724,17692,18198,19362,21054,23139,23743,24561,29708,29848,32330,32833,33366,35044,41363,41387,44712,46066,47147,48580,50706,52144,52150,52402,54712,59575,62492,72218,74553,74901,79447,79459,81348,83046,86399,87885,89547,90600,90609,93714,94507,97043,99115]";
+        execute(expression, Collections.singletonMap("sellerId", 2025L), 100L);
     }
 
     private void execute(String expression, Map<String, Object> context, Long count) {
