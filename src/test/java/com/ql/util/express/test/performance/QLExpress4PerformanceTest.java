@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.IExpressContext;
+import com.ql.util.express.InstructionSet;
 import com.ql.util.express.Operator;
 import org.junit.Test;
 
@@ -66,6 +67,9 @@ public class QLExpress4PerformanceTest {
     }
 
     private void execute(String expression, IExpressContext<String, Object> context, Long count) throws Exception {
+        InstructionSet instructionSet = expressRunner.parseInstructionSet(expression);
+        System.out.println("instructionSet = " + instructionSet);
+
         // 预热5次
         for (int i = 0; i < 5; i++) {
             Object result = expressRunner.execute(expression, context, null, true, false);
