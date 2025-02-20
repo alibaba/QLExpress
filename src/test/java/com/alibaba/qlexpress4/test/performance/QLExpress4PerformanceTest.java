@@ -15,7 +15,9 @@ import org.junit.Test;
  * @author 冰够
  */
 public class QLExpress4PerformanceTest {
-    private static final Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+    private static final InitOptions initOptions = InitOptions.DEFAULT_OPTIONS;
+    // private static final InitOptions initOptions = InitOptions.builder().debug(true).build();
+    private static final Express4Runner express4Runner = new Express4Runner(initOptions);
     private static final AtomicLong notInOperatorTimeCostNs = new AtomicLong(0);
     private static final AtomicLong executeTimeCostNs = new AtomicLong(0);
 
@@ -68,7 +70,7 @@ public class QLExpress4PerformanceTest {
         // 正式执行
         for (int i = 0; i < count; i++) {
             long start = System.nanoTime();
-            express4Runner.execute(expression, context, QLOptions.DEFAULT_OPTIONS);
+            express4Runner.execute(expression, context, QLOptions.builder().cache(true).build());
             long end = System.nanoTime();
             executeTimeCostNs.addAndGet(end - start);
         }
