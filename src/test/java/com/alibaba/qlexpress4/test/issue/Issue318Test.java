@@ -17,8 +17,7 @@ import org.junit.Test;
 public class Issue318Test {
     @Test
     public void test() throws Exception {
-        Express4Runner runner = new Express4Runner(
-            InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Express4Runner runner = new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
         Map<String, Object> context = new HashMap<>();
 
         Student student = new Student();
