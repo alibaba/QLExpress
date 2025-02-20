@@ -41,7 +41,7 @@ public class QLOptions {
     /**
      * allow cache compile result of script
      *
-     * default true
+     * default false
      */
     private final boolean cache;
 
