@@ -24,17 +24,17 @@ public class InOperator extends BaseBinaryOperator {
     }
 
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
-        ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
         Object rightOperand = right.get();
         if (rightOperand == null) {
             return false;
         }
+
         if (!(rightOperand instanceof Collection)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
 
-        Collection<?> rightCollection = (Collection<?>) rightOperand;
+        Collection<?> rightCollection = (Collection<?>)rightOperand;
         for (Object rightElement : rightCollection) {
             boolean executeResult = compare(left, new DataValue(rightElement), errorReporter) == 0;
             if (executeResult) {
