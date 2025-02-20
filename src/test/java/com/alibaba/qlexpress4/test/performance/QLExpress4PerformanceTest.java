@@ -22,12 +22,14 @@ public class QLExpress4PerformanceTest {
     static {
         express4Runner.addOperator("not_in", (left, right) -> {
             long start = System.nanoTime();
-            Object leftValue = left.get();
-            Collection<?> rightCollection = (Collection<?>)right.get();
-            boolean result = rightCollection == null || !rightCollection.contains(leftValue);
-            long end = System.nanoTime();
-            notInOperatorTimeCostNs.addAndGet(end - start);
-            return result;
+            try {
+                Object leftValue = left.get();
+                Collection<?> rightCollection = (Collection<?>)right.get();
+                return rightCollection == null || !rightCollection.contains(leftValue);
+            } finally {
+                long end = System.nanoTime();
+                notInOperatorTimeCostNs.addAndGet(end - start);
+            }
         });
     }
 
