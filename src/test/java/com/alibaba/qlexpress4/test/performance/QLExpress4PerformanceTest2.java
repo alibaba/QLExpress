@@ -37,11 +37,11 @@ public class QLExpress4PerformanceTest2 {
     }
 
     /**
-     * i:0, execute time cost:  3754us
-     * i:1, execute time cost:   731us
-     * i:2, execute time cost:   574us
-     * i:3, execute time cost:   593us
-     * i:4, execute time cost:   616us
+     * i:0, execute time cost:3856us
+     * i:1, execute time cost: 608us
+     * i:2, execute time cost: 564us
+     * i:3, execute time cost: 619us
+     * i:4, execute time cost: 652us
      *
      * @throws IOException
      */
@@ -58,16 +58,16 @@ public class QLExpress4PerformanceTest2 {
             long start = System.nanoTime();
             express4Runner.execute(script, bizContext, qlOptions);
             long end = System.nanoTime();
-            System.out.printf("i:%s, execute time cost:%6sus%n", i, (end - start) / 1000);
+            System.out.printf("i:%s, execute time cost:%4sus%n", i, (end - start) / 1000);
         }
     }
 
     /**
-     * i:0, execute time cost:  1160us
-     * i:1, execute time cost:   891us
-     * i:2, execute time cost:   620us
-     * i:3, execute time cost:   555us
-     * i:4, execute time cost:   557us
+     * i:0, execute time cost:1194us
+     * i:1, execute time cost: 613us
+     * i:2, execute time cost: 569us
+     * i:3, execute time cost: 568us
+     * i:4, execute time cost: 840us
      *
      * @throws IOException
      */
@@ -91,7 +91,7 @@ public class QLExpress4PerformanceTest2 {
             long start = System.nanoTime();
             express4Runner.execute(script, bizContext, qlOptions);
             long end = System.nanoTime();
-            System.out.printf("i:%s, execute time cost:%6sus%n", i, (end - start) / 1000);
+            System.out.printf("i:%s, execute time cost:%4sus%n", i, (end - start) / 1000);
         }
     }
 
