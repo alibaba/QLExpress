@@ -58,9 +58,10 @@ public class QLExpress4PerformanceTest {
     }
 
     private void execute(String expression, Map<String, Object> context, Long count) {
+        QLOptions qlOptions = QLOptions.builder().cache(true).build();
         // 预热5次
-        for (int i = 0; i < 5; i++) {
-            Object result = express4Runner.execute(expression, context, QLOptions.DEFAULT_OPTIONS);
+        for (int i = 0; i < 1; i++) {
+            Object result = express4Runner.execute(expression, Collections.emptyMap(), qlOptions);
             System.out.println("result = " + result);
         }
 
@@ -70,9 +71,11 @@ public class QLExpress4PerformanceTest {
         // 正式执行
         for (int i = 0; i < count; i++) {
             long start = System.nanoTime();
-            express4Runner.execute(expression, context, QLOptions.builder().cache(true).build());
+            express4Runner.execute(expression, context, qlOptions);
             long end = System.nanoTime();
-            executeTimeCostNs.addAndGet(end - start);
+            long cost = end - start;
+            System.out.printf("i:%s, execute time cost:%sus%n", i, cost / 1000);
+            executeTimeCostNs.addAndGet(cost);
         }
 
         // 打印结果
