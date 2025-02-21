@@ -13,7 +13,6 @@ import java.util.Map;
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
 import com.alibaba.qlexpress4.QLOptions;
-import com.alibaba.qlexpress4.test.performance.operator.InOperator;
 import com.alibaba.qlexpress4.test.performance.operator.IntersectOperator;
 import com.alibaba.qlexpress4.test.performance.operator.NotInOperator;
 import com.alibaba.qlexpress4.test.performance.operator.NotIntersectOperator;
@@ -30,7 +29,7 @@ public class QLExpress4PerformanceTest2 {
     private static final Express4Runner express4Runner = new Express4Runner(initOptions);
 
     static {
-        express4Runner.replaceDefaultOperator("in", InOperator.getInstance());
+        // express4Runner.replaceDefaultOperator("in", InOperator.getInstance());
         express4Runner.addOperator("not_in", NotInOperator.getInstance());
         express4Runner.addOperator("intersect", IntersectOperator.getInstance());
         express4Runner.addOperator("not_intersect", NotIntersectOperator.getInstance());
