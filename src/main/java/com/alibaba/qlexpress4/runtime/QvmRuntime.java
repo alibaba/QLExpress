@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.runtime.trace.QTraces;
+
 import java.util.Map;
 
 /**
@@ -8,13 +10,17 @@ import java.util.Map;
  */
 public class QvmRuntime implements QRuntime {
 
+    private final QTraces traces;
+
     private final Map<String, Object> attachments;
 
     private final ReflectLoader reflectLoader;
 
     private final long startTime;
 
-    public QvmRuntime(Map<String, Object> attachments, ReflectLoader reflectLoader, long startTime) {
+    public QvmRuntime(QTraces traces, Map<String, Object> attachments,
+                      ReflectLoader reflectLoader, long startTime) {
+        this.traces = traces;
         this.attachments = attachments;
         this.reflectLoader = reflectLoader;
         this.startTime = startTime;
@@ -32,5 +38,10 @@ public class QvmRuntime implements QRuntime {
 
     public ReflectLoader getReflectLoader() {
         return reflectLoader;
+    }
+
+    @Override
+    public QTraces getTraces() {
+        return traces;
     }
 }

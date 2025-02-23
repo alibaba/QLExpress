@@ -9,6 +9,8 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
+import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.test.function.HelloFunction;
 import com.alibaba.qlexpress4.test.qlalias.Order;
@@ -39,6 +41,76 @@ import static org.junit.Assert.*;
  * Author: DQinYuan
  */
 public class Express4RunnerTest {
+
+    @Test
+    public void expressionTraceTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(true).build());
+        express4Runner.addFunction("myTest", (Predicate<Integer>) i -> i > 10);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", true);
+        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) result.getResult());
+
+        List<ExpressionTrace> expressionTraces = result.getExpressionTraces();
+        Assert.assertEquals(1, expressionTraces.size());
+        ExpressionTrace expressionTrace = expressionTraces.get(0);
+        Assert.assertEquals("OPERATOR && false\n" +
+                "  | VARIABLE a true\n" +
+                "  | OPERATOR || false\n" +
+                "      | OPERATOR ! false\n" +
+                "          | FUNCTION myTest true\n" +
+                "              | VALUE 11 11\n" +
+                "      | VALUE false false\n", expressionTrace.toPrettyString(0));
+
+        // short circuit
+        context.put("a", false);
+        QLResult resultShortCircuit = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) resultShortCircuit.getResult());
+        ExpressionTrace expressionTraceShortCircuit = resultShortCircuit.getExpressionTraces().get(0);
+        Assert.assertEquals("OPERATOR && \n" +
+                "  | VARIABLE a false\n" +
+                "  | OPERATOR || \n" +
+                "      | OPERATOR ! \n" +
+                "          | FUNCTION myTest \n" +
+                "              | VALUE 11 \n" +
+                "      | VALUE false \n", expressionTraceShortCircuit.toPrettyString(0));
+        Assert.assertTrue(expressionTraceShortCircuit.getChildren().get(0).isEvaluated());
+        Assert.assertFalse(expressionTraceShortCircuit.getChildren().get(1).isEvaluated());
+
+        // in
+        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) resultIn.getResult());
+        ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
+        Assert.assertEquals("OPERATOR in false\n" +
+                "  | VALUE 'ab' ab\n" +
+                "  | VALUE [ [cc, dd, ff]\n", expressionTraceIn.toPrettyString(0));
+    }
+
+    @Test
+    public void getExpressionTracePointsTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        TracePointTree tracePointTree = express4Runner.getExpressionTracePoints("1+3+5*ab+9").get(0);
+        Assert.assertEquals("OPERATOR +\n" +
+                "  | OPERATOR +\n" +
+                "      | OPERATOR +\n" +
+                "          | VALUE 1\n" +
+                "          | VALUE 3\n" +
+                "      | OPERATOR *\n" +
+                "          | VALUE 5\n" +
+                "          | VARIABLE ab\n" +
+                "  | VALUE 9\n", tracePointTree.toPrettyString(0));
+
+        TracePointTree tracePointTreeFunction = express4Runner
+                .getExpressionTracePoints("ab && (myTest(1,2) || false)").get(0);
+        Assert.assertEquals("OPERATOR &&\n" +
+                "  | VARIABLE ab\n" +
+                "  | OPERATOR ||\n" +
+                "      | FUNCTION myTest\n" +
+                "          | VALUE 1\n" +
+                "          | VALUE 2\n" +
+                "      | VALUE false\n", tracePointTreeFunction.toPrettyString(0));
+    }
 
     @Test
     public void checkSyntaxTest() {
@@ -85,7 +157,7 @@ public class Express4RunnerTest {
         Object result = express4Runner.execute(
                 "如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}",
                 context, QLOptions.DEFAULT_OPTIONS
-        );
+        ).getResult();
         assertEquals(0, result);
         // end::addAlias[]
     }
@@ -94,8 +166,8 @@ public class Express4RunnerTest {
     public void inTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addAlias("属于", "in");
-        assertTrue((Boolean) express4Runner.execute("1 属于 [1,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS));
-        assertFalse((Boolean) express4Runner.execute("1 属于 [3,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("1 属于 [1,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean) express4Runner.execute("1 属于 [3,2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
     }
 
 
@@ -117,7 +189,7 @@ public class Express4RunnerTest {
         context.put("a", 1);
         context.put("b", 2);
         context.put("c", 3);
-        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(7, result);
         // end::firstQl[]
     }
@@ -129,12 +201,12 @@ public class Express4RunnerTest {
         // custom function
         express4Runner.addVarArgsFunction("join", params ->
                 Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
-        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultFunction);
 
         // custom operator
         express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
-        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultOperator);
         // end::addFunctionAndOperator[]
     }
@@ -149,7 +221,7 @@ public class Express4RunnerTest {
         );
         // Import Java classes using the import statement.
         Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
-                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(3, result);
         // end::importJavaCls[]
     }
@@ -164,7 +236,7 @@ public class Express4RunnerTest {
                 .securityStrategy(QLSecurityStrategy.open())
                 .build()
         );
-        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(3, result);
         // end::defaultImport[]
     }
@@ -177,7 +249,7 @@ public class Express4RunnerTest {
                 "} catch(e) {\n" +
                 "  // Throw a zero-division exception\n" +
                 "  11\n" +
-                "}", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+                "}", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(12, result);
     }
 
@@ -185,22 +257,22 @@ public class Express4RunnerTest {
     public void docPreciseTest() {
         // tag::bigDecimalForPrecise[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertTrue(result instanceof BigDecimal);
         // end::bigDecimalForPrecise[]
 
         // tag::preciseComparisonWithJava[]
         assertNotEquals(0.3, 0.1 + 0.2, 0.0);
-        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
         // end::preciseComparisonWithJava[]
 
         // tag::preciseSwitch[]
         Map<String, Object> context = new HashMap<>();
         context.put("a", 0.1);
         context.put("b", 0.2);
-        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS));
+        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS).getResult());
         // open precise switch
-        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()));
+        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()).getResult());
         // end::preciseSwitch[]
     }
 
@@ -213,7 +285,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .securityStrategy(QLSecurityStrategy.open())
                 .build());
-        Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertTrue(result instanceof HashMap);
         assertEquals("bbb", ((HashMap<?, ?>) result).get("aaa"));
     }
@@ -222,19 +294,19 @@ public class Express4RunnerTest {
     public void shortCircuitTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         assertTrue((Boolean) express4Runner.execute("true && true && true",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
         assertFalse((Boolean) express4Runner.execute("true && false && (1/0)",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
         assertTrue((Boolean) express4Runner.execute("a = 1+1+1+1+1+1+1+1+1;" +
                         "true && true && true",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
 
         assertFalse((Boolean) express4Runner.execute("false || false || false",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
         assertTrue((Boolean) express4Runner.execute("false || true || (1/0)",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
         assertTrue((Boolean) express4Runner.execute("(false && (1/0)) || true || (1/0)",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
 
         assertErrorCode(express4Runner, "true && (1/0)", "INVALID_ARITHMETIC");
     }
@@ -251,7 +323,7 @@ public class Express4RunnerTest {
         QLOptions debugOptions = QLOptions.builder()
                 .build();
         Object result = express4Runner.execute("if (2==3) {if (2==2) 10} else 4",
-                Collections.emptyMap(), debugOptions);
+                Collections.emptyMap(), debugOptions).getResult();
         assertEquals(4, result);
     }
 
@@ -260,11 +332,11 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions debugOptions = QLOptions.builder()
                 .build();
-        Object result = express4Runner.execute("1+1", Collections.emptyMap(), debugOptions);
+        Object result = express4Runner.execute("1+1", Collections.emptyMap(), debugOptions).getResult();
         assertEquals(2, result);
 
         Object result1 = express4Runner.execute("false || true || (1/0)",
-                Collections.emptyMap(), debugOptions);
+                Collections.emptyMap(), debugOptions).getResult();
         assertTrue((Boolean) result1);
     }
 
@@ -287,7 +359,7 @@ public class Express4RunnerTest {
         Map<String, Object> populatedMap3 = new HashMap<>();
         populatedMap3.put("a", 10);
         assertEquals(19, express4Runner
-                .execute("a = 19;a", populatedMap3, QLOptions.DEFAULT_OPTIONS));
+                .execute("a = 19;a", populatedMap3, QLOptions.DEFAULT_OPTIONS).getResult());
         assertEquals(10, populatedMap3.get("a"));
     }
 
@@ -296,7 +368,7 @@ public class Express4RunnerTest {
     public void mapLiteralTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Map<String, Object> result = (Map<String, Object>) express4Runner
-                .execute("{a:123,'b':'test'}", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+                .execute("{a:123,'b':'test'}", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(123, result.get("a"));
         assertEquals("test", result.get("b"));
     }
@@ -306,9 +378,9 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .securityStrategy(QLSecurityStrategy.open()).build());
         assertEquals(List.class, express4Runner.execute("List.class", Collections.emptyMap(),
-                QLOptions.DEFAULT_OPTIONS));
+                QLOptions.DEFAULT_OPTIONS).getResult());
         assertEquals(List.class, express4Runner.execute("java.util.List.class", Collections.emptyMap(),
-                QLOptions.DEFAULT_OPTIONS));
+                QLOptions.DEFAULT_OPTIONS).getResult());
     }
 
     @Test
@@ -348,7 +420,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .addExtensionFunctions(Collections.singletonList(helloFunction))
                 .build());
-        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
         // end::extensionFunction[]
     }
@@ -357,7 +429,7 @@ public class Express4RunnerTest {
     public void logicAndTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("null && true", Collections.emptyMap(),
-                QLOptions.DEFAULT_OPTIONS);
+                QLOptions.DEFAULT_OPTIONS).getResult();
         assertFalse((Boolean) result);
     }
 
@@ -387,7 +459,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .securityStrategy(QLSecurityStrategy.open())
                 .build());
-        Object result = express4Runner.execute("1.doubleValue()", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("1.doubleValue()", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(1d, result);
     }
 
@@ -435,10 +507,10 @@ public class Express4RunnerTest {
     public void addFunctionByAnnotationTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addObjFunction(new MyFunctionUtil());
-        Object result = express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(14, result);
         express4Runner.addStaticFunction(MyFunctionUtil.class);
-        Object result1 = express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        Object result1 = express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(10 ,result1);
     }
 
@@ -447,7 +519,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         HashMap<Object, Object> context = new HashMap<>();
         context.put("#cost", 10);
-        Object result = express4Runner.execute("#cost + 1", context, QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("#cost + 1", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(11, result);
     }
 
@@ -476,7 +548,7 @@ public class Express4RunnerTest {
                 Map<String, Object> subMap = (Map<String, Object>) attachments.get(split[1]);
                 return new DataValue(subMap.get(split[2]));
             }
-        }, qlOptions);
+        }, qlOptions).getResult();
         assertEquals(135, result);
     }
 
@@ -508,17 +580,17 @@ public class Express4RunnerTest {
     public void addOperatorTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("'1.2'+'2.3'", new HashMap<>(), QLOptions.builder()
-                .cache(false).build());
+                .cache(false).build()).getResult();
         assertEquals("1.22.3", result);
         boolean replaceResult = express4Runner.replaceDefaultOperator("+", (left, right) ->
                 Double.parseDouble(left.get().toString()) + Double.parseDouble(right.get().toString()));
         assertTrue(replaceResult);
         Object result1 = express4Runner.execute("'1.2'+'2.3'", new HashMap<>(), QLOptions.builder()
-                .cache(false).build());
+                .cache(false).build()).getResult();
         assertEquals(3.5d, result1);
         express4Runner.addOperator("join", (left, right) -> left.get().toString() + right.get().toString());
         Object result2 = express4Runner.execute("1.2 join 2", new HashMap<>(), QLOptions.builder()
-                .cache(false).build());
+                .cache(false).build()).getResult();
         assertEquals("1.22", result2);
 
         express4Runner.addOperator(".*", (left, right) -> {
@@ -528,14 +600,14 @@ public class Express4RunnerTest {
                     .collect(Collectors.toList());
         }, QLPrecedences.GROUP);
         Object result3 = express4Runner.execute("[{a:1}, {a:5}].*a", new HashMap<>(), QLOptions.builder()
-                .cache(false).build());
+                .cache(false).build()).getResult();
         List<Integer> expect = new ArrayList<>();
         expect.add(1);
         expect.add(5);
         assertEquals(expect, result3);
 
         Object result4 = express4Runner.execute("[{a:1}, {a:5}, {a:10}, {a:20}].*a[1:-1]",
-                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(Arrays.asList(5, 10), result4);
 
         try {
@@ -581,7 +653,7 @@ public class Express4RunnerTest {
     public void avoidNullPointerTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("'a '+${a}+aa('xxx')", new HashMap<>(), QLOptions.builder()
-                .avoidNullPointer(true).build());
+                .avoidNullPointer(true).build()).getResult();
         assertEquals("a nullnull", result);
     }
 
@@ -589,7 +661,7 @@ public class Express4RunnerTest {
     public void atFunctionTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("@", (String s) -> s + "," + s);
-        Object result = express4Runner.execute("@('a')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("@('a')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("a,a", result);
     }
 
@@ -615,7 +687,7 @@ public class Express4RunnerTest {
     public void chineseCommaPropertyTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("{'销售方地址、电话':'test'}.销售方地址、电话",
-                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("test", result);
     }
 
@@ -624,7 +696,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // "'\na
         Object result = express4Runner.execute("\"\\\"\"+'\\'\na'",
-                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("\"'\na", result);
     }
 
@@ -634,8 +706,8 @@ public class Express4RunnerTest {
                 .securityStrategy(QLSecurityStrategy.open())
                 .build());
         express4Runner.addMacro("mergeList", "l = [];l.addAll(a);l.addAll(b);l");
-        Object result = express4Runner.execute("a=[1,2]\nb=[3,4]\nmergeList", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
-        assertEquals(express4Runner.execute("[1,2,3,4]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS), result);
+        Object result = express4Runner.execute("a=[1,2]\nb=[3,4]\nmergeList", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(express4Runner.execute("[1,2,3,4]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult(), result);
     }
 
     public static class MyObj {
@@ -650,7 +722,7 @@ public class Express4RunnerTest {
         myObj.b = "test";
 
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1test", result);
     }
 
@@ -673,7 +745,7 @@ public class Express4RunnerTest {
         person.setSex("男");
         person.setBirth("1987-02-23");
         for (int i = 0; i < exps.length; i += 2) {
-            Object result = express4Runner.executeWithAliasObjects(exps[i], QLOptions.DEFAULT_OPTIONS, person);
+            Object result = express4Runner.executeWithAliasObjects(exps[i], QLOptions.DEFAULT_OPTIONS, person).getResult();
             assertEquals(result.toString(), exps[i + 1]);
         }
     }
@@ -693,7 +765,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .securityStrategy(QLSecurityStrategy.open()).build());
         Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
-                QLOptions.DEFAULT_OPTIONS, order, user);
+                QLOptions.DEFAULT_OPTIONS, order, user).getResult();
         assertEquals(80, result.intValue());
         // end::qlAlias[]
     }
@@ -707,12 +779,12 @@ public class Express4RunnerTest {
                 // Additional information(tenant for example) can be brought into the custom function from outside via attachments
                 QLOptions.builder()
                         .attachments(Collections.singletonMap("tenant", "jack"))
-                        .build());
+                        .build()).getResult();
         assertEquals("hello,jack", resultJack);
         String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(),
                 QLOptions.builder()
                         .attachments(Collections.singletonMap("tenant", "lucy"))
-                        .build());
+                        .build()).getResult();
         assertEquals("hello,lucy", resultLucy);
         // end::customComplexFunction[]
     }
@@ -722,7 +794,7 @@ public class Express4RunnerTest {
     }
 
     private void assertResultPredicate(Express4Runner express4Runner, String script, Predicate<Object> predicate) {
-        Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertTrue(script, predicate.test(result));
     }
 

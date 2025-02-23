@@ -236,7 +236,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
         AssignOperatorContext assignOperatorContext = ctx.assignOperator();
         BinaryOperator assignOperator = operatorFactory.getBinaryOperator(assignOperatorContext.getText());
-        addInstruction(new OperatorInstruction(newReporterWithToken(assignOperatorContext.getStart()), assignOperator));
+        addInstruction(new OperatorInstruction(newReporterWithToken(assignOperatorContext.getStart()),
+                assignOperator, assignOperatorContext.getStart().getStartIndex()));
         return null;
     }
 
@@ -388,7 +389,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
         ExpressionContext expression = ctx.expression();
         if (expression == null) {
-            addInstruction(new ConstInstruction(errorReporter, null));
+            addInstruction(new ConstInstruction(errorReporter, null, null));
         } else {
             expression.accept(this);
         }
@@ -429,7 +430,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         DeclTypeContext castDeclTypeContext = ctx.declType();
         Class<?> castCls = parseDeclType(castDeclTypeContext);
         ErrorReporter errorReporter = newReporterWithToken(castDeclTypeContext.getStart());
-        addInstruction(new ConstInstruction(errorReporter, castCls));
+        addInstruction(new ConstInstruction(errorReporter, castCls, null));
         ctx.primary().accept(this);
         addInstruction(new CastInstruction(errorReporter));
         return null;
@@ -454,7 +455,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         ErrorReporter blockErrReporter = newReporterWithToken(ctx.getStart());
         BlockStatementsContext blockStatementsContext = ctx.blockStatements();
         if (blockStatementsContext == null) {
-            addInstruction(new ConstInstruction(blockErrReporter, null));
+            addInstruction(new ConstInstruction(blockErrReporter, null, null));
             return null;
         }
 
@@ -482,7 +483,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 new GeneratorScope(thenScopeName, generatorScope), Context.MACRO).getInstructions();
         String elseScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount + ELSE_SUFFIX;
         List<QLInstruction> elseInstructions = ctx.elseBody == null ?
-                Collections.singletonList(new ConstInstruction(ifErrorReporter, null)) :
+                Collections.singletonList(new ConstInstruction(ifErrorReporter, null, null)) :
                 parseWithSubVisitor(ctx.elseBody, new GeneratorScope(elseScopeName, generatorScope),
                         Context.MACRO).getInstructions();
         ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions);
@@ -509,7 +510,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     private void visitListExprInner(ListItemsContext listItemsContext, ErrorReporter listErrorReporter) {
         if (listItemsContext == null) {
-            addInstruction(new ConstInstruction(listErrorReporter, new ArrayList<>()));
+            addInstruction(new ConstInstruction(listErrorReporter, new ArrayList<>(), null));
             return;
         }
         List<ExpressionContext> expressions = listItemsContext.expression();
@@ -543,7 +544,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                     String clsKeyText = mapEntryContext.mapKey().getText();
                     keys.add(clsKeyText.substring(1, clsKeyText.length() - 1));
                     addInstruction(new ConstInstruction(newReporterWithToken(clsLiteral.getSymbol()),
-                            parseStringEscape(clsText)));
+                            parseStringEscape(clsText), null));
                     // @class override
                     cls = null;
                 } else {
@@ -671,7 +672,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (blockStatementsContext == null) {
             addInstruction(new ConstInstruction(
                     newReporterWithToken(ctx.TRY().getSymbol()),
-                    null
+                    null, ctx.getStart().getStartIndex()
             ));
             return null;
         }
@@ -754,7 +755,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     @Override
     public Void visitVarIdExpr(VarIdExprContext ctx) {
-        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), ctx.varId().getText()));
+        addInstruction(new LoadInstruction(
+                newReporterWithToken(ctx.getStart()), ctx.varId().getText(), ctx.getStart().getStartIndex()
+            )
+        );
         return null;
     }
 
@@ -764,7 +768,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             int dimPartNum = parseDimParts(0, pathPartContexts);
             addInstruction(new ConstInstruction(
                     newReporterWithToken(primaryNoFixContext.getStart()),
-                    new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls))
+                    new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls), null)
             );
             return dimPartNum;
         } else if (!(primaryNoFixContext instanceof VarIdExprContext)) {
@@ -803,10 +807,13 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             Class<?> cls = dimPartNum > 0 ? wrapInArray(loadPartQualifiedResult.getCls(), dimPartNum) :
                     loadPartQualifiedResult.getCls();
 
-            addInstruction(new ConstInstruction(newReporterWithToken(clsReportToken), new MetaClass(cls)));
+            addInstruction(new ConstInstruction(newReporterWithToken(clsReportToken), new MetaClass(cls), null));
             return restIndex + dimPartNum;
         } else {
-            addInstruction(new LoadInstruction(newReporterWithToken(idContext.getStart()), idContext.getText()));
+            addInstruction(new LoadInstruction(
+                    newReporterWithToken(idContext.getStart()), idContext.getText(), idContext.getStart().getStartIndex()
+                )
+            );
             return 0;
         }
     }
@@ -956,11 +963,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     public Void visitCustomPath(CustomPathContext ctx) {
         ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
         String path = ctx.varId().getText();
-        addInstruction(new ConstInstruction(errorReporter, path));
+        addInstruction(new ConstInstruction(errorReporter, path, null));
 
         String operatorId = ctx.opId().getText();
         BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
-        addInstruction(new OperatorInstruction(errorReporter, binaryOperator));
+        addInstruction(new OperatorInstruction(errorReporter, binaryOperator, ctx.opId().getStart().getStartIndex()));
         return null;
     }
 
@@ -972,13 +979,13 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         BaseExprContext rightExpr = ctx.baseExpr();
         // short circuit operator
         if ("&&".equals(operatorId)) {
-            jumpRightIfExpect(false, opErrReporter, rightExpr, operatorId);
+            jumpRightIfExpect(false, opErrReporter, rightExpr, operatorId, binaryopContext.getStart().getStartIndex());
         } else if ("||".equals(operatorId)) {
-            jumpRightIfExpect(true, opErrReporter, rightExpr, operatorId);
+            jumpRightIfExpect(true, opErrReporter, rightExpr, operatorId, binaryopContext.getStart().getStartIndex());
         } else {
             rightExpr.accept(this);
             BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
-            addInstruction(new OperatorInstruction(opErrReporter, binaryOperator));
+            addInstruction(new OperatorInstruction(opErrReporter, binaryOperator, binaryopContext.getStart().getStartIndex()));
         }
         return null;
     }
@@ -1024,7 +1031,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             VariableInitializerContext variableInitializer = variableDeclarator.variableInitializer();
             if (variableInitializer == null) {
                 addInstruction(
-                        new ConstInstruction(newReporterWithToken(variableDeclarator.getStop()), null)
+                        new ConstInstruction(newReporterWithToken(variableDeclarator.getStop()), null, null)
                 );
             } else {
                 parseInitializer(variableInitializer, declCls);
@@ -1153,7 +1160,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             String suffixOperator = suffixExpressContext.getText();
             UnaryOperator suffixUnaryOperator = operatorFactory.getSuffixUnaryOperator(suffixOperator);
             addInstruction(
-                    new UnaryInstruction(newReporterWithToken(suffixExpressContext.getStart()), suffixUnaryOperator)
+                    new UnaryInstruction(
+                            newReporterWithToken(suffixExpressContext.getStart()),
+                            suffixUnaryOperator, suffixExpressContext.getStart().getStartIndex()
+                    )
             );
         }
 
@@ -1162,7 +1172,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             String prefixOperator = prefixExpressContext.getText();
             UnaryOperator prefixUnaryOperator = operatorFactory.getPrefixUnaryOperator(prefixOperator);
             addInstruction(
-                    new UnaryInstruction(newReporterWithToken(prefixExpressContext.getStart()), prefixUnaryOperator)
+                    new UnaryInstruction(
+                            newReporterWithToken(prefixExpressContext.getStart()),
+                            prefixUnaryOperator, prefixExpressContext.getStart().getStartIndex()
+                    )
             );
         }
         return null;
@@ -1171,7 +1184,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitTypeExpr(TypeExprContext ctx) {
         Class<?> cls = BuiltInTypesSet.getCls(ctx.primitiveType().getText());
-        addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), new MetaClass(cls)));
+        addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), new MetaClass(cls), null));
         return null;
     }
 
@@ -1189,7 +1202,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitContextSelectExpr(ContextSelectExprContext ctx) {
         String variableName = ctx.SelectorVariable_VANME().getText().trim();
-        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), variableName));
+        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), variableName, ctx.getStart().getStartIndex()));
         return null;
     }
 
@@ -1199,7 +1212,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (integerLiteral != null) {
             try {
                 Number intResult = parseInteger(remove(integerLiteral.getText(), '_'));
-                addInstruction(new ConstInstruction(newReporterWithToken(integerLiteral.getSymbol()), intResult));
+                addInstruction(new ConstInstruction(
+                        newReporterWithToken(integerLiteral.getSymbol()), intResult,
+                        integerLiteral.getSymbol().getStartIndex())
+                );
             } catch (NumberFormatException nfe) {
                 throw reportParseErr(integerLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
             }
@@ -1210,7 +1226,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             try {
                 Number floatingResult = parseFloating(remove(floatingPointLiteral.getText(), '_'));
                 addInstruction(new ConstInstruction(
-                        newReporterWithToken(floatingPointLiteral.getSymbol()), floatingResult)
+                        newReporterWithToken(floatingPointLiteral.getSymbol()), floatingResult,
+                        floatingPointLiteral.getSymbol().getStartIndex())
                 );
             } catch (NumberFormatException nfe) {
                 throw reportParseErr(floatingPointLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
@@ -1224,7 +1241,9 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 Number numberResult = numberText.contains(".")?
                         parseFloating(remove(numberText, '_')): parseInteger(remove(numberText, '_'));
                 addInstruction(new ConstInstruction(
-                        newReporterWithToken(integerOrFloatingLiteral.getSymbol()), numberResult)
+                        newReporterWithToken(integerOrFloatingLiteral.getSymbol()), numberResult,
+                        integerOrFloatingLiteral.getSymbol().getStartIndex()
+                    )
                 );
             } catch (NumberFormatException nfe) {
                 throw reportParseErr(integerOrFloatingLiteral.getSymbol(), QLErrorCodes.INVALID_NUMBER.name(), QLErrorCodes.INVALID_NUMBER.getErrorMsg());
@@ -1235,7 +1254,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (booleanLiteral != null) {
             boolean boolValue = Boolean.parseBoolean(booleanLiteral.getText());
             addInstruction(
-                    new ConstInstruction(newReporterWithToken(booleanLiteral.getStart()), boolValue)
+                    new ConstInstruction(
+                            newReporterWithToken(booleanLiteral.getStart()),
+                            boolValue, booleanLiteral.getStart().getStartIndex()
+                    )
             );
             return null;
         }
@@ -1243,7 +1265,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (quoteStringLiteral != null) {
             String escapedStr = parseStringEscape(quoteStringLiteral.getText());
             addInstruction(
-                    new ConstInstruction(newReporterWithToken(quoteStringLiteral.getSymbol()), escapedStr)
+                    new ConstInstruction(
+                            newReporterWithToken(quoteStringLiteral.getSymbol()),
+                            escapedStr, quoteStringLiteral.getSymbol().getStartIndex()
+                    )
             );
             return null;
         }
@@ -1255,7 +1280,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         TerminalNode nullLiteral = literal.NULL();
         if (nullLiteral != null) {
             addInstruction(
-                    new ConstInstruction(newReporterWithToken(nullLiteral.getSymbol()), null)
+                    new ConstInstruction(
+                            newReporterWithToken(nullLiteral.getSymbol()),
+                            null, nullLiteral.getSymbol().getStartIndex()
+                    )
             );
             return null;
         }
@@ -1275,7 +1303,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 } else {
                     TerminalNode varTerminalNode = stringExpression.SelectorVariable_VANME();
                     String varName = varTerminalNode.getText().trim();
-                    addInstruction(new LoadInstruction(newReporterWithToken(varTerminalNode.getSymbol()), varName));
+                    addInstruction(new LoadInstruction(newReporterWithToken(varTerminalNode.getSymbol()), varName, null));
                 }
             } else if (child instanceof TerminalNode) {
                 TerminalNode terminalNode = (TerminalNode) child;
@@ -1283,7 +1311,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 addInstruction(
                     new ConstInstruction(
                         newReporterWithToken(terminalNode.getSymbol()),
-                        parseStringEscapeStartEnd(originStr, 0, originStr.length())
+                        parseStringEscapeStartEnd(originStr, 0, originStr.length()),
+                        ctx.getStart().getStartIndex()
                     )
                 );
             }
@@ -1512,7 +1541,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         jump.setPosition(instructionList.size() - jumpStart);
     }
 
-    private void jumpRightIfExpect(boolean expect, ErrorReporter opErrReporter, RuleContext right, String operatorId) {
+    private void jumpRightIfExpect(boolean expect, ErrorReporter opErrReporter, RuleContext right, String operatorId, int traceKey) {
         QvmInstructionVisitor rightVisitor = parseWithSubVisitor(right, generatorScope, Context.MACRO);
         List<QLInstruction> rightInstructions = rightVisitor.getInstructions();
 
@@ -1524,7 +1553,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
         rightInstructions.forEach(this::pureAddInstruction);
         BinaryOperator binaryOperator = operatorFactory.getBinaryOperator(operatorId);
-        addInstruction(new OperatorInstruction(opErrReporter, binaryOperator));
+        addInstruction(new OperatorInstruction(opErrReporter, binaryOperator, traceKey));
         addTimeoutInstruction();
 
         jumpIf.setPosition(instructionList.size() - jumpStart);

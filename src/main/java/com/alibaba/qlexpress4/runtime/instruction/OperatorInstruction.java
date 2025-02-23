@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
@@ -24,9 +25,12 @@ public class OperatorInstruction extends QLInstruction {
 
     private final BinaryOperator operator;
 
-    public OperatorInstruction(ErrorReporter errorReporter, BinaryOperator operator) {
+    private final Integer traceKey;
+
+    public OperatorInstruction(ErrorReporter errorReporter, BinaryOperator operator, Integer traceKey) {
         super(errorReporter);
         this.operator = operator;
+        this.traceKey = traceKey;
     }
 
     @Override
@@ -36,6 +40,15 @@ public class OperatorInstruction extends QLInstruction {
         try {
             Object result = operator.execute(leftValue, rightValue, qContext, qlOptions, errorReporter);
             qContext.push(new DataValue(result));
+
+            // trace
+            ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+            if (expressionTrace != null) {
+                expressionTrace.valueEvaluated(result);
+                expressionTrace.getChildren().get(0).valueEvaluated(leftValue.get());
+                expressionTrace.getChildren().get(1).valueEvaluated(rightValue.get());
+            }
+
             return QResult.NEXT_INSTRUCTION;
         } catch (Throwable t) {
             throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.EXECUTE_OPERATOR_EXCEPTION.name(),

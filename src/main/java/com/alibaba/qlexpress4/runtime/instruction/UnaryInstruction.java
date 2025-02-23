@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 /**
@@ -22,9 +23,12 @@ public class UnaryInstruction extends QLInstruction {
 
     private final UnaryOperator unaryOperator;
 
-    public UnaryInstruction(ErrorReporter errorReporter, UnaryOperator unaryOperator) {
+    private final Integer traceKey;
+
+    public UnaryInstruction(ErrorReporter errorReporter, UnaryOperator unaryOperator, Integer traceKey) {
         super(errorReporter);
         this.unaryOperator = unaryOperator;
+        this.traceKey = traceKey;
     }
 
     @Override
@@ -32,6 +36,14 @@ public class UnaryInstruction extends QLInstruction {
         Value value = qContext.pop();
         Object result = unaryOperator.execute(value, errorReporter);
         qContext.push(new DataValue(result));
+
+        // trace
+        ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+        if (expressionTrace != null) {
+            expressionTrace.valueEvaluated(result);
+            expressionTrace.getChildren().get(0).valueEvaluated(value.get());
+        }
+
         return QResult.NEXT_INSTRUCTION;
     }
 

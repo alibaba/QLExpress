@@ -69,12 +69,18 @@ public class InitOptions {
      */
     private final InterpolationMode interpolationMode;
 
+    /**
+     * track the execution process of all expressions and return the path to the `execute` caller.
+     * default false
+     */
+    private final boolean traceExpression;
+
     private InitOptions(ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
                         QLSecurityStrategy securityStrategy,
                         List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess,
-                        InterpolationMode interpolationMode) {
+                        InterpolationMode interpolationMode, boolean traceExpression) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -83,6 +89,7 @@ public class InitOptions {
         this.extensionFunctions = extensionFunctions;
         this.allowPrivateAccess = allowPrivateAccess;
         this.interpolationMode = interpolationMode;
+        this.traceExpression = traceExpression;
     }
 
     public static InitOptions.Builder builder() {
@@ -121,6 +128,10 @@ public class InitOptions {
         return interpolationMode;
     }
 
+    public boolean isTraceExpression() {
+        return traceExpression;
+    }
+
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         private final List<ImportManager.QLImport> defaultImport = new ArrayList<>(Arrays.asList(
@@ -139,6 +150,7 @@ public class InitOptions {
         ));
         private boolean allowPrivateAccess = false;
         private InterpolationMode interpolationMode = InterpolationMode.SCRIPT;
+        private boolean traceExpression = false;
 
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
@@ -180,10 +192,15 @@ public class InitOptions {
             return this;
         }
 
+        public Builder traceExpression(boolean traceExpression) {
+            this.traceExpression = traceExpression;
+            return this;
+        }
+
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport,
                     debug, debugInfoConsumer, securityStrategy, extensionFunctions,
-                    allowPrivateAccess, interpolationMode);
+                    allowPrivateAccess, interpolationMode, traceExpression);
         }
     }
 }

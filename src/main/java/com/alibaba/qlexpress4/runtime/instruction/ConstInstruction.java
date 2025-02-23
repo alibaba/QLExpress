@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -20,14 +21,24 @@ public class ConstInstruction extends QLInstruction {
 
     private final Object constObj;
 
-    public ConstInstruction(ErrorReporter errorReporter, Object constObj) {
+    private final Integer traceKey;
+
+    public ConstInstruction(ErrorReporter errorReporter, Object constObj, Integer traceKey) {
         super(errorReporter);
         this.constObj = constObj;
+        this.traceKey = traceKey;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         qContext.push(new DataValue(constObj));
+
+        // trace
+        ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+        if (expressionTrace != null) {
+            expressionTrace.valueEvaluated(constObj);
+        }
+
         return QResult.NEXT_INSTRUCTION;
     }
 

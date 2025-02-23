@@ -146,7 +146,7 @@ public class TestSuiteRunner {
         String configJson = qlScript.substring(2, endIndex);
         try {
             Map<String, Object> scriptOptions = (Map<String, Object>)CONFIG_RUNNER
-                .execute(configJson, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+                .execute(configJson, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
             return Optional.of(scriptOptions);
         } catch (JSONException e) {
             return Optional.empty();

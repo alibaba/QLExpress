@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -18,14 +19,25 @@ public class LoadInstruction extends QLInstruction {
 
     private final String name;
 
-    public LoadInstruction(ErrorReporter errorReporter, String name) {
+    private final Integer traceKey;
+
+    public LoadInstruction(ErrorReporter errorReporter, String name, Integer traceKey) {
         super(errorReporter);
         this.name = name;
+        this.traceKey = traceKey;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        qContext.push(qContext.getSymbol(name));
+        Value symbolValue = qContext.getSymbol(name);
+        qContext.push(symbolValue);
+
+        // trace
+        ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+        if (expressionTrace != null) {
+            expressionTrace.valueEvaluated(symbolValue.get());
+        }
+
         return QResult.NEXT_INSTRUCTION;
     }
 

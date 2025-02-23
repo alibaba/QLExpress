@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.runtime.instruction;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
+import com.alibaba.qlexpress4.runtime.trace.QTraces;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.Collections;
@@ -103,6 +104,11 @@ public class MockQContextParent implements QContext {
     @Override
     public ReflectLoader getReflectLoader() {
         return reflectLoader;
+    }
+
+    @Override
+    public QTraces getTraces() {
+        return null;
     }
 
 

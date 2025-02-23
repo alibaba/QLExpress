@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
+import com.alibaba.qlexpress4.runtime.trace.QTraces;
 
 import java.util.Map;
 
@@ -32,6 +33,11 @@ public class DelegateQContext implements QContext {
     @Override
     public ReflectLoader getReflectLoader() {
         return qRuntime.getReflectLoader();
+    }
+
+    @Override
+    public QTraces getTraces() {
+        return qRuntime.getTraces();
     }
 
     @Override

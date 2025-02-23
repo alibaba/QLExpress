@@ -24,10 +24,10 @@ public class Issue318Test {
         student.name = "张三";
         student.alias = "zhangsan";
         context.put("student", student);
-        Object result = runner.execute("student.name == \"张三\"", context, QLOptions.DEFAULT_OPTIONS);
+        Object result = runner.execute("student.name == \"张三\"", context, QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertTrue((Boolean)result);
 
-        result = runner.execute("student.alias == \"zhangsan\"", context, QLOptions.DEFAULT_OPTIONS);
+        result = runner.execute("student.alias == \"zhangsan\"", context, QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertTrue((Boolean)result);
     }
 

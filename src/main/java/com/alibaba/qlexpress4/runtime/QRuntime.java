@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.runtime.trace.QTraces;
+
 import java.util.Map;
 
 /**
@@ -16,4 +18,6 @@ public interface QRuntime {
     Map<String, Object> attachment();
 
     ReflectLoader getReflectLoader();
+
+    QTraces getTraces();
 }
