@@ -27,9 +27,14 @@ import org.junit.Test;
  * @author 冰够
  */
 public class QLExpress4PerformanceTest2 {
-    private static final InitOptions initOptions = InitOptions.DEFAULT_OPTIONS;
-    // private static final InitOptions initOptions = InitOptions.builder().debug(true).build();
-    private static final QLOptions qlOptions = QLOptions.builder().cache(true).build();
+    // private static final InitOptions initOptions = InitOptions.DEFAULT_OPTIONS;
+    private static final InitOptions initOptions = InitOptions.builder()
+        // .debug(true)
+        .traceExpression(true)
+        .build();
+    private static final QLOptions qlOptions = QLOptions.builder()
+        .cache(true)
+        .build();
     private static final Express4Runner express4Runner = new Express4Runner(initOptions);
 
     static {
@@ -42,19 +47,19 @@ public class QLExpress4PerformanceTest2 {
     @Test
     public void test_getExpressionTracePoints() throws IOException {
         String script = readScript();
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         TracePointTree tracePointTree = express4Runner.getExpressionTracePoints(script).get(0);
-        System.out.println("tracePointTree = " + tracePointTree);
+        System.out.println("tracePointTree = " + tracePointTree.toPrettyString(4));
     }
 
     @Test
     public void test_attribution_analysis() throws IOException {
         String script = readScript();
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Map<String, Object> bizContext = buildBizContext();
         QLResult qlResult = express4Runner.execute(script, bizContext, qlOptions);
         List<ExpressionTrace> expressionTraces = qlResult.getExpressionTraces();
-        System.out.println("expressionTraces = " + expressionTraces);
+        Object result = qlResult.getResult();
+        System.out.println("expressionTraces = \n" + expressionTraces.get(0).toPrettyString(2));
+        System.out.println("result = " + result);
     }
 
     /**
@@ -135,6 +140,7 @@ public class QLExpress4PerformanceTest2 {
                 622977, 623041, 623105, 630721, 630913, 631041, 631105, 631169, 638913, 646657, 648961, 649089, 654273, 676673, 698369, 698561,
                 698625, 698817, 698945, 699073, 704833, 709761, 710913, 716673, 724929, 724993, 725057, 725121, 733633, 733697, 737409, 746305,
                 755073, 770817, 774081, 774657, 778049, 780609, 780673, 781505, 783233, 784897, 786113));
+        context.put("spCode", "xxx");
         return context;
     }
 
