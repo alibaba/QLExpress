@@ -126,12 +126,19 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
 
     @Override
     public TracePointTree visitListExpr(QLParser.ListExprContext ctx) {
-        return newPoint(TraceType.VALUE, Collections.emptyList(), ctx.getStart());
+        QLParser.ListItemsContext listItemsContext = ctx.listItems();
+        if (listItemsContext == null) {
+            return newPoint(TraceType.LIST, Collections.emptyList(), ctx.getStart());
+        }
+        List<TracePointTree> children = listItemsContext.expression().stream()
+                .map(expression -> expression.accept(this))
+                .collect(Collectors.toList());
+        return newPoint(TraceType.LIST, children, ctx.getStart());
     }
 
     @Override
     public TracePointTree visitMapExpr(QLParser.MapExprContext ctx) {
-        return newPoint(TraceType.VALUE, Collections.emptyList(), ctx.getStart());
+        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
     }
 
     @Override

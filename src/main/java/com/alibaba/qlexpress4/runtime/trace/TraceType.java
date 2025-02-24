@@ -6,6 +6,7 @@ public enum TraceType {
     FUNCTION,
     METHOD,
     FIELD,
+    LIST,
     // children
     VARIABLE,
     VALUE,

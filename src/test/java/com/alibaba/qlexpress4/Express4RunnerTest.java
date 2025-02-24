@@ -84,7 +84,10 @@ public class Express4RunnerTest {
         ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
         Assert.assertEquals("OPERATOR in false\n" +
                 "  | VALUE 'ab' ab\n" +
-                "  | VALUE [ [cc, dd, ff]\n", expressionTraceIn.toPrettyString(0));
+                "  | LIST [ [cc, dd, ff]\n" +
+                "      | VALUE 'cc' cc\n" +
+                "      | VALUE 'dd' dd\n" +
+                "      | VALUE 'ff' ff\n", expressionTraceIn.toPrettyString(0));
     }
 
     @Test
@@ -110,6 +113,14 @@ public class Express4RunnerTest {
                 "          | VALUE 1\n" +
                 "          | VALUE 2\n" +
                 "      | VALUE false\n", tracePointTreeFunction.toPrettyString(0));
+
+        TracePointTree tracePointIn = express4Runner.getExpressionTracePoints("'ab' in ['cc', 'dd', 'ff']").get(0);
+        Assert.assertEquals("OPERATOR in\n" +
+                "  | VALUE 'ab'\n" +
+                "  | LIST [\n" +
+                "      | VALUE 'cc'\n" +
+                "      | VALUE 'dd'\n" +
+                "      | VALUE 'ff'\n", tracePointIn.toPrettyString(0));
     }
 
     @Test
