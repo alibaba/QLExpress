@@ -49,7 +49,9 @@ public class QLExpress4PerformanceTest2 {
         String script = readScript();
 
         // 执行一次(空Map）
-        express4Runner.execute(script, Collections.emptyMap(), qlOptions);
+        Map<String, Object> map = new HashMap<>();
+        map.put("", "");
+        express4Runner.execute(script, map, qlOptions);
 
         // 正式执行
         Map<String, Object> bizContext = buildBizContext();
