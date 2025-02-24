@@ -8,11 +8,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.qlexpress4.Express4Runner;
 import com.alibaba.qlexpress4.InitOptions;
 import com.alibaba.qlexpress4.QLOptions;
+import com.alibaba.qlexpress4.QLResult;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
+import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.test.performance.operator.IntersectOperator;
 import com.alibaba.qlexpress4.test.performance.operator.NotInOperator;
 import com.alibaba.qlexpress4.test.performance.operator.NotIntersectOperator;
@@ -33,6 +37,24 @@ public class QLExpress4PerformanceTest2 {
         express4Runner.addOperator("not_in", NotInOperator.getInstance());
         express4Runner.addOperator("intersect", IntersectOperator.getInstance());
         express4Runner.addOperator("not_intersect", NotIntersectOperator.getInstance());
+    }
+
+    @Test
+    public void test_getExpressionTracePoints() throws IOException {
+        String script = readScript();
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        TracePointTree tracePointTree = express4Runner.getExpressionTracePoints(script).get(0);
+        System.out.println("tracePointTree = " + tracePointTree);
+    }
+
+    @Test
+    public void test_attribution_analysis() throws IOException {
+        String script = readScript();
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> bizContext = buildBizContext();
+        QLResult qlResult = express4Runner.execute(script, bizContext, qlOptions);
+        List<ExpressionTrace> expressionTraces = qlResult.getExpressionTraces();
+        System.out.println("expressionTraces = " + expressionTraces);
     }
 
     /**
