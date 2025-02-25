@@ -307,7 +307,7 @@ public class Express4Runner {
 
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine = qlOptions.isCache()?
-                parseDefinitionWithCache(script): parseDefinition(script);
+                parseToDefinitionWithCache(script): parseDefinition(script);
         if (initOptions.isDebug()) {
             initOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.getQLambdaDefinition().println(0, initOptions.getDebugInfoConsumer());
@@ -326,7 +326,12 @@ public class Express4Runner {
         return new QLambdaTrace(qLambda, qTraces);
     }
 
-    private QCompileCache parseDefinitionWithCache(String script) {
+    /**
+     * parse script with cache
+     * @param script script to parse
+     * @return QLambdaDefinition and TracePointTrees
+     */
+    public QCompileCache parseToDefinitionWithCache(String script) {
         try {
             return getParseFuture(script).get();
         } catch (Exception e) {
