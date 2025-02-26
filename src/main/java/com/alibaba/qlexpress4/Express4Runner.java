@@ -15,6 +15,7 @@ import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
@@ -81,7 +82,7 @@ public class Express4Runner {
      * @throws QLException
      */
     public QLResult execute(String script, Object context, QLOptions qlOptions) throws QLException {
-        return execute(script, new ObjectFieldExpressContext(context, reflectLoader), qlOptions);
+        return execute(script, new ObjectFieldExpressContext(context, this), qlOptions);
     }
 
     /**
@@ -339,6 +340,10 @@ public class Express4Runner {
             throw compileException instanceof QLSyntaxException? (QLSyntaxException) compileException:
                     new RuntimeException(compileException);
         }
+    }
+
+    public Value loadField(Object object, String fieldName) {
+        return reflectLoader.loadField(object, fieldName, true, PureErrReporter.INSTANCE);
     }
 
     private Future<QCompileCache> getParseFuture(String script) {
