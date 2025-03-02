@@ -43,7 +43,16 @@ import static org.junit.Assert.*;
 public class Express4RunnerTest {
 
     @Test
+    public void parseToCacheTest() {
+        // tag::parseToCache[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.parseToDefinitionWithCache("a+b");
+        // end::parseToCache[]
+    }
+
+    @Test
     public void expressionTraceTest() {
+        // tag::expressionTrace[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(true).build());
         express4Runner.addFunction("myTest", (Predicate<Integer>) i -> i > 10);
 
@@ -88,10 +97,12 @@ public class Express4RunnerTest {
                 "      | VALUE 'cc' cc\n" +
                 "      | VALUE 'dd' dd\n" +
                 "      | VALUE 'ff' ff\n", expressionTraceIn.toPrettyString(0));
+        // end::expressionTrace[]
     }
 
     @Test
     public void getExpressionTracePointsTest() {
+        // tag::getExpressionTracePoints[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         TracePointTree tracePointTree = express4Runner.getExpressionTracePoints("1+3+5*ab+9").get(0);
         Assert.assertEquals("OPERATOR +\n" +
@@ -103,6 +114,7 @@ public class Express4RunnerTest {
                 "          | VALUE 5\n" +
                 "          | VARIABLE ab\n" +
                 "  | VALUE 9\n", tracePointTree.toPrettyString(0));
+        // end::getExpressionTracePoints[]
 
         TracePointTree tracePointTreeFunction = express4Runner
                 .getExpressionTracePoints("ab && (myTest(1,2) || false)").get(0);
@@ -231,8 +243,11 @@ public class Express4RunnerTest {
                 .build()
         );
         // Import Java classes using the import statement.
+        Map<String, Object> params = new HashMap<>();
+        params.put("a", 1);
+        params.put("b", 2);
         Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
-                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+                "QLImportTester.add(a,b)", params, QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(3, result);
         // end::importJavaCls[]
     }

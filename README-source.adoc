@@ -33,8 +33,8 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 ----
 <dependency>
     <groupId>com.alibaba</groupId>
-    <artifactId>QLExpress4</artifactId>
-    <version>4.0.0-beta.4</version>
+    <artifactId>qlexpress4</artifactId>
+    <version>4.0.0-beta.5</version>
 </dependency>
 ----
 
@@ -153,6 +153,15 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defa
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cacheSwitch]
 ----
 
+但是当脚本首次执行时，因为没有缓存，依旧会比较慢。
+
+可以通过下面的方法在首次执行前就将脚本缓存起来，保证首次执行的速度：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
+----
+
 === 扩展函数
 
 利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
@@ -218,6 +227,43 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addA
  * null
  * true
  * false
+
+> 注意：部分大家熟悉的用法其实是操作符，而不是关键字，比如 `in` 操作符。而所有的操作符和函数默认就是支持别名的
+
+=== 表达式计算跟踪
+
+跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
+
+目前该功能之会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。可以满足所有将 QLExpress 当成表达式使用的场景。
+
+节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=expressionTrace]
+----
+
+也可以在不执行脚本的情况下获得所有表达式追踪点：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getExpressionTracePoints]
+----
+
+支持的表达式追踪点类型以及对应子节点的含义如下：
+
+[cols="1,1,1"]
+|===
+| 节点类型 | 节点含义 | 子节点含义
+| OPERATOR | 操作符 | 两侧操作数
+| FUNCTION | 函数 | 函数参数
+| METHOD   | 方法 | 方法参数
+| FIELD    | 字段 | 取字段的目标对象
+| LIST     | 列表 | 列表元素
+| VARIABLE | 变量 | 无
+| VALUE    | 字面值   | 无
+| PRIMARY  | 暂时未继续下钻的其他复合值（比如字典,if等等）| 无
+|===
 
 == 语法入门
 
