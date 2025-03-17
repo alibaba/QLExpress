@@ -15,6 +15,7 @@ import com.alibaba.qlexpress4.aparser.*;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.*;
@@ -81,7 +82,7 @@ public class Express4Runner {
      * @throws QLException
      */
     public QLResult execute(String script, Object context, QLOptions qlOptions) throws QLException {
-        return execute(script, new ObjectFieldExpressContext(context, reflectLoader), qlOptions);
+        return execute(script, new ObjectFieldExpressContext(context, this), qlOptions);
     }
 
     /**
@@ -307,7 +308,7 @@ public class Express4Runner {
 
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine = qlOptions.isCache()?
-                parseDefinitionWithCache(script): parseDefinition(script);
+                parseToDefinitionWithCache(script): parseDefinition(script);
         if (initOptions.isDebug()) {
             initOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.getQLambdaDefinition().println(0, initOptions.getDebugInfoConsumer());
@@ -326,7 +327,12 @@ public class Express4Runner {
         return new QLambdaTrace(qLambda, qTraces);
     }
 
-    private QCompileCache parseDefinitionWithCache(String script) {
+    /**
+     * parse script with cache
+     * @param script script to parse
+     * @return QLambdaDefinition and TracePointTrees
+     */
+    public QCompileCache parseToDefinitionWithCache(String script) {
         try {
             return getParseFuture(script).get();
         } catch (Exception e) {
@@ -334,6 +340,10 @@ public class Express4Runner {
             throw compileException instanceof QLSyntaxException? (QLSyntaxException) compileException:
                     new RuntimeException(compileException);
         }
+    }
+
+    public Value loadField(Object object, String fieldName) {
+        return reflectLoader.loadField(object, fieldName, true, PureErrReporter.INSTANCE);
     }
 
     private Future<QCompileCache> getParseFuture(String script) {

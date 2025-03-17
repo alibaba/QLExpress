@@ -33,8 +33,8 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 ----
 <dependency>
     <groupId>com.alibaba</groupId>
-    <artifactId>QLExpress4</artifactId>
-    <version>4.0.0-beta.4</version>
+    <artifactId>qlexpress4</artifactId>
+    <version>4.0.0-beta.5</version>
 </dependency>
 ----
 
@@ -47,7 +47,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
         context.put("a", 1);
         context.put("b", 2);
         context.put("c", 3);
-        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(7, result);
 ----
 
@@ -61,12 +61,12 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
         // custom function
         express4Runner.addVarArgsFunction("join", params ->
                 Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
-        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultFunction);
 
         // custom operator
         express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
-        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultOperator);
 ----
 
@@ -99,12 +99,12 @@ public class HelloFunction implements CustomFunction {
                 // Additional information(tenant for example) can be brought into the custom function from outside via attachments
                 QLOptions.builder()
                         .attachments(Collections.singletonMap("tenant", "jack"))
-                        .build());
+                        .build()).getResult();
         assertEquals("hello,jack", resultJack);
         String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(),
                 QLOptions.builder()
                         .attachments(Collections.singletonMap("tenant", "lucy"))
-                        .build());
+                        .build()).getResult();
         assertEquals("hello,lucy", resultLucy);
 ----
 
@@ -139,7 +139,7 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("0.1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertTrue(result instanceof BigDecimal);
 ----
 
@@ -151,7 +151,7 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
 [source,java,indent=0]
 ----
         assertNotEquals(0.3, 0.1 + 0.2, 0.0);
-        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS));
+        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
 ----
 
 除了默认的精度保证外，还提供了 `precise` 开关，打开后所有的计算都使用BigDecimal，防止外部传入的低精度数字导致的问题：
@@ -161,9 +161,9 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
         Map<String, Object> context = new HashMap<>();
         context.put("a", 0.1);
         context.put("b", 0.2);
-        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS));
+        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS).getResult());
         // open precise switch
-        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()));
+        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()).getResult());
 ----
 
 === 调用应用中的 Java 类
@@ -197,8 +197,11 @@ public class QLImportTester {
                 .build()
         );
         // Import Java classes using the import statement.
+        Map<String, Object> params = new HashMap<>();
+        params.put("a", 1);
+        params.put("b", 2);
         Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
-                "QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+                "QLImportTester.add(a,b)", params, QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(3, result);
 ----
 
@@ -213,7 +216,7 @@ public class QLImportTester {
                 .securityStrategy(QLSecurityStrategy.open())
                 .build()
         );
-        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals(3, result);
 ----
 
@@ -239,6 +242,16 @@ public class QLImportTester {
         // open cache switch
         express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder()
                 .cache(true).build());
+----
+
+但是当脚本首次执行时，因为没有缓存，依旧会比较慢。
+
+可以通过下面的方法在首次执行前就将脚本缓存起来，保证首次执行的速度：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.parseToDefinitionWithCache("a+b");
 ----
 
 === 扩展函数
@@ -276,7 +289,7 @@ public class QLImportTester {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .addExtensionFunctions(Collections.singletonList(helloFunction))
                 .build());
-        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
 ----
 
@@ -372,7 +385,7 @@ public class Order {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
                 .securityStrategy(QLSecurityStrategy.open()).build());
         Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
-                QLOptions.DEFAULT_OPTIONS, order, user);
+                QLOptions.DEFAULT_OPTIONS, order, user).getResult();
         assertEquals(80, result.intValue());
 ----
 
@@ -404,7 +417,7 @@ public class Order {
         Object result = express4Runner.execute(
                 "如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}",
                 context, QLOptions.DEFAULT_OPTIONS
-        );
+        ).getResult();
         assertEquals(0, result);
 ----
 
@@ -424,6 +437,96 @@ public class Order {
  * null
  * true
  * false
+
+> 注意：部分大家熟悉的用法其实是操作符，而不是关键字，比如 `in` 操作符。而所有的操作符和函数默认就是支持别名的
+
+=== 表达式计算跟踪
+
+跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
+
+目前该功能之会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。可以满足所有将 QLExpress 当成表达式使用的场景。
+
+节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(true).build());
+        express4Runner.addFunction("myTest", (Predicate<Integer>) i -> i > 10);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", true);
+        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) result.getResult());
+
+        List<ExpressionTrace> expressionTraces = result.getExpressionTraces();
+        Assert.assertEquals(1, expressionTraces.size());
+        ExpressionTrace expressionTrace = expressionTraces.get(0);
+        Assert.assertEquals("OPERATOR && false\n" +
+                "  | VARIABLE a true\n" +
+                "  | OPERATOR || false\n" +
+                "      | OPERATOR ! false\n" +
+                "          | FUNCTION myTest true\n" +
+                "              | VALUE 11 11\n" +
+                "      | VALUE false false\n", expressionTrace.toPrettyString(0));
+
+        // short circuit
+        context.put("a", false);
+        QLResult resultShortCircuit = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) resultShortCircuit.getResult());
+        ExpressionTrace expressionTraceShortCircuit = resultShortCircuit.getExpressionTraces().get(0);
+        Assert.assertEquals("OPERATOR && \n" +
+                "  | VARIABLE a false\n" +
+                "  | OPERATOR || \n" +
+                "      | OPERATOR ! \n" +
+                "          | FUNCTION myTest \n" +
+                "              | VALUE 11 \n" +
+                "      | VALUE false \n", expressionTraceShortCircuit.toPrettyString(0));
+        Assert.assertTrue(expressionTraceShortCircuit.getChildren().get(0).isEvaluated());
+        Assert.assertFalse(expressionTraceShortCircuit.getChildren().get(1).isEvaluated());
+
+        // in
+        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertFalse((Boolean) resultIn.getResult());
+        ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
+        Assert.assertEquals("OPERATOR in false\n" +
+                "  | VALUE 'ab' ab\n" +
+                "  | LIST [ [cc, dd, ff]\n" +
+                "      | VALUE 'cc' cc\n" +
+                "      | VALUE 'dd' dd\n" +
+                "      | VALUE 'ff' ff\n", expressionTraceIn.toPrettyString(0));
+----
+
+也可以在不执行脚本的情况下获得所有表达式追踪点：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        TracePointTree tracePointTree = express4Runner.getExpressionTracePoints("1+3+5*ab+9").get(0);
+        Assert.assertEquals("OPERATOR +\n" +
+                "  | OPERATOR +\n" +
+                "      | OPERATOR +\n" +
+                "          | VALUE 1\n" +
+                "          | VALUE 3\n" +
+                "      | OPERATOR *\n" +
+                "          | VALUE 5\n" +
+                "          | VARIABLE ab\n" +
+                "  | VALUE 9\n", tracePointTree.toPrettyString(0));
+----
+
+支持的表达式追踪点类型以及对应子节点的含义如下：
+
+[cols="1,1,1"]
+|===
+| 节点类型 | 节点含义 | 子节点含义
+| OPERATOR | 操作符 | 两侧操作数
+| FUNCTION | 函数 | 函数参数
+| METHOD   | 方法 | 方法参数
+| FIELD    | 字段 | 取字段的目标对象
+| LIST     | 列表 | 列表元素
+| VARIABLE | 变量 | 无
+| VALUE    | 字面值   | 无
+| PRIMARY  | 暂时未继续下钻的其他复合值（比如字典,if等等）| 无
+|===
 
 == 语法入门
 

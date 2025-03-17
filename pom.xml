@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba</groupId>
-    <artifactId>QLExpress4</artifactId>
+    <artifactId>qlexpress4</artifactId>
     <packaging>jar</packaging>
-    <version>4.0.0-beta.4</version>
+    <version>4.0.0-beta.5</version>
     <name>QLExpress</name>
     <description>QLExpress is a powerful, lightweight, dynamic language for the Java platform aimed at improving
         developers’ productivity in different business scenes.
