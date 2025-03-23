@@ -19,8 +19,11 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
 
     private final String script;
 
-    public QLErrorStrategy(String script) {
+    private final ParserOperatorManager operatorManager;
+
+    public QLErrorStrategy(String script, ParserOperatorManager operatorManager) {
         this.script = script;
+        this.operatorManager = operatorManager;
     }
 
     @Override
@@ -55,7 +58,8 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
                     lexeme, QLErrorCodes.IMPORT_STATIC_NOT_SUPPORTED.name(),
                     QLErrorCodes.IMPORT_STATIC_NOT_SUPPORTED.getErrorMsg());
         } else if (BLOCK_STATEMENTS_RULE.equals(ruleName) &&
-                (OPID_SYMBOL.equals(symbolicName) || ID_SYMBOL.equals(symbolicName) || DOTMUL_SYMBOL.equals(symbolicName))
+                (OPID_SYMBOL.equals(symbolicName) || ID_SYMBOL.equals(symbolicName) || DOTMUL_SYMBOL.equals(symbolicName)) &&
+                !operatorManager.isOpType(lexeme, ParserOperatorManager.OpType.MIDDLE)
         ) {
             throw QLException.reportScannerErr(script, currentToken.getStartIndex(),
                     currentToken.getLine(), currentToken.getCharPositionInLine() + lexeme.length(),
