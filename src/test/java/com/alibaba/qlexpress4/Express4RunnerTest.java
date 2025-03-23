@@ -2,9 +2,11 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -454,6 +456,30 @@ public class Express4RunnerTest {
         Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
         // end::extensionFunction[]
+    }
+
+    @Test
+    public void scripTimeoutTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("while (true) {\n" +
+                    "  1+1\n" +
+                    "}", Collections.emptyMap(), QLOptions.builder().timeoutMillis(10L).build());
+            fail("should timeout");
+        } catch (QLTimeoutException e) {
+            assertEquals(QLErrorCodes.SCRIPT_TIME_OUT.name(), e.getErrorCode());
+        }
+
+        try {
+            express4Runner.execute("while (2) {\n" +
+                    "  1+1\n" +
+                    "}", Collections.emptyMap(), QLOptions.builder().timeoutMillis(10L).build());
+            fail("should exception");
+        } catch (QLTimeoutException e) {
+            fail();
+        } catch (QLRuntimeException e) {
+            assertEquals(QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.name(), e.getErrorCode());
+        }
     }
 
     @Test

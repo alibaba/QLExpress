@@ -60,7 +60,8 @@ public class QLException extends RuntimeException {
                                                                 String errorCode, String reason, Object catchObj) {
         ExMessageUtil.ExMessage exMessage = ExMessageUtil.format(script, tokenStartPos, line, col, lexeme, errorCode, reason);
         Diagnostic diagnostic = toDiagnostic(tokenStartPos, line, col, lexeme, errorCode, reason, exMessage.getSnippet());
-        return new QLRuntimeException(catchObj, exMessage.getMessage(), diagnostic);
+        return errorCode.equals(QLErrorCodes.SCRIPT_TIME_OUT.name())? new QLTimeoutException(catchObj, exMessage.getMessage(), diagnostic)
+                : new QLRuntimeException(catchObj, exMessage.getMessage(), diagnostic);
     }
 
     private static Diagnostic toDiagnostic(int startPos, int line, int col, String lexeme, String errorCode, String reason, String snippet) {
