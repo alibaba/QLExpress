@@ -58,7 +58,8 @@ public class Express4RunnerTest {
 
         Map<String, Object> context = new HashMap<>();
         context.put("a", true);
-        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) result.getResult());
 
         List<ExpressionTrace> expressionTraces = result.getExpressionTraces();
@@ -74,11 +75,14 @@ public class Express4RunnerTest {
 
         // short circuit
         context.put("a", false);
-        QLResult resultShortCircuit = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult resultShortCircuit = express4Runner.execute("(a && true) && (!myTest(11) || false)", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) resultShortCircuit.getResult());
         ExpressionTrace expressionTraceShortCircuit = resultShortCircuit.getExpressionTraces().get(0);
-        Assert.assertEquals("OPERATOR && \n" +
-                "  | VARIABLE a false\n" +
+        Assert.assertEquals("OPERATOR && false\n" +
+                "  | OPERATOR && false\n" +
+                "      | VARIABLE a false\n" +
+                "      | VALUE true \n" +
                 "  | OPERATOR || \n" +
                 "      | OPERATOR ! \n" +
                 "          | FUNCTION myTest \n" +
@@ -88,7 +92,8 @@ public class Express4RunnerTest {
         Assert.assertFalse(expressionTraceShortCircuit.getChildren().get(1).isEvaluated());
 
         // in
-        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) resultIn.getResult());
         ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
         Assert.assertEquals("OPERATOR in false\n" +

@@ -315,7 +315,7 @@ public class Express4Runner {
         }
 
 
-        QTraces qTraces = initOptions.isTraceExpression()? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints()):
+        QTraces qTraces = initOptions.isTraceExpression() && qlOptions.isTraceExpression()? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints()):
                 new QTraces(null, null);
 
         QvmRuntime qvmRuntime = new QvmRuntime(

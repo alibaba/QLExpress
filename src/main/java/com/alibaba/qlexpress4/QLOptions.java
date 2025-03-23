@@ -58,9 +58,16 @@ public class QLOptions {
      */
     private final int maxArrLength;
 
+    /**
+     * Track the execution process of all expressions and return the path to the `execute` caller.
+     * To enable expression tracing, please ensure that the InitOptions.traceExpression is alse set to true.
+     * default false
+     */
+    private final boolean traceExpression;
+
     private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
                       Map<String, Object> attachments, boolean cache, boolean avoidNullPointer,
-                      int maxArrLength) {
+                      int maxArrLength, boolean traceExpression) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.timeoutMillis = timeoutMillis;
@@ -68,6 +75,7 @@ public class QLOptions {
         this.cache = cache;
         this.avoidNullPointer = avoidNullPointer;
         this.maxArrLength = maxArrLength;
+        this.traceExpression = traceExpression;
     }
 
     public static Builder builder() {
@@ -110,6 +118,10 @@ public class QLOptions {
         return maxArrLength == -1 || newArrLen <= maxArrLength;
     }
 
+    public boolean isTraceExpression() {
+        return traceExpression;
+    }
+
     public static class Builder {
         private boolean precise = false;
 
@@ -124,6 +136,8 @@ public class QLOptions {
         private boolean avoidNullPointer = false;
 
         private int maxArrLength = -1;
+
+        private boolean traceExpression = false;
 
         public Builder precise(boolean precise) {
             this.precise = precise;
@@ -160,9 +174,14 @@ public class QLOptions {
             return this;
         }
 
+        public Builder traceExpression(boolean traceExpression) {
+            this.traceExpression = traceExpression;
+            return this;
+        }
+
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, timeoutMillis,
-                attachments, cache, avoidNullPointer, maxArrLength);
+                attachments, cache, avoidNullPointer, maxArrLength, traceExpression);
         }
     }
 }
