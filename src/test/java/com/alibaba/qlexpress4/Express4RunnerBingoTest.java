@@ -25,6 +25,7 @@ public class Express4RunnerBingoTest {
         context.put("sellerId", 1001L);
         context.put("categoryId", 2001L);
         context.put("itemTag", 3001);
+        System.out.println("script = " + script);
 
         QLResult qlResult = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
         System.out.println("qlResult.getResult() = " + qlResult.getResult());
