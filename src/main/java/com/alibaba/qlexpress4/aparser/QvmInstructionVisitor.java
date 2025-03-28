@@ -1545,8 +1545,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         QvmInstructionVisitor rightVisitor = parseWithSubVisitor(right, generatorScope, Context.MACRO);
         List<QLInstruction> rightInstructions = rightVisitor.getInstructions();
 
-
-        JumpIfInstruction jumpIf = new JumpIfInstruction(opErrReporter, expect, -1);
+        JumpIfInstruction jumpIf = new JumpIfInstruction(opErrReporter, expect, -1, traceKey);
         pureAddInstruction(jumpIf);
 
         int jumpStart = instructionList.size();

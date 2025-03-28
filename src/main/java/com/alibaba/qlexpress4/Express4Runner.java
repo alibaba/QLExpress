@@ -207,7 +207,7 @@ public class Express4Runner {
      * add user defined function to QLExpress engine
      * @param name function name
      * @param function function definition
-     * @return true if add function successfully. fail if function name already exists or method is not public.
+     * @return true if add function successfully. fail if function name already exists.
      */
     public boolean addFunction(String name, CustomFunction function) {
         CustomFunction preFunction = userDefineFunction.putIfAbsent(name, function);
@@ -315,7 +315,7 @@ public class Express4Runner {
         }
 
 
-        QTraces qTraces = initOptions.isTraceExpression()? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints()):
+        QTraces qTraces = initOptions.isTraceExpression() && qlOptions.isTraceExpression()? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints()):
                 new QTraces(null, null);
 
         QvmRuntime qvmRuntime = new QvmRuntime(

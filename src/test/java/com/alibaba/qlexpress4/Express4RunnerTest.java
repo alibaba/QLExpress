@@ -2,9 +2,11 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -58,7 +60,8 @@ public class Express4RunnerTest {
 
         Map<String, Object> context = new HashMap<>();
         context.put("a", true);
-        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) result.getResult());
 
         List<ExpressionTrace> expressionTraces = result.getExpressionTraces();
@@ -74,11 +77,14 @@ public class Express4RunnerTest {
 
         // short circuit
         context.put("a", false);
-        QLResult resultShortCircuit = express4Runner.execute("a && (!myTest(11) || false)", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult resultShortCircuit = express4Runner.execute("(a && true) && (!myTest(11) || false)", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) resultShortCircuit.getResult());
         ExpressionTrace expressionTraceShortCircuit = resultShortCircuit.getExpressionTraces().get(0);
-        Assert.assertEquals("OPERATOR && \n" +
-                "  | VARIABLE a false\n" +
+        Assert.assertEquals("OPERATOR && false\n" +
+                "  | OPERATOR && false\n" +
+                "      | VARIABLE a false\n" +
+                "      | VALUE true \n" +
                 "  | OPERATOR || \n" +
                 "      | OPERATOR ! \n" +
                 "          | FUNCTION myTest \n" +
@@ -88,7 +94,8 @@ public class Express4RunnerTest {
         Assert.assertFalse(expressionTraceShortCircuit.getChildren().get(1).isEvaluated());
 
         // in
-        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context, QLOptions.DEFAULT_OPTIONS);
+        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context,
+                QLOptions.builder().traceExpression(true).build());
         Assert.assertFalse((Boolean) resultIn.getResult());
         ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
         Assert.assertEquals("OPERATOR in false\n" +
@@ -449,6 +456,30 @@ public class Express4RunnerTest {
         Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
         // end::extensionFunction[]
+    }
+
+    @Test
+    public void scripTimeoutTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("while (true) {\n" +
+                    "  1+1\n" +
+                    "}", Collections.emptyMap(), QLOptions.builder().timeoutMillis(10L).build());
+            fail("should timeout");
+        } catch (QLTimeoutException e) {
+            assertEquals(QLErrorCodes.SCRIPT_TIME_OUT.name(), e.getErrorCode());
+        }
+
+        try {
+            express4Runner.execute("while (2) {\n" +
+                    "  1+1\n" +
+                    "}", Collections.emptyMap(), QLOptions.builder().timeoutMillis(10L).build());
+            fail("should exception");
+        } catch (QLTimeoutException e) {
+            fail();
+        } catch (QLRuntimeException e) {
+            assertEquals(QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.name(), e.getErrorCode());
+        }
     }
 
     @Test

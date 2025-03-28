@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -23,17 +24,30 @@ public class JumpIfInstruction extends QLInstruction {
 
     private int position;
 
-    public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int position) {
+    private final Integer traceKey;
+
+    public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int position, Integer traceKey) {
         super(errorReporter);
         this.expect = expect;
         this.position = position;
+        this.traceKey = traceKey;
     }
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         boolean conditionBool = conditionToBool(qContext.peek().get());
-        return conditionBool == expect? new QResult(new DataValue(position), QResult.ResultType.JUMP):
-                QResult.NEXT_INSTRUCTION;
+        if (conditionBool == expect) {
+            // short circuit
+            // trace
+            ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+            if (expressionTrace != null) {
+                expressionTrace.valueEvaluated(conditionBool);
+                expressionTrace.getChildren().get(0).valueEvaluated(conditionBool);
+            }
+            return new QResult(new DataValue(position), QResult.ResultType.JUMP);
+        } else {
+            return QResult.NEXT_INSTRUCTION;
+        }
     }
 
     private boolean conditionToBool(Object condition) {
