@@ -20,16 +20,32 @@ public class ExpressionTrace {
 
     private final String token;
 
+    /**
+     * Intermediate calculation result of this trace point
+     */
     private Object value;
 
+    /**
+     * true if this point is evaluated in this execution
+     * false if short-circuited
+     */
     private boolean evaluated;
 
     private final List<ExpressionTrace> children;
 
+    /**
+     * The corresponding line number in the source code
+     */
     private final int line;
 
+    /**
+     * The corresponding col number in the source code
+     */
     private final int col;
 
+    /**
+     * The corresponding position of character in the source code string
+     */
     private final int position;
 
     public String toPrettyString(int indent) {
