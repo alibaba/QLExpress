@@ -1,7 +1,10 @@
 package com.alibaba.qlexpress4;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,5 +33,16 @@ public class Express4RunnerBingoTest {
         QLResult qlResult = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
         System.out.println("qlResult.getResult() = " + qlResult.getResult());
         Assert.assertTrue(qlResult.getExpressionTraces().get(0).isEvaluated());
+    }
+
+    @Test
+    public void test_customFunction() {
+        String script = "customFunction(spCodes)";
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(true).build());
+        Set<String> outVarNames = express4Runner.getOutVarNames(script);
+        System.out.println("outVarNames = " + outVarNames);
+        Map<String, Object> context = Collections.singletonMap("customFunction", (Supplier<?>)() -> true);
+        QLResult qlResult = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertTrue((Boolean)qlResult.getResult());
     }
 }
