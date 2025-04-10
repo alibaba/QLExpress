@@ -6,18 +6,21 @@ options {
 
 @header {
     package com.alibaba.qlexpress4.aparser;
+    import com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType;
     import static com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType.*;
     import static com.alibaba.qlexpress4.QLPrecedences.*;
     import static com.alibaba.qlexpress4.aparser.InterpolationMode.*;
 }
 
 @members {
-    ParserOperatorManager opM;
-    InterpolationMode interpolationMode;
-    public QLParser(TokenStream input, ParserOperatorManager opM, InterpolationMode interpolationMode) {    // custom constructor
-        this(input);
-        this.opM = opM;
-        this.interpolationMode = interpolationMode;
+    protected boolean isOpType(String lexeme, OpType opType) {
+        return false;
+    }
+    protected Integer precedence(String lexeme) {
+        return 0;
+    }
+    protected InterpolationMode getInterpolationMode() {
+        return SCRIPT;
     }
 }
 
@@ -160,11 +163,11 @@ ternaryExpr
 
 baseExpr [int p]
     : primary ({_input.LT(1).getType() != Token.EOF &&
-        opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) >= $p}? leftAsso)*
+        isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) >= $p}? leftAsso)*
     ;
 
 leftAsso
-    : binaryop baseExpr[opM.precedence(_input.LT(-1).getText()) + 1];
+    : binaryop baseExpr[precedence(_input.LT(-1).getText()) + 1];
 
 binaryop
     : opId | varId
@@ -177,11 +180,11 @@ primary
     ;
 
 prefixExpress
-    : {_input.LT(1).getType() != Token.EOF && opM.isOpType(_input.LT(1).getText(), PREFIX)}? opId
+    : {_input.LT(1).getType() != Token.EOF && isOpType(_input.LT(1).getText(), PREFIX)}? opId
     ;
 
 suffixExpress
-    : {_input.LT(1).getType() != Token.EOF && opM.isOpType(_input.LT(1).getText(), SUFFIX)}? opId
+    : {_input.LT(1).getType() != Token.EOF && isOpType(_input.LT(1).getText(), SUFFIX)}? opId
     ;
 
 primaryNoFix
@@ -296,7 +299,7 @@ pathPart
     |   DCOLON varId # methodAccess
     |   '(' argumentList? ')' # callExpr
     |   '[' indexValueExpr? ']' # indexExpr
-    |   {opM.isOpType(_input.LT(1).getText(), MIDDLE) && opM.precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
+    |   {isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
     ;
 
 fieldId
@@ -329,8 +332,8 @@ doubleQuoteStringLiteral
     ;
 
 stringExpression
-    : {interpolationMode == SCRIPT}? DyStrExprStart expression RBRACE
-    | {interpolationMode == VARIABLE}? DyStrExprStart SelectorVariable_VANME RBRACE
+    : {getInterpolationMode() == SCRIPT}? DyStrExprStart expression RBRACE
+    | {getInterpolationMode() == VARIABLE}? DyStrExprStart SelectorVariable_VANME RBRACE
     ;
 
 boolenLiteral

@@ -34,7 +34,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0-beta.5</version>
+    <version>4.0.0-beta.6</version>
 </dependency>
 ----
 
@@ -162,6 +162,19 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cach
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
+=== 设置超时时间
+
+可以给脚本设置一个超时时间，防止其中存在死循环或者其他原因导致应用资源被过量消耗。
+
+下面的示例代码给脚本给脚本设置了一个 10ms 的超时时间：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=scripTimeout]
+----
+
+> 注意，出于系统性能的考虑，QLExpress 对于超时时间的检测是不准确的。特别是在回调Java代码中（比如自定义函数或者操作符）出现的超时，不会立刻被检测到。只有在执行完，回到 QLExpress 运行时后才会被检测到并中断执行。
+
 === 扩展函数
 
 利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
@@ -234,7 +247,7 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addA
 
 跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
 
-目前该功能之会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。可以满足所有将 QLExpress 当成表达式使用的场景。
+该功能只会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。
 
 节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
 
@@ -242,6 +255,8 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addA
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=expressionTrace]
 ----
+
+> 注意，必须在新建 `Express4Runner` 时将 `InitOptions.traceExpression` 选项设置为 true，同时在执行脚本时将 `QLOptions.traceExpression` 设置为 true，该功能才能生效。
 
 也可以在不执行脚本的情况下获得所有表达式追踪点：
 

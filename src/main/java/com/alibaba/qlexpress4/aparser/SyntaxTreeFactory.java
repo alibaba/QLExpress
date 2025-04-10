@@ -1,20 +1,14 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenFactory;
-import org.antlr.v4.runtime.TokenSource;
-import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.WritableToken;
 import org.antlr.v4.runtime.atn.DecisionInfo;
 import org.antlr.v4.runtime.atn.DecisionState;
 import org.antlr.v4.runtime.atn.PredictionMode;
-import org.antlr.v4.runtime.misc.Interval;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -45,7 +39,7 @@ public class SyntaxTreeFactory {
                                                     InterpolationMode interpolationMode) {
         QLexer lexer = new QLexer(CharStreams.fromString(script), interpolationMode);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        QLParser qlGrammarParser = new QLParser(new AliasTokenStream(tokens, operatorManager),
+        QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager),
                 operatorManager, interpolationMode);
         qlGrammarParser.setErrorHandler(new QLErrorStrategy(script, operatorManager));
         qlGrammarParser.getInterpreter().setPredictionMode(PredictionMode.SLL);
@@ -91,7 +85,7 @@ public class SyntaxTreeFactory {
         }
     }
 
-    private static Token preHandleToken(Token originToken, ParserOperatorManager operatorManager) {
+    public static Token preHandleToken(Token originToken, ParserOperatorManager operatorManager) {
         if (originToken instanceof WritableToken && originToken.getType() == QLexer.ID) {
             Integer aliasId = operatorManager.getAlias(originToken.getText());
             if (aliasId != null && originToken.getType() != aliasId) {
@@ -99,138 +93,5 @@ public class SyntaxTreeFactory {
             }
         }
         return originToken;
-    }
-
-    private static class AliasTokenSource implements TokenSource {
-
-        private final TokenSource tokenSource;
-
-        private final ParserOperatorManager operatorManager;
-
-        private AliasTokenSource(TokenSource tokenSource, ParserOperatorManager operatorManager) {
-            this.tokenSource = tokenSource;
-            this.operatorManager = operatorManager;
-        }
-
-        @Override
-        public Token nextToken() {
-            return preHandleToken(tokenSource.nextToken(), operatorManager);
-        }
-
-        @Override
-        public int getLine() {
-            return tokenSource.getLine();
-        }
-
-        @Override
-        public int getCharPositionInLine() {
-            return tokenSource.getCharPositionInLine();
-        }
-
-        @Override
-        public CharStream getInputStream() {
-            return tokenSource.getInputStream();
-        }
-
-        @Override
-        public String getSourceName() {
-            return tokenSource.getSourceName();
-        }
-
-        @Override
-        public void setTokenFactory(TokenFactory<?> factory) {
-            tokenSource.setTokenFactory(factory);
-        }
-
-        @Override
-        public TokenFactory<?> getTokenFactory() {
-            return tokenSource.getTokenFactory();
-        }
-    }
-
-    private static class AliasTokenStream implements TokenStream {
-
-        private final TokenStream stream;
-        private final ParserOperatorManager operatorManager;
-
-        private AliasTokenStream(TokenStream stream, ParserOperatorManager operatorManager) {
-            this.stream = stream;
-            this.operatorManager = operatorManager;
-        }
-
-        @Override
-        public Token LT(int k) {
-            return preHandleToken(stream.LT(k), operatorManager);
-        }
-
-        @Override
-        public Token get(int index) {
-            return preHandleToken(stream.get(index), operatorManager);
-        }
-
-        @Override
-        public TokenSource getTokenSource() {
-            return new AliasTokenSource(stream.getTokenSource(), operatorManager);
-        }
-
-        @Override
-        public String getText(Interval interval) {
-            return stream.getText(interval);
-        }
-
-        @Override
-        public String getText() {
-            return stream.getText();
-        }
-
-        @Override
-        public String getText(RuleContext ctx) {
-            return stream.getText(ctx);
-        }
-
-        @Override
-        public String getText(Token start, Token stop) {
-            return stream.getText(start, stop);
-        }
-
-        @Override
-        public void consume() {
-            stream.consume();
-        }
-
-        @Override
-        public int LA(int i) {
-            return preHandleToken(LT(i), operatorManager).getType();
-        }
-
-        @Override
-        public int mark() {
-            return stream.mark();
-        }
-
-        @Override
-        public void release(int marker) {
-            stream.release(marker);
-        }
-
-        @Override
-        public int index() {
-            return stream.index();
-        }
-
-        @Override
-        public void seek(int index) {
-            stream.seek(index);
-        }
-
-        @Override
-        public int size() {
-            return stream.size();
-        }
-
-        @Override
-        public String getSourceName() {
-            return stream.getSourceName();
-        }
     }
 }

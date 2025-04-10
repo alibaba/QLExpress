@@ -460,6 +460,7 @@ public class Express4RunnerTest {
 
     @Test
     public void scripTimeoutTest() {
+        // tag::scripTimeout[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
             express4Runner.execute("while (true) {\n" +
@@ -469,6 +470,7 @@ public class Express4RunnerTest {
         } catch (QLTimeoutException e) {
             assertEquals(QLErrorCodes.SCRIPT_TIME_OUT.name(), e.getErrorCode());
         }
+        // end::scripTimeout[]
 
         try {
             express4Runner.execute("while (2) {\n" +
