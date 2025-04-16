@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -594,7 +595,8 @@ public class ExpressUtil {
                 throw new QLException("设置的参数位置$" + (index + 1) + "超过了范围 "
                     + parameters.length);
             }
-            m.appendReplacement(sb, " " + parameters[index].toString() + " ");
+            String data = Optional.ofNullable(parameters[index]).map(Object::toString).orElse("null");
+            m.appendReplacement(sb, " " + data + " ");
         }
         m.appendTail(sb);
         return sb.toString();
