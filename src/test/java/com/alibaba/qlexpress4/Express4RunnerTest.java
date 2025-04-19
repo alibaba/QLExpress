@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
@@ -428,7 +429,7 @@ public class Express4RunnerTest {
 
     @Test
     public void invalidOperatorTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().debug(true).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         assertErrorCode(express4Runner, "1+++a", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "a abcd bb", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
@@ -506,6 +507,27 @@ public class Express4RunnerTest {
         } catch (QLRuntimeException e) {
             assertEquals(QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.name(), e.getErrorCode());
         }
+    }
+
+    @Test
+    public void interpolationTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        QLResult result = express4Runner.execute("\"Hello,${a+1}\"", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("Hello,2", result.getResult());
+
+        // tag::disableInterpolation[]
+        Express4Runner express4RunnerDisable = new Express4Runner(
+                // disable string interpolation
+                InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
+        Assert.assertEquals("Hello,${ a + 1 }", express4RunnerDisable
+                .execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,${lll", express4RunnerDisable
+                .execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,aaa $ lll\"\n\b", express4RunnerDisable
+                .execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        // end::disableInterpolation[]
     }
 
     @Test

@@ -325,12 +325,22 @@ include::./src/test/resources/testsuite/java/number/number_auto_type.ql[]
 
 === 动态字符串
 
-QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+动态字符串是 QLExpress 为了增强字符串处理能力，在 4 版本新引入的能力。
 
+支持 `$\{expression}` 的格式在字符串中插入表达式计算：
+
+> 如果想在字符串中原样保持 `$\{expression}`，可以使用 `\$` 对 `$` 进行转义
 
 [source,java]
 ----
 include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
+----
+
+如果还想让 QLExpress4 的字符串和 3 保持兼容性，不对插值表达式进行处理，可以在新建 `Express4Runner` 时直接关闭该特性：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
 === 分号

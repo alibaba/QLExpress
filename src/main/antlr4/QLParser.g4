@@ -344,7 +344,8 @@ literal
     ;
 
 doubleQuoteStringLiteral
-    : DOUBLE_QUOTE_OPEN (DyStrText | stringExpression)* DOUBLE_QUOTE_CLOSE
+    : {getInterpolationMode() == DISABLE}? DOUBLE_QUOTE StaticStringCharacters? DOUBLE_QUOTE
+    | DOUBLE_QUOTE (DyStrText | stringExpression)* DOUBLE_QUOTE
     ;
 
 stringExpression

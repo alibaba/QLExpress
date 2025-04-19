@@ -1320,6 +1320,19 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     @Override
     public Void visitDoubleQuoteStringLiteral(DoubleQuoteStringLiteralContext ctx) {
+        if (interpolationMode == InterpolationMode.DISABLE) {
+            TerminalNode characters = ctx.StaticStringCharacters();
+            if (characters == null) {
+                addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), "", null));
+                return null;
+            }
+            String originText = characters.getText();
+            addInstruction(new ConstInstruction(
+                    newReporterWithToken(ctx.getStart()),
+                    parseStringEscapeStartEnd(originText, 0, originText.length()), null
+            ));
+            return null;
+        }
         int childCount = ctx.getChildCount();
         for (int i = 1; i < childCount - 1; i++) {
             ParseTree child = ctx.getChild(i);
@@ -1327,8 +1340,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 StringExpressionContext stringExpression = (StringExpressionContext) child;
                 ExpressionContext expression = stringExpression.expression();
                 if (expression != null) {
+                    // SCRIPT
                     visitExpression(expression);
                 } else {
+                    // VARIABLE
                     TerminalNode varTerminalNode = stringExpression.SelectorVariable_VANME();
                     String varName = varTerminalNode.getText().trim();
                     addInstruction(new LoadInstruction(newReporterWithToken(varTerminalNode.getSymbol()), varName, null));
