@@ -145,8 +145,8 @@ public class Express4RunnerTest {
     @Test
     public void checkSyntaxTest() {
         // tag::checkSyntax[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
         } catch (QLSyntaxException e) {
@@ -160,6 +160,16 @@ public class Express4RunnerTest {
                     "[Line: 2, Column: 4]", e.getMessage());
         }
         // end::checkSyntax[]
+
+        try {
+            express4Runner.parseToSyntaxTree("sellerId in [1001] || (sellerId not in [1001])");
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals("[Error SYNTAX_ERROR: mismatched input 'not' expecting ')']\n" +
+                    "[Near: ...[1001] || (sellerId not in [1001])]\n" +
+                    "                              ^^^\n" +
+                    "[Line: 1, Column: 32]", e.getMessage());
+        }
     }
 
     @Test
