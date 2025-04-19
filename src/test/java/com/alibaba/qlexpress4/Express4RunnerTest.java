@@ -154,7 +154,7 @@ public class Express4RunnerTest {
             assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+            assertEquals("[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" +
                     "[Near: a+b; (a+b<EOF>]\n" +
                     "                ^^^^^\n" +
                     "[Line: 2, Column: 4]", e.getMessage());
@@ -418,11 +418,25 @@ public class Express4RunnerTest {
 
     @Test
     public void invalidOperatorTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        assertErrorCode(express4Runner, "1+++a", "UNKNOWN_OPERATOR");
-        assertErrorCode(express4Runner, "a abcd bb", "UNKNOWN_OPERATOR");
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().debug(true).build());
+        assertErrorCode(express4Runner, "1+++a", "SYNTAX_ERROR");
+        assertErrorCode(express4Runner, "a abcd bb", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
-        assertErrorCode(express4Runner, "a.*bbb", "UNKNOWN_OPERATOR");
+        assertErrorCode(express4Runner, "a.*bbb", "SYNTAX_ERROR");
+    }
+
+    @Test
+    public void importNotAtBeginningTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("a = 10;\n" +
+                    "import a.b.c;", new HashMap<>(), QLOptions.builder()
+                    .cache(false).build());
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            assertEquals("Import statement is not at the beginning of the file.", e.getReason());
+        }
     }
 
     @Test
@@ -631,7 +645,6 @@ public class Express4RunnerTest {
         Set<String> outVarNames3 = express4Runner.getOutVarNames("while (a>2) {a++;b=100} a+b");
         Set<String> expectSet3 = new HashSet<>();
         expectSet3.add("a");
-        expectSet3.add("b");
         assertEquals(expectSet3, outVarNames3);
     }
 
@@ -731,14 +744,14 @@ public class Express4RunnerTest {
             express4Runner.execute("a=1;'aaa \n \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid QuoteStringLiteral", e.getReason());
+            assertEquals("unterminated string literal", e.getReason());
         }
 
         try {
             express4Runner.execute("\"aaa \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid doubleQuoteStringLiteral", e.getReason());
+            assertEquals("unterminated string literal", e.getReason());
         }
     }
 

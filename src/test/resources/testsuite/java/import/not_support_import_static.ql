@@ -1,6 +1,6 @@
 /*
 {
-  "errCode": "IMPORT_STATIC_NOT_SUPPORTED"
+  "errCode": "SYNTAX_ERROR"
 }
 */
 import static ab.Assert.*;

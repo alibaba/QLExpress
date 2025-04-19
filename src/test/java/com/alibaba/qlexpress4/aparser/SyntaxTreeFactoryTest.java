@@ -383,9 +383,22 @@ public class SyntaxTreeFactoryTest {
         assertEquals(3, i3.getN());
     }
 
+    @Test
+    public void ifTest() {
+        List<QLInstruction> instructions = getScriptInstructions("if (a > 0 && a < 5) {\n" +
+                "  true\n" +
+                "} else if (a > 5 && a < 10) {\n" +
+                "  false\n" +
+                "} else if (a > 10 && a < 15) {\n" +
+                "  true\n" +
+                "} == true", InterpolationMode.VARIABLE);
+        OperatorInstruction equalInstruction = (OperatorInstruction) instructions.get(instructions.size() - 2);
+        assertEquals("==", equalInstruction.getOperator().getOperator());
+    }
+
     private List<QLInstruction> getScriptInstructions(String script, InterpolationMode interpolationMode) {
         QLParser.ProgramContext programContext = SyntaxTreeFactory.buildTree(script,
-                new MockOpM(), false, false, System.out::println, interpolationMode);
+                new MockOpM(), true, false, System.out::println, interpolationMode);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         return visitor.getInstructions();

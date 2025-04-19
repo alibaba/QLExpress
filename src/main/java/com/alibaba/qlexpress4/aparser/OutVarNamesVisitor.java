@@ -51,15 +51,15 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitIfExpr(QLParser.IfExprContext ctx) {
-        ctx.condition.accept(this);
+    public Void visitQlIf(QLParser.QlIfContext qlIfContext) {
+        qlIfContext.condition.accept(this);
 
         this.existVarStack = this.existVarStack.push();
-        ctx.thenBody.accept(this);
+        qlIfContext.thenBody().accept(this);
         this.existVarStack = this.existVarStack.pop();
 
         this.existVarStack = this.existVarStack.push();
-        ctx.elseBody.accept(this);
+        qlIfContext.elseBody().accept(this);
         this.existVarStack = this.existVarStack.pop();
 
         return null;

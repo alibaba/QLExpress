@@ -41,7 +41,11 @@ public class SyntaxTreeFactory {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager),
                 operatorManager, interpolationMode);
-        qlGrammarParser.setErrorHandler(new QLErrorStrategy(script, operatorManager));
+        if (!printTree) {
+            qlGrammarParser.removeErrorListeners();
+        }
+        qlGrammarParser.addErrorListener(new QLErrorListener(script));
+        qlGrammarParser.setErrorHandler(new QLErrorStrategy());
         qlGrammarParser.getInterpreter().setPredictionMode(PredictionMode.SLL);
         if (profile) {
             qlGrammarParser.setProfile(true);

@@ -14,8 +14,8 @@ y = +x
 assert(y == 3)
 
 // character plus
-Character c1 = 1
-Character c2 = 2
+char c1 = 1;
+char c2 = 2;
 
 x = c2 + 2
 assert(x == 4)
@@ -63,9 +63,9 @@ y = ~x
 assert(y == -4)
 
 // character minus
-Character c1 = 1
-Character c2 = 2
-Character c6 = 6
+Character c1 = 1;
+Character c2 = 2;
+Character c6 = 6;
 
 x = c6 - 2
 assert(x == 4)

@@ -11,7 +11,7 @@ assert(x == 6.2d)
 y = x + 1d
 assert(y == 7.2d)
 
-def z = y + x + 1d + 2d
+z = y + x + 1d + 2d
 assert(z == 16.4d)
 
 // minus

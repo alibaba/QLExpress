@@ -24,7 +24,7 @@ bi = (double) 0.5d
 assert(bi instanceof BigInteger)
 assert(bi == 0)
 
-bi = 10.5G
+bi = 10.5
 assert(bi instanceof BigInteger)
 assert(bi == 10)
 

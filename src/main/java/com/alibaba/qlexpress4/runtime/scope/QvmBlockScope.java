@@ -18,7 +18,6 @@ public class QvmBlockScope implements QScope {
 
     private final Map<String, CustomFunction> functionTable;
 
-    // TODO: stack 优化, 只有一个总的 stack, 不需要每个 scope 一个
     private final FixedSizeStack opStack;
 
     private final ExceptionTable exceptionTable;
@@ -31,9 +30,9 @@ public class QvmBlockScope implements QScope {
     public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
                          ExceptionTable exceptionTable) {
         this.parent = parent;
-        // TODO: 优化成 fixedArrayMap
+        // TODO: fixedArrayMap
         this.symbolTable = symbolTable;
-        // TODO: 优化成 fixedArrayMap, 大多数表达式根本没有函数定义
+        // TODO: fixedArrayMap
         this.functionTable = new HashMap<>();
         this.opStack = reuseStack;
         this.exceptionTable = exceptionTable;

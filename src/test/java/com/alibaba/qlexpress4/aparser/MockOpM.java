@@ -21,6 +21,7 @@ public class MockOpM implements ParserOperatorManager {
                     case "|":
                     case "%":
                     case ">":
+                    case "<":
                     case "*":
                     case "?.":
                     case "<<":
@@ -66,6 +67,7 @@ public class MockOpM implements ParserOperatorManager {
             case "==":
             case "instanceof":
             case ">":
+            case "<":
                 return QLPrecedences.COMPARE;
             case ">>":
             case ">>>":

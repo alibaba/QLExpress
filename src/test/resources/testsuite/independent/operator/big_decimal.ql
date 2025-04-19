@@ -21,7 +21,7 @@ y = x + 1
 assert(y instanceof BigDecimal)
 assert(y == 7.2)
 
-def z = y + x + 1 + 2
+z = y + x + 1 + 2
 assert(z instanceof BigDecimal)
 assert(z == 16.4)
 

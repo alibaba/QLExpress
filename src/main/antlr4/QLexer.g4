@@ -310,7 +310,9 @@ DEC: '--';
 
 // Whitespace and comments
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+NEWLINE : '\r' '\n'? | '\n';
+
+WS  :  [ \t\u000C]+ -> skip
     ;
 
 COMMENT
@@ -1142,6 +1144,8 @@ StrExpr_MOD: MOD -> type(MOD);
 
 StrExpr_INC: INC -> type(INC);
 StrExpr_DEC: DEC -> type(DEC);
+
+StrExpr_NEWLINE: NEWLINE -> type(NEWLINE);
 
 StrExpr_WS: WS -> skip;
 
