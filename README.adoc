@@ -114,8 +114,8 @@ public class HelloFunction implements CustomFunction {
 
 [source,java,indent=0]
 ----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
         } catch (QLSyntaxException e) {
@@ -123,7 +123,7 @@ public class HelloFunction implements CustomFunction {
             assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+            assertEquals("[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" +
                     "[Near: a+b; (a+b<EOF>]\n" +
                     "                ^^^^^\n" +
                     "[Line: 2, Column: 4]", e.getMessage());
@@ -628,13 +628,19 @@ assert(2.7976931348623157E308 instanceof BigDecimal);
 
 === 动态字符串
 
-QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+动态字符串是 QLExpress 为了增强字符串处理能力，在 4 版本新引入的能力。
 
+支持 `$\{expression}` 的格式在字符串中插入表达式计算：
+
+> 如果想在字符串中原样保持 `$\{expression}`，可以使用 `\$` 对 `$` 进行转义
 
 [source,java]
 ----
 a = 123
 assert("hello,${a-1}" == "hello,122")
+
+// escape $ with \$
+assert("hello,\${a-1}" == "hello,\${a-1}")
 
 b = "test"
 assert("m xx ${
@@ -642,6 +648,21 @@ assert("m xx ${
       'YYY'
   }
 }" == "m xx YYY")
+----
+
+如果还想让 QLExpress4 的字符串和 3 保持兼容性，不对插值表达式进行处理，可以在新建 `Express4Runner` 时直接关闭该特性：
+
+[source,java]
+----
+        Express4Runner express4RunnerDisable = new Express4Runner(
+                // disable string interpolation
+                InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
+        Assert.assertEquals("Hello,${ a + 1 }", express4RunnerDisable
+                .execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,${lll", express4RunnerDisable
+                .execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,aaa $ lll\"\n\b", express4RunnerDisable
+                .execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
 ----
 
 === 分号
