@@ -716,6 +716,35 @@ assert(1 + try {
 } == 12)
 ----
 
+=== 短路计算
+
+和 Java 类似，`&&` 和 `||` 逻辑运算都是短路运算的。
+
+比如表达式 `false && (1/0)` 不会发生除 0 错误，因为 `&&` 短路在了最开始的 `false` 处。
+
+短路计算默认是开启的，引擎也提供了选项，可以在某次执行时将短路关闭：
+
+> 关闭短路的一个场景是保证表达式的充分预热
+
+[source,java]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // execute when enable short circuit (default)
+        // `1/0` is short-circuited by the preceding `false`, so it won't throw an error.
+        assertFalse((Boolean) express4Runner.execute("false && (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("false && (1/0)",
+                    Collections.emptyMap(), QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        } catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+----
+
+
 === 控制结构
 
 ==== if 分支
@@ -789,7 +818,7 @@ assert(try {
 } == 11)
 ----
 
-==== 函数定义
+=== 函数定义
 
 [source,java]
 ----
@@ -799,7 +828,7 @@ function sub(a, b) {
 assert(sub(3,1)==2)
 ----
 
-==== Lambda 表达式
+=== Lambda 表达式
 
 QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
 
@@ -811,7 +840,7 @@ add = (a, b) -> {
 assert(add(1,2)==3)
 ----
 
-==== 列表过滤和映射
+=== 列表过滤和映射
 
 支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
 
@@ -826,13 +855,13 @@ assert(l.filter(i -> i.startsWith("a-"))
         .map(i -> i.split("-")[1]) == ["111", "222"])
 ----
 
-==== 兼容 Java8 语法
+=== 兼容 Java8 语法
 
 QLExpress 可以兼容 Java8 的常见语法。
 
 比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
 
-===== Stream API
+==== Stream API
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
@@ -849,7 +878,7 @@ l2 = l.stream()
 assert(l2 == ["111", "222"]);
 ----
 
-===== 函数式接口
+==== 函数式接口
 
 Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
 
