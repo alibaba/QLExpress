@@ -353,6 +353,33 @@ public class Express4RunnerTest {
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
 
         assertErrorCode(express4Runner, "true && (1/0)", "INVALID_ARITHMETIC");
+
+        // disable short circuit test
+        QLOptions disableShortCircuitOp = QLOptions.builder().shortCircuitDisable(true).build();
+        assertTrue((Boolean) express4Runner.execute("false || false || true",
+                Collections.emptyMap(), disableShortCircuitOp).getResult());
+        assertFalse((Boolean) express4Runner.execute("(true && false) || false",
+                Collections.emptyMap(), disableShortCircuitOp).getResult());
+    }
+
+    @Test
+    public void disableShortCircuitTest() {
+        // tag::disableShortCircuit[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // execute when enable short circuit (default)
+        // `1/0` is short-circuited by the preceding `false`, so it won't throw an error.
+        assertFalse((Boolean) express4Runner.execute("false && (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("false && (1/0)",
+                    Collections.emptyMap(), QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        } catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+        // end::disableShortCircuit[]
     }
 
     @Test

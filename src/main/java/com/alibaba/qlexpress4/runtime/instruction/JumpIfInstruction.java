@@ -36,7 +36,7 @@ public class JumpIfInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         boolean conditionBool = conditionToBool(qContext.peek().get());
-        if (conditionBool == expect) {
+        if (conditionBool == expect && !qlOptions.isShortCircuitDisable()) {
             // short circuit
             // trace
             ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
