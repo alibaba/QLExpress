@@ -77,6 +77,17 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cust
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
 ----
 
+=== 解析脚本所需外部变量
+
+脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。
+
+QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部传入的变量：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
+----
+
 === 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：

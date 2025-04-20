@@ -686,6 +686,7 @@ public class Express4RunnerTest {
 
     @Test
     public void getOutVarNamesTest() {
+        // tag::getOutVarNames[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
                 "c = 11\n" +
@@ -695,6 +696,7 @@ public class Express4RunnerTest {
         expectSet.add("d");
         expectSet.add("f");
         assertEquals(expectSet, outVarNames);
+        // end::getOutVarNames[]
 
         Set<String> outVarNames2 = express4Runner.getOutVarNames("if (true) {a = 10} else {a}");
         Set<String> expectSet2 = new HashSet<>();
@@ -705,6 +707,14 @@ public class Express4RunnerTest {
         Set<String> expectSet3 = new HashSet<>();
         expectSet3.add("a");
         assertEquals(expectSet3, outVarNames3);
+
+        express4Runner.addFunction("dd", () -> {});
+        Set<String> outVarNames4 = express4Runner.getOutVarNames("cc(a,bc(2,m,1))\ndd(c)");
+        Set<String> expectSet4 = new HashSet<>();
+        expectSet4.add("a");
+        expectSet4.add("m");
+        expectSet4.add("c");
+        Assert.assertEquals(expectSet4, outVarNames4);
     }
 
     @Test
