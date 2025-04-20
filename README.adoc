@@ -130,6 +130,25 @@ public class HelloFunction implements CustomFunction {
         }
 ----
 
+=== 解析脚本所需外部变量
+
+脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。
+
+QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部传入的变量：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
+                "c = 11\n" +
+                "e = a + b + c + d\n" +
+                "f+e");
+        Set<String> expectSet = new HashSet<>();
+        expectSet.add("d");
+        expectSet.add("f");
+        assertEquals(expectSet, outVarNames);
+----
+
 === 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
