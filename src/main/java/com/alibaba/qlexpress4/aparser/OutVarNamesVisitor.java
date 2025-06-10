@@ -51,15 +51,15 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitIfExpr(QLParser.IfExprContext ctx) {
-        ctx.condition.accept(this);
+    public Void visitQlIf(QLParser.QlIfContext qlIfContext) {
+        qlIfContext.condition.accept(this);
 
         this.existVarStack = this.existVarStack.push();
-        ctx.thenBody.accept(this);
+        qlIfContext.thenBody().accept(this);
         this.existVarStack = this.existVarStack.pop();
 
         this.existVarStack = this.existVarStack.push();
-        ctx.elseBody.accept(this);
+        qlIfContext.elseBody().accept(this);
         this.existVarStack = this.existVarStack.pop();
 
         return null;
@@ -122,6 +122,24 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         }
         return null;
     }
+
+    // exclude function call
+
+    @Override
+    public Void visitPrimary(QLParser.PrimaryContext ctx) {
+        QLParser.PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();
+        List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
+        if (primaryNoFixContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty() &&
+                pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
+            for (QLParser.PathPartContext pathPartContext : pathPartContexts) {
+                pathPartContext.accept(this);
+            }
+            return null;
+        }
+
+        return super.visitPrimary(ctx);
+    }
+
 
     // collect out variables name
 

@@ -11,5 +11,9 @@ public enum InterpolationMode {
     /**
      * Implement interpolation using a variable name in context.
      */
-    VARIABLE
+    VARIABLE,
+    /**
+     * Disable interpolation, `${xxx}` will be rendered verbatim.
+     */
+    DISABLE
 }

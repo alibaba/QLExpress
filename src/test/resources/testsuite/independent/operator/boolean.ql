@@ -56,8 +56,8 @@ value = x < 2
 assert(value == false)
 
 // ops
-boolean x = true
-boolean y = false
+boolean x = true;
+boolean y = false;
 assert((x & x) == true)
 assert((x & y) == false)
 assert((y & x) == false)
@@ -77,7 +77,7 @@ assert((!x) == false)
 assert((!y) == true)
 
 // assign ops
-boolean z = true
+boolean z = true;
 z &= true
 assert(z == true)
 z &= false

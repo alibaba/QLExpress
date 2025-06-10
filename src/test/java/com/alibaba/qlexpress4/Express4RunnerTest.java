@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
@@ -145,8 +146,8 @@ public class Express4RunnerTest {
     @Test
     public void checkSyntaxTest() {
         // tag::checkSyntax[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
         } catch (QLSyntaxException e) {
@@ -154,12 +155,22 @@ public class Express4RunnerTest {
             assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+            assertEquals("[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" +
                     "[Near: a+b; (a+b<EOF>]\n" +
                     "                ^^^^^\n" +
                     "[Line: 2, Column: 4]", e.getMessage());
         }
         // end::checkSyntax[]
+
+        try {
+            express4Runner.parseToSyntaxTree("sellerId in [1001] || (sellerId not in [1001])");
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals("[Error SYNTAX_ERROR: mismatched input 'not' expecting ')']\n" +
+                    "[Near: ...[1001] || (sellerId not in [1001])]\n" +
+                    "                              ^^^\n" +
+                    "[Line: 1, Column: 32]", e.getMessage());
+        }
     }
 
     @Test
@@ -342,6 +353,33 @@ public class Express4RunnerTest {
                 Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
 
         assertErrorCode(express4Runner, "true && (1/0)", "INVALID_ARITHMETIC");
+
+        // disable short circuit test
+        QLOptions disableShortCircuitOp = QLOptions.builder().shortCircuitDisable(true).build();
+        assertTrue((Boolean) express4Runner.execute("false || false || true",
+                Collections.emptyMap(), disableShortCircuitOp).getResult());
+        assertFalse((Boolean) express4Runner.execute("(true && false) || false",
+                Collections.emptyMap(), disableShortCircuitOp).getResult());
+    }
+
+    @Test
+    public void disableShortCircuitTest() {
+        // tag::disableShortCircuit[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // execute when enable short circuit (default)
+        // `1/0` is short-circuited by the preceding `false`, so it won't throw an error.
+        assertFalse((Boolean) express4Runner.execute("false && (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("false && (1/0)",
+                    Collections.emptyMap(), QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        } catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+        // end::disableShortCircuit[]
     }
 
     @Test
@@ -419,10 +457,24 @@ public class Express4RunnerTest {
     @Test
     public void invalidOperatorTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        assertErrorCode(express4Runner, "1+++a", "UNKNOWN_OPERATOR");
-        assertErrorCode(express4Runner, "a abcd bb", "UNKNOWN_OPERATOR");
+        assertErrorCode(express4Runner, "1+++a", "SYNTAX_ERROR");
+        assertErrorCode(express4Runner, "a abcd bb", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
-        assertErrorCode(express4Runner, "a.*bbb", "UNKNOWN_OPERATOR");
+        assertErrorCode(express4Runner, "a.*bbb", "SYNTAX_ERROR");
+    }
+
+    @Test
+    public void importNotAtBeginningTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("a = 10;\n" +
+                    "import a.b.c;", new HashMap<>(), QLOptions.builder()
+                    .cache(false).build());
+            fail();
+        } catch (QLSyntaxException e) {
+            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            assertEquals("Import statement is not at the beginning of the file.", e.getReason());
+        }
     }
 
     @Test
@@ -482,6 +534,27 @@ public class Express4RunnerTest {
         } catch (QLRuntimeException e) {
             assertEquals(QLErrorCodes.WHILE_CONDITION_BOOL_REQUIRED.name(), e.getErrorCode());
         }
+    }
+
+    @Test
+    public void interpolationTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        QLResult result = express4Runner.execute("\"Hello,${a+1}\"", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("Hello,2", result.getResult());
+
+        // tag::disableInterpolation[]
+        Express4Runner express4RunnerDisable = new Express4Runner(
+                // disable string interpolation
+                InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
+        Assert.assertEquals("Hello,${ a + 1 }", express4RunnerDisable
+                .execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,${lll", express4RunnerDisable
+                .execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,aaa $ lll\"\n\b", express4RunnerDisable
+                .execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        // end::disableInterpolation[]
     }
 
     @Test
@@ -613,6 +686,7 @@ public class Express4RunnerTest {
 
     @Test
     public void getOutVarNamesTest() {
+        // tag::getOutVarNames[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
                 "c = 11\n" +
@@ -622,6 +696,7 @@ public class Express4RunnerTest {
         expectSet.add("d");
         expectSet.add("f");
         assertEquals(expectSet, outVarNames);
+        // end::getOutVarNames[]
 
         Set<String> outVarNames2 = express4Runner.getOutVarNames("if (true) {a = 10} else {a}");
         Set<String> expectSet2 = new HashSet<>();
@@ -631,8 +706,15 @@ public class Express4RunnerTest {
         Set<String> outVarNames3 = express4Runner.getOutVarNames("while (a>2) {a++;b=100} a+b");
         Set<String> expectSet3 = new HashSet<>();
         expectSet3.add("a");
-        expectSet3.add("b");
         assertEquals(expectSet3, outVarNames3);
+
+        express4Runner.addFunction("dd", () -> {});
+        Set<String> outVarNames4 = express4Runner.getOutVarNames("cc(a,bc(2,m,1))\ndd(c)");
+        Set<String> expectSet4 = new HashSet<>();
+        expectSet4.add("a");
+        expectSet4.add("m");
+        expectSet4.add("c");
+        Assert.assertEquals(expectSet4, outVarNames4);
     }
 
     @Test
@@ -731,14 +813,14 @@ public class Express4RunnerTest {
             express4Runner.execute("a=1;'aaa \n \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid QuoteStringLiteral", e.getReason());
+            assertEquals("unterminated string literal", e.getReason());
         }
 
         try {
             express4Runner.execute("\"aaa \n cccc", new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
             fail("should throw");
         } catch (QLException e) {
-            assertEquals("invalid doubleQuoteStringLiteral", e.getReason());
+            assertEquals("unterminated string literal", e.getReason());
         }
     }
 

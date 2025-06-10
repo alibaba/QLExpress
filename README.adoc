@@ -34,7 +34,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0-beta.6</version>
+    <version>4.0.0-beta.7</version>
 </dependency>
 ----
 
@@ -114,8 +114,8 @@ public class HelloFunction implements CustomFunction {
 
 [source,java,indent=0]
 ----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
         } catch (QLSyntaxException e) {
@@ -123,11 +123,30 @@ public class HelloFunction implements CustomFunction {
             assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals("[Error SYNTAX_ERROR: invalid primaryNoFix]\n" +
+            assertEquals("[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" +
                     "[Near: a+b; (a+b<EOF>]\n" +
                     "                ^^^^^\n" +
                     "[Line: 2, Column: 4]", e.getMessage());
         }
+----
+
+=== 解析脚本所需外部变量
+
+脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。
+
+QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部传入的变量：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
+                "c = 11\n" +
+                "e = a + b + c + d\n" +
+                "f+e");
+        Set<String> expectSet = new HashSet<>();
+        expectSet.add("d");
+        expectSet.add("f");
+        assertEquals(expectSet, outVarNames);
 ----
 
 === 高精度计算
@@ -628,13 +647,19 @@ assert(2.7976931348623157E308 instanceof BigDecimal);
 
 === 动态字符串
 
-QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+动态字符串是 QLExpress 为了增强字符串处理能力，在 4 版本新引入的能力。
 
+支持 `$\{expression}` 的格式在字符串中插入表达式计算：
+
+> 如果想在字符串中原样保持 `$\{expression}`，可以使用 `\$` 对 `$` 进行转义
 
 [source,java]
 ----
 a = 123
 assert("hello,${a-1}" == "hello,122")
+
+// escape $ with \$
+assert("hello,\${a-1}" == "hello,\${a-1}")
 
 b = "test"
 assert("m xx ${
@@ -642,6 +667,21 @@ assert("m xx ${
       'YYY'
   }
 }" == "m xx YYY")
+----
+
+如果还想让 QLExpress4 的字符串和 3 保持兼容性，不对插值表达式进行处理，可以在新建 `Express4Runner` 时直接关闭该特性：
+
+[source,java]
+----
+        Express4Runner express4RunnerDisable = new Express4Runner(
+                // disable string interpolation
+                InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
+        Assert.assertEquals("Hello,${ a + 1 }", express4RunnerDisable
+                .execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,${lll", express4RunnerDisable
+                .execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,aaa $ lll\"\n\b", express4RunnerDisable
+                .execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
 ----
 
 === 分号
@@ -694,6 +734,35 @@ assert(1 + try {
     11
 } == 12)
 ----
+
+=== 短路计算
+
+和 Java 类似，`&&` 和 `||` 逻辑运算都是短路运算的。
+
+比如表达式 `false && (1/0)` 不会发生除 0 错误，因为 `&&` 短路在了最开始的 `false` 处。
+
+短路计算默认是开启的，引擎也提供了选项，可以在某次执行时将短路关闭：
+
+> 关闭短路的一个场景是保证表达式的充分预热
+
+[source,java]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // execute when enable short circuit (default)
+        // `1/0` is short-circuited by the preceding `false`, so it won't throw an error.
+        assertFalse((Boolean) express4Runner.execute("false && (1/0)",
+                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        try {
+            // execute when disable short circuit
+            express4Runner.execute("false && (1/0)",
+                    Collections.emptyMap(), QLOptions.builder().shortCircuitDisable(true).build());
+            fail();
+        } catch (QLException e) {
+            Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
+            Assert.assertEquals("Division by zero", e.getReason());
+        }
+----
+
 
 === 控制结构
 
@@ -768,7 +837,7 @@ assert(try {
 } == 11)
 ----
 
-==== 函数定义
+=== 函数定义
 
 [source,java]
 ----
@@ -778,7 +847,7 @@ function sub(a, b) {
 assert(sub(3,1)==2)
 ----
 
-==== Lambda 表达式
+=== Lambda 表达式
 
 QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
 
@@ -790,7 +859,7 @@ add = (a, b) -> {
 assert(add(1,2)==3)
 ----
 
-==== 列表过滤和映射
+=== 列表过滤和映射
 
 支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
 
@@ -805,13 +874,13 @@ assert(l.filter(i -> i.startsWith("a-"))
         .map(i -> i.split("-")[1]) == ["111", "222"])
 ----
 
-==== 兼容 Java8 语法
+=== 兼容 Java8 语法
 
 QLExpress 可以兼容 Java8 的常见语法。
 
 比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
 
-===== Stream API
+==== Stream API
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
@@ -828,7 +897,7 @@ l2 = l.stream()
 assert(l2 == ["111", "222"]);
 ----
 
-===== 函数式接口
+==== 函数式接口
 
 Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
 

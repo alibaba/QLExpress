@@ -34,7 +34,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0-beta.6</version>
+    <version>4.0.0-beta.7</version>
 </dependency>
 ----
 
@@ -75,6 +75,17 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cust
 [source,java,indent=0]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
+----
+
+=== 解析脚本所需外部变量
+
+脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。
+
+QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部传入的变量：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
 === 高精度计算
@@ -325,12 +336,22 @@ include::./src/test/resources/testsuite/java/number/number_auto_type.ql[]
 
 === 动态字符串
 
-QLExpress 支持 `$\{expression}` 的格式在字符串中插入表达式，更方便地进行动态字符串组装：
+动态字符串是 QLExpress 为了增强字符串处理能力，在 4 版本新引入的能力。
 
+支持 `$\{expression}` 的格式在字符串中插入表达式计算：
+
+> 如果想在字符串中原样保持 `$\{expression}`，可以使用 `\$` 对 `$` 进行转义
 
 [source,java]
 ----
 include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
+----
+
+如果还想让 QLExpress4 的字符串和 3 保持兼容性，不对插值表达式进行处理，可以在新建 `Express4Runner` 时直接关闭该特性：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
 === 分号
@@ -375,6 +396,22 @@ try catch 结构也是一个表达式：
 include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
 ----
 
+=== 短路计算
+
+和 Java 类似，`&&` 和 `||` 逻辑运算都是短路运算的。
+
+比如表达式 `false && (1/0)` 不会发生除 0 错误，因为 `&&` 短路在了最开始的 `false` 处。
+
+短路计算默认是开启的，引擎也提供了选项，可以在某次执行时将短路关闭：
+
+> 关闭短路的一个场景是保证表达式的充分预热
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableShortCircuit]
+----
+
+
 === 控制结构
 
 ==== if 分支
@@ -414,14 +451,14 @@ include::./src/test/resources/testsuite/independent/doc/for_each.ql[]
 include::./src/test/resources/testsuite/independent/doc/try_catch.ql[]
 ----
 
-==== 函数定义
+=== 函数定义
 
 [source,java]
 ----
 include::./src/test/resources/testsuite/independent/doc/function.ql[]
 ----
 
-==== Lambda 表达式
+=== Lambda 表达式
 
 QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
 
@@ -430,7 +467,7 @@ QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行�
 include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
 ----
 
-==== 列表过滤和映射
+=== 列表过滤和映射
 
 支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
 
@@ -443,13 +480,13 @@ include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
 include::./src/test/resources/testsuite/independent/doc/list_map_filter.ql[]
 ----
 
-==== 兼容 Java8 语法
+=== 兼容 Java8 语法
 
 QLExpress 可以兼容 Java8 的常见语法。
 
 比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
 
-===== Stream API
+==== Stream API
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
@@ -460,7 +497,7 @@ QLExpress 可以兼容 Java8 的常见语法。
 include::./src/test/resources/testsuite/java/stream/java_stream.ql[]
 ----
 
-===== 函数式接口
+==== 函数式接口
 
 Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
 

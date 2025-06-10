@@ -310,7 +310,9 @@ DEC: '--';
 
 // Whitespace and comments
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+NEWLINE : '\r' '\n'? | '\n';
+
+WS  :  [ \t\u000C]+ -> skip
     ;
 
 COMMENT
@@ -1018,17 +1020,35 @@ fragment IdPart
 
 // string expression
 
-DOUBLE_QUOTE_OPEN: '"' -> pushMode(DynamicString);
+DOUBLE_QUOTE: '"' {
+    if (interpolationMode == DISABLE) {
+        pushMode(StaticString);
+    } else {
+        pushMode(DynamicString);
+    }
+};
+
 SELECTOR_START: '${' -> pushMode(SelectorVariable);
 
 CATCH_ALL:   . ;
+
+mode StaticString;
+
+StaticStringCharacters: StaticStringCharacter+;
+
+fragment StaticStringCharacter
+    :   ~["\\]
+    |   '\\' '"'?
+    ;
+
+STATIC_STRING_CLOSE: DOUBLE_QUOTE -> popMode, type(DOUBLE_QUOTE);
 
 mode DynamicString;
 
 DyStrExprStart: '${' {
     if (interpolationMode == SCRIPT) {
         pushMode(StringExpression);
-    } else {
+    } else if (interpolationMode == VARIABLE) {
         pushMode(SelectorVariable);
     }
 };
@@ -1040,7 +1060,7 @@ fragment DyStringCharacter
     | '\\' ('"' | '$')?
     ;
 
-DOUBLE_QUOTE_CLOSE: '"' -> popMode;
+DYNAMIC_STRING_CLOSE: DOUBLE_QUOTE -> popMode, type(DOUBLE_QUOTE);
 
 mode SelectorVariable;
 
@@ -1143,6 +1163,8 @@ StrExpr_MOD: MOD -> type(MOD);
 StrExpr_INC: INC -> type(INC);
 StrExpr_DEC: DEC -> type(DEC);
 
+StrExpr_NEWLINE: NEWLINE -> type(NEWLINE);
+
 StrExpr_WS: WS -> skip;
 
 StrExpr_COMMENT: COMMENT -> type(COMMENT);
@@ -1153,5 +1175,5 @@ StrExpr_OPID: OPID -> type(OPID);
 
 StrExpr_ID: ID -> type(ID);
 
-StrExpr_DOUBLE_QUOTE_OPEN: DOUBLE_QUOTE_OPEN -> type(DOUBLE_QUOTE_OPEN), pushMode(DynamicString);
+StrExpr_DOUBLE_QUOTE: DOUBLE_QUOTE -> type(DOUBLE_QUOTE), pushMode(DynamicString);
 StrExpr_SELECTOR_START: SELECTOR_START -> type(SELECTOR_START);

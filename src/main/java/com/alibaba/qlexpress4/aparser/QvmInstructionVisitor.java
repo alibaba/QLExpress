@@ -163,13 +163,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitBlockStatements(BlockStatementsContext blockStatementsContext) {
         boolean isPreExpress = false;
-        int childCount = blockStatementsContext.getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        List<BlockStatementContext> nonEmptyChildren = blockStatementsContext.blockStatement()
+                .stream().filter(bs -> !(bs instanceof EmptyStatementContext))
+                .collect(Collectors.toList());
+        for (BlockStatementContext child: nonEmptyChildren) {
             if (isPreExpress) {
                 // pop if expression without acceptor
                 addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
             }
-            BlockStatementContext child = blockStatementsContext.getChild(BlockStatementContext.class, i);
             isPreExpress = handleStmt(child);
         }
 
@@ -262,13 +263,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 generateForExpressLambda(forCount, UPDATE_SUFFIX, forUpdateContext);
 
         // for body
-        BlockStatementContext forBodyContext = ctx.blockStatement();
-        QLambdaDefinitionInner forBodyLambda = forBodyContext == null ? null :
-                loopBodyVisitorDefinition(forBodyContext,
-                        generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount + BODY_SUFFIX,
-                        Collections.emptyList(),
-                        forErrReporter
-                );
+        QLambdaDefinition forBodyLambda = loopBodyVisitorDefinition(ctx.blockStatements(),
+                generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount + BODY_SUFFIX,
+                Collections.emptyList(), forErrReporter
+        );
 
         int forInitSize = forInitLambda == null ? 0 : forInitLambda.getMaxStackSize();
         int forConditionSize = forConditionLambda == null ? 0 : forConditionLambda.getMaxStackSize();
@@ -312,7 +310,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         Class<?> itVarCls = declTypeContext == null ? Object.class : parseDeclType(declTypeContext);
 
         ErrorReporter forEachErrReporter = newReporterWithToken(ctx.FOR().getSymbol());
-        QLambdaDefinition bodyDefinition = loopBodyVisitorDefinition(ctx.blockStatement(),
+        QLambdaDefinition bodyDefinition = loopBodyVisitorDefinition(ctx.blockStatements(),
                 generatorScope.getName() + SCOPE_SEPARATOR + FOR_PREFIX + forCount() + BODY_SUFFIX,
                 Collections.singletonList(
                         new QLambdaDefinitionInner.Param(ctx.varId().getText(), itVarCls)
@@ -341,7 +339,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 Collections.emptyList(), conditionSubVisitor.getMaxStackSize());
 
         ErrorReporter whileErrReporter = newReporterWithToken(ctx.WHILE().getSymbol());
-        QLambdaDefinitionInner whileBodyLambda = loopBodyVisitorDefinition(ctx.blockStatement(),
+        QLambdaDefinition whileBodyLambda = loopBodyVisitorDefinition(ctx.blockStatements(),
                 generatorScope.getName() + SCOPE_SEPARATOR + WHILE_PREFIX + whileCount + BODY_SUFFIX,
                 Collections.emptyList(),
                 whileErrReporter
@@ -349,15 +347,20 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
         addInstruction(new WhileInstruction(
                 whileErrReporter, conditionLambda, whileBodyLambda,
-                Math.max(conditionLambda.getMaxStackSize(), whileBodyLambda.getMaxStackSize())
+                whileBodyLambda instanceof QLambdaDefinitionInner?
+                        Math.max(conditionLambda.getMaxStackSize(), ((QLambdaDefinitionInner) whileBodyLambda).getMaxStackSize()):
+                        conditionLambda.getMaxStackSize()
         ));
         return null;
     }
 
-    private QLambdaDefinitionInner loopBodyVisitorDefinition(BlockStatementContext bodyCtx, String scopeName,
+    private QLambdaDefinition loopBodyVisitorDefinition(BlockStatementsContext bodyCtx, String scopeName,
                                                              List<QLambdaDefinitionInner.Param> paramsType,
                                                              ErrorReporter errorReporter) {
-        QvmInstructionVisitor bodyVisitor = loopBodyVisitor(bodyCtx, scopeName);
+        if (bodyCtx == null) {
+            return QLambdaDefinitionEmpty.INSTANCE;
+        }
+        QvmInstructionVisitor bodyVisitor = parseWithSubVisitor(bodyCtx, new GeneratorScope(scopeName, generatorScope), Context.MACRO);
         List<QLInstruction> bodyInstructions = bodyVisitor.getInstructions();
 
         List<QLInstruction> resultInstructions = new ArrayList<>();
@@ -365,16 +368,6 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         resultInstructions.addAll(bodyInstructions);
 
         return new QLambdaDefinitionInner(scopeName, resultInstructions, paramsType, bodyVisitor.getMaxStackSize());
-    }
-
-    private QvmInstructionVisitor loopBodyVisitor(BlockStatementContext bodyCtx, String scopeName) {
-        if (bodyCtx instanceof ExpressionStatementContext) {
-            ExpressionStatementContext expressionStatementContext = (ExpressionStatementContext) bodyCtx;
-            return parseExprBodyWithSubVisitor(expressionStatementContext.expression(),
-                    new GeneratorScope(scopeName, generatorScope), Context.BLOCK);
-        } else {
-            return parseWithSubVisitor(bodyCtx, new GeneratorScope(scopeName, generatorScope), Context.MACRO);
-        }
     }
 
     @Override
@@ -470,26 +463,59 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitIfExpr(IfExprContext ctx) {
-        ctx.condition.accept(this);
+    public Void visitQlIf(QlIfContext qlIfContext) {
+        qlIfContext.condition.accept(this);
 
         int ifCount = ifCount();
-        ErrorReporter ifErrorReporter = newReporterWithToken(ctx.IF().getSymbol());
+        ErrorReporter ifErrorReporter = newReporterWithToken(qlIfContext.IF().getSymbol());
         String ifScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount;
         addInstruction(new NewScopeInstruction(ifErrorReporter, ifScopeName));
 
         String thenScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount + THEN_SUFFIX;
-        List<QLInstruction> thenInstructions = parseWithSubVisitor(ctx.thenBody,
+        ThenBodyContext thenBodyContext = qlIfContext.thenBody();
+        List<QLInstruction> thenInstructions = parseWithSubVisitor(thenBodyContext,
                 new GeneratorScope(thenScopeName, generatorScope), Context.MACRO).getInstructions();
+        if (ifBodyFillConst(thenBodyContext.expression(), thenBodyContext.blockStatement(), thenBodyContext.blockStatements())) {
+            thenInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
+        }
+
         String elseScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount + ELSE_SUFFIX;
-        List<QLInstruction> elseInstructions = ctx.elseBody == null ?
+        ElseBodyContext elseBodyContext = qlIfContext.elseBody();
+        List<QLInstruction> elseInstructions = elseBodyContext == null ?
                 Collections.singletonList(new ConstInstruction(ifErrorReporter, null, null)) :
-                parseWithSubVisitor(ctx.elseBody, new GeneratorScope(elseScopeName, generatorScope),
+                parseWithSubVisitor(elseBodyContext, new GeneratorScope(elseScopeName, generatorScope),
                         Context.MACRO).getInstructions();
+        if (elseBodyContext != null && elseBodyContext.qlIf() == null && ifBodyFillConst(
+                elseBodyContext.expression(), elseBodyContext.blockStatement(), elseBodyContext.blockStatements())) {
+            elseInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
+        }
+
         ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions);
 
         addInstruction(new CloseScopeInstruction(ifErrorReporter, ifScopeName));
         return null;
+    }
+
+    private boolean ifBodyFillConst(ExpressionContext expressionContext,
+                                    BlockStatementContext blockStatementContext,
+                                    BlockStatementsContext blockStatementsContext) {
+        if (expressionContext != null) {
+            return false;
+        }
+        if (blockStatementContext != null) {
+            return stmtFillConst(blockStatementContext);
+        }
+        if (blockStatementsContext != null) {
+            List<BlockStatementContext> statementList = blockStatementsContext.blockStatement().stream()
+                    .filter(bs -> !(bs instanceof EmptyStatementContext))
+                    .collect(Collectors.toList());
+            return statementList.isEmpty() || stmtFillConst(statementList.get(statementList.size() - 1));
+        }
+        return true;
+    }
+
+    private boolean stmtFillConst(BlockStatementContext blockStatementContext) {
+        return !(blockStatementContext instanceof ExpressionStatementContext) && !(blockStatementContext instanceof ReturnStatementContext);
     }
 
     @Override
@@ -1009,7 +1035,9 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (macroBlockStatementsCtx == null) {
             return macroCtx;
         }
-        List<BlockStatementContext> blockStatementContexts = macroBlockStatementsCtx.blockStatement();
+        List<BlockStatementContext> blockStatementContexts = macroBlockStatementsCtx.blockStatement().stream()
+                .filter(bs -> !(bs instanceof EmptyStatementContext))
+                .collect(Collectors.toList());
         return blockStatementContexts.isEmpty() ? macroCtx : blockStatementContexts.get(blockStatementContexts.size() - 1);
     }
 
@@ -1292,6 +1320,19 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     @Override
     public Void visitDoubleQuoteStringLiteral(DoubleQuoteStringLiteralContext ctx) {
+        if (interpolationMode == InterpolationMode.DISABLE) {
+            TerminalNode characters = ctx.StaticStringCharacters();
+            if (characters == null) {
+                addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), "", null));
+                return null;
+            }
+            String originText = characters.getText();
+            addInstruction(new ConstInstruction(
+                    newReporterWithToken(ctx.getStart()),
+                    parseStringEscapeStartEnd(originText, 0, originText.length()), null
+            ));
+            return null;
+        }
         int childCount = ctx.getChildCount();
         for (int i = 1; i < childCount - 1; i++) {
             ParseTree child = ctx.getChild(i);
@@ -1299,8 +1340,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 StringExpressionContext stringExpression = (StringExpressionContext) child;
                 ExpressionContext expression = stringExpression.expression();
                 if (expression != null) {
+                    // SCRIPT
                     visitExpression(expression);
                 } else {
+                    // VARIABLE
                     TerminalNode varTerminalNode = stringExpression.SelectorVariable_VANME();
                     String varName = varTerminalNode.getText().trim();
                     addInstruction(new LoadInstruction(newReporterWithToken(varTerminalNode.getSymbol()), varName, null));

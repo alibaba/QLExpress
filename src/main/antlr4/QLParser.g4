@@ -27,25 +27,30 @@ options {
 // grammar
 
 program
-    : importDeclaration* blockStatements? EOF
+    : (newlines? importDeclaration)* newlines? blockStatements? EOF
     ;
 
 blockStatements
     :   blockStatement+
     ;
 
+newlines : NEWLINE+;
+
+nextStatement
+    : {_input.LA(1) == Token.EOF || _input.LA(1) == QLexer.RBRACE}? | ';' | NEWLINE;
+
 blockStatement
     :   localVariableDeclaration ';' # localVariableDeclarationStatement
-    |   THROW expression ';'? # throwStatement
-    |   WHILE '(' expression ')' blockStatement # whileStatement
-    |   FOR '(' forInit (forCondition=expression)? ';' (forUpdate=expression)? ')' blockStatement # traditionalForStatement
-    |   FOR '(' declType? varId ':' expression ')' blockStatement # forEachStatement
-    |   FUNCTION varId '(' formalOrInferredParameterList? ')' LBRACE blockStatements? RBRACE # functionStatement
-    |   MACRO varId LBRACE blockStatements? RBRACE # macroStatement
-    |   (BREAK | CONTINUE) ';'? # breakContinueStatement
-    |   RETURN expression? ';'? # returnStatement
-    |   ';' # emptyStatement
-    |   expression ';'? # expressionStatement
+    |   THROW expression nextStatement # throwStatement
+    |   WHILE '(' newlines? expression newlines? ')' '{' newlines? blockStatements? newlines? '}' # whileStatement
+    |   FOR '(' newlines? forInit (forCondition=expression)? ';' newlines? (forUpdate=expression)? newlines? ')' '{' newlines? blockStatements? newlines? '}' # traditionalForStatement
+    |   FOR '(' newlines? declType? varId ':' expression newlines? ')' '{' newlines? blockStatements? newlines? '}' # forEachStatement
+    |   FUNCTION varId '(' newlines? formalOrInferredParameterList? newlines? ')' LBRACE newlines? blockStatements? newlines? RBRACE # functionStatement
+    |   MACRO varId LBRACE newlines? blockStatements? newlines? RBRACE # macroStatement
+    |   (BREAK | CONTINUE) nextStatement # breakContinueStatement
+    |   RETURN expression? nextStatement # returnStatement
+    |   (';' | NEWLINE) # emptyStatement
+    |   expression nextStatement # expressionStatement
     ;
 
 localVariableDeclaration
@@ -59,11 +64,11 @@ forInit
     ;
 
 variableDeclaratorList
-    :   variableDeclarator (',' variableDeclarator)*
+    :   variableDeclarator (newlines? ',' newlines? variableDeclarator)*
     ;
 
 variableDeclarator
-    :   variableDeclaratorId (EQ variableInitializer)?
+    :   variableDeclaratorId (EQ newlines? variableInitializer)?
     ;
 
 variableDeclaratorId
@@ -76,11 +81,11 @@ variableInitializer
     ;
 
 arrayInitializer
-    :   LBRACE variableInitializerList? ','? RBRACE
+    :   LBRACE newlines? variableInitializerList? newlines? RBRACE
     ;
 
 variableInitializerList
-    :   variableInitializer (',' variableInitializer)*
+    :   variableInitializer (newlines? ',' newlines? variableInitializer)* ','?
     ;
 
 // decl type
@@ -124,12 +129,12 @@ clsType
     ;
 
 typeArguments
-    :   LT typeArgumentList? (GT | RIGHSHIFT | URSHIFT)?
+    :   LT newlines? typeArgumentList? newlines? (GT | RIGHSHIFT | URSHIFT)?
     |   NOEQ
     ;
 
 typeArgumentList
-    :   typeArgument (',' typeArgument)*
+    :   typeArgument (newlines? ',' newlines? typeArgument)*
     ;
 
 typeArgument
@@ -149,25 +154,25 @@ wildcardBounds
 // expression
 
 expression
-    :   leftHandSide assignOperator expression
+    :   leftHandSide assignOperator newlines? expression
     |   ternaryExpr
     ;
 
 leftHandSide
-    :   varId (pathPart)*
+    :   varId (newlines? pathPart)*
     ;
 
 ternaryExpr
-    :   condition=baseExpr[1] (QUESTION thenExpr=baseExpr[0] COLON elseExpr=expression)?
+    :   condition=baseExpr[1] (QUESTION newlines? thenExpr=baseExpr[0] COLON newlines? elseExpr=expression)?
     ;
 
 baseExpr [int p]
-    : primary ({_input.LT(1).getType() != Token.EOF &&
+    : primary ({_input.LA(1) != Token.EOF && _input.LA(1) != QLexer.NEWLINE &&
         isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) >= $p}? leftAsso)*
     ;
 
 leftAsso
-    : binaryop baseExpr[precedence(_input.LT(-1).getText()) + 1];
+    : binaryop newlines? baseExpr[precedence(_localctx.binaryop().getStart().getText()) + 1];
 
 binaryop
     : opId | varId
@@ -176,7 +181,7 @@ binaryop
 // primary
 
 primary
-    : (prefixExpress)? primaryNoFix (pathPart)* (suffixExpress)?
+    : (prefixExpress)? primaryNoFix (newlines? pathPart)* (suffixExpress)?
     ;
 
 prefixExpress
@@ -189,41 +194,52 @@ suffixExpress
 
 primaryNoFix
     :   literal # constExpr
-    |   '(' declType ')' primary # castExpr
-    |   '(' expression ')' # groupExpr
-    |   NEW varId ('.' varId)* typeArguments? '(' argumentList? ')' # newObjExpr
+    |   '(' newlines? declType newlines? ')' primary # castExpr
+    |   '(' newlines? expression newlines? ')' # groupExpr
+    |   NEW varId ('.' varId)* typeArguments? '(' newlines? argumentList? newlines? ')' # newObjExpr
     |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
     |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    |   lambdaParameters ARROW ( '{' blockStatements? RBRACE | expression) # lambdaExpr
+    |   lambdaParameters ARROW newlines? ( LBRACE newlines? blockStatements? newlines? RBRACE | expression) # lambdaExpr
     |   varId # varIdExpr
     |   primitiveType # typeExpr
-    |   '[' listItems? ']' # listExpr
-    |   '{' mapEntries RBRACE # mapExpr
-    |   '{' blockStatements? RBRACE # blockExpr
-    |   IF '(' condition=expression ')' THEN? thenBody=ifBody (ELSE elseBody=ifBody)? # ifExpr
-    |   TRY '{' blockStatements? RBRACE tryCatches? tryFinally? # tryCatchExpr
+    |   '[' newlines? listItems? newlines? ']' # listExpr
+    |   LBRACE newlines? mapEntries newlines? RBRACE # mapExpr
+    |   LBRACE newlines? blockStatements? newlines? RBRACE # blockExpr
+    |   qlIf # ifExpr
+    |   TRY LBRACE newlines? blockStatements? newlines? RBRACE tryCatches? (newlines? tryFinally)? # tryCatchExpr
     |   SELECTOR_START SelectorVariable_VANME RBRACE # contextSelectExpr
     ;
 
-ifBody
-    :   '{' blockStatements? RBRACE
-    |   blockStatement
+qlIf : IF '(' newlines? condition=expression newlines? ')' newlines? THEN? newlines? thenBody (newlines? ELSE newlines? elseBody)?;
+
+thenBody
+    : LBRACE newlines? blockStatements? newlines? RBRACE
+    | expression
+    | blockStatement
+    ;
+
+elseBody
+    : LBRACE newlines? blockStatements? newlines? RBRACE
+    // if ... else ...  if ...
+    | qlIf
+    | expression
+    | blockStatement
     ;
 
 listItems
-    : expression (',' expression)*
+    : expression (newlines? ',' newlines? expression)* ','?
     ;
 
 dimExprs
-    :   '[' expression ']' ('[' expression ']')*
+    :   ('[' newlines? expression newlines? ']')+
     ;
 
 tryCatches
-    : tryCatch tryCatch*
+    : tryCatch (newlines? tryCatch)*
     ;
 
 tryCatch
-    : 'catch' '(' catchParams ')' '{' blockStatements? RBRACE
+    : 'catch' '(' catchParams ')' LBRACE newlines? blockStatements? newlines? RBRACE
     ;
 
 catchParams
@@ -231,16 +247,16 @@ catchParams
     ;
 
 tryFinally
-    : FINALLY '{' blockStatements? RBRACE
+    : FINALLY LBRACE newlines? blockStatements? newlines? RBRACE
     ;
 
 mapEntries
     : ':'
-    | mapEntry (',' mapEntry)* ','?
+    | mapEntry (',' newlines? mapEntry)* ','?
     ;
 
 mapEntry
-    : mapKey ':' mapValue
+    : mapKey newlines? ':' newlines? mapValue
     ;
 
 mapValue
@@ -290,16 +306,16 @@ idMapKey
     ;
 
 pathPart
-    :   '.' varId '(' argumentList? ')' # methodInvoke
-    |   OPTIONAL_CHAINING varId '(' argumentList? ')' # optionalMethodInvoke
-    |   SPREAD_CHAINING varId '(' argumentList? ')' # spreadMethodInvoke
+    :   '.' varId '(' newlines? argumentList? newlines? ')' # methodInvoke
+    |   OPTIONAL_CHAINING varId '(' newlines? argumentList? newlines? ')' # optionalMethodInvoke
+    |   SPREAD_CHAINING varId '(' newlines? argumentList? newlines? ')' # spreadMethodInvoke
     |   '.' fieldId # fieldAccess
     |   OPTIONAL_CHAINING fieldId # optionalFieldAccess
     |   SPREAD_CHAINING fieldId # spreadFieldAccess
     |   DCOLON varId # methodAccess
-    |   '(' argumentList? ')' # callExpr
-    |   '[' indexValueExpr? ']' # indexExpr
-    |   {isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) == GROUP}? opId varId # customPath
+    |   '(' newlines? argumentList? newlines? ')' # callExpr
+    |   '[' newlines? indexValueExpr? newlines? ']' # indexExpr
+    |   {isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) == GROUP}? opId newlines? varId # customPath
     ;
 
 fieldId
@@ -310,11 +326,11 @@ fieldId
 
 indexValueExpr
     :   expression # singleIndex
-    |   start=expression? ':' end=expression? # sliceIndex
+    |   start=expression? newlines? ':' newlines? end=expression? # sliceIndex
     ;
 
 argumentList
-    :   expression (',' expression)*
+    :   expression (newlines? ',' newlines? expression)*
     ;
 
 literal
@@ -328,11 +344,12 @@ literal
     ;
 
 doubleQuoteStringLiteral
-    : DOUBLE_QUOTE_OPEN (DyStrText | stringExpression)* DOUBLE_QUOTE_CLOSE
+    : {getInterpolationMode() == DISABLE}? DOUBLE_QUOTE StaticStringCharacters? DOUBLE_QUOTE
+    | DOUBLE_QUOTE (DyStrText | stringExpression)* DOUBLE_QUOTE
     ;
 
 stringExpression
-    : {getInterpolationMode() == SCRIPT}? DyStrExprStart expression RBRACE
+    : {getInterpolationMode() == SCRIPT}? DyStrExprStart newlines? expression newlines? RBRACE
     | {getInterpolationMode() == VARIABLE}? DyStrExprStart SelectorVariable_VANME RBRACE
     ;
 
@@ -347,7 +364,7 @@ lambdaParameters
     ;
 
 formalOrInferredParameterList
-    :   formalOrInferredParameter (',' formalOrInferredParameter)*
+    :   formalOrInferredParameter (newlines? ',' newlines? formalOrInferredParameter)*
     ;
 
 formalOrInferredParameter

@@ -65,9 +65,15 @@ public class QLOptions {
      */
     private final boolean traceExpression;
 
+    /**
+     * disable short circuit in logic operator
+     * default false
+     */
+    private final boolean shortCircuitDisable;
+
     private QLOptions(boolean precise, boolean polluteUserContext, long timeoutMillis,
                       Map<String, Object> attachments, boolean cache, boolean avoidNullPointer,
-                      int maxArrLength, boolean traceExpression) {
+                      int maxArrLength, boolean traceExpression, boolean shortCircuitDisable) {
         this.precise = precise;
         this.polluteUserContext = polluteUserContext;
         this.timeoutMillis = timeoutMillis;
@@ -76,6 +82,7 @@ public class QLOptions {
         this.avoidNullPointer = avoidNullPointer;
         this.maxArrLength = maxArrLength;
         this.traceExpression = traceExpression;
+        this.shortCircuitDisable = shortCircuitDisable;
     }
 
     public static Builder builder() {
@@ -122,6 +129,10 @@ public class QLOptions {
         return traceExpression;
     }
 
+    public boolean isShortCircuitDisable() {
+        return shortCircuitDisable;
+    }
+
     public static class Builder {
         private boolean precise = false;
 
@@ -138,6 +149,8 @@ public class QLOptions {
         private int maxArrLength = -1;
 
         private boolean traceExpression = false;
+
+        private boolean shortCircuitDisable = false;
 
         public Builder precise(boolean precise) {
             this.precise = precise;
@@ -179,9 +192,14 @@ public class QLOptions {
             return this;
         }
 
+        public Builder shortCircuitDisable(boolean shortCircuitDisable) {
+            this.shortCircuitDisable = shortCircuitDisable;
+            return this;
+        }
+
         public QLOptions build() {
             return new QLOptions(precise, polluteUserContext, timeoutMillis,
-                attachments, cache, avoidNullPointer, maxArrLength, traceExpression);
+                attachments, cache, avoidNullPointer, maxArrLength, traceExpression, shortCircuitDisable);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.alibaba.qlexpress4.runtime;
 
 import com.alibaba.qlexpress4.QLOptions;
-import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
@@ -57,7 +56,7 @@ public class QLambdaInner implements QLambda {
     private QContext inheritScope(Object[] params) throws UserDefineException {
         Map<String, Value> initSymbolTable = new HashMap<>(params.length);
         List<QLambdaDefinitionInner.Param> paramsDefinition = lambdaDefinition.getParamsType();
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; i < Math.min(params.length, paramsDefinition.size()); i++) {
             QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);
             Object originParamI = params[i];
             Class<?> targetCls = paramDefinition.getClazz();

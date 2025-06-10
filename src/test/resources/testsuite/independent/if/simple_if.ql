@@ -16,3 +16,12 @@ assert(b == 5);
 if (b==5) a = 90 else a = 900;
 
 assert(a == 90);
+
+if (b==5) {
+  int m = 100;
+}
+
+if (mmm != null) {
+} else {
+  int mmm = 201;
+}

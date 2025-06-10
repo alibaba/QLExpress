@@ -5,9 +5,7 @@ package com.alibaba.qlexpress4.exception;
  */
 public enum QLErrorCodes {
     // syntax error
-    IMPORT_STATEMENT_NOT_AT_BEGINNING("import declaration must at beginning"),
-    IMPORT_STATIC_NOT_SUPPORTED("'import static' not supported temporarily"),
-    UNKNOWN_OPERATOR("unknown operator"),
+    SYNTAX_ERROR(""),
     MISSING_INDEX("missing index expression"),
     INVALID_NUMBER("invalid number"),
     CLASS_NOT_FOUND("can not find class: %s"),
