@@ -58,9 +58,12 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         qlIfContext.thenBody().accept(this);
         this.existVarStack = this.existVarStack.pop();
 
-        this.existVarStack = this.existVarStack.push();
-        qlIfContext.elseBody().accept(this);
-        this.existVarStack = this.existVarStack.pop();
+        QLParser.ElseBodyContext elseBodyContext = qlIfContext.elseBody();
+        if (elseBodyContext != null) {
+            this.existVarStack = this.existVarStack.push();
+            elseBodyContext.accept(this);
+            this.existVarStack = this.existVarStack.pop();
+        }
 
         return null;
     }

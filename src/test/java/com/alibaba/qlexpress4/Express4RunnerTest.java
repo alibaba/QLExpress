@@ -715,6 +715,13 @@ public class Express4RunnerTest {
         expectSet4.add("m");
         expectSet4.add("c");
         Assert.assertEquals(expectSet4, outVarNames4);
+
+        Set<String> outVarNames5 = express4Runner.getOutVarNames("resultSet = ''; " +
+                "if (a == 11)" +
+                "true");
+        Set<String> expectSet5 = new HashSet<>();
+        expectSet5.add("a");
+        Assert.assertEquals(expectSet5, outVarNames5);
     }
 
     @Test
