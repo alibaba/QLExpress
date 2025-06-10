@@ -781,6 +781,31 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void emptyListCacheTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        String content = "arr = []; arr.add(1); return arr;";
+        for(int i = 0; i < 10; i++) {
+            Object result = express4Runner.execute(content, new HashMap<>(), QLOptions.builder().cache(true).build()).getResult();
+            assertEquals(1, ((List) result).size());
+        }
+    }
+
+    @Test
+    public void emptyMapCacheTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+                .securityStrategy(QLSecurityStrategy.open())
+                .build());
+        for(int i = 0; i < 10; i++) {
+            String content = "m = {:}; m.put(k,'b'); return m;";
+            Object result = express4Runner.execute(content, Collections.singletonMap("k", "k" + i),
+                    QLOptions.builder().cache(true).build()).getResult();
+            assertEquals(1, ((Map) result).size());
+        }
+    }
+
+    @Test
     public void innerFunctionExceptionTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("testExp", () -> {throw new RuntimeException("inner test");});

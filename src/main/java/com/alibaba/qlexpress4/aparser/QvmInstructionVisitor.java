@@ -536,7 +536,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     private void visitListExprInner(ListItemsContext listItemsContext, ErrorReporter listErrorReporter) {
         if (listItemsContext == null) {
-            addInstruction(new ConstInstruction(listErrorReporter, new ArrayList<>(), null));
+            addInstruction(new NewListInstruction(listErrorReporter, 0));
             return;
         }
         List<ExpressionContext> expressions = listItemsContext.expression();
