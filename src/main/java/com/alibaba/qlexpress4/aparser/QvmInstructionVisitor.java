@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.DefaultClassSupplier;
+import com.alibaba.qlexpress4.InitOptions;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.*;
@@ -69,7 +70,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     private final Map<String, CompileTimeFunction> compileTimeFunctions;
 
-    private final InterpolationMode interpolationMode;
+    private final InitOptions initOptions;
 
     private final Context context;
 
@@ -96,14 +97,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                                  GeneratorScope globalScope,
                                  OperatorFactory operatorFactory,
                                  Map<String, CompileTimeFunction> compileTimeFunctions,
-                                 InterpolationMode interpolationMode) {
+                                 InitOptions initOptions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = new GeneratorScope("main", globalScope);
         this.operatorFactory = operatorFactory;
         this.context = Context.BLOCK;
         this.compileTimeFunctions = compileTimeFunctions;
-        this.interpolationMode = interpolationMode;
+        this.initOptions = initOptions;
     }
 
     /*
@@ -112,14 +113,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     public QvmInstructionVisitor(String script, ImportManager importManager,
                                  GeneratorScope generatorScope, OperatorFactory operatorFactory,
                                  Context context, Map<String, CompileTimeFunction> compileTimeFunctions,
-                                 InterpolationMode interpolationMode) {
+                                 InitOptions initOptions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
         this.operatorFactory = operatorFactory;
         this.context = context;
         this.compileTimeFunctions = compileTimeFunctions;
-        this.interpolationMode = interpolationMode;
+        this.initOptions = initOptions;
     }
 
     /*
@@ -133,7 +134,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         this.operatorFactory = new OperatorManager();
         this.context = Context.BLOCK;
         this.compileTimeFunctions = new HashMap<>();
-        this.interpolationMode = InterpolationMode.VARIABLE;
+        this.initOptions = InitOptions.DEFAULT_OPTIONS;
     }
 
     @Override
@@ -436,8 +437,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (ctx.QUESTION() != null) {
             QvmInstructionVisitor thenVisitor = parseWithSubVisitor(ctx.thenExpr, generatorScope, Context.MACRO);
             QvmInstructionVisitor elseVisitor = parseWithSubVisitor(ctx.elseExpr, generatorScope, Context.MACRO);
-            ifElseInstructions(newReporterWithToken(ctx.QUESTION().getSymbol()),
-                    thenVisitor.getInstructions(), elseVisitor.getInstructions());
+            ifElseInstructions(
+                    newReporterWithToken(ctx.QUESTION().getSymbol()),
+                    thenVisitor.getInstructions(), elseVisitor.getInstructions(),
+                    ctx.QUESTION().getSymbol().getStartIndex()
+            );
         }
 
         return null;
@@ -490,7 +494,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             elseInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
         }
 
-        ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions);
+        ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions, qlIfContext.getStart().getStartIndex());
 
         addInstruction(new CloseScopeInstruction(ifErrorReporter, ifScopeName));
         return null;
@@ -1320,7 +1324,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     @Override
     public Void visitDoubleQuoteStringLiteral(DoubleQuoteStringLiteralContext ctx) {
-        if (interpolationMode == InterpolationMode.DISABLE) {
+        if (initOptions.getInterpolationMode() == InterpolationMode.DISABLE) {
             TerminalNode characters = ctx.StaticStringCharacters();
             if (characters == null) {
                 addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), "", null));
@@ -1566,11 +1570,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     }
 
     private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions,
-                                    List<QLInstruction> elseInstructions) {
+                                    List<QLInstruction> elseInstructions, int traceKey) {
         JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(conditionReporter, false, -1);
         pureAddInstruction(jumpIf);
         int jumpStart = instructionList.size();
         thenInstructions.forEach(this::pureAddInstruction);
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceInstruction(conditionReporter, traceKey));
+        }
         addTimeoutInstruction();
 
         JumpInstruction jump = new JumpInstruction(conditionReporter, -1);
@@ -1580,6 +1587,9 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
         jumpStart = instructionList.size();
         elseInstructions.forEach(this::pureAddInstruction);
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceInstruction(conditionReporter, traceKey));
+        }
         addTimeoutInstruction();
         jump.setPosition(instructionList.size() - jumpStart);
     }
@@ -1604,7 +1614,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private QvmInstructionVisitor parseWithSubVisitor(RuleContext ruleContext, GeneratorScope generatorScope,
                                                       Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context, compileTimeFunctions, interpolationMode);
+                generatorScope, operatorFactory, context, compileTimeFunctions, initOptions);
         ruleContext.accept(subVisitor);
         return subVisitor;
     }
@@ -1612,7 +1622,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private QvmInstructionVisitor parseExprBodyWithSubVisitor(ExpressionContext expressionContext,
                                                               GeneratorScope generatorScope, Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager,
-                generatorScope, operatorFactory, context, compileTimeFunctions, interpolationMode);
+                generatorScope, operatorFactory, context, compileTimeFunctions, initOptions);
         // reduce the level of syntax tree when expression is a block
         subVisitor.visitBodyExpression(expressionContext);
         return subVisitor;

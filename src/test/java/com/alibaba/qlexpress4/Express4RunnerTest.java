@@ -106,6 +106,21 @@ public class Express4RunnerTest {
                 "      | VALUE 'dd' dd\n" +
                 "      | VALUE 'ff' ff\n", expressionTraceIn.toPrettyString(0));
         // end::expressionTrace[]
+
+        QLResult resultTernary = express4Runner.execute("true? 2: 1;false? 2: 1", context,
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("OPERATOR ? 2\n" +
+                "  | VALUE true true\n" +
+                "  | VALUE 2 2\n" +
+                "  | VALUE 1 \n", resultTernary.getExpressionTraces().get(0).toPrettyString(0));
+        Assert.assertEquals("OPERATOR ? 1\n" +
+                "  | VALUE false false\n" +
+                "  | VALUE 2 \n" +
+                "  | VALUE 1 1\n", resultTernary.getExpressionTraces().get(1).toPrettyString(0));
+
+        QLResult resultIf = express4Runner.execute("if(true) {11} else {13}", context,
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("PRIMARY if 11\n", resultIf.getExpressionTraces().get(0).toPrettyString(0));
     }
 
     @Test
