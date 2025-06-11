@@ -11,6 +11,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 /**
  * @author 冰够
@@ -58,25 +59,27 @@ public class Express4RunnerBingoTest {
         QLOptions defaultOptions = QLOptions.DEFAULT_OPTIONS;
         QLOptions preciseQlOptions = QLOptions.builder().precise(true).build();
 
-        QLRuntimeException qlRuntimeException = Assert.assertThrows(QLRuntimeException.class,
-            () -> express4Runner.execute("0 / 0 - 1", Collections.emptyMap(), defaultOptions));
-        Assert.assertEquals(QLErrorCodes.INVALID_ARITHMETIC.name(), qlRuntimeException.getErrorCode());
-        Assert.assertEquals(ArithmeticException.class, qlRuntimeException.getCause().getClass());
-
-        qlRuntimeException = Assert.assertThrows(QLRuntimeException.class,
-            () -> express4Runner.execute("0 / 0 - 1", Collections.emptyMap(), preciseQlOptions));
-        Assert.assertEquals(QLErrorCodes.INVALID_ARITHMETIC.name(), qlRuntimeException.getErrorCode());
-        Assert.assertEquals(ArithmeticException.class, qlRuntimeException.getCause().getClass());
+        assertThrowArithmeticException(() -> express4Runner.execute("0 / 0 - 1", Collections.emptyMap(), defaultOptions));
+        assertThrowArithmeticException(() -> express4Runner.execute("0 / 0 - 1", Collections.emptyMap(), preciseQlOptions));
 
         QLResult qlResult = express4Runner.execute("0 / 0.0", Collections.emptyMap(), defaultOptions);
         Assert.assertEquals(Double.NaN, qlResult.getResult());
+        assertThrowArithmeticException(() -> express4Runner.execute("0 / 0.0", Collections.emptyMap(), preciseQlOptions));
 
         qlResult = express4Runner.execute("0 / 0.0 - 1", Collections.emptyMap(), defaultOptions);
         Assert.assertEquals(Double.NaN, qlResult.getResult());
+        assertThrowArithmeticException(() -> express4Runner.execute("0 / 0.0 - 1", Collections.emptyMap(), preciseQlOptions));
 
         qlResult = express4Runner.execute("6.0 / 0.0 - 1", Collections.emptyMap(), defaultOptions);
         Assert.assertEquals(Double.POSITIVE_INFINITY, qlResult.getResult());
+        assertThrowArithmeticException(() -> express4Runner.execute("6.0 / 0.0 - 1", Collections.emptyMap(), preciseQlOptions));
 
         Assert.assertThrows(ArithmeticException.class, () -> System.out.println(0 / 0));
+    }
+
+    private void assertThrowArithmeticException(ThrowingRunnable runnable) {
+        QLRuntimeException qlRuntimeException = Assert.assertThrows(QLRuntimeException.class, runnable);
+        Assert.assertEquals(QLErrorCodes.INVALID_ARITHMETIC.name(), qlRuntimeException.getErrorCode());
+        Assert.assertEquals(ArithmeticException.class, qlRuntimeException.getCause().getClass());
     }
 }
