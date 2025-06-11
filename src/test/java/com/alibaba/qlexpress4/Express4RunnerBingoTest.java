@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import com.alibaba.qlexpress4.exception.QLRuntimeException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,5 +46,32 @@ public class Express4RunnerBingoTest {
         Map<String, Object> context = Collections.singletonMap("customFunction", (Supplier<?>)() -> true);
         QLResult qlResult = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue((Boolean)qlResult.getResult());
+    }
+
+    /**
+     * 如果是0/0-1 这种会直接报错，但是0.0/0 或者 0/0.0 直接就返回NaN了,6.0/0.0 返回的是Infinity，这种能统一一下返回结果不
+     */
+    @Test
+    public void test_divideZero() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.execute("0 / 0 - 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+            Assert.fail();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            Assert.assertTrue(t instanceof QLRuntimeException);
+            Assert.assertEquals("INVALID_ARITHMETIC", ((QLRuntimeException)t).getErrorCode());
+        }
+
+        QLResult qlResult = express4Runner.execute("0 / 0.0", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(Double.NaN, qlResult.getResult());
+
+        qlResult = express4Runner.execute("0 / 0.0 - 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(Double.NaN, qlResult.getResult());
+
+        qlResult = express4Runner.execute("6.0 / 0.0 - 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(Double.POSITIVE_INFINITY, qlResult.getResult());
+
+        Assert.assertThrows(ArithmeticException.class, () -> System.out.println(0 / 0));
     }
 }
