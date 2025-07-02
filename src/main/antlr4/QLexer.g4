@@ -364,6 +364,9 @@ fragment OpIdItem
 
 // Java Idetifiers specification
 // https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.8
+
+SELECTOR_START: '${' -> pushMode(SelectorVariable);
+
 ID
     :   IdStart IdPart*
     ;
@@ -379,6 +382,8 @@ fragment IdStart
     | [\u005F]
     // @
     | [\u0040]
+    // $
+    | [\u0024]
     // a-z
     | [\u0061-\u007A]
     // ¢-¥
@@ -1027,8 +1032,6 @@ DOUBLE_QUOTE: '"' {
         pushMode(DynamicString);
     }
 };
-
-SELECTOR_START: '${' -> pushMode(SelectorVariable);
 
 CATCH_ALL:   . ;
 

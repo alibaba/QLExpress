@@ -301,6 +301,13 @@ public class Express4RunnerTest {
     }
 
     @Test
+    public void dollarVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("$a = 10; $a", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals(10, result);
+    }
+
+    @Test
     public void docTryCatchTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("1 + try {\n" +

@@ -25,3 +25,5 @@ test.log
 test-push.sh
 
 .DS_Store
+
+src/main/antlr4/.antlr
