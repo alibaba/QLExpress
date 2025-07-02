@@ -56,7 +56,7 @@ public class TestSuiteRunner {
 
     @Test
     public void featureDebug() throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/newlines/newlines.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/stream/java_stream_method_ref.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
