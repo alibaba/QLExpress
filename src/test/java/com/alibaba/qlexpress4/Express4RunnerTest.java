@@ -121,6 +121,29 @@ public class Express4RunnerTest {
         QLResult resultIf = express4Runner.execute("if(true) {11} else {13}", context,
                 QLOptions.builder().traceExpression(true).build());
         Assert.assertEquals("PRIMARY if 11\n", resultIf.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultAssign = express4Runner.execute("aab = 11", context,
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("OPERATOR = 11\n" +
+                "  | VARIABLE aab null\n" +
+                "  | VALUE 11 11\n", resultAssign.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultAssignChange = express4Runner.execute("aab = 111", Collections.singletonMap("aab", 100),
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("OPERATOR = 111\n" +
+                "  | VARIABLE aab 100\n" +
+                "  | VALUE 111 111\n", resultAssignChange.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultAssignFunctionCall = express4Runner.execute("m = {bbb:6};aaa = () -> m;aaa().bbb=10;m.bbb", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals(10, resultAssignFunctionCall.getResult());
+        Assert.assertEquals("OPERATOR = {bbb=10}\n" +
+                "  | VARIABLE m null\n" +
+                "  | MAP { {bbb=10}\n", resultAssignFunctionCall.getExpressionTraces().get(0).toPrettyString(0));
+        Assert.assertEquals("OPERATOR = 10\n" +
+                "  | FIELD bbb 6\n" +
+                "      | FUNCTION aaa \n" +
+                "  | VALUE 10 10\n", resultAssignFunctionCall.getExpressionTraces().get(2).toPrettyString(0));
     }
 
     @Test

@@ -38,15 +38,19 @@ public class OperatorInstruction extends QLInstruction {
         Value rightValue = qContext.pop();
         Value leftValue = qContext.pop();
         try {
+            // trace children
+            ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+            if (expressionTrace != null) {
+                expressionTrace.getChildren().get(0).valueEvaluated(leftValue.get());
+                expressionTrace.getChildren().get(1).valueEvaluated(rightValue.get());
+            }
+
             Object result = operator.execute(leftValue, rightValue, qContext, qlOptions, errorReporter);
             qContext.push(new DataValue(result));
 
-            // trace
-            ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+            // trace result
             if (expressionTrace != null) {
                 expressionTrace.valueEvaluated(result);
-                expressionTrace.getChildren().get(0).valueEvaluated(leftValue.get());
-                expressionTrace.getChildren().get(1).valueEvaluated(rightValue.get());
             }
 
             return QResult.NEXT_INSTRUCTION;

@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4.aparser;
 
+import com.alibaba.qlexpress4.aparser.QLParser.PathPartContext;
+import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.runtime.trace.TraceType;
 import org.antlr.v4.runtime.Token;
@@ -32,7 +34,25 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             return visitTernaryExpr(ternaryExprContext);
         }
 
-        return visitExpression(ctx.expression());
+        TracePointTree leftChildTree = visitLeftHandSide(ctx.leftHandSide());
+        TracePointTree rightChildTree = visitExpression(ctx.expression());
+        return newPoint(TraceType.OPERATOR, Arrays.asList(leftChildTree, rightChildTree), ctx.assignOperator().getStart());
+    }
+
+    @Override
+    public TracePointTree visitLeftHandSide(QLParser.LeftHandSideContext ctx) {
+        VarIdContext varIdContext = ctx.varId();;
+        List<PathPartContext> pathParts = ctx.pathPart();
+        TracePointTree leftChildTree = null;
+        int start = 0;
+        if (!pathParts.isEmpty() && pathParts.get(0) instanceof QLParser.CallExprContext) {
+            QLParser.CallExprContext callExprContext = (QLParser.CallExprContext) pathParts.get(0);
+            leftChildTree = newPoint(TraceType.FUNCTION, traceArgumentList(callExprContext.argumentList()), varIdContext.getStart());
+            start = 1;
+        } else {
+            leftChildTree = newPoint(TraceType.VARIABLE, Collections.emptyList(), ctx.getStart());
+        }
+        return pathParts(leftChildTree, pathParts.subList(start, pathParts.size()));
     }
 
     @Override
@@ -138,7 +158,7 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
 
     @Override
     public TracePointTree visitMapExpr(QLParser.MapExprContext ctx) {
-        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
+        return newPoint(TraceType.MAP, Collections.emptyList(), ctx.getStart());
     }
 
     @Override
@@ -178,8 +198,12 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             leftChildTree = primaryNoFixContext.accept(this);
         }
 
-        for (int i = start; i < pathPartContexts.size(); i++) {
-            QLParser.PathPartContext current = pathPartContexts.get(i);
+        return pathParts(leftChildTree, pathPartContexts.subList(start, pathPartContexts.size()));
+    }
+
+    private TracePointTree pathParts(TracePointTree pathRoot, List<QLParser.PathPartContext> pathPartContexts) {
+        TracePointTree leftChildTree = pathRoot;
+        for (QLParser.PathPartContext current : pathPartContexts) {
             if (current instanceof QLParser.MethodInvokeContext ||
                     current instanceof QLParser.OptionalMethodInvokeContext ||
                     current instanceof QLParser.SpreadMethodInvokeContext) {
@@ -214,7 +238,6 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
                 leftChildTree = newPoint(TraceType.FIELD, Collections.singletonList(leftChildTree), current.getStop());
             }
         }
-
         return leftChildTree;
     }
 
