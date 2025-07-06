@@ -34,7 +34,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0-beta.8</version>
+    <version>4.0.0-beta.9</version>
 </dependency>
 ----
 
