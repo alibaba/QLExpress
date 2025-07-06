@@ -120,7 +120,11 @@ public class Express4RunnerTest {
 
         QLResult resultIf = express4Runner.execute("if(true) {11} else {13}", context,
                 QLOptions.builder().traceExpression(true).build());
-        Assert.assertEquals("PRIMARY if 11\n", resultIf.getExpressionTraces().get(0).toPrettyString(0));
+        Assert.assertEquals("IF if 11\n" +
+                "  | BLOCK { 11\n" +
+                "      | VALUE 11 11\n" +
+                "  | BLOCK { \n" +
+                "      | VALUE 13 \n", resultIf.getExpressionTraces().get(0).toPrettyString(0));
 
         QLResult resultAssign = express4Runner.execute("aab = 11", context,
                 QLOptions.builder().traceExpression(true).build());
@@ -144,6 +148,111 @@ public class Express4RunnerTest {
                 "  | FIELD bbb 6\n" +
                 "      | FUNCTION aaa \n" +
                 "  | VALUE 10 10\n", resultAssignFunctionCall.getExpressionTraces().get(2).toPrettyString(0));
+
+        QLResult resultBlock = express4Runner.execute("a = {m=10;m+11}", new HashMap<>(), QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("OPERATOR = 21\n" +
+                "  | VARIABLE a null\n" +
+                "  | BLOCK { 21\n" +
+                "      | OPERATOR = 10\n" +
+                "          | VARIABLE m null\n" +
+                "          | VALUE 10 10\n" +
+                "      | OPERATOR + 21\n" +
+                "          | VARIABLE m 10\n" +
+                "          | VALUE 11 11\n", resultBlock.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultNestedIf = express4Runner.execute("if(false) {11} else if (1>10) {15} else {}", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("IF if null\n" +
+                "  | BLOCK { \n" +
+                "      | VALUE 11 \n" +
+                "  | IF if null\n" +
+                "      | BLOCK { \n" +
+                "          | VALUE 15 \n" +
+                "      | BLOCK { null\n", resultNestedIf.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultLocalVeriableStmt = express4Runner.execute(
+                "int a = 1;", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT int null\n", resultLocalVeriableStmt.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultThrow = express4Runner.execute(
+                "if (true) 10 else throw 1", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("IF if 10\n" +
+                "  | VALUE 10 10\n" +
+                "  | STATEMENT throw \n", resultThrow.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultWhile = express4Runner.execute(
+            "while(false) {m=10}", new HashMap<>(),
+            QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT while null\n", resultWhile.getExpressionTraces().get(0).toPrettyString(0));
+            
+        // traditional for statement test
+        QLResult resultTraditionalFor = express4Runner.execute(
+                "for(int i=0; i<3; i++) {i}", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT for null\n", resultTraditionalFor.getExpressionTraces().get(0).toPrettyString(0));
+            
+        // for each statement test
+        QLResult resultForEach = express4Runner.execute(
+                "for(int item : [1,2,3]) {item}", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT for null\n", resultForEach.getExpressionTraces().get(0).toPrettyString(0));
+        
+        // function statement test
+        QLResult resultFunction = express4Runner.execute(
+                "function testFunc() {return 10}", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("DEFINE_FUNCTION testFunc null\n", resultFunction.getExpressionTraces().get(0).toPrettyString(0));
+        
+        // macro statement test
+        QLResult resultMacro = express4Runner.execute(
+                "macro testMacro {return 20}", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("DEFINE_MACRO testMacro null\n", resultMacro.getExpressionTraces().get(0).toPrettyString(0));
+        
+        // break statement test
+        QLResult resultBreak = express4Runner.execute(
+                "break", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT break null\n", resultBreak.getExpressionTraces().get(0).toPrettyString(0));
+        
+        // continue statement test
+        QLResult resultContinue = express4Runner.execute(
+                "continue", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("STATEMENT continue null\n", resultContinue.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultReturn = express4Runner.execute(
+            "return 1+1", new HashMap<>(),
+            QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals("RETURN return 2\n" +
+            "  | OPERATOR + 2\n" +
+            "      | VALUE 1 1\n" +
+            "      | VALUE 1 1\n", resultReturn.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultEmptyStmt = express4Runner.execute(
+            ";;;;", new HashMap<>(),
+            QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals(1, resultEmptyStmt.getExpressionTraces().size());
+        Assert.assertEquals("STATEMENT ; \n", resultEmptyStmt.getExpressionTraces().get(0).toPrettyString(0));
+
+        QLResult resultEmptyStmtFilter = express4Runner.execute(
+                "a=1;;;;", new HashMap<>(),
+                QLOptions.builder().traceExpression(true).build()
+        );
+        Assert.assertEquals(1, resultEmptyStmtFilter.getExpressionTraces().size());
     }
 
     @Test
@@ -364,7 +473,6 @@ public class Express4RunnerTest {
         assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()).getResult());
         // end::preciseSwitch[]
     }
-
 
     @Test
     public void mapSetGetTest() {

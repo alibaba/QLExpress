@@ -179,7 +179,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             if (isPreExpress) {
                 addInstruction(new ReturnInstruction(
                         PureErrReporter.INSTANCE,
-                        QResult.ResultType.CONTINUE)
+                        QResult.ResultType.CONTINUE,
+                        null)
                 );
             }
         }
@@ -198,7 +199,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         }
         expressionContext.accept(this);
         addInstruction(new ReturnInstruction(
-                newReporterWithToken(expressionContext.getStart()), QResult.ResultType.RETURN));
+                newReporterWithToken(expressionContext.getStart()), QResult.ResultType.RETURN, null));
     }
 
     private BlockExprContext blockExpr(ExpressionContext expressionContext) {
@@ -273,6 +274,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         int forConditionSize = forConditionLambda == null ? 0 : forConditionLambda.getMaxStackSize();
         int forUpdateSize = forUpdateLambda == null ? 0 : forUpdateLambda.getMaxStackSize();
         int forScopeMaxStackSize = Math.max(forInitSize, Math.max(forConditionSize, forUpdateSize));
+
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(forErrReporter, ctx.FOR().getSymbol().getStartIndex()));
+        }
+
         addInstruction(new ForInstruction(forErrReporter, forInitLambda, forConditionLambda,
                 forConditionContext != null ? newReporterWithToken(forConditionContext.getStart()) : null,
                 forUpdateLambda, forScopeMaxStackSize,
@@ -319,6 +325,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 forEachErrReporter
         );
 
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(forEachErrReporter, ctx.FOR().getSymbol().getStartIndex()));
+        }
+
         addInstruction(new ForEachInstruction(
                         forEachErrReporter, bodyDefinition,
                         itVarCls, newReporterWithToken(targetExprContext.getStart())
@@ -345,6 +355,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 Collections.emptyList(),
                 whileErrReporter
         );
+
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(whileErrReporter, ctx.WHILE().getSymbol().getStartIndex()));
+        }
 
         addInstruction(new WhileInstruction(
                 whileErrReporter, conditionLambda, whileBodyLambda,
@@ -388,7 +402,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             expression.accept(this);
         }
 
-        addInstruction(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN));
+        addInstruction(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN, ctx.getStart().getStartIndex()));
         return null;
     }
 
@@ -402,6 +416,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         QLambdaDefinition functionDefinition = parseFunctionDefinition(functionNameCtx.getText(), ctx, params);
 
         ErrorReporter errorReporter = newReporterWithToken(functionNameCtx.getStart());
+        
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(errorReporter, functionNameCtx.getStart().getStartIndex()));
+        }
+        
         addInstruction(new DefineFunctionInstruction(errorReporter, functionDefinition.getName(), functionDefinition));
         return null;
     }
@@ -439,7 +458,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             QvmInstructionVisitor elseVisitor = parseWithSubVisitor(ctx.elseExpr, generatorScope, Context.MACRO);
             ifElseInstructions(
                     newReporterWithToken(ctx.QUESTION().getSymbol()),
-                    thenVisitor.getInstructions(), elseVisitor.getInstructions(),
+                    thenVisitor.getInstructions(), null, elseVisitor.getInstructions(), null,
                     ctx.QUESTION().getSymbol().getStartIndex()
             );
         }
@@ -463,6 +482,9 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName));
         blockSubVisitor.getInstructions().forEach(this::addInstruction);
         addInstruction(new CloseScopeInstruction(blockErrReporter, blockScopeName));
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TracePeekInstruction(blockErrReporter, ctx.getStart().getStartIndex()));
+        }
         return null;
     }
 
@@ -482,6 +504,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (ifBodyFillConst(thenBodyContext.expression(), thenBodyContext.blockStatement(), thenBodyContext.blockStatements())) {
             thenInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
         }
+        Integer thenTraceKey = thenBodyContext.LBRACE() == null ? null : thenBodyContext.getStart().getStartIndex();
 
         String elseScopeName = generatorScope.getName() + SCOPE_SEPARATOR + IF_PREFIX + ifCount + ELSE_SUFFIX;
         ElseBodyContext elseBodyContext = qlIfContext.elseBody();
@@ -493,8 +516,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 elseBodyContext.expression(), elseBodyContext.blockStatement(), elseBodyContext.blockStatements())) {
             elseInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
         }
+        Integer elseTraceKey = elseBodyContext == null ? null :
+                (elseBodyContext.LBRACE() == null ? null : elseBodyContext.getStart().getStartIndex());
 
-        ifElseInstructions(ifErrorReporter, thenInstructions, elseInstructions, qlIfContext.getStart().getStartIndex());
+        ifElseInstructions(ifErrorReporter, thenInstructions, thenTraceKey, elseInstructions, elseTraceKey, qlIfContext.getStart().getStartIndex());
 
         addInstruction(new CloseScopeInstruction(ifErrorReporter, ifScopeName));
         return null;
@@ -526,6 +551,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     public Void visitBreakContinueStatement(BreakContinueStatementContext ctx) {
         TerminalNode aBreak = ctx.BREAK();
         QResult qResult = aBreak == null ? QResult.LOOP_CONTINUE_RESULT : QResult.LOOP_BREAK_RESULT;
+        
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(newReporterWithToken(ctx.getStart()), ctx.getStart().getStartIndex()));
+        }
+        
         addInstruction(
                 new BreakContinueInstruction(newReporterWithToken(ctx.getStart()), qResult)
         );
@@ -1031,6 +1061,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 getMacroInstructions(macroBlockStatementsContext),
                 lastStmt instanceof ExpressionStatementContext)
         );
+        
+        if (initOptions.isTraceExpression()) {
+            pureAddInstruction(new TraceEvaludatedInstruction(newReporterWithToken(ctx.varId().getStart()), ctx.varId().getStart().getStartIndex()));
+        }
+        
         return null;
     }
 
@@ -1057,6 +1092,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
 
     @Override
     public Void visitLocalVariableDeclaration(LocalVariableDeclarationContext ctx) {
+        if (initOptions.isTraceExpression()) {
+            addInstruction(new TraceEvaludatedInstruction(newReporterWithToken(ctx.getStart()), ctx.getStart().getStartIndex()));
+        }
+
         Class<?> declCls = parseDeclType(ctx.declType());
         List<VariableDeclaratorContext> variableDeclaratorContexts = ctx.variableDeclaratorList().variableDeclarator();
         for (VariableDeclaratorContext variableDeclarator : variableDeclaratorContexts) {
@@ -1569,14 +1608,17 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         return maxStackSize;
     }
 
-    private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions,
-                                    List<QLInstruction> elseInstructions, int traceKey) {
+    private void ifElseInstructions(ErrorReporter conditionReporter, List<QLInstruction> thenInstructions, Integer thenTraceKey,
+                                    List<QLInstruction> elseInstructions, Integer elseTraceKey, int traceKey) {
         JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(conditionReporter, false, -1);
         pureAddInstruction(jumpIf);
         int jumpStart = instructionList.size();
         thenInstructions.forEach(this::pureAddInstruction);
         if (initOptions.isTraceExpression()) {
-            pureAddInstruction(new TraceInstruction(conditionReporter, traceKey));
+            if (thenTraceKey != null) {
+                pureAddInstruction(new TracePeekInstruction(conditionReporter, thenTraceKey));
+            }
+            pureAddInstruction(new TracePeekInstruction(conditionReporter, traceKey));
         }
         addTimeoutInstruction();
 
@@ -1588,7 +1630,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         jumpStart = instructionList.size();
         elseInstructions.forEach(this::pureAddInstruction);
         if (initOptions.isTraceExpression()) {
-            pureAddInstruction(new TraceInstruction(conditionReporter, traceKey));
+            if (elseTraceKey != null) {
+                pureAddInstruction(new TracePeekInstruction(conditionReporter, elseTraceKey));
+            }
+            pureAddInstruction(new TracePeekInstruction(conditionReporter, traceKey));
         }
         addTimeoutInstruction();
         jump.setPosition(instructionList.size() - jumpStart);

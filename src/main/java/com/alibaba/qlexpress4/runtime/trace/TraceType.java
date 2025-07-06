@@ -10,9 +10,13 @@ public enum TraceType {
     MAP,
     IF,
     RETURN,
+    BLOCK,
     // children
     VARIABLE,
     VALUE,
+    DEFINE_FUNCTION,
+    DEFINE_MACRO,
     // other composite children
-    PRIMARY
+    PRIMARY,
+    STATEMENT
 }

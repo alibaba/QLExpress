@@ -1,5 +1,8 @@
 package com.alibaba.qlexpress4.aparser;
 
+import com.alibaba.qlexpress4.aparser.QLParser.EmptyStatementContext;
+import com.alibaba.qlexpress4.aparser.QLParser.ExpressionContext;
+import com.alibaba.qlexpress4.aparser.QLParser.LocalVariableDeclarationStatementContext;
 import com.alibaba.qlexpress4.aparser.QLParser.PathPartContext;
 import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
@@ -20,12 +23,111 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
         return expressionTracePoints;
     }
 
+    // ==================== Statement ====================
+
+    @Override
+    public TracePointTree visitThrowStatement(QLParser.ThrowStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitLocalVariableDeclarationStatement(LocalVariableDeclarationStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
     @Override
     public TracePointTree visitExpressionStatement(QLParser.ExpressionStatementContext ctx) {
         TracePointTree expressionTrace = visitExpression(ctx.expression());
         expressionTracePoints.add(expressionTrace);
         return null;
     }
+
+    @Override
+    public TracePointTree visitWhileStatement(QLParser.WhileStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitTraditionalForStatement(QLParser.TraditionalForStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitForEachStatement(QLParser.ForEachStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitFunctionStatement(QLParser.FunctionStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.DEFINE_FUNCTION, Collections.emptyList(), ctx.varId().getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitMacroStatement(QLParser.MacroStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.DEFINE_MACRO, Collections.emptyList(), ctx.varId().getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitBreakContinueStatement(QLParser.BreakContinueStatementContext ctx) {
+        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
+        expressionTracePoints.add(tracePoint);
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitReturnStatement(QLParser.ReturnStatementContext ctx) {
+        ExpressionContext returnExpressionContext = ctx.expression();
+        if (returnExpressionContext != null) {
+            TracePointTree returnExpressionTrace = returnExpressionContext.accept(this);
+            TracePointTree tracePoint = newPoint(TraceType.RETURN, Collections.singletonList(returnExpressionTrace), ctx.getStart());
+            expressionTracePoints.add(tracePoint);
+        } else {
+            TracePointTree tracePoint = newPoint(TraceType.RETURN, Collections.emptyList(), ctx.getStart());
+            expressionTracePoints.add(tracePoint);
+        }
+        return null;
+    }
+    
+    @Override
+    public TracePointTree visitEmptyStatement(QLParser.EmptyStatementContext ctx) {
+        expressionTracePoints.add(newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart()));
+        return null;
+    }
+
+    @Override
+    public TracePointTree visitBlockStatements(QLParser.BlockStatementsContext ctx) {
+        List<QLParser.BlockStatementContext> emptyChildren = ctx.blockStatement().stream()
+                .filter(bs -> bs instanceof EmptyStatementContext)
+                .collect(Collectors.toList());
+        if (emptyChildren.size() == ctx.blockStatement().size()) {
+            // all emtpty
+            emptyChildren.get(0).accept(this);
+            return null;
+        }
+
+        for (QLParser.BlockStatementContext blockStatementContext : ctx.blockStatement()) {
+            if (!(blockStatementContext instanceof EmptyStatementContext)) {
+                blockStatementContext.accept(this);
+            }
+        }
+        return null;
+    }
+
+    // ==================== Expression ====================
 
     @Override
     public TracePointTree visitExpression(QLParser.ExpressionContext ctx) {
@@ -163,12 +265,56 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
 
     @Override
     public TracePointTree visitBlockExpr(QLParser.BlockExprContext ctx) {
-        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
+        TraceExpressionVisitor traceExpressionVisitor = new TraceExpressionVisitor();
+        ctx.blockStatements().accept(traceExpressionVisitor);
+        List<TracePointTree> children = traceExpressionVisitor.getExpressionTracePoints();
+        return newPoint(TraceType.BLOCK, children, ctx.getStart());
     }
 
     @Override
-    public TracePointTree visitIfExpr(QLParser.IfExprContext ctx) {
-        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
+    public TracePointTree visitQlIf(QLParser.QlIfContext ctx) {
+        List<TracePointTree> children = new ArrayList<>(2);
+        // thenBody
+        children.add(visitThenBody(ctx.thenBody()));
+        // elseBody
+        if (ctx.elseBody() != null) {
+            children.add(visitElseBody(ctx.elseBody()));
+        }
+        return newPoint(TraceType.IF, children, "if", ctx.getStart());
+    }
+
+    @Override
+    public TracePointTree visitThenBody(QLParser.ThenBodyContext thenBody) {
+        if (thenBody.blockStatements() != null) {
+            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
+            thenBody.blockStatements().accept(blockVisitor);
+            return newPoint(TraceType.BLOCK, blockVisitor.getExpressionTracePoints(), thenBody.getStart());
+        } else if (thenBody.expression() != null) {
+            return thenBody.expression().accept(this);
+        } else if (thenBody.blockStatement() != null) {
+            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
+            thenBody.blockStatement().accept(blockVisitor);
+            return blockVisitor.getExpressionTracePoints().get(0);
+        }
+        return newPoint(TraceType.BLOCK, Collections.emptyList(), thenBody.getStart());
+    }
+
+    @Override
+    public TracePointTree visitElseBody(QLParser.ElseBodyContext elseBody) {
+        if (elseBody.blockStatements() != null) {
+            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
+            elseBody.blockStatements().accept(blockVisitor);
+            return newPoint(TraceType.BLOCK, blockVisitor.getExpressionTracePoints(), elseBody.getStart());
+        } else if (elseBody.expression() != null) {
+            return elseBody.expression().accept(this);
+        } else if (elseBody.blockStatement() != null) {
+            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
+            elseBody.blockStatement().accept(blockVisitor);
+            return blockVisitor.getExpressionTracePoints().get(0);
+        } else if (elseBody.qlIf() != null) {
+            return elseBody.qlIf().accept(this);
+        }
+        return newPoint(TraceType.BLOCK, Collections.emptyList(), elseBody.getStart());
     }
 
     @Override
@@ -180,6 +326,8 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     public TracePointTree visitContextSelectExpr(QLParser.ContextSelectExprContext ctx) {
         return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
     }
+
+    // ==================== Private Helper ====================
 
     private TracePointTree primaryBaseTrace(QLParser.PrimaryContext ctx) {
         QLParser.PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();

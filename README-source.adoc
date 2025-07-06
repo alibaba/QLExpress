@@ -258,8 +258,6 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addA
 
 跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
 
-该功能只会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。
-
 节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
 
 [source,java,indent=0]
@@ -286,9 +284,15 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getE
 | METHOD   | 方法 | 方法参数
 | FIELD    | 字段 | 取字段的目标对象
 | LIST     | 列表 | 列表元素
+| MAP      | 字段 | 无
+| IF       | 条件分支 | then逻辑块和else逻辑块
+| RETURN   | 返回语句 | 返回表达式
 | VARIABLE | 变量 | 无
 | VALUE    | 字面值   | 无
+| DEFINE_FUNCTION | 定义函数 | 无
+| DEFINE_MACRO | 定义宏 | 无
 | PRIMARY  | 暂时未继续下钻的其他复合值（比如字典,if等等）| 无
+| STATEMENT | 暂未继续下钻的其他复合语句（比如 while, for 等等）| 无
 |===
 
 == 语法入门
