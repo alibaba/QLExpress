@@ -480,6 +480,63 @@ public class Order {
 
 > 注意：部分大家熟悉的用法其实是操作符，而不是关键字，比如 `in` 操作符。而所有的操作符和函数默认就是支持别名的
 
+=== 宏
+
+宏是QLExpress中一个强大的代码复用机制，它允许用户定义一段可重用的脚本片段，并在需要时进行调用。与简单的文本替换不同，QLExpress的宏是基于指令回放的机制实现的，具有更好的性能和语义准确性。
+
+宏特别适用于以下场景：
+
+* **代码复用**：将常用的脚本片段封装成宏，避免重复编写相同的逻辑
+* **业务规则模板**：定义标准的业务规则模板，如价格计算、权限检查等
+* **流程控制**：封装复杂的控制流程，如条件判断、循环逻辑等
+* **DSL构建**：作为构建领域特定语言的基础组件
+
+宏可以通过两种方式定义：
+
+**1. 在脚本中使用 `macro` 关键字定义**
+
+[source,java]
+----
+macro add {
+  c = a + b;
+}
+
+a = 1;
+b = 2;
+add;
+assert(c == 3);
+----
+
+**2. 通过Java API添加**
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addMacro("rename", "name='haha-'+name");
+        Map<String,String> context = Collections.singletonMap("name", "wuli");
+        Object result = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("haha-wuli", result);
+
+        // replace macro
+        express4Runner.addOrReplaceMacro("rename", "name='huhu-'+name");
+        Object result1 = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("huhu-wuli", result1);
+----
+
+宏与函数的区别：
+
+[cols="1,1,1"]
+|===
+| 特性 | 宏 | 函数
+| 参数传递 | 无参数，依赖上下文变量 | 支持参数传递
+| 性能   | 指令直接插入，无调用开销 | 有函数调用开销
+| 作用域    | 共享调用者作用域 | 独立的作用域
+| 适用场景     | 代码片段复用 | 逻辑封装和参数化
+|===
+
+宏特别适合那些不需要参数传递、主要依赖上下文变量的代码片段复用场景，而函数更适合需要参数化和独立作用域的场景。
+
+
 === 表达式计算跟踪
 
 跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
