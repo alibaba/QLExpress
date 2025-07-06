@@ -1028,12 +1028,18 @@ public class Express4RunnerTest {
 
     @Test
     public void addMacroTest() {
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .securityStrategy(QLSecurityStrategy.open())
-                .build());
-        express4Runner.addMacro("mergeList", "l = [];l.addAll(a);l.addAll(b);l");
-        Object result = express4Runner.execute("a=[1,2]\nb=[3,4]\nmergeList", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
-        assertEquals(express4Runner.execute("[1,2,3,4]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult(), result);
+        // tag::addMacro[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addMacro("rename", "name='haha-'+name");
+        Map<String,String> context = Collections.singletonMap("name", "wuli");
+        Object result = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("haha-wuli", result);
+
+        // replace macro
+        express4Runner.addOrReplaceMacro("rename", "name='huhu-'+name");
+        Object result1 = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("huhu-wuli", result1);
+        // end::addMacro[]
     }
 
     public static class MyObj {

@@ -189,6 +189,19 @@ public class Express4Runner {
      * @return true if add macro successfully. fail if macro name already exists.
      */
     public boolean addMacro(String name, String macroScript) {
+        return globalScope.defineMacroIfAbsent(name, parseMacroDefine(name, macroScript));
+    }
+
+    /**
+     * add or replace user defined global macro to QLExpress engine
+     * @param name macro name
+     * @param macroScript script for macro
+     */
+    public void addOrReplaceMacro(String name, String macroScript) {
+        globalScope.defineMacro(name, parseMacroDefine(name, macroScript));
+    }
+
+    private MacroDefine parseMacroDefine(String name, String macroScript) {
         QLParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
         QvmInstructionVisitor macroVisitor = new QvmInstructionVisitor(macroScript,
                 inheritDefaultImport(), new GeneratorScope("MACRO_" + name, globalScope),
@@ -200,7 +213,7 @@ public class Express4Runner {
                 .blockStatement();
         boolean lastStmtExpress = !blockStatementContexts.isEmpty() &&
                 blockStatementContexts.get(blockStatementContexts.size() - 1) instanceof QLParser.ExpressionStatementContext;
-        return globalScope.defineMacroIfAbsent(name, new MacroDefine(macroInstructions, lastStmtExpress));
+        return new MacroDefine(macroInstructions, lastStmtExpress);
     }
 
     /**

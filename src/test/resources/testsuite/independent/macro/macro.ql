@@ -1,3 +1,4 @@
+// tag::addMacroInScript[]
 macro add {
   c = a + b;
 }
@@ -6,6 +7,7 @@ a = 1;
 b = 2;
 add;
 assert(c == 3);
+// end::addMacroInScript[]
 b = 10;
 add;
 assert(c == 11);
