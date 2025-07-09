@@ -40,6 +40,7 @@ import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseRightShiftUnsignedOper
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorAssignOperator;
 import com.alibaba.qlexpress4.runtime.operator.bit.BitwiseXorOperator;
 import com.alibaba.qlexpress4.runtime.operator.collection.InOperator;
+import com.alibaba.qlexpress4.runtime.operator.collection.NotInOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.EqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.GreaterEqualOperator;
 import com.alibaba.qlexpress4.runtime.operator.compare.GreaterOperator;
@@ -106,6 +107,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         binaryOperatorList.add(LessOperator.getInstance());
         binaryOperatorList.add(LessEqualOperator.getInstance());
         binaryOperatorList.add(InOperator.getInstance());
+        binaryOperatorList.add(NotInOperator.getInstance());
         binaryOperatorList.add(LikeOperator.getInstance());
         binaryOperatorList.add(InstanceOfOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
@@ -157,7 +159,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     /**
      * @param operatorName
      * @param customBinaryOperator
-     * @param priority {@link QLPrecedences}
+     * @param priority             {@link QLPrecedences}
      * @return
      */
     public boolean addBinaryOperator(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
@@ -165,7 +167,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
             return false;
         }
         BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
-                adapt2BinOp(operatorName, customBinaryOperator, priority)
+            adapt2BinOp(operatorName, customBinaryOperator, priority)
         );
         return preBinaryOperator == null;
     }
@@ -176,7 +178,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
             return false;
         }
         BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
-                adapt2BinOp(operatorName, customBinaryOperator, defaultOperator.getPriority())
+            adapt2BinOp(operatorName, customBinaryOperator, defaultOperator.getPriority())
         );
         return preBinaryOperator == null;
     }
@@ -185,14 +187,14 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         return new BinaryOperator() {
             @Override
             public Object execute(Value left, Value right, QRuntime qRuntime,
-                                  QLOptions qlOptions, ErrorReporter errorReporter) {
+                QLOptions qlOptions, ErrorReporter errorReporter) {
                 try {
                     return customBinaryOperator.execute(left, right);
                 } catch (UserDefineException e) {
                     throw ThrowUtils.reportUserDefinedException(errorReporter, e);
                 } catch (Throwable t) {
                     throw ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_INNER_EXCEPTION",
-                            "custom operator '" + operatorName + "' inner exception");
+                        "custom operator '" + operatorName + "' inner exception");
                 }
             }
 

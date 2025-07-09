@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime.operator.base;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
 import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 
@@ -279,6 +281,26 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         } else {
             return Objects.equals(leftValue, rightValue);
         }
+    }
+
+    protected boolean in(Value left, Value right, ErrorReporter errorReporter) {
+        Object rightOperand = right.get();
+        if (rightOperand == null) {
+            return false;
+        }
+
+        if (!(rightOperand instanceof Collection)) {
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        }
+
+        // TODO 冰够 是否支持数组
+        Collection<?> rightCollection = (Collection<?>)rightOperand;
+        for (Object rightElement : rightCollection) {
+            if (equals(left, new DataValue(rightElement), errorReporter)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
