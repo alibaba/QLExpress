@@ -9,6 +9,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
@@ -1031,7 +1032,7 @@ public class Express4RunnerTest {
         // tag::addMacro[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addMacro("rename", "name='haha-'+name");
-        Map<String,String> context = Collections.singletonMap("name", "wuli");
+        Map<String, Object> context = Collections.singletonMap("name", "wuli");
         Object result = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("haha-wuli", result);
 
@@ -1040,6 +1041,35 @@ public class Express4RunnerTest {
         Object result1 = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("huhu-wuli", result1);
         // end::addMacro[]
+    }
+
+    @Test
+    public void dynamicVariableComplexTest() {
+        // tag::dynamicVar[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+
+        Map<String, Object> staticContext = new HashMap<>();
+        staticContext.put("语文", 88);
+        staticContext.put("数学", 99);
+        staticContext.put("英语", 95);
+
+        QLOptions defaultOptions = QLOptions.DEFAULT_OPTIONS;
+        DynamicVariableContext dynamicContext = new DynamicVariableContext(
+            express4Runner, staticContext, defaultOptions
+        );
+        dynamicContext.put("平均成绩", "(语文+数学+英语)/3.0");
+        dynamicContext.put("是否优秀", "平均成绩>90");
+
+        // dynamic var
+        assertTrue((Boolean) express4Runner.execute("是否优秀", dynamicContext, defaultOptions).getResult());
+        assertEquals(94, ((Number) express4Runner.execute(
+            "平均成绩", dynamicContext, defaultOptions
+        ).getResult()).intValue());
+        // static var
+        assertEquals(187, ((Number) express4Runner.execute(
+                "语文+数学", dynamicContext, defaultOptions
+        ).getResult()).intValue());
+        // end::dynamicVar[]
     }
 
     public static class MyObj {
