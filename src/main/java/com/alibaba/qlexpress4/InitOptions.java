@@ -75,12 +75,25 @@ public class InitOptions {
      */
     private final boolean traceExpression;
 
+    /**
+     * selector start token, must be one of: "${", "$[", "#{", or "#[".
+     * default is "${".
+     */
+    private final String selectorStart;
+
+    /**
+     * selector end token, must be 1 or more characters
+     * default is "}"
+     */
+    private final String selectorEnd;
+
     private InitOptions(ClassSupplier classSupplier,
                         List<ImportManager.QLImport> defaultImport,
                         boolean debug, Consumer<String> debugInfoConsumer,
                         QLSecurityStrategy securityStrategy,
                         List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess,
-                        InterpolationMode interpolationMode, boolean traceExpression) {
+                        InterpolationMode interpolationMode, boolean traceExpression,
+                        String selectorStart, String selectorEnd) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -90,6 +103,8 @@ public class InitOptions {
         this.allowPrivateAccess = allowPrivateAccess;
         this.interpolationMode = interpolationMode;
         this.traceExpression = traceExpression;
+        this.selectorStart = selectorStart;
+        this.selectorEnd = selectorEnd;
     }
 
     public static InitOptions.Builder builder() {
@@ -132,6 +147,14 @@ public class InitOptions {
         return traceExpression;
     }
 
+    public String getSelectorStart() {
+        return selectorStart;
+    }
+
+    public String getSelectorEnd() {
+        return selectorEnd;
+    }
+
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         private final List<ImportManager.QLImport> defaultImport = new ArrayList<>(Arrays.asList(
@@ -151,6 +174,8 @@ public class InitOptions {
         private boolean allowPrivateAccess = false;
         private InterpolationMode interpolationMode = InterpolationMode.SCRIPT;
         private boolean traceExpression = false;
+        private String selectorStart = "${";
+        private String selectorEnd = "}";
 
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
@@ -197,10 +222,27 @@ public class InitOptions {
             return this;
         }
 
+        public Builder selectorStart(String selectorStart) {
+            if (!Arrays.asList("${", "$[", "#{", "#[").contains(selectorStart)) {
+                throw new IllegalArgumentException("Custom selector start must in '${' | '$[' | '#{' | '#['");
+            }
+            this.selectorStart = selectorStart;
+            return this;
+        }
+
+        public Builder selectorEnd(String selectorEnd) {
+            if (selectorEnd == null || selectorEnd.length() < 1) {
+                throw new IllegalArgumentException("Custom selector end must be 1 or more characters");
+            }
+            this.selectorEnd = selectorEnd;
+            return this;
+        }
+
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport,
                     debug, debugInfoConsumer, securityStrategy, extensionFunctions,
-                    allowPrivateAccess, interpolationMode, traceExpression);
+                    allowPrivateAccess, interpolationMode, traceExpression,
+                    selectorStart, selectorEnd);
         }
     }
 }

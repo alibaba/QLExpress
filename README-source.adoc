@@ -420,6 +420,37 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
+=== 占位符
+
+占位符用于从 context 中提取任意 key 的值。
+
+全局变量也可以从 context 中提取值，但是收到 QLExpress 关键词和语法的限制，能提取的 key 有限。
+比如 context 中 "0" key 对应的值就无法通过变量提取，因为 0 不是 QLExpress 中的合法变量，而是一个数字常量。
+此时可以用默认占位符 `$\{0}` 来提取。
+
+> 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `0`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`"${0}"` 的运行结果是 context 中 "0" key 对应的值。
+
+QLExpress 默认使用 `${placeholder}` 格式的占位符，其中：
+* `${` 是起始标记
+* `}` 是结束标记  
+* `placeholder` 是占位符内容，对应 cotext 中的 key
+
+除了默认的占位符外，QLExpress 还支持自定义占位符的起始和结束标记：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customSelector]
+----
+
+自定义占位符并不是任意的，限制条件如下：
+
+* **起始标记限制**：`selectorStart` 必须是以下四种格式之一：
+  ** `$\{` (默认)
+  ** `$[`
+  ** `#\{`
+  ** `#[`
+* **结束标记限制**：`selectorEnd` 必须是 1 个或更多字符的字符串
+
 === 分号
 
 表达式语句可以省略结尾的分号，整个脚本的返回值就是最后一个表达式的计算结果。

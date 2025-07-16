@@ -6,11 +6,15 @@ lexer grammar QLexer;
 }
 
 @members {
-    InterpolationMode interpolationMode;
-    public QLexer(CharStream input, InterpolationMode interpolationMode) {
-        this(input);
-        this.interpolationMode = interpolationMode;
+    protected String getSelectorStart() {
+        return "${";
     }
+
+    protected InterpolationMode getInterpolationMode() {
+        return SCRIPT;
+    }
+
+    protected void consumeSelectorVariable() { }
 }
 
 // lexer
@@ -362,10 +366,18 @@ fragment OpIdItem
     | DOT
     ;
 
+// Selector
+
+SELECTOR_START: ('${' | '$[' | '#{' | '#[') {
+    if (getSelectorStart().equals(getText())) {
+        pushMode(SelectorVariable);
+    } else {
+        setType(CATCH_ALL);
+    }
+};
+
 // Java Idetifiers specification
 // https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.8
-
-SELECTOR_START: '${' -> pushMode(SelectorVariable);
 
 ID
     :   IdStart IdPart*
@@ -1026,7 +1038,7 @@ fragment IdPart
 // string expression
 
 DOUBLE_QUOTE: '"' {
-    if (interpolationMode == DISABLE) {
+    if (getInterpolationMode() == DISABLE) {
         pushMode(StaticString);
     } else {
         pushMode(DynamicString);
@@ -1049,9 +1061,9 @@ STATIC_STRING_CLOSE: DOUBLE_QUOTE -> popMode, type(DOUBLE_QUOTE);
 mode DynamicString;
 
 DyStrExprStart: '${' {
-    if (interpolationMode == SCRIPT) {
+    if (getInterpolationMode() == SCRIPT) {
         pushMode(StringExpression);
-    } else if (interpolationMode == VARIABLE) {
+    } else if (getInterpolationMode() == VARIABLE) {
         pushMode(SelectorVariable);
     }
 };
@@ -1067,9 +1079,9 @@ DYNAMIC_STRING_CLOSE: DOUBLE_QUOTE -> popMode, type(DOUBLE_QUOTE);
 
 mode SelectorVariable;
 
-SelectorVariable_VANME: ~[}]+;
-
-SelectorVariable_RBRACE: RBRACE -> popMode, type(RBRACE);
+SelectorVariable_VANME: {
+    consumeSelectorVariable();
+};
 
 mode StringExpression;
 

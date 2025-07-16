@@ -30,14 +30,15 @@ public class SyntaxTreeFactory {
     }
 
     private static void warmUpExpress(String script) {
-        buildTree(script, new OperatorManager(), false, false, s -> {}, InterpolationMode.SCRIPT);
+        buildTree(script, new OperatorManager(), false, false, s -> {}, InterpolationMode.SCRIPT, "${", "}");
     }
 
 
     public static QLParser.ProgramContext buildTree(String script, ParserOperatorManager operatorManager,
-                                                           boolean printTree, boolean profile, Consumer<String> printer,
-                                                    InterpolationMode interpolationMode) {
-        QLexer lexer = new QLexer(CharStreams.fromString(script), interpolationMode);
+                                                    boolean printTree, boolean profile,
+                                                    Consumer<String> printer, InterpolationMode interpolationMode,
+                                                    String selectorStart, String selectorEnd) {
+        QLexer lexer = new QLExtendLexer(CharStreams.fromString(script), interpolationMode, selectorStart, selectorEnd);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager),
                 operatorManager, interpolationMode);

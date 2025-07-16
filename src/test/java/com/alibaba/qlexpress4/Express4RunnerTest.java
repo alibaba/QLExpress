@@ -1151,6 +1151,23 @@ public class Express4RunnerTest {
         // end::customComplexFunction[]
     }
 
+    @Test
+    public void customSelectorTest() {
+        // tag::customSelector[]
+        Express4Runner express4Runner = new Express4Runner(
+            InitOptions.builder()
+            .selectorStart("#[").selectorEnd("]")
+            .build()
+        );
+        
+        Map<String, Object> context = new HashMap<>();
+        context.put("0", "World");
+
+        QLResult result = express4Runner.execute("'Hello ' + #[0]", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals("Hello World", result.getResult());
+        // end::customSelector[]
+    }
+
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

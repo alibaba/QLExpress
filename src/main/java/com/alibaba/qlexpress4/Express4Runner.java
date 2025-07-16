@@ -334,7 +334,8 @@ public class Express4Runner {
     public QLParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(
                 script, operatorManager, initOptions.isDebug(), false,
-                initOptions.getDebugInfoConsumer(), initOptions.getInterpolationMode()
+                initOptions.getDebugInfoConsumer(), initOptions.getInterpolationMode(),
+                initOptions.getSelectorStart(), initOptions.getSelectorEnd()
         );
     }
 
