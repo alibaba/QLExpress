@@ -428,7 +428,7 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disa
 比如 context 中 "0" key 对应的值就无法通过变量提取，因为 0 不是 QLExpress 中的合法变量，而是一个数字常量。
 此时可以用默认占位符 `$\{0}` 来提取。
 
-> 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `0`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`"${0}"` 的运行结果是 context 中 "0" key 对应的值。
+> 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `"0"`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`${0}` 的运行结果是 context 中 "0" key 对应的值。
 
 QLExpress 默认使用 `${placeholder}` 格式的占位符，其中：
 * `${` 是起始标记
