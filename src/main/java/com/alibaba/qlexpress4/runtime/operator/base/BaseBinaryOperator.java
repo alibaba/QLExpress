@@ -237,6 +237,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         throw buildInvalidOperandTypeException(left, right, errorReporter);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected int compare(Value left, Value right, ErrorReporter errorReporter) {
         if (Objects.equals(left.get(), right.get())) {
             return 0;
@@ -273,15 +274,13 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
 
     protected boolean in(Value left, Value right, ErrorReporter errorReporter) {
         Object rightOperand = right.get();
-        //if (left.get() == null && rightOperand == null) {
-        //    return true;
-        //} else if (left.get() == null || rightOperand == null) {
-        //    return false;
-        //}
+        Object leftOperand = left.get();
+        if (leftOperand == null && rightOperand == null) {
+            return true;
+        } else if (leftOperand == null || rightOperand == null) {
+            return false;
+        }
 
-        // TODO 冰够
-        //  1. 当右值不是集合、数组、字符串时，是否需要抛异常？
-        //  2. 当 right.get() 为null时，存在不兼容修改
         if (rightOperand instanceof Collection) {
             Collection<?> rightCollection = (Collection<?>)rightOperand;
             for (Object rightElement : rightCollection) {
@@ -290,8 +289,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
                 }
             }
             return false;
-        } else if (rightOperand != null && rightOperand.getClass().isArray()) {
-            // TODO 冰够 是否支持数组
+        } else if (rightOperand.getClass().isArray()) {
             Object[] rightArray = (Object[])rightOperand;
             for (Object rightElement : rightArray) {
                 if (equals(left, new DataValue(rightElement), errorReporter)) {
@@ -300,7 +298,7 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             }
             return false;
         } else if (rightOperand instanceof String) {
-            return left.get() != null && ((String)rightOperand).contains(String.valueOf(left.get()));
+            return ((String)rightOperand).contains(String.valueOf(leftOperand));
         } else {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
@@ -309,9 +307,12 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean like(Value left, Value right, ErrorReporter errorReporter) {
         Object target = left.get();
         Object pattern = right.get();
-        if (target == null || pattern == null) {
+        if (target == null && pattern == null) {
+            return true;
+        } else if (target == null || pattern == null) {
             return false;
         }
+
         if (!(target instanceof String) || !(pattern instanceof String)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }

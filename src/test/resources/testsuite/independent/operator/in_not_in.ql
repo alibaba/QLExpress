@@ -1,11 +1,10 @@
-// left is null and right is null, TODO 冰够 需要讨论下
-assertErrorCode(() -> {null in null}, "INVALID_BINARY_OPERAND");
+assert(null in null);
 assertFalse(null in "abc");
-assertErrorCode(() -> {null in 123}, "INVALID_BINARY_OPERAND");
+assertFalse(null in 123);
 
-assertErrorCode(() -> {null not_in null}, "INVALID_BINARY_OPERAND");
+assertFalse(null not_in null);
 assert(null not_in "abc");
-assertErrorCode(() -> {null not_in 123}, "INVALID_BINARY_OPERAND");
+assert(null not_in 123);
 
 assertFalse(null in [1, 2, 3]);
 assertFalse(null in new int[]{1, 2, 3});
