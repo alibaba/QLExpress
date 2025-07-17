@@ -306,8 +306,44 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         }
     }
 
-    protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right,
-        ErrorReporter errorReporter) {
+    protected boolean like(Value left, Value right, ErrorReporter errorReporter) {
+        Object target = left.get();
+        Object pattern = right.get();
+        if (target == null || pattern == null) {
+            return false;
+        }
+        if (!(target instanceof String) || !(pattern instanceof String)) {
+            throw buildInvalidOperandTypeException(left, right, errorReporter);
+        }
+        return matchPattern((String)target, (String)pattern);
+    }
+
+    private static boolean matchPattern(String s, String pattern) {
+        int sPointer = 0, pPointer = 0;
+        int sLen = s.length(), pLen = pattern.length();
+        int sRecall = -1, pRecall = -1;
+        while (sPointer < sLen) {
+            if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
+                sPointer++;
+                pPointer++;
+            } else if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+                sRecall = sPointer;
+                pRecall = pPointer;
+                pPointer++;
+            } else if (sRecall >= 0) {
+                sPointer = ++sRecall;
+                pPointer = pRecall + 1;
+            } else {
+                return false;
+            }
+        }
+        while (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+            pPointer++;
+        }
+        return pPointer == pLen;
+    }
+
+    protected QLRuntimeException buildInvalidOperandTypeException(Value left, Value right, ErrorReporter errorReporter) {
         return errorReporter.reportFormat(QLErrorCodes.INVALID_BINARY_OPERAND.name(), QLErrorCodes.INVALID_BINARY_OPERAND.getErrorMsg(),
             getOperator(), left.getTypeName(), left.get(), right.getTypeName(), right.get());
     }

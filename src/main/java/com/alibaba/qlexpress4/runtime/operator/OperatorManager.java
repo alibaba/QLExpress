@@ -51,6 +51,7 @@ import com.alibaba.qlexpress4.runtime.operator.logic.LogicAndOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicNotOperator;
 import com.alibaba.qlexpress4.runtime.operator.logic.LogicOrOperator;
 import com.alibaba.qlexpress4.runtime.operator.string.LikeOperator;
+import com.alibaba.qlexpress4.runtime.operator.string.NotLikeOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusPrefixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusMinusSuffixUnaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.MinusUnaryOperator;
@@ -109,6 +110,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         binaryOperatorList.add(InOperator.getInstance());
         binaryOperatorList.add(NotInOperator.getInstance());
         binaryOperatorList.add(LikeOperator.getInstance());
+        binaryOperatorList.add(NotLikeOperator.getInstance());
         binaryOperatorList.add(InstanceOfOperator.getInstance());
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);

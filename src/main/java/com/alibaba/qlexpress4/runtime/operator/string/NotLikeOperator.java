@@ -9,10 +9,10 @@ import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 
 /**
- * Author: DQinYuan
+ * @author bingo
  */
-public class LikeOperator extends BaseBinaryOperator {
-    private static final LikeOperator INSTANCE = new LikeOperator();
+public class NotLikeOperator extends BaseBinaryOperator {
+    private static final NotLikeOperator INSTANCE = new NotLikeOperator();
 
     public static BinaryOperator getInstance() {
         return INSTANCE;
@@ -20,12 +20,12 @@ public class LikeOperator extends BaseBinaryOperator {
 
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
-        return like(left, right, errorReporter);
+        return !like(left, right, errorReporter);
     }
 
     @Override
     public String getOperator() {
-        return "like";
+        return "not_like";
     }
 
     @Override
