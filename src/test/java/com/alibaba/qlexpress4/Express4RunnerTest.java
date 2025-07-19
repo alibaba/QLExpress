@@ -882,6 +882,12 @@ public class Express4RunnerTest {
         expectSetWithSelector.add("0");
         expectSetWithSelector.add("1");
         Assert.assertEquals(expectSetWithSelector, outVarNamesWithSelector);
+
+        Set<String> outVarNamesWithDyString = express4Runner.getOutVarNames("\"Hello ${a+b}\"");
+        Set<String> expectSetWithDyString = new HashSet<>();
+        expectSetWithDyString.add("a");
+        expectSetWithDyString.add("b");
+        Assert.assertEquals(expectSetWithDyString, outVarNamesWithDyString);
     }
 
     @Test
