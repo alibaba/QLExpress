@@ -876,6 +876,12 @@ public class Express4RunnerTest {
         Set<String> expectSet5 = new HashSet<>();
         expectSet5.add("a");
         Assert.assertEquals(expectSet5, outVarNames5);
+
+        Set<String> outVarNamesWithSelector = express4Runner.getOutVarNames("${0} + ${1}");
+        Set<String> expectSetWithSelector = new HashSet<>();
+        expectSetWithSelector.add("0");
+        expectSetWithSelector.add("1");
+        Assert.assertEquals(expectSetWithSelector, outVarNamesWithSelector);
     }
 
     @Test
@@ -1167,6 +1173,22 @@ public class Express4RunnerTest {
         assertEquals("Hello World", result.getResult());
         // end::customSelector[]
     }
+
+    @Test
+    public void customSelectorWhenNoCloseTest() {
+        Express4Runner express4Runner = new Express4Runner(
+                InitOptions.builder()
+                        .selectorStart("#[").selectorEnd("]")
+                        .build()
+        );
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("0", "World");
+
+        assertErrorCode(express4Runner, "'Hello ' + #[0grg", QLErrorCodes.SYNTAX_ERROR.name());
+    }
+
+
 
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));

@@ -1,9 +1,13 @@
 package com.alibaba.qlexpress4.aparser;
 
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
+import com.alibaba.qlexpress4.exception.QLException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
 
 public class QLExtendLexer extends QLexer {
+
+    private final String script;
 
     private final InterpolationMode interpolationMode;
 
@@ -11,8 +15,9 @@ public class QLExtendLexer extends QLexer {
 
     private final String selectorEnd;
 
-    public QLExtendLexer(CharStream input, InterpolationMode interpolationMode, String selectorStart, String selectorEnd) {
+    public QLExtendLexer(CharStream input, String script, InterpolationMode interpolationMode, String selectorStart, String selectorEnd) {
         super(input);
+        this.script = script;
         this.interpolationMode = interpolationMode;
         this.selectorStart = selectorStart;
         this.selectorEnd = selectorEnd;
@@ -38,10 +43,13 @@ public class QLExtendLexer extends QLexer {
         
         while(true) {
             int curChInt = _input.LA(1);
-            if (curChInt == Token.EOF) {
+            if (curChInt == Token.EOF || curChInt == '\n') {
                 // mismatch
-                setType(CATCH_ALL);
-                break;
+                throw QLException.reportScannerErr(
+                        script, this._tokenStartCharIndex, this._tokenStartLine,
+                        this._tokenStartCharPositionInLine, t.toString(), QLErrorCodes.SYNTAX_ERROR.name(),
+                        "unterminated selector"
+                );
             }
             char curCh = (char) curChInt;
             t.append(curCh);

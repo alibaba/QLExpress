@@ -126,6 +126,18 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         return null;
     }
 
+    // selector
+
+    @Override
+    public Void visitContextSelectExpr(QLParser.ContextSelectExprContext ctx) {
+        String variableName = ctx.SelectorVariable_VANME().getText().trim();
+        if (!existVarStack.exist(variableName)) {
+            outVars.add(variableName);
+        }
+        return null;
+    }
+
+
     // exclude function call
 
     @Override
@@ -134,6 +146,7 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         if (primaryNoFixContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty() &&
                 pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
+            // function call
             for (QLParser.PathPartContext pathPartContext : pathPartContexts) {
                 pathPartContext.accept(this);
             }

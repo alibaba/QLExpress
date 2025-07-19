@@ -38,7 +38,7 @@ public class SyntaxTreeFactory {
                                                     boolean printTree, boolean profile,
                                                     Consumer<String> printer, InterpolationMode interpolationMode,
                                                     String selectorStart, String selectorEnd) {
-        QLexer lexer = new QLExtendLexer(CharStreams.fromString(script), interpolationMode, selectorStart, selectorEnd);
+        QLexer lexer = new QLExtendLexer(CharStreams.fromString(script), script, interpolationMode, selectorStart, selectorEnd);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager),
                 operatorManager, interpolationMode);
