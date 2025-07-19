@@ -617,7 +617,7 @@ QLExpress 对社区的更改完全开放，任何建议和修改，都会受到�
 [source,bash]
 ----
 #!/bin/sh
-mvn spotless:apply -Pcheck
+mvn spotless:apply
 git add -u
 exit 0
 ----
