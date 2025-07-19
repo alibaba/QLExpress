@@ -603,13 +603,34 @@ Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 
 include::./src/test/resources/testsuite/java/lambda/java_functional_interface.ql[]
 ----
 
-== 附录一 QLExpress4性能提升
+== 附录一 如何贡献？
+
+QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。
+
+首先需要将代码 clone 到本地，在正式修改代码前，需要先进行如下准备：
+
+1. 项目根目录执行 `mvn compile`：项目刚刚下载到本地时，会有大量的类找不到，需要先生成 Antlr4 的运行时代码
+2. 配置代码格式化：QLExpress 项目有统一的代码格式规范，开发前需要配置在 git 提交前的自动格式化
+
+在项目目录下新建文件 `.git/hooks/pre-commit`，内容如下：
+
+[source,bash]
+----
+#!/bin/sh
+mvn spotless:apply -Pcheck
+git add -u
+exit 0
+----
+
+这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]]
+
+== 附录二 QLExpress4性能提升
 
 link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
 
 总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
 
-== 附录二 开发者联系方式
+== 附录三 开发者联系方式
 
  * Email:
  ** qinyuan.dqy@alibaba-inc.com
