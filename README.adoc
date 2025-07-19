@@ -59,14 +59,16 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // custom function
-        express4Runner.addVarArgsFunction("join", params ->
-                Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
-        Object resultFunction = express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        express4Runner.addVarArgsFunction("join",
+            params -> Arrays.stream(params).map(Object::toString).collect(Collectors.joining(",")));
+        Object resultFunction =
+            express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultFunction);
-
+        
         // custom operator
         express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
-        Object resultOperator = express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        Object resultOperator =
+            express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1,2,3", resultOperator);
 ----
 
@@ -84,8 +86,9 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
 public class HelloFunction implements CustomFunction {
     @Override
-    public Object call(QContext qContext, Parameters parameters) throws Throwable {
-        String tenant = (String) qContext.attachment().get("tenant");
+    public Object call(QContext qContext, Parameters parameters)
+        throws Throwable {
+        String tenant = (String)qContext.attachment().get("tenant");
         return "hello," + tenant;
     }
 }
@@ -95,16 +98,17 @@ public class HelloFunction implements CustomFunction {
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("hello", new HelloFunction());
-        String resultJack = (String) express4Runner.execute("hello()", Collections.emptyMap(),
-                // Additional information(tenant for example) can be brought into the custom function from outside via attachments
-                QLOptions.builder()
-                        .attachments(Collections.singletonMap("tenant", "jack"))
-                        .build()).getResult();
+        String resultJack = (String)express4Runner.execute("hello()",
+            Collections.emptyMap(),
+            // Additional information(tenant for example) can be brought into the custom function from outside via attachments
+            QLOptions.builder().attachments(Collections.singletonMap("tenant", "jack")).build()).getResult();
         assertEquals("hello,jack", resultJack);
-        String resultLucy = (String) express4Runner.execute("hello()", Collections.emptyMap(),
-                QLOptions.builder()
-                        .attachments(Collections.singletonMap("tenant", "lucy"))
-                        .build()).getResult();
+        String resultLucy =
+            (String)express4Runner
+                .execute("hello()",
+                    Collections.emptyMap(),
+                    QLOptions.builder().attachments(Collections.singletonMap("tenant", "lucy")).build())
+                .getResult();
         assertEquals("hello,lucy", resultLucy);
 ----
 
@@ -118,15 +122,16 @@ public class HelloFunction implements CustomFunction {
         try {
             express4Runner.parseToSyntaxTree("a+b;\n(a+b");
             fail();
-        } catch (QLSyntaxException e) {
+        }
+        catch (QLSyntaxException e) {
             assertEquals(2, e.getLineNo());
             assertEquals(4, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals("[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" +
-                    "[Near: a+b; (a+b<EOF>]\n" +
-                    "                ^^^^^\n" +
-                    "[Line: 2, Column: 4]", e.getMessage());
+            assertEquals(
+                "[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" + "[Near: a+b; (a+b<EOF>]\n"
+                    + "                ^^^^^\n" + "[Line: 2, Column: 4]",
+                e.getMessage());
         }
 ----
 
@@ -139,10 +144,8 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        Set<String> outVarNames = express4Runner.getOutVarNames("int a = 1, b = 10;\n" +
-                "c = 11\n" +
-                "e = a + b + c + d\n" +
-                "f+e");
+        Set<String> outVarNames =
+            express4Runner.getOutVarNames("int a = 1, b = 10;\n" + "c = 11\n" + "e = a + b + c + d\n" + "f+e");
         Set<String> expectSet = new HashSet<>();
         expectSet.add("d");
         expectSet.add("f");
@@ -170,7 +173,8 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
 [source,java,indent=0]
 ----
         assertNotEquals(0.3, 0.1 + 0.2, 0.0);
-        assertTrue((Boolean) express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertTrue((Boolean)express4Runner.execute("0.3==0.1+0.2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+            .getResult());
 ----
 
 除了默认的精度保证外，还提供了 `precise` 开关，打开后所有的计算都使用BigDecimal，防止外部传入的低精度数字导致的问题：
@@ -180,9 +184,10 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
         Map<String, Object> context = new HashMap<>();
         context.put("a", 0.1);
         context.put("b", 0.2);
-        assertFalse((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean)express4Runner.execute("0.3==a+b", context, QLOptions.DEFAULT_OPTIONS).getResult());
         // open precise switch
-        assertTrue((Boolean) express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build()).getResult());
+        assertTrue((Boolean)express4Runner.execute("0.3==a+b", context, QLOptions.builder().precise(true).build())
+            .getResult());
 ----
 
 === 调用应用中的 Java 类
@@ -196,11 +201,11 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
 package com.alibaba.qlexpress4;
 
 public class QLImportTester {
-
+    
     public static int add(int a, int b) {
         return a + b;
     }
-
+    
 }
 ----
 
@@ -211,16 +216,19 @@ public class QLImportTester {
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                // open security strategy, which allows access to all Java classes within the application.
-                .securityStrategy(QLSecurityStrategy.open())
-                .build()
-        );
+            // open security strategy, which allows access to all Java classes within the application.
+            .securityStrategy(QLSecurityStrategy.open())
+            .build());
         // Import Java classes using the import statement.
         Map<String, Object> params = new HashMap<>();
         params.put("a", 1);
         params.put("b", 2);
-        Object result = express4Runner.execute("import com.alibaba.qlexpress4.QLImportTester;" +
-                "QLImportTester.add(a,b)", params, QLOptions.DEFAULT_OPTIONS).getResult();
+        Object result =
+            express4Runner
+                .execute("import com.alibaba.qlexpress4.QLImportTester;" + "QLImportTester.add(a,b)",
+                    params,
+                    QLOptions.DEFAULT_OPTIONS)
+                .getResult();
         Assert.assertEquals(3, result);
 ----
 
@@ -229,13 +237,13 @@ public class QLImportTester {
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .addDefaultImport(
-                        Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester"))
-                )
-                .securityStrategy(QLSecurityStrategy.open())
-                .build()
-        );
-        Object result = express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+            .addDefaultImport(
+                Collections.singletonList(ImportManager.importCls("com.alibaba.qlexpress4.QLImportTester")))
+            .securityStrategy(QLSecurityStrategy.open())
+            .build());
+        Object result =
+            express4Runner.execute("QLImportTester.add(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+                .getResult();
         Assert.assertEquals(3, result);
 ----
 
@@ -259,8 +267,7 @@ public class QLImportTester {
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // open cache switch
-        express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder()
-                .cache(true).build());
+        express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder().cache(true).build());
 ----
 
 但是当脚本首次执行时，因为没有缓存，依旧会比较慢。
@@ -283,11 +290,12 @@ public class QLImportTester {
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.execute("while (true) {\n" +
-                    "  1+1\n" +
-                    "}", Collections.emptyMap(), QLOptions.builder().timeoutMillis(10L).build());
+            express4Runner.execute("while (true) {\n" + "  1+1\n" + "}",
+                Collections.emptyMap(),
+                QLOptions.builder().timeoutMillis(10L).build());
             fail("should timeout");
-        } catch (QLTimeoutException e) {
+        }
+        catch (QLTimeoutException e) {
             assertEquals(QLErrorCodes.SCRIPT_TIME_OUT.name(), e.getErrorCode());
         }
 ----
@@ -309,27 +317,28 @@ public class QLImportTester {
             public Class<?>[] getParameterTypes() {
                 return new Class[0];
             }
-
+            
             @Override
             public String getName() {
                 return "hello";
             }
-
+            
             @Override
             public Class<?> getDeclaringClass() {
                 return String.class;
             }
-
+            
             @Override
-            public Object invoke(Object obj, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                String originStr = (String) obj;
+            public Object invoke(Object obj, Object[] args)
+                throws InvocationTargetException, IllegalAccessException {
+                String originStr = (String)obj;
                 return "Hello," + originStr;
             }
         };
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .addExtensionFunctions(Collections.singletonList(helloFunction))
-                .build());
-        Object result = express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        Express4Runner express4Runner = new Express4Runner(
+            InitOptions.builder().addExtensionFunctions(Collections.singletonList(helloFunction)).build());
+        Object result =
+            express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
 ----
 
@@ -349,25 +358,25 @@ import com.alibaba.qlexpress4.annotation.QLAlias;
 
 @QLAlias("用户")
 public class User {
-
+    
     @QLAlias("是vip")
     private boolean vip;
-
+    
     @QLAlias("用户名")
     private String name;
-
+    
     public boolean isVip() {
         return vip;
     }
-
+    
     public void setVip(boolean vip) {
         this.vip = vip;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
@@ -384,25 +393,25 @@ import com.alibaba.qlexpress4.annotation.QLAlias;
 
 @QLAlias("订单")
 public class Order {
-
+    
     @QLAlias("订单号")
     private String orderNum;
-
+    
     @QLAlias("金额")
     private int amount;
-
+    
     public String getOrderNum() {
         return orderNum;
     }
-
+    
     public void setOrderNum(String orderNum) {
         this.orderNum = orderNum;
     }
-
+    
     public int getAmount() {
         return amount;
     }
-
+    
     public void setAmount(int amount) {
         this.amount = amount;
     }
@@ -416,16 +425,17 @@ public class Order {
         Order order = new Order();
         order.setOrderNum("OR123455");
         order.setAmount(100);
-
+        
         User user = new User();
         user.setName("jack");
         user.setVip(true);
-
+        
         // Calculate the Final Order Amount
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
-                .securityStrategy(QLSecurityStrategy.open()).build());
-        Number result = (Number) express4Runner.executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额",
-                QLOptions.DEFAULT_OPTIONS, order, user).getResult();
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Number result = (Number)express4Runner
+            .executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额", QLOptions.DEFAULT_OPTIONS, order, user)
+            .getResult();
         assertEquals(80, result.intValue());
 ----
 
@@ -438,7 +448,7 @@ public class Order {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // add custom function zero
         express4Runner.addFunction("zero", (String ignore) -> 0);
-
+        
         // keyword alias
         assertTrue(express4Runner.addAlias("如果", "if"));
         assertTrue(express4Runner.addAlias("则", "then"));
@@ -448,16 +458,15 @@ public class Order {
         assertTrue(express4Runner.addAlias("大于", ">"));
         // function alias
         assertTrue(express4Runner.addAlias("零", "zero"));
-
+        
         Map<String, Object> context = new HashMap<>();
         context.put("语文", 90);
         context.put("数学", 90);
         context.put("英语", 90);
-
-        Object result = express4Runner.execute(
-                "如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}",
-                context, QLOptions.DEFAULT_OPTIONS
-        ).getResult();
+        
+        Object result = express4Runner
+            .execute("如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}", context, QLOptions.DEFAULT_OPTIONS)
+            .getResult();
         assertEquals(0, result);
 ----
 
@@ -516,7 +525,7 @@ assert(c == 3);
         Map<String, Object> context = Collections.singletonMap("name", "wuli");
         Object result = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("haha-wuli", result);
-
+        
         // replace macro
         express4Runner.addOrReplaceMacro("rename", "name='huhu-'+name");
         Object result1 = express4Runner.execute("rename", context, QLOptions.DEFAULT_OPTIONS).getResult();
@@ -552,28 +561,25 @@ assert(c == 3);
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-
+        
         Map<String, Object> staticContext = new HashMap<>();
         staticContext.put("语文", 88);
         staticContext.put("数学", 99);
         staticContext.put("英语", 95);
-
+        
         QLOptions defaultOptions = QLOptions.DEFAULT_OPTIONS;
-        DynamicVariableContext dynamicContext = new DynamicVariableContext(
-            express4Runner, staticContext, defaultOptions
-        );
+        DynamicVariableContext dynamicContext =
+            new DynamicVariableContext(express4Runner, staticContext, defaultOptions);
         dynamicContext.put("平均成绩", "(语文+数学+英语)/3.0");
         dynamicContext.put("是否优秀", "平均成绩>90");
-
+        
         // dynamic var
-        assertTrue((Boolean) express4Runner.execute("是否优秀", dynamicContext, defaultOptions).getResult());
-        assertEquals(94, ((Number) express4Runner.execute(
-            "平均成绩", dynamicContext, defaultOptions
-        ).getResult()).intValue());
+        assertTrue((Boolean)express4Runner.execute("是否优秀", dynamicContext, defaultOptions).getResult());
+        assertEquals(94,
+            ((Number)express4Runner.execute("平均成绩", dynamicContext, defaultOptions).getResult()).intValue());
         // static var
-        assertEquals(187, ((Number) express4Runner.execute(
-                "语文+数学", dynamicContext, defaultOptions
-        ).getResult()).intValue());
+        assertEquals(187,
+            ((Number)express4Runner.execute("语文+数学", dynamicContext, defaultOptions).getResult()).intValue());
 ----
 
 === 表达式计算跟踪
@@ -589,54 +595,46 @@ assert(c == 3);
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(true).build());
-        express4Runner.addFunction("myTest", (Predicate<Integer>) i -> i > 10);
-
+        express4Runner.addFunction("myTest", (Predicate<Integer>)i -> i > 10);
+        
         Map<String, Object> context = new HashMap<>();
         context.put("a", true);
-        QLResult result = express4Runner.execute("a && (!myTest(11) || false)", context,
-                QLOptions.builder().traceExpression(true).build());
-        Assert.assertFalse((Boolean) result.getResult());
-
+        QLResult result = express4Runner
+            .execute("a && (!myTest(11) || false)", context, QLOptions.builder().traceExpression(true).build());
+        Assert.assertFalse((Boolean)result.getResult());
+        
         List<ExpressionTrace> expressionTraces = result.getExpressionTraces();
         Assert.assertEquals(1, expressionTraces.size());
         ExpressionTrace expressionTrace = expressionTraces.get(0);
-        Assert.assertEquals("OPERATOR && false\n" +
-                "  | VARIABLE a true\n" +
-                "  | OPERATOR || false\n" +
-                "      | OPERATOR ! false\n" +
-                "          | FUNCTION myTest true\n" +
-                "              | VALUE 11 11\n" +
-                "      | VALUE false false\n", expressionTrace.toPrettyString(0));
-
+        Assert.assertEquals("OPERATOR && false\n" + "  | VARIABLE a true\n" + "  | OPERATOR || false\n"
+            + "      | OPERATOR ! false\n" + "          | FUNCTION myTest true\n" + "              | VALUE 11 11\n"
+            + "      | VALUE false false\n", expressionTrace.toPrettyString(0));
+        
         // short circuit
         context.put("a", false);
-        QLResult resultShortCircuit = express4Runner.execute("(a && true) && (!myTest(11) || false)", context,
-                QLOptions.builder().traceExpression(true).build());
-        Assert.assertFalse((Boolean) resultShortCircuit.getResult());
+        QLResult resultShortCircuit = express4Runner.execute("(a && true) && (!myTest(11) || false)",
+            context,
+            QLOptions.builder().traceExpression(true).build());
+        Assert.assertFalse((Boolean)resultShortCircuit.getResult());
         ExpressionTrace expressionTraceShortCircuit = resultShortCircuit.getExpressionTraces().get(0);
-        Assert.assertEquals("OPERATOR && false\n" +
-                "  | OPERATOR && false\n" +
-                "      | VARIABLE a false\n" +
-                "      | VALUE true \n" +
-                "  | OPERATOR || \n" +
-                "      | OPERATOR ! \n" +
-                "          | FUNCTION myTest \n" +
-                "              | VALUE 11 \n" +
-                "      | VALUE false \n", expressionTraceShortCircuit.toPrettyString(0));
+        Assert.assertEquals(
+            "OPERATOR && false\n" + "  | OPERATOR && false\n" + "      | VARIABLE a false\n" + "      | VALUE true \n"
+                + "  | OPERATOR || \n" + "      | OPERATOR ! \n" + "          | FUNCTION myTest \n"
+                + "              | VALUE 11 \n" + "      | VALUE false \n",
+            expressionTraceShortCircuit.toPrettyString(0));
         Assert.assertTrue(expressionTraceShortCircuit.getChildren().get(0).isEvaluated());
         Assert.assertFalse(expressionTraceShortCircuit.getChildren().get(1).isEvaluated());
-
+        
         // in
-        QLResult resultIn= express4Runner.execute("'ab' in ['cc', 'dd', 'ff']", context,
-                QLOptions.builder().traceExpression(true).build());
-        Assert.assertFalse((Boolean) resultIn.getResult());
+        QLResult resultIn = express4Runner
+            .execute("'ab' in ['cc', 'dd', 'ff']", context, QLOptions.builder().traceExpression(true).build());
+        Assert.assertFalse((Boolean)resultIn.getResult());
         ExpressionTrace expressionTraceIn = resultIn.getExpressionTraces().get(0);
-        Assert.assertEquals("OPERATOR in false\n" +
-                "  | VALUE 'ab' ab\n" +
-                "  | LIST [ [cc, dd, ff]\n" +
-                "      | VALUE 'cc' cc\n" +
-                "      | VALUE 'dd' dd\n" +
-                "      | VALUE 'ff' ff\n", expressionTraceIn.toPrettyString(0));
+        Assert
+            .assertEquals(
+                "OPERATOR in false\n" + "  | VALUE 'ab' ab\n" + "  | LIST [ [cc, dd, ff]\n" + "      | VALUE 'cc' cc\n"
+                    + "      | VALUE 'dd' dd\n" + "      | VALUE 'ff' ff\n",
+                expressionTraceIn.toPrettyString(0));
 ----
 
 > 注意，必须在新建 `Express4Runner` 时将 `InitOptions.traceExpression` 选项设置为 true，同时在执行脚本时将 `QLOptions.traceExpression` 设置为 true，该功能才能生效。
@@ -647,15 +645,9 @@ assert(c == 3);
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         TracePointTree tracePointTree = express4Runner.getExpressionTracePoints("1+3+5*ab+9").get(0);
-        Assert.assertEquals("OPERATOR +\n" +
-                "  | OPERATOR +\n" +
-                "      | OPERATOR +\n" +
-                "          | VALUE 1\n" +
-                "          | VALUE 3\n" +
-                "      | OPERATOR *\n" +
-                "          | VALUE 5\n" +
-                "          | VARIABLE ab\n" +
-                "  | VALUE 9\n", tracePointTree.toPrettyString(0));
+        Assert.assertEquals("OPERATOR +\n" + "  | OPERATOR +\n" + "      | OPERATOR +\n" + "          | VALUE 1\n"
+            + "          | VALUE 3\n" + "      | OPERATOR *\n" + "          | VALUE 5\n" + "          | VARIABLE ab\n"
+            + "  | VALUE 9\n", tracePointTree.toPrettyString(0));
 ----
 
 支持的表达式追踪点类型以及对应子节点的含义如下：
@@ -778,14 +770,15 @@ assert("m xx ${
 [source,java]
 ----
         Express4Runner express4RunnerDisable = new Express4Runner(
-                // disable string interpolation
-                InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
-        Assert.assertEquals("Hello,${ a + 1 }", express4RunnerDisable
-                .execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
-        Assert.assertEquals("Hello,${lll", express4RunnerDisable
-                .execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
-        Assert.assertEquals("Hello,aaa $ lll\"\n\b", express4RunnerDisable
-                .execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+            // disable string interpolation
+            InitOptions.builder().interpolationMode(InterpolationMode.DISABLE).build());
+        Assert.assertEquals("Hello,${ a + 1 }",
+            express4RunnerDisable.execute("\"Hello,${ a + 1 }\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,${lll",
+            express4RunnerDisable.execute("\"Hello,${lll\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Hello,aaa $ lll\"\n\b",
+            express4RunnerDisable.execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS)
+                .getResult());
 ----
 
 === 占位符
@@ -807,15 +800,12 @@ QLExpress 默认使用 `${placeholder}` 格式的占位符，其中：
 
 [source,java]
 ----
-        Express4Runner express4Runner = new Express4Runner(
-            InitOptions.builder()
-            .selectorStart("#[").selectorEnd("]")
-            .build()
-        );
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().selectorStart("#[").selectorEnd("]").build());
         
         Map<String, Object> context = new HashMap<>();
         context.put("0", "World");
-
+        
         QLResult result = express4Runner.execute("'Hello ' + #[0]", context, QLOptions.DEFAULT_OPTIONS);
         assertEquals("Hello World", result.getResult());
 ----
@@ -895,14 +885,16 @@ assert(1 + try {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // execute when enable short circuit (default)
         // `1/0` is short-circuited by the preceding `false`, so it won't throw an error.
-        assertFalse((Boolean) express4Runner.execute("false && (1/0)",
-                Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean)express4Runner.execute("false && (1/0)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+            .getResult());
         try {
             // execute when disable short circuit
             express4Runner.execute("false && (1/0)",
-                    Collections.emptyMap(), QLOptions.builder().shortCircuitDisable(true).build());
+                Collections.emptyMap(),
+                QLOptions.builder().shortCircuitDisable(true).build());
             fail();
-        } catch (QLException e) {
+        }
+        catch (QLException e) {
             Assert.assertEquals("INVALID_ARITHMETIC", e.getErrorCode());
             Assert.assertEquals("Division by zero", e.getReason());
         }
@@ -1066,13 +1058,34 @@ Function f1 = (a, b) -> a + b;
 assert(f1.apply("test-") == "test-null");
 ----
 
-== 附录一 QLExpress4性能提升
+== 附录一 如何贡献？
+
+QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。
+
+首先需要将代码 clone 到本地，在正式修改代码前，需要先进行如下准备：
+
+1. 项目根目录执行 `mvn compile`：项目刚刚下载到本地时，会有大量的类找不到，需要先生成 Antlr4 的运行时代码
+2. 配置代码格式化：QLExpress 项目有统一的代码格式规范，开发前需要配置在 git 提交前的自动格式化
+
+在项目目录下新建文件 `.git/hooks/pre-commit`，内容如下：
+
+[source,bash]
+----
+#!/bin/sh
+mvn spotless:apply -Pcheck
+git add -u
+exit 0
+----
+
+这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]]
+
+== 附录二 QLExpress4性能提升
 
 link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
 
 总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
 
-== 附录二 开发者联系方式
+== 附录三 开发者联系方式
 
  * Email:
  ** qinyuan.dqy@alibaba-inc.com
