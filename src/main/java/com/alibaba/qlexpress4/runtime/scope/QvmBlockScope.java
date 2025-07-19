@@ -30,9 +30,7 @@ public class QvmBlockScope implements QScope {
     public QvmBlockScope(QScope parent, Map<String, Value> symbolTable, FixedSizeStack reuseStack,
                          ExceptionTable exceptionTable) {
         this.parent = parent;
-        // TODO: fixedArrayMap
         this.symbolTable = symbolTable;
-        // TODO: fixedArrayMap
         this.functionTable = new HashMap<>();
         this.opStack = reuseStack;
         this.exceptionTable = exceptionTable;

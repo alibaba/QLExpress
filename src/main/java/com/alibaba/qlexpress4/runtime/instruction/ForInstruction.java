@@ -55,7 +55,6 @@ public class ForInstruction extends QLInstruction {
 
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
-        // TODO: The capacity of the map can be determined by the number of variables at compile time.
         QContext forScopeContext = needForScope()? new DelegateQContext(qContext,
                 new QvmBlockScope(qContext, new HashMap<>(1),
                         forScopeMaxStackSize, ExceptionTable.EMPTY)):
