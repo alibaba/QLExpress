@@ -19,20 +19,20 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class JumpIfInstruction extends QLInstruction {
-
+    
     private final boolean expect;
-
+    
     private int position;
-
+    
     private final Integer traceKey;
-
+    
     public JumpIfInstruction(ErrorReporter errorReporter, boolean expect, int position, Integer traceKey) {
         super(errorReporter);
         this.expect = expect;
         this.position = position;
         this.traceKey = traceKey;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         boolean conditionBool = conditionToBool(qContext.peek().get());
@@ -45,36 +45,37 @@ public class JumpIfInstruction extends QLInstruction {
                 expressionTrace.getChildren().get(0).valueEvaluated(conditionBool);
             }
             return new QResult(new DataValue(position), QResult.ResultType.JUMP);
-        } else {
+        }
+        else {
             return QResult.NEXT_INSTRUCTION;
         }
     }
-
+    
     private boolean conditionToBool(Object condition) {
         if (condition == null) {
             return !expect;
         }
         if (!(condition instanceof Boolean)) {
             throw errorReporter.report(QLErrorCodes.CONDITION_BOOL_REQUIRED.name(),
-                    QLErrorCodes.CONDITION_BOOL_REQUIRED.getErrorMsg());
+                QLErrorCodes.CONDITION_BOOL_REQUIRED.getErrorMsg());
         }
-        return (boolean) condition;
+        return (boolean)condition;
     }
-
+    
     @Override
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     public void setPosition(int position) {
         this.position = position;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIf " + expect + " " + position, debug);

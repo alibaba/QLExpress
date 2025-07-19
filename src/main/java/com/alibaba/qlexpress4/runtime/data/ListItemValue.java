@@ -8,31 +8,31 @@ import java.util.List;
  * Author: DQinYuan
  */
 public class ListItemValue implements LeftValue {
-
+    
     private final List<? super Object> list;
-
+    
     private final int index;
-
+    
     public ListItemValue(List<? super Object> list, int index) {
         this.list = list;
         this.index = index;
     }
-
+    
     @Override
     public void setInner(Object newValue) {
         list.set(index, newValue);
     }
-
+    
     @Override
     public String getSymbolName() {
         return null;
     }
-
+    
     @Override
     public Object get() {
         return list.get(index);
     }
-
+    
     @Override
     public Class<?> getDefinedType() {
         return Object.class;

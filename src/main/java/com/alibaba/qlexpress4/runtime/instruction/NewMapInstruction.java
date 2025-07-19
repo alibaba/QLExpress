@@ -21,14 +21,14 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class NewMapInstruction extends QLInstruction {
-
+    
     private final List<String> keys;
-
+    
     public NewMapInstruction(ErrorReporter errorReporter, List<String> keys) {
         super(errorReporter);
         this.keys = keys;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters initItems = qContext.pop(keys.size());
@@ -39,17 +39,17 @@ public class NewMapInstruction extends QLInstruction {
         qContext.push(new DataValue(m));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return keys.size();
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": NewMap by keys " + keys, debug);

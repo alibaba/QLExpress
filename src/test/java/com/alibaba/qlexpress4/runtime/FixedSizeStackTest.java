@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
  * Author: DQinYuan
  */
 public class FixedSizeStackTest {
-
+    
     @Test
     public void pushPopTest() {
         FixedSizeStack fixedSizeStack = new FixedSizeStack(4);
@@ -28,5 +28,5 @@ public class FixedSizeStackTest {
         // exceed size
         assertNull(parameters.get(3));
     }
-
+    
 }

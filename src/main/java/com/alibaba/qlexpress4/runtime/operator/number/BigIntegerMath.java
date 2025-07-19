@@ -23,91 +23,92 @@ package com.alibaba.qlexpress4.runtime.operator.number;
  * reference groovy source code
  */
 public final class BigIntegerMath extends NumberMath {
-
+    
     public static final BigIntegerMath INSTANCE = new BigIntegerMath();
-
-    private BigIntegerMath() {}
-
+    
+    private BigIntegerMath() {
+    }
+    
     @Override
     public Number absImpl(Number number) {
         return toBigInteger(number).abs();
     }
-
+    
     @Override
     public Number addImpl(Number left, Number right) {
         return toBigInteger(left).add(toBigInteger(right));
     }
-
+    
     @Override
     public Number subtractImpl(Number left, Number right) {
         return toBigInteger(left).subtract(toBigInteger(right));
     }
-
+    
     @Override
     public Number multiplyImpl(Number left, Number right) {
         return toBigInteger(left).multiply(toBigInteger(right));
     }
-
+    
     @Override
     public Number divideImpl(Number left, Number right) {
         return BigDecimalMath.INSTANCE.divideImpl(left, right);
     }
-
+    
     @Override
     public int compareToImpl(Number left, Number right) {
         return toBigInteger(left).compareTo(toBigInteger(right));
     }
-
+    
     @Override
     public Number intDivImpl(Number left, Number right) {
         return toBigInteger(left).divide(toBigInteger(right));
     }
-
+    
     @Override
     public Number modImpl(Number left, Number right) {
         return toBigInteger(left).mod(toBigInteger(right));
     }
-
+    
     @Override
     public Number remainderImpl(Number left, Number right) {
         return toBigInteger(left).remainder(toBigInteger(right));
     }
-
+    
     @Override
     public Number unaryMinusImpl(Number left) {
         return toBigInteger(left).negate();
     }
-
+    
     @Override
     public Number unaryPlusImpl(Number left) {
         return toBigInteger(left);
     }
-
+    
     @Override
     public Number bitwiseNegateImpl(Number left) {
         return toBigInteger(left).not();
     }
-
+    
     @Override
     public Number orImpl(Number left, Number right) {
         return toBigInteger(left).or(toBigInteger(right));
     }
-
+    
     @Override
     public Number andImpl(Number left, Number right) {
         return toBigInteger(left).and(toBigInteger(right));
     }
-
+    
     @Override
     public Number xorImpl(Number left, Number right) {
         return toBigInteger(left).xor(toBigInteger(right));
     }
-
+    
     @Override
     public Number leftShiftImpl(Number left, Number right) {
         return toBigInteger(left).shiftLeft(right.intValue());
     }
-
+    
     @Override
     public Number rightShiftImpl(Number left, Number right) {
         return toBigInteger(left).shiftRight(right.intValue());

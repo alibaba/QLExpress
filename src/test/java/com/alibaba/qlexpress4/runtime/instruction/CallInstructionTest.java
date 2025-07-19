@@ -18,15 +18,15 @@ public class CallInstructionTest {
      * getMethod1
      */
     @Test
-    public void case1(){
+    public void case1() {
         ErrorReporter errorReporter = new MockErrorReporter();
         GetMethodInstruction getMethodInstruction = new GetMethodInstruction(errorReporter, "getMethod1");
         MockQContextParent mockQContextParent = new MockQContextParent(true);
         mockQContextParent.push(new Child());
         getMethodInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof QLambda);
-        QLambda qLambda = (QLambda) mockQContextParent.getValue().get();
-
+        QLambda qLambda = (QLambda)mockQContextParent.getValue().get();
+        
         CallInstruction callInstruction = new CallInstruction(errorReporter, 2);
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(qLambda);
@@ -34,6 +34,6 @@ public class CallInstructionTest {
         parentParameters.push(2);
         mockQContextParent.setParameters(parentParameters);
         callInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals(mockQContextParent.getValue().get(),3);
+        Assert.assertEquals(mockQContextParent.getValue().get(), 3);
     }
 }

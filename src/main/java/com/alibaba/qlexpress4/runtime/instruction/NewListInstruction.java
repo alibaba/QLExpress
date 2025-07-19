@@ -20,14 +20,14 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class NewListInstruction extends QLInstruction {
-
+    
     private final int initLength;
-
+    
     public NewListInstruction(ErrorReporter errorReporter, int initLength) {
         super(errorReporter);
         this.initLength = initLength;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters initItems = qContext.pop(initLength);
@@ -38,17 +38,17 @@ public class NewListInstruction extends QLInstruction {
         qContext.push(new DataValue(l));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return initLength;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": NewList " + initLength, debug);

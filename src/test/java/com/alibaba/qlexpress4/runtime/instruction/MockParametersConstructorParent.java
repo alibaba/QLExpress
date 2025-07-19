@@ -10,14 +10,14 @@ import com.alibaba.qlexpress4.test.property.Parent;
 public class MockParametersConstructorParent implements Parameters {
     @Override
     public Value get(int i) {
-        if(i == 0){
-
+        if (i == 0) {
+            
         }
         Parent parent = new Parent();
         parent.setAge(35);
         return parent;
     }
-
+    
     @Override
     public int size() {
         return 0;

@@ -15,32 +15,32 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class UnequalOperator extends BaseBinaryOperator {
     private static final Map<String, UnequalOperator> INSTANCE_CACHE = new ConcurrentHashMap<>(2);
-
+    
     static {
         INSTANCE_CACHE.put("!=", new UnequalOperator("!="));
         INSTANCE_CACHE.put("<>", new UnequalOperator("<>"));
     }
-
+    
     private final String operator;
-
+    
     private UnequalOperator(String operator) {
         this.operator = operator;
     }
-
+    
     public static UnequalOperator getInstance(String operator) {
         return INSTANCE_CACHE.get(operator);
     }
-
+    
     @Override
     public String getOperator() {
         return operator;
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.EQUAL;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {

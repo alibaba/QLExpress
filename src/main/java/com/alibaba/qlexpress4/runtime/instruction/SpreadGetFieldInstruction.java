@@ -22,18 +22,18 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class SpreadGetFieldInstruction extends QLInstruction {
-
+    
     private static final String KEY = "key";
-
+    
     private static final String VALUE = "value";
-
+    
     private final String fieldName;
-
+    
     public SpreadGetFieldInstruction(ErrorReporter errorReporter, String fieldName) {
         super(errorReporter);
         this.fieldName = fieldName;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object traversable = qContext.pop().get();
@@ -43,10 +43,11 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                 return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.reportFormat(QLErrorCodes.NONTRAVERSABLE_OBJECT.name(),
-                    QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(), "null");
+                QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
+                "null");
         }
         if (traversable instanceof Iterable) {
-            Iterable<?> iterable = (Iterable<?>) traversable;
+            Iterable<?> iterable = (Iterable<?>)traversable;
             List<? super Object> result = new ArrayList<>();
             for (Object item : iterable) {
                 if (item == null) {
@@ -55,31 +56,38 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                         continue;
                     }
                     throw errorReporter.report(new NullPointerException(),
-                            QLErrorCodes.NULL_FIELD_ACCESS.name(), QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
+                        QLErrorCodes.NULL_FIELD_ACCESS.name(),
+                        QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
                 }
                 Value fieldValue = qContext.getReflectLoader().loadField(item, fieldName, false, errorReporter);
                 if (fieldValue == null) {
                     throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
-                            QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(), fieldName);
+                        QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(),
+                        fieldName);
                 }
                 result.add(fieldValue.get());
             }
             qContext.push(new DataValue(result));
-        } else if (traversable instanceof Map) {
-            Map<?, ?> lhm = (Map<?, ?>) traversable;
+        }
+        else if (traversable instanceof Map) {
+            Map<?, ?> lhm = (Map<?, ?>)traversable;
             List<? super Object> result = new ArrayList<>();
             for (Map.Entry<?, ?> entry : lhm.entrySet()) {
                 if (KEY.equals(fieldName)) {
                     result.add(entry.getKey());
-                } else if (VALUE.equals(fieldName)) {
+                }
+                else if (VALUE.equals(fieldName)) {
                     result.add(entry.getValue());
-                } else {
+                }
+                else {
                     throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
-                            QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(), fieldName);
+                        QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(),
+                        fieldName);
                 }
             }
             qContext.push(new DataValue(result));
-        } else if (traversable.getClass().isArray()) {
+        }
+        else if (traversable.getClass().isArray()) {
             int arrLen = Array.getLength(traversable);
             List<? super Object> result = new ArrayList<>();
             for (int i = 0; i < arrLen; i++) {
@@ -90,34 +98,37 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                         continue;
                     }
                     throw errorReporter.report(new NullPointerException(),
-                            QLErrorCodes.NULL_FIELD_ACCESS.name(), QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
+                        QLErrorCodes.NULL_FIELD_ACCESS.name(),
+                        QLErrorCodes.NULL_FIELD_ACCESS.getErrorMsg());
                 }
                 Value fieldValue = qContext.getReflectLoader().loadField(item, fieldName, false, errorReporter);
                 if (fieldValue == null) {
                     throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
-                            QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(), fieldName);
+                        QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(),
+                        fieldName);
                 }
                 result.add(fieldValue.get());
             }
             qContext.push(new DataValue(result));
-        } else {
+        }
+        else {
             throw errorReporter.reportFormat(QLErrorCodes.NONTRAVERSABLE_OBJECT.name(),
-                    QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
-                    traversable.getClass().getName());
+                QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
+                traversable.getClass().getName());
         }
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return 1;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": SpreadGetField " + fieldName, debug);

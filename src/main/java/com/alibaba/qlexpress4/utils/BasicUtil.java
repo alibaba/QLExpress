@@ -1,6 +1,5 @@
 package com.alibaba.qlexpress4.utils;
 
-
 import com.alibaba.qlexpress4.runtime.Parameters;
 
 import java.lang.reflect.*;
@@ -16,26 +15,27 @@ import static java.lang.Character.toUpperCase;
  */
 public class BasicUtil {
     public static final String LENGTH = "length";
+    
     public static final String CLASS = "class";
-
-    private static final Map<Class<?>,Class<?>> primitiveMap;
-
-    static{
+    
+    private static final Map<Class<?>, Class<?>> primitiveMap;
+    
+    static {
         primitiveMap = new HashMap<>(8);
-        primitiveMap.put(Boolean.class,boolean.class);
-        primitiveMap.put(Character.class,char.class);
-        primitiveMap.put(Double.class,double.class);
-        primitiveMap.put(Float.class,float.class);
-        primitiveMap.put(Integer.class,int.class);
-        primitiveMap.put(Long.class,long.class);
-        primitiveMap.put(Byte.class,byte.class);
-        primitiveMap.put(Short.class,short.class);
+        primitiveMap.put(Boolean.class, boolean.class);
+        primitiveMap.put(Character.class, char.class);
+        primitiveMap.put(Double.class, double.class);
+        primitiveMap.put(Float.class, float.class);
+        primitiveMap.put(Integer.class, int.class);
+        primitiveMap.put(Long.class, long.class);
+        primitiveMap.put(Byte.class, byte.class);
+        primitiveMap.put(Short.class, short.class);
     }
-
-    public static Class<?> transToPrimitive(Class<?> clazz){
+    
+    public static Class<?> transToPrimitive(Class<?> clazz) {
         return primitiveMap.get(clazz);
     }
-
+    
     public static Integer numberPromoteLevel(Class<?> numCls) {
         if (numCls == byte.class || numCls == Byte.class) {
             return 0;
@@ -63,39 +63,40 @@ public class BasicUtil {
         }
         return null;
     }
-
+    
     public static boolean isPublic(Member member) {
         return Modifier.isPublic(member.getModifiers());
     }
-
+    
     public static boolean isStatic(Member member) {
         return Modifier.isStatic(member.getModifiers());
     }
-
+    
     public static String getGetter(String s) {
         return "get" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
-
+    
     public static String getSetter(String s) {
         return "set" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
-
+    
     public static String getIsGetter(String s) {
         return "is" + toUpperCase(s.charAt(0)) + s.substring(1);
     }
-
+    
     public static Class<?>[] getTypeOfObject(Object[] objects) {
         Class<?>[] classes = new Class<?>[objects.length];
         for (int i = 0; i < objects.length; i++) {
             if (objects[i] == null) {
                 classes[i] = null;
-            } else {
+            }
+            else {
                 classes[i] = objects[i].getClass();
             }
         }
         return classes;
     }
-
+    
     public static Object[] argumentsArr(Parameters parameters) {
         Object[] arr = new Object[parameters.size()];
         for (int i = 0; i < arr.length; i++) {

@@ -66,9 +66,11 @@ import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
  */
 public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     private static final Map<String, BinaryOperator> DEFAULT_BINARY_OPERATOR_MAP = new ConcurrentHashMap<>(64);
+    
     private static final Map<String, UnaryOperator> DEFAULT_PREFIX_UNARY_OPERATOR_MAP = new ConcurrentHashMap<>(8);
+    
     private static final Map<String, UnaryOperator> DEFAULT_SUFFIX_UNARY_OPERATOR_MAP = new ConcurrentHashMap<>(8);
-
+    
     static {
         List<BinaryOperator> binaryOperatorList = new ArrayList<>(64);
         binaryOperatorList.add(AssignOperator.getInstance());
@@ -115,7 +117,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
-
+        
         List<UnaryOperator> prefixUnaryOperatorList = new ArrayList<>(8);
         prefixUnaryOperatorList.add(PlusUnaryOperator.getInstance());
         prefixUnaryOperatorList.add(MinusUnaryOperator.getInstance());
@@ -126,7 +128,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         for (UnaryOperator unaryOperator : prefixUnaryOperatorList) {
             DEFAULT_PREFIX_UNARY_OPERATOR_MAP.put(unaryOperator.getOperator(), unaryOperator);
         }
-
+        
         List<UnaryOperator> suffixUnaryOperatorList = new ArrayList<>(8);
         suffixUnaryOperatorList.add(PlusPlusSuffixUnaryOperator.getInstance());
         suffixUnaryOperatorList.add(MinusMinusSuffixUnaryOperator.getInstance());
@@ -134,9 +136,9 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
             DEFAULT_SUFFIX_UNARY_OPERATOR_MAP.put(unaryOperator.getOperator(), unaryOperator);
         }
     }
-
+    
     private static final Map<String, Integer> ALIASABLE_KEYWORDS = new HashMap<>();
-
+    
     static {
         ALIASABLE_KEYWORDS.put("if", QLexer.IF);
         ALIASABLE_KEYWORDS.put("then", QLexer.THEN);
@@ -153,11 +155,11 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         ALIASABLE_KEYWORDS.put("true", QLexer.TRUE);
         ALIASABLE_KEYWORDS.put("false", QLexer.FALSE);
     }
-
+    
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();
-
+    
     private final Map<String, Integer> keyWordAliases = new ConcurrentHashMap<>();
-
+    
     /**
      * @param operatorName
      * @param customBinaryOperator
@@ -169,49 +171,51 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
             return false;
         }
         BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
-            adapt2BinOp(operatorName, customBinaryOperator, priority)
-        );
+            adapt2BinOp(operatorName, customBinaryOperator, priority));
         return preBinaryOperator == null;
     }
-
+    
     public boolean replaceDefaultOperator(String operatorName, CustomBinaryOperator customBinaryOperator) {
         BinaryOperator defaultOperator = DEFAULT_BINARY_OPERATOR_MAP.get(operatorName);
         if (defaultOperator == null) {
             return false;
         }
         BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
-            adapt2BinOp(operatorName, customBinaryOperator, defaultOperator.getPriority())
-        );
+            adapt2BinOp(operatorName, customBinaryOperator, defaultOperator.getPriority()));
         return preBinaryOperator == null;
     }
-
+    
     private BinaryOperator adapt2BinOp(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
         return new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, QRuntime qRuntime,
-                QLOptions qlOptions, ErrorReporter errorReporter) {
+            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+                ErrorReporter errorReporter) {
                 try {
                     return customBinaryOperator.execute(left, right);
-                } catch (UserDefineException e) {
+                }
+                catch (UserDefineException e) {
                     throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-                } catch (Throwable t) {
-                    throw ThrowUtils.wrapThrowable(t, errorReporter, "OPERATOR_INNER_EXCEPTION",
+                }
+                catch (Throwable t) {
+                    throw ThrowUtils.wrapThrowable(t,
+                        errorReporter,
+                        "OPERATOR_INNER_EXCEPTION",
                         "custom operator '" + operatorName + "' inner exception");
                 }
             }
-
+            
             @Override
             public String getOperator() {
                 return operatorName;
             }
-
+            
             @Override
             public int getPriority() {
                 return priority;
             }
         };
     }
-
+    
     /**
      * @param operatorLexeme like +, =, *, /
      * @return binary operator
@@ -221,10 +225,10 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         if (customBinaryOperator != null) {
             return customBinaryOperator;
         }
-
+        
         return DEFAULT_BINARY_OPERATOR_MAP.get(operatorLexeme);
     }
-
+    
     /**
      * like --1 ++1 !true ~1 ^1
      *
@@ -234,7 +238,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     public UnaryOperator getPrefixUnaryOperator(String operatorLexeme) {
         return DEFAULT_PREFIX_UNARY_OPERATOR_MAP.get(operatorLexeme);
     }
-
+    
     /**
      * like 1-- 1++
      *
@@ -244,7 +248,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     public UnaryOperator getSuffixUnaryOperator(String operatorLexeme) {
         return DEFAULT_SUFFIX_UNARY_OPERATOR_MAP.get(operatorLexeme);
     }
-
+    
     @Override
     public boolean isOpType(String lexeme, OpType opType) {
         switch (opType) {
@@ -257,17 +261,17 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         }
         return false;
     }
-
+    
     @Override
     public Integer precedence(String lexeme) {
         return getBinaryOperator(lexeme).getPriority();
     }
-
+    
     @Override
     public Integer getAlias(String lexeme) {
         return keyWordAliases.get(lexeme);
     }
-
+    
     public boolean addKeyWordAlias(String lexeme, String keyWord) {
         Integer keyWordId = ALIASABLE_KEYWORDS.get(keyWord);
         if (keyWordId == null) {
@@ -276,7 +280,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         keyWordAliases.put(lexeme, keyWordId);
         return true;
     }
-
+    
     public boolean addOperatorAlias(String lexeme, String operator) {
         BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
         if (originDefaultOp != null) {
@@ -292,19 +296,20 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         }
         return false;
     }
-
+    
     private BinaryOperator adaptOriginOperator(BinaryOperator originOperator, String lexeme) {
         return new BinaryOperator() {
             @Override
-            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+            public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+                ErrorReporter errorReporter) {
                 return originOperator.execute(left, right, qRuntime, qlOptions, errorReporter);
             }
-
+            
             @Override
             public String getOperator() {
                 return lexeme;
             }
-
+            
             @Override
             public int getPriority() {
                 return originOperator.getPriority();

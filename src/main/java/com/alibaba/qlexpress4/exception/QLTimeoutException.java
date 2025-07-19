@@ -6,6 +6,7 @@ public class QLTimeoutException extends QLRuntimeException {
     protected QLTimeoutException(Object catchObj, String reason, String errorCode) {
         super(catchObj, reason, errorCode);
     }
+    
     protected QLTimeoutException(Object catchObj, String message, Diagnostic diagnostic) {
         super(catchObj, message, diagnostic);
     }

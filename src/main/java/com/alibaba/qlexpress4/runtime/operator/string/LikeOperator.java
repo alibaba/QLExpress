@@ -13,21 +13,22 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class LikeOperator extends BaseBinaryOperator {
     private static final LikeOperator INSTANCE = new LikeOperator();
-
+    
     public static BinaryOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
-    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions, ErrorReporter errorReporter) {
+    public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+        ErrorReporter errorReporter) {
         return like(left, right, errorReporter);
     }
-
+    
     @Override
     public String getOperator() {
         return "like";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.IN_LIKE;

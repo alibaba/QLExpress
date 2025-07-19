@@ -7,22 +7,24 @@ import com.alibaba.qlexpress4.runtime.Value;
  */
 public class Child1 extends Parent implements Value {
     private final long result;
-    public Child1(){
+    
+    public Child1() {
         this.result = 0L;
     }
-    public Child1(boolean t){
+    
+    public Child1(boolean t) {
         this.result = 0L;
     }
-
-    public Child1(long a, int b){
-        this.result = a+b+1;
+    
+    public Child1(long a, int b) {
+        this.result = a + b + 1;
     }
-
-    public boolean getMethod3(boolean t){
+    
+    public boolean getMethod3(boolean t) {
         return t;
     }
-
-    public int getMethod4(Object s,boolean t){
+    
+    public int getMethod4(Object s, boolean t) {
         return 2;
     }
 }

@@ -10,7 +10,7 @@ public interface Operator {
      * @return 操作符
      */
     String getOperator();
-
+    
     /**
      * @return 操作符优先级
      */

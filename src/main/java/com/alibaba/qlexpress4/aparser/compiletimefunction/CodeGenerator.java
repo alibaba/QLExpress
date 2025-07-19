@@ -15,17 +15,17 @@ import java.util.List;
  * Author: DQinYuan
  */
 public interface CodeGenerator {
-
+    
     void addInstruction(QLInstruction qlInstruction);
-
+    
     void addInstructionsByTree(ParseTree tree);
-
+    
     QLSyntaxException reportParseErr(String errCode, String errReason);
-
+    
     QLambdaDefinition generateLambdaDefinition(QLParser.ExpressionContext expressionContext,
-                                               List<QLambdaDefinitionInner.Param> params);
-
+        List<QLambdaDefinitionInner.Param> params);
+    
     ErrorReporter getErrorReporter();
-
+    
     ErrorReporter newReporterWithToken(Token token);
 }

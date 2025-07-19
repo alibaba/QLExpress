@@ -18,14 +18,14 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class GetMethodInstruction extends QLInstruction {
-
+    
     private final String methodName;
-
+    
     public GetMethodInstruction(ErrorReporter errorReporter, String methodName) {
         super(errorReporter);
         this.methodName = methodName;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object bean = qContext.pop().get();
@@ -34,27 +34,28 @@ public class GetMethodInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw this.errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
-                    QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
+            throw this.errorReporter.report(new NullPointerException(),
+                QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
         }
         ReflectLoader reflectLoader = qContext.getReflectLoader();
         qContext.push(new DataValue(new QLambdaMethod(methodName, reflectLoader, bean)));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return 1;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": GetMethod " + methodName, debug);
     }
-
+    
 }

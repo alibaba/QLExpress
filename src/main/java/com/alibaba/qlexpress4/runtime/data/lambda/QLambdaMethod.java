@@ -17,25 +17,29 @@ import java.util.Arrays;
  * Author: TaoKan
  */
 public class QLambdaMethod implements QLambda {
-
+    
     private final String methodName;
+    
     private final ReflectLoader reflectLoader;
+    
     private final Object bean;
-
+    
     public QLambdaMethod(String methodName, ReflectLoader reflectLoader, Object obj) {
         this.methodName = methodName;
         this.reflectLoader = reflectLoader;
         this.bean = obj;
     }
-
+    
     @Override
-    public QResult call(Object... params) throws Exception {
+    public QResult call(Object... params)
+        throws Exception {
         if (bean instanceof MetaClass) {
             Class<?>[] type = BasicUtil.getTypeOfObject(params);
             IMethod method = reflectLoader.loadMethod(bean, methodName, type);
             if (method != null) {
                 // static method
-                Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
+                Object[] convertResult =
+                    ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
                 Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
                 return new QResult(new DataValue(value), QResult.ResultType.RETURN);
             }
@@ -52,21 +56,24 @@ public class QLambdaMethod implements QLambda {
             }
             Object paramBean = params[0];
             Object[] restParams = Arrays.copyOfRange(params, 1, params.length);
-            Object[] convertResult = ParametersTypeConvertor.cast(restParams, method.getParameterTypes(), method.isVarArgs());
+            Object[] convertResult =
+                ParametersTypeConvertor.cast(restParams, method.getParameterTypes(), method.isVarArgs());
             Object value = MethodHandler.Access.accessMethodValue(method, paramBean, convertResult);
             return new QResult(new DataValue(value), QResult.ResultType.RETURN);
-        } else {
+        }
+        else {
             Class<?>[] type = BasicUtil.getTypeOfObject(params);
             IMethod method = reflectLoader.loadMethod(bean, methodName, type);
             if (method == null) {
                 throw createMethodNotFoundException(type);
             }
-            Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
+            Object[] convertResult =
+                ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
             Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
             return new QResult(new DataValue(value), QResult.ResultType.RETURN);
         }
     }
-
+    
     /**
      * Create method not found exception
      * @param type parameter type array
@@ -74,6 +81,6 @@ public class QLambdaMethod implements QLambda {
      */
     private UserDefineException createMethodNotFoundException(Class<?>[] type) {
         return new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
-                "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));
+            "method reference '" + methodName + "' not found for argument types " + Arrays.toString(type));
     }
 }

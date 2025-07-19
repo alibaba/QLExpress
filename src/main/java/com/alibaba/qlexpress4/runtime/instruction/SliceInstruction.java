@@ -23,18 +23,18 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class SliceInstruction extends QLInstruction {
-
+    
     public enum Mode {
         LEFT, RIGHT, BOTH, COPY
     }
-
+    
     private final Mode mode;
-
+    
     public SliceInstruction(ErrorReporter errorReporter, Mode mode) {
         super(errorReporter);
         this.mode = mode;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         int startInt = 0;
@@ -44,65 +44,98 @@ public class SliceInstruction extends QLInstruction {
             Object end = qContext.pop().get();
             Object start = qContext.pop().get();
             indexAble = qContext.pop().get();
-            startInt = ValueUtils.assertType(start, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter).intValue();
-            endInt = ValueUtils.assertType(end, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter).intValue();
-        } else if (mode == Mode.LEFT) {
+            startInt =
+                ValueUtils
+                    .assertType(start,
+                        Number.class,
+                        QLErrorCodes.INVALID_INDEX.name(),
+                        QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                        errorReporter)
+                    .intValue();
+            endInt =
+                ValueUtils
+                    .assertType(end,
+                        Number.class,
+                        QLErrorCodes.INVALID_INDEX.name(),
+                        QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                        errorReporter)
+                    .intValue();
+        }
+        else if (mode == Mode.LEFT) {
             Object end = qContext.pop().get();
             indexAble = qContext.pop().get();
-            endInt = ValueUtils.assertType(end, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter).intValue();
-        } else if (mode == Mode.RIGHT) {
+            endInt =
+                ValueUtils
+                    .assertType(end,
+                        Number.class,
+                        QLErrorCodes.INVALID_INDEX.name(),
+                        QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                        errorReporter)
+                    .intValue();
+        }
+        else if (mode == Mode.RIGHT) {
             Object start = qContext.pop().get();
             indexAble = qContext.pop().get();
-            startInt = ValueUtils.assertType(start, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter).intValue();
+            startInt =
+                ValueUtils
+                    .assertType(start,
+                        Number.class,
+                        QLErrorCodes.INVALID_INDEX.name(),
+                        QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                        errorReporter)
+                    .intValue();
             endInt = indexAbleLen(indexAble);
-        } else if (mode == Mode.COPY) {
+        }
+        else if (mode == Mode.COPY) {
             indexAble = qContext.pop().get();
             endInt = indexAbleLen(indexAble);
         }
-
+        
         if (indexAble instanceof List) {
-            List<?> result = listSlice((List<?>) indexAble, startInt, endInt);
+            List<?> result = listSlice((List<?>)indexAble, startInt, endInt);
             qContext.push(new DataValue(result));
             return QResult.NEXT_INSTRUCTION;
-        } else if (indexAble != null && indexAble.getClass().isArray()) {
+        }
+        else if (indexAble != null && indexAble.getClass().isArray()) {
             Object result = arraySlice(indexAble, startInt, endInt);
             qContext.push(new DataValue(result));
             return QResult.NEXT_INSTRUCTION;
-        } else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+        }
+        else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
             qContext.push(Value.NULL_VALUE);
             return QResult.NEXT_INSTRUCTION;
-        } else {
+        }
+        else {
             throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(),
-                    QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
-                    indexAble == null? "null": indexAble.getClass().getName());
+                QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
+                indexAble == null ? "null" : indexAble.getClass().getName());
         }
     }
-
+    
     private int indexAbleLen(Object indexAble) {
         if (indexAble instanceof List) {
-            return ((List<?>) indexAble).size();
-        } else if (indexAble != null && indexAble.getClass().isArray()) {
+            return ((List<?>)indexAble).size();
+        }
+        else if (indexAble != null && indexAble.getClass().isArray()) {
             return Array.getLength(indexAble);
-        } else {
-            throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(), QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
-                    indexAble == null? "null": indexAble.getClass().getName());
+        }
+        else {
+            throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(),
+                QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
+                indexAble == null ? "null" : indexAble.getClass().getName());
         }
     }
-
+    
     private List<?> listSlice(List<?> listObj, int originStart, int originEnd) {
         int start = Math.max(ValueUtils.javaIndex(listObj.size(), originStart), 0);
         int end = Math.min(ValueUtils.javaIndex(listObj.size(), originEnd), listObj.size());
         if (start >= end) {
             return new ArrayList<>(0);
         }
-
+        
         return listObj.subList(start, end);
     }
-
+    
     private Object arraySlice(Object arrObj, int originStart, int originEnd) {
         int arrLen = Array.getLength(arrObj);
         int start = Math.max(ValueUtils.javaIndex(arrLen, originStart), 0);
@@ -110,30 +143,32 @@ public class SliceInstruction extends QLInstruction {
         if (start >= end) {
             return Array.newInstance(arrObj.getClass().getComponentType(), 0);
         }
-
+        
         Object newArr = Array.newInstance(arrObj.getClass().getComponentType(), end - start);
         for (int i = start; i < end; i++) {
             Array.set(newArr, i - start, Array.get(arrObj, i));
         }
         return newArr;
     }
-
+    
     @Override
     public int stackInput() {
         if (mode == Mode.BOTH) {
             return 2;
-        } else if (mode == Mode.COPY) {
+        }
+        else if (mode == Mode.COPY) {
             return 0;
-        } else {
+        }
+        else {
             return 1;
         }
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Slice", debug);

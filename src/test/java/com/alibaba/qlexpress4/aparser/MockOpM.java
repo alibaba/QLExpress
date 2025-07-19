@@ -37,7 +37,7 @@ public class MockOpM implements ParserOperatorManager {
                     case "+":
                     case "~":
                         return true;
-
+                    
                 }
                 return false;
             case SUFFIX:
@@ -50,7 +50,7 @@ public class MockOpM implements ParserOperatorManager {
                 return false;
         }
     }
-
+    
     @Override
     public Integer precedence(String lexeme) {
         switch (lexeme) {
@@ -87,10 +87,10 @@ public class MockOpM implements ParserOperatorManager {
                 throw new IllegalStateException("unknown op");
         }
     }
-
+    
     @Override
     public Integer getAlias(String lexeme) {
         return null;
     }
-
+    
 }

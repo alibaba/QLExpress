@@ -18,14 +18,14 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class StringJoinInstruction extends QLInstruction {
-
+    
     private final int n;
-
+    
     public StringJoinInstruction(ErrorReporter errorReporter, int n) {
         super(errorReporter);
         this.n = n;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters arguments = qContext.pop(n);
@@ -36,21 +36,21 @@ public class StringJoinInstruction extends QLInstruction {
         qContext.push(new DataValue(sb.toString()));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     public int getN() {
         return n;
     }
-
+    
     @Override
     public int stackInput() {
         return n;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": StringJoin " + n, debug);

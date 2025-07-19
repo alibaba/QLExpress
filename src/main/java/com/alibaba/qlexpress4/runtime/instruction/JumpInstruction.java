@@ -17,35 +17,35 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class JumpInstruction extends QLInstruction {
-
+    
     public static final JumpInstruction INSTANCE = new JumpInstruction(null, -1);
-
+    
     private int position;
-
+    
     public JumpInstruction(ErrorReporter errorReporter, int position) {
         super(errorReporter);
         this.position = position;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         return new QResult(new DataValue(position), QResult.ResultType.JUMP);
     }
-
+    
     @Override
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     public void setPosition(int position) {
         this.position = position;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Jump " + position, debug);

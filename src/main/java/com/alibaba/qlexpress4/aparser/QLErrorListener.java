@@ -10,34 +10,33 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 
 public class QLErrorListener extends BaseErrorListener {
-
+    
     private final String script;
-
+    
     public QLErrorListener(String script) {
         this.script = script;
     }
-
+    
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer,
-                            Object offendingSymbol,
-                            int line,
-                            int charPositionInLine,
-                            String msg,
-                            RecognitionException e)
-    {
-        Token currentToken = (Token) offendingSymbol;
-        String tokenText = currentToken.getType() == Token.EOF? "<EOF>": currentToken.getText();
-        String preHandledScript = currentToken.getType() == Token.EOF? script + "<EOF>": script;
-        String preHandledMsg = errMsg(((Parser) recognizer).getContext(), currentToken, msg);
-
-        throw QLException.reportScannerErr(preHandledScript, currentToken.getStartIndex(),
-                currentToken.getLine(), currentToken.getCharPositionInLine(),
-                tokenText, QLErrorCodes.SYNTAX_ERROR.name(), preHandledMsg);
+    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
+        String msg, RecognitionException e) {
+        Token currentToken = (Token)offendingSymbol;
+        String tokenText = currentToken.getType() == Token.EOF ? "<EOF>" : currentToken.getText();
+        String preHandledScript = currentToken.getType() == Token.EOF ? script + "<EOF>" : script;
+        String preHandledMsg = errMsg(((Parser)recognizer).getContext(), currentToken, msg);
+        
+        throw QLException.reportScannerErr(preHandledScript,
+            currentToken.getStartIndex(),
+            currentToken.getLine(),
+            currentToken.getCharPositionInLine(),
+            tokenText,
+            QLErrorCodes.SYNTAX_ERROR.name(),
+            preHandledMsg);
     }
-
+    
     private String errMsg(ParserRuleContext ruleContext, Token currentToken, String msg) {
         if ("'".equals(currentToken.getText()) || "\"".equals(currentToken.getText())
-                || ruleContext.getRuleIndex() == QLParser.RULE_doubleQuoteStringLiteral) {
+            || ruleContext.getRuleIndex() == QLParser.RULE_doubleQuoteStringLiteral) {
             return "unterminated string literal";
         }
         if ("import".equals(currentToken.getText())) {

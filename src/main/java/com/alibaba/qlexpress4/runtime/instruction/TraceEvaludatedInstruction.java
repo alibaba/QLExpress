@@ -17,14 +17,14 @@ import com.alibaba.qlexpress4.utils.PrintlnUtils;
  * Author: DQinYuan
  */
 public class TraceEvaludatedInstruction extends QLInstruction {
-
+    
     private final Integer traceKey;
-
+    
     public TraceEvaludatedInstruction(ErrorReporter errorReporter, Integer traceKey) {
         super(errorReporter);
         this.traceKey = traceKey;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
@@ -38,12 +38,12 @@ public class TraceEvaludatedInstruction extends QLInstruction {
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": TraceEvaludated " + traceKey, debug);

@@ -20,23 +20,23 @@ public class ThrowInstruction extends QLInstruction {
     public ThrowInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object throwObj = qContext.pop().get();
         throw errorReporter.report(throwObj, QLErrorCodes.QL_THROW.name(), QLErrorCodes.QL_THROW.getErrorMsg());
     }
-
+    
     @Override
     public int stackInput() {
         return 1;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Throw", debug);

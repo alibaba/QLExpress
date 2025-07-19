@@ -9,20 +9,20 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
  * Author: DQinYuan
  */
 public class ValueUtils {
-
+    
     public static Value toImmutable(Value origin) {
-        return origin instanceof LeftValue? new DataValue(origin): origin;
+        return origin instanceof LeftValue ? new DataValue(origin) : origin;
     }
-
-    public static <T> T assertType(Object obj, Class<T> assertType, String errCode,
-                             String errMsg, ErrorReporter errorReporter) {
+    
+    public static <T> T assertType(Object obj, Class<T> assertType, String errCode, String errMsg,
+        ErrorReporter errorReporter) {
         if (obj != null && assertType.isAssignableFrom(obj.getClass())) {
             return assertType.cast(obj);
         }
         throw errorReporter.report(errCode, errMsg);
     }
-
+    
     public static int javaIndex(int length, int qlIndex) {
-        return qlIndex < 0? length + qlIndex: qlIndex;
+        return qlIndex < 0 ? length + qlIndex : qlIndex;
     }
 }

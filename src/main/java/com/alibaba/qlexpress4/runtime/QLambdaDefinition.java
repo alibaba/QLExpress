@@ -8,11 +8,10 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public interface QLambdaDefinition {
-
-    QLambda toLambda(QContext qContext, QLOptions qlOptions,
-                            boolean newEnv);
-
+    
+    QLambda toLambda(QContext qContext, QLOptions qlOptions, boolean newEnv);
+    
     void println(int depth, Consumer<String> debug);
-
+    
     String getName();
 }

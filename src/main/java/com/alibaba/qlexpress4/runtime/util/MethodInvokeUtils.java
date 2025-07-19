@@ -18,10 +18,9 @@ import java.util.Map;
  * Author: DQinYuan
  */
 public class MethodInvokeUtils {
-
-    public static Value findMethodAndInvoke(Object bean, String methodName,
-                                            Object[] params, Class<?>[] type,
-                                            ReflectLoader reflectLoader, ErrorReporter errorReporter) {
+    
+    public static Value findMethodAndInvoke(Object bean, String methodName, Object[] params, Class<?>[] type,
+        ReflectLoader reflectLoader, ErrorReporter errorReporter) {
         IMethod method = reflectLoader.loadMethod(bean, methodName, type);
         if (method == null) {
             QLambda qLambdaInnerMethod = findQLambdaInstance(bean, methodName);
@@ -29,40 +28,45 @@ public class MethodInvokeUtils {
                 try {
                     QResult qResult = qLambdaInnerMethod.call(params);
                     return ValueUtils.toImmutable(qResult.getResult());
-                } catch (UserDefineException e) {
-                    throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-                } catch (Throwable t) {
-                    throw ThrowUtils.wrapThrowable(t, errorReporter,
-                            QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
-                            QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg()
-                    );
                 }
-            } else {
-                throw errorReporter.report(QLErrorCodes.METHOD_NOT_FOUND.name(),
-                        String.format(QLErrorCodes.METHOD_NOT_FOUND.getErrorMsg(), methodName)
-                );
+                catch (UserDefineException e) {
+                    throw ThrowUtils.reportUserDefinedException(errorReporter, e);
+                }
+                catch (Throwable t) {
+                    throw ThrowUtils.wrapThrowable(t,
+                        errorReporter,
+                        QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
+                        QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg());
+                }
             }
-        } else {
+            else {
+                throw errorReporter.report(QLErrorCodes.METHOD_NOT_FOUND.name(),
+                    String.format(QLErrorCodes.METHOD_NOT_FOUND.getErrorMsg(), methodName));
+            }
+        }
+        else {
             // method invoke
-            Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
+            Object[] convertResult =
+                ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
             try {
                 Object value = MethodHandler.Access.accessMethodValue(method, bean, convertResult);
                 return new DataValue(value);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw ReflectLoader.unwrapMethodInvokeEx(errorReporter, methodName, e);
             }
         }
     }
-
+    
     private static QLambda findQLambdaInstance(Object bean, String methodName) {
         if (bean instanceof Map) {
-            Map map = (Map) bean;
+            Map map = (Map)bean;
             Object mapValue = map.get(methodName);
             if (mapValue instanceof QLambda) {
-                return (QLambda) mapValue;
+                return (QLambda)mapValue;
             }
         }
         return null;
     }
-
+    
 }

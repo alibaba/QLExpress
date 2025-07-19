@@ -16,37 +16,37 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class DefineFunctionInstruction extends QLInstruction {
-
+    
     private final String name;
-
+    
     private final QLambdaDefinition lambdaDefinition;
-
+    
     public DefineFunctionInstruction(ErrorReporter errorReporter, String name, QLambdaDefinition lambdaDefinition) {
         super(errorReporter);
         this.name = name;
         this.lambdaDefinition = lambdaDefinition;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         QLambda lambda = lambdaDefinition.toLambda(qContext, qlOptions, true);
         qContext.defineFunction(name, new QLambdaFunction(lambda));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": DefineFunction " + name, debug);
-        lambdaDefinition.println(depth+1, debug);
+        lambdaDefinition.println(depth + 1, debug);
     }
 }

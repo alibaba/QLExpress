@@ -20,17 +20,18 @@ public class NewInstanceInstructionTest {
         newInstructionForParent0.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Object s = mockQContextParent.getValue().get();
         Assert.assertTrue(s instanceof Parent);
-
-        NewInstanceInstruction newInstructionForParentWithAge = new NewInstanceInstruction(errorReporter, Parent.class, 1);
+        
+        NewInstanceInstruction newInstructionForParentWithAge =
+            new NewInstanceInstruction(errorReporter, Parent.class, 1);
         MockQContextParent mockQContextParent1 = new MockQContextParent(false);
         ParentParameters parentParameters = new ParentParameters();
         parentParameters.push(6);
         mockQContextParent1.pushParameter(parentParameters);
         newInstructionForParentWithAge.execute(mockQContextParent1, QLOptions.DEFAULT_OPTIONS);
         Object result = mockQContextParent1.getValue().get();
-        Assert.assertTrue(result instanceof Parent && ((Parent) result).getAge() == 6);
+        Assert.assertTrue(result instanceof Parent && ((Parent)result).getAge() == 6);
     }
-
+    
     @Test
     public void constructorNotFoundTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -43,11 +44,12 @@ public class NewInstanceInstructionTest {
         try {
             newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
             Assert.fail();
-        } catch (QLRuntimeException e) {
+        }
+        catch (QLRuntimeException e) {
             Assert.assertEquals("NO_SUITABLE_CONSTRUCTOR", e.getErrorCode());
         }
     }
-
+    
     @Test
     public void constructorConvertMatchTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -60,7 +62,7 @@ public class NewInstanceInstructionTest {
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child1);
     }
-
+    
     @Test
     public void constructorConvertAssignedMatch() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -72,19 +74,19 @@ public class NewInstanceInstructionTest {
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child3);
     }
-
+    
     @Test
     public void arrayParamTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
         NewInstanceInstruction newInstruction = new NewInstanceInstruction(errorReporter, Child3.class, 1);
         MockQContextParent mockQContextParent = new MockQContextParent(false);
         ParentParameters parentParameters = new ParentParameters();
-        parentParameters.push(new Integer[]{5,6});
+        parentParameters.push(new Integer[] {5, 6});
         mockQContextParent.pushParameter(parentParameters);
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child3);
     }
-
+    
     @Test
     public void primitiveParamTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -96,7 +98,7 @@ public class NewInstanceInstructionTest {
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child4);
     }
-
+    
     @Test
     public void primitiveImplicitTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -108,7 +110,7 @@ public class NewInstanceInstructionTest {
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child5);
     }
-
+    
     @Test
     public void bigIntegerImplicitTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -120,7 +122,7 @@ public class NewInstanceInstructionTest {
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
         Assert.assertTrue(mockQContextParent.getValue().get() instanceof Child6);
     }
-
+    
     @Test
     public void numberConstructorMatchTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
@@ -130,10 +132,10 @@ public class NewInstanceInstructionTest {
         parentParameters.push(5.0);
         mockQContextParent.pushParameter(parentParameters);
         newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
-        NumberConstructor numberConstructor = (NumberConstructor) mockQContextParent.getValue().get();
+        NumberConstructor numberConstructor = (NumberConstructor)mockQContextParent.getValue().get();
         Assert.assertEquals(0, numberConstructor.getFlag());
     }
-
+    
     @Test
     public void varArgTest() {
         ErrorReporter errorReporter = new MockErrorReporter();

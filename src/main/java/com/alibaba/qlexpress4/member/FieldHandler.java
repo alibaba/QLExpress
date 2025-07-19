@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  */
 public class FieldHandler {
     public static class Preferred {
-
+        
         public static String preHandleAlias(Class<?> baseClass, String propertyName) {
             Field[] fields = baseClass.getDeclaredFields();
             for (Field field : fields) {
@@ -24,7 +24,7 @@ public class FieldHandler {
             }
             return propertyName;
         }
-
+        
         public static Field gatherFieldRecursive(Class<?> baseClass, String propertyName) {
             Field[] fields = baseClass.getDeclaredFields();
             for (Field field : fields) {
