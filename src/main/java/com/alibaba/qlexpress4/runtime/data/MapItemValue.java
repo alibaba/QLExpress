@@ -45,6 +45,6 @@ public class MapItemValue implements LeftValue {
     
     @Override
     public Class<?> getDefinedType() {
-        return Object.class;
+        return null;
     }
 }

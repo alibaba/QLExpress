@@ -12,6 +12,7 @@ import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -41,7 +42,7 @@ public class MethodInvokeUtils {
             }
             else {
                 throw errorReporter.report(QLErrorCodes.METHOD_NOT_FOUND.name(),
-                    String.format(QLErrorCodes.METHOD_NOT_FOUND.getErrorMsg(), methodName));
+                    String.format(QLErrorCodes.METHOD_NOT_FOUND.getErrorMsg(), methodName, Arrays.toString(params)));
             }
         }
         else {

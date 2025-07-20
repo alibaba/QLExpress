@@ -9,13 +9,14 @@
 在基本的表达式计算的基础上，增加以下特色功能：
 
 * 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
-* 兼容Java语法，最新的QLExpress4可以兼容Java8语法，方便Java程序员快速熟悉
+* 兼容最新的Java语法，方便Java程序员快速熟悉
 * 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
+* 独一无二的表达式追踪功能，可以追踪表达式在中间节点计算的值，方便业务人员或者 AI 对线上规则的计算结果进行归因分析
 * 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
 * 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
 * 代码精简，依赖最小，适合所有java的运行环境
 
-QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱Java8和函数式编程，在性能和表达能力上都进行了进一步增强。
+QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
 场景举例：
 
 * 电商优惠券规则配置：通过 QLExpress 自定义函数和操作符快速实现优惠规则 DSL，供运营人员根据需求自行动态配置
@@ -357,6 +358,34 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getE
 | STATEMENT | 暂未继续下钻的其他复合语句（比如 while, for 等等）| 无
 |===
 
+=== 与 Spring 集成
+
+QLExpress 并不需要专门与 Spring 集成，只需要一个 `Express4Runner` 单例，即可使用。
+
+这里提供的 “集成” 示例，可以在 QLExpress 脚本中直接引用任意 Spring Bean。
+
+这种方式虽然很方便，但是脚本权限过大，自由度太高。不再推荐使用，还是建议在 context 只放入允许用户访问的对象。
+
+核心集成组件：
+
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLSpringContext.java[QLSpringContext]: 实现了 `ExpressContext` 接口，提供了对 Spring 容器的访问能力。它会优先从传入的 context 中查找变量，如果找不到则尝试从 Spring 容器中获取同名的 Bean。
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLExecuteService.java[QLExecuteService]: 封装了 QLExpress 的执行逻辑，集成了 Spring 容器，方便在 Spring 应用中使用。
+
+假设存在一个 Spring Bean， 名为 `helloService`：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/HelloService.java[]
+----
+
+在脚本中调用该 Bean：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/SpringDemoTest.java[]
+----
+
+
 == 语法入门
 
 QLExpress4 兼容 Java8 语法的同时，也提供了很多更加灵活宽松的语法模式，帮助用户更快捷地编写表达式。
@@ -622,7 +651,7 @@ git add -u
 exit 0
 ----
 
-这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]]
+这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]
 
 == 附录二 QLExpress4性能提升
 

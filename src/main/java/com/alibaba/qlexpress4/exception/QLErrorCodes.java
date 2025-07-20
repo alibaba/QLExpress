@@ -25,7 +25,7 @@ public enum QLErrorCodes {
                                                             "error when invoking lambda"), NULL_CALL(
                                                                 "can not call null"), OBJECT_NOT_CALLABLE(
                                                                     "type '%s' is not callable"), METHOD_NOT_FOUND(
-                                                                        "method '%s' not found"), INVOKE_CONSTRUCTOR_UNKNOWN_ERROR(
+                                                                        "no suitable method '%s' found for args %s"), INVOKE_CONSTRUCTOR_UNKNOWN_ERROR(
                                                                             "unknown error when invoking constructor"), INVOKE_CONSTRUCTOR_INNER_ERROR(
                                                                                 "exception from inner when invoking constructor"), NO_SUITABLE_CONSTRUCTOR(
                                                                                     "no suitable constructor for types %s"), EXECUTE_BLOCK_ERROR(
