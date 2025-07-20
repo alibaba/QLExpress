@@ -6,10 +6,10 @@
 
 由阿里的电商业务规则演化而来的嵌入式Java动态脚本工具，在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
 
-在基本的表达式计算的基础上，增加以下特色功能：
+在基本的表达式计算的基础上，还有以下特色：
 
 * 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
-* 兼容最新的Java语法，方便Java程序员快速熟悉
+* 兼容最新的 Java 语法，方便 Java 程序员快速熟悉。熟悉类 C 语言的业务人员使用起来也会非常顺手
 * 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
 * 独一无二的表达式追踪功能，可以追踪表达式在中间节点计算的值，方便业务人员或者 AI 对线上规则的计算结果进行归因分析
 * 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
@@ -17,6 +17,7 @@
 * 代码精简，依赖最小，适合所有java的运行环境
 
 QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
+
 场景举例：
 
 * 电商优惠券规则配置：通过 QLExpress 自定义函数和操作符快速实现优惠规则 DSL，供运营人员根据需求自行动态配置
@@ -300,7 +301,7 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addM
  * 4 的宏实现更加接近通常编程语言中宏的定义，相当于将预定义的代码片段插入到宏所在的位置，与调用点位于同一作用域，宏中的 `return`, `contine` 和 `break` 等可以影响调用方的控制流。但是 3 中的实现其实更加接近无参函数调用。
  * 4 的宏无法作为变量使用，只有单独作为一行语句时才能被宏替换。因为宏可以是任意脚本，不一定是有返回值的表达式，作为变量时会存在语义问题。3 的宏本质是一个无参函数调用，所以常常被作为变量使用
 
-如果想兼容 3 中的宏特性，建议使用 link:#_动态变量[动态变量]
+如果想兼容 3 中的宏特性，建议使用 link:#动态变量[动态变量]
 
 === 动态变量
 
@@ -597,7 +598,7 @@ include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
 
 支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
 
-底层通过在列表类型添加 link:#_扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
+底层通过在列表类型添加 link:#扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
 
 相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
 
@@ -610,13 +611,13 @@ include::./src/test/resources/testsuite/independent/doc/list_map_filter.ql[]
 
 QLExpress 可以兼容 Java8 的常见语法。
 
-比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
+比如 link:#for-each-循环[for each循环], Stream API, 函数式接口等等。
 
 ==== Stream API
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
-因为此时的 stream api 都是来自 Java 中的方法，参考 link:#_调用应用中的_java_类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
+因为此时的 stream api 都是来自 Java 中的方法，参考 link:#调用应用中的-java-类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
 
 [source,java]
 ----
@@ -625,7 +626,7 @@ include::./src/test/resources/testsuite/java/stream/java_stream.ql[]
 
 ==== 函数式接口
 
-Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
+Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#lambda-表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
 
 [source,java]
 ----
