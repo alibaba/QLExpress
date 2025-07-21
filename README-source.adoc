@@ -460,7 +460,8 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disa
 
 > 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `"0"`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`${0}` 的运行结果是 context 中 "0" key 对应的值。
 
-QLExpress 默认使用 `${placeholder}` 格式的占位符，其中：
+QLExpress 默认使用 `$\{placeholder}` 格式的占位符，其中：
+
 * `${` 是起始标记
 * `}` 是结束标记  
 * `placeholder` 是占位符内容，对应 cotext 中的 key
