@@ -475,9 +475,9 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cust
 自定义占位符并不是任意的，限制条件如下：
 
 * **起始标记限制**：`selectorStart` 必须是以下四种格式之一：
-  ** `$\{` (默认)
+  ** `${` (默认)
   ** `$[`
-  ** `#\{`
+  ** `#{`
   ** `#[`
 * **结束标记限制**：`selectorEnd` 必须是 1 个或更多字符的字符串
 
