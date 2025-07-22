@@ -52,7 +52,7 @@ JSON 数组代表列表（List），而 JSON 对象代表映射（Map），也�
 
 产品上可以基于该特性实现 JSON 映射规则。让用户可以便捷地定义从一个模型向另一个模型的映射关系。以下是某个规则平台，基于该能力实现的模型映射产品简化图：
 
-image::images/json_map.jpg[]
+image::images/json_map.png[]
 
 具体使用方法参考：link:#方便语法元素[方便语法元素]
 
