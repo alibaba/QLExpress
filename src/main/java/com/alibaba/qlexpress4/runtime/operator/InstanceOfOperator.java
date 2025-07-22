@@ -13,14 +13,14 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class InstanceOfOperator extends BaseBinaryOperator {
     private static final InstanceOfOperator INSTANCE = new InstanceOfOperator();
-
+    
     private InstanceOfOperator() {
     }
-
+    
     public static InstanceOfOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
@@ -31,7 +31,8 @@ public class InstanceOfOperator extends BaseBinaryOperator {
         }
         if (targetClass instanceof MetaClass) {
             targetClass = ((MetaClass)targetClass).getClz();
-        } else if (!(targetClass instanceof Class)) {
+        }
+        else if (!(targetClass instanceof Class)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
         if (sourceObject == null) {
@@ -39,12 +40,12 @@ public class InstanceOfOperator extends BaseBinaryOperator {
         }
         return ((Class<?>)targetClass).isAssignableFrom(sourceObject.getClass());
     }
-
+    
     @Override
     public String getOperator() {
         return "instanceof";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.COMPARE;

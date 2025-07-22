@@ -5,7 +5,7 @@ package com.alibaba.qlexpress4;
  */
 @FunctionalInterface
 public interface ClassSupplier {
-
+    
     Class<?> loadCls(String clsQualifiedName);
-
+    
 }

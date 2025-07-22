@@ -20,20 +20,20 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class MethodInvokeInstruction extends QLInstruction {
-
+    
     private final String methodName;
-
+    
     private final int argNum;
-
+    
     private final boolean optional;
-
+    
     public MethodInvokeInstruction(ErrorReporter errorReporter, String methodName, int argNum, boolean optional) {
         super(errorReporter);
         this.methodName = methodName;
         this.argNum = argNum;
         this.optional = optional;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
@@ -50,33 +50,33 @@ public class MethodInvokeInstruction extends QLInstruction {
                 qContext.push(DataValue.NULL_VALUE);
                 return QResult.NEXT_INSTRUCTION;
             }
-            throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
-                    QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
+            throw errorReporter.report(new NullPointerException(),
+                QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
         }
-        Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(bean, methodName, params, type, qContext.getReflectLoader(), errorReporter);
+        Value invokeRes = MethodInvokeUtils
+            .findMethodAndInvoke(bean, methodName, params, type, qContext.getReflectLoader(), errorReporter);
         qContext.push(invokeRes);
         return QResult.NEXT_INSTRUCTION;
     }
-
-
+    
     @Override
     public int stackInput() {
         return argNum + 1;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": MethodInvoke " + methodName + " with argNum " + argNum, debug);
     }
-
+    
     public String getMethodName() {
         return methodName;
     }
-
-
+    
 }

@@ -12,16 +12,16 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  * @author bingo
  */
 public class BitwiseRightShiftUnsignedAssignOperator extends BaseBinaryOperator {
-    private static final BitwiseRightShiftUnsignedAssignOperator INSTANCE
-        = new BitwiseRightShiftUnsignedAssignOperator();
-
+    private static final BitwiseRightShiftUnsignedAssignOperator INSTANCE =
+        new BitwiseRightShiftUnsignedAssignOperator();
+    
     private BitwiseRightShiftUnsignedAssignOperator() {
     }
-
+    
     public static BitwiseRightShiftUnsignedAssignOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
@@ -31,12 +31,12 @@ public class BitwiseRightShiftUnsignedAssignOperator extends BaseBinaryOperator 
         leftValue.set(result, errorReporter);
         return result;
     }
-
+    
     @Override
     public String getOperator() {
         return ">>>=";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.ASSIGN;

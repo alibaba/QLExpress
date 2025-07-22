@@ -23,17 +23,17 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class SpreadMethodInvokeInstruction extends QLInstruction {
-
+    
     private final String methodName;
-
+    
     private final int argNum;
-
+    
     public SpreadMethodInvokeInstruction(ErrorReporter errorReporter, String methodName, int argNum) {
         super(errorReporter);
         this.methodName = methodName;
         this.argNum = argNum;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters parameters = qContext.pop(this.argNum + 1);
@@ -44,8 +44,8 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
                 return QResult.NEXT_INSTRUCTION;
             }
             throw errorReporter.reportFormat(QLErrorCodes.NONTRAVERSABLE_OBJECT.name(),
-                    QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
-                    "null");
+                QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
+                "null");
         }
         Class<?>[] type = new Class[this.argNum];
         Object[] params = new Object[this.argNum];
@@ -54,9 +54,9 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
             params[i] = v.get();
             type[i] = v.getType();
         }
-
+        
         if (traversable instanceof Iterable) {
-            Iterable<?> iterable = (Iterable<?>) traversable;
+            Iterable<?> iterable = (Iterable<?>)traversable;
             List<? super Object> result = new ArrayList<>();
             for (Object item : iterable) {
                 if (item == null) {
@@ -64,15 +64,17 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
                         result.add(null);
                         continue;
                     }
-                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
-                            QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
+                    throw errorReporter.report(new NullPointerException(),
+                        QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                        QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
                 }
-                Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(item, methodName, params, type,
-                        qContext.getReflectLoader(), errorReporter);
+                Value invokeRes = MethodInvokeUtils
+                    .findMethodAndInvoke(item, methodName, params, type, qContext.getReflectLoader(), errorReporter);
                 result.add(invokeRes.get());
             }
             qContext.push(new DataValue(result));
-        } else if (traversable.getClass().isArray()) {
+        }
+        else if (traversable.getClass().isArray()) {
             int arrLen = Array.getLength(traversable);
             List<? super Object> result = new ArrayList<>();
             for (int i = 0; i < arrLen; i++) {
@@ -82,32 +84,34 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
                         result.add(null);
                         continue;
                     }
-                    throw errorReporter.report(new NullPointerException(), QLErrorCodes.NULL_METHOD_ACCESS.name(),
-                            QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
+                    throw errorReporter.report(new NullPointerException(),
+                        QLErrorCodes.NULL_METHOD_ACCESS.name(),
+                        QLErrorCodes.NULL_METHOD_ACCESS.getErrorMsg());
                 }
-                Value invokeRes = MethodInvokeUtils.findMethodAndInvoke(item, methodName, params, type,
-                        qContext.getReflectLoader(), errorReporter);
+                Value invokeRes = MethodInvokeUtils
+                    .findMethodAndInvoke(item, methodName, params, type, qContext.getReflectLoader(), errorReporter);
                 result.add(invokeRes.get());
             }
             qContext.push(new DataValue(result));
-        } else {
+        }
+        else {
             throw errorReporter.reportFormat(QLErrorCodes.NONTRAVERSABLE_OBJECT.name(),
-                    QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
-                    traversable.getClass().getName());
+                QLErrorCodes.NONTRAVERSABLE_OBJECT.getErrorMsg(),
+                traversable.getClass().getName());
         }
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return argNum + 1;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": SpreadMethodInvoke " + methodName, debug);

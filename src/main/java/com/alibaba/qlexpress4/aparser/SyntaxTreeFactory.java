@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
  * Author: DQinYuan
  */
 public class SyntaxTreeFactory {
-
+    
     private static final AtomicBoolean IS_WARM_UP = new AtomicBoolean();
-
+    
     public static void warmUp() {
         if (IS_WARM_UP.compareAndSet(false, true)) {
             // warm up
@@ -28,19 +28,20 @@ public class SyntaxTreeFactory {
             warmUpExpress("a = b + c");
         }
     }
-
+    
     private static void warmUpExpress(String script) {
-        buildTree(script, new OperatorManager(), false, false, s -> {}, InterpolationMode.SCRIPT);
+        buildTree(script, new OperatorManager(), false, false, s -> {
+        }, InterpolationMode.SCRIPT, "${", "}");
     }
-
-
+    
     public static QLParser.ProgramContext buildTree(String script, ParserOperatorManager operatorManager,
-                                                           boolean printTree, boolean profile, Consumer<String> printer,
-                                                    InterpolationMode interpolationMode) {
-        QLexer lexer = new QLexer(CharStreams.fromString(script), interpolationMode);
+        boolean printTree, boolean profile, Consumer<String> printer, InterpolationMode interpolationMode,
+        String selectorStart, String selectorEnd) {
+        QLexer lexer =
+            new QLExtendLexer(CharStreams.fromString(script), script, interpolationMode, selectorStart, selectorEnd);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager),
-                operatorManager, interpolationMode);
+        QLParser qlGrammarParser =
+            new QLExtendParser(new AliasTokenStream(tokens, operatorManager), operatorManager, interpolationMode);
         if (!printTree) {
             qlGrammarParser.removeErrorListeners();
         }
@@ -52,8 +53,7 @@ public class SyntaxTreeFactory {
         }
         QLParser.ProgramContext programContext = qlGrammarParser.program();
         if (printTree) {
-            printer.accept(tokens.getTokens().stream()
-                    .map(Token::getText).collect(Collectors.joining(" | ")));
+            printer.accept(tokens.getTokens().stream().map(Token::getText).collect(Collectors.joining(" | ")));
             printer.accept(programContext.toStringTree(qlGrammarParser));
         }
         if (profile) {
@@ -61,7 +61,7 @@ public class SyntaxTreeFactory {
         }
         return programContext;
     }
-
+    
     private static void profileParser(Parser parser) {
         System.out.printf("%-" + 35 + "s", "rule");
         System.out.printf("%-" + 15 + "s", "time");
@@ -88,12 +88,12 @@ public class SyntaxTreeFactory {
             }
         }
     }
-
+    
     public static Token preHandleToken(Token originToken, ParserOperatorManager operatorManager) {
         if (originToken instanceof WritableToken && originToken.getType() == QLexer.ID) {
             Integer aliasId = operatorManager.getAlias(originToken.getText());
             if (aliasId != null && originToken.getType() != aliasId) {
-                ((WritableToken) originToken).setType(aliasId);
+                ((WritableToken)originToken).setType(aliasId);
             }
         }
         return originToken;

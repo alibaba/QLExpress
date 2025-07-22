@@ -207,7 +207,7 @@ primaryNoFix
     |   LBRACE newlines? blockStatements? newlines? RBRACE # blockExpr
     |   qlIf # ifExpr
     |   TRY LBRACE newlines? blockStatements? newlines? RBRACE tryCatches? (newlines? tryFinally)? # tryCatchExpr
-    |   SELECTOR_START SelectorVariable_VANME RBRACE # contextSelectExpr
+    |   SELECTOR_START SelectorVariable_VANME # contextSelectExpr
     ;
 
 qlIf : IF '(' newlines? condition=expression newlines? ')' newlines? THEN? newlines? thenBody (newlines? ELSE newlines? elseBody)?;
@@ -350,7 +350,7 @@ doubleQuoteStringLiteral
 
 stringExpression
     : {getInterpolationMode() == SCRIPT}? DyStrExprStart newlines? expression newlines? RBRACE
-    | {getInterpolationMode() == VARIABLE}? DyStrExprStart SelectorVariable_VANME RBRACE
+    | {getInterpolationMode() == VARIABLE}? DyStrExprStart SelectorVariable_VANME
     ;
 
 boolenLiteral

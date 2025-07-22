@@ -19,20 +19,20 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class CallConstInstruction extends QLInstruction {
-
+    
     private final QLambda constLambda;
-
+    
     private final int argNum;
-
+    
     private final String lambdaName;
-
+    
     public CallConstInstruction(ErrorReporter errorReporter, QLambda constLambda, int argNum, String lambdaName) {
         super(errorReporter);
         this.constLambda = constLambda;
         this.argNum = argNum;
         this.lambdaName = lambdaName;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Parameters args = qContext.pop(argNum);
@@ -40,28 +40,33 @@ public class CallConstInstruction extends QLInstruction {
         for (int i = 0; i < argNum; i++) {
             argArr[i] = args.getValue(i);
         }
-
+        
         try {
             QResult result = constLambda.call(argArr);
             qContext.push(ValueUtils.toImmutable(result.getResult()));
             return QResult.NEXT_INSTRUCTION;
-        } catch (UserDefineException e) {
+        }
+        catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.EXECUTE_BLOCK_ERROR.name(), QLErrorCodes.EXECUTE_BLOCK_ERROR.getErrorMsg());
+        }
+        catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t,
+                errorReporter,
+                QLErrorCodes.EXECUTE_BLOCK_ERROR.name(),
+                QLErrorCodes.EXECUTE_BLOCK_ERROR.getErrorMsg());
         }
     }
-
+    
     @Override
     public int stackInput() {
         return argNum;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": CallConstLambda " + lambdaName, debug);

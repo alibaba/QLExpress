@@ -1,4 +1,5 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
+
 import com.alibaba.qlexpress4.proxy.QLambdaInvocationHandler;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
@@ -8,12 +9,11 @@ import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-
 /**
  * Author: TaoKan
  */
 public class ObjTypeConvertor {
-
+    
     public static QConverted cast(Object value, Class<?> type) {
         // no need to convert
         if (noNeedConvert(value, type)) {
@@ -23,7 +23,7 @@ public class ObjTypeConvertor {
             return castChar(value);
         }
         if (CacheUtil.isFunctionInterface(type)) {
-           return castFunctionInter(value, type);
+            return castFunctionInter(value, type);
         }
         // unboxed boxed
         if (type == boolean.class || type == Boolean.class) {
@@ -37,7 +37,7 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).byteValue());
+                return converted(((Number)value).byteValue());
             }
             return unConvertible();
         }
@@ -46,7 +46,7 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).shortValue());
+                return converted(((Number)value).shortValue());
             }
             return unConvertible();
         }
@@ -55,7 +55,7 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).intValue());
+                return converted(((Number)value).intValue());
             }
             return unConvertible();
         }
@@ -64,7 +64,7 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).longValue());
+                return converted(((Number)value).longValue());
             }
             return unConvertible();
         }
@@ -73,7 +73,7 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).floatValue());
+                return converted(((Number)value).floatValue());
             }
             return unConvertible();
         }
@@ -82,42 +82,43 @@ public class ObjTypeConvertor {
                 return converted(value);
             }
             if (value instanceof Number) {
-                return converted(((Number) value).doubleValue());
+                return converted(((Number)value).doubleValue());
             }
             return unConvertible();
         }
         if (type == BigInteger.class) {
             if (value instanceof Number) {
-                return converted(NumberMath.toBigInteger((Number) value));
+                return converted(NumberMath.toBigInteger((Number)value));
             }
             return unConvertible();
         }
         if (type == BigDecimal.class) {
             if (value instanceof Number) {
-                return converted(NumberMath.toBigDecimal((Number) value));
+                return converted(NumberMath.toBigDecimal((Number)value));
             }
             return unConvertible();
         }
         return unConvertible();
     }
-
+    
     private static QConverted castFunctionInter(Object value, Class<?> functionInter) {
         if (value instanceof QLambda) {
             return converted(Proxy.newProxyInstance(functionInter.getClassLoader(),
-                    new Class<?>[]{functionInter}, new QLambdaInvocationHandler((QLambda) value)));
+                new Class<?>[] {functionInter},
+                new QLambdaInvocationHandler((QLambda)value)));
         }
         return unConvertible();
     }
-
+    
     private static QConverted castChar(Object value) {
         if (value instanceof Character) {
             return converted(value);
         }
         if (value instanceof Number) {
-            return converted((char) ((Number) value).intValue());
+            return converted((char)((Number)value).intValue());
         }
         if (value instanceof String) {
-            String strValue = (String) value;
+            String strValue = (String)value;
             if (strValue.length() == 1) {
                 return converted(strValue.charAt(0));
             }
@@ -125,37 +126,37 @@ public class ObjTypeConvertor {
         }
         return unConvertible();
     }
-
+    
     private static boolean noNeedConvert(Object value, Class<?> type) {
         return type == null || value == null || type.isInstance(value);
     }
-
+    
     private static QConverted converted(Object converted) {
         return new QConverted(true, converted);
     }
-
+    
     private static QConverted unConvertible() {
         return new QConverted(false, null);
     }
-
+    
     public static class QConverted {
-
+        
         private final boolean convertible;
-
+        
         private final Object converted;
-
+        
         public QConverted(boolean convertible, Object converted) {
             this.convertible = convertible;
             this.converted = converted;
         }
-
+        
         public boolean isConvertible() {
             return convertible;
         }
-
+        
         public Object getConverted() {
             return converted;
         }
     }
-
+    
 }

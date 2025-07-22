@@ -8,7 +8,7 @@ import java.util.Map;
  * Author: DQinYuan
  */
 public interface ExpressContext {
-
+    
     Value get(Map<String, Object> attachments, String variableName);
-
+    
 }

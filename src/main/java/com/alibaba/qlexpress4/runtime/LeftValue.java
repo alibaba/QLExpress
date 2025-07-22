@@ -10,28 +10,29 @@ import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
  * Author: DQinYuan
  */
 public interface LeftValue extends Value {
-
+    
     Class<?> getDefinedType();
-
+    
     @Override
     default Class<?> getType() {
         Class<?> definedType = getDefinedType();
-        return definedType == null? Value.super.getType(): definedType;
+        return definedType == null ? Value.super.getType() : definedType;
     }
-
+    
     default void set(Object newValue, ErrorReporter errorReporter) {
         Class<?> defineType = getDefinedType();
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(newValue, defineType);
         if (!result.isConvertible()) {
             throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.name(),
-                    QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.getErrorMsg(),
-                    newValue == null? "null": newValue.getClass().getName(), defineType.getName());
+                QLErrorCodes.INCOMPATIBLE_ASSIGNMENT_TYPE.getErrorMsg(),
+                newValue == null ? "null" : newValue.getClass().getName(),
+                defineType.getName());
         }
         setInner(result.getConverted());
     }
-
+    
     void setInner(Object newValue);
-
+    
     /**
      * @return Nullable
      */

@@ -16,30 +16,30 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class CloseScopeInstruction extends QLInstruction {
-
+    
     private final String scopeName;
-
+    
     public CloseScopeInstruction(ErrorReporter errorReporter, String scopeName) {
         super(errorReporter);
         this.scopeName = scopeName;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         qContext.closeScope();
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": CloseScope " + scopeName, debug);

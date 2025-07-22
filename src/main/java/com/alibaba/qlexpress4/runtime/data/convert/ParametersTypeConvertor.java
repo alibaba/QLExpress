@@ -15,7 +15,7 @@ public class ParametersTypeConvertor {
             }
             return result;
         }
-
+        
         Class<?> itemType = paramTypes[paramTypes.length - 1].getComponentType();
         Object varArgs = Array.newInstance(itemType, arguments.length - paramTypes.length + 1);
         int varArgStart = paramTypes.length - 1;
@@ -24,7 +24,7 @@ public class ParametersTypeConvertor {
             Object castValue = ObjTypeConvertor.cast(argument, itemType).getConverted();
             Array.set(varArgs, i - varArgStart, castValue);
         }
-
+        
         Object[] result = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length - 1; i++) {
             result[i] = ObjTypeConvertor.cast(arguments[i], paramTypes[i]).getConverted();

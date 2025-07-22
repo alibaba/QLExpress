@@ -16,27 +16,27 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public abstract class QLInstruction {
-
+    
     protected final ErrorReporter errorReporter;
-
+    
     public QLInstruction(ErrorReporter errorReporter) {
         this.errorReporter = errorReporter;
     }
-
+    
     public abstract QResult execute(QContext qContext, QLOptions qlOptions);
-
+    
     /**
      * @return input size
      */
     public abstract int stackInput();
-
+    
     /**
      * @return output size
      */
     public abstract int stackOutput();
-
+    
     public abstract void println(int index, int depth, Consumer<String> debug);
-
+    
     public ErrorReporter getErrorReporter() {
         return errorReporter;
     }

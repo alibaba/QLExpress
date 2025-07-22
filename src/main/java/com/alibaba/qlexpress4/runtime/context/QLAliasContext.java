@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class QLAliasContext implements ExpressContext {
-
+    
     private final Map<String, Object> context;
-
-    public QLAliasContext(Object...os) {
+    
+    public QLAliasContext(Object... os) {
         Map<String, Object> context = new HashMap<>();
         for (Object o : os) {
             QLAlias[] qlAliases = o.getClass().getAnnotationsByType(QLAlias.class);
@@ -24,7 +24,7 @@ public class QLAliasContext implements ExpressContext {
         }
         this.context = context;
     }
-
+    
     @Override
     public Value get(Map<String, Object> attachments, String variableName) {
         return new MapItemValue(context, variableName);

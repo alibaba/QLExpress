@@ -7,14 +7,14 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
  * Author: DQinYuan
  */
 public interface QScope {
-
+    
     /**
      * get assignable symbol variable by name
      * @param varName variable name
      * @return value, null if not exist
      */
     Value getSymbol(String varName);
-
+    
     /**
      * get symbol variable value by name
      * @param varName variable name
@@ -22,9 +22,9 @@ public interface QScope {
      */
     default Object getSymbolValue(String varName) {
         Value symbolVal = getSymbol(varName);
-        return symbolVal == null? null: symbolVal.get();
+        return symbolVal == null ? null : symbolVal.get();
     }
-
+    
     /**
      * define a symbol in local scope
      * @param varName variable name
@@ -32,50 +32,50 @@ public interface QScope {
      * @param value init value
      */
     void defineLocalSymbol(String varName, Class<?> varClz, Object value);
-
+    
     /**
      * define local function in scope
      * @param functionName name of function
      * @param function implement of function
      */
     void defineFunction(String functionName, CustomFunction function);
-
+    
     /**
      * get function or lambda define
      * @param functionName name of function
      * @return null if not exist
      */
     CustomFunction getFunction(String functionName);
-
+    
     /**
      * push value on the top of stack
      * @param value pushed element
      */
     void push(Value value);
-
+    
     /**
      * pop number elements on top of stack
      * @param number pop elements' number
      * @return popped elements
      */
     Parameters pop(int number);
-
+    
     /**
      * pop one element on top of stack
      * @return popped element
      */
     Value pop();
-
+    
     /**
      * @return top element of stack without pop
      */
     Value peek();
-
+    
     /**
      * @return parent scope
      */
     QScope getParent();
-
+    
     /**
      * @return new scope base origin stack
      */

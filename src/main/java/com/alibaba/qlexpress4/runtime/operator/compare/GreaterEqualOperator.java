@@ -12,24 +12,24 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class GreaterEqualOperator extends BaseBinaryOperator {
     private static final GreaterEqualOperator INSTANCE = new GreaterEqualOperator();
-
+    
     private GreaterEqualOperator() {
     }
-
+    
     public static GreaterEqualOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public String getOperator() {
         return ">=";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.COMPARE;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {

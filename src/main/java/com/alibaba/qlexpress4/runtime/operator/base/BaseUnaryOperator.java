@@ -11,7 +11,7 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
  */
 public abstract class BaseUnaryOperator implements UnaryOperator {
     protected QLRuntimeException buildInvalidOperandTypeException(Value value, ErrorReporter errorReporter) {
-        return errorReporter.reportFormat(QLErrorCodes.INVALID_UNARY_OPERAND.name(), QLErrorCodes.INVALID_UNARY_OPERAND.getErrorMsg(),
-            getOperator(), value.getTypeName(), value.get());
+        return errorReporter.reportFormat(QLErrorCodes.INVALID_UNARY_OPERAND
+            .name(), QLErrorCodes.INVALID_UNARY_OPERAND.getErrorMsg(), getOperator(), value.getTypeName(), value.get());
     }
 }

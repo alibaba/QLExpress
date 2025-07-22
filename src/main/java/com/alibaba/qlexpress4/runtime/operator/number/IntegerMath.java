@@ -23,98 +23,99 @@ package com.alibaba.qlexpress4.runtime.operator.number;
  * reference groovy source code
  */
 public final class IntegerMath extends NumberMath {
-
+    
     public static final IntegerMath INSTANCE = new IntegerMath();
-
-    private IntegerMath() {}
-
+    
+    private IntegerMath() {
+    }
+    
     @Override
     public Number absImpl(Number number) {
         return Math.abs(number.intValue());
     }
-
+    
     @Override
     public Number addImpl(Number left, Number right) {
         return left.intValue() + right.intValue();
     }
-
+    
     @Override
     public Number subtractImpl(Number left, Number right) {
         return left.intValue() - right.intValue();
     }
-
+    
     @Override
     public Number multiplyImpl(Number left, Number right) {
         return left.intValue() * right.intValue();
     }
-
+    
     @Override
     public Number divideImpl(Number left, Number right) {
         return BigDecimalMath.INSTANCE.divideImpl(left, right);
     }
-
+    
     @Override
     public int compareToImpl(Number left, Number right) {
         int leftVal = left.intValue();
         int rightVal = right.intValue();
         return Integer.compare(leftVal, rightVal);
     }
-
+    
     @Override
     public Number orImpl(Number left, Number right) {
         return left.intValue() | right.intValue();
     }
-
+    
     @Override
     public Number andImpl(Number left, Number right) {
         return left.intValue() & right.intValue();
     }
-
+    
     @Override
     public Number xorImpl(Number left, Number right) {
         return left.intValue() ^ right.intValue();
     }
-
+    
     @Override
     public Number intDivImpl(Number left, Number right) {
         return left.intValue() / right.intValue();
     }
-
+    
     @Override
     public Number modImpl(Number left, Number right) {
         return toBigInteger(left).mod(toBigInteger(right)).intValue();
     }
-
+    
     @Override
     public Number remainderImpl(Number left, Number right) {
         return left.intValue() % right.intValue();
     }
-
+    
     @Override
     public Number unaryMinusImpl(Number left) {
         return -left.intValue();
     }
-
+    
     @Override
     public Number unaryPlusImpl(Number left) {
         return left.intValue();
     }
-
+    
     @Override
     public Number bitwiseNegateImpl(Number left) {
         return ~left.intValue();
     }
-
+    
     @Override
     public Number leftShiftImpl(Number left, Number right) {
         return left.intValue() << right.intValue();
     }
-
+    
     @Override
     public Number rightShiftImpl(Number left, Number right) {
         return left.intValue() >> right.intValue();
     }
-
+    
     @Override
     public Number rightShiftUnsignedImpl(Number left, Number right) {
         return left.intValue() >>> right.intValue();

@@ -12,5 +12,6 @@ public interface CustomBinaryOperator {
      * @return result
      * @throws Throwable {@link com.alibaba.qlexpress4.exception.UserDefineException} for custom error message
      */
-    Object execute(Value left, Value right) throws Throwable;
+    Object execute(Value left, Value right)
+        throws Throwable;
 }

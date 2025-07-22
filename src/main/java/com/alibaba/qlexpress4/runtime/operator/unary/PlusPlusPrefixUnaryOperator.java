@@ -12,31 +12,31 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  */
 public class PlusPlusPrefixUnaryOperator extends BaseUnaryOperator {
     private static final PlusPlusPrefixUnaryOperator INSTANCE = new PlusPlusPrefixUnaryOperator();
-
+    
     private PlusPlusPrefixUnaryOperator() {
     }
-
+    
     public static PlusPlusPrefixUnaryOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public String getOperator() {
         return "++";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.UNARY;
     }
-
+    
     @Override
     public Object execute(Value value, ErrorReporter errorReporter) {
         Object operand = value.get();
         if (!(operand instanceof Number)) {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
-
+        
         Number result = NumberMath.add((Number)operand, 1);
         if (value instanceof LeftValue) {
             ((LeftValue)value).set(result, errorReporter);

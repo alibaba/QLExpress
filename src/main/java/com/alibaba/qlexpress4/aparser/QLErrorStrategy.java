@@ -15,19 +15,19 @@ import java.util.List;
  * Author: DQinYuan
  */
 public class QLErrorStrategy extends DefaultErrorStrategy {
-
+    
     @Override
     protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
-        String msg = "mismatched input "+getTokenErrorDisplay(e.getOffendingToken())+
-                " expecting "+ intervalSetString(e.getExpectedTokens(), recognizer.getVocabulary());
+        String msg = "mismatched input " + getTokenErrorDisplay(e.getOffendingToken()) + " expecting "
+            + intervalSetString(e.getExpectedTokens(), recognizer.getVocabulary());
         recognizer.notifyErrorListeners(e.getOffendingToken(), msg, e);
     }
-
+    
     private static String intervalSetString(IntervalSet expectedTokens, Vocabulary vocabulary) {
-        if (expectedTokens.getIntervals()==null || expectedTokens.getIntervals().isEmpty()) {
+        if (expectedTokens.getIntervals() == null || expectedTokens.getIntervals().isEmpty()) {
             return "{}";
         }
-
+        
         List<String> eleNames = new ArrayList<>();
         for (Interval I : expectedTokens.getIntervals()) {
             int a = I.a;
@@ -46,7 +46,7 @@ public class QLErrorStrategy extends DefaultErrorStrategy {
         }
         return String.join(",", eleNames);
     }
-
+    
     private static String elementName(Vocabulary vocabulary, int a) {
         if (a == Token.EOF) {
             return "<EOF>";

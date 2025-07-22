@@ -20,17 +20,17 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class CallFunctionInstruction extends QLInstruction {
-
+    
     private final String functionName;
-
+    
     private final int argNum;
-
+    
     public CallFunctionInstruction(ErrorReporter errorReporter, String functionName, int argNum) {
         super(errorReporter);
         this.functionName = functionName;
         this.argNum = argNum;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         CustomFunction function = qContext.getFunction(functionName);
@@ -42,33 +42,35 @@ public class CallFunctionInstruction extends QLInstruction {
         try {
             qContext.push(new DataValue(function.call(qContext, parameters)));
             return QResult.NEXT_INSTRUCTION;
-        } catch (UserDefineException e) {
+        }
+        catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter, QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.name(),
-                    String.format(QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.getErrorMsg(), functionName, t.getMessage())
-            );
+        }
+        catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t,
+                errorReporter,
+                QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.name(),
+                String.format(QLErrorCodes.INVOKE_FUNCTION_INNER_ERROR.getErrorMsg(), functionName, t.getMessage()));
         }
     }
-
+    
     private void callLambda(QContext qContext, QLOptions qlOptions) {
         Object lambdaSymbol = qContext.getSymbolValue(functionName);
         if (lambdaSymbol == null) {
             if (qlOptions.isAvoidNullPointer()) {
                 qContext.pop(argNum);
                 qContext.push(DataValue.NULL_VALUE);
-            } else {
-                throw errorReporter.report(new NullPointerException(), QLErrorCodes.FUNCTION_NOT_FOUND.name(),
-                        String.format(QLErrorCodes.FUNCTION_NOT_FOUND.getErrorMsg(), functionName)
-                );
+            }
+            else {
+                throw errorReporter.report(new NullPointerException(),
+                    QLErrorCodes.FUNCTION_NOT_FOUND.name(),
+                    String.format(QLErrorCodes.FUNCTION_NOT_FOUND.getErrorMsg(), functionName));
             }
             return;
         }
         if (!(lambdaSymbol instanceof QLambda)) {
-            throw errorReporter.report(
-                    QLErrorCodes.FUNCTION_TYPE_MISMATCH.name(),
-                    String.format(QLErrorCodes.FUNCTION_TYPE_MISMATCH.getErrorMsg(), functionName)
-            );
+            throw errorReporter.report(QLErrorCodes.FUNCTION_TYPE_MISMATCH.name(),
+                String.format(QLErrorCodes.FUNCTION_TYPE_MISMATCH.getErrorMsg(), functionName));
         }
         Parameters parameters = qContext.pop(argNum);
         Object[] parametersArr = new Object[parameters.size()];
@@ -76,28 +78,30 @@ public class CallFunctionInstruction extends QLInstruction {
             parametersArr[i] = parameters.get(i).get();
         }
         try {
-            Value resultValue = ((QLambda) lambdaSymbol).call(parametersArr).getResult();
+            Value resultValue = ((QLambda)lambdaSymbol).call(parametersArr).getResult();
             qContext.push(ValueUtils.toImmutable(resultValue));
-        } catch (UserDefineException e) {
+        }
+        catch (UserDefineException e) {
             throw ThrowUtils.reportUserDefinedException(errorReporter, e);
-        } catch (Throwable t) {
-            throw ThrowUtils.wrapThrowable(t, errorReporter,
-                    QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
-                    QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg()
-            );
+        }
+        catch (Throwable t) {
+            throw ThrowUtils.wrapThrowable(t,
+                errorReporter,
+                QLErrorCodes.INVOKE_LAMBDA_ERROR.name(),
+                QLErrorCodes.INVOKE_LAMBDA_ERROR.getErrorMsg());
         }
     }
-
+    
     @Override
     public int stackInput() {
         return argNum;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": CallFunction " + functionName + " " + argNum, debug);

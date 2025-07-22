@@ -24,17 +24,17 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class NewFilledInstanceInstruction extends QLInstruction {
-
+    
     private final Class<?> newCls;
-
+    
     private final List<String> keys;
-
+    
     public NewFilledInstanceInstruction(ErrorReporter errorReporter, Class<?> newCls, List<String> keys) {
         super(errorReporter);
         this.newCls = newCls;
         this.keys = keys;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object instance = newInstance(qContext);
@@ -49,40 +49,45 @@ public class NewFilledInstanceInstruction extends QLInstruction {
             }
             if (!(fieldValue instanceof LeftValue)) {
                 throw errorReporter.reportFormat(QLErrorCodes.INVALID_ASSIGNMENT.name(),
-                        QLErrorCodes.INVALID_ASSIGNMENT.getErrorMsg(), "of field '" + fieldName + "'");
+                    QLErrorCodes.INVALID_ASSIGNMENT.getErrorMsg(),
+                    "of field '" + fieldName + "'");
             }
-            ((LeftValue) fieldValue).set(initValue, errorReporter);
+            ((LeftValue)fieldValue).set(initValue, errorReporter);
         }
         qContext.push(new DataValue(instance));
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     private Object newInstance(QContext qContext) {
         Constructor<?> constructor = qContext.getReflectLoader().loadConstructor(newCls, new Class[0]);
         try {
             return constructor.newInstance();
-        } catch (InvocationTargetException e) {
-            throw errorReporter.report(e.getTargetException(), QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.name(),
-                    QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
-        } catch (Exception e) {
+        }
+        catch (InvocationTargetException e) {
+            throw errorReporter.report(e.getTargetException(),
+                QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.name(),
+                QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
+        }
+        catch (Exception e) {
             throw errorReporter.report(QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
-                    QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
+                QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
         }
     }
-
+    
     @Override
     public int stackInput() {
         return keys.size();
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
-        PrintlnUtils.printlnByCurDepth(depth, index + ": New instace of cls " + newCls.getSimpleName() +
-                " with fields " + keys, debug);
+        PrintlnUtils.printlnByCurDepth(depth,
+            index + ": New instace of cls " + newCls.getSimpleName() + " with fields " + keys,
+            debug);
     }
 }

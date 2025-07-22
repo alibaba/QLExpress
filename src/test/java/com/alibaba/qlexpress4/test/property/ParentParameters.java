@@ -12,18 +12,18 @@ import java.util.List;
  */
 public class ParentParameters implements Parameters {
     public List<Value> values = new ArrayList<>();
-
+    
     @Override
     public Value get(int i) {
         return values.get(i);
     }
-
+    
     @Override
     public int size() {
         return values.size();
     }
-
-    public void push(Object s){
+    
+    public void push(Object s) {
         values.add(new DataValue(s));
     }
 }

@@ -25,56 +25,68 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class IndexInstruction extends QLInstruction {
-
+    
     public IndexInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
     }
-
+    
     @SuppressWarnings("unchecked")
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Object index = qContext.pop().get();
         Object indexAble = qContext.pop().get();
         if (indexAble instanceof List) {
-            Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
-            List<? super Object> list = (List<? super Object>) indexAble;
+            Number indexNumber = ValueUtils.assertType(index,
+                Number.class,
+                QLErrorCodes.INVALID_INDEX.name(),
+                QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                errorReporter);
+            List<? super Object> list = (List<? super Object>)indexAble;
             int intIndex = ValueUtils.javaIndex(list.size(), indexNumber.intValue());
             if (intIndex < 0 || intIndex >= list.size()) {
-                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
+                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(),
+                    QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
             qContext.push(new ListItemValue(list, intIndex));
-        } else if (indexAble instanceof Map) {
-            qContext.push(new MapItemValue((Map<?, ?>) indexAble, index));
-        } else if (indexAble != null && indexAble.getClass().isArray()) {
-            Number indexNumber = ValueUtils.assertType(index, Number.class, QLErrorCodes.INVALID_INDEX.name(),
-                    QLErrorCodes.INVALID_INDEX.getErrorMsg(), errorReporter);
+        }
+        else if (indexAble instanceof Map) {
+            qContext.push(new MapItemValue((Map<?, ?>)indexAble, index));
+        }
+        else if (indexAble != null && indexAble.getClass().isArray()) {
+            Number indexNumber = ValueUtils.assertType(index,
+                Number.class,
+                QLErrorCodes.INVALID_INDEX.name(),
+                QLErrorCodes.INVALID_INDEX.getErrorMsg(),
+                errorReporter);
             int arrLen = Array.getLength(indexAble);
             int intIndex = ValueUtils.javaIndex(arrLen, indexNumber.intValue());
             if (intIndex < 0 || intIndex >= arrLen) {
-                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(), QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
+                throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(),
+                    QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
             qContext.push(new ArrayItemValue(indexAble, intIndex));
-        } else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+        }
+        else if (indexAble == null && qlOptions.isAvoidNullPointer()) {
             qContext.push(Value.NULL_VALUE);
-        } else {
+        }
+        else {
             throw errorReporter.reportFormat(QLErrorCodes.NONINDEXABLE_OBJECT.name(),
-                    QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
-                    indexAble == null? "null": indexAble.getClass().getName());
+                QLErrorCodes.NONINDEXABLE_OBJECT.getErrorMsg(),
+                indexAble == null ? "null" : indexAble.getClass().getName());
         }
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     @Override
     public int stackInput() {
         return 2;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Index", debug);

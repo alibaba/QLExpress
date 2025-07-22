@@ -9,13 +9,13 @@ import java.util.Map;
  * Author: DQinYuan
  */
 public class MapExpressContext implements ExpressContext {
-
+    
     private final Map<String, Object> source;
-
+    
     public MapExpressContext(Map<String, Object> source) {
         this.source = source;
     }
-
+    
     @Override
     public Value get(Map<String, Object> attachments, String variableName) {
         return new MapItemValue(source, variableName);

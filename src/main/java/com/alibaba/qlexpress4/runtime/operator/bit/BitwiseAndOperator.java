@@ -12,24 +12,24 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class BitwiseAndOperator extends BaseBinaryOperator {
     private static final BitwiseAndOperator INSTANCE = new BitwiseAndOperator();
-
+    
     private BitwiseAndOperator() {
     }
-
+    
     public static BitwiseAndOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public String getOperator() {
         return "&";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.BIT_AND;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {

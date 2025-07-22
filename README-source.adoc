@@ -6,16 +6,19 @@
 
 由阿里的电商业务规则演化而来的嵌入式Java动态脚本工具，在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
 
-在基本的表达式计算的基础上，增加以下特色功能：
+在基本的表达式计算的基础上，还有以下特色：
 
 * 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
-* 兼容Java语法，最新的QLExpress4可以兼容Java8语法，方便Java程序员快速熟悉
+* 兼容最新的 Java 语法，方便 Java 程序员快速熟悉。熟悉类 C 语言的业务人员使用起来也会非常顺手
+* 原生支持 JSON，快捷定义复杂数据结构
 * 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
+* 独一无二的表达式追踪功能，可以追踪表达式在中间节点计算的值，方便业务人员或者 AI 对线上规则的计算结果进行归因分析
 * 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
 * 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
 * 代码精简，依赖最小，适合所有java的运行环境
 
-QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱Java8和函数式编程，在性能和表达能力上都进行了进一步增强。
+QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
+
 场景举例：
 
 * 电商优惠券规则配置：通过 QLExpress 自定义函数和操作符快速实现优惠规则 DSL，供运营人员根据需求自行动态配置
@@ -24,6 +27,72 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 * 广告系统计费规则配置
 
 \...\...
+
+== 新版特色
+
+新版本并不是对旧版本的简单功能重构，而是我们基于对用户需求的洞察，对下一代规则表达式引擎的探索。拥有许多非常实用，但是在其他引擎中缺失的重要功能。
+
+=== 表达式计算追踪
+
+在业务人员完成规则脚本的配置后，很难对其线上执行情况进行感知。比如电商的促销规则，要求用户满足规则 `isVip && 未登录10天以上`。到底有多少线上用户是被 vip 条件拦截，又有多少用户是因为登录条件被拦截？这还是只是仅仅两个条件的简单规则，实际线上情况则更加复杂。
+
+线上规则执行情况的追踪，不仅仅可以帮助业务人员了解线上的实际情况，排查和修复问题。其沉淀的数据也非常有价值，可以用于后续的规则优化和业务决策。以下是某个规则平台，基于 QLExpress4 的表达式追踪能力，对规则进行归因分析与附注的决策的产品简化图：
+
+image::images/order_rules_cn.png[]
+
+归因分析的原理在于利用 QLExpress4 的表达式追踪能力，获得表达式在计算过程中每个中间结果的值， 据此判断表达式最终运行结果产生的原因。
+
+具体使用方法参考：link:#表达式计算追踪[表达式计算追踪]
+
+=== 原生支持 JSON 语法
+
+QLExpress4 原生支持 JSON 语法，可以快捷定义复杂的数据结构。
+
+JSON 数组代表列表（List），而 JSON 对象代表映射（Map），也可以直接定义复杂对象。
+
+产品上可以基于该特性实现 JSON 映射规则。让用户可以便捷地定义从一个模型向另一个模型的映射关系。以下是某个规则平台，基于该能力实现的模型映射产品简化图：
+
+image::images/json_map.png[]
+
+具体使用方法参考：link:#方便语法元素[方便语法元素]
+
+=== 便捷字符串处理
+
+QLExpress4 对字符串处理能力进行针对性的增强，在字符串中可以直接通过 `$\{expression}` 嵌入表达式计算结果。
+
+具体使用方法参考：link:#动态字符串[动态字符串]
+
+=== 附件透传
+
+正常情况下，脚本执行需要的全部信息都在 `context` 中。context 中的 key 可以在脚本中作为变量引用，最终传递给自定义函数或者操作符。
+
+但是出于安全，或者方便使用等因素考虑。有些信息并不希望用户通过变量引用到，比如租户名，密码等等。
+
+此时可以通过附件（attachments）将这部分信息传递给自定义函数或者操作符使用。
+
+具体使用方法参考：link:#添加自定义函数与操作符[添加自定义函数与操作符]  其中 `hello` 自定义函数根据附件中租户不同，返回不同的欢迎信息的示例。
+
+=== 函数式编程
+
+函数被提升为 QLExpress4 中的第一等公民，可以作为变量使用，也可以作为函数的返回值。并且可以很容易地和 Java 中常见的函数式 API（比如 Stream） 结合使用。
+
+以下是一个简单的 QLExpress 示例脚本：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/lambda/lambda_doc.ql[]
+----
+
+更多使用方法参考：
+
+* link:#lambda-表达式[Lambda表达式]
+* link:#列表过滤和映射[列表过滤和映射]
+* link:#stream-api[Stream API]
+* link:#函数式接口[函数式接口]
+
+=== 分号简化
+
+QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#分号[分号]
 
 == API 快速入门
 
@@ -34,7 +103,7 @@ QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0-beta.7</version>
+    <version>4.0.0-beta.9</version>
 </dependency>
 ----
 
@@ -254,11 +323,84 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addA
 
 > 注意：部分大家熟悉的用法其实是操作符，而不是关键字，比如 `in` 操作符。而所有的操作符和函数默认就是支持别名的
 
-=== 表达式计算跟踪
+=== 宏
 
-跟踪表达式在中间节点计算的值，应用可基于该功能实现表达式的归因分析。实现更加强大的提示和分析功能。
+宏是QLExpress中一个强大的代码复用机制，它允许用户定义一段可重用的脚本片段，并在需要时进行调用。与简单的文本替换不同，QLExpress的宏是基于指令回放的机制实现的，具有更好的性能和语义准确性。
 
-该功能只会追踪脚本中最顶层的表达式，即单独作为语句存在的表达式。
+宏特别适用于以下场景：
+
+* **代码复用**：将常用的脚本片段封装成宏，避免重复编写相同的逻辑
+* **业务规则模板**：定义标准的业务规则模板，如价格计算、权限检查等
+* **流程控制**：封装复杂的控制流程，如条件判断、循环逻辑等
+* **DSL构建**：作为构建领域特定语言的基础组件
+
+宏可以通过两种方式定义：
+
+**1. 在脚本中使用 `macro` 关键字定义**
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/macro/macro.ql[tag=addMacroInScript]
+----
+
+**2. 通过Java API添加**
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addMacro]
+----
+
+宏与函数的区别：
+
+[cols="1,1,1"]
+|===
+| 特性 | 宏 | 函数
+| 参数传递 | 无参数，依赖上下文变量 | 支持参数传递
+| 性能   | 指令直接插入，无调用开销 | 有函数调用开销
+| 作用域    | 共享调用者作用域 | 独立的作用域
+| 适用场景     | 代码片段复用 | 逻辑封装和参数化
+|===
+
+宏特别适合那些不需要参数传递、主要依赖上下文变量的代码片段复用场景，而函数更适合需要参数化和独立作用域的场景。
+
+**QLExpress4 相比 3 版本，宏特性的变化**：
+
+ * 4 的宏实现更加接近通常编程语言中宏的定义，相当于将预定义的代码片段插入到宏所在的位置，与调用点位于同一作用域，宏中的 `return`, `contine` 和 `break` 等可以影响调用方的控制流。但是 3 中的实现其实更加接近无参函数调用。
+ * 4 的宏无法作为变量使用，只有单独作为一行语句时才能被宏替换。因为宏可以是任意脚本，不一定是有返回值的表达式，作为变量时会存在语义问题。3 的宏本质是一个无参函数调用，所以常常被作为变量使用
+
+如果想兼容 3 中的宏特性，建议使用 link:#动态变量[动态变量]
+
+=== 动态变量
+
+常规的 “静态变量”，是 context 中和 key 关联的固定的值。而动态变量可以是一个表达式，由另外一些变量计算而得。动态变量支持嵌套，即动态变量可以依赖另一个动态变量计算得到。
+
+示例如下：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=dynamicVar]
+----
+
+=== 表达式计算追踪
+
+如果打开相关选项，QLExpress4 就会在返回规则脚本计算结果的同时，返回一颗表达式追踪树。表达式追踪树的结构类似语法树，不同之处在于，它会在每个节点上记录本次执行的中间结果。
+
+比如对于表达式 `!true || myTest(a, 1)`，表达式追踪树的结构大概如下：
+
+[source]
+----
+        || true
+       /      \
+    ! false  myTest
+    /        /   \
+ true       a 10     1
+----
+
+可应用于多种场景：
+
+ * 方便业务人员对规则的计算结果进行分析排查
+ * 对线上判断为 false 的规则进行采样归类
+ * AI 自动诊断和修复规则
 
 节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
 
@@ -286,10 +428,44 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getE
 | METHOD   | 方法 | 方法参数
 | FIELD    | 字段 | 取字段的目标对象
 | LIST     | 列表 | 列表元素
+| MAP      | 字段 | 无
+| IF       | 条件分支 | then逻辑块和else逻辑块
+| RETURN   | 返回语句 | 返回表达式
 | VARIABLE | 变量 | 无
 | VALUE    | 字面值   | 无
+| DEFINE_FUNCTION | 定义函数 | 无
+| DEFINE_MACRO | 定义宏 | 无
 | PRIMARY  | 暂时未继续下钻的其他复合值（比如字典,if等等）| 无
+| STATEMENT | 暂未继续下钻的其他复合语句（比如 while, for 等等）| 无
 |===
+
+=== 与 Spring 集成
+
+QLExpress 并不需要专门与 Spring 集成，只需要一个 `Express4Runner` 单例，即可使用。
+
+这里提供的 “集成” 示例，可以在 QLExpress 脚本中直接引用任意 Spring Bean。
+
+这种方式虽然很方便，但是脚本权限过大，自由度太高。不再推荐使用，还是建议在 context 只放入允许用户访问的对象。
+
+核心集成组件：
+
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLSpringContext.java[QLSpringContext]: 实现了 `ExpressContext` 接口，提供了对 Spring 容器的访问能力。它会优先从传入的 context 中查找变量，如果找不到则尝试从 Spring 容器中获取同名的 Bean。
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLExecuteService.java[QLExecuteService]: 封装了 QLExpress 的执行逻辑，集成了 Spring 容器，方便在 Spring 应用中使用。
+
+假设存在一个 Spring Bean， 名为 `helloService`：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/HelloService.java[]
+----
+
+在脚本中调用该 Bean：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/SpringDemoTest.java[]
+----
+
 
 == 语法入门
 
@@ -320,6 +496,29 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_typing.ql[]
 [source,java]
 ----
 include::./src/test/resources/testsuite/independent/doc/convenient_syntax_elements.ql[]
+----
+
+通过 `*.` 操作符，可以快捷地对列表和映射进行处理，比如对列表元素进行取属性，或者获得映射的 key 列表和 value 列表：
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/spread/list_spread.ql[tag=spreadExample]
+----
+
+在映射中通过 `@class` key 指定类型的全限定名，就可以直接使用 JSON 创建复杂Java对象。比如下面的 MyHome ， 是一个含有复杂嵌套类型 Java 类：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/inport/MyHome.java[]
+----
+
+可以通过下面的 QLExpress 脚本，便捷创建：
+
+> 注意，该特性需要参考 link:#调用应用中的-java-类[调用应用中的Java类] 打开安全选项，才能正常执行。
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/map/classified_json.ql[tag=classifiedJson]
 ----
 
 === 数字
@@ -353,6 +552,38 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
+
+=== 占位符
+
+占位符用于从 context 中提取任意 key 的值。
+
+全局变量也可以从 context 中提取值，但是收到 QLExpress 关键词和语法的限制，能提取的 key 有限。
+比如 context 中 "0" key 对应的值就无法通过变量提取，因为 0 不是 QLExpress 中的合法变量，而是一个数字常量。
+此时可以用默认占位符 `$\{0}` 来提取。
+
+> 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `"0"`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`${0}` 的运行结果是 context 中 "0" key 对应的值。
+
+QLExpress 默认使用 `$\{placeholder}` 格式的占位符，其中：
+
+* `${` 是起始标记
+* `}` 是结束标记  
+* `placeholder` 是占位符内容，对应 cotext 中的 key
+
+除了默认的占位符外，QLExpress 还支持自定义占位符的起始和结束标记：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customSelector]
+----
+
+自定义占位符并不是任意的，限制条件如下：
+
+* **起始标记限制**：`selectorStart` 必须是以下四种格式之一：
+  ** `${` (默认)
+  ** `$[`
+  ** `#{`
+  ** `#[`
+* **结束标记限制**：`selectorEnd` 必须是 1 个或更多字符的字符串
 
 === 分号
 
@@ -471,7 +702,7 @@ include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
 
 支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
 
-底层通过在列表类型添加 link:#_扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
+底层通过在列表类型添加 link:#扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
 
 相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
 
@@ -484,13 +715,13 @@ include::./src/test/resources/testsuite/independent/doc/list_map_filter.ql[]
 
 QLExpress 可以兼容 Java8 的常见语法。
 
-比如 link:#_for_each_循环[for each循环], Stream API, 函数式接口等等。
+比如 link:#for-each-循环[for each循环], Stream API, 函数式接口等等。
 
 ==== Stream API
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
-因为此时的 stream api 都是来自 Java 中的方法，参考 link:#_调用应用中的_java_类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
+因为此时的 stream api 都是来自 Java 中的方法，参考 link:#调用应用中的-java-类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
 
 [source,java]
 ----
@@ -499,20 +730,41 @@ include::./src/test/resources/testsuite/java/stream/java_stream.ql[]
 
 ==== 函数式接口
 
-Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#_lambda_表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
+Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#lambda-表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
 
 [source,java]
 ----
 include::./src/test/resources/testsuite/java/lambda/java_functional_interface.ql[]
 ----
 
-== 附录一 QLExpress4性能提升
+== 附录一 如何贡献？
+
+QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。
+
+首先需要将代码 clone 到本地，在正式修改代码前，需要先进行如下准备：
+
+1. 项目根目录执行 `mvn compile`：项目刚刚下载到本地时，会有大量的类找不到，需要先生成 Antlr4 的运行时代码
+2. 配置代码格式化：QLExpress 项目有统一的代码格式规范，开发前需要配置在 git 提交前的自动格式化
+
+在项目目录下新建文件 `.git/hooks/pre-commit`，内容如下：
+
+[source,bash]
+----
+#!/bin/sh
+mvn spotless:apply
+git add -u
+exit 0
+----
+
+这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]
+
+== 附录二 QLExpress4性能提升
 
 link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
 
 总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
 
-== 附录二 开发者联系方式
+== 附录三 开发者联系方式
 
  * Email:
  ** qinyuan.dqy@alibaba-inc.com

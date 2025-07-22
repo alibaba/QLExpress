@@ -16,32 +16,32 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class BreakContinueInstruction extends QLInstruction {
-
+    
     private final QResult result;
-
+    
     public BreakContinueInstruction(ErrorReporter errorReporter, QResult result) {
         super(errorReporter);
         this.result = result;
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         return result;
     }
-
+    
     @Override
     public int stackInput() {
         return 0;
     }
-
+    
     @Override
     public int stackOutput() {
         return 0;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
-        String breakContinue = result == QResult.LOOP_BREAK_RESULT? "Break": "Continue";
+        String breakContinue = result == QResult.LOOP_BREAK_RESULT ? "Break" : "Continue";
         PrintlnUtils.printlnByCurDepth(depth, index + ": " + breakContinue, debug);
     }
 }

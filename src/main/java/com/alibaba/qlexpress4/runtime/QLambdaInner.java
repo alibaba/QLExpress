@@ -16,32 +16,33 @@ import java.util.Map;
  * Author: DQinYuan
  */
 public class QLambdaInner implements QLambda {
-
+    
     private final QLambdaDefinitionInner lambdaDefinition;
-
+    
     private final QContext qContext;
-
+    
     private final QLOptions qlOptions;
-
+    
     private final boolean newEnv;
-
+    
     public QLambdaInner(QLambdaDefinitionInner lambdaDefinition, QContext qContext, QLOptions qlOptions,
-                        boolean newEnv) {
+        boolean newEnv) {
         this.lambdaDefinition = lambdaDefinition;
         this.qContext = qContext;
         this.qlOptions = qlOptions;
         this.newEnv = newEnv;
     }
-
-    public QResult call(Object... params) throws Throwable {
-        QContext newRuntime = newEnv? inheritScope(params): qContext;
-
+    
+    public QResult call(Object... params)
+        throws Throwable {
+        QContext newRuntime = newEnv ? inheritScope(params) : qContext;
+        
         QLInstruction[] instructions = lambdaDefinition.getInstructions();
         for (int i = 0; i < instructions.length; i++) {
             QResult qResult = instructions[i].execute(newRuntime, qlOptions);
             switch (qResult.getResultType()) {
                 case JUMP:
-                    i += (int) qResult.getResult().get();
+                    i += (int)qResult.getResult().get();
                     continue;
                 case RETURN:
                 case BREAK:
@@ -49,11 +50,12 @@ public class QLambdaInner implements QLambda {
                     return qResult;
             }
         }
-
+        
         return QResult.NEXT_INSTRUCTION;
     }
-
-    private QContext inheritScope(Object[] params) throws UserDefineException {
+    
+    private QContext inheritScope(Object[] params)
+        throws UserDefineException {
         Map<String, Value> initSymbolTable = new HashMap<>(params.length);
         List<QLambdaDefinitionInner.Param> paramsDefinition = lambdaDefinition.getParamsType();
         for (int i = 0; i < Math.min(params.length, paramsDefinition.size()); i++) {
@@ -63,23 +65,23 @@ public class QLambdaInner implements QLambda {
             ObjTypeConvertor.QConverted qlConvertResult = ObjTypeConvertor.cast(originParamI, targetCls);
             if (!qlConvertResult.isConvertible()) {
                 throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
-                        MessageFormat.format(
-                                "invalid argument at index {0} (start from 0), required type {1}, but {2} provided",
-                                i, targetCls.getName(),
-                                originParamI == null? "null": originParamI.getClass().getName())
-                );
+                    MessageFormat.format(
+                        "invalid argument at index {0} (start from 0), required type {1}, but {2} provided",
+                        i,
+                        targetCls.getName(),
+                        originParamI == null ? "null" : originParamI.getClass().getName()));
             }
             initSymbolTable.put(paramDefinition.getName(),
-                    new AssignableDataValue(paramDefinition.getName(), qlConvertResult.getConverted(), targetCls));
+                new AssignableDataValue(paramDefinition.getName(), qlConvertResult.getConverted(), targetCls));
         }
         // null for rest params
         for (int i = params.length; i < paramsDefinition.size(); i++) {
             QLambdaDefinitionInner.Param paramDefinition = paramsDefinition.get(i);
             initSymbolTable.put(paramDefinition.getName(),
-                    new AssignableDataValue(paramDefinition.getName(), null, paramDefinition.getClazz()));
+                new AssignableDataValue(paramDefinition.getName(), null, paramDefinition.getClazz()));
         }
-        QvmBlockScope newScope = new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize(),
-                ExceptionTable.EMPTY);
+        QvmBlockScope newScope =
+            new QvmBlockScope(qContext, initSymbolTable, lambdaDefinition.getMaxStackSize(), ExceptionTable.EMPTY);
         return new DelegateQContext(qContext, newScope);
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
  * Author: DQinYuan
  */
 public interface CompileTimeFunction {
-
+    
     /**
      * create instructions for function in compile time
      * @param functionName function name
@@ -18,6 +18,6 @@ public interface CompileTimeFunction {
      * @param codeGenerator tool for code generate
      */
     void createFunctionInstruction(String functionName, List<QLParser.ExpressionContext> arguments,
-                                   OperatorFactory operatorFactory, CodeGenerator codeGenerator);
-
+        OperatorFactory operatorFactory, CodeGenerator codeGenerator);
+    
 }

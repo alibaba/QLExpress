@@ -15,7 +15,7 @@ import java.util.List;
  * Author: DQinYuan
  */
 public class MemberResolver {
-
+    
     public enum MatchPriority {
         MISMATCH(-1),
         // e.g. Integer -> Number
@@ -29,17 +29,17 @@ public class MemberResolver {
         LAMBDA(10),
         // e.g. Integer -> Integer
         EQUAL(11);
-
+        
         public final int priority;
-
+        
         MatchPriority(int priority) {
             this.priority = priority;
         }
     }
-
+    
     public static Constructor<?> resolveConstructor(Class<?> cls, Class<?>[] argTypes) {
         Constructor<?>[] constructors = cls.getConstructors();
-
+        
         // simple match
         Class<?>[][] candidates = new Class<?>[constructors.length][];
         for (int i = 0; i < constructors.length; i++) {
@@ -49,7 +49,7 @@ public class MemberResolver {
         if (bestIndex != null) {
             return constructors[bestIndex];
         }
-
+        
         // var args match
         List<Class<?>[]> varArgsCandidates = new ArrayList<>(constructors.length);
         List<Integer> varArgsConstructorI = new ArrayList<>(constructors.length);
@@ -67,7 +67,7 @@ public class MemberResolver {
         }
         return constructors[varArgsConstructorI.get(varArgBestIndex)];
     }
-
+    
     public static boolean methodExist(Class<?> cls, String name, boolean isStatic, boolean allowPrivate) {
         Class<?> curCls = cls;
         while (curCls != null) {
@@ -79,9 +79,9 @@ public class MemberResolver {
         }
         return false;
     }
-
-    public static Method resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
-                                                 boolean isStatic, boolean allowPrivate) {
+    
+    public static Method resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
+        boolean allowPrivate) {
         Class<?> curCls = cls;
         while (curCls != null) {
             Method method = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
@@ -93,8 +93,9 @@ public class MemberResolver {
         // interface method
         return resolveIntersMethod(cls.getInterfaces(), methodName, argTypes, isStatic);
     }
-
-    private static Method resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes, boolean isStatic) {
+    
+    private static Method resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes,
+        boolean isStatic) {
         for (Class<?> inter : inters) {
             Method method = resolveInterMethod(inter, methodName, argTypes, isStatic);
             if (method != null) {
@@ -103,7 +104,7 @@ public class MemberResolver {
         }
         return null;
     }
-
+    
     private static Method resolveInterMethod(Class<?> inter, String methodName, Class<?>[] argTypes, boolean isStatic) {
         // no private method in interface, so pass false to 'allowPrivate'
         Method method = resolveDeclaredMethod(inter, methodName, argTypes, isStatic, false);
@@ -112,7 +113,7 @@ public class MemberResolver {
         }
         return resolveIntersMethod(inter.getInterfaces(), methodName, argTypes, isStatic);
     }
-
+    
     public static int resolvePriority(Class<?>[] paramTypes, Class<?>[] argTypes) {
         if (paramTypes.length != argTypes.length) {
             return MatchPriority.MISMATCH.priority;
@@ -132,11 +133,11 @@ public class MemberResolver {
         }
         return methodPriority;
     }
-
-    private static Method resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes,
-                                                          boolean isStatic, boolean allowPrivate) {
+    
+    private static Method resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
+        boolean allowPrivate) {
         Method[] declaredMethods = getDeclaredMethod(cls, methodName, isStatic, allowPrivate);
-
+        
         // simple match
         Class<?>[][] candidates = new Class<?>[declaredMethods.length][];
         for (int i = 0; i < declaredMethods.length; i++) {
@@ -147,7 +148,7 @@ public class MemberResolver {
         if (bestIndex != null) {
             return declaredMethods[bestIndex];
         }
-
+        
         // var args match
         List<Class<?>[]> varArgsCandidates = new ArrayList<>(declaredMethods.length);
         List<Integer> varArgsMethodI = new ArrayList<>(declaredMethods.length);
@@ -165,7 +166,7 @@ public class MemberResolver {
         }
         return declaredMethods[varArgsMethodI.get(varArgBestIndex)];
     }
-
+    
     private static Method[] getDeclaredMethod(Class<?> cls, String methodName, boolean isStatic, boolean allowPrivate) {
         Method[] declaredMethods = cls.getDeclaredMethods();
         List<Method> result = new ArrayList<>(declaredMethods.length);
@@ -173,20 +174,21 @@ public class MemberResolver {
             if (Modifier.isAbstract(declaredMethod.getModifiers())) {
                 continue;
             }
-            if (!methodName.equals(declaredMethod.getName()) &&
-                    !QLAliasUtils.matchQLAlias(methodName, declaredMethod.getAnnotationsByType(QLAlias.class))) {
+            if (!methodName.equals(declaredMethod.getName())
+                && !QLAliasUtils.matchQLAlias(methodName, declaredMethod.getAnnotationsByType(QLAlias.class))) {
                 continue;
             }
-            if ((!isStatic || BasicUtil.isStatic(declaredMethod)) && (allowPrivate || BasicUtil.isPublic(declaredMethod))) {
+            if ((!isStatic || BasicUtil.isStatic(declaredMethod))
+                && (allowPrivate || BasicUtil.isPublic(declaredMethod))) {
                 result.add(declaredMethod);
             }
         }
         return result.toArray(new Method[0]);
     }
-
+    
     private static Class<?>[] adapt2VarArgTypes(Class<?>[] parameterTypes, int argLength) {
         Class<?> varItemType = parameterTypes[parameterTypes.length - 1].getComponentType();
-
+        
         Class<?>[] varParamTypes = new Class<?>[argLength];
         System.arraycopy(parameterTypes, 0, varParamTypes, 0, parameterTypes.length - 1);
         for (int i = parameterTypes.length - 1; i < argLength; i++) {
@@ -194,7 +196,7 @@ public class MemberResolver {
         }
         return varParamTypes;
     }
-
+    
     public static Integer resolveBestMatch(Class<?>[][] candidates, Class<?>[] argTypes) {
         Integer bestMatchIndex = null;
         int bestPriority = MatchPriority.MISMATCH.priority;
@@ -208,7 +210,7 @@ public class MemberResolver {
         }
         return bestMatchIndex;
     }
-
+    
     private static int resolveArgPriority(Class<?> paramType, Class<?> argType) {
         if (paramType == argType) {
             return MatchPriority.EQUAL.priority;
@@ -216,19 +218,19 @@ public class MemberResolver {
         if (CacheUtil.isFunctionInterface(paramType) && QLambda.class.isAssignableFrom(argType)) {
             return MatchPriority.LAMBDA.priority;
         }
-
-        Class<?> primitiveArgCls = argType.isPrimitive()? argType: BasicUtil.transToPrimitive(argType);
-        Class<?> primitiveParamCls = paramType.isPrimitive()? paramType: BasicUtil.transToPrimitive(paramType);
+        
+        Class<?> primitiveArgCls = argType.isPrimitive() ? argType : BasicUtil.transToPrimitive(argType);
+        Class<?> primitiveParamCls = paramType.isPrimitive() ? paramType : BasicUtil.transToPrimitive(paramType);
         if (primitiveArgCls != null && primitiveArgCls == primitiveParamCls) {
             return MatchPriority.UNBOX.priority;
         }
-
+        
         Integer paramNumLevel = BasicUtil.numberPromoteLevel(paramType);
         Integer argNumLevel = BasicUtil.numberPromoteLevel(argType);
         if (paramNumLevel != null && argNumLevel != null && paramNumLevel >= argNumLevel) {
             return MatchPriority.NUMBER_PROMOTION.priority + argNumLevel - paramNumLevel;
         }
-
+        
         if (paramType.isAssignableFrom(argType)) {
             return MatchPriority.EXTEND.priority;
         }

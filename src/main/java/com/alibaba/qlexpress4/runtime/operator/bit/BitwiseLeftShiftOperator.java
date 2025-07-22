@@ -12,24 +12,24 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class BitwiseLeftShiftOperator extends BaseBinaryOperator {
     private static final BitwiseLeftShiftOperator INSTANCE = new BitwiseLeftShiftOperator();
-
+    
     private BitwiseLeftShiftOperator() {
     }
-
+    
     public static BitwiseLeftShiftOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public String getOperator() {
         return "<<";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.BIT_MOVE;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {

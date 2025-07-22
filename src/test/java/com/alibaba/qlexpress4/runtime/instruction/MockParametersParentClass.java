@@ -13,7 +13,7 @@ public class MockParametersParentClass implements Parameters {
         ParentClass parent = new ParentClass();
         return parent;
     }
-
+    
     @Override
     public int size() {
         return 0;

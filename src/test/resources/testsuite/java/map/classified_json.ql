@@ -1,3 +1,4 @@
+// tag::classifiedJson[]
 myHome = {
   '@class': 'com.alibaba.qlexpress4.inport.MyHome',
   'sofa': 'a-sofa',
@@ -13,6 +14,7 @@ assert(myHome.getSofa()=='a-sofa')
 assert(myHome instanceof com.alibaba.qlexpress4.inport.MyHome)
 assert(myHome.getMyDesk().getBook1()=='Then Moon and Sixpence')
 assert(myHome.getMyDesk() instanceof com.alibaba.qlexpress4.inport.MyDesk)
+// end::classifiedJson[]
 
 // @class override
 myDesk = {

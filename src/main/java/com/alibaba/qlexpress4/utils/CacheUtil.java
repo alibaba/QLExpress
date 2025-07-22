@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CacheUtil {
     private static final Map<Object, Boolean> FUNCTION_INTERFACE_CACHE = new ConcurrentHashMap<>();
-
+    
     public static boolean isFunctionInterface(Class<?> clazz) {
         return FUNCTION_INTERFACE_CACHE.computeIfAbsent(clazz,
-                ignore -> clazz.isInterface() && MethodHandler.hasOnlyOneAbstractMethod(clazz.getMethods()));
+            ignore -> clazz.isInterface() && MethodHandler.hasOnlyOneAbstractMethod(clazz.getMethods()));
     }
 }

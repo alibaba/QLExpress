@@ -13,14 +13,14 @@ import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
  */
 public class RemainderAssignOperator extends BaseBinaryOperator {
     private static final RemainderAssignOperator INSTANCE = new RemainderAssignOperator();
-
+    
     private RemainderAssignOperator() {
     }
-
+    
     public static RemainderAssignOperator getInstance() {
         return INSTANCE;
     }
-
+    
     @Override
     public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
         ErrorReporter errorReporter) {
@@ -30,12 +30,12 @@ public class RemainderAssignOperator extends BaseBinaryOperator {
         leftValue.set(result, errorReporter);
         return result;
     }
-
+    
     @Override
     public String getOperator() {
         return "%=";
     }
-
+    
     @Override
     public int getPriority() {
         return QLPrecedences.ASSIGN;

@@ -4,12 +4,12 @@ import com.alibaba.qlexpress4.exception.lsp.Diagnostic;
 import com.alibaba.qlexpress4.exception.lsp.Range;
 
 public class QLRuntimeException extends QLException {
-
+    
     /**
      * catchObj can be catched at QLExpress catch clause
      */
     private final Object catchObj;
-
+    
     /*
      * Visible for test
      */
@@ -17,15 +17,15 @@ public class QLRuntimeException extends QLException {
         super("", new Diagnostic(0, new Range(null, null), "", errorCode, reason, ""));
         this.catchObj = catchObj;
     }
-
+    
     protected QLRuntimeException(Object catchObj, String message, Diagnostic diagnostic) {
         super(message, diagnostic);
         this.catchObj = catchObj;
         if (catchObj instanceof Throwable) {
-            super.initCause((Throwable) catchObj);
+            super.initCause((Throwable)catchObj);
         }
     }
-
+    
     public Object getCatchObj() {
         return catchObj;
     }

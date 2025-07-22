@@ -21,11 +21,11 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class CastInstruction extends QLInstruction {
-
+    
     public CastInstruction(ErrorReporter errorReporter) {
         super(errorReporter);
     }
-
+    
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         Value value = qContext.pop();
@@ -37,34 +37,37 @@ public class CastInstruction extends QLInstruction {
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(value.get(), targetClz);
         if (!result.isConvertible()) {
             throw errorReporter.reportFormat(QLErrorCodes.INCOMPATIBLE_TYPE_CAST.name(),
-                    QLErrorCodes.INCOMPATIBLE_TYPE_CAST.getErrorMsg(), value.getTypeName(), targetClz.getName());
+                QLErrorCodes.INCOMPATIBLE_TYPE_CAST.getErrorMsg(),
+                value.getTypeName(),
+                targetClz.getName());
         }
         Value dataCast = new DataValue(result.getConverted());
         qContext.push(dataCast);
         return QResult.NEXT_INSTRUCTION;
     }
-
+    
     private Class<?> popTargetClz(Object target) {
         if (target instanceof MetaClass) {
-            return ((MetaClass) target).getClz();
-        } else if (target instanceof Class) {
-            return (Class<?>) target;
+            return ((MetaClass)target).getClz();
+        }
+        else if (target instanceof Class) {
+            return (Class<?>)target;
         }
         throw errorReporter.reportFormat(QLErrorCodes.INVALID_CAST_TARGET.name(),
-                QLErrorCodes.INVALID_CAST_TARGET.getErrorMsg(),
-                target == null ? "null" : target.getClass().getName());
+            QLErrorCodes.INVALID_CAST_TARGET.getErrorMsg(),
+            target == null ? "null" : target.getClass().getName());
     }
-
+    
     @Override
     public int stackInput() {
         return 2;
     }
-
+    
     @Override
     public int stackOutput() {
         return 1;
     }
-
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Cast", debug);
