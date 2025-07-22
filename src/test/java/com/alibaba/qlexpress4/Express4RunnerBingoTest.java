@@ -96,6 +96,8 @@ public class Express4RunnerBingoTest {
             .securityStrategy(QLSecurityStrategy.open())
             .traceExpression(false).build()
         );
+        // TODO 冰够 com.alibaba.qlexpress4.Express4Runner.execute(java.lang.String, java.util.Map<java.lang.String,java.lang.Object>, com.alibaba.qlexpress4.QLOptions)的context为啥不能是null，尤其在写demo的时候会传null，新老版本都存在此问题
+        //QLResult qlResult = express4Runner.execute(script, (Map<String, Object>)null, QLOptions.DEFAULT_OPTIONS);
         QLResult qlResult = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         Assert.assertNotNull(qlResult.getResult());
     }
