@@ -82,4 +82,17 @@ public class Express4RunnerBingoTest {
         Assert.assertEquals(QLErrorCodes.INVALID_ARITHMETIC.name(), qlRuntimeException.getErrorCode());
         Assert.assertEquals(ArithmeticException.class, qlRuntimeException.getCause().getClass());
     }
+
+    @Test
+    public void test_map() {
+        String script = "\n"
+            + "import java.util.HashMap;\n"
+            + "map = new HashMap();\n"
+            + "map.put(\"key1\", \"value1\");\n"
+            + "return map;";
+        System.out.println("script = " + script);
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(false).build());
+        QLResult qlResult = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Assert.assertNotNull(qlResult.getResult());
+    }
 }
