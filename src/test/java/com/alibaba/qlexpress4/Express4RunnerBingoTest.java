@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
+import com.alibaba.qlexpress4.security.StrategyIsolation;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -86,12 +88,14 @@ public class Express4RunnerBingoTest {
     @Test
     public void test_map() {
         String script = "\n"
-            + "import java.util.HashMap;\n"
             + "map = new HashMap();\n"
             + "map.put(\"key1\", \"value1\");\n"
             + "return map;";
         System.out.println("script = " + script);
-        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().traceExpression(false).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+            .securityStrategy(QLSecurityStrategy.open())
+            .traceExpression(false).build()
+        );
         QLResult qlResult = express4Runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         Assert.assertNotNull(qlResult.getResult());
     }
