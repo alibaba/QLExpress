@@ -61,7 +61,7 @@ public class TestSuiteRunner {
     @Test
     public void featureDebug()
         throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/operator/like.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/interface_const_field.ql");
         handleFile(filePath, filePath.toString(), true);
     }
     
