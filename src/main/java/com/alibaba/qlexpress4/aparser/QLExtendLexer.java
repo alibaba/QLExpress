@@ -46,13 +46,7 @@ public class QLExtendLexer extends QLexer {
             int curChInt = _input.LA(1);
             if (curChInt == Token.EOF || curChInt == '\n') {
                 // mismatch
-                throw QLException.reportScannerErr(script,
-                    this._tokenStartCharIndex,
-                    this._tokenStartLine,
-                    this._tokenStartCharPositionInLine,
-                    t.toString(),
-                    QLErrorCodes.SYNTAX_ERROR.name(),
-                    "unterminated selector");
+                throwScannerException(t.toString(), "unterminated selector");
             }
             char curCh = (char)curChInt;
             t.append(curCh);
@@ -68,6 +62,17 @@ public class QLExtendLexer extends QLexer {
                 }
             }
         }
+    }
+    
+    @Override
+    protected void throwScannerException(String lexeme, String reason) {
+        throw QLException.reportScannerErr(script,
+            this._tokenStartCharIndex,
+            this._tokenStartLine,
+            this._tokenStartCharPositionInLine,
+            lexeme,
+            QLErrorCodes.SYNTAX_ERROR.name(),
+            reason);
     }
     
     private boolean checkEndsWith(StringBuilder sb, String suffix) {

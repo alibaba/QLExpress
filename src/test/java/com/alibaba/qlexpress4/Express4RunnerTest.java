@@ -1140,10 +1140,8 @@ public class Express4RunnerTest {
         Express4Runner express4Runner =
             new Express4Runner(InitOptions.builder().selectorStart("#[").selectorEnd("]").build());
         
-        Map<String, Object> context = new HashMap<>();
-        context.put("0", "World");
-        
         assertErrorCode(express4Runner, "'Hello ' + #[0grg", QLErrorCodes.SYNTAX_ERROR.name());
+        assertErrorCode(express4Runner, "'Hello ' + ${pl}", QLErrorCodes.SYNTAX_ERROR.name());
     }
     
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {

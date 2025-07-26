@@ -15,6 +15,8 @@ lexer grammar QLexer;
     }
 
     protected void consumeSelectorVariable() { }
+
+    protected void throwScannerException(String lexeme, String reason) { }
 }
 
 // lexer
@@ -372,7 +374,7 @@ SELECTOR_START: ('${' | '$[' | '#{' | '#[') {
     if (getSelectorStart().equals(getText())) {
         pushMode(SelectorVariable);
     } else {
-        setType(CATCH_ALL);
+        throwScannerException(getText(), "invalid selector start, expect '" + getSelectorStart() + "'");
     }
 };
 
