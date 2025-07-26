@@ -263,6 +263,124 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
             .getResult());
 ----
 
+=== 安全策略
+
+QLExpress4 默认采用隔离安全策略，不允许脚本访问 Java 对象的字段和方法，这确保了脚本执行的安全性。如果需要访问 Java 对象，可以通过不同的安全策略进行配置。
+
+假设应用中有如下的 Java 类：
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.inport;
+
+/**
+ * Author: DQinYuan
+ */
+public class MyDesk {
+    
+    private String book1;
+    
+    private String book2;
+    
+    public String getBook1() {
+        return book1;
+    }
+    
+    public void setBook1(String book1) {
+        this.book1 = book1;
+    }
+    
+    public String getBook2() {
+        return book2;
+    }
+    
+    public void setBook2(String book2) {
+        this.book2 = book2;
+    }
+}
+----
+
+脚本执行的上下文设置如下：
+
+[source,java,indent=0]
+----
+        MyDesk desk = new MyDesk();
+        desk.setBook1("Thinking in Java");
+        desk.setBook2("Effective Java");
+        Map<String, Object> context = Collections.singletonMap("desk", desk);
+----
+
+QLExpress4 提供了四种安全策略：
+
+==== 1. 隔离策略（默认）
+
+默认情况下，QLExpress4 采用隔离策略，不允许访问任何字段和方法：
+
+[source,java,indent=0]
+----
+        // default isolation strategy, no field or method can be found
+        Express4Runner express4RunnerIsolation = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertErrorCode(express4RunnerIsolation, context, "desk.book1", "FIELD_NOT_FOUND");
+        assertErrorCode(express4RunnerIsolation, context, "desk.getBook2()", "METHOD_NOT_FOUND");
+----
+
+==== 2. 黑名单策略
+
+通过黑名单策略，可以禁止访问特定的字段或方法，其他字段和方法可以正常访问：
+
+[source,java,indent=0]
+----
+        // black list security strategy
+        Set<Member> memberList = new HashSet<>();
+        memberList.add(MyDesk.class.getMethod("getBook2"));
+        Express4Runner express4RunnerBlackList = new Express4Runner(
+            InitOptions.builder().securityStrategy(QLSecurityStrategy.blackList(memberList)).build());
+        assertErrorCode(express4RunnerBlackList, context, "desk.book2", "FIELD_NOT_FOUND");
+        Object resultBlack =
+            express4RunnerBlackList.execute("desk.book1", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("Thinking in Java", resultBlack);
+----
+
+==== 3. 白名单策略
+
+通过白名单策略，只允许访问指定的字段或方法，其他字段和方法都会被禁止：
+
+[source,java,indent=0]
+----
+        // white list security strategy
+        Express4Runner express4RunnerWhiteList = new Express4Runner(
+            InitOptions.builder().securityStrategy(QLSecurityStrategy.whiteList(memberList)).build());
+        Object resultWhite =
+            express4RunnerWhiteList.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("Effective Java", resultWhite);
+        assertErrorCode(express4RunnerWhiteList, context, "desk.getBook1()", "METHOD_NOT_FOUND");
+----
+
+==== 4. 开放策略
+
+开放策略允许访问所有字段和方法，类似于 QLExpress3 的行为，但需要注意安全风险：
+
+[source,java,indent=0]
+----
+        // open security strategy
+        Express4Runner express4RunnerOpen =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Assert.assertEquals("Thinking in Java",
+            express4RunnerOpen.execute("desk.book1", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Effective Java",
+            express4RunnerOpen.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult());
+----
+
+> 注意：开放策略虽然提供了最大的灵活性，但也带来了安全风险。建议只在受信任的环境中使用，不建议用于处理终端用户输入的脚本。
+
+==== 策略建议
+
+建议直接采用默认策略，在脚本中不要直接调用 Java 对象的字段和方法。而是通过自定义函数和操作符的方式（参考 link:#添加自定义函数与操作符[添加自定义函数与操作符]），对嵌入式脚本提供系统功能。这样能同时保证脚本的安全性和灵活性，用户体验还更好。
+
+如果确实需要调用 Java 对象的字段和方法，至少应该使用白名单策略，只提供脚本有限的访问权限。
+
+至于黑名单和开放策略，不建议在外部输入脚本的场景使用，除非确保每个脚本都会经过审核。
+
 === 调用应用中的 Java 类
 
 > 需要放开安全策略，不建议用于终端用户输入
@@ -963,7 +1081,7 @@ public class MyHome {
 
 可以通过下面的 QLExpress 脚本，便捷创建：
 
-> 注意，该特性需要参考 link:#调用应用中的-java-类[调用应用中的Java类] 打开安全选项，才能正常执行。
+> 注意，该特性需要参考 link:#安全策略[安全策略] 打开安全选项，才能正常执行。
 
 [source,java]
 ----
@@ -1103,6 +1221,27 @@ b = 2
 // return statment
 return 1+1;
 ----
+
+因为分号可以省略，QLExpress4 对于换行的处理相比 3 或者 Java 语言更加严格。如果想要将多行表达式拆成多行，建议将操作符保留在当前行，而将右操作数换到下一行。
+
+以下多行表达式会报语法错误（反例）：
+
+[source,java]
+----
+// syntax error
+a
++ b
+----
+
+以下是正确的换行示例（正例）：
+
+[source,java]
+----
+a +
+b
+----
+
+其他的语法习惯保持和 Java 一致即可。
 
 === 表达式
 
@@ -1282,7 +1421,7 @@ QLExpress 可以兼容 Java8 的常见语法。
 
 可以直接使用 Java 集合中的 stream api 对集合进行操作。
 
-因为此时的 stream api 都是来自 Java 中的方法，参考 link:#调用应用中的-java-类[调用应用中的Java类] 打开安全选项，以下脚本才能正常执行。
+因为此时的 stream api 都是来自 Java 中的方法，参考 link:#安全策略[安全策略] 打开安全选项，以下脚本才能正常执行。
 
 [source,java]
 ----
@@ -1319,7 +1458,108 @@ Function f1 = (a, b) -> a + b;
 assert(f1.apply("test-") == "test-null");
 ----
 
-== 附录一 如何贡献？
+== 附录一 升级指南
+
+QLExpress 的上一版本因为多年的迭代停滞，在各项特性上和业界产生了较大差距。
+
+QLExpress4 的目标之一就是一次性弥补这些差距，因此选择进行了大刀阔斧的升级，而有意放弃了部分兼容性。当然，基础的功能和体验还是和上一版本保持了对齐。
+
+如果系统已经使用老版本的 QLExpress，升级之前务必要进行一次全面的回归测试，确保这些脚本都能在新版中正常执行，再进行升级。
+
+如果没有时间或者方法对它们一一验证，那么不建议进行升级。
+
+如果是新系统，建议直接采用 QLExpress4，未来 QLExpress4 的生态建设会越来越完善，而 3 会被逐渐抛弃。
+
+下面将列表新版和旧版的主要不同，方便用户对已有脚本进行升级。如有遗漏，欢迎反馈：
+
+=== 默认安全策略
+
+如果完全使用默认选项，获取 Java 对象的字段（`o.field`），或者调用成员方法（`o.method()`），则会分别抛出 `FIELD_NOT_FOUND` 和 `METHOD_NOT_FOUND` 错误。
+
+这是因为 3 可以没有限制地通过反射访问 Java 应用系统中的任意字段和方法，这在嵌入式脚本中被认为是不安全的。
+
+如果想兼容 3 的行为，则在新建 `Express4Runner` 时， 要将安全策略设置为 “开放”，参考代码如下：
+
+[source,java,indent=0]
+----
+        // open security strategy
+        Express4Runner express4RunnerOpen =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Assert.assertEquals("Thinking in Java",
+            express4RunnerOpen.execute("desk.book1", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Effective Java",
+            express4RunnerOpen.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult());
+----
+
+详细参考 link:#安全策略[安全策略] 章节。
+
+=== 定义映射
+
+QLExpress 老版本支持通过 `NewMap(key:value)` 的方式快速创建映射，虽然在文档中没有详细讨论，但是很多用户通过单元测试和询问的方式，知晓并使用了这个语法。
+
+不过这种语法过于定制，也和业界的规范相差很大，因此在新版中将其移除。
+
+新版原生支持 JSON 语法，直接采用 JSON 字典的格式（`\{key:value}`）即可快速创建映射，更加直观。
+
+详细参考 link:#方便语法元素[方便语法元素]
+
+=== 全局变量污染上下文
+
+QLExpress 支持在执行脚本时传入一个全局的上下文，即 context 参数。
+
+在老版本中，如果脚本中定义了全局变量，则这些变量也会写入到 context。在脚本执行结束后，可以通过 context 获取到脚本中定义的全局变量的值。
+
+一个老版本的列子如下：
+
+[source,java]
+----
+// only for QLExpress 3.x
+
+String express = "a=3;a+1";
+ExpressRunner runner = new ExpressRunner(false, true);
+DefaultContext<String, Object> context = new DefaultContext<>();
+
+Object res = runner.execute(express, context, null, true, true);
+// The result of the script execution should be 4 (a+1)
+Assert.assertEquals(4, res);
+// The variable 'a' defined in the script is also stored in the context
+Assert.assertEquals(3, context.get("a"));
+----
+
+根据调研和反馈，我们认为这会导致全局上下文被脚本 “污染”，存在安全性问题。
+
+因此在 QLExpress4 中，全局变量默认不会写入到 context 中。
+
+如果想要兼容 3 的特性，需要将 `polluteUserContext` 选项设置为 `true`，参考代码如下：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions populateOption = QLOptions.builder().polluteUserContext(true).build();
+        Map<String, Object> populatedMap = new HashMap<>();
+        populatedMap.put("b", 10);
+        express4Runner.execute("a = 11;b = a", populatedMap, populateOption);
+        assertEquals(11, populatedMap.get("a"));
+        assertEquals(11, populatedMap.get("b"));
+        
+        // no population
+        Map<String, Object> noPopulatedMap1 = new HashMap<>();
+        express4Runner.execute("a = 11", noPopulatedMap1, QLOptions.DEFAULT_OPTIONS);
+        assertFalse(noPopulatedMap1.containsKey("a"));
+        
+        Map<String, Object> noPopulatedMap2 = new HashMap<>();
+        noPopulatedMap2.put("a", 10);
+        assertEquals(19, express4Runner.execute("a = 19;a", noPopulatedMap2, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(10, noPopulatedMap2.get("a"));
+----
+
+=== 分号可省略
+
+“分号可省略” 已经是现代脚本语言的一个标配，QLExpress4 也跟进了这个特性，分号是可以省略的。
+
+具体参考 link:#分号[分号] 章节。
+
+== 附录二 如何贡献？
 
 QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。
 
@@ -1340,13 +1580,13 @@ exit 0
 
 这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]
 
-== 附录二 QLExpress4性能提升
+== 附录三 QLExpress4性能提升
 
 link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
 
 总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
 
-== 附录三 开发者联系方式
+== 附录四 开发者联系方式
 
  * Email:
  ** qinyuan.dqy@alibaba-inc.com
