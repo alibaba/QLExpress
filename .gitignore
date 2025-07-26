@@ -16,6 +16,7 @@ gen/
 *.jar
 *.war
 *.ear
+!src/test/resources/test-plugins/*.jar
 dependency-reduced-pom.xml
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
