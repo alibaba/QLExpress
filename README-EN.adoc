@@ -2,85 +2,85 @@
 
 = QLExpress
 
-【中文版】| link:README-EN.adoc[[English]]
+link:README.adoc[【中文版】] | [English]
 
 image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
 
-== 背景介绍
+== Background Introduction
 
-由阿里的电商业务规则演化而来的嵌入式Java动态脚本工具，在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
+QLExpress is an embedded Java dynamic scripting tool evolved from Alibaba's e-commerce business rules. It has strong influence within Alibaba Group, and was open-sourced in 2012 to continuously optimize itself and promote the spirit of open source contribution.
 
-在基本的表达式计算的基础上，还有以下特色：
+Based on basic expression calculation, it has the following features:
 
-* 灵活的自定义能力，通过 Java API 自定义函数和操作符，可以快速实现业务规则的 DSL
-* 兼容最新的 Java 语法，方便 Java 程序员快速熟悉。熟悉类 C 语言的业务人员使用起来也会非常顺手
-* 原生支持 JSON，快捷定义复杂数据结构
-* 友好的报错提示，无论是编译还是运行时错误，都能精确友好地提示错误位置
-* 独一无二的表达式追踪功能，可以追踪表达式在中间节点计算的值，方便业务人员或者 AI 对线上规则的计算结果进行归因分析
-* 默认安全，脚本默认不允许和应用代码进行交互，如果需要交互，也可以自行定义安全的交互方式
-* 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
-* 代码精简，依赖最小，适合所有java的运行环境
+* Flexible customization capabilities - through Java API custom functions and operators, you can quickly implement business rule DSLs
+* Compatible with the latest Java syntax, making it easy for Java programmers to get familiar quickly. Business personnel familiar with C-like languages will also find it very convenient to use
+* Native JSON support for quickly defining complex data structures
+* Friendly error reporting - whether compilation or runtime errors, it can precisely and friendly indicate error locations
+* Unique expression tracing functionality that can trace the calculated values at intermediate nodes of expressions, helping business personnel or AI perform root cause analysis of online rule calculation results
+* Secure by default - scripts are not allowed to interact with application code by default, but if interaction is needed, you can also define secure interaction methods yourself
+* Interpreted execution, doesn't occupy JVM metaspace, can enable caching to improve interpretation performance
+* Lightweight code with minimal dependencies, suitable for all Java runtime environments
 
-QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
+QLExpress4, as the latest evolution of QLExpress, rewrote the parsing engine based on Antlr4, further enhancing the original advantages and fully embracing functional programming, with further improvements in both performance and expressive power.
 
-场景举例：
+Usage scenarios:
 
-* 电商优惠券规则配置：通过 QLExpress 自定义函数和操作符快速实现优惠规则 DSL，供运营人员根据需求自行动态配置
-* 表单搭建控件关联规则配置：表单搭建平台允许用户拖拽控件搭建自定义的表单，利用 QLExpress 脚本配置不同控件间的关联关系
-* 流程引擎条件规则配置
-* 广告系统计费规则配置
+* E-commerce coupon rule configuration: Quickly implement coupon rule DSLs through QLExpress custom functions and operators, allowing operations personnel to dynamically configure according to requirements
+* Form building control association rule configuration: Form building platforms allow users to drag and drop controls to build custom forms, using QLExpress scripts to configure associations between different controls
+* Workflow engine condition rule configuration
+* Advertising system billing rule configuration
 
 \...\...
 
-== 新版特色
+== New Version Features
 
-新版本并不是对旧版本的简单功能重构，而是我们基于对用户需求的洞察，对下一代规则表达式引擎的探索。拥有许多非常实用，但是在其他引擎中缺失的重要功能。
+The new version is not a simple functional refactoring of the old version, but our exploration of the next generation rule expression engine based on insights into user needs. It has many very practical but missing important features in other engines.
 
-=== 表达式计算追踪
+=== Expression Calculation Tracing
 
-在业务人员完成规则脚本的配置后，很难对其线上执行情况进行感知。比如电商的促销规则，要求用户满足规则 `isVip && 未登录10天以上`。到底有多少线上用户是被 vip 条件拦截，又有多少用户是因为登录条件被拦截？这还是只是仅仅两个条件的简单规则，实际线上情况则更加复杂。
+After business personnel complete rule script configuration, it's difficult to perceive their online execution situation. For example, in e-commerce promotion rules requiring users to satisfy the rule `isVip && not logged in for more than 10 days`. How many online users are blocked by the vip condition, and how many users are blocked by the login condition? This is just a simple rule with only two conditions, but the actual online situation is much more complex.
 
-线上规则执行情况的追踪，不仅仅可以帮助业务人员了解线上的实际情况，排查和修复问题。其沉淀的数据也非常有价值，可以用于后续的规则优化和业务决策。以下是某个规则平台，基于 QLExpress4 的表达式追踪能力，对规则进行归因分析与附注的决策的产品简化图：
+Tracing online rule execution not only helps business personnel understand the actual online situation and troubleshoot and fix problems, but the accumulated data is also very valuable and can be used for subsequent rule optimization and business decisions. Below is a simplified product diagram of a rule platform performing root cause analysis and annotation decisions on rules based on QLExpress4's expression tracing capability:
 
 image::images/order_rules_cn.png[]
 
-归因分析的原理在于利用 QLExpress4 的表达式追踪能力，获得表达式在计算过程中每个中间结果的值， 据此判断表达式最终运行结果产生的原因。
+The principle of root cause analysis lies in using QLExpress4's expression tracing capability to obtain the value of each intermediate result during expression calculation, and accordingly determine the cause of the final execution result.
 
-具体使用方法参考：link:#表达式计算追踪-1[表达式计算追踪]
+For specific usage methods, refer to: link:#expression-calculation-tracing-1[Expression Calculation Tracing]
 
-=== 原生支持 JSON 语法
+=== Native JSON Syntax Support
 
-QLExpress4 原生支持 JSON 语法，可以快捷定义复杂的数据结构。
+QLExpress4 natively supports JSON syntax and can quickly define complex data structures.
 
-JSON 数组代表列表（List），而 JSON 对象代表映射（Map），也可以直接定义复杂对象。
+JSON arrays represent lists (List), while JSON objects represent mappings (Map), and complex objects can also be directly defined.
 
-产品上可以基于该特性实现 JSON 映射规则。让用户可以便捷地定义从一个模型向另一个模型的映射关系。以下是某个规则平台，基于该能力实现的模型映射产品简化图：
+Products can implement JSON mapping rules based on this feature, allowing users to conveniently define mapping relationships from one model to another. Below is a simplified product diagram of a rule platform implementing model mapping based on this capability:
 
 image::images/json_map.png[]
 
-具体使用方法参考：link:#方便语法元素[方便语法元素]
+For specific usage methods, refer to: link:#convenient-syntax-elements[Convenient Syntax Elements]
 
-=== 便捷字符串处理
+=== Convenient String Processing
 
-QLExpress4 对字符串处理能力进行针对性的增强，在字符串中可以直接通过 `$\{expression}` 嵌入表达式计算结果。
+QLExpress4 has targeted enhancements to string processing capabilities, allowing expressions to be directly embedded in strings through `$\{expression}`.
 
-具体使用方法参考：link:#动态字符串[动态字符串]
+For specific usage methods, refer to: link:#dynamic-strings[Dynamic Strings]
 
-=== 附件透传
+=== Attachment Pass-through
 
-正常情况下，脚本执行需要的全部信息都在 `context` 中。context 中的 key 可以在脚本中作为变量引用，最终传递给自定义函数或者操作符。
+Normally, all information needed for script execution is in the `context`. Keys in the context can be referenced as variables in scripts and ultimately passed to custom functions or operators.
 
-但是出于安全，或者方便使用等因素考虑。有些信息并不希望用户通过变量引用到，比如租户名，密码等等。
+However, for security or convenience reasons, some information is not wanted to be referenced by users through variables, such as tenant names, passwords, etc.
 
-此时可以通过附件（attachments）将这部分信息传递给自定义函数或者操作符使用。
+At this time, this information can be passed to custom functions or operators through attachments.
 
-具体使用方法参考：link:#添加自定义函数与操作符[添加自定义函数与操作符]  其中 `hello` 自定义函数根据附件中租户不同，返回不同的欢迎信息的示例。
+For specific usage methods, refer to: link:#adding-custom-functions-and-operators[Adding Custom Functions and Operators], where the `hello` custom function returns different welcome messages according to different tenants in the attachment.
 
-=== 函数式编程
+=== Functional Programming
 
-函数被提升为 QLExpress4 中的第一等公民，可以作为变量使用，也可以作为函数的返回值。并且可以很容易地和 Java 中常见的函数式 API（比如 Stream） 结合使用。
+Functions are elevated to first-class citizens in QLExpress4, can be used as variables, and can also be returned as function return values. They can also be easily combined with common functional APIs in Java (such as Stream).
 
-以下是一个简单的 QLExpress 示例脚本：
+Here's a simple QLExpress example script:
 
 [source,java]
 ----
@@ -91,20 +91,20 @@ i = add(1,2);
 assert(i == 3);
 ----
 
-更多使用方法参考：
+For more usage methods, refer to:
 
-* link:#lambda-表达式[Lambda表达式]
-* link:#列表过滤和映射[列表过滤和映射]
+* link:#lambda-expressions[Lambda Expressions]
+* link:#list-filtering-and-mapping[List Filtering and Mapping]
 * link:#stream-api[Stream API]
-* link:#函数式接口[函数式接口]
+* link:#functional-interfaces[Functional Interfaces]
 
-=== 分号简化
+=== Semicolon Simplification
 
-QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#分号[分号]
+QLExpress4 supports omitting semicolons, making expressions more concise. For details, refer to link:#semicolons[Semicolons]
 
-== API 快速入门
+== API Quick Start
 
-=== 引入依赖
+=== Adding Dependencies
 
 [source,xml]
 ----
@@ -115,7 +115,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 </dependency>
 ----
 
-=== 第一个 QLExpress 程序
+=== First QLExpress Program
 
 [source,java,indent=0]
 ----
@@ -128,9 +128,9 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
         assertEquals(7, result);
 ----
 
-=== 添加自定义函数与操作符
+=== Adding Custom Functions and Operators
 
-最简单的方式是通过 Java Lambda 表达式快速定义函数/操作符的逻辑：
+The simplest way is to quickly define function/operator logic through Java Lambda expressions:
 
 [source,java,indent=0]
 ----
@@ -149,9 +149,9 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
         assertEquals("1,2,3", resultOperator);
 ----
 
-如果自定义函数的逻辑比较复杂，或者需要获得脚本的上下文信息，也可以通过继承 `CustomFunction` 的方式实现。
+If the logic of custom functions is complex, or you need to obtain script context information, you can also implement it by inheriting `CustomFunction`.
 
-比如下面的 `hello` 自定义函数，根据租户不同，返回不同的欢迎信息：
+For example, the following `hello` custom function returns different welcome messages according to different tenants:
 
 [source,java,indent=0]
 ----
@@ -189,9 +189,9 @@ public class HelloFunction implements CustomFunction {
         assertEquals("hello,lucy", resultLucy);
 ----
 
-=== 校验语法正确性
+=== Validating Syntax Correctness
 
-在不执行脚本的情况下，单纯校验语法的正确性: 调用 `parseToSyntaxTree` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
+To validate syntax correctness without executing scripts: call `parseToSyntaxTree` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors exist.
 
 [source,java,indent=0]
 ----
@@ -212,11 +212,11 @@ public class HelloFunction implements CustomFunction {
         }
 ----
 
-=== 解析脚本所需外部变量
+=== Parsing External Variables Required by Scripts
 
-脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。
+Some variables used in scripts are generated within the script, while others need to be passed in from outside through `context`.
 
-QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部传入的变量：
+QLExpress4 provides a method to parse all variables that need to be passed in from outside in the script:
 
 [source,java,indent=0]
 ----
@@ -229,11 +229,11 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
         assertEquals(expectSet, outVarNames);
 ----
 
-=== 高精度计算
+=== High-Precision Calculation
 
-QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
+QLExpress internally uses BigDecimal to represent all numbers that cannot be precisely represented by double, to represent calculation precision as much as possible:
 
-> 举例：0.1 在 double 中无法精确表示
+> Example: 0.1 cannot be precisely represented in double
 
 [source,java,indent=0]
 ----
@@ -242,10 +242,10 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
         assertTrue(result instanceof BigDecimal);
 ----
 
-通过这种方式能够解决一些计算精度问题：
+This approach can solve some calculation precision problems:
 
-比如 0.1+0.2 因为精度问题，在 Java 中是不等于 0.3 的。
-而 QLExpress 能够自动识别出 0.1 和 0.2 无法用双精度精确表示，改成用 BigDecimal 表示，确保其结果等于0.3
+For example, 0.1+0.2 is not equal to 0.3 in Java due to precision issues.
+QLExpress can automatically identify that 0.1 and 0.2 cannot be precisely represented by double precision, and change to use BigDecimal representation to ensure the result equals 0.3
 
 [source,java,indent=0]
 ----
@@ -254,7 +254,7 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
             .getResult());
 ----
 
-除了默认的精度保证外，还提供了 `precise` 开关，打开后所有的计算都使用BigDecimal，防止外部传入的低精度数字导致的问题：
+In addition to the default precision guarantee, there's also a `precise` switch. When turned on, all calculations use BigDecimal to prevent problems caused by low-precision numbers passed in from outside:
 
 [source,java,indent=0]
 ----
@@ -267,11 +267,11 @@ QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数�
             .getResult());
 ----
 
-=== 安全策略
+=== Security Strategy
 
-QLExpress4 默认采用隔离安全策略，不允许脚本访问 Java 对象的字段和方法，这确保了脚本执行的安全性。如果需要访问 Java 对象，可以通过不同的安全策略进行配置。
+QLExpress4 adopts isolation security strategy by default, not allowing scripts to access Java object fields and methods, which ensures script execution security. If you need to access Java objects, you can configure through different security strategies.
 
-假设应用中有如下的 Java 类：
+Assuming the application has the following Java class:
 
 [source,java,indent=0]
 ----
@@ -304,7 +304,7 @@ public class MyDesk {
 }
 ----
 
-脚本执行的上下文设置如下：
+The script execution context is set as follows:
 
 [source,java,indent=0]
 ----
@@ -314,11 +314,11 @@ public class MyDesk {
         Map<String, Object> context = Collections.singletonMap("desk", desk);
 ----
 
-QLExpress4 提供了四种安全策略：
+QLExpress4 provides four security strategies:
 
-==== 1. 隔离策略（默认）
+==== 1. Isolation Strategy (Default)
 
-默认情况下，QLExpress4 采用隔离策略，不允许访问任何字段和方法：
+By default, QLExpress4 adopts isolation strategy, not allowing access to any fields and methods:
 
 [source,java,indent=0]
 ----
@@ -328,9 +328,9 @@ QLExpress4 提供了四种安全策略：
         assertErrorCode(express4RunnerIsolation, context, "desk.getBook2()", "METHOD_NOT_FOUND");
 ----
 
-==== 2. 黑名单策略
+==== 2. Blacklist Strategy
 
-通过黑名单策略，可以禁止访问特定的字段或方法，其他字段和方法可以正常访问：
+Through blacklist strategy, you can prohibit access to specific fields or methods, while other fields and methods can be accessed normally:
 
 [source,java,indent=0]
 ----
@@ -345,9 +345,9 @@ QLExpress4 提供了四种安全策略：
         Assert.assertEquals("Thinking in Java", resultBlack);
 ----
 
-==== 3. 白名单策略
+==== 3. Whitelist Strategy
 
-通过白名单策略，只允许访问指定的字段或方法，其他字段和方法都会被禁止：
+Through whitelist strategy, only specified fields or methods are allowed to be accessed, while other fields and methods are prohibited:
 
 [source,java,indent=0]
 ----
@@ -360,9 +360,9 @@ QLExpress4 提供了四种安全策略：
         assertErrorCode(express4RunnerWhiteList, context, "desk.getBook1()", "METHOD_NOT_FOUND");
 ----
 
-==== 4. 开放策略
+==== 4. Open Strategy
 
-开放策略允许访问所有字段和方法，类似于 QLExpress3 的行为，但需要注意安全风险：
+Open strategy allows access to all fields and methods, similar to QLExpress3 behavior, but security risks need to be noted:
 
 [source,java,indent=0]
 ----
@@ -375,21 +375,21 @@ QLExpress4 提供了四种安全策略：
             express4RunnerOpen.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult());
 ----
 
-> 注意：开放策略虽然提供了最大的灵活性，但也带来了安全风险。建议只在受信任的环境中使用，不建议用于处理终端用户输入的脚本。
+> Note: While open strategy provides maximum flexibility, it also brings security risks. It's recommended to use only in trusted environments and not recommended for processing end-user input scripts.
 
-==== 策略建议
+==== Strategy Recommendations
 
-建议直接采用默认策略，在脚本中不要直接调用 Java 对象的字段和方法。而是通过自定义函数和操作符的方式（参考 link:#添加自定义函数与操作符[添加自定义函数与操作符]），对嵌入式脚本提供系统功能。这样能同时保证脚本的安全性和灵活性，用户体验还更好。
+It's recommended to directly adopt the default strategy and not directly call Java object fields and methods in scripts. Instead, provide system functionality to embedded scripts through custom functions and operators (refer to link:#adding-custom-functions-and-operators[Adding Custom Functions and Operators]). This can ensure both script security and flexibility, with better user experience.
 
-如果确实需要调用 Java 对象的字段和方法，至少应该使用白名单策略，只提供脚本有限的访问权限。
+If you do need to call Java object fields and methods, at least use whitelist strategy to provide limited access permissions to scripts.
 
-至于黑名单和开放策略，不建议在外部输入脚本的场景使用，除非确保每个脚本都会经过审核。
+As for blacklist and open strategies, they're not recommended for external input script scenarios unless you ensure each script will be reviewed.
 
-=== 调用应用中的 Java 类
+=== Calling Java Classes in Applications
 
-> 需要放开安全策略，不建议用于终端用户输入
+> Requires relaxing security strategy, not recommended for end-user input
 
-假设应用中有如下的 Java 类(`com.alibaba.qlexpress4.QLImportTester`)：
+Assuming the application has the following Java class (`com.alibaba.qlexpress4.QLImportTester`):
 
 [source,java,indent=0]
 ----
@@ -404,9 +404,9 @@ public class QLImportTester {
 }
 ----
 
-在 QLExpress 中有如下两种调用方式。
+In QLExpress, there are two calling methods.
 
-==== 1. 在脚本中使用 `import` 语句导入类并且使用
+==== 1. Using `import` Statement in Scripts to Import Classes and Use
 
 [source,java,indent=0]
 ----
@@ -427,7 +427,7 @@ public class QLImportTester {
         Assert.assertEquals(3, result);
 ----
 
-==== 2. 在创建 `Express4Runner` 时默认导入该类，此时脚本中就不需要额外的 `import` 语句
+==== 2. Default Import When Creating `Express4Runner`, No Additional `import` Statement Needed in Scripts
 
 [source,java,indent=0]
 ----
@@ -442,21 +442,21 @@ public class QLImportTester {
         Assert.assertEquals(3, result);
 ----
 
-除了用 `ImportManager.importCls` 导入单个类外，还有其他更方便的导入方式：
+In addition to using `ImportManager.importCls` to import individual classes, there are other more convenient import methods:
 
- * `ImportManager.importPack` 直接导入包路径下的所有类，比如 `ImportManager.importPack("java.util")` 会导入 `java.util` 包下的所有类，QLExpress 默认就会导入下面的包
+ * `ImportManager.importPack` directly imports all classes under a package path, such as `ImportManager.importPack("java.util")` will import all classes under the `java.util` package. QLExpress defaults to importing the following packages:
  ** `ImportManager.importPack("java.lang")`
  ** `ImportManager.importPack("java.util")`
  ** `ImportManager.importPack("java.math")`
  ** `ImportManager.importPack("java.util.stream")`
  ** `ImportManager.importPack("java.util.function")`
- * `ImportManager.importInnerCls` 导入给定类路径里的所有内部类
+ * `ImportManager.importInnerCls` imports all inner classes in a given class path
 
-=== 自定义 ClassLoader
+=== Custom ClassLoader
 
-QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在插件化架构、模块化应用等场景中非常有用。通过自定义类加载器，可以让 QLExpress 脚本访问特定 ClassLoader 中的类。
+QLExpress4 supports specifying class loaders through custom `ClassSupplier`, which is very useful in scenarios like plugin architecture and modular applications. Through custom class loaders, QLExpress scripts can access classes in specific ClassLoaders.
 
-下面的示例展示了如何与 link:https://pf4j.org/[PF4J] 插件框架集成，让 QLExpress 脚本能够访问插件中的类：
+The following example shows how to integrate with the link:https://pf4j.org/[PF4J] plugin framework to allow QLExpress scripts to access classes in plugins:
 
 [source,java,indent=0]
 ----
@@ -492,18 +492,18 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         Assert.assertEquals("Hello from PF4J Plugin!", result.toString());
 ----
 
-自定义 ClassSupplier 的典型应用场景：
+Typical application scenarios for custom ClassSupplier:
 
-* **插件化架构**：让脚本能够访问插件中定义的类和接口
-* **模块化应用**：在 OSGi 等模块化框架中，让脚本访问特定模块的类
-* **动态类加载**：从远程仓库或动态生成的字节码中加载类
-* **类隔离**：使用不同的 ClassLoader 来实现类的隔离
+* **Plugin Architecture**: Allow scripts to access classes and interfaces defined in plugins
+* **Modular Applications**: In modular frameworks like OSGi, allow scripts to access classes in specific modules
+* **Dynamic Class Loading**: Load classes from remote repositories or dynamically generated bytecode
+* **Class Isolation**: Use different ClassLoaders to achieve class isolation
 
-=== 表达式缓存
+=== Expression Caching
 
-通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
+Through the `cache` option, you can enable expression caching, so the same expressions won't be recompiled, greatly improving performance.
 
-注意该缓存没有限制大小，只适合在表达式为有限数量的情况下使用：
+Note that this cache has no size limit and is only suitable for use when expressions are in limited quantities:
 
 [source,java,indent=0]
 ----
@@ -512,9 +512,9 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         express4Runner.execute("1+2", new HashMap<>(), QLOptions.builder().cache(true).build());
 ----
 
-但是当脚本首次执行时，因为没有缓存，依旧会比较慢。
+However, when scripts are executed for the first time, they're still relatively slow because there's no cache.
 
-可以通过下面的方法在首次执行前就将脚本缓存起来，保证首次执行的速度：
+You can cache scripts before first execution using the following method to ensure first execution speed:
 
 [source,java,indent=0]
 ----
@@ -522,11 +522,11 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         express4Runner.parseToDefinitionWithCache("a+b");
 ----
 
-=== 设置超时时间
+=== Setting Timeout
 
-可以给脚本设置一个超时时间，防止其中存在死循环或者其他原因导致应用资源被过量消耗。
+You can set a timeout for scripts to prevent infinite loops or other reasons from causing excessive consumption of application resources.
 
-下面的示例代码给脚本给脚本设置了一个 10ms 的超时时间：
+The following example code sets a 10ms timeout for the script:
 
 [source,java,indent=0]
 ----
@@ -542,15 +542,15 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         }
 ----
 
-> 注意，出于系统性能的考虑，QLExpress 对于超时时间的检测是不准确的。特别是在回调Java代码中（比如自定义函数或者操作符）出现的超时，不会立刻被检测到。只有在执行完，回到 QLExpress 运行时后才会被检测到并中断执行。
+> Note: For system performance considerations, QLExpress's detection of timeout is not accurate. Especially for timeouts occurring in Java code callbacks (such as custom functions or operators), they won't be detected immediately. Only after execution is complete and back to QLExpress runtime will they be detected and execution interrupted.
 
-=== 扩展函数
+=== Extension Functions
 
-利用 QLExpress 提供的扩展函数能力，可以给Java类中添加额外的成员方法。
+Using QLExpress's extension function capability, you can add additional member methods to Java classes.
 
-扩展函数是基于 QLExpress 运行时实现的，因此仅仅在 QLExpress 脚本中有效。
+Extension functions are implemented based on QLExpress runtime, so they're only effective in QLExpress scripts.
 
-下面的示例代码给 String 类添加了一个 `hello()` 扩展函数：
+The following example code adds a `hello()` extension function to the String class:
 
 [source,java,indent=0]
 ----
@@ -584,13 +584,13 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         assertEquals("Hello,jack", result);
 ----
 
-=== Java类的对象,字段和方法别名
+=== Java Class Object, Field, and Method Aliases
 
-QLExpress 支持通过 `QLAlias` 注解给对象，字段或者方法定义一个或多个别名，方便非技术人员使用表达式定义规则。
+QLExpress supports defining one or more aliases for objects, fields, or methods through the `QLAlias` annotation, making it convenient for non-technical personnel to use expressions to define rules.
 
-下面的例子中，根据用户是否 vip 计算订单最终金额。
+In the following example, the final order amount is calculated based on whether the user is a vip.
 
-用户类定义：
+User class definition:
 
 [source,java,indent=0]
 ----
@@ -625,7 +625,7 @@ public class User {
 }
 ----
 
-订单类定义：
+Order class definition:
 
 [source,java,indent=0]
 ----
@@ -660,7 +660,7 @@ public class Order {
 }
 ----
 
-通过 QLExpress 脚本规则计算最终订单金额：
+Calculate final order amount through QLExpress script rules:
 
 [source,java,indent=0]
 ----
@@ -681,9 +681,9 @@ public class Order {
         assertEquals(80, result.intValue());
 ----
 
-=== 关键字，操作符和函数别名
+=== Keyword, Operator, and Function Aliases
 
-为了进一步方面非技术人员编写规则，QLExpress 提供 `addAlias` 给原始关键字，操作符和函数增加别名。让整个脚本的表述更加贴近自然语言。
+To further facilitate non-technical personnel in writing rules, QLExpress provides `addAlias` to add aliases to original keywords, operators, and functions, making the entire script expression more natural language-like.
 
 [source,java,indent=0]
 ----
@@ -712,7 +712,7 @@ public class Order {
         assertEquals(0, result);
 ----
 
-支持设置别名的关键字有:
+Keywords that support setting aliases include:
 
  * if
  * then
@@ -729,22 +729,22 @@ public class Order {
  * true
  * false
 
-> 注意：部分大家熟悉的用法其实是操作符，而不是关键字，比如 `in` 操作符。而所有的操作符和函数默认就是支持别名的
+> Note: Some familiar usages are actually operators, not keywords, such as the `in` operator. All operators and functions support aliases by default
 
-=== 宏
+=== Macros
 
-宏是QLExpress中一个强大的代码复用机制，它允许用户定义一段可重用的脚本片段，并在需要时进行调用。与简单的文本替换不同，QLExpress的宏是基于指令回放的机制实现的，具有更好的性能和语义准确性。
+Macros are a powerful code reuse mechanism in QLExpress that allows users to define reusable script fragments and call them when needed. Unlike simple text replacement, QLExpress macros are implemented based on instruction replay mechanism, providing better performance and semantic accuracy.
 
-宏特别适用于以下场景：
+Macros are particularly suitable for the following scenarios:
 
-* **代码复用**：将常用的脚本片段封装成宏，避免重复编写相同的逻辑
-* **业务规则模板**：定义标准的业务规则模板，如价格计算、权限检查等
-* **流程控制**：封装复杂的控制流程，如条件判断、循环逻辑等
-* **DSL构建**：作为构建领域特定语言的基础组件
+* **Code Reuse**: Encapsulate commonly used script fragments into macros to avoid repeatedly writing the same logic
+* **Business Rule Templates**: Define standard business rule templates such as price calculation, permission checking, etc.
+* **Flow Control**: Encapsulate complex control flows such as conditional judgment, loop logic, etc.
+* **DSL Construction**: As basic components for building domain-specific languages
 
-宏可以通过两种方式定义：
+Macros can be defined in two ways:
 
-**1. 在脚本中使用 `macro` 关键字定义**
+**1. Using `macro` keyword in scripts**
 
 [source,java]
 ----
@@ -758,7 +758,7 @@ add;
 assert(c == 3);
 ----
 
-**2. 通过Java API添加**
+**2. Adding through Java API**
 
 [source,java,indent=0]
 ----
@@ -774,31 +774,31 @@ assert(c == 3);
         assertEquals("huhu-wuli", result1);
 ----
 
-宏与函数的区别：
+Differences between macros and functions:
 
 [cols="1,1,1"]
 |===
-| 特性 | 宏 | 函数
-| 参数传递 | 无参数，依赖上下文变量 | 支持参数传递
-| 性能   | 指令直接插入，无调用开销 | 有函数调用开销
-| 作用域    | 共享调用者作用域 | 独立的作用域
-| 适用场景     | 代码片段复用 | 逻辑封装和参数化
+| Feature | Macro | Function
+| Parameter Passing | No parameters, relies on context variables | Supports parameter passing
+| Performance | Direct instruction insertion, no call overhead | Has function call overhead
+| Scope | Shares caller's scope | Independent scope
+| Applicable Scenarios | Code fragment reuse | Logic encapsulation and parameterization
 |===
 
-宏特别适合那些不需要参数传递、主要依赖上下文变量的代码片段复用场景，而函数更适合需要参数化和独立作用域的场景。
+Macros are particularly suitable for code fragment reuse scenarios that don't require parameter passing and mainly rely on context variables, while functions are more suitable for scenarios requiring parameterization and independent scope.
 
-**QLExpress4 相比 3 版本，宏特性的变化**：
+**Changes in macro features in QLExpress4 compared to version 3**:
 
- * 4 的宏实现更加接近通常编程语言中宏的定义，相当于将预定义的代码片段插入到宏所在的位置，与调用点位于同一作用域，宏中的 `return`, `contine` 和 `break` 等可以影响调用方的控制流。但是 3 中的实现其实更加接近无参函数调用。
- * 4 的宏无法作为变量使用，只有单独作为一行语句时才能被宏替换。因为宏可以是任意脚本，不一定是有返回值的表达式，作为变量时会存在语义问题。3 的宏本质是一个无参函数调用，所以常常被作为变量使用
+ * Version 4's macro implementation is closer to the definition of macros in common programming languages, equivalent to inserting predefined code fragments at the macro's location, sharing the same scope as the call point. `return`, `continue`, and `break` in macros can affect the control flow of the caller. However, version 3's implementation is actually closer to parameterless function calls.
+ * Version 4's macros cannot be used as variables, only when standing alone as a line statement can they be macro-replaced. Because macros can be arbitrary scripts, not necessarily expressions with return values, using them as variables would have semantic issues. Version 3's macros are essentially parameterless function calls, so they're often used as variables.
 
-如果想兼容 3 中的宏特性，建议使用 link:#动态变量[动态变量]
+If you want to be compatible with version 3's macro features, it's recommended to use link:#dynamic-variables[Dynamic Variables]
 
-=== 动态变量
+=== Dynamic Variables
 
-常规的 “静态变量”，是 context 中和 key 关联的固定的值。而动态变量可以是一个表达式，由另外一些变量计算而得。动态变量支持嵌套，即动态变量可以依赖另一个动态变量计算得到。
+Regular "static variables" are fixed values associated with keys in the context. Dynamic variables can be expressions calculated from other variables. Dynamic variables support nesting, meaning dynamic variables can depend on another dynamic variable for calculation.
 
-示例如下：
+Example:
 
 [source,java,indent=0]
 ----
@@ -824,11 +824,11 @@ assert(c == 3);
             ((Number)express4Runner.execute("语文+数学", dynamicContext, defaultOptions).getResult()).intValue());
 ----
 
-=== 表达式计算追踪
+=== Expression Calculation Tracing
 
-如果打开相关选项，QLExpress4 就会在返回规则脚本计算结果的同时，返回一颗表达式追踪树。表达式追踪树的结构类似语法树，不同之处在于，它会在每个节点上记录本次执行的中间结果。
+If relevant options are enabled, QLExpress4 will return an expression trace tree along with the rule script calculation result. The structure of the expression trace tree is similar to a syntax tree, with the difference that it records intermediate results of this execution at each node.
 
-比如对于表达式 `!true || myTest(a, 1)`，表达式追踪树的结构大概如下：
+For example, for the expression `!true || myTest(a, 1)`, the structure of the expression trace tree is roughly as follows:
 
 [source]
 ----
@@ -839,13 +839,13 @@ assert(c == 3);
  true       a 10     1
 ----
 
-可应用于多种场景：
+It can be applied to various scenarios:
 
- * 方便业务人员对规则的计算结果进行分析排查
- * 对线上判断为 false 的规则进行采样归类
- * AI 自动诊断和修复规则
+ * Help business personnel analyze and troubleshoot rule calculation results
+ * Sample and categorize rules judged as false online
+ * AI automatic diagnosis and repair of rules
 
-节点计算结果会被放置到 `ExpressionTrace` 对象的 `value` 字段中。如果中间发生短路导致部分表达式未被计算，则 `ExpressionTrace` 对象的 `evaluated` 字段会被设置为 false。代码示例如下：
+Node calculation results are placed in the `value` field of the `ExpressionTrace` object. If short-circuit occurs in the middle causing some expressions to not be calculated, the `evaluated` field of the `ExpressionTrace` object will be set to false. Code example:
 
 [source,java,indent=0]
 ----
@@ -892,9 +892,9 @@ assert(c == 3);
                 expressionTraceIn.toPrettyString(0));
 ----
 
-> 注意，必须在新建 `Express4Runner` 时将 `InitOptions.traceExpression` 选项设置为 true，同时在执行脚本时将 `QLOptions.traceExpression` 设置为 true，该功能才能生效。
+> Note: You must set the `InitOptions.traceExpression` option to true when creating `Express4Runner`, and set `QLOptions.traceExpression` to true when executing scripts for this feature to take effect.
 
-也可以在不执行脚本的情况下获得所有表达式追踪点：
+You can also get all expression trace points without executing scripts:
 
 [source,java,indent=0]
 ----
@@ -905,41 +905,41 @@ assert(c == 3);
             + "  | VALUE 9\n", tracePointTree.toPrettyString(0));
 ----
 
-支持的表达式追踪点类型以及对应子节点的含义如下：
+Supported expression trace point types and corresponding child node meanings are as follows:
 
 [cols="1,1,1"]
 |===
-| 节点类型 | 节点含义 | 子节点含义
-| OPERATOR | 操作符 | 两侧操作数
-| FUNCTION | 函数 | 函数参数
-| METHOD   | 方法 | 方法参数
-| FIELD    | 字段 | 取字段的目标对象
-| LIST     | 列表 | 列表元素
-| MAP      | 字段 | 无
-| IF       | 条件分支 | then逻辑块和else逻辑块
-| RETURN   | 返回语句 | 返回表达式
-| VARIABLE | 变量 | 无
-| VALUE    | 字面值   | 无
-| DEFINE_FUNCTION | 定义函数 | 无
-| DEFINE_MACRO | 定义宏 | 无
-| PRIMARY  | 暂时未继续下钻的其他复合值（比如字典,if等等）| 无
-| STATEMENT | 暂未继续下钻的其他复合语句（比如 while, for 等等）| 无
+| Node Type | Node Meaning | Child Node Meaning
+| OPERATOR | Operator | Both operands
+| FUNCTION | Function | Function parameters
+| METHOD   | Method | Method parameters
+| FIELD    | Field | Target object for field access
+| LIST     | List | List elements
+| MAP      | Field | None
+| IF       | Conditional branch | Then logic block and else logic block
+| RETURN   | Return statement | Return expression
+| VARIABLE | Variable | None
+| VALUE    | Literal value | None
+| DEFINE_FUNCTION | Define function | None
+| DEFINE_MACRO | Define macro | None
+| PRIMARY  | Other composite values not yet drilled down (such as dictionaries, if, etc.) | None
+| STATEMENT | Other composite statements not yet drilled down (such as while, for, etc.) | None
 |===
 
-=== 与 Spring 集成
+=== Spring Integration
 
-QLExpress 并不需要专门与 Spring 集成，只需要一个 `Express4Runner` 单例，即可使用。
+QLExpress doesn't need special integration with Spring, just a `Express4Runner` singleton is sufficient.
 
-这里提供的 “集成” 示例，可以在 QLExpress 脚本中直接引用任意 Spring Bean。
+The "integration" example provided here allows direct reference to any Spring Bean in QLExpress scripts.
 
-这种方式虽然很方便，但是脚本权限过大，自由度太高。不再推荐使用，还是建议在 context 只放入允许用户访问的对象。
+While this approach is very convenient, it gives scripts too much permission and freedom. It's no longer recommended. It's still recommended to only put objects that users are allowed to access in the context.
 
-核心集成组件：
+Core integration components:
 
-* link:src/test/java/com/alibaba/qlexpress4/spring/QLSpringContext.java[QLSpringContext]: 实现了 `ExpressContext` 接口，提供了对 Spring 容器的访问能力。它会优先从传入的 context 中查找变量，如果找不到则尝试从 Spring 容器中获取同名的 Bean。
-* link:src/test/java/com/alibaba/qlexpress4/spring/QLExecuteService.java[QLExecuteService]: 封装了 QLExpress 的执行逻辑，集成了 Spring 容器，方便在 Spring 应用中使用。
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLSpringContext.java[QLSpringContext]: Implements the `ExpressContext` interface, providing access capability to the Spring container. It first looks for variables from the passed context, and if not found, tries to get beans with the same name from the Spring container.
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLExecuteService.java[QLExecuteService]: Encapsulates QLExpress execution logic, integrates with Spring container, convenient for use in Spring applications.
 
-假设存在一个 Spring Bean， 名为 `helloService`：
+Assuming there's a Spring Bean named `helloService`:
 
 [source,java,indent=0]
 ----
@@ -963,7 +963,7 @@ public class HelloService {
 }
 ----
 
-在脚本中调用该 Bean：
+Call this Bean in scripts:
 
 [source,java,indent=0]
 ----
@@ -1000,22 +1000,22 @@ public class SpringDemoTest {
 ----
 
 
-== 语法入门
+== Syntax Introduction
 
-QLExpress4 兼容 Java8 语法的同时，也提供了很多更加灵活宽松的语法模式，帮助用户更快捷地编写表达式。
+QLExpress4 is compatible with Java8 syntax while also providing many more flexible and loose syntax patterns to help users write expressions more quickly.
 
-基于表达式优先的语法设计，复杂的条件判断语句也可以直接当作表达式使用。
+Based on expression-first syntax design, complex conditional judgment statements can also be directly used as expressions.
 
-在本章节中出现的代码片段都是 qlexpress 脚本，
-`assert` 是测试框架往引擎中注入的断言方法，会确保其参数为 `true`。
-`assertErrCode` 会确保其 lambda 参数表达式的执行一定会抛出含第二个参数 error code 的 QLException。
+Code snippets appearing in this chapter are all qlexpress scripts.
+`assert` is an assertion method injected by the test framework into the engine, ensuring its parameter is `true`.
+`assertErrCode` ensures that the lambda parameter expression execution will definitely throw a QLException containing the second parameter error code.
 
-=== 变量声明
+=== Variable Declaration
 
-同时支持静态类型和动态类型：
+Supports both static typing and dynamic typing:
 
- * 变量声明时不写类型，则变量是动态类型，也同时是一个赋值表达式
- * 变量声明如果写类型，则是静态类型，此时是一个变量声明语句
+ * When declaring variables without writing types, the variable is dynamic type and also an assignment expression
+ * When declaring variables with types, it's static type, and at this time it's a variable declaration statement
 
 [source,java]
 ----
@@ -1029,9 +1029,9 @@ assertErrorCode(() -> b = "1", "INCOMPATIBLE_ASSIGNMENT_TYPE")
 
 ----
 
-=== 方便语法元素
+=== Convenient Syntax Elements
 
-列表(List)，映射(Map)等常用语法元素在 QLExpress 中都有非常方便的构造语法糖：
+Common syntax elements like lists (List), mappings (Map), etc. all have very convenient construction syntax sugar in QLExpress:
 
 [source,java]
 ----
@@ -1053,7 +1053,7 @@ assert(m['aa']==10)
 assert(m instanceof LinkedHashMap)
 ----
 
-通过 `*.` 操作符，可以快捷地对列表和映射进行处理，比如对列表元素进行取属性，或者获得映射的 key 列表和 value 列表：
+Through the `*.` operator, you can quickly process lists and mappings, such as taking properties of list elements, or getting key lists and value lists of mappings:
 
 [source,java]
 ----
@@ -1081,7 +1081,7 @@ assert(mm*.key==["aaa", "bbb"])
 assert(mm*.value==[1, 2])
 ----
 
-在映射中通过 `@class` key 指定类型的全限定名，就可以直接使用 JSON 创建复杂Java对象。比如下面的 MyHome ， 是一个含有复杂嵌套类型 Java 类：
+In mappings, by specifying the fully qualified name of the type through the `@class` key, you can directly use JSON to create complex Java objects. For example, the following MyHome is a Java class with complex nested types:
 
 [source,java]
 ----
@@ -1130,9 +1130,9 @@ public class MyHome {
 }
 ----
 
-可以通过下面的 QLExpress 脚本，便捷创建：
+You can conveniently create it through the following QLExpress script:
 
-> 注意，该特性需要参考 link:#安全策略[安全策略] 打开安全选项，才能正常执行。
+> Note: This feature requires opening security options as referenced in link:#security-strategy[Security Strategy] to execute normally.
 
 [source,java]
 ----
@@ -1153,10 +1153,10 @@ assert(myHome.getMyDesk().getBook1()=='Then Moon and Sixpence')
 assert(myHome.getMyDesk() instanceof com.alibaba.qlexpress4.inport.MyDesk)
 ----
 
-=== 数字
+=== Numbers
 
-对于未声明类型的数字，
-QLExpress会根据其所属范围自动从 int, long, BigInteger, double, BigDecimal 等数据类型中选择一个最合适的：
+For numbers without declared types,
+QLExpress will automatically select the most appropriate one from data types like int, long, BigInteger, double, BigDecimal based on their range:
 
 [source,java]
 ----
@@ -1168,15 +1168,15 @@ assert(0.25 instanceof Double);
 assert(2.7976931348623157E308 instanceof BigDecimal);
 ----
 
-因此在自定义函数或者操作符时，建议使用 Number 类型进行接收，因为数字类型是无法事先确定的。
+Therefore, when writing custom functions or operators, it's recommended to use Number type for receiving, because numeric types cannot be determined in advance.
 
-=== 动态字符串
+=== Dynamic Strings
 
-动态字符串是 QLExpress 为了增强字符串处理能力，在 4 版本新引入的能力。
+Dynamic strings are a new capability introduced in QLExpress version 4 to enhance string processing capabilities.
 
-支持 `$\{expression}` 的格式在字符串中插入表达式计算：
+Supports inserting expression calculations in strings through the `$\{expression}` format:
 
-> 如果想在字符串中原样保持 `$\{expression}`，可以使用 `\$` 对 `$` 进行转义
+> If you want to keep `$\{expression}` as-is in strings, you can escape `$` using `\$`
 
 [source,java]
 ----
@@ -1194,9 +1194,9 @@ assert("m xx ${
 }" == "m xx YYY")
 ----
 
-如果还想让 QLExpress4 的字符串和 3 保持兼容性，不对插值表达式进行处理，可以在新建 `Express4Runner` 时直接关闭该特性：
+If you want QLExpress4 strings to maintain compatibility with version 3 and not process interpolation expressions, you can directly turn off this feature when creating `Express4Runner`:
 
-[source,java]
+[source,java,indent=0]
 ----
         Express4Runner express4RunnerDisable = new Express4Runner(
             // disable string interpolation
@@ -1210,25 +1210,25 @@ assert("m xx ${
                 .getResult());
 ----
 
-=== 占位符
+=== Placeholders
 
-占位符用于从 context 中提取任意 key 的值。
+Placeholders are used to extract values of arbitrary keys from the context.
 
-全局变量也可以从 context 中提取值，但是收到 QLExpress 关键词和语法的限制，能提取的 key 有限。
-比如 context 中 "0" key 对应的值就无法通过变量提取，因为 0 不是 QLExpress 中的合法变量，而是一个数字常量。
-此时可以用默认占位符 `$\{0}` 来提取。
+Global variables can also extract values from the context, but are limited by QLExpress keywords and syntax, so the keys that can be extracted are limited.
+For example, the value corresponding to key "0" in the context cannot be extracted through variables, because 0 is not a legal variable in QLExpress, but a numeric constant.
+At this time, you can use the default placeholder `$\{0}` to extract it.
 
-> 注意和动态字符串中插值区分，占位符是写在字符串之外。动态字符串插值是 `$\{expression}`，其中默认写的是表达式，`"${0}"` 的运行结果是 `"0"`。而占位符是 `$\{placeholder}`，其中默认写的是 context 中的 key，`${0}` 的运行结果是 context 中 "0" key 对应的值。
+> Note the distinction from interpolation in dynamic strings. Placeholders are written outside strings. Dynamic string interpolation is `$\{expression}`, where expressions are written by default, and the running result of `"${0}"` is `"0"`. Placeholders are `$\{placeholder}`, where keys in the context are written by default, and the running result of `${0}` is the value corresponding to key "0" in the context.
 
-QLExpress 默认使用 `$\{placeholder}` 格式的占位符，其中：
+QLExpress uses `${placeholder}` format placeholders by default, where:
 
-* `${` 是起始标记
-* `}` 是结束标记
-* `placeholder` 是占位符内容，对应 cotext 中的 key
+* `${` is the start marker
+* `}` is the end marker
+* `placeholder` is the placeholder content, corresponding to the key in the context
 
-除了默认的占位符外，QLExpress 还支持自定义占位符的起始和结束标记：
+In addition to default placeholders, QLExpress also supports customizing the start and end markers of placeholders:
 
-[source,java]
+[source,java,indent=0]
 ----
         Express4Runner express4Runner =
             new Express4Runner(InitOptions.builder().selectorStart("#[").selectorEnd("]").build());
@@ -1240,20 +1240,20 @@ QLExpress 默认使用 `$\{placeholder}` 格式的占位符，其中：
         assertEquals("Hello World", result.getResult());
 ----
 
-自定义占位符并不是任意的，限制条件如下：
+Custom placeholders are not arbitrary, with the following restrictions:
 
-* **起始标记限制**：`selectorStart` 必须是以下四种格式之一：
-  ** `${` (默认)
+* **Start Marker Restriction**: `selectorStart` must be one of the following four formats:
+  ** `${` (default)
   ** `$[`
   ** `#{`
   ** `#[`
-* **结束标记限制**：`selectorEnd` 必须是 1 个或更多字符的字符串
+* **End Marker Restriction**: `selectorEnd` must be a string of 1 or more characters
 
-=== 分号
+=== Semicolons
 
-表达式语句可以省略结尾的分号，整个脚本的返回值就是最后一个表达式的计算结果。
+Expression statements can omit ending semicolons, and the return value of the entire script is the calculation result of the last expression.
 
-以下脚本的返回值为 2：
+The return value of the following script is 2:
 
 [source,java]
 ----
@@ -1263,7 +1263,7 @@ b = 2
 1+1
 ----
 
-等价于以下写法：
+Equivalent to the following写法:
 
 [source,java]
 ----
@@ -1273,9 +1273,9 @@ b = 2
 return 1+1;
 ----
 
-因为分号可以省略，QLExpress4 对于换行的处理相比 3 或者 Java 语言更加严格。如果想要将多行表达式拆成多行，建议将操作符保留在当前行，而将右操作数换到下一行。
+Because semicolons can be omitted, QLExpress4's handling of line breaks is stricter compared to version 3 or Java language. If you want to split multi-line expressions into multiple lines, it's recommended to keep operators on the current line and move the right operand to the next line.
 
-以下多行表达式会报语法错误（反例）：
+The following multi-line expression will report a syntax error (counterexample):
 
 [source,java]
 ----
@@ -1284,7 +1284,7 @@ a
 + b
 ----
 
-以下是正确的换行示例（正例）：
+The following is a correct line break example (positive example):
 
 [source,java]
 ----
@@ -1292,13 +1292,13 @@ a +
 b
 ----
 
-其他的语法习惯保持和 Java 一致即可。
+Other syntax habits remain consistent with Java.
 
-=== 表达式
+=== Expressions
 
-QLExpress 采用表达式优先的设计，其中 除了 import， return 和循环等结构外，几乎都是表达式。
+QLExpress adopts expression-first design, where almost everything is an expression except for import, return, and loop structures.
 
-if 语句也是一个表达式：
+if statements are also expressions:
 
 [source,java]
 ----
@@ -1309,7 +1309,7 @@ assert(if (11 == 11) {
 } + 1 == 11)
 ----
 
-try catch 结构也是一个表达式：
+try catch structures are also expressions:
 
 [source,java]
 ----
@@ -1321,17 +1321,17 @@ assert(1 + try {
 } == 12)
 ----
 
-=== 短路计算
+=== Short-Circuit Evaluation
 
-和 Java 类似，`&&` 和 `||` 逻辑运算都是短路运算的。
+Similar to Java, `&&` and `||` logical operations are all short-circuit evaluations.
 
-比如表达式 `false && (1/0)` 不会发生除 0 错误，因为 `&&` 短路在了最开始的 `false` 处。
+For example, the expression `false && (1/0)` won't cause a division by zero error because `&&` short-circuits at the initial `false`.
 
-短路计算默认是开启的，引擎也提供了选项，可以在某次执行时将短路关闭：
+Short-circuit evaluation is enabled by default, and the engine also provides options to turn off short-circuit for a specific execution:
 
-> 关闭短路的一个场景是保证表达式的充分预热
+> One scenario for turning off short-circuit is to ensure full warm-up of expressions
 
-[source,java]
+[source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         // execute when enable short circuit (default)
@@ -1352,11 +1352,11 @@ assert(1 + try {
 ----
 
 
-=== 控制结构
+=== Control Structures
 
-==== if 分支
+==== if Branch
 
-除了完全兼容 Java 中的 `if` 写法，还支持类似规则引擎的 `if ... then ... else ...` 的写法，其中 `then` 可以当成一个可以省略的关键字：
+In addition to being fully compatible with Java's `if` syntax, it also supports rule engine-like `if ... then ... else ...` syntax, where `then` can be treated as an omittable keyword:
 
 [source,java]
 ----
@@ -1375,7 +1375,7 @@ r = if (a == 11) then true else false
 assert(r == true)
 ----
 
-==== while 循环
+==== while Loop
 
 [source,java]
 ----
@@ -1388,7 +1388,7 @@ while (i < 5) {
 assert(i==2)
 ----
 
-==== for 循环
+==== for Loop
 
 [source,java]
 ----
@@ -1399,7 +1399,7 @@ for (int i = 3; i < 6; i++) {
 assert(l==[3,4,5])
 ----
 
-==== for-each 循环
+==== for-each Loop
 
 [source,java]
 ----
@@ -1425,7 +1425,7 @@ assert(try {
 } == 11)
 ----
 
-=== 函数定义
+=== Function Definition
 
 [source,java]
 ----
@@ -1435,9 +1435,9 @@ function sub(a, b) {
 assert(sub(3,1)==2)
 ----
 
-=== Lambda 表达式
+=== Lambda Expressions
 
-QLExpress4 中，Lambda 表达式作为一等公民，可以作为变量进行传递或者返回。
+In QLExpress4, Lambda expressions as first-class citizens can be passed as variables or returned.
 
 [source,java]
 ----
@@ -1447,13 +1447,13 @@ add = (a, b) -> {
 assert(add(1,2)==3)
 ----
 
-=== 列表过滤和映射
+=== List Filtering and Mapping
 
-支持通过 filter, map 方法直接对列表类型进行函数式过滤和映射。
+Supports direct functional filtering and mapping of list types through filter, map methods.
 
-底层通过在列表类型添加 link:#扩展函数[扩展函数] 实现，注意和 Stream API 中同名方法区分。
+Implemented by adding link:#extension-functions[Extension Functions] to list types, note the distinction from methods with the same names in Stream API.
 
-相比 Stream Api，它可以直接对列表进行操作，返回值也直接就是列表，更加方便。
+Compared to Stream API, it can directly operate on lists, and return values are also directly lists, making it more convenient.
 
 [source,java]
 ----
@@ -1462,17 +1462,17 @@ assert(l.filter(i -> i.startsWith("a-"))
         .map(i -> i.split("-")[1]) == ["111", "222"])
 ----
 
-=== 兼容 Java8 语法
+=== Java8 Syntax Compatibility
 
-QLExpress 可以兼容 Java8 的常见语法。
+QLExpress can be compatible with common Java8 syntax.
 
-比如 link:#for-each-循环[for each循环], Stream API, 函数式接口等等。
+Such as link:#for-each-loop[for each loops], Stream API, functional interfaces, etc.
 
 ==== Stream API
 
-可以直接使用 Java 集合中的 stream api 对集合进行操作。
+You can directly use stream APIs in Java collections to operate on collections.
 
-因为此时的 stream api 都是来自 Java 中的方法，参考 link:#安全策略[安全策略] 打开安全选项，以下脚本才能正常执行。
+Because these stream APIs are all from methods in Java, refer to link:#security-strategy[Security Strategy] to open security options for the following scripts to execute normally.
 
 [source,java]
 ----
@@ -1485,9 +1485,9 @@ l2 = l.stream()
 assert(l2 == ["111", "222"]);
 ----
 
-==== 函数式接口
+==== Functional Interfaces
 
-Java8 中引入了 Function, Consumer, Predicate 等函数式接口，QLExpress 中的 link:#lambda-表达式[Lambda表达式] 可以赋值给这些接口，或者作为接收这些接口的方法参数：
+Java8 introduced functional interfaces like Function, Consumer, Predicate, etc. QLExpress's link:#lambda-expressions[Lambda Expressions] can be assigned to these interfaces or used as method parameters that receive these interfaces:
 
 [source,java]
 ----
@@ -1509,27 +1509,27 @@ Function f1 = (a, b) -> a + b;
 assert(f1.apply("test-") == "test-null");
 ----
 
-== 附录一 升级指南
+== Appendix I Upgrade Guide
 
-QLExpress 的上一版本因为多年的迭代停滞，在各项特性上和业界产生了较大差距。
+QLExpress's previous version had significant gaps with the industry in various features due to years of iteration stagnation.
 
-QLExpress4 的目标之一就是一次性弥补这些差距，因此选择进行了大刀阔斧的升级，而有意放弃了部分兼容性。当然，基础的功能和体验还是和上一版本保持了对齐。
+One of QLExpress4's goals is to make up for these gaps at once, so it chose to make bold upgrades while intentionally abandoning some compatibility. Of course, basic functionality and experience still align with the previous version.
 
-如果系统已经使用老版本的 QLExpress，升级之前务必要进行一次全面的回归测试，确保这些脚本都能在新版中正常执行，再进行升级。
+If your system already uses the old version of QLExpress, you must conduct a comprehensive regression test before upgrading to ensure all these scripts can execute normally in the new version before upgrading.
 
-如果没有时间或者方法对它们一一验证，那么不建议进行升级。
+If you don't have time or methods to verify them one by one, then upgrading is not recommended.
 
-如果是新系统，建议直接采用 QLExpress4，未来 QLExpress4 的生态建设会越来越完善，而 3 会被逐渐抛弃。
+If it's a new system, it's recommended to directly adopt QLExpress4. QLExpress4's ecosystem will become increasingly perfect in the future, while version 3 will be gradually abandoned.
 
-下面将列表新版和旧版的主要不同，方便用户对已有脚本进行升级。如有遗漏，欢迎反馈：
+Below lists the main differences between the new and old versions to help users upgrade existing scripts. If anything is missing, feedback is welcome:
 
-=== 默认安全策略
+=== Default Security Strategy
 
-如果完全使用默认选项，获取 Java 对象的字段（`o.field`），或者调用成员方法（`o.method()`），则会分别抛出 `FIELD_NOT_FOUND` 和 `METHOD_NOT_FOUND` 错误。
+If you completely use default options, accessing Java object fields (`o.field`) or calling member methods (`o.method()`) will throw `FIELD_NOT_FOUND` and `METHOD_NOT_FOUND` errors respectively.
 
-这是因为 3 可以没有限制地通过反射访问 Java 应用系统中的任意字段和方法，这在嵌入式脚本中被认为是不安全的。
+This is because version 3 could unrestrictedly access any fields and methods in Java application systems through reflection, which is considered unsafe in embedded scripts.
 
-如果想兼容 3 的行为，则在新建 `Express4Runner` 时， 要将安全策略设置为 “开放”，参考代码如下：
+If you want to be compatible with version 3's behavior, when creating `Express4Runner`, you need to set the security strategy to "open", refer to the following code:
 
 [source,java,indent=0]
 ----
@@ -1542,25 +1542,25 @@ QLExpress4 的目标之一就是一次性弥补这些差距，因此选择进行
             express4RunnerOpen.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult());
 ----
 
-详细参考 link:#安全策略[安全策略] 章节。
+For details, refer to the link:#security-strategy[Security Strategy] chapter.
 
-=== 定义映射
+=== Defining Mappings
 
-QLExpress 老版本支持通过 `NewMap(key:value)` 的方式快速创建映射，虽然在文档中没有详细讨论，但是很多用户通过单元测试和询问的方式，知晓并使用了这个语法。
+QLExpress old version supported quickly creating mappings through `NewMap(key:value)` syntax. Although not discussed in detail in documentation, many users learned and used this syntax through unit tests and inquiries.
 
-不过这种语法过于定制，也和业界的规范相差很大，因此在新版中将其移除。
+However, this syntax was too customized and differed greatly from industry standards, so it was removed in the new version.
 
-新版原生支持 JSON 语法，直接采用 JSON 字典的格式（`{key:value}`）即可快速创建映射，更加直观。
+The new version natively supports JSON syntax and directly adopts JSON dictionary format (`{key:value}`) to quickly create mappings, making it more intuitive.
 
-详细参考 link:#方便语法元素[方便语法元素]
+For details, refer to link:#convenient-syntax-elements[Convenient Syntax Elements]
 
-=== 全局变量污染上下文
+=== Global Variable Context Pollution
 
-QLExpress 支持在执行脚本时传入一个全局的上下文，即 context 参数。
+QLExpress supports passing in a global context when executing scripts, i.e., the context parameter.
 
-在老版本中，如果脚本中定义了全局变量，则这些变量也会写入到 context。在脚本执行结束后，可以通过 context 获取到脚本中定义的全局变量的值。
+In the old version, if global variables were defined in scripts, these variables would also be written to the context. After script execution, you could obtain the values of global variables defined in scripts through the context.
 
-一个老版本的列子如下：
+An old version example is as follows:
 
 [source,java]
 ----
@@ -1577,11 +1577,11 @@ Assert.assertEquals(4, res);
 Assert.assertEquals(3, context.get("a"));
 ----
 
-根据调研和反馈，我们认为这会导致全局上下文被脚本 “污染”，存在安全性问题。
+Based on research and feedback, we believe this would cause the global context to be "polluted" by scripts, posing security risks.
 
-因此在 QLExpress4 中，全局变量默认不会写入到 context 中。
+Therefore, in QLExpress4, global variables are not written to the context by default.
 
-如果想要兼容 3 的特性，需要将 `polluteUserContext` 选项设置为 `true`，参考代码如下：
+If you want to be compatible with version 3's features, you need to set the `polluteUserContext` option to `true`, refer to the following code:
 
 [source,java,indent=0]
 ----
@@ -1604,22 +1604,22 @@ Assert.assertEquals(3, context.get("a"));
         assertEquals(10, noPopulatedMap2.get("a"));
 ----
 
-=== 分号可省略
+=== Semicolons Can Be Omitted
 
-“分号可省略” 已经是现代脚本语言的一个标配，QLExpress4 也跟进了这个特性，分号是可以省略的。
+"Omittable semicolons" is already a standard feature of modern scripting languages, and QLExpress4 has also followed this trend - semicolons can be omitted.
 
-具体参考 link:#分号[分号] 章节。
+For details, refer to the link:#semicolons[Semicolons] chapter.
 
-== 附录二 如何贡献？
+== Appendix II How to Contribute?
 
-QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。
+QLExpress is completely open to community changes. Any suggestions and modifications will be welcome, and after discussion, reasonable ones will be accepted into the main branch.
 
-首先需要将代码 clone 到本地，在正式修改代码前，需要先进行如下准备：
+First, you need to clone the code to local. Before formally modifying the code, you need to prepare as follows:
 
-1. 项目根目录执行 `mvn compile`：项目刚刚下载到本地时，会有大量的类找不到，需要先生成 Antlr4 的运行时代码
-2. 配置代码格式化：QLExpress 项目有统一的代码格式规范，开发前需要配置在 git 提交前的自动格式化
+1. Execute `mvn compile` in the project root directory: When the project is first downloaded locally, there will be many classes not found, so you need to generate Antlr4 runtime code first
+2. Configure code formatting: QLExpress project has unified code format specifications, and automatic formatting needs to be configured before git commits during development
 
-在项目目录下新建文件 `.git/hooks/pre-commit`，内容如下：
+Create a new file `.git/hooks/pre-commit` in the project directory with the following content:
 
 [source,bash]
 ----
@@ -1629,15 +1629,15 @@ git add -u
 exit 0
 ----
 
-这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]
+This way, before each git commit, maven's spotless plugin will automatically execute code formatting. For specific code format configuration, see link:spotless_eclipse_formatter.xml[]
 
-== 附录三 QLExpress4性能提升
+== Appendix III QLExpress4 Performance Improvements
 
-link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4与3性能对比]
+link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4 vs 3 Performance Comparison]
 
-总结：常见场景下，无编译缓存时，QLExpress4能比3有接近10倍性能提升；有编译缓存，也有一倍性能提升。
+Summary: In common scenarios, without compilation cache, QLExpress4 can achieve nearly 10x performance improvement over version 3; with compilation cache, there's also a 1x performance improvement.
 
-== 附录四 开发者联系方式
+== Appendix IV Developer Contact Information
 
  * Email:
  ** qinyuan.dqy@alibaba-inc.com
