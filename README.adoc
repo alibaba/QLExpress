@@ -2,6 +2,8 @@
 
 = QLExpress
 
+link:https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
+
 == 背景介绍
 
 由阿里的电商业务规则演化而来的嵌入式Java动态脚本工具，在阿里集团有很强的影响力，同时为了自身不断优化、发扬开源贡献精神，于2012年开源。
