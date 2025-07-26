@@ -448,6 +448,53 @@ public class QLImportTester {
  ** `ImportManager.importPack("java.util.function")`
  * `ImportManager.importInnerCls` 导入给定类路径里的所有内部类
 
+=== 自定义 ClassLoader
+
+QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在插件化架构、模块化应用等场景中非常有用。通过自定义类加载器，可以让 QLExpress 脚本访问特定 ClassLoader 中的类。
+
+下面的示例展示了如何与 PF4J 插件框架集成，让 QLExpress 脚本能够访问插件中的类：
+
+[source,java,indent=0]
+----
+        // Specify plugin directory (test-plugins directory under test resources)
+        Path pluginsDir = new File("src/test/resources/test-plugins").toPath();
+        PluginManager pluginManager = new DefaultPluginManager(pluginsDir);
+        pluginManager.loadPlugins();
+        pluginManager.startPlugins();
+        
+        // Get the PluginClassLoader of the first plugin
+        PluginWrapper plugin = pluginManager.getPlugins().get(0);
+        ClassLoader pluginClassLoader = plugin.getPluginClassLoader();
+        
+        // Custom class supplier using plugin ClassLoader
+        ClassSupplier pluginClassSupplier = clsName -> {
+            try {
+                return Class.forName(clsName, true, pluginClassLoader);
+            }
+            catch (ClassNotFoundException | NoClassDefFoundError e) {
+                return null;
+            }
+        };
+        
+        InitOptions options = InitOptions.builder()
+            .securityStrategy(QLSecurityStrategy.open())
+            .classSupplier(pluginClassSupplier)
+            .build();
+        Express4Runner runner = new Express4Runner(options);
+        
+        String script = "import com.alibaba.qlexpress4.pf4j.TestPluginInterface; TestPluginInterface.TEST_CONSTANT";
+        Object result = runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        
+        Assert.assertEquals("Hello from PF4J Plugin!", result.toString());
+----
+
+自定义 ClassSupplier 的典型应用场景：
+
+* **插件化架构**：让脚本能够访问插件中定义的类和接口
+* **模块化应用**：在 OSGi 等模块化框架中，让脚本访问特定模块的类
+* **动态类加载**：从远程仓库或动态生成的字节码中加载类
+* **类隔离**：使用不同的 ClassLoader 来实现类的隔离
+
 === 表达式缓存
 
 通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
