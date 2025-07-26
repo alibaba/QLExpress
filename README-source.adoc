@@ -292,7 +292,7 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defa
 
 QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在插件化架构、模块化应用等场景中非常有用。通过自定义类加载器，可以让 QLExpress 脚本访问特定 ClassLoader 中的类。
 
-下面的示例展示了如何与 PF4J 插件框架集成，让 QLExpress 脚本能够访问插件中的类：
+下面的示例展示了如何与 link:https://pf4j.org/[PF4J] 插件框架集成，让 QLExpress 脚本能够访问插件中的类：
 
 [source,java,indent=0]
 ----
