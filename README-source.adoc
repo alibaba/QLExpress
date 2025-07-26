@@ -2,7 +2,7 @@
 
 = QLExpress
 
-link:https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
+image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
 
 == 背景介绍
 
