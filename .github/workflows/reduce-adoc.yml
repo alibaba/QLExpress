@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - README-source.adoc
+      - README-EN-source.adoc
     branches: ['**']
 jobs:
   build:
@@ -15,7 +16,10 @@ jobs:
       - name: Reduce README
         # to preserve preprocessor conditionals, add the --preserve-conditionals option
         run: asciidoctor-reducer --preserve-conditionals -o README.adoc README-source.adoc
-      - name: Commit and Push README
+      - name: Reduce README-EN
+        # to preserve preprocessor conditionals, add the --preserve-conditionals option
+        run: asciidoctor-reducer --preserve-conditionals -o README-EN.adoc README-EN-source.adoc
+      - name: Commit and Push README files
         uses: EndBug/add-and-commit@v9
         with:
-          add: README.adoc
+          add: README.adoc README-EN.adoc

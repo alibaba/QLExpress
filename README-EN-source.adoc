@@ -1,0 +1,967 @@
+:toc:
+
+= QLExpress
+
+link:README.adoc[【中文版】] | [English]
+
+image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
+
+== Background Introduction
+
+QLExpress is an embedded Java dynamic scripting tool evolved from Alibaba's e-commerce business rules. It has strong influence within Alibaba Group, and was open-sourced in 2012 to continuously optimize itself and promote the spirit of open source contribution.
+
+Based on basic expression calculation, it has the following features:
+
+* Flexible customization capabilities - through Java API custom functions and operators, you can quickly implement business rule DSLs
+* Compatible with the latest Java syntax, making it easy for Java programmers to get familiar quickly. Business personnel familiar with C-like languages will also find it very convenient to use
+* Native JSON support for quickly defining complex data structures
+* Friendly error reporting - whether compilation or runtime errors, it can precisely and friendly indicate error locations
+* Unique expression tracing functionality that can trace the calculated values at intermediate nodes of expressions, helping business personnel or AI perform root cause analysis of online rule calculation results
+* Secure by default - scripts are not allowed to interact with application code by default, but if interaction is needed, you can also define secure interaction methods yourself
+* Interpreted execution, doesn't occupy JVM metaspace, can enable caching to improve interpretation performance
+* Lightweight code with minimal dependencies, suitable for all Java runtime environments
+
+QLExpress4, as the latest evolution of QLExpress, rewrote the parsing engine based on Antlr4, further enhancing the original advantages and fully embracing functional programming, with further improvements in both performance and expressive power.
+
+Usage scenarios:
+
+* E-commerce coupon rule configuration: Quickly implement coupon rule DSLs through QLExpress custom functions and operators, allowing operations personnel to dynamically configure according to requirements
+* Form building control association rule configuration: Form building platforms allow users to drag and drop controls to build custom forms, using QLExpress scripts to configure associations between different controls
+* Workflow engine condition rule configuration
+* Advertising system billing rule configuration
+
+\...\...
+
+== New Version Features
+
+The new version is not a simple functional refactoring of the old version, but our exploration of the next generation rule expression engine based on insights into user needs. It has many very practical but missing important features in other engines.
+
+=== Expression Calculation Tracing
+
+After business personnel complete rule script configuration, it's difficult to perceive their online execution situation. For example, in e-commerce promotion rules requiring users to satisfy the rule `isVip && not logged in for more than 10 days`. How many online users are blocked by the vip condition, and how many users are blocked by the login condition? This is just a simple rule with only two conditions, but the actual online situation is much more complex.
+
+Tracing online rule execution not only helps business personnel understand the actual online situation and troubleshoot and fix problems, but the accumulated data is also very valuable and can be used for subsequent rule optimization and business decisions. Below is a simplified product diagram of a rule platform performing root cause analysis and annotation decisions on rules based on QLExpress4's expression tracing capability:
+
+image::images/order_rules_cn.png[]
+
+The principle of root cause analysis lies in using QLExpress4's expression tracing capability to obtain the value of each intermediate result during expression calculation, and accordingly determine the cause of the final execution result.
+
+For specific usage methods, refer to: link:#expression-calculation-tracing-1[Expression Calculation Tracing]
+
+=== Native JSON Syntax Support
+
+QLExpress4 natively supports JSON syntax and can quickly define complex data structures.
+
+JSON arrays represent lists (List), while JSON objects represent mappings (Map), and complex objects can also be directly defined.
+
+Products can implement JSON mapping rules based on this feature, allowing users to conveniently define mapping relationships from one model to another. Below is a simplified product diagram of a rule platform implementing model mapping based on this capability:
+
+image::images/json_map.png[]
+
+For specific usage methods, refer to: link:#convenient-syntax-elements[Convenient Syntax Elements]
+
+=== Convenient String Processing
+
+QLExpress4 has targeted enhancements to string processing capabilities, allowing expressions to be directly embedded in strings through `$\{expression}`.
+
+For specific usage methods, refer to: link:#dynamic-strings[Dynamic Strings]
+
+=== Attachment Pass-through
+
+Normally, all information needed for script execution is in the `context`. Keys in the context can be referenced as variables in scripts and ultimately passed to custom functions or operators.
+
+However, for security or convenience reasons, some information is not wanted to be referenced by users through variables, such as tenant names, passwords, etc.
+
+At this time, this information can be passed to custom functions or operators through attachments.
+
+For specific usage methods, refer to: link:#adding-custom-functions-and-operators[Adding Custom Functions and Operators], where the `hello` custom function returns different welcome messages according to different tenants in the attachment.
+
+=== Functional Programming
+
+Functions are elevated to first-class citizens in QLExpress4, can be used as variables, and can also be returned as function return values. They can also be easily combined with common functional APIs in Java (such as Stream).
+
+Here's a simple QLExpress example script:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/lambda/lambda_doc.ql[]
+----
+
+For more usage methods, refer to:
+
+* link:#lambda-expressions[Lambda Expressions]
+* link:#list-filtering-and-mapping[List Filtering and Mapping]
+* link:#stream-api[Stream API]
+* link:#functional-interfaces[Functional Interfaces]
+
+=== Semicolon Simplification
+
+QLExpress4 supports omitting semicolons, making expressions more concise. For details, refer to link:#semicolons[Semicolons]
+
+== API Quick Start
+
+=== Adding Dependencies
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>qlexpress4</artifactId>
+    <version>4.0.0-beta.9</version>
+</dependency>
+----
+
+=== First QLExpress Program
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
+----
+
+=== Adding Custom Functions and Operators
+
+The simplest way is to quickly define function/operator logic through Java Lambda expressions:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addFunctionAndOperator]
+----
+
+If the logic of custom functions is complex, or you need to obtain script context information, you can also implement it by inheriting `CustomFunction`.
+
+For example, the following `hello` custom function returns different welcome messages according to different tenants:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java[]
+----
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
+----
+
+=== Validating Syntax Correctness
+
+To validate syntax correctness without executing scripts: call `parseToSyntaxTree` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors exist.
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
+----
+
+=== Parsing External Variables Required by Scripts
+
+Some variables used in scripts are generated within the script, while others need to be passed in from outside through `context`.
+
+QLExpress4 provides a method to parse all variables that need to be passed in from outside in the script:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
+----
+
+=== High-Precision Calculation
+
+QLExpress internally uses BigDecimal to represent all numbers that cannot be precisely represented by double, to represent calculation precision as much as possible:
+
+> Example: 0.1 cannot be precisely represented in double
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=bigDecimalForPrecise]
+----
+
+This approach can solve some calculation precision problems:
+
+For example, 0.1+0.2 is not equal to 0.3 in Java due to precision issues.
+QLExpress can automatically identify that 0.1 and 0.2 cannot be precisely represented by double precision, and change to use BigDecimal representation to ensure the result equals 0.3
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=preciseComparisonWithJava]
+----
+
+In addition to the default precision guarantee, there's also a `precise` switch. When turned on, all calculations use BigDecimal to prevent problems caused by low-precision numbers passed in from outside:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=preciseSwitch]
+----
+
+=== Security Strategy
+
+QLExpress4 adopts isolation security strategy by default, not allowing scripts to access Java object fields and methods, which ensures script execution security. If you need to access Java objects, you can configure through different security strategies.
+
+Assuming the application has the following Java class:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/inport/MyDesk.java[]
+----
+
+The script execution context is set as follows:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyContextSetup]
+----
+
+QLExpress4 provides four security strategies:
+
+==== 1. Isolation Strategy (Default)
+
+By default, QLExpress4 adopts isolation strategy, not allowing access to any fields and methods:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyIsolation]
+----
+
+==== 2. Blacklist Strategy
+
+Through blacklist strategy, you can prohibit access to specific fields or methods, while other fields and methods can be accessed normally:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyBlackList]
+----
+
+==== 3. Whitelist Strategy
+
+Through whitelist strategy, only specified fields or methods are allowed to be accessed, while other fields and methods are prohibited:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyWhiteList]
+----
+
+==== 4. Open Strategy
+
+Open strategy allows access to all fields and methods, similar to QLExpress3 behavior, but security risks need to be noted:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyOpen]
+----
+
+> Note: While open strategy provides maximum flexibility, it also brings security risks. It's recommended to use only in trusted environments and not recommended for processing end-user input scripts.
+
+==== Strategy Recommendations
+
+It's recommended to directly adopt the default strategy and not directly call Java object fields and methods in scripts. Instead, provide system functionality to embedded scripts through custom functions and operators (refer to link:#adding-custom-functions-and-operators[Adding Custom Functions and Operators]). This can ensure both script security and flexibility, with better user experience.
+
+If you do need to call Java object fields and methods, at least use whitelist strategy to provide limited access permissions to scripts.
+
+As for blacklist and open strategies, they're not recommended for external input script scenarios unless you ensure each script will be reviewed.
+
+=== Calling Java Classes in Applications
+
+> Requires relaxing security strategy, not recommended for end-user input
+
+Assuming the application has the following Java class (`com.alibaba.qlexpress4.QLImportTester`):
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/QLImportTester.java[]
+----
+
+In QLExpress, there are two calling methods.
+
+==== 1. Using `import` Statement in Scripts to Import Classes and Use
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=importJavaCls]
+----
+
+==== 2. Default Import When Creating `Express4Runner`, No Additional `import` Statement Needed in Scripts
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defaultImport]
+----
+
+In addition to using `ImportManager.importCls` to import individual classes, there are other more convenient import methods:
+
+ * `ImportManager.importPack` directly imports all classes under a package path, such as `ImportManager.importPack("java.util")` will import all classes under the `java.util` package. QLExpress defaults to importing the following packages:
+ ** `ImportManager.importPack("java.lang")`
+ ** `ImportManager.importPack("java.util")`
+ ** `ImportManager.importPack("java.math")`
+ ** `ImportManager.importPack("java.util.stream")`
+ ** `ImportManager.importPack("java.util.function")`
+ * `ImportManager.importInnerCls` imports all inner classes in a given class path
+
+=== Custom ClassLoader
+
+QLExpress4 supports specifying class loaders through custom `ClassSupplier`, which is very useful in scenarios like plugin architecture and modular applications. Through custom class loaders, QLExpress scripts can access classes in specific ClassLoaders.
+
+The following example shows how to integrate with the link:https://pf4j.org/[PF4J] plugin framework to allow QLExpress scripts to access classes in plugins:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/pf4j/Pf4jClassSupplierTest.java[tag=pluginClassSupplier]
+----
+
+Typical application scenarios for custom ClassSupplier:
+
+* **Plugin Architecture**: Allow scripts to access classes and interfaces defined in plugins
+* **Modular Applications**: In modular frameworks like OSGi, allow scripts to access classes in specific modules
+* **Dynamic Class Loading**: Load classes from remote repositories or dynamically generated bytecode
+* **Class Isolation**: Use different ClassLoaders to achieve class isolation
+
+=== Expression Caching
+
+Through the `cache` option, you can enable expression caching, so the same expressions won't be recompiled, greatly improving performance.
+
+Note that this cache has no size limit and is only suitable for use when expressions are in limited quantities:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cacheSwitch]
+----
+
+However, when scripts are executed for the first time, they're still relatively slow because there's no cache.
+
+You can cache scripts before first execution using the following method to ensure first execution speed:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
+----
+
+=== Setting Timeout
+
+You can set a timeout for scripts to prevent infinite loops or other reasons from causing excessive consumption of application resources.
+
+The following example code sets a 10ms timeout for the script:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=scripTimeout]
+----
+
+> Note: For system performance considerations, QLExpress's detection of timeout is not accurate. Especially for timeouts occurring in Java code callbacks (such as custom functions or operators), they won't be detected immediately. Only after execution is complete and back to QLExpress runtime will they be detected and execution interrupted.
+
+=== Extension Functions
+
+Using QLExpress's extension function capability, you can add additional member methods to Java classes.
+
+Extension functions are implemented based on QLExpress runtime, so they're only effective in QLExpress scripts.
+
+The following example code adds a `hello()` extension function to the String class:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=extensionFunction]
+----
+
+=== Java Class Object, Field, and Method Aliases
+
+QLExpress supports defining one or more aliases for objects, fields, or methods through the `QLAlias` annotation, making it convenient for non-technical personnel to use expressions to define rules.
+
+In the following example, the final order amount is calculated based on whether the user is a vip.
+
+User class definition:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/qlalias/User.java[]
+----
+
+Order class definition:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/test/qlalias/Order.java[]
+----
+
+Calculate final order amount through QLExpress script rules:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=qlAlias]
+----
+
+=== Keyword, Operator, and Function Aliases
+
+To further facilitate non-technical personnel in writing rules, QLExpress provides `addAlias` to add aliases to original keywords, operators, and functions, making the entire script expression more natural language-like.
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addAlias]
+----
+
+Keywords that support setting aliases include:
+
+ * if
+ * then
+ * else
+ * for
+ * while
+ * break
+ * continue
+ * return
+ * function
+ * macro
+ * new
+ * null
+ * true
+ * false
+
+> Note: Some familiar usages are actually operators, not keywords, such as the `in` operator. All operators and functions support aliases by default
+
+=== Macros
+
+Macros are a powerful code reuse mechanism in QLExpress that allows users to define reusable script fragments and call them when needed. Unlike simple text replacement, QLExpress macros are implemented based on instruction replay mechanism, providing better performance and semantic accuracy.
+
+Macros are particularly suitable for the following scenarios:
+
+* **Code Reuse**: Encapsulate commonly used script fragments into macros to avoid repeatedly writing the same logic
+* **Business Rule Templates**: Define standard business rule templates such as price calculation, permission checking, etc.
+* **Flow Control**: Encapsulate complex control flows such as conditional judgment, loop logic, etc.
+* **DSL Construction**: As basic components for building domain-specific languages
+
+Macros can be defined in two ways:
+
+**1. Using `macro` keyword in scripts**
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/macro/macro.ql[tag=addMacroInScript]
+----
+
+**2. Adding through Java API**
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addMacro]
+----
+
+Differences between macros and functions:
+
+[cols="1,1,1"]
+|===
+| Feature | Macro | Function
+| Parameter Passing | No parameters, relies on context variables | Supports parameter passing
+| Performance | Direct instruction insertion, no call overhead | Has function call overhead
+| Scope | Shares caller's scope | Independent scope
+| Applicable Scenarios | Code fragment reuse | Logic encapsulation and parameterization
+|===
+
+Macros are particularly suitable for code fragment reuse scenarios that don't require parameter passing and mainly rely on context variables, while functions are more suitable for scenarios requiring parameterization and independent scope.
+
+**Changes in macro features in QLExpress4 compared to version 3**:
+
+ * Version 4's macro implementation is closer to the definition of macros in common programming languages, equivalent to inserting predefined code fragments at the macro's location, sharing the same scope as the call point. `return`, `continue`, and `break` in macros can affect the control flow of the caller. However, version 3's implementation is actually closer to parameterless function calls.
+ * Version 4's macros cannot be used as variables, only when standing alone as a line statement can they be macro-replaced. Because macros can be arbitrary scripts, not necessarily expressions with return values, using them as variables would have semantic issues. Version 3's macros are essentially parameterless function calls, so they're often used as variables.
+
+If you want to be compatible with version 3's macro features, it's recommended to use link:#dynamic-variables[Dynamic Variables]
+
+=== Dynamic Variables
+
+Regular "static variables" are fixed values associated with keys in the context. Dynamic variables can be expressions calculated from other variables. Dynamic variables support nesting, meaning dynamic variables can depend on another dynamic variable for calculation.
+
+Example:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=dynamicVar]
+----
+
+=== Expression Calculation Tracing
+
+If relevant options are enabled, QLExpress4 will return an expression trace tree along with the rule script calculation result. The structure of the expression trace tree is similar to a syntax tree, with the difference that it records intermediate results of this execution at each node.
+
+For example, for the expression `!true || myTest(a, 1)`, the structure of the expression trace tree is roughly as follows:
+
+[source]
+----
+        || true
+       /      \
+    ! false  myTest
+    /        /   \
+ true       a 10     1
+----
+
+It can be applied to various scenarios:
+
+ * Help business personnel analyze and troubleshoot rule calculation results
+ * Sample and categorize rules judged as false online
+ * AI automatic diagnosis and repair of rules
+
+Node calculation results are placed in the `value` field of the `ExpressionTrace` object. If short-circuit occurs in the middle causing some expressions to not be calculated, the `evaluated` field of the `ExpressionTrace` object will be set to false. Code example:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=expressionTrace]
+----
+
+> Note: You must set the `InitOptions.traceExpression` option to true when creating `Express4Runner`, and set `QLOptions.traceExpression` to true when executing scripts for this feature to take effect.
+
+You can also get all expression trace points without executing scripts:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getExpressionTracePoints]
+----
+
+Supported expression trace point types and corresponding child node meanings are as follows:
+
+[cols="1,1,1"]
+|===
+| Node Type | Node Meaning | Child Node Meaning
+| OPERATOR | Operator | Both operands
+| FUNCTION | Function | Function parameters
+| METHOD   | Method | Method parameters
+| FIELD    | Field | Target object for field access
+| LIST     | List | List elements
+| MAP      | Field | None
+| IF       | Conditional branch | Then logic block and else logic block
+| RETURN   | Return statement | Return expression
+| VARIABLE | Variable | None
+| VALUE    | Literal value | None
+| DEFINE_FUNCTION | Define function | None
+| DEFINE_MACRO | Define macro | None
+| PRIMARY  | Other composite values not yet drilled down (such as dictionaries, if, etc.) | None
+| STATEMENT | Other composite statements not yet drilled down (such as while, for, etc.) | None
+|===
+
+=== Spring Integration
+
+QLExpress doesn't need special integration with Spring, just a `Express4Runner` singleton is sufficient.
+
+The "integration" example provided here allows direct reference to any Spring Bean in QLExpress scripts.
+
+While this approach is very convenient, it gives scripts too much permission and freedom. It's no longer recommended. It's still recommended to only put objects that users are allowed to access in the context.
+
+Core integration components:
+
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLSpringContext.java[QLSpringContext]: Implements the `ExpressContext` interface, providing access capability to the Spring container. It first looks for variables from the passed context, and if not found, tries to get beans with the same name from the Spring container.
+* link:src/test/java/com/alibaba/qlexpress4/spring/QLExecuteService.java[QLExecuteService]: Encapsulates QLExpress execution logic, integrates with Spring container, convenient for use in Spring applications.
+
+Assuming there's a Spring Bean named `helloService`:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/HelloService.java[]
+----
+
+Call this Bean in scripts:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/spring/SpringDemoTest.java[]
+----
+
+
+== Syntax Introduction
+
+QLExpress4 is compatible with Java8 syntax while also providing many more flexible and loose syntax patterns to help users write expressions more quickly.
+
+Based on expression-first syntax design, complex conditional judgment statements can also be directly used as expressions.
+
+Code snippets appearing in this chapter are all qlexpress scripts.
+`assert` is an assertion method injected by the test framework into the engine, ensuring its parameter is `true`.
+`assertErrCode` ensures that the lambda parameter expression execution will definitely throw a QLException containing the second parameter error code.
+
+=== Variable Declaration
+
+Supports both static typing and dynamic typing:
+
+ * When declaring variables without writing types, the variable is dynamic type and also an assignment expression
+ * When declaring variables with types, it's static type, and at this time it's a variable declaration statement
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/dynamic_typing.ql[]
+----
+
+=== Convenient Syntax Elements
+
+Common syntax elements like lists (List), mappings (Map), etc. all have very convenient construction syntax sugar in QLExpress:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/convenient_syntax_elements.ql[]
+----
+
+Through the `*.` operator, you can quickly process lists and mappings, such as taking properties of list elements, or getting key lists and value lists of mappings:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/spread/list_spread.ql[tag=spreadExample]
+----
+
+In mappings, by specifying the fully qualified name of the type through the `@class` key, you can directly use JSON to create complex Java objects. For example, the following MyHome is a Java class with complex nested types:
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/inport/MyHome.java[]
+----
+
+You can conveniently create it through the following QLExpress script:
+
+> Note: This feature requires opening security options as referenced in link:#security-strategy[Security Strategy] to execute normally.
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/map/classified_json.ql[tag=classifiedJson]
+----
+
+=== Numbers
+
+For numbers without declared types,
+QLExpress will automatically select the most appropriate one from data types like int, long, BigInteger, double, BigDecimal based on their range:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/number/number_auto_type.ql[]
+----
+
+Therefore, when writing custom functions or operators, it's recommended to use Number type for receiving, because numeric types cannot be determined in advance.
+
+=== Dynamic Strings
+
+Dynamic strings are a new capability introduced in QLExpress version 4 to enhance string processing capabilities.
+
+Supports inserting expression calculations in strings through the `$\{expression}` format:
+
+> If you want to keep `$\{expression}` as-is in strings, you can escape `$` using `\$`
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
+----
+
+If you want QLExpress4 strings to maintain compatibility with version 3 and not process interpolation expressions, you can directly turn off this feature when creating `Express4Runner`:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
+----
+
+=== Placeholders
+
+Placeholders are used to extract values of arbitrary keys from the context.
+
+Global variables can also extract values from the context, but are limited by QLExpress keywords and syntax, so the keys that can be extracted are limited.
+For example, the value corresponding to key "0" in the context cannot be extracted through variables, because 0 is not a legal variable in QLExpress, but a numeric constant.
+At this time, you can use the default placeholder `$\{0}` to extract it.
+
+> Note the distinction from interpolation in dynamic strings. Placeholders are written outside strings. Dynamic string interpolation is `$\{expression}`, where expressions are written by default, and the running result of `"${0}"` is `"0"`. Placeholders are `$\{placeholder}`, where keys in the context are written by default, and the running result of `${0}` is the value corresponding to key "0" in the context.
+
+QLExpress uses `${placeholder}` format placeholders by default, where:
+
+* `${` is the start marker
+* `}` is the end marker  
+* `placeholder` is the placeholder content, corresponding to the key in the context
+
+In addition to default placeholders, QLExpress also supports customizing the start and end markers of placeholders:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customSelector]
+----
+
+Custom placeholders are not arbitrary, with the following restrictions:
+
+* **Start Marker Restriction**: `selectorStart` must be one of the following four formats:
+  ** `${` (default)
+  ** `$[`
+  ** `#{`
+  ** `#[`
+* **End Marker Restriction**: `selectorEnd` must be a string of 1 or more characters
+
+=== Semicolons
+
+Expression statements can omit ending semicolons, and the return value of the entire script is the calculation result of the last expression.
+
+The return value of the following script is 2:
+
+[source,java]
+----
+a = 1
+b = 2
+// last express
+1+1
+----
+
+Equivalent to the following写法:
+
+[source,java]
+----
+a = 1
+b = 2
+// return statment
+return 1+1;
+----
+
+Because semicolons can be omitted, QLExpress4's handling of line breaks is stricter compared to version 3 or Java language. If you want to split multi-line expressions into multiple lines, it's recommended to keep operators on the current line and move the right operand to the next line.
+
+The following multi-line expression will report a syntax error (counterexample):
+
+[source,java]
+----
+// syntax error
+a
++ b
+----
+
+The following is a correct line break example (positive example):
+
+[source,java]
+----
+a +
+b
+----
+
+Other syntax habits remain consistent with Java.
+
+=== Expressions
+
+QLExpress adopts expression-first design, where almost everything is an expression except for import, return, and loop structures.
+
+if statements are also expressions:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/if_as_expr.ql[]
+----
+
+try catch structures are also expressions:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
+----
+
+=== Short-Circuit Evaluation
+
+Similar to Java, `&&` and `||` logical operations are all short-circuit evaluations.
+
+For example, the expression `false && (1/0)` won't cause a division by zero error because `&&` short-circuits at the initial `false`.
+
+Short-circuit evaluation is enabled by default, and the engine also provides options to turn off short-circuit for a specific execution:
+
+> One scenario for turning off short-circuit is to ensure full warm-up of expressions
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableShortCircuit]
+----
+
+
+=== Control Structures
+
+==== if Branch
+
+In addition to being fully compatible with Java's `if` syntax, it also supports rule engine-like `if ... then ... else ...` syntax, where `then` can be treated as an omittable keyword:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/if.ql[]
+----
+
+==== while Loop
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/while.ql[]
+----
+
+==== for Loop
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/for.ql[]
+----
+
+==== for-each Loop
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/for_each.ql[]
+----
+
+==== try-catch
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/try_catch.ql[]
+----
+
+=== Function Definition
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/function.ql[]
+----
+
+=== Lambda Expressions
+
+In QLExpress4, Lambda expressions as first-class citizens can be passed as variables or returned.
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/lambda.ql[]
+----
+
+=== List Filtering and Mapping
+
+Supports direct functional filtering and mapping of list types through filter, map methods.
+
+Implemented by adding link:#extension-functions[Extension Functions] to list types, note the distinction from methods with the same names in Stream API.
+
+Compared to Stream API, it can directly operate on lists, and return values are also directly lists, making it more convenient.
+
+[source,java]
+----
+include::./src/test/resources/testsuite/independent/doc/list_map_filter.ql[]
+----
+
+=== Java8 Syntax Compatibility
+
+QLExpress can be compatible with common Java8 syntax.
+
+Such as link:#for-each-loop[for each loops], Stream API, functional interfaces, etc.
+
+==== Stream API
+
+You can directly use stream APIs in Java collections to operate on collections.
+
+Because these stream APIs are all from methods in Java, refer to link:#security-strategy[Security Strategy] to open security options for the following scripts to execute normally.
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/stream/java_stream.ql[]
+----
+
+==== Functional Interfaces
+
+Java8 introduced functional interfaces like Function, Consumer, Predicate, etc. QLExpress's link:#lambda-expressions[Lambda Expressions] can be assigned to these interfaces or used as method parameters that receive these interfaces:
+
+[source,java]
+----
+include::./src/test/resources/testsuite/java/lambda/java_functional_interface.ql[]
+----
+
+== Appendix I Upgrade Guide
+
+QLExpress's previous version had significant gaps with the industry in various features due to years of iteration stagnation.
+
+One of QLExpress4's goals is to make up for these gaps at once, so it chose to make bold upgrades while intentionally abandoning some compatibility. Of course, basic functionality and experience still align with the previous version.
+
+If your system already uses the old version of QLExpress, you must conduct a comprehensive regression test before upgrading to ensure all these scripts can execute normally in the new version before upgrading.
+
+If you don't have time or methods to verify them one by one, then upgrading is not recommended.
+
+If it's a new system, it's recommended to directly adopt QLExpress4. QLExpress4's ecosystem will become increasingly perfect in the future, while version 3 will be gradually abandoned.
+
+Below lists the main differences between the new and old versions to help users upgrade existing scripts. If anything is missing, feedback is welcome:
+
+=== Default Security Strategy
+
+If you completely use default options, accessing Java object fields (`o.field`) or calling member methods (`o.method()`) will throw `FIELD_NOT_FOUND` and `METHOD_NOT_FOUND` errors respectively.
+
+This is because version 3 could unrestrictedly access any fields and methods in Java application systems through reflection, which is considered unsafe in embedded scripts.
+
+If you want to be compatible with version 3's behavior, when creating `Express4Runner`, you need to set the security strategy to "open", refer to the following code:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=securityStrategyOpen]
+----
+
+For details, refer to the link:#security-strategy[Security Strategy] chapter.
+
+=== Defining Mappings
+
+QLExpress old version supported quickly creating mappings through `NewMap(key:value)` syntax. Although not discussed in detail in documentation, many users learned and used this syntax through unit tests and inquiries.
+
+However, this syntax was too customized and differed greatly from industry standards, so it was removed in the new version.
+
+The new version natively supports JSON syntax and directly adopts JSON dictionary format (`{key:value}`) to quickly create mappings, making it more intuitive.
+
+For details, refer to link:#convenient-syntax-elements[Convenient Syntax Elements]
+
+=== Global Variable Context Pollution
+
+QLExpress supports passing in a global context when executing scripts, i.e., the context parameter.
+
+In the old version, if global variables were defined in scripts, these variables would also be written to the context. After script execution, you could obtain the values of global variables defined in scripts through the context.
+
+An old version example is as follows:
+
+[source,java]
+----
+// only for QLExpress 3.x
+
+String express = "a=3;a+1";
+ExpressRunner runner = new ExpressRunner(false, true);
+DefaultContext<String, Object> context = new DefaultContext<>();
+
+Object res = runner.execute(express, context, null, true, true);
+// The result of the script execution should be 4 (a+1)
+Assert.assertEquals(4, res);
+// The variable 'a' defined in the script is also stored in the context
+Assert.assertEquals(3, context.get("a"));
+----
+
+Based on research and feedback, we believe this would cause the global context to be "polluted" by scripts, posing security risks.
+
+Therefore, in QLExpress4, global variables are not written to the context by default.
+
+If you want to be compatible with version 3's features, you need to set the `polluteUserContext` option to `true`, refer to the following code:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=polluteUserContext]
+----
+
+=== Semicolons Can Be Omitted
+
+"Omittable semicolons" is already a standard feature of modern scripting languages, and QLExpress4 has also followed this trend - semicolons can be omitted.
+
+For details, refer to the link:#semicolons[Semicolons] chapter.
+
+== Appendix II How to Contribute?
+
+QLExpress is completely open to community changes. Any suggestions and modifications will be welcome, and after discussion, reasonable ones will be accepted into the main branch.
+
+First, you need to clone the code to local. Before formally modifying the code, you need to prepare as follows:
+
+1. Execute `mvn compile` in the project root directory: When the project is first downloaded locally, there will be many classes not found, so you need to generate Antlr4 runtime code first
+2. Configure code formatting: QLExpress project has unified code format specifications, and automatic formatting needs to be configured before git commits during development
+
+Create a new file `.git/hooks/pre-commit` in the project directory with the following content:
+
+[source,bash]
+----
+#!/bin/sh
+mvn spotless:apply
+git add -u
+exit 0
+----
+
+This way, before each git commit, maven's spotless plugin will automatically execute code formatting. For specific code format configuration, see link:spotless_eclipse_formatter.xml[]
+
+== Appendix III QLExpress4 Performance Improvements
+
+link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4 vs 3 Performance Comparison]
+
+Summary: In common scenarios, without compilation cache, QLExpress4 can achieve nearly 10x performance improvement over version 3; with compilation cache, there's also a 1x performance improvement.
+
+== Appendix IV Developer Contact Information
+
+ * Email:
+ ** qinyuan.dqy@alibaba-inc.com
+ ** yumin.pym@taobao.com
+ ** 704643716@qq.com
+ * WeChat:
+ ** xuanheng: dqy932087612
+ ** binggou: pymbupt
+ ** linxiang: tkk33362
+ * DingTalk Support Group
+
+image::images/qlexpress_support_group_qr.jpg[] 
