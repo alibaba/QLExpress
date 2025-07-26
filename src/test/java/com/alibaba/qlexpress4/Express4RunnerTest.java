@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
+import com.alibaba.qlexpress4.inport.MyDesk;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
@@ -25,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -428,6 +430,56 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void securityStrategyTest()
+        throws NoSuchMethodException, SecurityException, NoSuchFieldException {
+        // tag::securityStrategyContextSetup[]
+        MyDesk desk = new MyDesk();
+        desk.setBook1("Thinking in Java");
+        desk.setBook2("Effective Java");
+        Map<String, Object> context = Collections.singletonMap("desk", desk);
+        // end::securityStrategyContextSetup[]
+        
+        // tag::securityStrategyIsolation[]
+        // default isolation strategy, no field or method can be found
+        Express4Runner express4RunnerIsolation = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertErrorCode(express4RunnerIsolation, context, "desk.book1", "FIELD_NOT_FOUND");
+        assertErrorCode(express4RunnerIsolation, context, "desk.getBook2()", "METHOD_NOT_FOUND");
+        // end::securityStrategyIsolation[]
+        
+        // tag::securityStrategyBlackList[]
+        // black list security strategy
+        Set<Member> memberList = new HashSet<>();
+        memberList.add(MyDesk.class.getMethod("getBook2"));
+        Express4Runner express4RunnerBlackList = new Express4Runner(
+            InitOptions.builder().securityStrategy(QLSecurityStrategy.blackList(memberList)).build());
+        assertErrorCode(express4RunnerBlackList, context, "desk.book2", "FIELD_NOT_FOUND");
+        Object resultBlack =
+            express4RunnerBlackList.execute("desk.book1", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("Thinking in Java", resultBlack);
+        // end::securityStrategyBlackList[]
+        
+        // tag::securityStrategyWhiteList[]
+        // white list security strategy
+        Express4Runner express4RunnerWhiteList = new Express4Runner(
+            InitOptions.builder().securityStrategy(QLSecurityStrategy.whiteList(memberList)).build());
+        Object resultWhite =
+            express4RunnerWhiteList.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("Effective Java", resultWhite);
+        assertErrorCode(express4RunnerWhiteList, context, "desk.getBook1()", "METHOD_NOT_FOUND");
+        // end::securityStrategyWhiteList[]
+        
+        // tag::securityStrategyOpen[]
+        // open security strategy
+        Express4Runner express4RunnerOpen =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Assert.assertEquals("Thinking in Java",
+            express4RunnerOpen.execute("desk.book1", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        Assert.assertEquals("Effective Java",
+            express4RunnerOpen.execute("desk.getBook2()", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        // end::securityStrategyOpen[]
+    }
+    
+    @Test
     public void mapSetGetTest() {
         String script = "a = new HashMap<>();" + "a['aaa'] = 'bbb';" + "a";
         Express4Runner express4Runner =
@@ -526,6 +578,7 @@ public class Express4RunnerTest {
     
     @Test
     public void populateTest() {
+        // tag::polluteUserContext[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         QLOptions populateOption = QLOptions.builder().polluteUserContext(true).build();
         Map<String, Object> populatedMap = new HashMap<>();
@@ -535,14 +588,15 @@ public class Express4RunnerTest {
         assertEquals(11, populatedMap.get("b"));
         
         // no population
-        Map<String, Object> populatedMap2 = new HashMap<>();
-        express4Runner.execute("a = 11", populatedMap2, QLOptions.DEFAULT_OPTIONS);
-        assertFalse(populatedMap2.containsKey("a"));
+        Map<String, Object> noPopulatedMap1 = new HashMap<>();
+        express4Runner.execute("a = 11", noPopulatedMap1, QLOptions.DEFAULT_OPTIONS);
+        assertFalse(noPopulatedMap1.containsKey("a"));
         
-        Map<String, Object> populatedMap3 = new HashMap<>();
-        populatedMap3.put("a", 10);
-        assertEquals(19, express4Runner.execute("a = 19;a", populatedMap3, QLOptions.DEFAULT_OPTIONS).getResult());
-        assertEquals(10, populatedMap3.get("a"));
+        Map<String, Object> noPopulatedMap2 = new HashMap<>();
+        noPopulatedMap2.put("a", 10);
+        assertEquals(19, express4Runner.execute("a = 19;a", noPopulatedMap2, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(10, noPopulatedMap2.get("a"));
+        // end::polluteUserContext[]
     }
     
     @SuppressWarnings("unchecked")
