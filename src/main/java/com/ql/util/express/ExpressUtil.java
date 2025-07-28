@@ -594,7 +594,7 @@ public class ExpressUtil {
                 throw new QLException("设置的参数位置$" + (index + 1) + "超过了范围 "
                     + parameters.length);
             }
-            m.appendReplacement(sb, " " + parameters[index].toString() + " ");
+            m.appendReplacement(sb, " " + parameters[index] + " ");
         }
         m.appendTail(sb);
         return sb.toString();
