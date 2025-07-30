@@ -127,6 +127,16 @@ public class OperatorFactory {
      * 创建一个新的操作符实例
      */
     public OperatorBase newInstance(ExpressNode opItem) throws Exception {
+        ExpressNode[] children = opItem.getChildrenArray();
+        // 如果是单目操作符号，而且只有一个参数
+        if ((opItem.isTypeEqualsOrChild("-") || opItem.isTypeEqualsOrChild("+")) && children.length == 1) {
+            if (opItem.isTypeEqualsOrChild("+")) {
+                return new OperatorUnaryPlus("+");
+            }
+            if (opItem.isTypeEqualsOrChild("-")) {
+                return new OperatorUnaryMinus("-");
+            }
+        }
         OperatorBase op = operatorMap.get(opItem.getNodeType().getName());
         if (op == null) {
             op = operatorMap.get(opItem.getTreeType().getName());
