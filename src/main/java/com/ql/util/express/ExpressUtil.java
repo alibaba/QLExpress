@@ -21,6 +21,7 @@ import com.ql.util.express.annotation.QLAlias;
 import com.ql.util.express.config.QLExpressRunStrategy;
 import com.ql.util.express.exception.QLException;
 import com.ql.util.express.util.QLAliasUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 表达式工具类
@@ -753,5 +754,33 @@ public class ExpressUtil {
             }
         }
         return count == 1;
+    }
+    
+    public static boolean isNumber(String tempWord) {
+        if (StringUtils.isBlank(tempWord)) {
+            return false;
+        }
+        if (tempWord.length() == 1) {
+            char c = tempWord.charAt(0);
+            return c >= '0' && c <= '9';
+        }
+        int lastIndex = tempWord.length() - 1;
+        boolean hasDecimalPoint = false;
+        for (int i = 0; i <= lastIndex; i++) {
+            char c = Character.toLowerCase(tempWord.charAt(i));
+            if (c == '.' && !hasDecimalPoint) {
+                hasDecimalPoint = true;
+                continue;
+            }
+            if (i == lastIndex) {
+                if (c == 'd' || c == 'f'  || c == 'l') {
+                    return true;
+                }
+            }
+            if (!Character.isDigit(c)){
+                return false;
+            }
+        }
+        return true;
     }
 }
