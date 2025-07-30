@@ -76,7 +76,7 @@ public class GetFieldInstructionTest {
         MockQContextParent mockQContextParent = new MockQContextParent(true);
         mockQContextParent.push(new DataValue(new MetaClass(Parent.class)));
         getFieldInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals((mockQContextParent.getValue()).get(), "staticSetPrivate");
+        Assert.assertEquals("staticSetPrivate", (mockQContextParent.getValue()).get());
     }
     
     /**
@@ -90,7 +90,7 @@ public class GetFieldInstructionTest {
         MockQContextParent mockQContextParent = new MockQContextParent(true);
         mockQContextParent.push(new Parent());
         getFieldInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
-        Assert.assertEquals((mockQContextParent.getValue()).get(), "staticGet1");
+        Assert.assertEquals("staticGet1", (mockQContextParent.getValue()).get());
     }
     
     /**

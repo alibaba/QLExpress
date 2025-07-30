@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.runtime.data.convert;
 
 import com.alibaba.qlexpress4.proxy.QLambdaInvocationHandler;
+import com.alibaba.qlexpress4.runtime.Nothing;
 import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
 import com.alibaba.qlexpress4.utils.CacheUtil;

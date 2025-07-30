@@ -231,7 +231,7 @@ public class MemberResolver {
             return MatchPriority.NUMBER_PROMOTION.priority + argNumLevel - paramNumLevel;
         }
         
-        if (paramType.isAssignableFrom(argType)) {
+        if (argType == Nothing.class || paramType.isAssignableFrom(argType)) {
             return MatchPriority.EXTEND.priority;
         }
         return MatchPriority.MISMATCH.priority;

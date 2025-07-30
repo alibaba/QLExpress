@@ -13,7 +13,7 @@ public interface Value {
     default Class<?> getType() {
         Object value = get();
         if (value == null) {
-            return Object.class;
+            return Nothing.class;
         }
         
         return value.getClass();

@@ -1,11 +1,9 @@
 package com.alibaba.qlexpress4.test.property;
 
-import com.alibaba.qlexpress4.runtime.Value;
-
 /**
  * Author: TaoKan
  */
-public class Child5 extends Parent implements Value {
+public class Child5 extends Parent {
     private final long result;
     
     public Child5() {

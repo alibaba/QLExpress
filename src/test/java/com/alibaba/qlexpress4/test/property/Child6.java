@@ -1,14 +1,12 @@
 package com.alibaba.qlexpress4.test.property;
 
-import com.alibaba.qlexpress4.runtime.Value;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
  * Author: TaoKan
  */
-public class Child6 extends Parent implements Value {
+public class Child6 extends Parent {
     private final long result;
     
     public Child6() {

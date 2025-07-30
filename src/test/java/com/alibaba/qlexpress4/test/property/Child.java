@@ -1,11 +1,9 @@
 package com.alibaba.qlexpress4.test.property;
 
-import com.alibaba.qlexpress4.runtime.Value;
-
 /**
  * Author: TaoKan
  */
-public class Child extends Parent implements Value {
+public class Child extends Parent {
     public String work = "childWork";
     
     public static String staticWork = "childStaticWork";
@@ -71,10 +69,5 @@ public class Child extends Parent implements Value {
     @Override
     public Child getParentOwn() {
         return new Child();
-    }
-    
-    @Override
-    public Object get() {
-        return this;
     }
 }
