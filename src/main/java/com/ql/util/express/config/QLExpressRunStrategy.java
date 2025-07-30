@@ -238,4 +238,10 @@ public class QLExpressRunStrategy {
     public static boolean checkArrLength(int arrLen) {
         return QLExpressRunStrategy.maxArrLength == -1 || arrLen <= QLExpressRunStrategy.maxArrLength;
     }
+
+    public static void cleanUp(){
+        SECURITY_RISK_METHOD_LIST.clear();
+        SECURE_RISK_CONSTRUCTOR_LIST.clear();
+        SECURE_CONSTRUCTOR_LIST.clear();
+    }
 }
