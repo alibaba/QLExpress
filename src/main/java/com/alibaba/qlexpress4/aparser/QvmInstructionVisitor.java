@@ -232,7 +232,13 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         if (!baseExprContext.leftAsso().isEmpty()) {
             return null;
         }
-        PrimaryNoFixContext primaryNoFixContext = baseExprContext.primary().primaryNoFix();
+        PrimaryContext primaryContext = baseExprContext.primary();
+        Object primaryNoFixContext = null;
+        if (primaryContext.primaryNoFixPathable() != null) {
+            primaryNoFixContext = primaryContext.primaryNoFixPathable();
+        } else if (primaryContext.primaryNoFixNonPathable() != null) {
+            primaryNoFixContext = primaryContext.primaryNoFixNonPathable();
+        }
         return primaryNoFixContext instanceof BlockExprContext ? (BlockExprContext)primaryNoFixContext : null;
     }
     
@@ -845,16 +851,19 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         return null;
     }
     
-    private int parsePathHeadPart(PrimaryNoFixContext primaryNoFixContext, List<PathPartContext> pathPartContexts) {
+    private int parsePathHeadPart(Object primaryNoFixContext, List<PathPartContext> pathPartContexts) {
         if (primaryNoFixContext instanceof TypeExprContext) {
-            Class<?> cls = BuiltInTypesSet.getCls(primaryNoFixContext.getStart().getText());
+            TypeExprContext typeExprContext = (TypeExprContext) primaryNoFixContext;
+            Class<?> cls = BuiltInTypesSet.getCls(typeExprContext.getStart().getText());
             int dimPartNum = parseDimParts(0, pathPartContexts);
-            addInstruction(new ConstInstruction(newReporterWithToken(primaryNoFixContext.getStart()),
+            addInstruction(new ConstInstruction(newReporterWithToken(typeExprContext.getStart()),
                 new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls), null));
             return dimPartNum;
         }
         else if (!(primaryNoFixContext instanceof VarIdExprContext)) {
-            primaryNoFixContext.accept(this);
+            if (primaryNoFixContext instanceof ParseTree) {
+                ((ParseTree) primaryNoFixContext).accept(this);
+            }
             return 0;
         }
         else {
@@ -1241,7 +1250,12 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     @Override
     public Void visitPrimary(PrimaryContext ctx) {
-        PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();
+        Object primaryNoFixContext = null;
+        if (ctx.primaryNoFixPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixPathable();
+        } else if (ctx.primaryNoFixNonPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixNonPathable();
+        }
         List<PathPartContext> pathPartContexts = ctx.pathPart();
         
         // path

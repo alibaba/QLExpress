@@ -142,7 +142,12 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     
     @Override
     public Void visitPrimary(QLParser.PrimaryContext ctx) {
-        QLParser.PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();
+        Object primaryNoFixContext = null;
+        if (ctx.primaryNoFixPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixPathable();
+        } else if (ctx.primaryNoFixNonPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixNonPathable();
+        }
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         if (primaryNoFixContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
             && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
