@@ -349,19 +349,19 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     // ==================== Private Helper ====================
     
     private TracePointTree primaryBaseTrace(QLParser.PrimaryContext ctx) {
-        Object primaryNoFixContext = null;
-        if (ctx.primaryNoFixPathable() != null) {
-            primaryNoFixContext = ctx.primaryNoFixPathable();
-        } else if (ctx.primaryNoFixNonPathable() != null) {
-            primaryNoFixContext = ctx.primaryNoFixNonPathable();
+        QLParser.PrimaryNoFixNonPathableContext primaryNoFixNonPathableContext = ctx.primaryNoFixNonPathable();
+        if (primaryNoFixNonPathableContext != null) {
+            return primaryNoFixNonPathableContext.accept(this);
         }
+        
+        QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         TracePointTree leftChildTree = null;
         int start = 0;
-        if (primaryNoFixContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
+        if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
             && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
             // function call
-            QLParser.VarIdExprContext functionNameContext = (QLParser.VarIdExprContext)primaryNoFixContext;
+            QLParser.VarIdExprContext functionNameContext = (QLParser.VarIdExprContext)primaryNoFixPathableContext;
             QLParser.CallExprContext callExprContext = (QLParser.CallExprContext)pathPartContexts.get(0);
             leftChildTree = newPoint(TraceType.FUNCTION,
                 traceArgumentList(callExprContext.argumentList()),
@@ -369,11 +369,7 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             start = 1;
         }
         else {
-            if (primaryNoFixContext instanceof ParseTree) {
-                leftChildTree = ((ParseTree) primaryNoFixContext).accept(this);
-            } else {
-                leftChildTree = null;
-            }
+            leftChildTree = primaryNoFixPathableContext.accept(this);
         }
         
         return pathParts(leftChildTree, pathPartContexts.subList(start, pathPartContexts.size()));

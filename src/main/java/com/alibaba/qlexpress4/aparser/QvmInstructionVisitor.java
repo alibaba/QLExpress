@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -233,13 +234,13 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             return null;
         }
         PrimaryContext primaryContext = baseExprContext.primary();
-        Object primaryNoFixContext = null;
-        if (primaryContext.primaryNoFixPathable() != null) {
-            primaryNoFixContext = primaryContext.primaryNoFixPathable();
-        } else if (primaryContext.primaryNoFixNonPathable() != null) {
-            primaryNoFixContext = primaryContext.primaryNoFixNonPathable();
+        if (primaryContext.primaryNoFixNonPathable() != null) {
+            return null;
         }
-        return primaryNoFixContext instanceof BlockExprContext ? (BlockExprContext)primaryNoFixContext : null;
+        
+        PrimaryNoFixPathableContext primaryNoFixPathableContext = primaryContext.primaryNoFixPathable();
+        return primaryNoFixPathableContext instanceof BlockExprContext ? (BlockExprContext)primaryNoFixPathableContext
+            : null;
     }
     
     @Override
@@ -851,23 +852,21 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         return null;
     }
     
-    private int parsePathHeadPart(Object primaryNoFixContext, List<PathPartContext> pathPartContexts) {
-        if (primaryNoFixContext instanceof TypeExprContext) {
-            TypeExprContext typeExprContext = (TypeExprContext) primaryNoFixContext;
-            Class<?> cls = BuiltInTypesSet.getCls(typeExprContext.getStart().getText());
+    private int parsePathHeadPart(PrimaryNoFixPathableContext primaryNoFixPathableContext,
+        List<PathPartContext> pathPartContexts) {
+        if (primaryNoFixPathableContext instanceof TypeExprContext) {
+            Class<?> cls = BuiltInTypesSet.getCls(primaryNoFixPathableContext.getStart().getText());
             int dimPartNum = parseDimParts(0, pathPartContexts);
-            addInstruction(new ConstInstruction(newReporterWithToken(typeExprContext.getStart()),
+            addInstruction(new ConstInstruction(newReporterWithToken(primaryNoFixPathableContext.getStart()),
                 new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls), null));
             return dimPartNum;
         }
-        else if (!(primaryNoFixContext instanceof VarIdExprContext)) {
-            if (primaryNoFixContext instanceof ParseTree) {
-                ((ParseTree) primaryNoFixContext).accept(this);
-            }
+        else if (!(primaryNoFixPathableContext instanceof VarIdExprContext)) {
+            primaryNoFixPathableContext.accept(this);
             return 0;
         }
         else {
-            VarIdExprContext idContext = (VarIdExprContext)primaryNoFixContext;
+            VarIdExprContext idContext = (VarIdExprContext)primaryNoFixPathableContext;
             return parseIdHeadPart(idContext.varId(), pathPartContexts);
         }
     }
@@ -1250,17 +1249,16 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     @Override
     public Void visitPrimary(PrimaryContext ctx) {
-        Object primaryNoFixContext = null;
-        if (ctx.primaryNoFixPathable() != null) {
-            primaryNoFixContext = ctx.primaryNoFixPathable();
-        } else if (ctx.primaryNoFixNonPathable() != null) {
-            primaryNoFixContext = ctx.primaryNoFixNonPathable();
+        if (ctx.primaryNoFixNonPathable() != null) {
+            ctx.primaryNoFixNonPathable().accept(this);
+            return null;
         }
+        PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
         List<PathPartContext> pathPartContexts = ctx.pathPart();
         
         // path
         // head part
-        int tailPartStart = parsePathHeadPart(primaryNoFixContext, pathPartContexts);
+        int tailPartStart = parsePathHeadPart(primaryNoFixPathableContext, pathPartContexts);
         
         // tail part
         for (int i = tailPartStart; i < pathPartContexts.size(); i++) {

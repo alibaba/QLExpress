@@ -182,7 +182,7 @@ binaryop
 
 primary
     : (prefixExpress)? primaryNoFixPathable (newlines? pathPart)* (suffixExpress)?
-    | (prefixExpress)? primaryNoFixNonPathable (suffixExpress)?
+    | primaryNoFixNonPathable
     ;
 
 prefixExpress
@@ -200,18 +200,18 @@ primaryNoFixPathable
     |   NEW varId ('.' varId)* typeArguments? '(' newlines? argumentList? newlines? ')' # newObjExpr
     |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
     |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    |   lambdaParameters ARROW newlines? ( LBRACE newlines? blockStatements? newlines? RBRACE | expression) # lambdaExpr
     |   varId # varIdExpr
     |   primitiveType # typeExpr
     |   '[' newlines? listItems? newlines? ']' # listExpr
     |   LBRACE newlines? mapEntries newlines? RBRACE # mapExpr
     |   LBRACE newlines? blockStatements? newlines? RBRACE # blockExpr
-    |   TRY LBRACE newlines? blockStatements? newlines? RBRACE tryCatches? (newlines? tryFinally)? # tryCatchExpr
     |   SELECTOR_START SelectorVariable_VANME # contextSelectExpr
     ;
 
 primaryNoFixNonPathable
     :   qlIf # ifExpr
+    |   TRY LBRACE newlines? blockStatements? newlines? RBRACE tryCatches? (newlines? tryFinally)? # tryCatchExpr
+    |   lambdaParameters ARROW newlines? ( LBRACE newlines? blockStatements? newlines? RBRACE | expression) # lambdaExpr
     ;
 
 qlIf : IF '(' newlines? condition=expression newlines? ')' newlines? THEN? newlines? thenBody (newlines? ELSE newlines? elseBody)?;
