@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.runtime.trace.TraceType;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -348,7 +349,12 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     // ==================== Private Helper ====================
     
     private TracePointTree primaryBaseTrace(QLParser.PrimaryContext ctx) {
-        QLParser.PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();
+        Object primaryNoFixContext = null;
+        if (ctx.primaryNoFixPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixPathable();
+        } else if (ctx.primaryNoFixNonPathable() != null) {
+            primaryNoFixContext = ctx.primaryNoFixNonPathable();
+        }
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         TracePointTree leftChildTree = null;
         int start = 0;
@@ -363,7 +369,11 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             start = 1;
         }
         else {
-            leftChildTree = primaryNoFixContext.accept(this);
+            if (primaryNoFixContext instanceof ParseTree) {
+                leftChildTree = ((ParseTree) primaryNoFixContext).accept(this);
+            } else {
+                leftChildTree = null;
+            }
         }
         
         return pathParts(leftChildTree, pathPartContexts.subList(start, pathPartContexts.size()));

@@ -181,7 +181,8 @@ binaryop
 // primary
 
 primary
-    : (prefixExpress)? primaryNoFix (newlines? pathPart)* (suffixExpress)?
+    : (prefixExpress)? primaryNoFixPathable (newlines? pathPart)* (suffixExpress)?
+    | (prefixExpress)? primaryNoFixNonPathable (suffixExpress)?
     ;
 
 prefixExpress
@@ -192,7 +193,7 @@ suffixExpress
     : {_input.LT(1).getType() != Token.EOF && isOpType(_input.LT(1).getText(), SUFFIX)}? opId
     ;
 
-primaryNoFix
+primaryNoFixPathable
     :   literal # constExpr
     |   '(' newlines? declType newlines? ')' primary # castExpr
     |   '(' newlines? expression newlines? ')' # groupExpr
@@ -205,9 +206,12 @@ primaryNoFix
     |   '[' newlines? listItems? newlines? ']' # listExpr
     |   LBRACE newlines? mapEntries newlines? RBRACE # mapExpr
     |   LBRACE newlines? blockStatements? newlines? RBRACE # blockExpr
-    |   qlIf # ifExpr
     |   TRY LBRACE newlines? blockStatements? newlines? RBRACE tryCatches? (newlines? tryFinally)? # tryCatchExpr
     |   SELECTOR_START SelectorVariable_VANME # contextSelectExpr
+    ;
+
+primaryNoFixNonPathable
+    :   qlIf # ifExpr
     ;
 
 qlIf : IF '(' newlines? condition=expression newlines? ')' newlines? THEN? newlines? thenBody (newlines? ELSE newlines? elseBody)?;
