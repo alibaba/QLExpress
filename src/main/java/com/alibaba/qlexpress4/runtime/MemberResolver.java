@@ -233,9 +233,9 @@ public class MemberResolver {
         
         // Handle primitive to Object boxing conversion
         if (argType.isPrimitive() && paramType == Object.class) {
-            return MatchPriority.UNBOX.priority;
+            return MatchPriority.EXTEND.priority;
         }
-        
+
         if (argType == Nothing.class || paramType.isAssignableFrom(argType)) {
             return MatchPriority.EXTEND.priority;
         }

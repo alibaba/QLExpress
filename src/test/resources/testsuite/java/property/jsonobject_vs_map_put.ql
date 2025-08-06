@@ -16,7 +16,6 @@ reportData.put("operateType", "0");
 reportData.put("openType", 1);
 
 String jsonString = JSON.toJSONString(reportData);
-println("JSONObject put result: " + jsonString);
 
 assert(reportData.get("doorStatus") == 1);
 assert(reportData.get("doorStatus2") == 1);
