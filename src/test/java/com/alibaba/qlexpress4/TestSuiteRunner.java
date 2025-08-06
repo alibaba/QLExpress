@@ -61,7 +61,7 @@ public class TestSuiteRunner {
     @Test
     public void featureDebug()
         throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/property/final_fix_solution.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/null_set_invoke.ql");
         handleFile(filePath, filePath.toString(), true);
     }
 
