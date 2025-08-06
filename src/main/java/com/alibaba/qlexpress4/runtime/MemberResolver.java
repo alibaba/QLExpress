@@ -231,6 +231,11 @@ public class MemberResolver {
             return MatchPriority.NUMBER_PROMOTION.priority + argNumLevel - paramNumLevel;
         }
         
+        // Handle primitive to Object boxing conversion
+        if (argType.isPrimitive() && paramType == Object.class) {
+            return MatchPriority.UNBOX.priority;
+        }
+        
         if (argType == Nothing.class || paramType.isAssignableFrom(argType)) {
             return MatchPriority.EXTEND.priority;
         }

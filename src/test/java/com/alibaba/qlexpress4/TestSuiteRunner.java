@@ -61,7 +61,14 @@ public class TestSuiteRunner {
     @Test
     public void featureDebug()
         throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("java/property/null_set_invoke.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/property/final_fix_solution.ql");
+        handleFile(filePath, filePath.toString(), true);
+    }
+
+    @Test
+    public void test_jsonObject_vs_map_put()
+            throws URISyntaxException, IOException {
+        Path filePath = getTestSuiteRoot().resolve("java/property/jsonobject_vs_map_put.ql");
         handleFile(filePath, filePath.toString(), true);
     }
     
