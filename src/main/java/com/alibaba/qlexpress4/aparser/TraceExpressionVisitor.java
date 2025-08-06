@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.runtime.trace.TraceType;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -348,14 +349,19 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     // ==================== Private Helper ====================
     
     private TracePointTree primaryBaseTrace(QLParser.PrimaryContext ctx) {
-        QLParser.PrimaryNoFixContext primaryNoFixContext = ctx.primaryNoFix();
+        QLParser.PrimaryNoFixNonPathableContext primaryNoFixNonPathableContext = ctx.primaryNoFixNonPathable();
+        if (primaryNoFixNonPathableContext != null) {
+            return primaryNoFixNonPathableContext.accept(this);
+        }
+        
+        QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         TracePointTree leftChildTree = null;
         int start = 0;
-        if (primaryNoFixContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
+        if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
             && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
             // function call
-            QLParser.VarIdExprContext functionNameContext = (QLParser.VarIdExprContext)primaryNoFixContext;
+            QLParser.VarIdExprContext functionNameContext = (QLParser.VarIdExprContext)primaryNoFixPathableContext;
             QLParser.CallExprContext callExprContext = (QLParser.CallExprContext)pathPartContexts.get(0);
             leftChildTree = newPoint(TraceType.FUNCTION,
                 traceArgumentList(callExprContext.argumentList()),
@@ -363,7 +369,7 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             start = 1;
         }
         else {
-            leftChildTree = primaryNoFixContext.accept(this);
+            leftChildTree = primaryNoFixPathableContext.accept(this);
         }
         
         return pathParts(leftChildTree, pathPartContexts.subList(start, pathPartContexts.size()));
