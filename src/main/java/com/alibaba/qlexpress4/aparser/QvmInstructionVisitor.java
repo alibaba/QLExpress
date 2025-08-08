@@ -184,12 +184,34 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             .stream()
             .filter(bs -> !(bs instanceof EmptyStatementContext))
             .collect(Collectors.toList());
-        for (BlockStatementContext child : nonEmptyChildren) {
-            if (isPreExpress) {
-                // pop if expression without acceptor
-                addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
+        
+        // Check if any function calls appear before function definitions
+        if (hasForwardFunctionReferences(nonEmptyChildren)) {
+            // Simple approach: hoist all functions to the beginning
+            // Process all function definitions first
+            for (BlockStatementContext child : nonEmptyChildren) {
+                if (child instanceof FunctionStatementContext) {
+                    child.accept(this);
+                }
             }
-            isPreExpress = handleStmt(child);
+            
+            // Then process all non-function statements
+            for (BlockStatementContext child : nonEmptyChildren) {
+                if (!(child instanceof FunctionStatementContext)) {
+                    if (isPreExpress) {
+                        addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
+                    }
+                    isPreExpress = handleStmt(child);
+                }
+            }
+        } else {
+            // No forward references, use original single-pass logic
+            for (BlockStatementContext child : nonEmptyChildren) {
+                if (isPreExpress) {
+                    addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
+                }
+                isPreExpress = handleStmt(child);
+            }
         }
         
         if (context == Context.BLOCK) {
@@ -198,6 +220,39 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             }
         }
         return null;
+    }
+    
+    /**
+     * Check if there are any forward function references in the statements
+     */
+    private boolean hasForwardFunctionReferences(List<BlockStatementContext> statements) {
+        Set<String> functionNames = new HashSet<>();
+        
+        // Collect all function names first
+        for (BlockStatementContext stmt : statements) {
+            if (stmt instanceof FunctionStatementContext) {
+                FunctionStatementContext funcStmt = (FunctionStatementContext) stmt;
+                functionNames.add(funcStmt.varId().getText());
+            }
+        }
+        
+        // Check if any function is called before it's defined
+        Set<String> definedSoFar = new HashSet<>();
+        for (BlockStatementContext stmt : statements) {
+            if (stmt instanceof FunctionStatementContext) {
+                String funcName = ((FunctionStatementContext) stmt).varId().getText();
+                definedSoFar.add(funcName);
+            } else {
+                // Check if this statement calls any function not yet defined
+                String text = stmt.getText();
+                for (String funcName : functionNames) {
+                    if (!definedSoFar.contains(funcName) && text.contains(funcName + "(")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     
     private void visitBodyExpression(ExpressionContext expressionContext) {
