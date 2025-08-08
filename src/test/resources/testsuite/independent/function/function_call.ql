@@ -12,4 +12,8 @@ assert(sub(3,1)==2)
 
 assertErrorCode(() -> {add(1, "2")}, "INVALID_ARGUMENT")
 
+assert(check(3,1)==false)
 
+function check(a, b) {
+    return a < b;
+}
