@@ -185,28 +185,16 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             .filter(bs -> !(bs instanceof EmptyStatementContext))
             .collect(Collectors.toList());
         
-        // Check if any function calls appear before function definitions
-        if (hasForwardFunctionReferences(nonEmptyChildren)) {
-            // Simple approach: hoist all functions to the beginning
-            // Process all function definitions first
-            for (BlockStatementContext child : nonEmptyChildren) {
-                if (child instanceof FunctionStatementContext) {
-                    child.accept(this);
-                }
+        // First pass: process all function definitions to support forward references
+        for (BlockStatementContext child : nonEmptyChildren) {
+            if (child instanceof FunctionStatementContext) {
+                child.accept(this);
             }
-            
-            // Then process all non-function statements
-            for (BlockStatementContext child : nonEmptyChildren) {
-                if (!(child instanceof FunctionStatementContext)) {
-                    if (isPreExpress) {
-                        addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
-                    }
-                    isPreExpress = handleStmt(child);
-                }
-            }
-        } else {
-            // No forward references, use original single-pass logic
-            for (BlockStatementContext child : nonEmptyChildren) {
+        }
+        
+        // Second pass: process all non-function statements
+        for (BlockStatementContext child : nonEmptyChildren) {
+            if (!(child instanceof FunctionStatementContext)) {
                 if (isPreExpress) {
                     addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
                 }
@@ -220,39 +208,6 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             }
         }
         return null;
-    }
-    
-    /**
-     * Check if there are any forward function references in the statements
-     */
-    private boolean hasForwardFunctionReferences(List<BlockStatementContext> statements) {
-        Set<String> functionNames = new HashSet<>();
-        
-        // Collect all function names first
-        for (BlockStatementContext stmt : statements) {
-            if (stmt instanceof FunctionStatementContext) {
-                FunctionStatementContext funcStmt = (FunctionStatementContext) stmt;
-                functionNames.add(funcStmt.varId().getText());
-            }
-        }
-        
-        // Check if any function is called before it's defined
-        Set<String> definedSoFar = new HashSet<>();
-        for (BlockStatementContext stmt : statements) {
-            if (stmt instanceof FunctionStatementContext) {
-                String funcName = ((FunctionStatementContext) stmt).varId().getText();
-                definedSoFar.add(funcName);
-            } else {
-                // Check if this statement calls any function not yet defined
-                String text = stmt.getText();
-                for (String funcName : functionNames) {
-                    if (!definedSoFar.contains(funcName) && text.contains(funcName + "(")) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
     
     private void visitBodyExpression(ExpressionContext expressionContext) {
@@ -902,8 +857,25 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     @Override
     public Void visitVarIdExpr(VarIdExprContext ctx) {
-        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), ctx.varId().getText(),
-            ctx.getStart().getStartIndex()));
+        String varName = ctx.varId().getText();
+        
+        // Check if this is a macro call
+        MacroDefine macroDefine = generatorScope.getMacroInstructions(varName);
+        if (macroDefine != null) {
+            // Expand macro instructions inline
+            macroDefine.getMacroInstructions().forEach(this::pureAddInstruction);
+            addTimeoutInstruction();
+            
+            // If the macro's last statement is an expression, it should leave a value on the stack
+            if (!macroDefine.isLastStmtExpress()) {
+                // If not an expression, push null to maintain stack balance
+                addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), null, null));
+            }
+        } else {
+            // Regular variable access
+            addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), varName,
+                ctx.getStart().getStartIndex()));
+        }
         return null;
     }
     
