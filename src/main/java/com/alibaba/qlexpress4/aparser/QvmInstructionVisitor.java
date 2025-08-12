@@ -864,25 +864,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     @Override
     public Void visitVarIdExpr(VarIdExprContext ctx) {
-        String varName = ctx.varId().getText();
-        
-        // Check if this is a macro call
-        MacroDefine macroDefine = generatorScope.getMacroInstructions(varName);
-        if (macroDefine != null) {
-            // Expand macro instructions inline
-            macroDefine.getMacroInstructions().forEach(this::pureAddInstruction);
-            addTimeoutInstruction();
-            
-            // If the macro's last statement is an expression, it should leave a value on the stack
-            if (!macroDefine.isLastStmtExpress()) {
-                // If not an expression, push null to maintain stack balance
-                addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()), null, null));
-            }
-        } else {
-            // Regular variable access
-            addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), varName,
-                ctx.getStart().getStartIndex()));
-        }
+        addInstruction(new LoadInstruction(newReporterWithToken(ctx.getStart()), ctx.varId().getText(),
+            ctx.getStart().getStartIndex()));
         return null;
     }
     
