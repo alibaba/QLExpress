@@ -927,6 +927,21 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=poll
 
 具体参考 link:#分号[分号] 章节。
 
+=== 获得 char 类型
+
+在 QLExpress 3 中，单引号包裹的单个字符会被解析为 char 类型，而不是 String。
+
+这个给用户带来了不少困惑，比如 `"a"=='a'` 的判断结果是 `false`。
+
+所以后来 QLExpress 3 中新增了 `ExpressRunner.setIgnoreConstChar` 选项，设置为 `true` 后，所有的单引号和双引号包裹的字符都会被解析为 String 类型。但是这个选项默认是关闭的，需要用户手动开启。
+
+考虑到脚本用户很少会使用到 `char` 这种底层类型，我们在 QLExpress 4 中直接取消了这个选项，所有的单引号和双引号包裹的字符都会被解析为 String 类型。
+
+如果您在脚本还是需要使用 `char` 类型，可以通过两种方法获得：
+
+* 类型强转：`(char) 'a'`
+* 类型声明：`char a = 'a'`
+
 == 附录二 如何贡献？
 
 QLExpress 对社区的更改完全开放，任何建议和修改，都会受到欢迎，讨论后合理最后会被接纳到主干中。

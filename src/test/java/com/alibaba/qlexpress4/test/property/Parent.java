@@ -22,9 +22,9 @@ public class Parent implements Value {
     private static final String staticFinal = "staticFinal";
     
     public String sex = "man";
-
+    
     public int lockStatus;
-
+    
     public Integer lockStatus2;
     
     public Parent() {

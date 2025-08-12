@@ -235,7 +235,7 @@ public class MemberResolver {
         if (argType.isPrimitive() && paramType == Object.class) {
             return MatchPriority.EXTEND.priority;
         }
-
+        
         if (argType == Nothing.class || paramType.isAssignableFrom(argType)) {
             return MatchPriority.EXTEND.priority;
         }
