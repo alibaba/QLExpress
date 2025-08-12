@@ -1610,6 +1610,21 @@ If you want to be compatible with version 3's features, you need to set the `pol
 
 For details, refer to the link:#semicolons[Semicolons] chapter.
 
+=== Obtaining char Type
+
+In QLExpress 3, single characters wrapped in single quotes were parsed as char type, not String.
+
+This caused much confusion for users, for example, the result of `"a"=='a'` would be `false`.
+
+So later in QLExpress 3, the `ExpressRunner.setIgnoreConstChar` option was added. When set to `true`, all characters wrapped in single quotes and double quotes would be parsed as String type. However, this option was turned off by default and required users to manually enable it.
+
+Considering that script users rarely use the `char` primitive type, we directly removed this option in QLExpress 4. All characters wrapped in single quotes and double quotes are now parsed as String type.
+
+If you still need to use `char` type in scripts, you can obtain it through two methods:
+
+* Type casting: `(char) 'a'`
+* Type declaration: `char a = 'a'`
+
 == Appendix II How to Contribute?
 
 QLExpress is completely open to community changes. Any suggestions and modifications will be welcome, and after discussion, reasonable ones will be accepted into the main branch.
