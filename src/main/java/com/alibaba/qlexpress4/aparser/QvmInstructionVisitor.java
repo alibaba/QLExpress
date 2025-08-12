@@ -184,12 +184,29 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             .stream()
             .filter(bs -> !(bs instanceof EmptyStatementContext))
             .collect(Collectors.toList());
+        
+        // First pass: process macro definitions to ensure they are available for functions
         for (BlockStatementContext child : nonEmptyChildren) {
-            if (isPreExpress) {
-                // pop if expression without acceptor
-                addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
+            if (child instanceof MacroStatementContext) {
+                child.accept(this);
             }
-            isPreExpress = handleStmt(child);
+        }
+        
+        // Second pass: process all function definitions to support forward references
+        for (BlockStatementContext child : nonEmptyChildren) {
+            if (child instanceof FunctionStatementContext) {
+                child.accept(this);
+            }
+        }
+        
+        // Third pass: process all other statements
+        for (BlockStatementContext child : nonEmptyChildren) {
+            if (!(child instanceof FunctionStatementContext) && !(child instanceof MacroStatementContext)) {
+                if (isPreExpress) {
+                    addInstruction(new PopInstruction(PureErrReporter.INSTANCE));
+                }
+                isPreExpress = handleStmt(child);
+            }
         }
         
         if (context == Context.BLOCK) {
