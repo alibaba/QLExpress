@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.utils;
 
+import com.alibaba.qlexpress4.runtime.Nothing;
 import com.alibaba.qlexpress4.runtime.Parameters;
 
 import java.lang.reflect.*;
@@ -88,20 +89,12 @@ public class BasicUtil {
         Class<?>[] classes = new Class<?>[objects.length];
         for (int i = 0; i < objects.length; i++) {
             if (objects[i] == null) {
-                classes[i] = null;
+                classes[i] = Nothing.class;
             }
             else {
                 classes[i] = objects[i].getClass();
             }
         }
         return classes;
-    }
-    
-    public static Object[] argumentsArr(Parameters parameters) {
-        Object[] arr = new Object[parameters.size()];
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = parameters.getValue(i);
-        }
-        return arr;
     }
 }

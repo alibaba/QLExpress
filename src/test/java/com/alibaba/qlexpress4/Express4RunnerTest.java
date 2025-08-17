@@ -799,6 +799,11 @@ public class Express4RunnerTest {
         public static int[] array3(int a, int b, int c) {
             return new int[] {a, b, c};
         }
+        
+        @QLFunction("concat")
+        public String concat(String a, String b) {
+            return a + b;
+        }
     }
     
     @Test
@@ -812,6 +817,10 @@ public class Express4RunnerTest {
         Object result1 =
             express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(10, result1);
+        
+        Object result2 =
+            express4Runner.execute("concat('aa', null)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("aanull", result2);
     }
     
     @Test

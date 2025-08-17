@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.runtime.JvmIMethod;
 import com.alibaba.qlexpress4.runtime.MemberResolver;
 import com.alibaba.qlexpress4.runtime.Parameters;
 import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
@@ -30,17 +31,21 @@ public class QMethodFunction implements CustomFunction {
     @Override
     public Object call(QContext qContext, Parameters parameters)
         throws Throwable {
-        Object[] argumentsArr = BasicUtil.argumentsArr(parameters);
-        Class<?>[] typeArr = BasicUtil.getTypeOfObject(argumentsArr);
+        Class<?>[] type = new Class[parameters.size()];
+        Object[] params = new Object[parameters.size()];
+        for (int i = 0; i < params.length; i++) {
+            Value v = parameters.get(i);
+            params[i] = v.get();
+            type[i] = v.getType();
+        }
         
-        int priority = MemberResolver.resolvePriority(method.getParameterTypes(), typeArr);
+        int priority = MemberResolver.resolvePriority(method.getParameterTypes(), type);
         if (priority == MemberResolver.MatchPriority.MISMATCH.priority) {
             throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
-                "invalid argument types " + Arrays.toString(typeArr) + " for java method '" + method.getName() + "'"
+                "invalid argument types " + Arrays.toString(type) + " for java method '" + method.getName() + "'"
                     + " in declaring java class '" + method.getDeclaringClass().getName() + "'");
         }
-        Object[] convertResult =
-            ParametersTypeConvertor.cast(argumentsArr, method.getParameterTypes(), method.isVarArgs());
+        Object[] convertResult = ParametersTypeConvertor.cast(params, method.getParameterTypes(), method.isVarArgs());
         return MethodHandler.Access.accessMethodValue(method, object, convertResult);
     }
 }
