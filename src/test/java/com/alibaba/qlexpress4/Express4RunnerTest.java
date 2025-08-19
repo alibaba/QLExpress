@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -384,6 +387,33 @@ public class Express4RunnerTest {
                 .getResult();
         Assert.assertEquals(3, result);
         // end::defaultImport[]
+    }
+    
+    @Test
+    public void concurrentCacheTest()
+        throws InterruptedException {
+        int threadCount = 5;
+        ExecutorService pool = Executors.newFixedThreadPool(threadCount);
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        String expression = "a+b*c";
+        
+        for (int i = 0; i < threadCount; i++) {
+            pool.submit(() -> {
+                Map<String, Object> context = new HashMap<>();
+                context.put("a", 1);
+                context.put("b", 2);
+                context.put("c", 3);
+                
+                express4Runner.execute(expression, context, QLOptions.builder().cache(true).build()).getResult();
+            });
+        }
+        
+        pool.shutdown();
+        long start = System.currentTimeMillis();
+        pool.awaitTermination(10, TimeUnit.SECONDS);
+        
+        long cost = System.currentTimeMillis() - start;
+        Assert.assertTrue(cost < 5000);
     }
     
     @Test

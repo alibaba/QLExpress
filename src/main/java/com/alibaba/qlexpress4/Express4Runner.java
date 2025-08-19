@@ -396,8 +396,9 @@ public class Express4Runner {
         Future<QCompileCache> preTask = compileCache.putIfAbsent(script, parseTask);
         if (preTask == null) {
             parseTask.run();
+            return parseTask;
         }
-        return parseTask;
+        return preTask;
     }
     
     private QCompileCache parseDefinition(String script) {
