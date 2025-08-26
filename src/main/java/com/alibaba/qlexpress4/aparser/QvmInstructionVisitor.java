@@ -10,7 +10,6 @@ import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -878,19 +877,19 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 new MetaClass(dimPartNum > 0 ? wrapInArray(cls, dimPartNum) : cls), null));
             return dimPartNum;
         }
-        else if (!(primaryNoFixPathableContext instanceof VarIdExprContext)) {
-            primaryNoFixPathableContext.accept(this);
-            return 0;
-        }
-        else {
+        else if (primaryNoFixPathableContext instanceof VarIdExprContext) {
             VarIdExprContext idContext = (VarIdExprContext)primaryNoFixPathableContext;
             return parseIdHeadPart(idContext.varId(), pathPartContexts);
+        }
+        else {
+            primaryNoFixPathableContext.accept(this);
+            return 0;
         }
     }
     
     private int parseIdHeadPart(VarIdContext idContext, List<PathPartContext> pathPartContexts) {
         if (!pathPartContexts.isEmpty() && pathPartContexts.get(0) instanceof CallExprContext) {
-            // call function
+            // function call
             CallExprContext callExprContext = (CallExprContext)pathPartContexts.get(0);
             ArgumentListContext argumentListContext = callExprContext.argumentList();
             visitCallFunction(idContext, argumentListContext);

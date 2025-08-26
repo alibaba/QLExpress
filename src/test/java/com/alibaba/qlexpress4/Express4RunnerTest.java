@@ -936,6 +936,15 @@ public class Express4RunnerTest {
         expectSetWithDyString.add("a");
         expectSetWithDyString.add("b");
         Assert.assertEquals(expectSetWithDyString, outVarNamesWithDyString);
+        
+        Set<String> outVarNamesWithClsName = express4Runner.getOutVarNames("Math.abs(1)");
+        Assert.assertEquals(Collections.emptySet(), outVarNamesWithClsName);
+        
+        Set<String> outVarNamesWithQualified = express4Runner.getOutVarNames("java.Math.abs(1)");
+        Assert.assertEquals(Collections.emptySet(), outVarNamesWithQualified);
+        
+        Set<String> outVarNamesWithQualifiedFieldAccess = express4Runner.getOutVarNames("com.alibaba.c.d.Mmc.cde.m");
+        Assert.assertEquals(Collections.emptySet(), outVarNamesWithQualifiedFieldAccess);
     }
     
     @Test

@@ -1,5 +1,8 @@
 package com.alibaba.qlexpress4.aparser;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -153,9 +156,49 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
                 }
                 return null;
             }
+            if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext) {
+                int restIndex = parseVarIdInPath(((QLParser.VarIdExprContext)primaryNoFixPathableContext).varId(),
+                    pathPartContexts);
+                for (int i = restIndex; i < pathPartContexts.size(); i++) {
+                    pathPartContexts.get(i).accept(this);
+                }
+                return null;
+            }
         }
         
         return super.visitPrimary(ctx);
+    }
+    
+    private int parseVarIdInPath(QLParser.VarIdContext idContext, List<QLParser.PathPartContext> pathPartContexts) {
+        String primaryId = idContext.getText();
+        if (isClassName(primaryId)) {
+            return 0;
+        }
+        
+        int i = 0;
+        for (; i < pathPartContexts.size(); i++) {
+            QLParser.PathPartContext pathPartContext = pathPartContexts.get(i);
+            if (pathPartContext instanceof QLParser.FieldAccessContext) {
+                QLParser.FieldIdContext fieldIdContext = ((QLParser.FieldAccessContext)pathPartContext).fieldId();
+                if (isClassName(fieldIdContext.getText())) {
+                    return i + 1;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        
+        if (!existVarStack.exist(primaryId)) {
+            outVars.add(primaryId);
+        }
+        
+        return i;
+    }
+    
+    private boolean isClassName(String id) {
+        char first = id.charAt(0);
+        return first >= 'A' && first <= 'Z';
     }
     
     // collect out variables name
