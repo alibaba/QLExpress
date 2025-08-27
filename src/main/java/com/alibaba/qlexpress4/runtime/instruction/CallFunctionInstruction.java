@@ -7,6 +7,7 @@ import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.util.ThrowUtils;
 import com.alibaba.qlexpress4.runtime.util.ValueUtils;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
@@ -25,10 +26,13 @@ public class CallFunctionInstruction extends QLInstruction {
     
     private final int argNum;
     
-    public CallFunctionInstruction(ErrorReporter errorReporter, String functionName, int argNum) {
+    private final Integer traceKey;
+    
+    public CallFunctionInstruction(ErrorReporter errorReporter, String functionName, int argNum, Integer traceKey) {
         super(errorReporter);
         this.functionName = functionName;
         this.argNum = argNum;
+        this.traceKey = traceKey;
     }
     
     @Override
@@ -40,7 +44,15 @@ public class CallFunctionInstruction extends QLInstruction {
         }
         Parameters parameters = qContext.pop(argNum);
         try {
-            qContext.push(new DataValue(function.call(qContext, parameters)));
+            Object functionResultObj = function.call(qContext, parameters);
+            qContext.push(new DataValue(functionResultObj));
+            
+            // trace
+            ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+            if (expressionTrace != null) {
+                expressionTrace.valueEvaluated(functionResultObj);
+            }
+            
             return QResult.NEXT_INSTRUCTION;
         }
         catch (UserDefineException e) {

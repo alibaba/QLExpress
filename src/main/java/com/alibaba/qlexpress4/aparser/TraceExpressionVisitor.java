@@ -287,7 +287,8 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     
     @Override
     public TracePointTree visitQlIf(QLParser.QlIfContext ctx) {
-        List<TracePointTree> children = new ArrayList<>(2);
+        List<TracePointTree> children = new ArrayList<>(3);
+        children.add(ctx.condition.accept(this));
         // thenBody
         children.add(visitThenBody(ctx.thenBody()));
         // elseBody

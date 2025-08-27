@@ -114,9 +114,8 @@ public class Express4RunnerTest {
         
         QLResult resultIf = express4Runner
             .execute("if(true) {11} else {13}", context, QLOptions.builder().traceExpression(true).build());
-        Assert.assertEquals(
-            "IF if 11\n" + "  | BLOCK { 11\n" + "      | VALUE 11 11\n" + "  | BLOCK { \n" + "      | VALUE 13 \n",
-            resultIf.getExpressionTraces().get(0).toPrettyString(0));
+        Assert.assertEquals("IF if 11\n" + "  | VALUE true true\n" + "  | BLOCK { 11\n" + "      | VALUE 11 11\n"
+            + "  | BLOCK { \n" + "      | VALUE 13 \n", resultIf.getExpressionTraces().get(0).toPrettyString(0));
         
         QLResult resultAssign =
             express4Runner.execute("aab = 11", context, QLOptions.builder().traceExpression(true).build());
@@ -150,8 +149,9 @@ public class Express4RunnerTest {
             new HashMap<>(),
             QLOptions.builder().traceExpression(true).build());
         Assert.assertEquals(
-            "IF if null\n" + "  | BLOCK { \n" + "      | VALUE 11 \n" + "  | IF if null\n" + "      | BLOCK { \n"
-                + "          | VALUE 15 \n" + "      | BLOCK { null\n",
+            "IF if null\n" + "  | VALUE false false\n" + "  | BLOCK { \n" + "      | VALUE 11 \n" + "  | IF if null\n"
+                + "      | OPERATOR > false\n" + "          | VALUE 1 1\n" + "          | VALUE 10 10\n"
+                + "      | BLOCK { \n" + "          | VALUE 15 \n" + "      | BLOCK { null\n",
             resultNestedIf.getExpressionTraces().get(0).toPrettyString(0));
         
         QLResult resultLocalVeriableStmt =
@@ -161,8 +161,13 @@ public class Express4RunnerTest {
         
         QLResult resultThrow = express4Runner
             .execute("if (true) 10 else throw 1", new HashMap<>(), QLOptions.builder().traceExpression(true).build());
-        Assert.assertEquals("IF if 10\n" + "  | VALUE 10 10\n" + "  | STATEMENT throw \n",
+        Assert.assertEquals("IF if 10\n" + "  | VALUE true true\n" + "  | VALUE 10 10\n" + "  | STATEMENT throw \n",
             resultThrow.getExpressionTraces().get(0).toPrettyString(0));
+        
+        QLResult resultIfWithFunctionCall = express4Runner
+            .execute("if (myTest(11)) 10 else 1", new HashMap<>(), QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals("IF if 10\n" + "  | FUNCTION myTest true\n" + "      | VALUE 11 11\n" + "  | VALUE 10 10\n"
+            + "  | VALUE 1 \n", resultIfWithFunctionCall.getExpressionTraces().get(0).toPrettyString(0));
         
         QLResult resultWhile = express4Runner
             .execute("while(false) {m=10}", new HashMap<>(), QLOptions.builder().traceExpression(true).build());

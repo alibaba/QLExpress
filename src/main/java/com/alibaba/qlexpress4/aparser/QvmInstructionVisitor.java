@@ -1259,8 +1259,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             argumentListContext.accept(this);
         }
         int argSize = argumentListContext == null ? 0 : argumentListContext.expression().size();
-        addInstruction(
-            new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName, argSize));
+        addInstruction(new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName,
+            argSize, functionNameContext.getStart().getStartIndex()));
     }
     
     @Override
