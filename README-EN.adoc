@@ -916,7 +916,7 @@ Supported expression trace point types and corresponding child node meanings are
 | FIELD    | Field | Target object for field access
 | LIST     | List | List elements
 | MAP      | Field | None
-| IF       | Conditional branch | Then logic block and else logic block
+| IF       | Conditional branch | Condition expression, then logic block and else logic block
 | RETURN   | Return statement | Return expression
 | VARIABLE | Variable | None
 | VALUE    | Literal value | None

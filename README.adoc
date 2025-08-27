@@ -918,7 +918,7 @@ assert(c == 3);
 | FIELD    | 字段 | 取字段的目标对象
 | LIST     | 列表 | 列表元素
 | MAP      | 字段 | 无
-| IF       | 条件分支 | then逻辑块和else逻辑块
+| IF       | 条件分支 | condition表达式,then逻辑块和else逻辑块
 | RETURN   | 返回语句 | 返回表达式
 | VARIABLE | 变量 | 无
 | VALUE    | 字面值   | 无
