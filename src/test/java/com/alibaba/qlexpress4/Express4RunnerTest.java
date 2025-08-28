@@ -1251,6 +1251,20 @@ public class Express4RunnerTest {
         assertErrorCode(express4Runner, "'Hello ' + ${pl}", QLErrorCodes.SYNTAX_ERROR.name());
     }
     
+    @Test
+    public void listGetWhenPreciseTest() {
+        InitOptions initOptions = InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build();
+        Express4Runner runner = new Express4Runner(initOptions);
+        QLOptions qlOptions = QLOptions.builder().precise(true).cache(true).build();
+        Map<String, Object> context = new HashMap<>();
+        ArrayList<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        context.put("list", list);
+        QLResult result = runner.execute("list.get(list.size()-1);", context, qlOptions);
+        assertEquals("b", result.getResult());
+    }
+    
     private void assertResultEquals(Express4Runner express4Runner, String script, Object expect) {
         assertResultPredicate(express4Runner, script, result -> Objects.equals(expect, result));
     }

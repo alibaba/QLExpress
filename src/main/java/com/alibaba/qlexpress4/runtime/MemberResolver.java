@@ -20,6 +20,8 @@ public class MemberResolver {
         MISMATCH(-1),
         // e.g. Integer -> Number
         EXTEND(0),
+        // e.g. BigDecimal -> int
+        NUMBER_DEMOTION(9),
         // e.g. int -> long
         // 1 -> 8
         NUMBER_PROMOTION(8),
@@ -227,8 +229,9 @@ public class MemberResolver {
         
         Integer paramNumLevel = BasicUtil.numberPromoteLevel(paramType);
         Integer argNumLevel = BasicUtil.numberPromoteLevel(argType);
-        if (paramNumLevel != null && argNumLevel != null && paramNumLevel >= argNumLevel) {
-            return MatchPriority.NUMBER_PROMOTION.priority + argNumLevel - paramNumLevel;
+        if (paramNumLevel != null && argNumLevel != null) {
+            return paramNumLevel >= argNumLevel ? MatchPriority.NUMBER_PROMOTION.priority + argNumLevel - paramNumLevel
+                : MatchPriority.NUMBER_DEMOTION.priority;
         }
         
         // Handle primitive to Object boxing conversion
