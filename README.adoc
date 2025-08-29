@@ -113,7 +113,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.2</version>
 </dependency>
 ----
 
@@ -1040,6 +1040,7 @@ assertErrorCode(() -> b = "1", "INCOMPATIBLE_ASSIGNMENT_TYPE")
 // list
 l = [1,2,3]
 assert(l[0]==1)
+assert(l[-1]==3)
 // Underlying data type of list is ArrayList in Java
 assert(l instanceof ArrayList)
 // map
@@ -1053,6 +1054,10 @@ m = {
 assert(m['aa']==10)
 // Underlying data type of map is ArrayList in Java
 assert(m instanceof LinkedHashMap)
+// empty map
+emMap = {:}
+emMap['haha']='huhu'
+assert(emMap['haha']=='huhu')
 ----
 
 通过 `*.` 操作符，可以快捷地对列表和映射进行处理，比如对列表元素进行取属性，或者获得映射的 key 列表和 value 列表：
