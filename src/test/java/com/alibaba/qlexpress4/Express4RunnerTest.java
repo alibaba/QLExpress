@@ -696,7 +696,6 @@ public class Express4RunnerTest {
     @Test
     public void invalidOperatorTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        assertErrorCode(express4Runner, "1+++a", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "a abcd bb", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "import a.b v = 1", "SYNTAX_ERROR");
         assertErrorCode(express4Runner, "a.*bbb", "SYNTAX_ERROR");

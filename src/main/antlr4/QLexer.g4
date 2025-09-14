@@ -361,8 +361,6 @@ fragment OpIdItem
     | LT
     | GT
     | DIV
-    | ADD
-    | SUB
     | COLON
     | QUESTION
     | DOT

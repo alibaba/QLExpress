@@ -1,3 +1,4 @@
+assert(-1==-1)
 assert(17 == 0x11);
 assert(0x11 == 021);
 assert(021 == 0b10001);
