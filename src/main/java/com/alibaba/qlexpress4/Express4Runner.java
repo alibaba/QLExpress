@@ -291,6 +291,34 @@ public class Express4Runner {
     }
     
     /**
+     * execute `scriptWithFunctionDefine` and add functions defined in script
+     * @param scriptWithFunctionDefine script with function define
+     * @param context context when execute script
+     * @param qlOptions qlOptions when execute script
+     * @return succ and fail functions. fail if function name already exists
+     */
+    public BatchAddFunctionResult addFunctionsDefinedInScript(String scriptWithFunctionDefine, ExpressContext context,
+        QLOptions qlOptions) {
+        BatchAddFunctionResult batchResult = new BatchAddFunctionResult();
+        QLambdaTrace mainLambdaTrace = parseToLambda(scriptWithFunctionDefine, context, qlOptions);
+        try {
+            Map<String, CustomFunction> functionTableInScript = mainLambdaTrace.getqLambda().getFunctionDefined();
+            for (Map.Entry<String, CustomFunction> entry : functionTableInScript.entrySet()) {
+                boolean addResult = addFunction(entry.getKey(), entry.getValue());
+                (addResult ? batchResult.getSucc() : batchResult.getFail()).add(entry.getKey());
+            }
+            return batchResult;
+        }
+        catch (QLException e) {
+            throw e;
+        }
+        catch (Throwable e) {
+            // should not run here
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
      * add object member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction} as function
      * @param object object with member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction}
      * @return succ and fail functions. fail if function name already exists or method is not public

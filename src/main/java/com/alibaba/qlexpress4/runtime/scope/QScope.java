@@ -3,6 +3,8 @@ package com.alibaba.qlexpress4.runtime.scope;
 import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 
+import java.util.Map;
+
 /**
  * Author: DQinYuan
  */
@@ -46,6 +48,12 @@ public interface QScope {
      * @return null if not exist
      */
     CustomFunction getFunction(String functionName);
+    
+    /**
+     * get function table in this scope
+     * @return function table
+     */
+    Map<String, CustomFunction> getFunctionTable();
     
     /**
      * push value on the top of stack

@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4;
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
@@ -57,6 +58,42 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.parseToDefinitionWithCache("a+b");
         // end::parseToCache[]
+    }
+    
+    @Test
+    public void addFunctionsDefinedInScriptTest()
+        throws InterruptedException {
+        // tag::addFunctionsDefinedInScript[]
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        BatchAddFunctionResult addResult = express4Runner.addFunctionsDefinedInScript(
+            "function myAdd(a,b) {" + "    return a+b;" + "}\n" + "\n" + "function getCurrentTime() {\n"
+                + "    return System.currentTimeMillis();\n" + "}" + "\n" + "defineTime=System.currentTimeMillis();\n"
+                + "function defineTime() {\n" + "    return defineTime;" + "}\n",
+            ExpressContext.EMPTY_CONTEXT,
+            QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, addResult.getSucc().size());
+        QLResult result = express4Runner.execute("myAdd(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, result.getResult());
+        
+        QLResult resultCurTime1 =
+            express4Runner.execute("getCurrentTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Thread.sleep(1000);
+        QLResult resultCurTime2 =
+            express4Runner.execute("getCurrentTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertNotSame(resultCurTime1.getResult(), resultCurTime2.getResult());
+        
+        /*
+         * The defineTime variable is defined outside the function and is initialized when the function is defined;
+         * it is not recalculated afterward, so the value returned is always the time at which the function was defined.
+         */
+        QLResult resultDefineTime1 =
+            express4Runner.execute("defineTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Thread.sleep(1000);
+        QLResult resultDefineTime2 =
+            express4Runner.execute("defineTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertSame(resultDefineTime1.getResult(), resultDefineTime2.getResult());
+        // end::addFunctionsDefinedInScript[]
     }
     
     @Test
@@ -844,7 +881,8 @@ public class Express4RunnerTest {
     @Test
     public void addFunctionByAnnotationTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        express4Runner.addObjFunction(new MyFunctionUtil());
+        BatchAddFunctionResult addResult = express4Runner.addObjFunction(new MyFunctionUtil());
+        assertEquals(4, addResult.getSucc().size());
         Object result =
             express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(14, result);

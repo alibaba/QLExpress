@@ -4,10 +4,12 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ObjTypeConvertor;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.scope.QvmBlockScope;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +37,21 @@ public class QLambdaInner implements QLambda {
     
     public QResult call(Object... params)
         throws Throwable {
+        return callInner(newEnv ? inheritScope(params) : qContext);
+    }
+    
+    @Override
+    public Map<String, CustomFunction> getFunctionDefined(Object... params)
+        throws Throwable {
         QContext newRuntime = newEnv ? inheritScope(params) : qContext;
-        
+        callInner(newRuntime);
+        return newRuntime.getFunctionTable();
+    }
+    
+    private QResult callInner(QContext runtime) {
         QLInstruction[] instructions = lambdaDefinition.getInstructions();
         for (int i = 0; i < instructions.length; i++) {
-            QResult qResult = instructions[i].execute(newRuntime, qlOptions);
+            QResult qResult = instructions[i].execute(runtime, qlOptions);
             switch (qResult.getResultType()) {
                 case JUMP:
                     i += (int)qResult.getResult().get();

@@ -60,6 +60,11 @@ public class MockQContextParent implements QContext {
     }
     
     @Override
+    public Map<String, CustomFunction> getFunctionTable() {
+        return Collections.emptyMap();
+    }
+    
+    @Override
     public void push(Value value) {
         this.value = value;
     }

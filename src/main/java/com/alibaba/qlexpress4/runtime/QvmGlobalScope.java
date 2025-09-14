@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.runtime.data.AssignableDataValue;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +66,11 @@ public class QvmGlobalScope implements QScope {
     @Override
     public CustomFunction getFunction(String functionName) {
         return externalFunction.get(functionName);
+    }
+    
+    @Override
+    public Map<String, CustomFunction> getFunctionTable() {
+        return externalFunction;
     }
     
     @Override

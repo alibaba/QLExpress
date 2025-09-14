@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.scope.QScope;
 import com.alibaba.qlexpress4.runtime.trace.QTraces;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -63,6 +64,11 @@ public class DelegateQContext implements QContext {
     @Override
     public CustomFunction getFunction(String functionName) {
         return qScope.getFunction(functionName);
+    }
+    
+    @Override
+    public Map<String, CustomFunction> getFunctionTable() {
+        return qScope.getFunctionTable();
     }
     
     @Override

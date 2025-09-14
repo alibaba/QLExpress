@@ -1,5 +1,9 @@
 package com.alibaba.qlexpress4.runtime;
 
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -15,6 +19,14 @@ public interface QLambda
      */
     QResult call(Object... params)
         throws Throwable;
+    
+    /**
+     * @return function defined in lambda
+     */
+    default Map<String, CustomFunction> getFunctionDefined(Object... params)
+        throws Throwable {
+        return Collections.emptyMap();
+    }
     
     @Override
     default Object get() {

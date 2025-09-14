@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public interface ExpressContext {
     
+    ExpressContext EMPTY_CONTEXT = new EmptyContext();
+    
     Value get(Map<String, Object> attachments, String variableName);
     
 }

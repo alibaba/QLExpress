@@ -9,9 +9,12 @@ import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.ReflectLoader;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.convert.ParametersTypeConvertor;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Author: TaoKan

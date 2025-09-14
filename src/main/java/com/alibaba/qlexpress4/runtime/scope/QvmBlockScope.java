@@ -59,6 +59,11 @@ public class QvmBlockScope implements QScope {
     }
     
     @Override
+    public Map<String, CustomFunction> getFunctionTable() {
+        return functionTable;
+    }
+    
+    @Override
     public void push(Value value) {
         opStack.push(value);
     }
