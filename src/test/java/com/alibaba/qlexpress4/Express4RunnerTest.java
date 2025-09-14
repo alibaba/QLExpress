@@ -67,7 +67,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner =
             new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
         BatchAddFunctionResult addResult = express4Runner.addFunctionsDefinedInScript(
-            "function myAdd(a,b) {" + "    return a+b;" + "}\n" + "\n" + "function getCurrentTime() {\n"
+            "function myAdd(a,b) {\n" + "    return a+b;" + "}\n" + "\n" + "function getCurrentTime() {\n"
                 + "    return System.currentTimeMillis();\n" + "}" + "\n" + "defineTime=System.currentTimeMillis();\n"
                 + "function defineTime() {\n" + "    return defineTime;" + "}\n",
             ExpressContext.EMPTY_CONTEXT,
