@@ -143,6 +143,15 @@ include::./src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
 ----
 
+QLExpress4还支持通过QLExpress脚本添加自定义函数。需要注意的是，在函数外定义的变量（如示例中的defineTime）在函数定义时就已初始化完成，后续调用函数时不会重新计算该变量的值。
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addFunctionsDefinedInScript]
+----
+
+建议尽可能使用Java方式定义自定义函数，这样可以获得更好的性能和稳定性。
+
 === 校验语法正确性
 
 在不执行脚本的情况下，单纯校验语法的正确性: 调用 `parseToSyntaxTree` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
