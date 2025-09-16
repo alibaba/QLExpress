@@ -1,11 +1,14 @@
 package com.alibaba.qlexpress4.aparser;
 
+import com.alibaba.qlexpress4.utils.QLStringUtils;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Author: DQinYuan
@@ -14,7 +17,13 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     
     private final Set<String> outVars = new HashSet<>();
     
+    private final ImportManager importManager;
+    
     private ExistVarStack existVarStack = new ExistVarStack(null);
+    
+    public OutVarNamesVisitor(ImportManager importManager) {
+        this.importManager = importManager;
+    }
     
     private static class ExistVarStack {
         private final ExistVarStack parent;
@@ -104,6 +113,33 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         return null;
     }
     
+    // handle import
+    
+    @Override
+    public Void visitImportCls(QLParser.ImportClsContext ctx) {
+        String importClsPath = ctx.varId()
+            .stream()
+            .map(QLParser.VarIdContext::getStart)
+            .map(Token::getText)
+            .collect(Collectors.joining("."));
+        importManager.addImport(ImportManager.importCls(importClsPath));
+        return null;
+    }
+    
+    @Override
+    public Void visitImportPack(QLParser.ImportPackContext ctx) {
+        List<QLParser.VarIdContext> importPackPathTokens = ctx.varId();
+        boolean isInnerCls =
+            !Character.isLowerCase(importPackPathTokens.get(importPackPathTokens.size() - 1).getText().charAt(0));
+        String importPath = importPackPathTokens.stream()
+            .map(QLParser.VarIdContext::getStart)
+            .map(Token::getText)
+            .collect(Collectors.joining("."));
+        importManager
+            .addImport(isInnerCls ? ImportManager.importInnerCls(importPath) : ImportManager.importPack(importPath));
+        return null;
+    }
+    
     // collect exist variable name
     
     /**
@@ -170,30 +206,35 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     }
     
     private int parseVarIdInPath(QLParser.VarIdContext idContext, List<QLParser.PathPartContext> pathPartContexts) {
+        List<String> headPartIds = new ArrayList<>();
         String primaryId = idContext.getText();
-        if (isClassName(primaryId)) {
-            return 0;
-        }
-        
-        int i = 0;
-        for (; i < pathPartContexts.size(); i++) {
-            QLParser.PathPartContext pathPartContext = pathPartContexts.get(i);
+        headPartIds.add(primaryId);
+        for (QLParser.PathPartContext pathPartContext : pathPartContexts) {
             if (pathPartContext instanceof QLParser.FieldAccessContext) {
-                QLParser.FieldIdContext fieldIdContext = ((QLParser.FieldAccessContext)pathPartContext).fieldId();
-                if (isClassName(fieldIdContext.getText())) {
-                    return i + 1;
-                }
+                headPartIds.add(parseFieldId(((QLParser.FieldAccessContext)pathPartContext).fieldId()));
             }
             else {
                 break;
             }
         }
-        
-        if (!existVarStack.exist(primaryId)) {
-            outVars.add(primaryId);
+        ImportManager.LoadPartQualifiedResult loadPartQualifiedResult = importManager.loadPartQualified(headPartIds);
+        if (loadPartQualifiedResult.getCls() != null) {
+            return loadPartQualifiedResult.getRestIndex() - 1;
         }
-        
-        return i;
+        else {
+            if (!existVarStack.exist(primaryId)) {
+                outVars.add(primaryId);
+            }
+            return 0;
+        }
+    }
+    
+    private String parseFieldId(QLParser.FieldIdContext ctx) {
+        TerminalNode quoteStringLiteral = ctx.QuoteStringLiteral();
+        if (quoteStringLiteral != null) {
+            return QLStringUtils.parseStringEscape(quoteStringLiteral.getText());
+        }
+        return ctx.getStart().getText();
     }
     
     private boolean isClassName(String id) {

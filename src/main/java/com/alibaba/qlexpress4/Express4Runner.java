@@ -191,7 +191,7 @@ public class Express4Runner {
      */
     public Set<String> getOutVarNames(String script) {
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
-        OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor();
+        OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor(inheritDefaultImport());
         programContext.accept(outVarNamesVisitor);
         return outVarNamesVisitor.getOutVars();
     }

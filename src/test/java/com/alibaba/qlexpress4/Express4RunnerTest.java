@@ -982,11 +982,14 @@ public class Express4RunnerTest {
         Set<String> outVarNamesWithClsName = express4Runner.getOutVarNames("Math.abs(1)");
         Assert.assertEquals(Collections.emptySet(), outVarNamesWithClsName);
         
-        Set<String> outVarNamesWithQualified = express4Runner.getOutVarNames("java.Math.abs(1)");
+        Set<String> outVarNamesWithQualified = express4Runner.getOutVarNames("java.lang.Math.abs(1)");
         Assert.assertEquals(Collections.emptySet(), outVarNamesWithQualified);
         
-        Set<String> outVarNamesWithQualifiedFieldAccess = express4Runner.getOutVarNames("com.alibaba.c.d.Mmc.cde.m");
-        Assert.assertEquals(Collections.emptySet(), outVarNamesWithQualifiedFieldAccess);
+        Set<String> outVarNamesWithClsMethodCall = express4Runner.getOutVarNames("Arrays.asList(a,b)");
+        Set<String> expectOutVarNamesWithClsMethodCall = new HashSet<>();
+        expectOutVarNamesWithClsMethodCall.add("a");
+        expectOutVarNamesWithClsMethodCall.add("b");
+        Assert.assertEquals(expectOutVarNamesWithClsMethodCall, outVarNamesWithClsMethodCall);
     }
     
     @Test

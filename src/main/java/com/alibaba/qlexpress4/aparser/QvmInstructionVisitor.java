@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
+import com.alibaba.qlexpress4.utils.QLStringUtils;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -650,7 +651,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                     String clsKeyText = mapEntryContext.mapKey().getText();
                     keys.add(clsKeyText.substring(1, clsKeyText.length() - 1));
                     addInstruction(new ConstInstruction(newReporterWithToken(clsLiteral.getSymbol()),
-                        parseStringEscape(clsText), null));
+                        QLStringUtils.parseStringEscape(clsText), null));
                     // @class override
                     cls = null;
                 }
@@ -673,7 +674,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             return mapKeyContext.getText();
         }
         else if (mapKeyContext instanceof StringKeyContext || mapKeyContext instanceof QuoteStringKeyContext) {
-            return parseStringEscape(mapKeyContext.getText());
+            return QLStringUtils.parseStringEscape(mapKeyContext.getText());
         }
         // shouldn't run here
         throw new IllegalStateException();
@@ -1005,7 +1006,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private String parseFieldId(FieldIdContext ctx) {
         TerminalNode quoteStringLiteral = ctx.QuoteStringLiteral();
         if (quoteStringLiteral != null) {
-            return parseStringEscape(quoteStringLiteral.getText());
+            return QLStringUtils.parseStringEscape(quoteStringLiteral.getText());
         }
         return ctx.getStart().getText();
     }
@@ -1380,7 +1381,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         }
         TerminalNode quoteStringLiteral = literal.QuoteStringLiteral();
         if (quoteStringLiteral != null) {
-            String escapedStr = parseStringEscape(quoteStringLiteral.getText());
+            String escapedStr = QLStringUtils.parseStringEscape(quoteStringLiteral.getText());
             addInstruction(new ConstInstruction(newReporterWithToken(quoteStringLiteral.getSymbol()), escapedStr,
                 quoteStringLiteral.getSymbol().getStartIndex()));
             return null;
@@ -1409,7 +1410,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             }
             String originText = characters.getText();
             addInstruction(new ConstInstruction(newReporterWithToken(ctx.getStart()),
-                parseStringEscapeStartEnd(originText, 0, originText.length()), null));
+                QLStringUtils.parseStringEscapeStartEnd(originText, 0, originText.length()), null));
             return null;
         }
         int childCount = ctx.getChildCount();
@@ -1434,70 +1435,12 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 TerminalNode terminalNode = (TerminalNode)child;
                 String originStr = terminalNode.getText();
                 addInstruction(new ConstInstruction(newReporterWithToken(terminalNode.getSymbol()),
-                    parseStringEscapeStartEnd(originStr, 0, originStr.length()), ctx.getStart().getStartIndex()));
+                    QLStringUtils.parseStringEscapeStartEnd(originStr, 0, originStr.length()),
+                    ctx.getStart().getStartIndex()));
             }
         }
         addInstruction(new StringJoinInstruction(newReporterWithToken(ctx.getStart()), childCount - 2));
         return null;
-    }
-    
-    private String parseStringEscape(String originStr) {
-        return parseStringEscapeStartEnd(originStr, 1, originStr.length() - 1);
-    }
-    
-    private String parseStringEscapeStartEnd(String originStr, int start, int end) {
-        StringBuilder result = new StringBuilder();
-        final byte init = 0;
-        final byte escape = 1;
-        byte state = 0;
-        
-        int i = start;
-        while (i < end) {
-            char cur = originStr.charAt(i++);
-            switch (state) {
-                case init:
-                    if (cur == '\\') {
-                        state = escape;
-                    }
-                    else {
-                        result.append(cur);
-                    }
-                    break;
-                case escape:
-                    state = init;
-                    switch (cur) {
-                        case 'b':
-                            result.append('\b');
-                            break;
-                        case 't':
-                            result.append('\t');
-                            break;
-                        case 'n':
-                            result.append('\n');
-                            break;
-                        case 'f':
-                            result.append('\f');
-                            break;
-                        case 'r':
-                            result.append('\r');
-                            break;
-                        case '"':
-                            result.append('"');
-                            break;
-                        case '\'':
-                            result.append('\'');
-                            break;
-                        case '\\':
-                            result.append('\\');
-                            break;
-                        case '$':
-                            result.append('$');
-                            break;
-                    }
-                    break;
-            }
-        }
-        return result.toString();
     }
     
     private Number parseFloating(String floatingText) {
