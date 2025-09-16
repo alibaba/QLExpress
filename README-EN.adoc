@@ -189,6 +189,43 @@ public class HelloFunction implements CustomFunction {
         assertEquals("hello,lucy", resultLucy);
 ----
 
+QLExpress4 also supports adding custom functions through QLExpress scripts. Note that variables defined outside of functions (such as defineTime in the example) are initialized when the function is defined and will not be recalculated when the function is subsequently called.
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        BatchAddFunctionResult addResult = express4Runner.addFunctionsDefinedInScript(
+            "function myAdd(a,b) {\n" + "    return a+b;" + "}\n" + "\n" + "function getCurrentTime() {\n"
+                + "    return System.currentTimeMillis();\n" + "}" + "\n" + "defineTime=System.currentTimeMillis();\n"
+                + "function defineTime() {\n" + "    return defineTime;" + "}\n",
+            ExpressContext.EMPTY_CONTEXT,
+            QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, addResult.getSucc().size());
+        QLResult result = express4Runner.execute("myAdd(1,2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, result.getResult());
+        
+        QLResult resultCurTime1 =
+            express4Runner.execute("getCurrentTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Thread.sleep(1000);
+        QLResult resultCurTime2 =
+            express4Runner.execute("getCurrentTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertNotSame(resultCurTime1.getResult(), resultCurTime2.getResult());
+        
+        /*
+         * The defineTime variable is defined outside the function and is initialized when the function is defined;
+         * it is not recalculated afterward, so the value returned is always the time at which the function was defined.
+         */
+        QLResult resultDefineTime1 =
+            express4Runner.execute("defineTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        Thread.sleep(1000);
+        QLResult resultDefineTime2 =
+            express4Runner.execute("defineTime()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertSame(resultDefineTime1.getResult(), resultDefineTime2.getResult());
+----
+
+It is recommended to use Java to define custom functions as much as possible, as this can provide better performance and stability.
+
 === Validating Syntax Correctness
 
 To validate syntax correctness without executing scripts: call `parseToSyntaxTree` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors exist.
