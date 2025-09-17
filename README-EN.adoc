@@ -561,6 +561,8 @@ You can cache scripts before first execution using the following method to ensur
         express4Runner.parseToDefinitionWithCache("a+b");
 ----
 
+Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+
 === Setting Timeout
 
 You can set a timeout for scripts to prevent infinite loops or other reasons from causing excessive consumption of application resources.
