@@ -993,6 +993,36 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void getOutFunctions() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> outFuncNames = express4Runner.getOutFunctions("time('2025-09-8')+sum(1,sub(3,2))");
+        Set<String> expectOutFuncNames = new HashSet<>();
+        expectOutFuncNames.add("time");
+        expectOutFuncNames.add("sum");
+        expectOutFuncNames.add("sub");
+        Assert.assertEquals(expectOutFuncNames, outFuncNames);
+        
+        Set<String> outFuncNamesExcludeDefined =
+            express4Runner.getOutFunctions("function add(a,b) {a+b}\n add(1,2)+sub(3,1)");
+        Assert.assertEquals(Collections.singleton("sub"), outFuncNamesExcludeDefined);
+        
+        Set<String> outFuncNamesMultiScope =
+            express4Runner.getOutFunctions("function add(a,b) {\n function sub(a,b) { a-b }\n add(1,2)+sub(3,1) \n}\n");
+        Assert.assertEquals(Collections.emptySet(), outFuncNamesMultiScope);
+        
+        Set<String> outFuncNamesMultiScope1 = express4Runner
+            .getOutFunctions("function add(a,b) {\n function sub(a,b) { a-b }\n add(1,2)+sub(3,1) \n}\nsub(3,1)");
+        Assert.assertEquals(Collections.singleton("sub"), outFuncNamesMultiScope1);
+        
+        Set<String> outFuncNamesRecur =
+            express4Runner.getOutFunctions("function recur(a,b) {\n recur(1,2) \n}\nrecur(3,1)");
+        Assert.assertEquals(Collections.emptySet(), outFuncNamesRecur);
+        
+        Set<String> outFuncNamesReorder = express4Runner.getOutFunctions("add(1,2); function add(a,b) {\n a+b \n}");
+        Assert.assertEquals(Collections.emptySet(), outFuncNamesReorder);
+    }
+    
+    @Test
     public void addOperatorTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("'1.2'+'2.3'", new HashMap<>(), QLOptions.builder().cache(false).build())

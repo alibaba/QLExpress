@@ -13,19 +13,18 @@ import java.util.stream.Collectors;
 /**
  * Author: DQinYuan
  */
-public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
+public class OutVarNamesVisitor extends ScopeStackVisitor {
     
     private final Set<String> outVars = new HashSet<>();
     
     private final ImportManager importManager;
     
-    private ExistVarStack existVarStack = new ExistVarStack(null);
-    
     public OutVarNamesVisitor(ImportManager importManager) {
+        super(new ExistVarStack(null));
         this.importManager = importManager;
     }
     
-    private static class ExistVarStack {
+    private static class ExistVarStack implements ExistStack {
         private final ExistVarStack parent;
         
         private final Set<String> existVars = new HashSet<>();
@@ -52,65 +51,6 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         public ExistVarStack pop() {
             return parent;
         }
-    }
-    
-    // scope
-    @Override
-    public Void visitBlockExpr(QLParser.BlockExprContext ctx) {
-        this.existVarStack = this.existVarStack.push();
-        super.visitBlockExpr(ctx);
-        this.existVarStack = this.existVarStack.pop();
-        return null;
-    }
-    
-    @Override
-    public Void visitQlIf(QLParser.QlIfContext qlIfContext) {
-        qlIfContext.condition.accept(this);
-        
-        this.existVarStack = this.existVarStack.push();
-        qlIfContext.thenBody().accept(this);
-        this.existVarStack = this.existVarStack.pop();
-        
-        QLParser.ElseBodyContext elseBodyContext = qlIfContext.elseBody();
-        if (elseBodyContext != null) {
-            this.existVarStack = this.existVarStack.push();
-            elseBodyContext.accept(this);
-            this.existVarStack = this.existVarStack.pop();
-        }
-        
-        return null;
-    }
-    
-    @Override
-    public Void visitTryCatchExpr(QLParser.TryCatchExprContext ctx) {
-        QLParser.BlockStatementsContext blockStatementsContext = ctx.blockStatements();
-        if (blockStatementsContext != null) {
-            this.existVarStack = this.existVarStack.push();
-            blockStatementsContext.accept(this);
-            this.existVarStack = this.existVarStack.pop();
-        }
-        
-        QLParser.TryCatchesContext tryCatchesContext = ctx.tryCatches();
-        if (tryCatchesContext != null) {
-            tryCatchesContext.accept(this);
-        }
-        
-        QLParser.TryFinallyContext tryFinallyContext = ctx.tryFinally();
-        if (tryFinallyContext != null) {
-            this.existVarStack = this.existVarStack.push();
-            tryFinallyContext.accept(this);
-            this.existVarStack = this.existVarStack.pop();
-        }
-        
-        return null;
-    }
-    
-    @Override
-    public Void visitTryCatch(QLParser.TryCatchContext ctx) {
-        this.existVarStack = this.existVarStack.push();
-        super.visitTryCatch(ctx);
-        this.existVarStack = this.existVarStack.pop();
-        return null;
     }
     
     // handle import
@@ -149,7 +89,7 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitVariableDeclaratorId(QLParser.VariableDeclaratorIdContext ctx) {
         QLParser.VarIdContext varIdContext = ctx.varId();
-        existVarStack.add(varIdContext.getText());
+        getStack().add(varIdContext.getText());
         return null;
     }
     
@@ -158,9 +98,9 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
         String leftVarName = ctx.varId().getText();
         if (pathPartContexts.isEmpty()) {
-            existVarStack.add(leftVarName);
+            getStack().add(leftVarName);
         }
-        else if (!existVarStack.exist(leftVarName)) {
+        else if (!getStack().exist(leftVarName)) {
             outVars.add(leftVarName);
         }
         return null;
@@ -171,7 +111,7 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitContextSelectExpr(QLParser.ContextSelectExprContext ctx) {
         String variableName = ctx.SelectorVariable_VANME().getText().trim();
-        if (!existVarStack.exist(variableName)) {
+        if (!getStack().exist(variableName)) {
             outVars.add(variableName);
         }
         return null;
@@ -222,7 +162,7 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
             return loadPartQualifiedResult.getRestIndex() - 1;
         }
         else {
-            if (!existVarStack.exist(primaryId)) {
+            if (!getStack().exist(primaryId)) {
                 outVars.add(primaryId);
             }
             return 0;
@@ -237,17 +177,12 @@ public class OutVarNamesVisitor extends QLParserBaseVisitor<Void> {
         return ctx.getStart().getText();
     }
     
-    private boolean isClassName(String id) {
-        char first = id.charAt(0);
-        return first >= 'A' && first <= 'Z';
-    }
-    
     // collect out variables name
     
     @Override
     public Void visitVarIdExpr(QLParser.VarIdExprContext ctx) {
         String varName = ctx.varId().getText();
-        if (!existVarStack.exist(varName)) {
+        if (!getStack().exist(varName)) {
             outVars.add(varName);
         }
         return null;

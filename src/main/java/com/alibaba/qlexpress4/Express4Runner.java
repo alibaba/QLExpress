@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.MacroDefine;
+import com.alibaba.qlexpress4.aparser.OutFunctionVisitor;
 import com.alibaba.qlexpress4.aparser.OutVarNamesVisitor;
 import com.alibaba.qlexpress4.aparser.QCompileCache;
 import com.alibaba.qlexpress4.aparser.QLParser;
@@ -194,6 +195,18 @@ public class Express4Runner {
         OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor(inheritDefaultImport());
         programContext.accept(outVarNamesVisitor);
         return outVarNamesVisitor.getOutVars();
+    }
+    
+    /**
+     * get out functions(Functions that need to be passed from outside the script through context) in script
+     * @param script
+     * @return name of out functions
+     */
+    public Set<String> getOutFunctions(String script) {
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
+        OutFunctionVisitor outFunctionVisitor = new OutFunctionVisitor();
+        programContext.accept(outFunctionVisitor);
+        return outFunctionVisitor.getOutFunctions();
     }
     
     /**

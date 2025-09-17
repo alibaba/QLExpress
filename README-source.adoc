@@ -172,6 +172,8 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
+如果想解析所有需要从外部传入的函数，则可以调用 `getOutFunctions` 方法。
+
 === 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：

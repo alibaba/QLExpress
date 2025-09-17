@@ -170,6 +170,8 @@ QLExpress4 provides a method to parse all variables that need to be passed in fr
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
+To parse all functions that require external input, call the `getOutFunctions` method.
+
 === High-Precision Calculation
 
 QLExpress internally uses BigDecimal to represent all numbers that cannot be precisely represented by double, to represent calculation precision as much as possible:
