@@ -343,6 +343,8 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cach
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
+注意该缓存的大小是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
+
 === 设置超时时间
 
 可以给脚本设置一个超时时间，防止其中存在死循环或者其他原因导致应用资源被过量消耗。

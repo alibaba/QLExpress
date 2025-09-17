@@ -428,6 +428,16 @@ public class Express4Runner {
         return reflectLoader.loadField(object, fieldName, true, PureErrReporter.INSTANCE);
     }
     
+    /**
+     * Clear the compilation cache.
+     * This method clears the cache that stores compiled scripts for performance optimization.
+     * When the cache is cleared, subsequent script executions will need to recompile the scripts,
+     * which may temporarily impact performance until the cache is rebuilt.
+     */
+    public void clearCompileCache() {
+        compileCache.clear();
+    }
+    
     private Future<QCompileCache> getParseFuture(String script) {
         Future<QCompileCache> parseFuture = compileCache.get(script);
         if (parseFuture != null) {
