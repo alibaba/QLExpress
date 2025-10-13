@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.MacroDefine;
+import com.alibaba.qlexpress4.aparser.OperatorVisitor;
 import com.alibaba.qlexpress4.aparser.OutFunctionVisitor;
 import com.alibaba.qlexpress4.aparser.OutVarNamesVisitor;
 import com.alibaba.qlexpress4.aparser.QCompileCache;
@@ -47,6 +48,7 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
+import com.alibaba.qlexpress4.runtime.operator.Operator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.trace.QTraces;
@@ -388,6 +390,41 @@ public class Express4Runner {
             initOptions.getSelectorEnd());
     }
     
+    /**
+     * 检查脚本中使用的运算符是否符合限制规则
+     *
+     * 该方法涵盖了原有的 parseToSyntaxTree 逻辑以及运算符限制的校验逻辑。
+     * 运算符限制的校验逻辑完全在 OperatorVisitor 内部实现,通过 accept() 方法触发。
+     * 如果脚本中使用了不在白名单中的运算符或在黑名单中的运算符,
+     * OperatorVisitor 会在遍历过程中抛出 QLSyntaxException 异常。
+     *
+     * @param script 待检查的脚本
+     * @param checkOptions 校验配置,包含运算符白名单和黑名单
+     * @throws QLSyntaxException 如果语法错误或使用了不允许的运算符
+     */
+    public void check(String script, CheckOptions checkOptions) throws QLSyntaxException {
+        // 1. 解析语法树(复用现有的 parseToSyntaxTree 逻辑)
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
+
+        // 2. 创建 OperatorVisitor,传入校验配置
+        OperatorVisitor operatorVisitor = new OperatorVisitor(checkOptions);
+
+        // 3. 遍历语法树,在遍历过程中进行运算符校验
+        programContext.accept(operatorVisitor);
+
+        // 4. 校验通过,方法正常返回
+    }
+
+    /**
+     * 检查脚本中使用的运算符是否符合限制规则(使用默认配置)
+     *
+     * @param script 待检查的脚本
+     * @throws QLSyntaxException 如果语法错误或使用了不允许的运算符
+     */
+    public void check(String script) throws QLSyntaxException {
+        check(script, CheckOptions.DEFAULT_OPTIONS);
+    }
+
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine =
             qlOptions.isCache() ? parseToDefinitionWithCache(script) : parseDefinition(script);
