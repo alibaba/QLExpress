@@ -6,8 +6,8 @@ import com.ql.util.express.IExpressContext;
 import com.ql.util.express.InstructionSet;
 import com.ql.util.express.Operator;
 import com.ql.util.express.instruction.op.OperatorBase;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
 
 /**
