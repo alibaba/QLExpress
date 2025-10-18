@@ -96,7 +96,7 @@ public class OperatorVisitor extends QLParserBaseVisitor<Void> {
      * 访问二元运算符表达式(包括算术、逻辑、比较等运算符)
      */
     @Override
-    public Void visitLeftAsso(QLParser.LeftAssoContext ctx) {
+    public void visitLeftAsso(QLParser.LeftAssoContext ctx) {
         // 获取运算符
         QLParser.BinaryopContext binaryopContext = ctx.binaryop();
         if (binaryopContext != null) {
@@ -112,7 +112,7 @@ public class OperatorVisitor extends QLParserBaseVisitor<Void> {
      * 访问前缀一元运算符表达式(如 !、-、++、-- 等)
      */
     @Override
-    public Void visitPrefixExpress(QLParser.PrefixExpressContext ctx) {
+    public void visitPrefixExpress(QLParser.PrefixExpressContext ctx) {
         // 获取前缀运算符
         if (ctx.opId() != null) {
             String operator = ctx.opId().getText();
@@ -126,7 +126,7 @@ public class OperatorVisitor extends QLParserBaseVisitor<Void> {
      * 访问后缀一元运算符表达式(如 ++、-- 等)
      */
     @Override
-    public Void visitSuffixExpress(QLParser.SuffixExpressContext ctx) {
+    public void visitSuffixExpress(QLParser.SuffixExpressContext ctx) {
         // 获取后缀运算符
         if (ctx.opId() != null) {
             String operator = ctx.opId().getText();
@@ -140,7 +140,7 @@ public class OperatorVisitor extends QLParserBaseVisitor<Void> {
      * 访问表达式(包含赋值运算符)
      */
     @Override
-    public Void visitExpression(QLParser.ExpressionContext ctx) {
+    public void visitExpression(QLParser.ExpressionContext ctx) {
         // 检查赋值运算符
         if (ctx.assignOperator() != null) {
             checkOperator(ctx.assignOperator().getText());
