@@ -170,7 +170,10 @@ QLExpress4 provides a method to parse all variables that need to be passed in fr
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
-To parse all functions that require external input, call the `getOutFunctions` method.
+More script-dependency parsing tools:
+
+* `getOutFunctions` – parses all functions that must be defined externally
+* `getOutVarAttrs` – parses all variables (and the attributes they reference) that must be supplied from outside; an enhanced version of `getOutVarNames`
 
 === High-Precision Calculation
 

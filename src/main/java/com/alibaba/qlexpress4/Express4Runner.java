@@ -19,6 +19,7 @@ import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.MacroDefine;
 import com.alibaba.qlexpress4.aparser.OutFunctionVisitor;
+import com.alibaba.qlexpress4.aparser.OutVarAttrsVisitor;
 import com.alibaba.qlexpress4.aparser.OutVarNamesVisitor;
 import com.alibaba.qlexpress4.aparser.QCompileCache;
 import com.alibaba.qlexpress4.aparser.QLParser;
@@ -195,6 +196,18 @@ public class Express4Runner {
         OutVarNamesVisitor outVarNamesVisitor = new OutVarNamesVisitor(inheritDefaultImport());
         programContext.accept(outVarNamesVisitor);
         return outVarNamesVisitor.getOutVars();
+    }
+    
+    /**
+     * get out var attrs in script
+     * @param script
+     * @return out var attrs
+     */
+    public Set<List<String>> getOutVarAttrs(String script) {
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
+        OutVarAttrsVisitor outVarAttrsVisitor = new OutVarAttrsVisitor(inheritDefaultImport());
+        programContext.accept(outVarAttrsVisitor);
+        return outVarAttrsVisitor.getOutVarAttrs();
     }
     
     /**

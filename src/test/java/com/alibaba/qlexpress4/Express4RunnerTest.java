@@ -993,6 +993,23 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void getOutVarAttrs() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(Arrays.asList("a.b.c", "a.b.d", "c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a.b.c+a.b.c-a.b.d*c.m")));
+        Assert.assertEquals(Collections.singletonList("c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a=2;test(a.b.c,c.m)")));
+        Assert.assertEquals(Arrays.asList("a.b", "c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a.b=2;test(c.m)")));
+        Assert.assertEquals(Collections.singletonList("c"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("java.lang.Math.abs(c)")));
+    }
+    
+    private List<String> flatOutVarAttrs(Set<List<String>> outVarAttrs) {
+        return outVarAttrs.stream().map(l -> String.join(".", l)).sorted().collect(Collectors.toList());
+    }
+    
+    @Test
     public void getOutFunctions() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Set<String> outFuncNames = express4Runner.getOutFunctions("time('2025-09-8')+sum(1,sub(3,2))");

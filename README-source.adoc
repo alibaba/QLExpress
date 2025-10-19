@@ -172,7 +172,10 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
-如果想解析所有需要从外部传入的函数，则可以调用 `getOutFunctions` 方法。
+更多脚本依赖解析工具：
+
+* `getOutFunctions`: 解析所有需要从外部定义的函数
+* `getOutVarAttrs`：解析所有需要从外部传入变量及其涉及的属性，`getOutVarNames` 的增强版本
 
 === 高精度计算
 
