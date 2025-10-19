@@ -2,6 +2,8 @@
 
 = QLExpress
 
+image::images/logo.png[]
+
 link:README.adoc[【中文版】] | [English]
 
 image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
