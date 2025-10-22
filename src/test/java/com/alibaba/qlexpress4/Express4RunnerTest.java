@@ -26,7 +26,6 @@ import com.alibaba.qlexpress4.test.qlalias.User;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -735,17 +734,24 @@ public class Express4RunnerTest {
             }
             
             @Override
-            public Object invoke(Object obj, Object[] args)
-                throws InvocationTargetException, IllegalAccessException {
+            public Object invoke(Object obj, Object[] args) {
                 String originStr = (String)obj;
                 return "Hello," + originStr;
             }
         };
-        Express4Runner express4Runner = new Express4Runner(
-            InitOptions.builder().addExtensionFunctions(Collections.singletonList(helloFunction)).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addExtendFunction(helloFunction);
         Object result =
             express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
+        
+        // simpler way to define extension function
+        express4Runner.addExtendFunction("add",
+            Number.class,
+            params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
+        QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, resultAdd.getResult());
+        
         // end::extensionFunction[]
     }
     

@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
 import com.alibaba.qlexpress4.runtime.context.QLAliasContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
@@ -75,8 +77,7 @@ public class Express4Runner {
     
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
-        this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.getExtensionFunctions(),
-            initOptions.isAllowPrivateAccess());
+        this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.isAllowPrivateAccess());
         SyntaxTreeFactory.warmUp();
     }
     
@@ -390,6 +391,54 @@ public class Express4Runner {
         return compileTimeFunctions.putIfAbsent(name, compileTimeFunction) == null;
     }
     
+    /**
+     * add extension function
+     * @param extensionFunction definition of extansion function
+     */
+    public void addExtendFunction(ExtensionFunction extensionFunction) {
+        this.reflectLoader.addExtendFunction(extensionFunction);
+    }
+    
+    /**
+     * add an extension function with variable arguments.
+     * @param name the name of the extension function
+     * @param bindingClass the receiver type (class)
+     * @param functionalVarargs custom logic
+     */
+    public void addExtendFunction(String name, Class<?> bindingClass, QLFunctionalVarargs functionalVarargs) {
+        this.reflectLoader.addExtendFunction(new ExtensionFunction() {
+            @Override
+            public Class<?>[] getParameterTypes() {
+                return new Class[] {Object[].class};
+            }
+            
+            @Override
+            public boolean isVarArgs() {
+                return true;
+            }
+            
+            @Override
+            public String getName() {
+                return name;
+            }
+            
+            @Override
+            public Class<?> getDeclaringClass() {
+                return bindingClass;
+            }
+            
+            @Override
+            public Object invoke(Object obj, Object[] args)
+                throws InvocationTargetException, IllegalAccessException {
+                Object[] extArgs = new Object[args.length + 1];
+                extArgs[0] = obj;
+                Object[] varArgs = (Object[])args[0];
+                System.arraycopy(varArgs, 0, extArgs, 1, varArgs.length);
+                return functionalVarargs.call(extArgs);
+            }
+        });
+    }
+    
     public QLParser.ProgramContext parseToSyntaxTree(String script) {
         return SyntaxTreeFactory.buildTree(script,
             operatorManager,
@@ -492,6 +541,10 @@ public class Express4Runner {
         return operatorManager.addBinaryOperator(operator,
             (left, right) -> biFunction.apply((T)left.get(), (U)right.get()),
             QLPrecedences.MULTI);
+    }
+    
+    public boolean addOperator(String operator, QLFunctionalVarargs functionalVarargs) {
+        return addOperator(operator, (left, right) -> functionalVarargs.call(left.get(), right.get()));
     }
     
     /**

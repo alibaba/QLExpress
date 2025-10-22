@@ -51,12 +51,6 @@ public class InitOptions {
     private final QLSecurityStrategy securityStrategy;
     
     /**
-     * qlexpress extension functions
-     * default is some collection convenience functions
-     */
-    private final List<ExtensionFunction> extensionFunctions;
-    
-    /**
      * allow access private field and method
      * default false
      */
@@ -87,15 +81,13 @@ public class InitOptions {
     private final String selectorEnd;
     
     private InitOptions(ClassSupplier classSupplier, List<ImportManager.QLImport> defaultImport, boolean debug,
-        Consumer<String> debugInfoConsumer, QLSecurityStrategy securityStrategy,
-        List<ExtensionFunction> extensionFunctions, boolean allowPrivateAccess, InterpolationMode interpolationMode,
-        boolean traceExpression, String selectorStart, String selectorEnd) {
+        Consumer<String> debugInfoConsumer, QLSecurityStrategy securityStrategy, boolean allowPrivateAccess,
+        InterpolationMode interpolationMode, boolean traceExpression, String selectorStart, String selectorEnd) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
         this.debugInfoConsumer = debugInfoConsumer;
         this.securityStrategy = securityStrategy;
-        this.extensionFunctions = extensionFunctions;
         this.allowPrivateAccess = allowPrivateAccess;
         this.interpolationMode = interpolationMode;
         this.traceExpression = traceExpression;
@@ -125,10 +117,6 @@ public class InitOptions {
     
     public QLSecurityStrategy getSecurityStrategy() {
         return securityStrategy;
-    }
-    
-    public List<ExtensionFunction> getExtensionFunctions() {
-        return extensionFunctions;
     }
     
     public boolean isAllowPrivateAccess() {
@@ -167,9 +155,6 @@ public class InitOptions {
         
         private QLSecurityStrategy securityStrategy = QLSecurityStrategy.isolation();
         
-        private final List<ExtensionFunction> extensionFunctions =
-            new ArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
-        
         private boolean allowPrivateAccess = false;
         
         private InterpolationMode interpolationMode = InterpolationMode.SCRIPT;
@@ -202,11 +187,6 @@ public class InitOptions {
         
         public Builder securityStrategy(QLSecurityStrategy securityStrategy) {
             this.securityStrategy = securityStrategy;
-            return this;
-        }
-        
-        public Builder addExtensionFunctions(List<ExtensionFunction> extensionFunctions) {
-            this.extensionFunctions.addAll(extensionFunctions);
             return this;
         }
         
@@ -243,7 +223,7 @@ public class InitOptions {
         
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport, debug, debugInfoConsumer, securityStrategy,
-                extensionFunctions, allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd);
+                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd);
         }
     }
 }

@@ -70,23 +70,11 @@ public class MemberResolver {
         return constructors[varArgsConstructorI.get(varArgBestIndex)];
     }
     
-    public static boolean methodExist(Class<?> cls, String name, boolean isStatic, boolean allowPrivate) {
-        Class<?> curCls = cls;
-        while (curCls != null) {
-            Method[] declaredMethods = getDeclaredMethod(curCls, name, isStatic, allowPrivate);
-            if (declaredMethods.length > 0) {
-                return true;
-            }
-            curCls = cls.getSuperclass();
-        }
-        return false;
-    }
-    
-    public static Method resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
+    public static IMethod resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
         boolean allowPrivate) {
         Class<?> curCls = cls;
         while (curCls != null) {
-            Method method = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
+            IMethod method = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
             if (method != null) {
                 return method;
             }
@@ -96,10 +84,10 @@ public class MemberResolver {
         return resolveIntersMethod(cls.getInterfaces(), methodName, argTypes, isStatic);
     }
     
-    private static Method resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes,
+    private static IMethod resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes,
         boolean isStatic) {
         for (Class<?> inter : inters) {
-            Method method = resolveInterMethod(inter, methodName, argTypes, isStatic);
+            IMethod method = resolveInterMethod(inter, methodName, argTypes, isStatic);
             if (method != null) {
                 return method;
             }
@@ -107,9 +95,10 @@ public class MemberResolver {
         return null;
     }
     
-    private static Method resolveInterMethod(Class<?> inter, String methodName, Class<?>[] argTypes, boolean isStatic) {
+    private static IMethod resolveInterMethod(Class<?> inter, String methodName, Class<?>[] argTypes,
+        boolean isStatic) {
         // no private method in interface, so pass false to 'allowPrivate'
-        Method method = resolveDeclaredMethod(inter, methodName, argTypes, isStatic, false);
+        IMethod method = resolveDeclaredMethod(inter, methodName, argTypes, isStatic, false);
         if (method != null) {
             return method;
         }
@@ -136,26 +125,28 @@ public class MemberResolver {
         return methodPriority;
     }
     
-    private static Method resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
+    private static IMethod resolveDeclaredMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
         boolean allowPrivate) {
-        Method[] declaredMethods = getDeclaredMethod(cls, methodName, isStatic, allowPrivate);
-        
+        return resolveMethod(getDeclaredMethod(cls, methodName, isStatic, allowPrivate), argTypes);
+    }
+    
+    public static IMethod resolveMethod(List<? extends IMethod> methods, Class<?>[] argTypes) {
         // simple match
-        Class<?>[][] candidates = new Class<?>[declaredMethods.length][];
-        for (int i = 0; i < declaredMethods.length; i++) {
-            Method declaredMethod = declaredMethods[i];
+        Class<?>[][] candidates = new Class<?>[methods.size()][];
+        for (int i = 0; i < methods.size(); i++) {
+            IMethod declaredMethod = methods.get(i);
             candidates[i] = declaredMethod.getParameterTypes();
         }
         Integer bestIndex = resolveBestMatch(candidates, argTypes);
         if (bestIndex != null) {
-            return declaredMethods[bestIndex];
+            return methods.get(bestIndex);
         }
         
         // var args match
-        List<Class<?>[]> varArgsCandidates = new ArrayList<>(declaredMethods.length);
-        List<Integer> varArgsMethodI = new ArrayList<>(declaredMethods.length);
-        for (int i = 0; i < declaredMethods.length; i++) {
-            Method declaredMethod = declaredMethods[i];
+        List<Class<?>[]> varArgsCandidates = new ArrayList<>(methods.size());
+        List<Integer> varArgsMethodI = new ArrayList<>(methods.size());
+        for (int i = 0; i < methods.size(); i++) {
+            IMethod declaredMethod = methods.get(i);
             if (!declaredMethod.isVarArgs()) {
                 continue;
             }
@@ -166,12 +157,13 @@ public class MemberResolver {
         if (varArgBestIndex == null) {
             return null;
         }
-        return declaredMethods[varArgsMethodI.get(varArgBestIndex)];
+        return methods.get(varArgsMethodI.get(varArgBestIndex));
     }
     
-    private static Method[] getDeclaredMethod(Class<?> cls, String methodName, boolean isStatic, boolean allowPrivate) {
+    private static List<IMethod> getDeclaredMethod(Class<?> cls, String methodName, boolean isStatic,
+        boolean allowPrivate) {
         Method[] declaredMethods = cls.getDeclaredMethods();
-        List<Method> result = new ArrayList<>(declaredMethods.length);
+        List<IMethod> result = new ArrayList<>(declaredMethods.length);
         for (Method declaredMethod : declaredMethods) {
             if (Modifier.isAbstract(declaredMethod.getModifiers())) {
                 continue;
@@ -182,10 +174,10 @@ public class MemberResolver {
             }
             if ((!isStatic || BasicUtil.isStatic(declaredMethod))
                 && (allowPrivate || BasicUtil.isPublic(declaredMethod))) {
-                result.add(declaredMethod);
+                result.add(new JvmIMethod(declaredMethod));
             }
         }
-        return result.toArray(new Method[0]);
+        return result;
     }
     
     private static Class<?>[] adapt2VarArgTypes(Class<?>[] parameterTypes, int argLength) {

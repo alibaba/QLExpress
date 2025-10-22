@@ -9,6 +9,8 @@ import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import com.alibaba.qlexpress4.security.StrategyIsolation;
 import com.alibaba.qlexpress4.utils.BasicUtil;
@@ -17,6 +19,7 @@ import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -36,17 +39,23 @@ public class ReflectLoader {
     
     private final Map<List<?>, FieldReflectCache> fieldCache = new ConcurrentHashMap<>();
     
-    private final Map<MethodCacheKey, Method> staticMethodCache = new ConcurrentHashMap<>();
+    private final Map<MethodCacheKey, IMethod> staticMethodCache = new ConcurrentHashMap<>();
     
-    private final Map<MethodCacheKey, Method> memberMethodCache = new ConcurrentHashMap<>();
+    private final Map<MethodCacheKey, IMethod> memberMethodCache = new ConcurrentHashMap<>();
     
-    private final List<ExtensionFunction> extensionFunctions;
+    /**
+     * default extension functions
+     */
+    private final List<ExtensionFunction> extensionFunctions =
+        new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
     
-    public ReflectLoader(QLSecurityStrategy securityStrategy, List<ExtensionFunction> extensionFunctions,
-        boolean allowPrivateAccess) {
+    public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
-        this.extensionFunctions = extensionFunctions;
+    }
+    
+    public void addExtendFunction(ExtensionFunction extensionFunction) {
+        extensionFunctions.add(extensionFunction);
     }
     
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
@@ -112,20 +121,30 @@ public class ReflectLoader {
         }
         
         MethodCacheKey cacheKey = new MethodCacheKey(clz, methodName, argTypes);
-        Map<MethodCacheKey, Method> methodCache = isStaticMethod ? staticMethodCache : memberMethodCache;
-        Method cachedMethod = methodCache.get(cacheKey);
+        Map<MethodCacheKey, IMethod> methodCache = isStaticMethod ? staticMethodCache : memberMethodCache;
+        IMethod cachedMethod = methodCache.get(cacheKey);
         if (cachedMethod != null) {
-            return new JvmIMethod(cachedMethod);
+            return cachedMethod;
         }
         
-        Method method =
-            securityFilter(MemberResolver.resolveMethod(clz, methodName, argTypes, isStaticMethod, allowPrivateAccess));
+        IMethod method = securityFilterIMethod(
+            MemberResolver.resolveMethod(clz, methodName, argTypes, isStaticMethod, allowPrivateAccess));
         if (method == null) {
             return null;
         }
         
         methodCache.put(cacheKey, method);
-        return new JvmIMethod(method);
+        return method;
+    }
+    
+    private IMethod securityFilterIMethod(IMethod iMethod) {
+        if (iMethod instanceof JvmIMethod) {
+            Method filterResult = securityFilter(((JvmIMethod)iMethod).getMethod());
+            return filterResult == null ? null : iMethod;
+        }
+        else {
+            return iMethod;
+        }
     }
     
     private IMethod loadExtendFunction(Class<?> clz, String methodName, Class<?>[] argTypes) {
@@ -136,16 +155,7 @@ public class ReflectLoader {
         if (assignableExtensionFunctions.isEmpty()) {
             return null;
         }
-        
-        Class<?>[][] candidates = new Class<?>[assignableExtensionFunctions.size()][];
-        for (int i = 0; i < assignableExtensionFunctions.size(); i++) {
-            candidates[i] = assignableExtensionFunctions.get(i).getParameterTypes();
-        }
-        Integer bestIndex = MemberResolver.resolveBestMatch(candidates, argTypes);
-        if (bestIndex == null) {
-            return null;
-        }
-        return assignableExtensionFunctions.get(bestIndex);
+        return MemberResolver.resolveMethod(assignableExtensionFunctions, argTypes);
     }
     
     private Value loadJavaField(Class<?> cls, Object bean, String fieldName, boolean skipSecurity,
