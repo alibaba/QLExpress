@@ -1,0 +1,95 @@
+:toc:
+
+= 表达式执行
+
+本节说明在 QLExpress4 中执行表达式的多种方式。
+
+== 使用 Map 作为上下文：
+
+- `execute(String, Map<String,Object>, QLOptions)`
+- 说明：根据方法注释，使用 `Map` 作为上下文，`Map` 的 key 即为脚本中的变量名，value 为对应变量值。
+- 典型场景：从外部业务数据构造一个 `Map` 传入，直接在脚本里以变量名访问。
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", 3);
+        Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(7, result);
+----
+
+== 使用对象字段作为上下文
+
+- `execute(String, Object, QLOptions)`
+- 说明：根据方法注释，使用一个普通 Java 对象作为上下文，脚本中的变量名对应该对象的字段名（或可访问的 getter）。
+- 典型场景：已有一个承载上下文数据的 DTO/POJO，直接将对象传入以便脚本读取其字段。
+
+// 说明：此处引用对象上下文执行的测试代码。
+[source,java,indent=0]
+----
+        MyObj myObj = new MyObj();
+        myObj.a = 1;
+        myObj.b = "test";
+        
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("1test", result);
+----
+
+== 使用带别名的对象集合
+
+- `executeWithAliasObjects(String, QLOptions, Object...)`
+- 说明：根据方法注释，传入标记了 `@QLAlias` 的对象，注解值将作为上下文中的变量名；未标记的对象会被忽略。
+- 典型场景：以中文（或领域语言）别名暴露对象属性/方法，供规则编写者直观地编写脚本。
+
+[source,java,indent=0]
+----
+        Order order = new Order();
+        order.setOrderNum("OR123455");
+        order.setAmount(100);
+        
+        User user = new User();
+        user.setName("jack");
+        user.setVip(true);
+        
+        // Calculate the Final Order Amount
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Number result = (Number)express4Runner
+            .executeWithAliasObjects("用户.是vip? 订单.金额 * 0.8 : 订单.金额", QLOptions.DEFAULT_OPTIONS, order, user)
+            .getResult();
+        assertEquals(80, result.intValue());
+----
+
+== 使用自定义 `ExpressContext`
+
+- `execute(String, ExpressContext, QLOptions)`
+- 说明：该重载允许传入实现了 `ExpressContext` 的自定义上下文（例如动态变量上下文）。其它 `execute` 重载最终也会委托到此方法。
+- 典型场景：需要按需按名计算变量值、隔离读写、或接入外部存储等高级能力时，自定义上下文最灵活。
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        Map<String, Object> staticContext = new HashMap<>();
+        staticContext.put("语文", 88);
+        staticContext.put("数学", 99);
+        staticContext.put("英语", 95);
+        
+        QLOptions defaultOptions = QLOptions.DEFAULT_OPTIONS;
+        DynamicVariableContext dynamicContext =
+            new DynamicVariableContext(express4Runner, staticContext, defaultOptions);
+        dynamicContext.put("平均成绩", "(语文+数学+英语)/3.0");
+        dynamicContext.put("是否优秀", "平均成绩>90");
+        
+        // dynamic var
+        assertTrue((Boolean)express4Runner.execute("是否优秀", dynamicContext, defaultOptions).getResult());
+        assertEquals(94,
+            ((Number)express4Runner.execute("平均成绩", dynamicContext, defaultOptions).getResult()).intValue());
+        // static var
+        assertEquals(187,
+            ((Number)express4Runner.execute("语文+数学", dynamicContext, defaultOptions).getResult()).intValue());
+----
