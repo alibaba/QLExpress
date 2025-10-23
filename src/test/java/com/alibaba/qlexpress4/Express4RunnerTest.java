@@ -1251,6 +1251,7 @@ public class Express4RunnerTest {
     
     @Test
     public void executeWithObjContextTest() {
+        // tag::executeWithObject[]
         MyObj myObj = new MyObj();
         myObj.a = 1;
         myObj.b = "test";
@@ -1258,6 +1259,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1test", result);
+        // end::executeWithObject[]
     }
     
     @Test
