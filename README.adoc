@@ -132,6 +132,8 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
         assertEquals(7, result);
 ----
 
+更多的表达式执行方式见文档 link:docs/execute.adoc[表达式执行]
+
 === 添加自定义函数与操作符
 
 最简单的方式是通过 Java Lambda 表达式快速定义函数/操作符的逻辑：

@@ -130,6 +130,8 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
         assertEquals(7, result);
 ----
 
+More expression execution methods can be found in the documentation link:docs/execute-en.adoc[Expression Execution]
+
 === Adding Custom Functions and Operators
 
 The simplest way is to quickly define function/operator logic through Java Lambda expressions:
