@@ -4,7 +4,7 @@
 
 本节说明在 QLExpress4 中执行表达式的多种方式。
 
-== 使用 Map 作为上下文：
+== 使用 Map 作为上下文
 
 - `execute(String, Map<String,Object>, QLOptions)`
 - 说明：根据方法注释，使用 `Map` 作为上下文，`Map` 的 key 即为脚本中的变量名，value 为对应变量值。
