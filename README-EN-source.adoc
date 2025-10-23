@@ -120,6 +120,8 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
 ----
 
+More expression execution methods can be found in the documentation link:docs/execute-en.adoc[Expression Execution]
+
 === Adding Custom Functions and Operators
 
 The simplest way is to quickly define function/operator logic through Java Lambda expressions:
