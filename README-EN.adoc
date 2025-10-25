@@ -1275,6 +1275,33 @@ If you want QLExpress4 strings to maintain compatibility with version 3 and not 
                 .getResult());
 ----
 
+=== Template Rendering
+
+Leveraging dynamic strings, QLExpress4 can also be used as a lightweight template engine.
+
+You don't need to manually add string quotes in the script. Just call `executeTemplate` to render the template string:
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "test");
+        QLResult simpleTemplate = express4Runner.executeTemplate("a ${a};b ${b+2}", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("a 1;b 4", simpleTemplate.getResult());
+        QLResult conditionTemplate =
+            express4Runner.executeTemplate("m xx ${\n" + "  if (c like 't%') {\n" + "      'YYY'\n" + "  }\n" + "}",
+                context,
+                QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m xx YYY", conditionTemplate.getResult());
+        QLResult multiLineTemplate = express4Runner.executeTemplate("m\n ${a}\n c", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m\n 1\n c", multiLineTemplate.getResult());
+        QLResult escapeStringTemplate =
+            express4Runner.executeTemplate("m \n\"haha\" d\"", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m \n\"haha\" d\"", escapeStringTemplate.getResult());
+----
+
 === Placeholders
 
 Placeholders are used to extract values of arbitrary keys from the context.
