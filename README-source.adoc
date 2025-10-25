@@ -667,6 +667,17 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
+=== 模板语言
+
+利用动态字符串能力，QLExpress4 也可以作为一个轻量级模板引擎使用。
+
+无需在脚本中手动添加字符串引号，直接调用 `executeTemplate` 渲染模板字符串：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=templateEngine]
+----
+
 === 占位符
 
 占位符用于从 context 中提取任意 key 的值。
@@ -1006,4 +1017,3 @@ link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%
  * DingTalk Support Group
 
 image::images/qlexpress_support_group_qr.jpg[]
-

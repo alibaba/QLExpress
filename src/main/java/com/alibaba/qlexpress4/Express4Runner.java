@@ -103,6 +103,24 @@ public class Express4Runner {
     }
     
     /**
+     * Execute a template string by wrapping it as a dynamic string literal.
+     * Template does not support newlines in this mode.
+     */
+    public QLResult executeTemplate(String template, Map<String, Object> context, QLOptions qlOptions)
+        throws QLException {
+        String script = wrapAsDynamicString(template);
+        return execute(script, context, qlOptions);
+    }
+    
+    private String wrapAsDynamicString(String template) {
+        if (template == null) {
+            return "\"\"";
+        }
+        String escaped = template.replace("\"", "\\\"");
+        return "\"" + escaped + "\"";
+    }
+    
+    /**
      * execute the script with variables set in the context, where the key corresponds to the field name of context object
      * @param script
      * @param context

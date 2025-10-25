@@ -666,6 +666,17 @@ If you want QLExpress4 strings to maintain compatibility with version 3 and not 
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
+=== Template Rendering
+
+Leveraging dynamic strings, QLExpress4 can also be used as a lightweight template engine.
+
+You don't need to manually add string quotes in the script. Just call `executeTemplate` to render the template string:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=templateEngine]
+----
+
 === Placeholders
 
 Placeholders are used to extract values of arbitrary keys from the context.
