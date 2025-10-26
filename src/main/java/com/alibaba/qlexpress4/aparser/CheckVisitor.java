@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.CheckOptions;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.runtime.operator.Operator;
@@ -82,30 +83,28 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
             
             case WHITELIST:
                 if (operatorStrings == null || !operatorStrings.contains(operatorString)) {
-                    String reason = String.format("Script uses disallowed operator: %s. Allowed operators: %s",
-                        operatorString,
-                        operatorStrings);
+                    String reason =
+                        String.format(QLErrorCodes.OPERATOR_NOT_ALLOWED.getErrorMsg(), operatorString, operatorStrings);
                     throw QLException.reportScannerErr(script,
                         token.getStartIndex(),
                         token.getLine(),
                         token.getCharPositionInLine(),
                         operatorString,
-                        "OPERATOR_NOT_ALLOWED",
+                        QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
                         reason);
                 }
                 break;
             
             case BLACKLIST:
                 if (operatorStrings != null && operatorStrings.contains(operatorString)) {
-                    String reason = String.format("Script uses forbidden operator: %s. Forbidden operators: %s",
-                        operatorString,
-                        operatorStrings);
+                    String reason =
+                        String.format(QLErrorCodes.OPERATOR_FORBIDDEN.getErrorMsg(), operatorString, operatorStrings);
                     throw QLException.reportScannerErr(script,
                         token.getStartIndex(),
                         token.getLine(),
                         token.getCharPositionInLine(),
                         operatorString,
-                        "OPERATOR_FORBIDDEN",
+                        QLErrorCodes.OPERATOR_FORBIDDEN.name(),
                         reason);
                 }
                 break;

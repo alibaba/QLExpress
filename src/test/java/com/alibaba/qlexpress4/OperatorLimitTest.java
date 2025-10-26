@@ -355,4 +355,29 @@ public class OperatorLimitTest {
             assertTrue(reason.contains("+")); // Should list the allowed operators
         }
     }
+    
+    @Test
+    public void testPrintExceptionDetails() {
+        Set<Operator> allowedOps =
+            new HashSet<>(Arrays.asList(PlusOperator.getInstance(), MultiplyOperator.getInstance()));
+        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        try {
+            runner.check("a = b + c", checkOptions);
+            fail("Should throw QLSyntaxException");
+        }
+        catch (QLSyntaxException e) {
+            System.out.println("\n=== Exception Details ===");
+            System.out.println("Error Code: " + e.getErrorCode());
+            System.out.println("Error Lexeme: " + e.getErrLexeme());
+            System.out.println("Line No: " + e.getLineNo());
+            System.out.println("Col No: " + e.getColNo());
+            System.out.println("Position: " + e.getPos());
+            System.out.println("\n=== Reason ===");
+            System.out.println(e.getReason());
+            System.out.println("\n=== Full Message ===");
+            System.out.println(e.getMessage());
+        }
+    }
 }
