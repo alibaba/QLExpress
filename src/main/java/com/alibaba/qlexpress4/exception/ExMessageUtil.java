@@ -59,12 +59,8 @@ public class ExMessageUtil {
         }
         
         String snippet = snippetBuilder.toString();
-        // Escape single quotes in reason to avoid MessageFormat issues
-        String escapedReason = reason.replace("'", "''");
-        // Convert 0-based column to 1-based for display
-        int displayCol = tokenCol + 1;
         String message = MessageFormat
-            .format(REPORT_TEMPLATE, errorCode, escapedReason, snippet, carteBuilder.toString(), tokenLine, displayCol);
+            .format(REPORT_TEMPLATE, errorCode, reason, snippet, carteBuilder.toString(), tokenLine, tokenCol);
         return new ExMessage(message, snippet);
     }
     

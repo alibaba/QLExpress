@@ -70,7 +70,7 @@ public class QLException extends RuntimeException {
     private static Diagnostic toDiagnostic(int startPos, int line, int col, String lexeme, String errorCode,
         String reason, String snippet) {
         int zeroBasedLine = line - 1;
-        int zeroBasedCol = col;
+        int zeroBasedCol = col - 1;
         Position start = new Position(zeroBasedLine, zeroBasedCol);
         Position end = new Position(zeroBasedLine, zeroBasedCol + lexeme.length());
         Range range = new Range(start, end);

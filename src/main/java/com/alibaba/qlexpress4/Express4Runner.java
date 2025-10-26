@@ -410,8 +410,6 @@ public class Express4Runner {
 
         // 3. Traverse syntax tree and perform operator validation during traversal
         programContext.accept(checkVisitor);
-
-        // 4. Validation passed, method returns normally
     }
 
     /**
