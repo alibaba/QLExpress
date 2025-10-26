@@ -401,27 +401,29 @@ public class Express4Runner {
      * @param checkOptions validation configuration containing operator whitelist and blacklist
      * @throws QLSyntaxException if there is a syntax error or disallowed operators are used
      */
-    public void check(String script, CheckOptions checkOptions) throws QLSyntaxException {
+    public void check(String script, CheckOptions checkOptions)
+        throws QLSyntaxException {
         // 1. Parse syntax tree (reuse existing parseToSyntaxTree logic)
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
-
+        
         // 2. Create CheckVisitor and pass validation configuration and script content
         CheckVisitor checkVisitor = new CheckVisitor(checkOptions, script);
-
+        
         // 3. Traverse syntax tree and perform operator validation during traversal
         programContext.accept(checkVisitor);
     }
-
+    
     /**
      * Check if the operators used in the script comply with the restriction rules (using default configuration).
      *
      * @param script the script to be checked
      * @throws QLSyntaxException if there is a syntax error or disallowed operators are used
      */
-    public void check(String script) throws QLSyntaxException {
+    public void check(String script)
+        throws QLSyntaxException {
         check(script, CheckOptions.DEFAULT_OPTIONS);
     }
-
+    
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine =
             qlOptions.isCache() ? parseToDefinitionWithCache(script) : parseDefinition(script);
