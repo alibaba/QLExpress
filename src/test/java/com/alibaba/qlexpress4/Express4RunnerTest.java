@@ -26,7 +26,6 @@ import com.alibaba.qlexpress4.test.qlalias.User;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -735,17 +734,24 @@ public class Express4RunnerTest {
             }
             
             @Override
-            public Object invoke(Object obj, Object[] args)
-                throws InvocationTargetException, IllegalAccessException {
+            public Object invoke(Object obj, Object[] args) {
                 String originStr = (String)obj;
                 return "Hello," + originStr;
             }
         };
-        Express4Runner express4Runner = new Express4Runner(
-            InitOptions.builder().addExtensionFunctions(Collections.singletonList(helloFunction)).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addExtendFunction(helloFunction);
         Object result =
             express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
+        
+        // simpler way to define extension function
+        express4Runner.addExtendFunction("add",
+            Number.class,
+            params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
+        QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, resultAdd.getResult());
+        
         // end::extensionFunction[]
     }
     
@@ -798,6 +804,29 @@ public class Express4RunnerTest {
             express4RunnerDisable.execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS)
                 .getResult());
         // end::disableInterpolation[]
+    }
+    
+    @Test
+    public void templateEngineTest() {
+        // tag::templateEngine[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "test");
+        QLResult simpleTemplate = express4Runner.executeTemplate("a ${a};b ${b+2}", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("a 1;b 4", simpleTemplate.getResult());
+        QLResult conditionTemplate =
+            express4Runner.executeTemplate("m xx ${\n" + "  if (c like 't%') {\n" + "      'YYY'\n" + "  }\n" + "}",
+                context,
+                QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m xx YYY", conditionTemplate.getResult());
+        QLResult multiLineTemplate = express4Runner.executeTemplate("m\n ${a}\n c", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m\n 1\n c", multiLineTemplate.getResult());
+        QLResult escapeStringTemplate =
+            express4Runner.executeTemplate("m \n\"haha\" d\"", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m \n\"haha\" d\"", escapeStringTemplate.getResult());
+        // end::templateEngine[]
     }
     
     @Test
@@ -990,6 +1019,23 @@ public class Express4RunnerTest {
         expectOutVarNamesWithClsMethodCall.add("a");
         expectOutVarNamesWithClsMethodCall.add("b");
         Assert.assertEquals(expectOutVarNamesWithClsMethodCall, outVarNamesWithClsMethodCall);
+    }
+    
+    @Test
+    public void getOutVarAttrs() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(Arrays.asList("a.b.c", "a.b.d", "c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a.b.c+a.b.c-a.b.d*c.m")));
+        Assert.assertEquals(Collections.singletonList("c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a=2;test(a.b.c,c.m)")));
+        Assert.assertEquals(Arrays.asList("a.b", "c.m"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("a.b=2;test(c.m)")));
+        Assert.assertEquals(Collections.singletonList("c"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("java.lang.Math.abs(c)")));
+    }
+    
+    private List<String> flatOutVarAttrs(Set<List<String>> outVarAttrs) {
+        return outVarAttrs.stream().map(l -> String.join(".", l)).sorted().collect(Collectors.toList());
     }
     
     @Test
@@ -1228,6 +1274,7 @@ public class Express4RunnerTest {
     
     @Test
     public void executeWithObjContextTest() {
+        // tag::executeWithObject[]
         MyObj myObj = new MyObj();
         myObj.a = 1;
         myObj.b = "test";
@@ -1235,6 +1282,7 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner.execute("a+b", myObj, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("1test", result);
+        // end::executeWithObject[]
     }
     
     @Test

@@ -2,6 +2,8 @@
 
 = QLExpress
 
+image::images/logo.png[]
+
 【中文版】| link:README-EN.adoc[[English\]]
 
 image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
@@ -117,6 +119,10 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 </dependency>
 ----
 
+环境要求：
+
+* JDK 8 或更高版本
+
 === 第一个 QLExpress 程序
 
 [source,java,indent=0]
@@ -129,6 +135,8 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
         Object result = express4Runner.execute("a + b * c", context, QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(7, result);
 ----
+
+更多的表达式执行方式见文档 link:docs/execute.adoc[表达式执行]
 
 === 添加自定义函数与操作符
 
@@ -268,7 +276,10 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
         assertEquals(expectSet, outVarNames);
 ----
 
-如果想解析所有需要从外部传入的函数，则可以调用 `getOutFunctions` 方法。
+更多脚本依赖解析工具：
+
+* `getOutFunctions`: 解析所有需要从外部定义的函数
+* `getOutVarAttrs`：解析所有需要从外部传入变量及其涉及的属性，`getOutVarNames` 的增强版本
 
 === 高精度计算
 
@@ -614,17 +625,24 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
             }
             
             @Override
-            public Object invoke(Object obj, Object[] args)
-                throws InvocationTargetException, IllegalAccessException {
+            public Object invoke(Object obj, Object[] args) {
                 String originStr = (String)obj;
                 return "Hello," + originStr;
             }
         };
-        Express4Runner express4Runner = new Express4Runner(
-            InitOptions.builder().addExtensionFunctions(Collections.singletonList(helloFunction)).build());
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addExtendFunction(helloFunction);
         Object result =
             express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
+        
+        // simpler way to define extension function
+        express4Runner.addExtendFunction("add",
+            Number.class,
+            params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
+        QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, resultAdd.getResult());
+        
 ----
 
 === Java类的对象,字段和方法别名
@@ -1256,6 +1274,33 @@ assert("m xx ${
         Assert.assertEquals("Hello,aaa $ lll\"\n\b",
             express4RunnerDisable.execute("\"Hello,aaa $ lll\\\"\n\b\"", context, QLOptions.DEFAULT_OPTIONS)
                 .getResult());
+----
+
+=== 模板语言
+
+利用动态字符串能力，QLExpress4 也可以作为一个轻量级模板引擎使用。
+
+无需在脚本中手动添加字符串引号，直接调用 `executeTemplate` 渲染模板字符串：
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "test");
+        QLResult simpleTemplate = express4Runner.executeTemplate("a ${a};b ${b+2}", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("a 1;b 4", simpleTemplate.getResult());
+        QLResult conditionTemplate =
+            express4Runner.executeTemplate("m xx ${\n" + "  if (c like 't%') {\n" + "      'YYY'\n" + "  }\n" + "}",
+                context,
+                QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m xx YYY", conditionTemplate.getResult());
+        QLResult multiLineTemplate = express4Runner.executeTemplate("m\n ${a}\n c", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m\n 1\n c", multiLineTemplate.getResult());
+        QLResult escapeStringTemplate =
+            express4Runner.executeTemplate("m \n\"haha\" d\"", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals("m \n\"haha\" d\"", escapeStringTemplate.getResult());
 ----
 
 === 占位符

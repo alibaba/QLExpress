@@ -1,0 +1,50 @@
+:toc:
+
+= Expression Execution
+
+This section describes the different ways to execute expressions in QLExpress4.
+
+== Use Map as the context
+
+- `execute(String, Map<String,Object>, QLOptions)`
+- Description: According to the method comments, use a `Map` as the context; the keys in the `Map` are the variable names used in the script, and the values are the corresponding variable values.
+- Typical scenario: Build a `Map` from external business data and pass it in so the script can access variables directly by name.
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
+----
+
+== Use object fields as the context
+
+- `execute(String, Object, QLOptions)`
+- Description: Use a plain Java object as the context; variable names in the script correspond to the object's field names (or accessible getters).
+- Typical scenario: When you already have a DTO/POJO that carries the context data, pass the object directly so the script can read its fields.
+
+// Note: This references the test code for execution with an object context.
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=executeWithObject]
+----
+
+== Use a set of aliased objects
+
+- `executeWithAliasObjects(String, QLOptions, Object...)`
+- Description: Pass objects annotated with `@QLAlias`; the annotation value becomes the variable name in the context. Objects without the annotation are ignored.
+- Typical scenario: Expose object properties/methods with Chinese (or domain-specific) aliases so rule authors can write scripts more intuitively.
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=qlAlias]
+----
+
+== Use a custom `ExpressContext`
+
+- `execute(String, ExpressContext, QLOptions)`
+- Description: This overload allows passing a custom context that implements `ExpressContext` (for example, a dynamic variable context). The other `execute` overloads ultimately delegate to this method.
+- Typical scenario: When you need on-demand, by-name evaluation of variable values, read/write isolation, or integration with external storage, a custom context is the most flexible choice.
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=dynamicVar]
+----

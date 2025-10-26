@@ -14,6 +14,10 @@ public class JvmIMethod implements IMethod {
         this.method = method;
     }
     
+    public Method getMethod() {
+        return method;
+    }
+    
     @Override
     public Class<?>[] getParameterTypes() {
         return method.getParameterTypes();

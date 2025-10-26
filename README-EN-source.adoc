@@ -2,6 +2,8 @@
 
 = QLExpress
 
+image::images/logo.png[]
+
 link:README.adoc[【中文版】] | [English]
 
 image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star History Chart]
@@ -111,12 +113,19 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 </dependency>
 ----
 
+Requirements
+
+* JDK 8 or higher
+
+
 === First QLExpress Program
 
 [source,java,indent=0]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=firstQl]
 ----
+
+More expression execution methods can be found in the documentation link:docs/execute-en.adoc[Expression Execution]
 
 === Adding Custom Functions and Operators
 
@@ -170,7 +179,10 @@ QLExpress4 provides a method to parse all variables that need to be passed in fr
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getOutVarNames]
 ----
 
-To parse all functions that require external input, call the `getOutFunctions` method.
+More script-dependency parsing tools:
+
+* `getOutFunctions` – parses all functions that must be defined externally
+* `getOutVarAttrs` – parses all variables (and the attributes they reference) that must be supplied from outside; an enhanced version of `getOutVarNames`
 
 === High-Precision Calculation
 
@@ -652,6 +664,17 @@ If you want QLExpress4 strings to maintain compatibility with version 3 and not 
 [source,java,indent=0]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
+----
+
+=== Template Rendering
+
+Leveraging dynamic strings, QLExpress4 can also be used as a lightweight template engine.
+
+You don't need to manually add string quotes in the script. Just call `executeTemplate` to render the template string:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=templateEngine]
 ----
 
 === Placeholders

@@ -55,7 +55,7 @@ public class MemberResolverTest {
     
     @Test
     public void resolveStreamTest() {
-        Method result = MemberResolver
+        IMethod result = MemberResolver
             .resolveMethod(new ArrayList().stream().getClass(), "filter", new Class[] {Predicate.class}, false, false);
         assertNotNull(result);
     }

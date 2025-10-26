@@ -23,7 +23,7 @@ public class MockQContextParent implements QContext {
     
     public MockQContextParent(boolean allowPrivateAccess) {
         this.allowPrivateAccess = allowPrivateAccess;
-        this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), Collections.emptyList(), allowPrivateAccess);
+        this.reflectLoader = new ReflectLoader(QLSecurityStrategy.open(), allowPrivateAccess);
     }
     
     public Value getValue() {
