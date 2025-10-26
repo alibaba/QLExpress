@@ -4,12 +4,8 @@ import com.alibaba.qlexpress4.CheckOptions;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
-import com.alibaba.qlexpress4.runtime.operator.Operator;
+import com.alibaba.qlexpress4.operator.OperatorCheckStrategy;
 import org.antlr.v4.runtime.Token;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Operator validation visitor
@@ -24,96 +20,42 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
     /**
      * Operator restriction strategy
      */
-    private final CheckOptions.OperatorStrategy strategy;
-    
-    /**
-     * Operator set (meaning depends on strategy)
-     * - ALLOW_ALL: ignored
-     * - WHITELIST: allowed operators
-     * - BLACKLIST: forbidden operators
-     */
-    private final Set<String> operatorStrings;
+    private final OperatorCheckStrategy operatorCheckStrategy;
     
     /**
      * Script content for error reporting
      */
     private final String script;
     
-    /**
-     * Constructor
-     * @param checkOptions validation configuration, containing operator restriction strategy
-     */
     public CheckVisitor(CheckOptions checkOptions) {
         this(checkOptions, "");
     }
     
-    /**
-     * Constructor with script for error reporting
-     * @param checkOptions validation configuration, containing operator restriction strategy
-     * @param script script content for error reporting
-     */
     public CheckVisitor(CheckOptions checkOptions, String script) {
         if (checkOptions == null) {
             checkOptions = CheckOptions.DEFAULT_OPTIONS;
         }
         
-        this.strategy = checkOptions.getStrategy();
-        Set<Operator> operators = checkOptions.getOperators();
-        
-        // Convert Operator objects to string set for fast lookup
-        this.operatorStrings = (operators != null && !operators.isEmpty())
-            ? operators.stream().map(Operator::getOperator).collect(Collectors.toSet())
-            : new HashSet<>();
+        this.operatorCheckStrategy = checkOptions.getCheckStrategy();
         this.script = script;
     }
     
-    /**
-     * Check if operator is allowed, throw exception immediately if not allowed
-     *
-     * @param operatorString operator string
-     * @param token token containing position information
-     * @throws QLSyntaxException if operator is not in whitelist or is in blacklist
-     */
     private void checkOperator(String operatorString, Token token)
         throws QLSyntaxException {
-        switch (strategy) {
-            case ALLOW_ALL:
-                // No restriction
-                return;
-            
-            case WHITELIST:
-                if (operatorStrings == null || !operatorStrings.contains(operatorString)) {
-                    String reason =
-                        String.format(QLErrorCodes.OPERATOR_NOT_ALLOWED.getErrorMsg(), operatorString, operatorStrings);
-                    throw QLException.reportScannerErr(script,
-                        token.getStartIndex(),
-                        token.getLine(),
-                        token.getCharPositionInLine(),
-                        operatorString,
-                        QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
-                        reason);
-                }
-                break;
-            
-            case BLACKLIST:
-                if (operatorStrings != null && operatorStrings.contains(operatorString)) {
-                    String reason =
-                        String.format(QLErrorCodes.OPERATOR_FORBIDDEN.getErrorMsg(), operatorString, operatorStrings);
-                    throw QLException.reportScannerErr(script,
-                        token.getStartIndex(),
-                        token.getLine(),
-                        token.getCharPositionInLine(),
-                        operatorString,
-                        QLErrorCodes.OPERATOR_FORBIDDEN.name(),
-                        reason);
-                }
-                break;
+        if (null != operatorCheckStrategy && !operatorCheckStrategy.isAllowed(operatorString)) {
+            String reason = String.format(QLErrorCodes.OPERATOR_NOT_ALLOWED.getErrorMsg(),
+                operatorString,
+                operatorCheckStrategy.getOperators());
+            throw QLException.reportScannerErr(script,
+                token.getStartIndex(),
+                token.getLine(),
+                token.getCharPositionInLine(),
+                operatorString,
+                QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
+                reason);
         }
     }
     
-    /**
-     * Visit binary operator expressions (including arithmetic, logical, comparison operators, etc.)
-     */
     @Override
     public Void visitLeftAsso(QLParser.LeftAssoContext ctx) {
         // Get operator
@@ -127,9 +69,6 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
         return super.visitLeftAsso(ctx);
     }
     
-    /**
-     * Visit prefix unary operator expressions (such as !, -, ++, --, etc.)
-     */
     @Override
     public Void visitPrefixExpress(QLParser.PrefixExpressContext ctx) {
         // Get prefix operator
@@ -141,9 +80,6 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
         return super.visitPrefixExpress(ctx);
     }
     
-    /**
-     * Visit suffix unary operator expressions (such as ++, --, etc.)
-     */
     @Override
     public Void visitSuffixExpress(QLParser.SuffixExpressContext ctx) {
         // Get suffix operator
@@ -155,9 +91,6 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
         return super.visitSuffixExpress(ctx);
     }
     
-    /**
-     * Visit expression (including assignment operators)
-     */
     @Override
     public Void visitExpression(QLParser.ExpressionContext ctx) {
         // Check assignment operator

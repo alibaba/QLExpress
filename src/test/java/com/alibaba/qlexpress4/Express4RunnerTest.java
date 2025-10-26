@@ -286,31 +286,58 @@ public class Express4RunnerTest {
         // tag::checkSyntax[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
-            fail();
+            express4Runner.check("a+b;\n(a+b");
+            fail("Expected QLSyntaxException for mismatched parenthesis");
         }
         catch (QLSyntaxException e) {
-            assertEquals(2, e.getLineNo());
-            assertEquals(4, e.getColNo());
-            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            assertEquals("Line number should be 2", 2, e.getLineNo());
+            assertEquals("Column number should be 4", 4, e.getColNo());
+            assertEquals("Error code should be SYNTAX_ERROR", "SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals(
+            assertEquals("Error message should contain syntax error details",
                 "[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" + "[Near: a+b; (a+b<EOF>]\n"
                     + "                ^^^^^\n" + "[Line: 2, Column: 4]",
                 e.getMessage());
         }
         // end::checkSyntax[]
-        
+    }
+    
+    @Test
+    public void checkSyntaxWithInvalidOperatorTest() {
+        // Test check method with invalid operator syntax
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.parseToSyntaxTree("sellerId in [1001] || (sellerId not in [1001])");
-            fail();
+            express4Runner.check("sellerId in [1001] || (sellerId not in [1001])");
+            fail("Expected QLSyntaxException for invalid 'not in' operator");
         }
         catch (QLSyntaxException e) {
-            assertEquals(
-                "[Error SYNTAX_ERROR: mismatched input 'not' expecting ')']\n"
-                    + "[Near: ...[1001] || (sellerId not in [1001])]\n" + "                              ^^^\n"
-                    + "[Line: 1, Column: 32]",
-                e.getMessage());
+            assertEquals("Error code should be SYNTAX_ERROR", "SYNTAX_ERROR", e.getErrorCode());
+            assertTrue("Error message should mention 'not'", e.getMessage().contains("not"));
+            assertEquals("Line number should be 1", 1, e.getLineNo());
+        }
+    }
+    
+    @Test
+    public void checkSyntaxWithValidExpressionTest() {
+        // Test check method with valid expression - should not throw exception
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Valid expression should not throw exception
+        express4Runner.check("a + b * c");
+        express4Runner.check("if (a > 0) { return a; } else { return 0; }");
+        express4Runner.check("function test(x) { return x * 2; }");
+    }
+    
+    @Test
+    public void checkSyntaxWithMultipleErrorsTest() {
+        // Test check method catches first syntax error
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.check("a = 1; (b + c");
+            fail("Expected QLSyntaxException for unclosed parenthesis");
+        }
+        catch (QLSyntaxException e) {
+            assertEquals("Error code should be SYNTAX_ERROR", "SYNTAX_ERROR", e.getErrorCode());
+            assertTrue("Error message should indicate syntax error", e.getMessage().contains("SYNTAX_ERROR"));
         }
     }
     

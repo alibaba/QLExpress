@@ -64,7 +64,6 @@ public enum QLErrorCodes {
     
     // operator restriction error
     OPERATOR_NOT_ALLOWED("Script uses disallowed operator: %s. Allowed operators: %s"),
-    OPERATOR_FORBIDDEN("Script uses forbidden operator: %s. Forbidden operators: %s"),
 
     // user defined exception
     INVALID_ARGUMENT(""), 

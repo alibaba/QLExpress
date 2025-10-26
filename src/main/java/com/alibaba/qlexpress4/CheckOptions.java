@@ -1,8 +1,7 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.qlexpress4.runtime.operator.Operator;
+import com.alibaba.qlexpress4.operator.OperatorCheckStrategy;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -13,71 +12,20 @@ import java.util.Set;
  */
 public class CheckOptions {
     
-    /**
-     * Operator restriction strategy
-     */
-    public enum OperatorStrategy {
-        /**
-         * No restriction - all operators are allowed
-         */
-        ALLOW_ALL,
-        
-        /**
-         * Whitelist mode - only specified operators are allowed
-         */
-        WHITELIST,
-        
-        /**
-         * Blacklist mode - all operators except specified ones are allowed
-         */
-        BLACKLIST
+    private final OperatorCheckStrategy operatorCheckStrategy;
+    
+    public static final CheckOptions DEFAULT_OPTIONS = new CheckOptions();
+    
+    private CheckOptions() {
+        this(OperatorCheckStrategy.allowAll());
     }
     
-    /**
-     * Operator restriction strategy
-     */
-    private final OperatorStrategy strategy;
-    
-    /**
-     * Operator set (meaning depends on strategy)
-     * - ALLOW_ALL: ignored
-     * - WHITELIST: allowed operators
-     * - BLACKLIST: forbidden operators
-     */
-    private final Set<Operator> operators;
-    
-    /**
-     * Default configuration: no restriction
-     */
-    public static final CheckOptions DEFAULT_OPTIONS = new CheckOptions(OperatorStrategy.ALLOW_ALL, null);
-    
-    private CheckOptions(OperatorStrategy strategy, Set<Operator> operators) {
-        this.strategy = strategy;
-        this.operators = operators != null ? Collections.unmodifiableSet(operators) : null;
-        
-        // Validate configuration
-        if (strategy == OperatorStrategy.WHITELIST || strategy == OperatorStrategy.BLACKLIST) {
-            if (operators == null || operators.isEmpty()) {
-                throw new IllegalArgumentException(
-                    String.format("Operator set cannot be null or empty when using %s strategy", strategy));
-            }
-        }
+    private CheckOptions(OperatorCheckStrategy operatorCheckStrategy) {
+        this.operatorCheckStrategy = operatorCheckStrategy;
     }
     
-    public OperatorStrategy getStrategy() {
-        return strategy;
-    }
-    
-    public Set<Operator> getOperators() {
-        return operators;
-    }
-    
-    public boolean isWhitelistMode() {
-        return strategy == OperatorStrategy.WHITELIST;
-    }
-    
-    public boolean isBlacklistMode() {
-        return strategy == OperatorStrategy.BLACKLIST;
+    public OperatorCheckStrategy getCheckStrategy() {
+        return operatorCheckStrategy;
     }
     
     public static Builder builder() {
@@ -85,33 +33,48 @@ public class CheckOptions {
     }
     
     public static class Builder {
-        private OperatorStrategy strategy = OperatorStrategy.ALLOW_ALL;
-        
-        private Set<Operator> operators;
+        private OperatorCheckStrategy operatorCheckStrategy = OperatorCheckStrategy.allowAll();
         
         private Builder() {
         }
         
-        public Builder whitelist(Set<Operator> allowedOperators) {
-            this.strategy = OperatorStrategy.WHITELIST;
-            this.operators = allowedOperators;
+        public Builder whitelist(Set<String> allowedOperators) {
+            this.operatorCheckStrategy = OperatorCheckStrategy.whitelist(allowedOperators);
             return this;
         }
         
-        public Builder blacklist(Set<Operator> forbiddenOperators) {
-            this.strategy = OperatorStrategy.BLACKLIST;
-            this.operators = forbiddenOperators;
+        public Builder blacklist(Set<String> forbiddenOperators) {
+            this.operatorCheckStrategy = OperatorCheckStrategy.blacklist(forbiddenOperators);
             return this;
         }
         
         public Builder allowAll() {
-            this.strategy = OperatorStrategy.ALLOW_ALL;
-            this.operators = null;
+            this.operatorCheckStrategy = OperatorCheckStrategy.allowAll();
             return this;
         }
         
         public CheckOptions build() {
-            return new CheckOptions(strategy, operators);
+            validateOperatorCheckStrategy();
+            return new CheckOptions(operatorCheckStrategy);
+        }
+        
+        private void validateOperatorCheckStrategy() {
+            if (operatorCheckStrategy == null) {
+                throw new IllegalArgumentException("Operator check strategy cannot be null");
+            }
+            
+            Set<String> operators = operatorCheckStrategy.getOperators();
+            OperatorCheckStrategy.StrategyType strategyType = operatorCheckStrategy.getStrategyType();
+            
+            if (strategyType == OperatorCheckStrategy.StrategyType.WHITELIST
+                && (operators == null || operators.isEmpty())) {
+                throw new IllegalArgumentException("Whitelist strategy requires non-empty operator set");
+            }
+            
+            if (strategyType == OperatorCheckStrategy.StrategyType.BLACKLIST
+                && (operators == null || operators.isEmpty())) {
+                throw new IllegalArgumentException("Blacklist strategy requires non-empty operator set");
+            }
         }
     }
 }
