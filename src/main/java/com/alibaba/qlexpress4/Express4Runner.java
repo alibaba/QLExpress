@@ -1,24 +1,9 @@
 package com.alibaba.qlexpress4;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
+import com.alibaba.qlexpress4.aparser.CheckVisitor;
 import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.MacroDefine;
-import com.alibaba.qlexpress4.aparser.OperatorVisitor;
 import com.alibaba.qlexpress4.aparser.OutFunctionVisitor;
 import com.alibaba.qlexpress4.aparser.OutVarNamesVisitor;
 import com.alibaba.qlexpress4.aparser.QCompileCache;
@@ -48,13 +33,27 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
-import com.alibaba.qlexpress4.runtime.operator.Operator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.trace.QTraces;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Author: DQinYuan
@@ -391,35 +390,35 @@ public class Express4Runner {
     }
     
     /**
-     * 检查脚本中使用的运算符是否符合限制规则
+     * Check if the operators used in the script comply with the restriction rules.
      *
-     * 该方法涵盖了原有的 parseToSyntaxTree 逻辑以及运算符限制的校验逻辑。
-     * 运算符限制的校验逻辑完全在 OperatorVisitor 内部实现,通过 accept() 方法触发。
-     * 如果脚本中使用了不在白名单中的运算符或在黑名单中的运算符,
-     * OperatorVisitor 会在遍历过程中抛出 QLSyntaxException 异常。
+     * This method covers the original parseToSyntaxTree logic and operator restriction validation logic.
+     * The operator restriction validation logic is completely implemented within CheckVisitor and triggered through the accept() method.
+     * If the script uses operators not in the whitelist or in the blacklist,
+     * CheckVisitor will throw a QLSyntaxException during traversal.
      *
-     * @param script 待检查的脚本
-     * @param checkOptions 校验配置,包含运算符白名单和黑名单
-     * @throws QLSyntaxException 如果语法错误或使用了不允许的运算符
+     * @param script the script to be checked
+     * @param checkOptions validation configuration containing operator whitelist and blacklist
+     * @throws QLSyntaxException if there is a syntax error or disallowed operators are used
      */
     public void check(String script, CheckOptions checkOptions) throws QLSyntaxException {
-        // 1. 解析语法树(复用现有的 parseToSyntaxTree 逻辑)
+        // 1. Parse syntax tree (reuse existing parseToSyntaxTree logic)
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
 
-        // 2. 创建 OperatorVisitor,传入校验配置
-        OperatorVisitor operatorVisitor = new OperatorVisitor(checkOptions);
+        // 2. Create CheckVisitor and pass validation configuration and script content
+        CheckVisitor checkVisitor = new CheckVisitor(checkOptions, script);
 
-        // 3. 遍历语法树,在遍历过程中进行运算符校验
-        programContext.accept(operatorVisitor);
+        // 3. Traverse syntax tree and perform operator validation during traversal
+        programContext.accept(checkVisitor);
 
-        // 4. 校验通过,方法正常返回
+        // 4. Validation passed, method returns normally
     }
 
     /**
-     * 检查脚本中使用的运算符是否符合限制规则(使用默认配置)
+     * Check if the operators used in the script comply with the restriction rules (using default configuration).
      *
-     * @param script 待检查的脚本
-     * @throws QLSyntaxException 如果语法错误或使用了不允许的运算符
+     * @param script the script to be checked
+     * @throws QLSyntaxException if there is a syntax error or disallowed operators are used
      */
     public void check(String script) throws QLSyntaxException {
         check(script, CheckOptions.DEFAULT_OPTIONS);

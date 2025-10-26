@@ -6,109 +6,155 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * 脚本校验配置类
- * 用于配置脚本校验时的运算符限制规则
+ * Script validation configuration class
+ * Used to configure operator restriction rules during script validation
  *
  * @author QLExpress Team
  */
 public class CheckOptions {
 
     /**
-     * 允许使用的运算符集合(白名单)
-     * 如果为 null 或空,则不进行白名单限制
+     * Operator restriction strategy
      */
-    private final Set<Operator> allowedOperators;
+    public enum OperatorStrategy {
+        /**
+         * No restriction - all operators are allowed
+         */
+        ALLOW_ALL,
+
+        /**
+         * Whitelist mode - only specified operators are allowed
+         */
+        WHITELIST,
+
+        /**
+         * Blacklist mode - all operators except specified ones are allowed
+         */
+        BLACKLIST
+    }
 
     /**
-     * 禁止使用的运算符集合(黑名单)
-     * 如果为 null 或空,则不进行黑名单限制
+     * Operator restriction strategy
      */
-    private final Set<Operator> forbiddenOperators;
+    private final OperatorStrategy strategy;
 
     /**
-     * 默认配置:不限制任何运算符
+     * Operator set (meaning depends on strategy)
+     * - ALLOW_ALL: ignored
+     * - WHITELIST: allowed operators
+     * - BLACKLIST: forbidden operators
      */
-    public static final CheckOptions DEFAULT_OPTIONS = new CheckOptions(null, null);
+    private final Set<Operator> operators;
 
     /**
-     * 私有构造函数
+     * Default configuration: no restriction
      */
-    private CheckOptions(Set<Operator> allowedOperators, Set<Operator> forbiddenOperators) {
-        // 校验:白名单和黑名单不能同时设置
-        if (allowedOperators != null && !allowedOperators.isEmpty()
-            && forbiddenOperators != null && !forbiddenOperators.isEmpty()) {
-            throw new IllegalArgumentException("不能同时设置白名单(allowedOperators)和黑名单(forbiddenOperators)");
+    public static final CheckOptions DEFAULT_OPTIONS = new CheckOptions(OperatorStrategy.ALLOW_ALL, null);
+
+    /**
+     * Private constructor
+     */
+    private CheckOptions(OperatorStrategy strategy, Set<Operator> operators) {
+        this.strategy = strategy;
+        this.operators = operators != null ? Collections.unmodifiableSet(operators) : null;
+
+        // Validate configuration
+        if (strategy == OperatorStrategy.WHITELIST || strategy == OperatorStrategy.BLACKLIST) {
+            if (operators == null || operators.isEmpty()) {
+                throw new IllegalArgumentException(
+                    String.format("Operator set cannot be null or empty when using %s strategy", strategy));
+            }
         }
-
-        this.allowedOperators = allowedOperators != null ?
-            Collections.unmodifiableSet(allowedOperators) : null;
-        this.forbiddenOperators = forbiddenOperators != null ?
-            Collections.unmodifiableSet(forbiddenOperators) : null;
     }
 
     /**
-     * 获取允许使用的运算符集合
+     * Get operator restriction strategy
      */
-    public Set<Operator> getAllowedOperators() {
-        return allowedOperators;
+    public OperatorStrategy getStrategy() {
+        return strategy;
     }
 
     /**
-     * 获取禁止使用的运算符集合
+     * Get operator set
      */
-    public Set<Operator> getForbiddenOperators() {
-        return forbiddenOperators;
+    public Set<Operator> getOperators() {
+        return operators;
     }
 
     /**
-     * 创建 Builder
+     * Check if using whitelist mode
+     */
+    public boolean isWhitelistMode() {
+        return strategy == OperatorStrategy.WHITELIST;
+    }
+
+    /**
+     * Check if using blacklist mode
+     */
+    public boolean isBlacklistMode() {
+        return strategy == OperatorStrategy.BLACKLIST;
+    }
+
+    /**
+     * Create Builder
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Builder 类
+     * Builder class
      */
     public static class Builder {
-        private Set<Operator> allowedOperators;
-        private Set<Operator> forbiddenOperators;
+        private OperatorStrategy strategy = OperatorStrategy.ALLOW_ALL;
+        private Set<Operator> operators;
 
         private Builder() {
         }
 
         /**
-         * 设置允许使用的运算符集合(白名单)
-         * 注意:白名单和黑名单不能同时设置
+         * Set whitelist mode with allowed operators
          *
-         * @param allowedOperators 允许使用的运算符集合
+         * @param allowedOperators allowed operator set
          * @return Builder
          */
-        public Builder allowedOperators(Set<Operator> allowedOperators) {
-            this.allowedOperators = allowedOperators;
+        public Builder whitelist(Set<Operator> allowedOperators) {
+            this.strategy = OperatorStrategy.WHITELIST;
+            this.operators = allowedOperators;
             return this;
         }
 
         /**
-         * 设置禁止使用的运算符集合(黑名单)
-         * 注意:白名单和黑名单不能同时设置
+         * Set blacklist mode with forbidden operators
          *
-         * @param forbiddenOperators 禁止使用的运算符集合
+         * @param forbiddenOperators forbidden operator set
          * @return Builder
          */
-        public Builder forbiddenOperators(Set<Operator> forbiddenOperators) {
-            this.forbiddenOperators = forbiddenOperators;
+        public Builder blacklist(Set<Operator> forbiddenOperators) {
+            this.strategy = OperatorStrategy.BLACKLIST;
+            this.operators = forbiddenOperators;
             return this;
         }
 
         /**
-         * 构建 CheckOptions
+         * Set no restriction mode (allow all operators)
+         *
+         * @return Builder
+         */
+        public Builder allowAll() {
+            this.strategy = OperatorStrategy.ALLOW_ALL;
+            this.operators = null;
+            return this;
+        }
+
+        /**
+         * Build CheckOptions
          *
          * @return CheckOptions
-         * @throws IllegalArgumentException 如果同时设置了白名单和黑名单
+         * @throws IllegalArgumentException if configuration is invalid
          */
         public CheckOptions build() {
-            return new CheckOptions(allowedOperators, forbiddenOperators);
+            return new CheckOptions(strategy, operators);
         }
     }
 }
