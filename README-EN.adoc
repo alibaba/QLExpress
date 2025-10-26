@@ -237,21 +237,21 @@ It is recommended to use Java to define custom functions as much as possible, as
 
 === Validating Syntax Correctness
 
-To validate syntax correctness without executing scripts, including operator restriction validation. call `check` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors or disallowed operators exist.
+To validate syntax correctness without executing scripts: call `parseToSyntaxTree` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors exist.
 
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
             express4Runner.check("a+b;\n(a+b");
-            fail();
+            fail("Expected QLSyntaxException for mismatched parenthesis");
         }
         catch (QLSyntaxException e) {
-            assertEquals(2, e.getLineNo());
-            assertEquals(4, e.getColNo());
-            assertEquals("SYNTAX_ERROR", e.getErrorCode());
+            assertEquals("Line number should be 2", 2, e.getLineNo());
+            assertEquals("Column number should be 4", 4, e.getColNo());
+            assertEquals("Error code should be SYNTAX_ERROR", "SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
-            assertEquals(
+            assertEquals("Error message should contain syntax error details",
                 "[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" + "[Near: a+b; (a+b<EOF>]\n"
                     + "                ^^^^^\n" + "[Line: 2, Column: 4]",
                 e.getMessage());
