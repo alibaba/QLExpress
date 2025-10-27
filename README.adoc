@@ -238,13 +238,13 @@ QLExpress4还支持通过QLExpress脚本添加自定义函数。需要注意的�
 
 === 校验语法正确性
 
-在不执行脚本的情况下，单纯校验语法的正确性: 调用 `parseToSyntaxTree` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
+在不执行脚本的情况下，单纯校验语法的正确性，其中包含了操作符的限制校验，调用 `check` 并且捕获异常，如果捕获到 `QLSyntaxException`，则说明存在语法错误
 
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
+            express4Runner.check("a+b;\n(a+b");
             fail();
         }
         catch (QLSyntaxException e) {
