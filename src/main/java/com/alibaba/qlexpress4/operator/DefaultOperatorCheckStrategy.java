@@ -1,11 +1,10 @@
 package com.alibaba.qlexpress4.operator;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
- * Strategy that allows all operators without restriction
- *
- * @author QLExpress Team
+ * @author zhoutao
  */
 public class DefaultOperatorCheckStrategy implements OperatorCheckStrategy {
     
@@ -22,11 +21,6 @@ public class DefaultOperatorCheckStrategy implements OperatorCheckStrategy {
     
     @Override
     public Set<String> getOperators() {
-        return null;
-    }
-    
-    @Override
-    public StrategyType getStrategyType() {
-        return StrategyType.ALLOW_ALL;
+        return Collections.emptySet();
     }
 }

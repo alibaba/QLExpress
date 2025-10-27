@@ -8,12 +8,7 @@ import com.alibaba.qlexpress4.operator.OperatorCheckStrategy;
 import org.antlr.v4.runtime.Token;
 
 /**
- * Operator validation visitor
- * Traverses syntax tree and performs operator restriction validation during traversal
- *
- * Core design: Validation logic is completely implemented within the Visitor, triggered through accept() method
- *
- * @author QLExpress Team
+ * @author zhoutao
  */
 public class CheckVisitor extends QLParserBaseVisitor<Void> {
     

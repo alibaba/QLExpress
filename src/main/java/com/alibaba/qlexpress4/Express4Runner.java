@@ -481,12 +481,6 @@ public class Express4Runner {
         programContext.accept(checkVisitor);
     }
     
-    /**
-     * Check if the operators used in the script comply with the restriction rules (using default configuration).
-     *
-     * @param script the script to be checked
-     * @throws QLSyntaxException if there is a syntax error or disallowed operators are used
-     */
     public void check(String script)
         throws QLSyntaxException {
         check(script, CheckOptions.DEFAULT_OPTIONS);

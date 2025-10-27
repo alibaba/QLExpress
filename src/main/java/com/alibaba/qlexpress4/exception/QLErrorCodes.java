@@ -63,7 +63,7 @@ public enum QLErrorCodes {
     EXECUTE_CATCH_HANDLER_ERROR("error when executing handler of '%s'"),
     
     // operator restriction error
-    OPERATOR_NOT_ALLOWED("Script uses disallowed operator: %s. Allowed operators: %s"),
+    OPERATOR_NOT_ALLOWED("Script uses disallowed operator: %s"),
 
     // user defined exception
     INVALID_ARGUMENT(""), 

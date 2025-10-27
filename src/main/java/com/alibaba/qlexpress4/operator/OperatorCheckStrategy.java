@@ -49,10 +49,4 @@ public interface OperatorCheckStrategy {
     boolean isAllowed(String operator);
     
     Set<String> getOperators();
-    
-    StrategyType getStrategyType();
-    
-    enum StrategyType {
-        ALLOW_ALL, WHITELIST, BLACKLIST
-    }
 }

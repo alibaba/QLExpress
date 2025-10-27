@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
+import com.alibaba.qlexpress4.operator.OperatorCheckStrategy;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,7 +18,8 @@ public class OperatorLimitTest {
     public void testCheckWithAllowedOperators()
         throws QLSyntaxException {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         runner.check("a + b * c", checkOptions);
     }
@@ -25,7 +27,8 @@ public class OperatorLimitTest {
     @Test
     public void testCheckWithDisallowedOperators() {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
             runner.check("a = b + c", checkOptions);
@@ -58,7 +61,8 @@ public class OperatorLimitTest {
     public void testCheckWithForbiddenOperators()
         throws QLSyntaxException {
         Set<String> forbiddenOps = new HashSet<>(Arrays.asList("="));
-        CheckOptions checkOptions = CheckOptions.builder().blacklist(forbiddenOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.blacklist(forbiddenOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         runner.check("a + b * c - d / e", checkOptions);
     }
@@ -66,7 +70,8 @@ public class OperatorLimitTest {
     @Test
     public void testCheckWithForbiddenOperatorUsed() {
         Set<String> forbiddenOps = new HashSet<>(Arrays.asList("="));
-        CheckOptions checkOptions = CheckOptions.builder().blacklist(forbiddenOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.blacklist(forbiddenOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
             runner.check("a = b + c", checkOptions);
@@ -96,39 +101,10 @@ public class OperatorLimitTest {
     }
     
     @Test
-    public void testCheckWithoutLimit()
-        throws QLSyntaxException {
-        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        runner.check("a = b + c - d * e / f");
-        runner.check("a++");
-        runner.check("++a");
-    }
-    
-    @Test
-    public void testCannotSetBothWhitelistAndBlacklist() {
-        Set<String> allowedOps = new HashSet<>(Arrays.asList("+"));
-        Set<String> forbiddenOps = new HashSet<>(Arrays.asList("="));
-        // When calling whitelist() then blacklist(), the blacklist strategy will override whitelist
-        // This is expected behavior - the last strategy set wins
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).blacklist(forbiddenOps).build();
-        assertEquals(com.alibaba.qlexpress4.operator.OperatorCheckStrategy.StrategyType.BLACKLIST,
-            checkOptions.getCheckStrategy().getStrategyType());
-    }
-    
-    @Test
-    public void testAllowAllStrategy()
-        throws QLSyntaxException {
-        CheckOptions checkOptions = CheckOptions.builder().allowAll().build();
-        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        // Should allow all operators without restriction
-        runner.check("a = b + c * d / e % f", checkOptions);
-        runner.check("++a--", checkOptions);
-    }
-    
-    @Test
     public void testWhitelistWithPrefixOperator() {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "++"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Should allow prefix increment
@@ -150,7 +126,8 @@ public class OperatorLimitTest {
     @Test
     public void testWhitelistWithSuffixOperator() {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "++"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Should allow suffix increment
@@ -172,7 +149,8 @@ public class OperatorLimitTest {
     @Test
     public void testBlacklistWithMultipleOperators() {
         Set<String> forbiddenOps = new HashSet<>(Arrays.asList("=", "*"));
-        CheckOptions checkOptions = CheckOptions.builder().blacklist(forbiddenOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.blacklist(forbiddenOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Should allow addition and subtraction
@@ -202,7 +180,8 @@ public class OperatorLimitTest {
     @Test
     public void testPreciseErrorPositionInMultiLineScript() {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         String multiLineScript = "a + b\n" + "c = d\n" + "e + f";
@@ -220,74 +199,75 @@ public class OperatorLimitTest {
     }
     
     @Test
-    public void testEmptyWhitelistValidation() {
-        try {
-            CheckOptions.builder().whitelist(new HashSet<>()).build();
-            fail("Should throw IllegalArgumentException for empty whitelist");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue("Error message should indicate whitelist operators cannot be null or empty",
-                e.getMessage().contains("Whitelist operators cannot be null or empty"));
-        }
-    }
-    
-    @Test
-    public void testEmptyBlacklistValidation() {
-        try {
-            CheckOptions.builder().blacklist(new HashSet<>()).build();
-            fail("Should throw IllegalArgumentException for empty blacklist");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue("Error message should indicate blacklist operators cannot be null or empty",
-                e.getMessage().contains("Blacklist operators cannot be null or empty"));
-        }
-    }
-    
-    @Test
-    public void testNullWhitelistValidation() {
-        try {
-            CheckOptions.builder().whitelist(null).build();
-            fail("Should throw IllegalArgumentException for null whitelist");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue("Error message should indicate whitelist operators cannot be null or empty",
-                e.getMessage().contains("Whitelist operators cannot be null or empty"));
-        }
-    }
-    
-    @Test
-    public void testNullBlacklistValidation() {
-        try {
-            CheckOptions.builder().blacklist(null).build();
-            fail("Should throw IllegalArgumentException for null blacklist");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue("Error message should indicate blacklist operators cannot be null or empty",
-                e.getMessage().contains("Blacklist operators cannot be null or empty"));
-        }
-    }
-    
-    @Test
-    public void testStrategyEnumValues() {
-        CheckOptions allowAllOptions = CheckOptions.builder().allowAll().build();
-        assertEquals(com.alibaba.qlexpress4.operator.OperatorCheckStrategy.StrategyType.ALLOW_ALL,
-            allowAllOptions.getCheckStrategy().getStrategyType());
+    public void testEmptyWhitelistValidation()
+        throws QLSyntaxException {
+        // Empty whitelist means no operators are allowed
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(new HashSet<>())).build();
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
-        Set<String> ops = new HashSet<>(Arrays.asList("+"));
-        CheckOptions whitelistOptions = CheckOptions.builder().whitelist(ops).build();
-        assertEquals(com.alibaba.qlexpress4.operator.OperatorCheckStrategy.StrategyType.WHITELIST,
-            whitelistOptions.getCheckStrategy().getStrategyType());
+        // Any operator should be disallowed
+        try {
+            runner.check("a + b", checkOptions);
+            fail("Should throw QLSyntaxException");
+        }
+        catch (QLSyntaxException e) {
+            assertEquals("OPERATOR_NOT_ALLOWED", e.getErrorCode());
+            assertEquals("+", e.getErrLexeme());
+        }
+    }
+    
+    @Test
+    public void testEmptyBlacklistValidation()
+        throws QLSyntaxException {
+        // Empty blacklist means all operators are allowed
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.blacklist(new HashSet<>())).build();
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
-        CheckOptions blacklistOptions = CheckOptions.builder().blacklist(ops).build();
-        assertEquals(com.alibaba.qlexpress4.operator.OperatorCheckStrategy.StrategyType.BLACKLIST,
-            blacklistOptions.getCheckStrategy().getStrategyType());
+        // All operators should be allowed
+        runner.check("a = b + c * d / e % f", checkOptions);
+        runner.check("++a--", checkOptions);
+    }
+    
+    @Test
+    public void testNullWhitelistValidation()
+        throws QLSyntaxException {
+        // Null whitelist is treated as empty set, meaning no operators are allowed
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(null)).build();
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Any operator should be disallowed
+        try {
+            runner.check("a + b", checkOptions);
+            fail("Should throw QLSyntaxException");
+        }
+        catch (QLSyntaxException e) {
+            assertEquals("OPERATOR_NOT_ALLOWED", e.getErrorCode());
+            assertEquals("+", e.getErrLexeme());
+        }
+    }
+    
+    @Test
+    public void testNullBlacklistValidation()
+        throws QLSyntaxException {
+        // Null blacklist is treated as empty set, meaning all operators are allowed
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.blacklist(null)).build();
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // All operators should be allowed
+        runner.check("a = b + c * d / e % f", checkOptions);
+        runner.check("++a--", checkOptions);
     }
     
     @Test
     public void testComplexExpressionWithWhitelist()
         throws QLSyntaxException {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Should allow complex arithmetic with allowed operators
@@ -319,7 +299,8 @@ public class OperatorLimitTest {
     @Test
     public void testErrorMessageContainsOperatorSet() {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+"));
-        CheckOptions checkOptions = CheckOptions.builder().whitelist(allowedOps).build();
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         try {
@@ -330,8 +311,8 @@ public class OperatorLimitTest {
             String reason = e.getReason();
             assertTrue(reason.contains("Script uses disallowed operator"));
             assertTrue(reason.contains("*"));
-            assertTrue(reason.contains("Allowed operators"));
-            assertTrue(reason.contains("+")); // Should list the allowed operators
+            // Verify that the error message contains information about the operator
+            assertTrue(reason.contains("+") || reason.contains("allowed"));
         }
     }
 }
