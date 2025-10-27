@@ -243,8 +243,8 @@ To validate syntax correctness without executing scripts: call `parseToSyntaxTre
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.check("a+b;\n(a+b");
-            fail("Expected QLSyntaxException for mismatched parenthesis");
+            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
+            fail();
         }
         catch (QLSyntaxException e) {
             assertEquals(2, e.getLineNo());
