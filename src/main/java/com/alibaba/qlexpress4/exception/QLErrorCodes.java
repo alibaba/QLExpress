@@ -62,6 +62,9 @@ public enum QLErrorCodes {
     EXECUTE_TRY_BLOCK_ERROR("error when executing try... block"), 
     EXECUTE_CATCH_HANDLER_ERROR("error when executing handler of '%s'"),
     
+    // operator restriction error
+    OPERATOR_NOT_ALLOWED("Script uses disallowed operator: %s"),
+
     // user defined exception
     INVALID_ARGUMENT(""), 
     BIZ_EXCEPTION(""), 

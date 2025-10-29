@@ -286,7 +286,7 @@ public class Express4RunnerTest {
         // tag::checkSyntax[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         try {
-            express4Runner.parseToSyntaxTree("a+b;\n(a+b");
+            express4Runner.check("a+b;\n(a+b");
             fail();
         }
         catch (QLSyntaxException e) {
@@ -302,7 +302,7 @@ public class Express4RunnerTest {
         // end::checkSyntax[]
         
         try {
-            express4Runner.parseToSyntaxTree("sellerId in [1001] || (sellerId not in [1001])");
+            express4Runner.check("sellerId in [1001] || (sellerId not in [1001])");
             fail();
         }
         catch (QLSyntaxException e) {

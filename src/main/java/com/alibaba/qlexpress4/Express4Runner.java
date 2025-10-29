@@ -1,21 +1,6 @@
 package com.alibaba.qlexpress4;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
+import com.alibaba.qlexpress4.aparser.CheckVisitor;
 import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.MacroDefine;
@@ -56,6 +41,22 @@ import com.alibaba.qlexpress4.runtime.trace.QTraces;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Author: DQinYuan
@@ -466,6 +467,23 @@ public class Express4Runner {
             initOptions.getInterpolationMode(),
             initOptions.getSelectorStart(),
             initOptions.getSelectorEnd());
+    }
+    
+    public void check(String script, CheckOptions checkOptions)
+        throws QLSyntaxException {
+        // 1. Parse syntax tree (reuse existing parseToSyntaxTree logic)
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
+        
+        // 2. Create CheckVisitor and pass validation configuration and script content
+        CheckVisitor checkVisitor = new CheckVisitor(checkOptions, script);
+        
+        // 3. Traverse syntax tree and perform operator validation during traversal
+        programContext.accept(checkVisitor);
+    }
+    
+    public void check(String script)
+        throws QLSyntaxException {
+        check(script, CheckOptions.DEFAULT_OPTIONS);
     }
     
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
