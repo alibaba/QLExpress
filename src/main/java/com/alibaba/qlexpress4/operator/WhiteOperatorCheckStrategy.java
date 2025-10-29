@@ -24,9 +24,6 @@ public class WhiteOperatorCheckStrategy implements OperatorCheckStrategy {
     
     @Override
     public boolean isAllowed(String operator) {
-        if (allowedOperators.isEmpty()) {
-            return false;
-        }
         return allowedOperators.contains(operator);
     }
     

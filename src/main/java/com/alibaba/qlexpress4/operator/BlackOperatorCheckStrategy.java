@@ -24,9 +24,6 @@ public class BlackOperatorCheckStrategy implements OperatorCheckStrategy {
     
     @Override
     public boolean isAllowed(String operator) {
-        if (blackOperators.isEmpty()) {
-            return true;
-        }
         return !blackOperators.contains(operator);
     }
     
