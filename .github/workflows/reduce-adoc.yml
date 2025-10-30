@@ -2,29 +2,47 @@ name: Reduce Adoc
 on:
   push:
     paths:
-      - README-source.adoc
-      - README-EN-source.adoc
-      - docs/execute-source.adoc
-      - docs/execute-en-source.adoc
+      - '**/*-source.adoc'
     branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
-  build:
+  reduce:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-      - name: Install Asciidoctor Reducer
-        run: sudo gem install asciidoctor-reducer
-      - name: Reduce README
-        # to preserve preprocessor conditionals, add the --preserve-conditionals option
-        run: asciidoctor-reducer --preserve-conditionals -o README.adoc README-source.adoc
-      - name: Reduce README-EN
-        run: asciidoctor-reducer --preserve-conditionals -o README-EN.adoc README-EN-source.adoc
-      - name: Reduce docs/execute
-        run: asciidoctor-reducer --preserve-conditionals -o docs/execute.adoc docs/execute-source.adoc
-      - name: Reduce docs/execute-en
-        run: asciidoctor-reducer --preserve-conditionals -o docs/execute-en.adoc docs/execute-en-source.adoc
-      - name: Commit and Push README files
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install asciidoctor-reducer
+        run: gem install --no-document asciidoctor-reducer
+
+      - name: Reduce all *-source.adoc files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' -t sources < <(find . -type f -name '*-source.adoc' -print0)
+          for src in "${sources[@]}"; do
+            out="${src%-source.adoc}.adoc"
+            mkdir -p "$(dirname "$out")"
+            echo "Reducing $src -> $out"
+            asciidoctor-reducer --preserve-conditionals -o "$out" "$src"
+          done
+
+      - name: Commit reduced .adoc files
+        if: github.event_name == 'push'
         uses: EndBug/add-and-commit@v9
         with:
-          add: README.adoc README-EN.adoc docs/execute.adoc docs/execute-en.adoc
+          add: |
+            **/*.adoc
+          default_author: github_actions
+          message: "docs(reducer): update reduced .adoc from *-source.adoc [skip ci]"
