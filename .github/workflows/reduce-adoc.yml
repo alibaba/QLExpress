@@ -38,12 +38,5 @@ jobs:
             asciidoctor-reducer --preserve-conditionals -o "$out" "$src"
           done
 
-      - name: Commit reduced .adoc files
-        if: github.event_name == 'push'
+      - name: Commit reduced files
         uses: EndBug/add-and-commit@v9
-        with:
-          add: |
-            **/*.adoc
-            *.adoc
-          default_author: github_actions
-          message: "docs(reducer): update reduced .adoc from *-source.adoc [skip ci]"
