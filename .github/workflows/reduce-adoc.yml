@@ -44,5 +44,6 @@ jobs:
         with:
           add: |
             **/*.adoc
+            *.adoc
           default_author: github_actions
           message: "docs(reducer): update reduced .adoc from *-source.adoc [skip ci]"
