@@ -159,6 +159,8 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addF
 
 It is recommended to use Java to define custom functions as much as possible, as this can provide better performance and stability.
 
+For more ways to customize syntax elements, see the documentation link:docs/custom-item-en.adoc[Custom Syntax Elements].
+
 === Validating Syntax Correctness
 
 To validate syntax correctness without executing scripts, including operator restriction validation: call `check` and catch exceptions. If `QLSyntaxException` is caught, it indicates syntax errors exist.
