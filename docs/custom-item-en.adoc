@@ -1,0 +1,334 @@
+:toc:
+
+= Custom Syntax Elements
+
+This section systematically outlines the interfaces and capabilities in QLExpress4 for customizing syntax elements.
+
+== Overview
+
+* Custom functions
+** Implement the CustomFunction interface
+** Use Java functional interfaces
+** Register via annotation scanning
+** Add via QLExpress script
+** Implement QLFunctionalVarargs
+* Custom operators
+** Implement CustomBinaryOperator
+** Replace built-in operators
+** Use Java functional interfaces
+** Add aliases
+** Implement QLFunctionalVarargs
+* Extension functions
+** Extend ExtensionFunction
+** Implement QLFunctionalVarargs
+* Aliases for operators and functions
+
+== Custom Functions
+
+=== Implement the CustomFunction interface
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.test.function;
+
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+
+public class HelloFunction implements CustomFunction {
+    @Override
+    public Object call(QContext qContext, Parameters parameters)
+        throws Throwable {
+        String tenant = (String)qContext.attachment().get("tenant");
+        return "hello," + tenant;
+    }
+}
+----
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("hello", new HelloFunction());
+        String resultJack = (String)express4Runner.execute("hello()",
+            Collections.emptyMap(),
+            // Additional information(tenant for example) can be brought into the custom function from outside via attachments
+            QLOptions.builder().attachments(Collections.singletonMap("tenant", "jack")).build()).getResult();
+        assertEquals("hello,jack", resultJack);
+        String resultLucy =
+            (String)express4Runner
+                .execute("hello()",
+                    Collections.emptyMap(),
+                    QLOptions.builder().attachments(Collections.singletonMap("tenant", "lucy")).build())
+                .getResult();
+        assertEquals("hello,lucy", resultLucy);
+----
+
+=== Use Java functional interfaces
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Function<T,R>
+        runner.addFunction("inc", (Function<Integer, Integer>)x -> x + 1);
+        // Predicate<T>
+        runner.addFunction("isPos", (Predicate<Integer>)x -> x > 0);
+        // Runnable
+        runner.addFunction("notify", () -> {
+        });
+        // Consumer<T>
+        runner.addFunction("print", (Consumer<Object>)System.out::println);
+        
+        Object r1 = runner.execute("inc(1)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        Object r2 = runner.execute("isPos(1)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(2, r1);
+        assertEquals(true, r2);
+----
+
+=== Register via annotations
+
+[source,java,indent=0]
+----
+    public static class MyFunctionUtil {
+        @QLFunction({"myAdd", "iAdd"})
+        public int add(int a, int b) {
+            return a + b;
+        }
+        
+        @QLFunction("arr3")
+        public static int[] array3(int a, int b, int c) {
+            return new int[] {a, b, c};
+        }
+        
+        @QLFunction("concat")
+        public String concat(String a, String b) {
+            return a + b;
+        }
+    }
+----
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        BatchAddFunctionResult addResult = express4Runner.addObjFunction(new MyFunctionUtil());
+        assertEquals(4, addResult.getSucc().size());
+        Object result =
+            express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(14, result);
+        express4Runner.addStaticFunction(MyFunctionUtil.class);
+        Object result1 =
+            express4Runner.execute("arr3(5,9,10)[2]", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(10, result1);
+        
+        Object result2 =
+            express4Runner.execute("concat('aa', null)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("aanull", result2);
+----
+
+=== Add via QLExpress script
+
+[source,java,indent=0]
+----
+    public static class JoinFunction implements QLFunctionalVarargs {
+        @Override
+        public Object call(Object... params) {
+            return Arrays.stream(params).map(Object::toString).collect(Collectors.joining(","));
+        }
+    }
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addVarArgsFunction("join", new JoinFunction());
+        Object resultFunction =
+            express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("1,2,3", resultFunction);
+----
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addVarArgsFunction("join", new JoinFunction());
+        Object resultFunction =
+            express4Runner.execute("join(1,2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("1,2,3", resultFunction);
+----
+
+== Custom Operators
+
+=== Implement CustomBinaryOperator and set precedence
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.addOperator("?><", (left, right) -> left.get().toString() + right.get().toString(), QLPrecedences.ADD);
+        Object r = runner.execute("1 ?>< 2 * 3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        // precedence set to ADD, so multiply first, then custom operator: "1" + "6" => "16"
+        assertEquals("16", r);
+----
+
+=== Replace built-in operators
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        boolean ok = runner.replaceDefaultOperator("+",
+            (left, right) -> Double.parseDouble(left.get().toString()) + Double.parseDouble(right.get().toString()));
+        assertTrue(ok);
+        Object r = runner.execute("'1.2' + '2.3'", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(3.5d, r);
+----
+
+=== Use Java functional interfaces
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addOperatorBiFunction("join", (left, right) -> left + "," + right);
+        Object resultOperator =
+            express4Runner.execute("1 join 2 join 3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("1,2,3", resultOperator);
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.addOperator("join", params -> params[0] + "," + params[1]);
+        Object r = runner.execute("1 join 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("1,2", r);
+----
+
+== Extension Functions
+
+=== Extend ExtensionFunction
+
+[source,java,indent=0]
+----
+        ExtensionFunction helloFunction = new ExtensionFunction() {
+            @Override
+            public Class<?>[] getParameterTypes() {
+                return new Class[0];
+            }
+            
+            @Override
+            public String getName() {
+                return "hello";
+            }
+            
+            @Override
+            public Class<?> getDeclaringClass() {
+                return String.class;
+            }
+            
+            @Override
+            public Object invoke(Object obj, Object[] args) {
+                String originStr = (String)obj;
+                return "Hello," + originStr;
+            }
+        };
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addExtendFunction(helloFunction);
+        Object result =
+            express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("Hello,jack", result);
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+        // simpler way to define extension function
+        express4Runner.addExtendFunction("add",
+            Number.class,
+            params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
+        QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(3, resultAdd.getResult());
+----
+
+== QLFunctionalVarargs: One object defines three kinds of operations
+
+The same QLFunctionalVarargs object can serve as the implementation of a function, an operator, and an extension function at the same time, making it easy to reuse unified semantics and implementation across multiple places. This capability comes from the interface’s varargs design; see the example and interface definition below. For background discussion, refer to link:https://github.com/alibaba/QLExpress/issues/407[issue407]:
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLFunctionalVarargs allInOne = params -> {
+            // sum numbers no matter how many args
+            double sum = 0d;
+            for (Object p : params) {
+                if (p instanceof Number) {
+                    sum += ((Number)p).doubleValue();
+                }
+            }
+            return sum;
+        };
+        
+        // as function
+        runner.addVarArgsFunction("sumAll", allInOne);
+        // as operator
+        runner.addOperator("+&", allInOne);
+        // as extension function: first arg is the receiver, followed by call arguments
+        runner.addExtendFunction("plusAll", Number.class, allInOne);
+        
+        Map<String, Object> ctx = new HashMap<>();
+        Object rf = runner.execute("sumAll(1,2,3)", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        Object ro = runner.execute("1 +& 4", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        Object re = runner.execute("1.plusAll(5)", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(6d, rf);
+        assertEquals(5d, ro);
+        assertEquals(6d, re);
+----
+
+=== Interface definition
+
+[source,java,indent=0]
+----
+package com.alibaba.qlexpress4.api;
+
+/**
+ * Author: TaoKan
+ */
+@FunctionalInterface
+public interface QLFunctionalVarargs {
+    Object call(Object... params);
+}
+----
+
+== Aliases for operators and functions (keyword aliases also supported)
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // add custom function zero
+        express4Runner.addFunction("zero", (String ignore) -> 0);
+        
+        // keyword alias
+        assertTrue(express4Runner.addAlias("如果", "if"));
+        assertTrue(express4Runner.addAlias("则", "then"));
+        assertTrue(express4Runner.addAlias("否则", "else"));
+        assertTrue(express4Runner.addAlias("返回", "return"));
+        // operator alias
+        assertTrue(express4Runner.addAlias("大于", ">"));
+        // function alias
+        assertTrue(express4Runner.addAlias("零", "zero"));
+        
+        Map<String, Object> context = new HashMap<>();
+        context.put("语文", 90);
+        context.put("数学", 90);
+        context.put("英语", 90);
+        
+        Object result = express4Runner
+            .execute("如果 (语文 + 数学 + 英语 大于 270) 则 {返回 1;} 否则 {返回 零();}", context, QLOptions.DEFAULT_OPTIONS)
+            .getResult();
+        assertEquals(0, result);
+----
+
+== Notes and recommendations
+
+- Under the QLFunctionalVarargs calling convention, when invoking an extension function the first actual argument is the receiver object, followed by the call arguments; functions and operators do not include a receiver.
+- Set the precedence of custom operators according to the intended expression semantics to avoid confusion with existing rules.
+- Annotation-based registration only processes public methods, and duplicate names will fail to register; the batch registration result contains both success and failure lists.
