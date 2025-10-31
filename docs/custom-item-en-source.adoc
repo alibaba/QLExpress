@@ -1,0 +1,152 @@
+:toc:
+
+= Custom Syntax Elements
+
+This section systematically outlines the interfaces and capabilities in QLExpress4 for customizing syntax elements.
+
+== Overview
+
+* Custom functions
+** Implement the CustomFunction interface
+** Use Java functional interfaces
+** Register via annotation scanning
+** Add via QLExpress script
+** Implement QLFunctionalVarargs
+* Custom operators
+** Implement CustomBinaryOperator
+** Replace built-in operators
+** Use Java functional interfaces
+** Add aliases
+** Implement QLFunctionalVarargs
+* Extension functions
+** Extend ExtensionFunction
+** Implement QLFunctionalVarargs
+* Aliases for operators and functions
+
+== Custom Functions
+
+=== Implement the CustomFunction interface
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java[]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
+----
+
+=== Use Java functional interfaces
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionWithJavaFunctional]
+----
+
+=== Register via annotations
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=annoObj]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addFunctionByAnnotationObject]
+----
+
+=== Add via QLExpress script
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=joinFunctionVarargsObj]
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionByVarargs]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionByVarargs]
+----
+
+== Custom Operators
+
+=== Implement CustomBinaryOperator and set precedence
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorWithPrecedence]
+----
+
+=== Replace built-in operators
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=replaceDefaultOperator]
+----
+
+=== Use Java functional interfaces
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorBiFunction]
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorByVarargs]
+----
+
+== Extension Functions
+
+=== Extend ExtensionFunction
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defineExtensionFunctionByExtensionFunction]
+----
+
+=== Implement QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defineExtensionFunctionByQLFunctionalVarargs]
+----
+
+== QLFunctionalVarargs: One object defines three kinds of operations
+
+The same QLFunctionalVarargs object can serve as the implementation of a function, an operator, and an extension function at the same time, making it easy to reuse unified semantics and implementation across multiple places. This capability comes from the interface’s varargs design; see the example and interface definition below. For background discussion, refer to link:https://github.com/alibaba/QLExpress/issues/407[issue407]:
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=qlfunctionalvarargsAllInOne]
+----
+
+=== Interface definition
+
+[source,java,indent=0]
+----
+include::../src/main/java/com/alibaba/qlexpress4/api/QLFunctionalVarargs.java[]
+----
+
+== Aliases for operators and functions (keyword aliases also supported)
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addAlias]
+----
+
+== Notes and recommendations
+
+- Under the QLFunctionalVarargs calling convention, when invoking an extension function the first actual argument is the receiver object, followed by the call arguments; functions and operators do not include a receiver.
+- Set the precedence of custom operators according to the intended expression semantics to avoid confusion with existing rules.
+- Annotation-based registration only processes public methods, and duplicate names will fail to register; the batch registration result contains both success and failure lists.
+

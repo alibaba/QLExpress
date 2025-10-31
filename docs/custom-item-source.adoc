@@ -1,0 +1,152 @@
+:toc:
+
+= 自定义语法元素
+
+本节系统梳理在 QLExpress4 在自定义语法元素方面的接口和能力。
+
+== 总览
+
+* 自定义函数
+** 实现CustomFunction接口
+** 使用 Java 函数式接口
+** 通过注解扫描注册
+** 通过QLExpress脚本添加
+** 实现QLFunctionalVarargs
+* 自定义操作符
+** 实现CustomBinaryOperator
+** 替换内置操作符
+** 使用 Java 函数式接口
+** 添加别名
+** 实现QLFunctionalVarargs
+* 扩展函数
+** 继承ExtensionFunction
+** 实现QLFunctionalVarargs
+* 操作符与函数别名
+
+== 自定义函数
+
+=== 实现CustomFunction接口
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/test/function/HelloFunction.java[]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=customComplexFunction]
+----
+
+=== 使用 Java 函数式接口
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionWithJavaFunctional]
+----
+
+=== 注解方式注册
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=annoObj]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addFunctionByAnnotationObject]
+----
+
+=== 通过QLExpress脚本添加
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=joinFunctionVarargsObj]
+----
+
+=== 实现QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionByVarargs]
+----
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addFunctionByVarargs]
+----
+
+== 自定义操作符
+
+=== 实现CustomBinaryOperator并设置优先级
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorWithPrecedence]
+----
+
+=== 替换内置操作符
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=replaceDefaultOperator]
+----
+
+=== 使用 Java 函数式接口
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorBiFunction]
+----
+
+=== 实现QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorByVarargs]
+----
+
+== 扩展函数
+
+=== 继承ExtensionFunction
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defineExtensionFunctionByExtensionFunction]
+----
+
+=== 实现QLFunctionalVarargs
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=defineExtensionFunctionByQLFunctionalVarargs]
+----
+
+== QLFunctionalVarargs：一个对象同时定义三类操作
+
+同一个QLFunctionalVarargs对象可同时用作函数、操作符与扩展函数的实现，便于在多处复用统一的语义与实现。该能力来源于接口的可变参数设计，详见下方示例与接口定义。背景讨论参考 link:https://github.com/alibaba/QLExpress/issues/407[issue407]：
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=qlfunctionalvarargsAllInOne]
+----
+
+=== 接口定义
+
+[source,java,indent=0]
+----
+include::../src/main/java/com/alibaba/qlexpress4/api/QLFunctionalVarargs.java[]
+----
+
+== 操作符与函数别名（亦支持关键字别名）
+
+[source,java,indent=0]
+----
+include::../src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addAlias]
+----
+
+== 说明与建议
+
+- QLFunctionalVarargs 的定义模式下，扩展函数调用时实参列表首位是接收者对象，其后为调用参数；函数与操作符不含接收者。
+- 自定义操作符的优先级需根据表达式期望进行设置，避免与已有运算规则产生混淆。
+- 注解方式注册仅会处理公开方法，且重复名称将注册失败；批量注册返回结果中包含成功与失败清单。
+

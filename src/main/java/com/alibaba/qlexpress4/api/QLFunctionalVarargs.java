@@ -5,5 +5,5 @@ package com.alibaba.qlexpress4.api;
  */
 @FunctionalInterface
 public interface QLFunctionalVarargs {
-    Object call(Object... t);
+    Object call(Object... params);
 }

@@ -717,6 +717,7 @@ public class Express4RunnerTest {
     @Test
     public void extensionFunctionTest() {
         // tag::extensionFunction[]
+        // tag::defineExtensionFunctionByExtensionFunction[]
         ExtensionFunction helloFunction = new ExtensionFunction() {
             @Override
             public Class<?>[] getParameterTypes() {
@@ -744,13 +745,16 @@ public class Express4RunnerTest {
         Object result =
             express4Runner.execute("'jack'.hello()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("Hello,jack", result);
+        // end::defineExtensionFunctionByExtensionFunction[]
         
+        // tag::defineExtensionFunctionByQLFunctionalVarargs[]
         // simpler way to define extension function
         express4Runner.addExtendFunction("add",
             Number.class,
             params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
         QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, resultAdd.getResult());
+        // end::defineExtensionFunctionByQLFunctionalVarargs[]
         
         // end::extensionFunction[]
     }
@@ -889,6 +893,7 @@ public class Express4RunnerTest {
         }
     }
     
+    // tag::annoObj[]
     public static class MyFunctionUtil {
         @QLFunction({"myAdd", "iAdd"})
         public int add(int a, int b) {
@@ -905,9 +910,11 @@ public class Express4RunnerTest {
             return a + b;
         }
     }
+    // end::annoObj[]
     
     @Test
     public void addFunctionByAnnotationTest() {
+        // tag::addFunctionByAnnotationObject[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         BatchAddFunctionResult addResult = express4Runner.addObjFunction(new MyFunctionUtil());
         assertEquals(4, addResult.getSucc().size());
@@ -922,6 +929,7 @@ public class Express4RunnerTest {
         Object result2 =
             express4Runner.execute("concat('aa', null)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("aanull", result2);
+        // end::addFunctionByAnnotationObject[]
     }
     
     @Test
