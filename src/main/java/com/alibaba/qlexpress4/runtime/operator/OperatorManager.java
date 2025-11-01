@@ -161,10 +161,12 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     private final Map<String, Integer> keyWordAliases = new ConcurrentHashMap<>();
     
     /**
-     * @param operatorName
-     * @param customBinaryOperator
-     * @param priority             {@link QLPrecedences}
-     * @return
+     * Register a custom binary operator if it does not clash with a built-in operator.
+     *
+     * @param operatorName          operator lexeme, for example {@code "**"}
+     * @param customBinaryOperator  implementation of the custom operator
+     * @param priority              operator precedence, see {@link QLPrecedences}
+     * @return {@code true} if registered successfully; {@code false} if the name is already used
      */
     public boolean addBinaryOperator(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
         if (DEFAULT_BINARY_OPERATOR_MAP.containsKey(operatorName)) {

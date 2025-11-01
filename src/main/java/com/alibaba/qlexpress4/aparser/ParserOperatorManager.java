@@ -25,9 +25,10 @@ public interface ParserOperatorManager {
     Integer precedence(String lexeme);
     
     /**
-     * get alias token type of lexeme
-     * @param lexeme
-     * @return alias token type
+     * Get the aliased token type of lexeme.
+     *
+     * @param lexeme the source text of the token
+     * @return alias token type (or {@code null} if none)
      */
     Integer getAlias(String lexeme);
 }

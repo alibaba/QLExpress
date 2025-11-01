@@ -3,22 +3,22 @@ package com.alibaba.qlexpress4.operator;
 import java.util.Set;
 
 /**
- * Operator restriction strategy interface
- * Defines the contract for checking if an operator is allowed
+ * Operator restriction strategy interface.
+ * Defines the contract for checking whether an operator is allowed.
  *
- * Supported operators (organized by directory):
- * - arithmetic: +, -, *, /, %, mod, +=, -=, *=, /=, %=
- * - assign: =
- * - bit: &, |, ^, ~, <<, >>, >>>, &=, |=, ^=, <<=, >>=, >>>=
- * - collection: in, not_in
- * - compare: ==, !=, <>, <, <=, >, >=
- * - logic: &&, ||, !, and, or
- * - string: like, not_like
- * - unary: ++, --, +, - (unary)
- * - root: instanceof
+ * Supported operators (organized by category):
+ * - arithmetic: {@code +, -, *, /, %, mod, +=, -=, *=, /=, %=}
+ * - assign: {@code =}
+ * - bit: {@code &, |, ^, ~, <<, >>, >>>, &=, |=, ^=, <<=, >>=, >>>=}
+ * - collection: {@code in, not_in}
+ * - compare: {@code ==, !=, <>, <, <=, >, >=}
+ * - logic: {@code &&, ||, !, and, or}
+ * - string: {@code like, not_like}
+ * - unary: {@code ++, --, +, - (unary)}
+ * - root: {@code instanceof}
  *
  * Usage example:
- * <pre>
+ * <pre>{@code
  *   // Whitelist strategy - only allow + and *
  *   Set<String> allowed = new HashSet<>(Arrays.asList("+", "*"));
  *   OperatorCheckStrategy strategy = OperatorCheckStrategy.whitelist(allowed);
@@ -29,8 +29,7 @@ import java.util.Set;
  *
  *   // Allow all operators
  *   OperatorCheckStrategy strategy = OperatorCheckStrategy.allowAll();
- * </pre>
- *
+ * }</pre>
  */
 public interface OperatorCheckStrategy {
     

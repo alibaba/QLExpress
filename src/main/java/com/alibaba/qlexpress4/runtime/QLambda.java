@@ -21,7 +21,11 @@ public interface QLambda
         throws Throwable;
     
     /**
-     * @return function defined in lambda
+     * Get functions defined inside this lambda when invoked with parameters.
+     *
+     * @param params parameters passed to the lambda
+     * @return function table defined by the lambda (empty by default)
+     * @throws Throwable if user code throws an exception while collecting functions
      */
     default Map<String, CustomFunction> getFunctionDefined(Object... params)
         throws Throwable {

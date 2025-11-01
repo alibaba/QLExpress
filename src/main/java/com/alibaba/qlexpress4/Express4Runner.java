@@ -91,12 +91,14 @@ public class Express4Runner {
     }
     
     /**
-     * execute the script with variables set in the context, where the key corresponds to the variable name.
-     * @param script
-     * @param context
-     * @param qlOptions
-     * @return result of script
-     * @throws QLException
+     * Execute the script with variables set in the context; the map key corresponds to the
+     * variable name referenced in the script.
+     *
+     * @param script     the script content to execute
+     * @param context    variables for execution, keyed by variable name
+     * @param qlOptions  execution options (e.g. interpolation, debug)
+     * @return result of script execution and related traces
+     * @throws QLException if a script or runtime error occurs
      */
     public QLResult execute(String script, Map<String, Object> context, QLOptions qlOptions)
         throws QLException {
@@ -106,6 +108,12 @@ public class Express4Runner {
     /**
      * Execute a template string by wrapping it as a dynamic string literal.
      * Template does not support newlines in this mode.
+     *
+     * @param template   the template text to evaluate as a dynamic string
+     * @param context    variables available to the template
+     * @param qlOptions  execution options
+     * @return result of template evaluation
+     * @throws QLException if compilation or execution fails
      */
     public QLResult executeTemplate(String template, Map<String, Object> context, QLOptions qlOptions)
         throws QLException {
@@ -122,12 +130,14 @@ public class Express4Runner {
     }
     
     /**
-     * execute the script with variables set in the context, where the key corresponds to the field name of context object
-     * @param script
-     * @param context
-     * @param qlOptions
-     * @return
-     * @throws QLException
+     * Execute the script with variables resolved from the fields of the given context object.
+     * The variable name in the script corresponds to the field name on the object.
+     *
+     * @param script     the script content to execute
+     * @param context    the object whose public fields/properties are exposed as variables
+     * @param qlOptions  execution options
+     * @return result of script execution
+     * @throws QLException if a script or runtime error occurs
      */
     public QLResult execute(String script, Object context, QLOptions qlOptions)
         throws QLException {
@@ -135,14 +145,15 @@ public class Express4Runner {
     }
     
     /**
-     * Execute the script using objects that have been annotated with the com.alibaba.qlexpress4.annotation.QLAlias.
-     * The QLAlias.value will serve as the context keys for these objects.
-     * Objects without the QLAlias annotation will be disregarded.
-     * @param script
-     * @param qlOptions
-     * @param objects
-     * @return
-     * @throws QLException
+     * Execute the script using objects annotated with {@code @QLAlias}.
+     * The {@code QLAlias.value} serves as the variable name for each object.
+     * Objects without the annotation are ignored.
+     *
+     * @param script     the script content to execute
+     * @param qlOptions  execution options
+     * @param objects    objects annotated with {@code @QLAlias}
+     * @return result of script execution
+     * @throws QLException if a script or runtime error occurs
      */
     public QLResult executeWithAliasObjects(String script, QLOptions qlOptions, Object... objects) {
         return execute(script, new QLAliasContext(objects), qlOptions);
@@ -207,9 +218,10 @@ public class Express4Runner {
     }
     
     /**
-     * get out vars(Variables that need to be passed from outside the script through context) in script
-     * @param script
-     * @return name of out vars
+     * Get external variables (those that must be provided via context) referenced by the script.
+     *
+     * @param script the script content
+     * @return names of external variables referenced in the script
      */
     public Set<String> getOutVarNames(String script) {
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
@@ -219,9 +231,10 @@ public class Express4Runner {
     }
     
     /**
-     * get out var attrs in script
-     * @param script
-     * @return out var attrs
+     * Get external variable attribute access paths referenced by the script.
+     *
+     * @param script the script content
+     * @return attribute chains accessed on external variables
      */
     public Set<List<String>> getOutVarAttrs(String script) {
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
@@ -231,9 +244,10 @@ public class Express4Runner {
     }
     
     /**
-     * get out functions(Functions that need to be passed from outside the script through context) in script
-     * @param script
-     * @return name of out functions
+     * Get external functions (those that must be provided via context) referenced by the script.
+     *
+     * @param script the script content
+     * @return names of external functions referenced in the script
      */
     public Set<String> getOutFunctions(String script) {
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
@@ -243,9 +257,10 @@ public class Express4Runner {
     }
     
     /**
-     * get the trace tree of expression in the script (without executing the script).
-     * @param script
-     * @return trace trees
+     * Get the expression trace trees for the script without executing it.
+     *
+     * @param script the script content
+     * @return trace trees for each expression
      */
     public List<TracePointTree> getExpressionTracePoints(String script) {
         QLParser.ProgramContext programContext = parseToSyntaxTree(script);
