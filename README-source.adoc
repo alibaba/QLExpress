@@ -111,7 +111,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4</version>
 </dependency>
 ----
 
