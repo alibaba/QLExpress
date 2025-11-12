@@ -1113,7 +1113,7 @@ m = {
   }
 }
 assert(m['aa']==10)
-// Underlying data type of map is ArrayList in Java
+// Underlying data type of map is LinkedHashMap in Java
 assert(m instanceof LinkedHashMap)
 // empty map
 emMap = {:}
@@ -1368,7 +1368,7 @@ b = 2
 return 1+1;
 ----
 
-因为分号可以省略，QLExpress4 对于换行的处理相比 3 或者 Java 语言更加严格。如果想要将多行表达式拆成多行，建议将操作符保留在当前行，而将右操作数换到下一行。
+因为分号可以省略，QLExpress4 对于换行的处理相比 3 或者 Java 语言更加严格。如果想要将单行表达式拆成多行，建议将操作符保留在当前行，而将右操作数换到下一行。
 
 以下多行表达式会报语法错误（反例）：
 

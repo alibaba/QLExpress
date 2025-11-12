@@ -735,7 +735,7 @@ b = 2
 return 1+1;
 ----
 
-Because semicolons can be omitted, QLExpress4's handling of line breaks is stricter compared to version 3 or Java language. If you want to split multi-line expressions into multiple lines, it's recommended to keep operators on the current line and move the right operand to the next line.
+Because semicolons can be omitted, QLExpress4's handling of line breaks is stricter compared to version 3 or Java language. If you want to split single-line expressions into multiple lines, it's recommended to keep operators on the current line and move the right operand to the next line.
 
 The following multi-line expression will report a syntax error (counterexample):
 
