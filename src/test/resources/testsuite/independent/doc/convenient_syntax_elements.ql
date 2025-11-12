@@ -13,7 +13,7 @@ m = {
   }
 }
 assert(m['aa']==10)
-// Underlying data type of map is ArrayList in Java
+// Underlying data type of map is LinkedHashMap in Java
 assert(m instanceof LinkedHashMap)
 // empty map
 emMap = {:}
