@@ -967,6 +967,49 @@ public class Express4RunnerTest {
         // end::addFunctionByAnnotationObject[]
     }
     
+    public static class OverloadService {
+        public String format(String value) {
+            return "S:" + value;
+        }
+        
+        public String format(Integer left, int right) {
+            return "I:" + left + "," + right;
+        }
+    }
+    
+    @Test
+    public void addFunctionOfServiceMethodBasicTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        MyFunctionUtil service = new MyFunctionUtil();
+        
+        boolean added =
+            express4Runner.addFunctionOfServiceMethod("svcAdd", service, "add", new Class<?>[] {int.class, int.class});
+        assertTrue(added);
+        
+        Object result = express4Runner.execute("svcAdd(1,2)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(3, result);
+    }
+    
+    @Test
+    public void addFunctionOfServiceMethodOverloadTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        OverloadService service = new OverloadService();
+        
+        boolean addedFormatString =
+            express4Runner.addFunctionOfServiceMethod("fmtStr", service, "format", new Class<?>[] {String.class});
+        assertTrue(addedFormatString);
+        Object resultStr =
+            express4Runner.execute("fmtStr('x')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("S:x", resultStr);
+        
+        boolean addedFormatInt = express4Runner
+            .addFunctionOfServiceMethod("fmtInt", service, "format", new Class<?>[] {Integer.class, int.class});
+        assertTrue(addedFormatInt);
+        Object resultInt =
+            express4Runner.execute("fmtInt(null,2)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("I:null,2", resultInt);
+    }
+    
     @Test
     public void variableStartsWithWellNumber() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);

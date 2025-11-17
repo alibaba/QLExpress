@@ -352,6 +352,40 @@ public class Express4Runner {
     }
     
     /**
+     * Add a user-defined function backed by a specific Java service instance method.
+     *
+     * @param name function name exposed in QLExpress scripts
+     * @param serviceObject target service instance, must not be {@code null}
+     * @param methodName Java method name on the service instance
+     * @param parameterClassTypes parameter type signature of the Java method; use an empty array for no-arg methods
+     * @return true if the function was added successfully; false if a function with the same name already exists
+     * @throws IllegalArgumentException if {@code serviceObject} or {@code methodName} is null, or if no matching
+     *                                  public method is found on the service type
+     */
+    public boolean addFunctionOfServiceMethod(String name, Object serviceObject, String methodName,
+        Class<?>[] parameterClassTypes) {
+        if (serviceObject == null) {
+            throw new IllegalArgumentException("serviceObject must not be null");
+        }
+        if (methodName == null) {
+            throw new IllegalArgumentException("methodName must not be null");
+        }
+        
+        Class<?>[] parameterTypes = parameterClassTypes == null ? new Class<?>[0] : parameterClassTypes;
+        Method method;
+        try {
+            method = serviceObject.getClass().getMethod(methodName, parameterTypes);
+        }
+        catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("No such public method '" + methodName + "' with parameter types "
+                + java.util.Arrays.toString(parameterTypes) + " on service object class '"
+                + serviceObject.getClass().getName() + "'", e);
+        }
+        
+        return addFunction(name, new QMethodFunction(serviceObject, method));
+    }
+    
+    /**
      * execute `scriptWithFunctionDefine` and add functions defined in script
      * @param scriptWithFunctionDefine script with function define
      * @param context context when execute script
