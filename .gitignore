@@ -6,6 +6,8 @@ target/*
 *.iml
 .idea/
 .spec/
+openspec/
+AGENTS.md
 gen/
 
 .vscode/
