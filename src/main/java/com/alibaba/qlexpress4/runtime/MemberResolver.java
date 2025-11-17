@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,15 +74,20 @@ public class MemberResolver {
     public static IMethod resolveMethod(Class<?> cls, String methodName, Class<?>[] argTypes, boolean isStatic,
         boolean allowPrivate) {
         Class<?> curCls = cls;
+        List<Class<?>> inters = new ArrayList<>();
         while (curCls != null) {
             IMethod method = resolveDeclaredMethod(curCls, methodName, argTypes, isStatic, allowPrivate);
             if (method != null) {
                 return method;
             }
+            // collect interfaces implemented by current class to search default methods later
+            Class<?>[] curInters = curCls.getInterfaces();
+            inters.addAll(Arrays.asList(curInters));
+            
             curCls = curCls.getSuperclass();
         }
         // interface method
-        return resolveIntersMethod(cls.getInterfaces(), methodName, argTypes, isStatic);
+        return resolveIntersMethod(inters.toArray(new Class[0]), methodName, argTypes, isStatic);
     }
     
     private static IMethod resolveIntersMethod(Class<?>[] inters, String methodName, Class<?>[] argTypes,
@@ -165,9 +171,6 @@ public class MemberResolver {
         Method[] declaredMethods = cls.getDeclaredMethods();
         List<IMethod> result = new ArrayList<>(declaredMethods.length);
         for (Method declaredMethod : declaredMethods) {
-            if (Modifier.isAbstract(declaredMethod.getModifiers())) {
-                continue;
-            }
             if (!methodName.equals(declaredMethod.getName())
                 && !QLAliasUtils.matchQLAlias(methodName, declaredMethod.getAnnotationsByType(QLAlias.class))) {
                 continue;

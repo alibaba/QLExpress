@@ -431,6 +431,41 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void invokeDefaultMethodTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
+            .addDefaultImport(Collections.singletonList(ImportManager.importPack("com.alibaba.qlexpress4.inport")))
+            .securityStrategy(QLSecurityStrategy.open())
+            .build());
+        Object result = express4Runner
+            .execute("a = new InterWithDefaultImplChild();a.haha()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+            .getResult();
+        Assert.assertEquals("haha", result);
+        
+        Object result1 =
+            express4Runner
+                .execute("a = new InterWithDefaultImplGrandPaChild();a.haha()",
+                    Collections.emptyMap(),
+                    QLOptions.DEFAULT_OPTIONS)
+                .getResult();
+        Assert.assertEquals("grandPa", result1);
+        
+        Map<String, String> map = new HashMap<>();
+        map.put("a", "123");
+        map.put("b", "456");
+        map.put("c", "789");
+        
+        Map<String, Object> context = new HashMap<>();
+        context.put("map", map);
+        map.entrySet().parallelStream().map(en -> en.getKey() + ":" + en.getValue()).collect(Collectors.toList());
+        Object result2 = express4Runner.execute(
+            "map.entrySet()"
+                + ".parallelStream().map(en -> en.getKey() + \":\" + en.getValue()).collect(Collectors.toList())",
+            context,
+            QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals(Arrays.asList("a:123", "b:456", "c:789"), result2);
+    }
+    
+    @Test
     public void concurrentCacheTest()
         throws InterruptedException {
         int threadCount = 5;
