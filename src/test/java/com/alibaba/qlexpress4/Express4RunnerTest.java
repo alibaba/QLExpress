@@ -792,6 +792,12 @@ public class Express4RunnerTest {
         // end::defineExtensionFunctionByQLFunctionalVarargs[]
         
         // end::extensionFunction[]
+        
+        express4Runner.addExtendFunction("add2",
+            Number.class,
+            params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue() + ((Number)params[2]).intValue());
+        QLResult resultAdd2 = express4Runner.execute("1.add2(2,3)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(6, resultAdd2.getResult());
     }
     
     @Test

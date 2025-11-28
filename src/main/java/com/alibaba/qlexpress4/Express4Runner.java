@@ -498,9 +498,9 @@ public class Express4Runner {
             @Override
             public Object invoke(Object obj, Object[] args)
                 throws InvocationTargetException, IllegalAccessException {
-                Object[] extArgs = new Object[args.length + 1];
-                extArgs[0] = obj;
                 Object[] varArgs = (Object[])args[0];
+                Object[] extArgs = new Object[varArgs.length + 1];
+                extArgs[0] = obj;
                 System.arraycopy(varArgs, 0, extArgs, 1, varArgs.length);
                 return functionalVarargs.call(extArgs);
             }
