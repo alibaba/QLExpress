@@ -22,12 +22,12 @@ public class OperatorLimitTest {
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
         
         // Configure check options with operator whitelist
-        CheckOptions checkOptions = 
+        CheckOptions checkOptions =
             CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
         
         // Create runner and check script with custom options
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        runner.check("a + b * c", checkOptions);  // This will pass as + and * are allowed
+        runner.check("a + b * c", checkOptions); // This will pass as + and * are allowed
         // end::operatorCheckStrategyExample[]
     }
     

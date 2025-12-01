@@ -53,7 +53,8 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
         }
     }
     
-    private void checkFunctionCall(Token token) throws QLSyntaxException {
+    private void checkFunctionCall(Token token)
+        throws QLSyntaxException {
         if (disableFunctionCalls) {
             String reason = "Function calls are not allowed in this context";
             throw QLException.reportScannerErr(script,

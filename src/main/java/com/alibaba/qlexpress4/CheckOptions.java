@@ -46,6 +46,7 @@ public class CheckOptions {
     
     public static class Builder {
         private OperatorCheckStrategy operatorCheckStrategy = OperatorCheckStrategy.allowAll();
+        
         private boolean disableFunctionCalls = false;
         
         private Builder() {

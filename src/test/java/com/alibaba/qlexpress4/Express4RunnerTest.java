@@ -1508,7 +1508,8 @@ public class Express4RunnerTest {
      * Tests for function call disable feature
      */
     @Test
-    public void testDefaultAllowFunctionCall() throws Exception {
+    public void testDefaultAllowFunctionCall()
+        throws Exception {
         // Create a runner
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
@@ -1526,9 +1527,7 @@ public class Express4RunnerTest {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Create options with function calls disabled
-        CheckOptions options = CheckOptions.builder()
-                .disableFunctionCalls(true)
-                .build();
+        CheckOptions options = CheckOptions.builder().disableFunctionCalls(true).build();
         
         // Script with function call
         String scriptWithFunctionCall = "Math.max(1, 2)";
@@ -1536,7 +1535,8 @@ public class Express4RunnerTest {
         // Use custom options to check script
         try {
             runner.check(scriptWithFunctionCall, options);
-        } catch (QLSyntaxException e) {
+        }
+        catch (QLSyntaxException e) {
             // Will throw exception as function calls are disabled
         }
         // end::disableFunctionCallsExample[]
@@ -1556,14 +1556,11 @@ public class Express4RunnerTest {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Create options with function calls disabled
-        CheckOptions options = CheckOptions.builder()
-                .disableFunctionCalls(true)
-                .build();
+        CheckOptions options = CheckOptions.builder().disableFunctionCalls(true).build();
         
         // Test basic function call styles first
-        String[] basicFunctionCallScripts = {
-                "func()",                     // Basic function call
-                "obj.method()"               // Method call
+        String[] basicFunctionCallScripts = {"func()", // Basic function call
+            "obj.method()" // Method call
         };
         
         // All should throw exception (don't check exact message for now)
@@ -1575,21 +1572,19 @@ public class Express4RunnerTest {
     }
     
     @Test
-    public void testDisableFunctionCallsAllowOtherSyntax() throws Exception {
+    public void testDisableFunctionCallsAllowOtherSyntax()
+        throws Exception {
         // Create a runner
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Create options with function calls disabled
-        CheckOptions options = CheckOptions.builder()
-                .disableFunctionCalls(true)
-                .build();
+        CheckOptions options = CheckOptions.builder().disableFunctionCalls(true).build();
         
         // Scripts without function calls should still be allowed
-        String[] validScripts = {
-                "1 + 2",                     // Arithmetic expression
-                "x = 5",                     // Assignment
-                "x > 3 ? 'yes' : 'no'",      // Ternary operator
-                "{a: 1, b: 2}"               // Map literal
+        String[] validScripts = {"1 + 2", // Arithmetic expression
+            "x = 5", // Assignment
+            "x > 3 ? 'yes' : 'no'", // Ternary operator
+            "{a: 1, b: 2}" // Map literal
         };
         
         // All should pass validation
