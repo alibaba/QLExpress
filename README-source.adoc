@@ -171,6 +171,25 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addF
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
 ----
 
+你可以使用 `CheckOptions` 配置更精细的语法校验规则，主要支持以下两个选项：
+
+1. `operatorCheckStrategy`: 操作符校验策略，用于限制脚本中可以使用的操作符
+2. `disableFunctionCalls`: 是否禁用函数调用，默认为 false
+
+示例1：使用操作符校验策略（白名单）
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/OperatorLimitTest.java[tag=operatorCheckStrategyExample]
+----
+
+示例2：禁用函数调用
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableFunctionCallsExample]
+----
+
 === 解析脚本所需外部变量
 
 脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。

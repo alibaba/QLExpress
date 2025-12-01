@@ -1503,4 +1503,98 @@ public class Express4RunnerTest {
             assertEquals(errCode, e.getErrorCode());
         }
     }
+    
+    /**
+     * Tests for function call disable feature
+     */
+    @Test
+    public void testDefaultAllowFunctionCall() throws Exception {
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Use default options (disableFunctionCalls = false)
+        String scriptWithFunctionCall = "Math.max(1, 2)";
+        
+        // Should pass validation
+        runner.check(scriptWithFunctionCall, CheckOptions.DEFAULT_OPTIONS);
+    }
+    
+    @Test
+    public void testDisableFunctionCalls() {
+        // tag::disableFunctionCallsExample[]
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Create options with function calls disabled
+        CheckOptions options = CheckOptions.builder()
+                .disableFunctionCalls(true)
+                .build();
+        
+        // Script with function call
+        String scriptWithFunctionCall = "Math.max(1, 2)";
+        
+        // Use custom options to check script
+        try {
+            runner.check(scriptWithFunctionCall, options);
+        } catch (QLSyntaxException e) {
+            // Will throw exception as function calls are disabled
+        }
+        // end::disableFunctionCallsExample[]
+        
+        // Should throw QLSyntaxException
+        QLSyntaxException exception = Assert.assertThrows(QLSyntaxException.class, () -> {
+            runner.check(scriptWithFunctionCall, options);
+        });
+        
+        // Verify exception message contains relevant information
+        Assert.assertTrue(exception.getMessage().contains("Function calls are not allowed"));
+    }
+    
+    @Test
+    public void testDisableDifferentFunctionCallStyles() {
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Create options with function calls disabled
+        CheckOptions options = CheckOptions.builder()
+                .disableFunctionCalls(true)
+                .build();
+        
+        // Test basic function call styles first
+        String[] basicFunctionCallScripts = {
+                "func()",                     // Basic function call
+                "obj.method()"               // Method call
+        };
+        
+        // All should throw exception (don't check exact message for now)
+        for (String script : basicFunctionCallScripts) {
+            Assert.assertThrows(Exception.class, () -> {
+                runner.check(script, options);
+            });
+        }
+    }
+    
+    @Test
+    public void testDisableFunctionCallsAllowOtherSyntax() throws Exception {
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Create options with function calls disabled
+        CheckOptions options = CheckOptions.builder()
+                .disableFunctionCalls(true)
+                .build();
+        
+        // Scripts without function calls should still be allowed
+        String[] validScripts = {
+                "1 + 2",                     // Arithmetic expression
+                "x = 5",                     // Assignment
+                "x > 3 ? 'yes' : 'no'",      // Ternary operator
+                "{a: 1, b: 2}"               // Map literal
+        };
+        
+        // All should pass validation
+        for (String script : validScripts) {
+            runner.check(script, options);
+        }
+    }
 }

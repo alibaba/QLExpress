@@ -17,11 +17,18 @@ public class OperatorLimitTest {
     @Test
     public void testCheckWithAllowedOperators()
         throws QLSyntaxException {
+        // tag::operatorCheckStrategyExample[]
+        // Create a whitelist of allowed operators
         Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
-        CheckOptions checkOptions =
+        
+        // Configure check options with operator whitelist
+        CheckOptions checkOptions = 
             CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
+        
+        // Create runner and check script with custom options
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        runner.check("a + b * c", checkOptions);
+        runner.check("a + b * c", checkOptions);  // This will pass as + and * are allowed
+        // end::operatorCheckStrategyExample[]
     }
     
     @Test

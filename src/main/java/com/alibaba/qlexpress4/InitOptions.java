@@ -2,9 +2,6 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
-import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
-import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
-import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.ArrayList;

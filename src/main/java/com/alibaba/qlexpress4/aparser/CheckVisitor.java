@@ -18,6 +18,11 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
     private final OperatorCheckStrategy operatorCheckStrategy;
     
     /**
+     * Whether to disable function calls
+     */
+    private final boolean disableFunctionCalls;
+    
+    /**
      * Script content for error reporting
      */
     private final String script;
@@ -27,11 +32,8 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
     }
     
     public CheckVisitor(CheckOptions checkOptions, String script) {
-        if (checkOptions == null) {
-            checkOptions = CheckOptions.DEFAULT_OPTIONS;
-        }
-        
         this.operatorCheckStrategy = checkOptions.getCheckStrategy();
+        this.disableFunctionCalls = checkOptions.isDisableFunctionCalls();
         this.script = script;
     }
     
@@ -47,6 +49,19 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
                 token.getCharPositionInLine(),
                 operatorString,
                 QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
+                reason);
+        }
+    }
+    
+    private void checkFunctionCall(Token token) throws QLSyntaxException {
+        if (disableFunctionCalls) {
+            String reason = "Function calls are not allowed in this context";
+            throw QLException.reportScannerErr(script,
+                token.getStartIndex(),
+                token.getLine(),
+                token.getCharPositionInLine(),
+                token.getText(),
+                "FUNCTION_CALL_NOT_ALLOWED",
                 reason);
         }
     }
@@ -94,5 +109,33 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
         }
         
         return super.visitExpression(ctx);
+    }
+    
+    @Override
+    public Void visitCallExpr(QLParser.CallExprContext ctx) {
+        // Check if function calls are disabled
+        checkFunctionCall(ctx.getStart());
+        return super.visitCallExpr(ctx);
+    }
+    
+    @Override
+    public Void visitMethodInvoke(QLParser.MethodInvokeContext ctx) {
+        // Check if function calls are disabled
+        checkFunctionCall(ctx.getStart());
+        return super.visitMethodInvoke(ctx);
+    }
+    
+    @Override
+    public Void visitOptionalMethodInvoke(QLParser.OptionalMethodInvokeContext ctx) {
+        // Check if function calls are disabled
+        checkFunctionCall(ctx.getStart());
+        return super.visitOptionalMethodInvoke(ctx);
+    }
+    
+    @Override
+    public Void visitSpreadMethodInvoke(QLParser.SpreadMethodInvokeContext ctx) {
+        // Check if function calls are disabled
+        checkFunctionCall(ctx.getStart());
+        return super.visitSpreadMethodInvoke(ctx);
     }
 }

@@ -170,6 +170,25 @@ To validate syntax correctness without executing scripts, including operator res
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=checkSyntax]
 ----
 
+You can use `CheckOptions` to configure more fine-grained syntax validation rules, supporting the following two options:
+
+1. `operatorCheckStrategy`: Operator validation strategy, used to restrict which operators can be used in the script
+2. `disableFunctionCalls`: Whether to disable function calls, default is false
+
+Example 1: Using Operator Validation Strategy (Whitelist)
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/OperatorLimitTest.java[tag=operatorCheckStrategyExample]
+----
+
+Example 2: Disabling Function Calls
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableFunctionCallsExample]
+----
+
 === Parsing External Variables Required by Scripts
 
 Some variables used in scripts are generated within the script, while others need to be passed in from outside through `context`.
