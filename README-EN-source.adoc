@@ -109,7 +109,7 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.5</version>
+    <version>4.0.6</version>
 </dependency>
 ----
 
@@ -1017,6 +1017,10 @@ exit 0
 ----
 
 This way, before each git commit, maven's spotless plugin will automatically execute code formatting. For specific code format configuration, see link:spotless_eclipse_formatter.xml[]
+
+3. Run unit tests: After completing code development, run all unit tests locally to ensure code quality
+   - JDK 8 environment: Execute `mvn test`
+   - JDK 9 and above environment: Execute `mvn test -DargLine="--add-opens java.base/java.util.stream=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"`
 
 == Appendix III QLExpress4 Performance Improvements
 

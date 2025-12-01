@@ -111,7 +111,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.5</version>
+    <version>4.0.6</version>
 </dependency>
 ----
 
@@ -1018,6 +1018,10 @@ exit 0
 ----
 
 这样在每次 git commit 之前，就会自动执行 maven 的 spotless 插件执行代码格式化，具体代码格式配置见 link:spotless_eclipse_formatter.xml[]
+
+3. 执行单元测试：在开发完成代码之后，先在本地全量执行单元测试，确保代码质量
+   - JDK 8 环境：执行 `mvn test`
+   - JDK 9 及以上环境：执行 `mvn test -DargLine="--add-opens java.base/java.util.stream=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"`
 
 == 附录三 QLExpress4性能提升
 
