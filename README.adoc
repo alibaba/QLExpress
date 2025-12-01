@@ -261,6 +261,49 @@ QLExpress4还支持通过QLExpress脚本添加自定义函数。需要注意的�
         }
 ----
 
+你可以使用 `CheckOptions` 配置更精细的语法校验规则，主要支持以下两个选项：
+
+1. `operatorCheckStrategy`: 操作符校验策略，用于限制脚本中可以使用的操作符
+2. `disableFunctionCalls`: 是否禁用函数调用，默认为 false
+
+示例1：使用操作符校验策略（白名单）
+
+[source,java,indent=0]
+----
+        // Create a whitelist of allowed operators
+        Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
+        
+        // Configure check options with operator whitelist
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
+        
+        // Create runner and check script with custom options
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.check("a + b * c", checkOptions); // This will pass as + and * are allowed
+----
+
+示例2：禁用函数调用
+
+[source,java,indent=0]
+----
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Create options with function calls disabled
+        CheckOptions options = CheckOptions.builder().disableFunctionCalls(true).build();
+        
+        // Script with function call
+        String scriptWithFunctionCall = "Math.max(1, 2)";
+        
+        // Use custom options to check script
+        try {
+            runner.check(scriptWithFunctionCall, options);
+        }
+        catch (QLSyntaxException e) {
+            // Will throw exception as function calls are disabled
+        }
+----
+
 === 解析脚本所需外部变量
 
 脚本中使用的变量有的是脚本内生，有的是需要从外部通过 `context` 传入的。

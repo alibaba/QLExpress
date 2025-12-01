@@ -260,6 +260,49 @@ To validate syntax correctness without executing scripts, including operator res
         }
 ----
 
+You can use `CheckOptions` to configure more fine-grained syntax validation rules, supporting the following two options:
+
+1. `operatorCheckStrategy`: Operator validation strategy, used to restrict which operators can be used in the script
+2. `disableFunctionCalls`: Whether to disable function calls, default is false
+
+Example 1: Using Operator Validation Strategy (Whitelist)
+
+[source,java,indent=0]
+----
+        // Create a whitelist of allowed operators
+        Set<String> allowedOps = new HashSet<>(Arrays.asList("+", "*"));
+        
+        // Configure check options with operator whitelist
+        CheckOptions checkOptions =
+            CheckOptions.builder().operatorCheckStrategy(OperatorCheckStrategy.whitelist(allowedOps)).build();
+        
+        // Create runner and check script with custom options
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.check("a + b * c", checkOptions); // This will pass as + and * are allowed
+----
+
+Example 2: Disabling Function Calls
+
+[source,java,indent=0]
+----
+        // Create a runner
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Create options with function calls disabled
+        CheckOptions options = CheckOptions.builder().disableFunctionCalls(true).build();
+        
+        // Script with function call
+        String scriptWithFunctionCall = "Math.max(1, 2)";
+        
+        // Use custom options to check script
+        try {
+            runner.check(scriptWithFunctionCall, options);
+        }
+        catch (QLSyntaxException e) {
+            // Will throw exception as function calls are disabled
+        }
+----
+
 === Parsing External Variables Required by Scripts
 
 Some variables used in scripts are generated within the script, while others need to be passed in from outside through `context`.
