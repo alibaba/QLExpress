@@ -1805,4 +1805,4 @@ Summary: In common scenarios, without compilation cache, QLExpress4 can achieve 
  ** linxiang: tkk33362
  * DingTalk Support Group
 
-image::images/qlexpress_support_group_qr.jpg[]
+image::images/qlexpress_support_group_qr_2026.jpg[]
