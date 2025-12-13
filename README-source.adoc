@@ -377,6 +377,30 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=pars
 
 注意该缓存的大小是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
 
+=== 清除 DFA 缓存
+
+QLExpress 使用 ANTLR4 作为解析引擎，ANTLR4 在运行时会构建 DFA (确定有限状态自动机) 缓存来加速后续的语法解析。这个缓存会占用一定的内存空间。
+
+在某些内存敏感的场景下，可以通过调用 `clearDFACache` 方法来清除 DFA 缓存，释放内存。
+
+> **重要警告**: 清除 DFA 缓存会导致编译性能大幅下降，正常情况下不建议使用此方法。
+
+==== 适用场景
+
+* **内存敏感型应用**: 当内存使用是关键考虑因素，且可以容忍较慢的编译时间时
+* **脚本不经常变更**: 当脚本相对稳定且不会频繁重新编译时
+
+==== 最佳实践
+
+在解析并缓存表达式后立即调用此方法，并确保后续所有执行都打开缓存选项以避免重新编译。示例代码如下：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/ClearDfaCacheTest.java[tag=clearDFACacheBestPractice]
+----
+
+通过这种方式，可以在保证性能的同时，最大限度地降低内存占用。
+
 === 设置超时时间
 
 可以给脚本设置一个超时时间，防止其中存在死循环或者其他原因导致应用资源被过量消耗。

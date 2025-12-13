@@ -376,6 +376,30 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=pars
 
 Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
 
+=== Clearing DFA Cache
+
+QLExpress uses ANTLR4 as its parsing engine. ANTLR4 builds a DFA (Deterministic Finite Automaton) cache at runtime to accelerate subsequent syntax parsing. This cache consumes a certain amount of memory.
+
+In some memory-sensitive scenarios, you can call the `clearDFACache` method to clear the DFA cache and release memory.
+
+> **IMPORTANT WARNING**: Clearing the DFA cache will cause a significant compilation performance degradation. It is NOT recommended for normal use cases.
+
+==== Use Cases
+
+* **Memory-sensitive applications**: When memory usage is a critical concern and you can tolerate slower compilation times
+* **Infrequently changing scripts**: When scripts are relatively stable and not frequently recompiled
+
+==== Best Practice
+
+Call this method immediately after parsing and caching your expression, and ensure all subsequent executions use the cached option to avoid recompilation. Example code:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/ClearDfaCacheTest.java[tag=clearDFACacheBestPractice]
+----
+
+By following this approach, you can minimize memory usage while maintaining performance.
+
 === Setting Timeout
 
 You can set a timeout for scripts to prevent infinite loops or other reasons from causing excessive consumption of application resources.

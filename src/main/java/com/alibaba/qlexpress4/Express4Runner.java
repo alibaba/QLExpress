@@ -41,7 +41,9 @@ import com.alibaba.qlexpress4.runtime.trace.QTraces;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+import org.antlr.v4.runtime.dfa.DFA;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -573,6 +575,68 @@ public class Express4Runner {
     
     public Value loadField(Object object, String fieldName) {
         return reflectLoader.loadField(object, fieldName, true, PureErrReporter.INSTANCE);
+    }
+    
+    private static final String PARSER_CLASS_NAME = "com.alibaba.qlexpress4.aparser.QLParser";
+    
+    private static final String DFA_FIELD_NAME = "_decisionToDFA";
+    
+    /**
+     * Clears the DFA (Deterministic Finite Automaton) cache used by the ANTLR parser.
+     * <p>
+     * <b>WARNING:</b> Calling this method will cause a significant compilation performance degradation.
+     * It is NOT recommended for normal use cases.
+     * </p>
+     *
+     * <h3>Use Cases:</h3>
+     * <ul>
+     *   <li><b>Memory-sensitive applications:</b> When memory usage is a critical concern and you can
+     *       tolerate slower compilation times</li>
+     *   <li><b>Infrequently changing scripts:</b> When scripts are relatively stable and not frequently
+     *       recompiled</li>
+     * </ul>
+     *
+     * <h3>Best Practice:</h3>
+     * <p>
+     * Call this method immediately after parsing and caching your expression, and ensure all subsequent
+     * executions use the cached version to avoid recompilation. Example:
+     * </p>
+     * <pre>{@code
+     * /*
+     *  * When the expression changes, parse it and add it to the expression cache;
+     *  * after parsing is complete, call clearDFACache.
+     *  *\/
+     * Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+     * runner.parseToDefinitionWithCache(complexDataProcessingExpress);
+     * runner.clearDFACache();
+     *
+     * /*
+     *  * All subsequent runs of this script must enable the cache option to ensure that re-compilation does not occur.
+     *  *\/
+     * for (int i = 0; i < 3; i++) {
+     *     runner.execute(complexDataProcessingExpress, Collections.emptyMap(), QLOptions
+     *             .builder().cache(true).build());
+     * }
+     * }</pre>
+     */
+    public void clearDFACache() {
+        DFA[] decisionToDFA = getDecisionToDFA();
+        
+        for (int d = 0; d < decisionToDFA.length; d++) {
+            decisionToDFA[d] = new DFA(QLParser._ATN.getDecisionState(d), d);
+        }
+    }
+    
+    private DFA[] getDecisionToDFA() {
+        try {
+            Class<?> parserClass = Class.forName(PARSER_CLASS_NAME);
+            Field dfaField = parserClass.getDeclaredField(DFA_FIELD_NAME);
+            dfaField.setAccessible(true);
+            return (DFA[])dfaField.get(null);
+        }
+        catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     /**
