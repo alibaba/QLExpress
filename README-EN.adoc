@@ -113,7 +113,7 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.0.6</version>
+    <version>4.0.7</version>
 </dependency>
 ----
 
