@@ -651,7 +651,7 @@ Call this method immediately after parsing and caching your expression, and ensu
          * All subsequent runs of this script must enable the cache option to ensure that re-compilation does not occur.
          */
         for (int i = 0; i < 3; i++) {
-            runner.execute(exampleExpress, Collections.emptyMap(), QLOptions.builder().cache(true).build());
+            runner.execute(exampleExpress, ExpressContext.EMPTY_CONTEXT, QLOptions.builder().cache(true).build());
         }
 ----
 
@@ -1783,6 +1783,54 @@ If you want to be compatible with version 3's features, you need to set the `pol
 "Omittable semicolons" is already a standard feature of modern scripting languages, and QLExpress4 has also followed this trend - semicolons can be omitted.
 
 For details, refer to the link:#semicolons[Semicolons] chapter.
+
+=== Strict Newline Mode
+
+Since QLExpress4 supports omitting semicolons, the interpreter needs to use newlines to determine whether a statement has ended. Therefore, QLExpress4 has stricter requirements for newlines than QLExpress3.
+
+The following script is valid in QLExpress3 but not in QLExpress4:
+
+[source,java]
+----
+// Valid in QLExpress3, but not in QLExpress4
+商家应收=
+    价格
+   - 饭卡商家承担
+   + 平台补贴
+----
+
+In QLExpress4, the above script will be parsed as two separate statements:
+1. `商家应收 = 价格`
+2. `- 饭卡商家承担 + 平台补贴` (the second statement will result in a syntax error)
+
+To achieve the same effect in QLExpress4, you need to place the operator at the end of the line rather than at the beginning:
+
+[source,java]
+----
+// Correct way in QLExpress4
+商家应收=
+    价格 -
+    饭卡商家承担 +
+    平台补贴
+----
+
+This way, the interpreter knows that the current line's expression is not yet complete and will continue reading the next line.
+
+If you need to be compatible with QLExpress3's newline behavior, you can set the `strictNewLines` option to `false`:
+
+[source,java]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().strictNewLines(false).build());
+        String script = "商家应收=\n    价格\n   - 饭卡商家承担\n   + 平台补贴";
+        Map<String, Object> context = new HashMap<>();
+        context.put("价格", 10);
+        context.put("饭卡商家承担", 3);
+        context.put("平台补贴", 5);
+        QLResult result = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(12, ((Number)result.getResult()).intValue());
+----
+
+Note: Non-strict newline mode causes the interpreter to ignore all newlines, which may affect code readability and the accuracy of error messages. It is recommended to use this only when you need to be compatible with legacy code.
 
 === Obtaining char Type
 
