@@ -77,9 +77,16 @@ public class InitOptions {
      */
     private final String selectorEnd;
     
+    /**
+     * Strictly require a line break between any two statements (since semicolons can be omitted in QLExpress4).
+     * default is true
+     */
+    private final boolean strictNewLines;
+    
     private InitOptions(ClassSupplier classSupplier, List<ImportManager.QLImport> defaultImport, boolean debug,
         Consumer<String> debugInfoConsumer, QLSecurityStrategy securityStrategy, boolean allowPrivateAccess,
-        InterpolationMode interpolationMode, boolean traceExpression, String selectorStart, String selectorEnd) {
+        InterpolationMode interpolationMode, boolean traceExpression, String selectorStart, String selectorEnd,
+        boolean strictNewLines) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -90,6 +97,7 @@ public class InitOptions {
         this.traceExpression = traceExpression;
         this.selectorStart = selectorStart;
         this.selectorEnd = selectorEnd;
+        this.strictNewLines = strictNewLines;
     }
     
     public static InitOptions.Builder builder() {
@@ -136,6 +144,10 @@ public class InitOptions {
         return selectorEnd;
     }
     
+    public boolean isStrictNewLines() {
+        return strictNewLines;
+    }
+    
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         
@@ -161,6 +173,8 @@ public class InitOptions {
         private String selectorStart = "${";
         
         private String selectorEnd = "}";
+        
+        private boolean strictNewLines = true;
         
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
@@ -211,16 +225,21 @@ public class InitOptions {
         }
         
         public Builder selectorEnd(String selectorEnd) {
-            if (selectorEnd == null || selectorEnd.length() < 1) {
+            if (selectorEnd == null || selectorEnd.isEmpty()) {
                 throw new IllegalArgumentException("Custom selector end must be 1 or more characters");
             }
             this.selectorEnd = selectorEnd;
             return this;
         }
         
+        public Builder strictNewLines(boolean strictNewLines) {
+            this.strictNewLines = strictNewLines;
+            return this;
+        }
+        
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport, debug, debugInfoConsumer, securityStrategy,
-                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd);
+                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd, strictNewLines);
         }
     }
 }

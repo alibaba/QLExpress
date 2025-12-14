@@ -431,6 +431,20 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void notStrictNewLinesTest() {
+        // tag::notStrictNewLinesTest[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.builder().strictNewLines(false).build());
+        String script = "商家应收=\n    价格\n   - 饭卡商家承担\n   + 平台补贴";
+        Map<String, Object> context = new HashMap<>();
+        context.put("价格", 10);
+        context.put("饭卡商家承担", 3);
+        context.put("平台补贴", 5);
+        QLResult result = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(12, ((Number)result.getResult()).intValue());
+        // end::notStrictNewLinesTest[]
+    }
+    
+    @Test
     public void invokeDefaultMethodTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
             .addDefaultImport(Collections.singletonList(ImportManager.importPack("com.alibaba.qlexpress4.inport")))

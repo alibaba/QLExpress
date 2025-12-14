@@ -31,17 +31,17 @@ public class SyntaxTreeFactory {
     
     private static void warmUpExpress(String script) {
         buildTree(script, new OperatorManager(), false, false, s -> {
-        }, InterpolationMode.SCRIPT, "${", "}");
+        }, InterpolationMode.SCRIPT, "${", "}", true);
     }
     
     public static QLParser.ProgramContext buildTree(String script, ParserOperatorManager operatorManager,
         boolean printTree, boolean profile, Consumer<String> printer, InterpolationMode interpolationMode,
-        String selectorStart, String selectorEnd) {
-        QLexer lexer =
-            new QLExtendLexer(CharStreams.fromString(script), script, interpolationMode, selectorStart, selectorEnd);
+        String selectorStart, String selectorEnd, boolean strictNewLines) {
+        QLexer lexer = new QLExtendLexer(CharStreams.fromString(script), script, interpolationMode, selectorStart,
+            selectorEnd, strictNewLines);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        QLParser qlGrammarParser =
-            new QLExtendParser(new AliasTokenStream(tokens, operatorManager), operatorManager, interpolationMode);
+        QLParser qlGrammarParser = new QLExtendParser(new AliasTokenStream(tokens, operatorManager), operatorManager,
+            interpolationMode, strictNewLines);
         if (!printTree) {
             qlGrammarParser.removeErrorListeners();
         }

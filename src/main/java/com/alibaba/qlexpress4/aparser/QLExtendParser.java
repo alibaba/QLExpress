@@ -8,10 +8,14 @@ public class QLExtendParser extends QLParser {
     
     private final InterpolationMode interpolationMode;
     
-    public QLExtendParser(AliasTokenStream input, ParserOperatorManager opM, InterpolationMode interpolationMode) {
+    private final boolean strictNewLines;
+    
+    public QLExtendParser(AliasTokenStream input, ParserOperatorManager opM, InterpolationMode interpolationMode,
+        boolean strictNewLines) {
         super(input);
         this.opM = opM;
         this.interpolationMode = interpolationMode;
+        this.strictNewLines = strictNewLines;
     }
     
     @Override
@@ -27,5 +31,10 @@ public class QLExtendParser extends QLParser {
     @Override
     protected InterpolationMode getInterpolationMode() {
         return interpolationMode;
+    }
+    
+    @Override
+    protected boolean isStrictNewLines() {
+        return strictNewLines;
     }
 }

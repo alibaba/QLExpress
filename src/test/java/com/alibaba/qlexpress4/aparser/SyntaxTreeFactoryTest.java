@@ -303,7 +303,7 @@ public class SyntaxTreeFactoryTest {
     
     private List<QLInstruction> getScriptInstructions(String script, InterpolationMode interpolationMode) {
         QLParser.ProgramContext programContext = SyntaxTreeFactory
-            .buildTree(script, new MockOpM(), true, false, System.out::println, interpolationMode, "${", "}");
+            .buildTree(script, new MockOpM(), true, false, System.out::println, interpolationMode, "${", "}", true);
         QvmInstructionVisitor visitor = new QvmInstructionVisitor(script);
         programContext.accept(visitor);
         return visitor.getInstructions();

@@ -22,6 +22,9 @@ options {
     protected InterpolationMode getInterpolationMode() {
         return SCRIPT;
     }
+    protected boolean isStrictNewLines() {
+        return true;
+    }
 }
 
 // grammar
@@ -37,7 +40,7 @@ blockStatements
 newlines : NEWLINE+;
 
 nextStatement
-    : {_input.LA(1) == Token.EOF || _input.LA(1) == QLexer.RBRACE}? | ';' | NEWLINE;
+    : {_input.LA(1) == Token.EOF || _input.LA(1) == QLexer.RBRACE}? | ';' | {isStrictNewLines()}? NEWLINE;
 
 blockStatement
     :   localVariableDeclaration ';' # localVariableDeclarationStatement
@@ -167,7 +170,7 @@ ternaryExpr
     ;
 
 baseExpr [int p]
-    : primary ({_input.LA(1) != Token.EOF && _input.LA(1) != QLexer.NEWLINE &&
+    : primary ({_input.LA(1) != Token.EOF && (!isStrictNewLines() || _input.LA(1) != QLexer.NEWLINE) &&
         isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) >= $p}? leftAsso)*
     ;
 

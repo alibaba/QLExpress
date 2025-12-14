@@ -15,13 +15,27 @@ public class QLExtendLexer extends QLexer {
     
     private final String selectorEnd;
     
+    private final boolean strictNewLines;
+    
     public QLExtendLexer(CharStream input, String script, InterpolationMode interpolationMode, String selectorStart,
-        String selectorEnd) {
+        String selectorEnd, boolean strictNewLines) {
         super(input);
         this.script = script;
         this.interpolationMode = interpolationMode;
         this.selectorStart = selectorStart;
         this.selectorEnd = selectorEnd;
+        this.strictNewLines = strictNewLines;
+    }
+    
+    @Override
+    public Token nextToken() {
+        Token token = super.nextToken();
+        // In non-strict mode, skip NEWLINE tokens
+        if (!strictNewLines && token.getType() == QLexer.NEWLINE) {
+            // Skip NEWLINEs by recursively calling nextToken()
+            return nextToken();
+        }
+        return token;
     }
     
     @Override

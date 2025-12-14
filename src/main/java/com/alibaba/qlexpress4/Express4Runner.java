@@ -517,7 +517,8 @@ public class Express4Runner {
             initOptions.getDebugInfoConsumer(),
             initOptions.getInterpolationMode(),
             initOptions.getSelectorStart(),
-            initOptions.getSelectorEnd());
+            initOptions.getSelectorEnd(),
+            initOptions.isStrictNewLines());
     }
     
     public void check(String script, CheckOptions checkOptions)

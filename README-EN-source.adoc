@@ -1006,6 +1006,47 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=poll
 
 For details, refer to the link:#semicolons[Semicolons] chapter.
 
+=== Strict Newline Mode
+
+Since QLExpress4 supports omitting semicolons, the interpreter needs to use newlines to determine whether a statement has ended. Therefore, QLExpress4 has stricter requirements for newlines than QLExpress3.
+
+The following script is valid in QLExpress3 but not in QLExpress4:
+
+[source,java]
+----
+// Valid in QLExpress3, but not in QLExpress4
+商家应收=
+    价格
+   - 饭卡商家承担
+   + 平台补贴
+----
+
+In QLExpress4, the above script will be parsed as two separate statements:
+1. `商家应收 = 价格`
+2. `- 饭卡商家承担 + 平台补贴` (the second statement will result in a syntax error)
+
+To achieve the same effect in QLExpress4, you need to place the operator at the end of the line rather than at the beginning:
+
+[source,java]
+----
+// Correct way in QLExpress4
+商家应收=
+    价格 -
+    饭卡商家承担 +
+    平台补贴
+----
+
+This way, the interpreter knows that the current line's expression is not yet complete and will continue reading the next line.
+
+If you need to be compatible with QLExpress3's newline behavior, you can set the `strictNewLines` option to `false`:
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=notStrictNewLinesTest]
+----
+
+Note: Non-strict newline mode causes the interpreter to ignore all newlines, which may affect code readability and the accuracy of error messages. It is recommended to use this only when you need to be compatible with legacy code.
+
 === Obtaining char Type
 
 In QLExpress 3, single characters wrapped in single quotes were parsed as char type, not String.

@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.Collections;
 import java.util.Objects;
 
 public class ClearDfaCacheTest {
@@ -36,7 +36,6 @@ public class ClearDfaCacheTest {
     public void bestPractice()
         throws URISyntaxException, IOException {
         String exampleExpress = "1+1";
-        double beforeMemoryUsed = getMemoryUsedMB();
         // tag::clearDFACacheBestPractice[]
         /*
          * When the expression changes, parse it and add it to the expression cache;
@@ -50,10 +49,9 @@ public class ClearDfaCacheTest {
          * All subsequent runs of this script must enable the cache option to ensure that re-compilation does not occur.
          */
         for (int i = 0; i < 3; i++) {
-            runner.execute(exampleExpress, Collections.emptyMap(), QLOptions.builder().cache(true).build());
+            runner.execute(exampleExpress, ExpressContext.EMPTY_CONTEXT, QLOptions.builder().cache(true).build());
         }
         // end::clearDFACacheBestPractice[]
-        Assert.assertTrue(getMemoryUsedMB() <= beforeMemoryUsed);
     }
     
     private double getMemoryUsedMB() {

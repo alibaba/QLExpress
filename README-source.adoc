@@ -1003,9 +1003,50 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=poll
 
 === 分号可省略
 
-“分号可省略” 已经是现代脚本语言的一个标配，QLExpress4 也跟进了这个特性，分号是可以省略的。
+"分号可省略" 已经是现代脚本语言的一个标配，QLExpress4 也跟进了这个特性，分号是可以省略的。
 
 具体参考 link:#分号[分号] 章节。
+
+=== 严格换行模式
+
+由于 QLExpress4 支持分号可省略，解释器需要通过换行符来判断语句是否结束。因此，QLExpress4 对换行的要求比 QLExpress3 更加严格。
+
+下面的脚本在 QLExpress3 中是合法的，但在 QLExpress4 中不是：
+
+[source,java]
+----
+// 在 QLExpress3 中合法的脚本，但在 QLExpress4 中不是
+商家应收=
+    价格
+   - 饭卡商家承担
+   + 平台补贴
+----
+
+在 QLExpress4 中，上述脚本会被解析为两个独立的语句：
+1. `商家应收 = 价格`
+2. `- 饭卡商家承担 + 平台补贴`（第二个语句会报语法错误）
+
+如果要在 QLExpress4 中实现同样的效果，需要将操作符放在行尾，而不是行首：
+
+[source,java]
+----
+// QLExpress4 中正确的写法
+商家应收=
+    价格 -
+    饭卡商家承担 +
+    平台补贴
+----
+
+这样解释器就知道当前行的表达式还未结束，会继续读取下一行。
+
+如果您需要兼容 QLExpress3 的换行特性，可以设置 `strictNewLines` 选项为 `false`：
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=notStrictNewLinesTest]
+----
+
+注意：非严格换行模式会让解释器忽略所有换行符，可能会影响代码的可读性和错误提示的准确性。建议仅在需要兼容旧代码时使用。
 
 === 获得 char 类型
 
