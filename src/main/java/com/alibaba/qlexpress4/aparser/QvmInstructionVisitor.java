@@ -540,7 +540,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             parseWithSubVisitor(thenBodyContext, new GeneratorScope(thenScopeName, generatorScope), Context.MACRO)
                 .getInstructions();
         if (ifBodyFillConst(thenBodyContext.expression(),
-            thenBodyContext.blockStatement(),
+            thenBodyContext.nonExpressionStatement(),
             thenBodyContext.blockStatements())) {
             thenInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
         }
@@ -554,7 +554,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                     .getInstructions();
         if (elseBodyContext != null && elseBodyContext.qlIf() == null
             && ifBodyFillConst(elseBodyContext.expression(),
-                elseBodyContext.blockStatement(),
+                elseBodyContext.nonExpressionStatement(),
                 elseBodyContext.blockStatements())) {
             elseInstructions.add(new ConstInstruction(ifErrorReporter, null, null));
         }
@@ -572,13 +572,13 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         return null;
     }
     
-    private boolean ifBodyFillConst(ExpressionContext expressionContext, BlockStatementContext blockStatementContext,
-        BlockStatementsContext blockStatementsContext) {
+    private boolean ifBodyFillConst(ExpressionContext expressionContext,
+        NonExpressionStatementContext nonExpressionStatementContext, BlockStatementsContext blockStatementsContext) {
         if (expressionContext != null) {
             return false;
         }
-        if (blockStatementContext != null) {
-            return stmtFillConst(blockStatementContext);
+        if (nonExpressionStatementContext != null) {
+            return stmtFillConst(nonExpressionStatementContext);
         }
         if (blockStatementsContext != null) {
             List<BlockStatementContext> statementList = blockStatementsContext.blockStatement()
@@ -588,6 +588,12 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             return statementList.isEmpty() || stmtFillConst(statementList.get(statementList.size() - 1));
         }
         return true;
+    }
+    
+    private boolean stmtFillConst(NonExpressionStatementContext nonExpressionStatementContext) {
+        // NonExpressionStatement never contains expression statement, so it always needs const fill
+        // except for RETURN statement which has its own return value
+        return nonExpressionStatementContext.RETURN() == null;
     }
     
     private boolean stmtFillConst(BlockStatementContext blockStatementContext) {

@@ -221,16 +221,30 @@ qlIf : IF '(' newlines? condition=expression newlines? ')' newlines? THEN? newli
 
 thenBody
     : LBRACE newlines? blockStatements? newlines? RBRACE
+    | nonExpressionStatement
     | expression
-    | blockStatement
     ;
 
 elseBody
     : LBRACE newlines? blockStatements? newlines? RBRACE
-    // if ... else ...  if ...
     | qlIf
+    | nonExpressionStatement
     | expression
-    | blockStatement
+    ;
+
+// Non-expression statements that can appear in if-then-else bodies
+// This excludes 'expression nextStatement' to avoid ambiguity
+nonExpressionStatement
+    : localVariableDeclaration ';'
+    | THROW expression nextStatement
+    | WHILE '(' newlines? expression newlines? ')' '{' newlines? blockStatements? newlines? '}'
+    | FOR '(' newlines? forInit (forCondition=expression)? ';' newlines? (forUpdate=expression)? newlines? ')' '{' newlines? blockStatements? newlines? '}'
+    | FOR '(' newlines? declType? varId ':' expression newlines? ')' '{' newlines? blockStatements? newlines? '}'
+    | FUNCTION varId '(' newlines? formalOrInferredParameterList? newlines? ')' LBRACE newlines? blockStatements? newlines? RBRACE
+    | MACRO varId LBRACE newlines? blockStatements? newlines? RBRACE
+    | (BREAK | CONTINUE) nextStatement
+    | RETURN expression? nextStatement
+    | (';' | NEWLINE)
     ;
 
 listItems

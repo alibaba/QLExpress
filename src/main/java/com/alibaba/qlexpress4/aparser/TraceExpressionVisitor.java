@@ -305,13 +305,11 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             thenBody.blockStatements().accept(blockVisitor);
             return newPoint(TraceType.BLOCK, blockVisitor.getExpressionTracePoints(), thenBody.getStart());
         }
+        else if (thenBody.nonExpressionStatement() != null) {
+            return visitNonExpressionStatementInternal(thenBody.nonExpressionStatement());
+        }
         else if (thenBody.expression() != null) {
             return thenBody.expression().accept(this);
-        }
-        else if (thenBody.blockStatement() != null) {
-            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
-            thenBody.blockStatement().accept(blockVisitor);
-            return blockVisitor.getExpressionTracePoints().get(0);
         }
         return newPoint(TraceType.BLOCK, Collections.emptyList(), thenBody.getStart());
     }
@@ -323,18 +321,63 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
             elseBody.blockStatements().accept(blockVisitor);
             return newPoint(TraceType.BLOCK, blockVisitor.getExpressionTracePoints(), elseBody.getStart());
         }
-        else if (elseBody.expression() != null) {
-            return elseBody.expression().accept(this);
-        }
-        else if (elseBody.blockStatement() != null) {
-            TraceExpressionVisitor blockVisitor = new TraceExpressionVisitor();
-            elseBody.blockStatement().accept(blockVisitor);
-            return blockVisitor.getExpressionTracePoints().get(0);
-        }
         else if (elseBody.qlIf() != null) {
             return elseBody.qlIf().accept(this);
         }
+        else if (elseBody.nonExpressionStatement() != null) {
+            return visitNonExpressionStatementInternal(elseBody.nonExpressionStatement());
+        }
+        else if (elseBody.expression() != null) {
+            return elseBody.expression().accept(this);
+        }
         return newPoint(TraceType.BLOCK, Collections.emptyList(), elseBody.getStart());
+    }
+    
+    private TracePointTree visitNonExpressionStatementInternal(QLParser.NonExpressionStatementContext ctx) {
+        // NonExpressionStatement is a wrapper for various statement types
+        // We need to visit the actual child statement
+        if (ctx.THROW() != null) {
+            // THROW expression nextStatement
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), "throw", ctx.getStart());
+        }
+        else if (ctx.RETURN() != null) {
+            // RETURN expression? nextStatement
+            List<QLParser.ExpressionContext> exprs = ctx.expression();
+            if (exprs != null && !exprs.isEmpty()) {
+                TracePointTree expr = exprs.get(0).accept(this);
+                return newPoint(TraceType.RETURN, Collections.singletonList(expr), "return", ctx.getStart());
+            }
+            return newPoint(TraceType.RETURN, Collections.emptyList(), "return", ctx.getStart());
+        }
+        else if (ctx.WHILE() != null) {
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), "while", ctx.getStart());
+        }
+        else if (ctx.FOR() != null) {
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), "for", ctx.getStart());
+        }
+        else if (ctx.FUNCTION() != null) {
+            return newPoint(TraceType.DEFINE_FUNCTION, Collections.emptyList(), ctx.varId().getText(), ctx.getStart());
+        }
+        else if (ctx.MACRO() != null) {
+            return newPoint(TraceType.DEFINE_MACRO, Collections.emptyList(), ctx.varId().getText(), ctx.getStart());
+        }
+        else if (ctx.BREAK() != null) {
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), "break", ctx.getStart());
+        }
+        else if (ctx.CONTINUE() != null) {
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), "continue", ctx.getStart());
+        }
+        else if (ctx.NEWLINE() != null || ctx.getText().equals(";")) {
+            return newPoint(TraceType.STATEMENT, Collections.emptyList(), ";", ctx.getStart());
+        }
+        else if (ctx.localVariableDeclaration() != null) {
+            return newPoint(TraceType.STATEMENT,
+                Collections.emptyList(),
+                ctx.localVariableDeclaration().declType().getText(),
+                ctx.getStart());
+        }
+        // Default case
+        return newPoint(TraceType.STATEMENT, Collections.emptyList(), ctx.getStart());
     }
     
     @Override
