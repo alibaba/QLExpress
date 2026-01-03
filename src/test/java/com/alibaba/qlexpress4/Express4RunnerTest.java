@@ -968,6 +968,12 @@ public class Express4RunnerTest {
         public String concat(String a, String b) {
             return a + b;
         }
+        
+        @QLFunction({"addAll"})
+        public List<Object> addAll(List<Object> list, Object... obs) {
+            list.addAll(Arrays.asList(obs));
+            return list;
+        }
     }
     // end::annoObj[]
     
@@ -976,7 +982,7 @@ public class Express4RunnerTest {
         // tag::addFunctionByAnnotationObject[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         BatchAddFunctionResult addResult = express4Runner.addObjFunction(new MyFunctionUtil());
-        assertEquals(4, addResult.getSucc().size());
+        assertEquals(5, addResult.getSucc().size());
         Object result =
             express4Runner.execute("myAdd(1,2) + iAdd(5,6)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals(14, result);
@@ -988,6 +994,11 @@ public class Express4RunnerTest {
         Object result2 =
             express4Runner.execute("concat('aa', null)", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
         assertEquals("aanull", result2);
+        
+        Object result3 = express4Runner
+            .execute("l = [1,2];\naddAll(l, 'aa', 'bb', 'cc')", new HashMap<>(), QLOptions.DEFAULT_OPTIONS)
+            .getResult();
+        assertEquals(Arrays.asList(1, 2, "aa", "bb", "cc"), result3);
         // end::addFunctionByAnnotationObject[]
     }
     

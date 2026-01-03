@@ -13,6 +13,7 @@ import com.alibaba.qlexpress4.utils.BasicUtil;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Author: DQinYuan
@@ -39,8 +40,8 @@ public class QMethodFunction implements CustomFunction {
             type[i] = v.getType();
         }
         
-        int priority = MemberResolver.resolvePriority(method.getParameterTypes(), type);
-        if (priority == MemberResolver.MatchPriority.MISMATCH.priority) {
+        IMethod resolved = MemberResolver.resolveMethod(Collections.singletonList(method), type);
+        if (resolved == null) {
             throw new UserDefineException(UserDefineException.ExceptionType.INVALID_ARGUMENT,
                 "invalid argument types " + Arrays.toString(type) + " for java method '" + method.getName() + "'"
                     + " in declaring java class '" + method.getDeclaringClass().getName() + "'");
