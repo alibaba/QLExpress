@@ -40,7 +40,7 @@ blockStatements
 newlines : NEWLINE+;
 
 nextStatement
-    : {_input.LA(1) == Token.EOF || _input.LA(1) == QLexer.RBRACE}? | ';' | {isStrictNewLines()}? NEWLINE;
+    : {_input.LA(1) == Token.EOF || _input.LA(1) == QLexer.RBRACE}? | ';' | {isStrictNewLines()}? NEWLINE | {!isStrictNewLines()}? NEWLINE?;
 
 blockStatement
     :   localVariableDeclaration ';' # localVariableDeclarationStatement

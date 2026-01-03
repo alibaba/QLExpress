@@ -442,6 +442,10 @@ public class Express4RunnerTest {
         QLResult result = express4Runner.execute(script, context, QLOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(12, ((Number)result.getResult()).intValue());
         // end::notStrictNewLinesTest[]
+        
+        QLResult result1 =
+            express4Runner.execute("if (价格>5) {\n return 10;\n}\nreturn 100;", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(10, ((Number)result1.getResult()).intValue());
     }
     
     @Test
