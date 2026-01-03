@@ -449,6 +449,16 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void chineseParenAsVarName() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("客户（年龄）", 21);
+        context.put("客户（等级）", 3);
+        QLResult result = express4Runner.execute("客户（年龄）+ 客户（等级）", context, QLOptions.DEFAULT_OPTIONS);
+        Assert.assertEquals(24, ((Number)result.getResult()).intValue());
+    }
+    
+    @Test
     public void invokeDefaultMethodTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.builder()
             .addDefaultImport(Collections.singletonList(ImportManager.importPack("com.alibaba.qlexpress4.inport")))

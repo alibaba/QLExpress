@@ -804,6 +804,8 @@ fragment IdPart
 	: IdStart
 	// 、
 	| [\u3001]
+	// （）
+	| [\uFF08-\uFF09]
 	// 0-9
 	| [\u0030-\u0039]
 	| [\u007F-\u009F]
