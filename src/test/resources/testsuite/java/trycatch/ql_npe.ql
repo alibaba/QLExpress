@@ -12,11 +12,6 @@ assert(f(() -> {a=null;a::b;}) == 100);
 assert(f(null) == 100);
 
 assert(f(() -> {
-  a= () -> null;
-  a()();
-}) == 100);
-
-assert(f(() -> {
   a= null;
   a.b();
 }) == 100);

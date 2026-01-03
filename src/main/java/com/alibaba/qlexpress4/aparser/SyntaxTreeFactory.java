@@ -6,10 +6,10 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.WritableToken;
-import org.antlr.v4.runtime.atn.DecisionInfo;
 import org.antlr.v4.runtime.atn.DecisionState;
 import org.antlr.v4.runtime.atn.PredictionMode;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -72,10 +72,14 @@ public class SyntaxTreeFactory {
         System.out.printf("%-" + 15 + "s", "errors");
         System.out.printf("%-" + 15 + "s", "fallBack");
         System.out.println();
-        for (DecisionInfo decisionInfo : parser.getParseInfo().getDecisionInfo()) {
-            DecisionState ds = parser.getATN().getDecisionState(decisionInfo.decision);
-            String rule = parser.getRuleNames()[ds.ruleIndex];
-            if (decisionInfo.timeInPrediction > 0) {
+        
+        // 按照 timeInPrediction 从大到小排序
+        Arrays.stream(parser.getParseInfo().getDecisionInfo())
+            .filter(decisionInfo -> decisionInfo.timeInPrediction > 0)
+            .sorted((d1, d2) -> Long.compare(d2.timeInPrediction, d1.timeInPrediction))
+            .forEach(decisionInfo -> {
+                DecisionState ds = parser.getATN().getDecisionState(decisionInfo.decision);
+                String rule = parser.getRuleNames()[ds.ruleIndex];
                 System.out.printf("%-" + 35 + "s", rule);
                 System.out.printf("%-" + 15 + "s", decisionInfo.timeInPrediction);
                 System.out.printf("%-" + 15 + "s", decisionInfo.invocations);
@@ -85,8 +89,7 @@ public class SyntaxTreeFactory {
                 System.out.printf("%-" + 15 + "s", decisionInfo.errors);
                 System.out.printf("%-" + 15 + "s", decisionInfo.LL_Fallback);
                 System.out.println();
-            }
-        }
+            });
     }
     
     public static Token preHandleToken(Token originToken, ParserOperatorManager operatorManager) {

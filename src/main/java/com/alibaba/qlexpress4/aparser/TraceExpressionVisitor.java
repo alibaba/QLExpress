@@ -8,7 +8,6 @@ import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.runtime.trace.TraceType;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,21 +150,16 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     @Override
     public TracePointTree visitLeftHandSide(QLParser.LeftHandSideContext ctx) {
         VarIdContext varIdContext = ctx.varId();
-        ;
         List<PathPartContext> pathParts = ctx.pathPart();
         TracePointTree leftChildTree = null;
-        int start = 0;
-        if (!pathParts.isEmpty() && pathParts.get(0) instanceof QLParser.CallExprContext) {
-            QLParser.CallExprContext callExprContext = (QLParser.CallExprContext)pathParts.get(0);
-            leftChildTree = newPoint(TraceType.FUNCTION,
-                traceArgumentList(callExprContext.argumentList()),
-                varIdContext.getStart());
-            start = 1;
+        if (ctx.LPAREN() != null) {
+            leftChildTree =
+                newPoint(TraceType.FUNCTION, traceArgumentList(ctx.argumentList()), varIdContext.getStart());
         }
         else {
             leftChildTree = newPoint(TraceType.VARIABLE, Collections.emptyList(), ctx.getStart());
         }
-        return pathParts(leftChildTree, pathParts.subList(start, pathParts.size()));
+        return pathParts(leftChildTree, pathParts);
     }
     
     @Override
@@ -251,6 +245,9 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     
     @Override
     public TracePointTree visitVarIdExpr(QLParser.VarIdExprContext ctx) {
+        if (ctx.LPAREN() != null) {
+            return newPoint(TraceType.FUNCTION, traceArgumentList(ctx.argumentList()), ctx.getStart());
+        }
         return newPoint(TraceType.VARIABLE, Collections.emptyList(), ctx.getStart());
     }
     
@@ -399,24 +396,7 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
         }
         
         QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
-        List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
-        TracePointTree leftChildTree = null;
-        int start = 0;
-        if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
-            && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
-            // function call
-            QLParser.VarIdExprContext functionNameContext = (QLParser.VarIdExprContext)primaryNoFixPathableContext;
-            QLParser.CallExprContext callExprContext = (QLParser.CallExprContext)pathPartContexts.get(0);
-            leftChildTree = newPoint(TraceType.FUNCTION,
-                traceArgumentList(callExprContext.argumentList()),
-                functionNameContext.getStart());
-            start = 1;
-        }
-        else {
-            leftChildTree = primaryNoFixPathableContext.accept(this);
-        }
-        
-        return pathParts(leftChildTree, pathPartContexts.subList(start, pathPartContexts.size()));
+        return pathParts(primaryNoFixPathableContext.accept(this), ctx.pathPart());
     }
     
     private TracePointTree pathParts(TracePointTree pathRoot, List<QLParser.PathPartContext> pathPartContexts) {
@@ -432,14 +412,6 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
                 methodChildren.addAll(argumentsChildren);
                 Token keyToken = current.getChild(QLParser.VarIdContext.class, 0).getStart();
                 leftChildTree = newPoint(TraceType.METHOD, methodChildren, keyToken);
-            }
-            else if (current instanceof QLParser.CallExprContext) {
-                QLParser.ArgumentListContext argumentList = current.getChild(QLParser.ArgumentListContext.class, 0);
-                List<TracePointTree> argumentsChildren = traceArgumentList(argumentList);
-                List<TracePointTree> callChildren = new ArrayList<>(1 + argumentsChildren.size());
-                callChildren.add(leftChildTree);
-                callChildren.addAll(argumentsChildren);
-                leftChildTree = newPoint(TraceType.OPERATOR, callChildren, current.getStart());
             }
             else if (current instanceof QLParser.IndexExprContext) {
                 QLParser.IndexValueExprContext indexValueExprContext =

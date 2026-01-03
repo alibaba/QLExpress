@@ -886,7 +886,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         }
         else if (primaryNoFixPathableContext instanceof VarIdExprContext) {
             VarIdExprContext idContext = (VarIdExprContext)primaryNoFixPathableContext;
-            return parseIdHeadPart(idContext.varId(), pathPartContexts);
+            return parseIdHeadPart(idContext.varId(),
+                idContext.LPAREN() != null,
+                idContext.argumentList(),
+                pathPartContexts);
         }
         else {
             primaryNoFixPathableContext.accept(this);
@@ -894,13 +897,11 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         }
     }
     
-    private int parseIdHeadPart(VarIdContext idContext, List<PathPartContext> pathPartContexts) {
-        if (!pathPartContexts.isEmpty() && pathPartContexts.get(0) instanceof CallExprContext) {
-            // function call
-            CallExprContext callExprContext = (CallExprContext)pathPartContexts.get(0);
-            ArgumentListContext argumentListContext = callExprContext.argumentList();
+    private int parseIdHeadPart(VarIdContext idContext, boolean functionCall, ArgumentListContext argumentListContext,
+        List<PathPartContext> pathPartContexts) {
+        if (functionCall) {
             visitCallFunction(idContext, argumentListContext);
-            return 1;
+            return 0;
         }
         List<String> headPartIds = new ArrayList<>();
         headPartIds.add(idContext.getText());
@@ -1021,17 +1022,6 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     public Void visitMethodAccess(MethodAccessContext ctx) {
         VarIdContext methodName = ctx.varId();
         addInstruction(new GetMethodInstruction(newReporterWithToken(ctx.DCOLON().getSymbol()), methodName.getText()));
-        return null;
-    }
-    
-    @Override
-    public Void visitCallExpr(CallExprContext ctx) {
-        ArgumentListContext argumentListContext = ctx.argumentList();
-        if (argumentListContext != null) {
-            argumentListContext.accept(this);
-        }
-        int argNum = argumentListContext == null ? 0 : argumentListContext.expression().size();
-        addInstruction(new CallInstruction(newReporterWithToken(ctx.getStart()), argNum));
         return null;
     }
     
@@ -1199,16 +1189,9 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     public Void visitLeftHandSide(LeftHandSideContext ctx) {
         VarIdContext idContext = ctx.varId();
         List<PathPartContext> pathPartContexts = ctx.pathPart();
-        if (pathPartContexts.size() == 1 && pathPartContexts.get(0) instanceof CallExprContext) {
-            CallExprContext callExprContext = (CallExprContext)pathPartContexts.get(0);
-            ArgumentListContext argumentListContext = callExprContext.argumentList();
-            visitCallFunction(idContext, argumentListContext);
-        }
-        else {
-            int tailPartStart = parseIdHeadPart(idContext, pathPartContexts);
-            for (int i = tailPartStart; i < pathPartContexts.size(); i++) {
-                pathPartContexts.get(i).accept(this);
-            }
+        int tailPartStart = parseIdHeadPart(idContext, ctx.LPAREN() != null, ctx.argumentList(), pathPartContexts);
+        for (int i = tailPartStart; i < pathPartContexts.size(); i++) {
+            pathPartContexts.get(i).accept(this);
         }
         return null;
     }

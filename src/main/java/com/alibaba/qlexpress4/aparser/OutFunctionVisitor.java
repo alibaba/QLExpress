@@ -1,8 +1,5 @@
 package com.alibaba.qlexpress4.aparser;
 
-import com.alibaba.qlexpress4.exception.PureErrReporter;
-import com.alibaba.qlexpress4.runtime.instruction.PopInstruction;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,20 +65,25 @@ public class OutFunctionVisitor extends ScopeStackVisitor {
     }
     
     @Override
-    public Void visitPrimary(QLParser.PrimaryContext ctx) {
-        QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
-        if (primaryNoFixPathableContext != null) {
-            List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
-            if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
-                && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
-                // function call
-                String functionName = primaryNoFixPathableContext.getText();
-                if (!getStack().exist(functionName)) {
-                    outFunctions.add(functionName);
-                }
+    public Void visitVarIdExpr(QLParser.VarIdExprContext ctx) {
+        if (ctx.LPAREN() != null) {
+            String functionName = ctx.getStart().getText();
+            if (!getStack().exist(functionName)) {
+                outFunctions.add(functionName);
             }
         }
-        return super.visitPrimary(ctx);
+        return super.visitVarIdExpr(ctx);
+    }
+    
+    @Override
+    public Void visitLeftHandSide(QLParser.LeftHandSideContext ctx) {
+        if (ctx.LPAREN() != null) {
+            String functionName = ctx.getStart().getText();
+            if (!getStack().exist(functionName)) {
+                outFunctions.add(functionName);
+            }
+        }
+        return super.visitLeftHandSide(ctx);
     }
     
     @Override

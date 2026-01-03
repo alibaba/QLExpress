@@ -123,18 +123,10 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
     public Void visitPrimary(QLParser.PrimaryContext ctx) {
         QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
         if (primaryNoFixPathableContext != null) {
-            List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
-            if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext && !pathPartContexts.isEmpty()
-                && pathPartContexts.get(0) instanceof QLParser.CallExprContext) {
-                // function call
-                for (QLParser.PathPartContext pathPartContext : pathPartContexts) {
-                    pathPartContext.accept(this);
-                }
-                return null;
-            }
             if (primaryNoFixPathableContext instanceof QLParser.VarIdExprContext) {
-                int restIndex = parseVarIdInPath(((QLParser.VarIdExprContext)primaryNoFixPathableContext).varId(),
-                    pathPartContexts);
+                List<QLParser.PathPartContext> pathPartContexts = ctx.pathPart();
+                int restIndex =
+                    parseVarIdInPath((QLParser.VarIdExprContext)primaryNoFixPathableContext, pathPartContexts);
                 for (int i = restIndex; i < pathPartContexts.size(); i++) {
                     pathPartContexts.get(i).accept(this);
                 }
@@ -145,9 +137,14 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
         return super.visitPrimary(ctx);
     }
     
-    private int parseVarIdInPath(QLParser.VarIdContext idContext, List<QLParser.PathPartContext> pathPartContexts) {
+    private int parseVarIdInPath(QLParser.VarIdExprContext idContext, List<QLParser.PathPartContext> pathPartContexts) {
+        if (idContext.LPAREN() != null) {
+            idContext.argumentList().accept(this);
+            return 0;
+        }
+        
         List<String> headPartIds = new ArrayList<>();
-        String primaryId = idContext.getText();
+        String primaryId = idContext.varId().getText();
         headPartIds.add(primaryId);
         for (QLParser.PathPartContext pathPartContext : pathPartContexts) {
             if (pathPartContext instanceof QLParser.FieldAccessContext) {

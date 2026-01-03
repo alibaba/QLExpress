@@ -162,7 +162,7 @@ expression
     ;
 
 leftHandSide
-    :   varId (newlines? pathPart)*
+    :   varId (LPAREN newlines? argumentList? newlines? RPAREN)? (newlines? pathPart)*
     ;
 
 ternaryExpr
@@ -203,7 +203,7 @@ primaryNoFixPathable
     |   NEW varId ('.' varId)* typeArguments? '(' newlines? argumentList? newlines? ')' # newObjExpr
     |   NEW declTypeNoArr dimExprs # newEmptyArrExpr
     |   NEW declTypeNoArr dims arrayInitializer # newInitArrExpr
-    |   varId # varIdExpr
+    |   varId (LPAREN newlines? argumentList? newlines? RPAREN)? # varIdExpr
     |   primitiveType # typeExpr
     |   '[' newlines? listItems? newlines? ']' # listExpr
     |   LBRACE newlines? mapEntries newlines? RBRACE # mapExpr
@@ -334,7 +334,6 @@ pathPart
     |   OPTIONAL_CHAINING fieldId # optionalFieldAccess
     |   SPREAD_CHAINING fieldId # spreadFieldAccess
     |   DCOLON varId # methodAccess
-    |   '(' newlines? argumentList? newlines? ')' # callExpr
     |   '[' newlines? indexValueExpr? newlines? ']' # indexExpr
     |   {isOpType(_input.LT(1).getText(), MIDDLE) && precedence(_input.LT(1).getText()) == GROUP}? opId newlines? varId # customPath
     ;

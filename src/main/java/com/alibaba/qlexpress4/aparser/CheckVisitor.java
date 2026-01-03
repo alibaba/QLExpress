@@ -113,10 +113,19 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
     }
     
     @Override
-    public Void visitCallExpr(QLParser.CallExprContext ctx) {
-        // Check if function calls are disabled
-        checkFunctionCall(ctx.getStart());
-        return super.visitCallExpr(ctx);
+    public Void visitLeftHandSide(QLParser.LeftHandSideContext ctx) {
+        if (ctx.LPAREN() != null) {
+            checkFunctionCall(ctx.getStart());
+        }
+        return super.visitLeftHandSide(ctx);
+    }
+    
+    @Override
+    public Void visitVarIdExpr(QLParser.VarIdExprContext ctx) {
+        if (ctx.LPAREN() != null) {
+            checkFunctionCall(ctx.getStart());
+        }
+        return super.visitVarIdExpr(ctx);
     }
     
     @Override
