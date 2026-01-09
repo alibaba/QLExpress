@@ -13,12 +13,6 @@ public interface LeftValue extends Value {
     
     Class<?> getDefinedType();
     
-    @Override
-    default Class<?> getType() {
-        Class<?> definedType = getDefinedType();
-        return definedType == null ? Value.super.getType() : definedType;
-    }
-    
     default void set(Object newValue, ErrorReporter errorReporter) {
         Class<?> defineType = getDefinedType();
         ObjTypeConvertor.QConverted result = ObjTypeConvertor.cast(newValue, defineType);

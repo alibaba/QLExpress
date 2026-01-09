@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
@@ -1630,5 +1631,26 @@ public class Express4RunnerTest {
         for (String script : validScripts) {
             runner.check(script, options);
         }
+    }
+    
+    public static class MyStaticFunction {
+        @QLFunction("_str_formate")
+        public static String formateConfigCmd(String stringPattern, JSONObject params)
+            throws Exception {
+            return stringPattern;
+        }
+    }
+    
+    @Test
+    public void qlStaticFunctionTest() {
+        String script = "return formate(params);\n"
+            + "function formate(params) {\n    return _str_formate(\"formate string\", params);\n}";
+        JSONObject scriptParams = new JSONObject();
+        scriptParams.put("params", new JSONObject());
+        
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addStaticFunction(MyStaticFunction.class);
+        Object result = express4Runner.execute(script, scriptParams, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("formate string", result);
     }
 }
