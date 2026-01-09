@@ -1151,6 +1151,9 @@ public class Express4RunnerTest {
         expectOutVarNamesWithClsMethodCall.add("a");
         expectOutVarNamesWithClsMethodCall.add("b");
         Assert.assertEquals(expectOutVarNamesWithClsMethodCall, outVarNamesWithClsMethodCall);
+        
+        Set<String> outVarNamesEmptyCall = express4Runner.getOutVarNames("hello()");
+        Assert.assertEquals(Collections.emptySet(), outVarNamesEmptyCall);
     }
     
     @Test
@@ -1164,6 +1167,7 @@ public class Express4RunnerTest {
             flatOutVarAttrs(express4Runner.getOutVarAttrs("a.b=2;test(c.m)")));
         Assert.assertEquals(Collections.singletonList("c"),
             flatOutVarAttrs(express4Runner.getOutVarAttrs("java.lang.Math.abs(c)")));
+        Assert.assertEquals(Collections.emptyList(), flatOutVarAttrs(express4Runner.getOutVarAttrs("hello()")));
     }
     
     private List<String> flatOutVarAttrs(Set<List<String>> outVarAttrs) {

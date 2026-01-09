@@ -139,7 +139,9 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
     
     private int parseVarIdInPath(QLParser.VarIdExprContext idContext, List<QLParser.PathPartContext> pathPartContexts) {
         if (idContext.LPAREN() != null) {
-            idContext.argumentList().accept(this);
+            if (idContext.argumentList() != null) {
+                idContext.argumentList().accept(this);
+            }
             return 0;
         }
         
