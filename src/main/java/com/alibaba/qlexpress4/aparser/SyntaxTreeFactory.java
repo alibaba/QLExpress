@@ -21,14 +21,6 @@ public class SyntaxTreeFactory {
     
     private static final AtomicBoolean IS_WARM_UP = new AtomicBoolean();
     
-    public static void warmUp() {
-        if (IS_WARM_UP.compareAndSet(false, true)) {
-            // warm up
-            warmUpExpress("1+1");
-            warmUpExpress("a = b + c");
-        }
-    }
-    
     private static void warmUpExpress(String script) {
         buildTree(script, new OperatorManager(), false, false, s -> {
         }, InterpolationMode.SCRIPT, "${", "}", true);
