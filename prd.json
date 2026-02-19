@@ -1,0 +1,560 @@
+{
+  "project": "QLExpress",
+  "branchName": "ralph/remove-antlr-dependency",
+  "description": "Remove ANTLR dependency and implement hand-written recursive descent parser",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create TokenType enum",
+      "description": "As a developer, I need a token type system to categorize input characters for the lexer.",
+      "acceptanceCriteria": [
+        "Create TokenType enum in com.alibaba.qlexpress4.parser.token package",
+        "Include all token types: IDENTIFIER, LITERAL (INT, FLOAT, STRING, BOOLEAN), OPERATOR, KEYWORD, DELIMITER",
+        "Token types cover all grammar rules from QLParser.g4",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create Token class",
+      "description": "As a developer, I need a Token class to represent lexed tokens with source location tracking.",
+      "acceptanceCriteria": [
+        "Create Token class with type, value, line, column, source fields",
+        "Token class works with TokenType enum",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Implement basic lexer (identifiers and literals)",
+      "description": "As a developer, I need the lexer to tokenize identifiers and literal values.",
+      "acceptanceCriteria": [
+        "Create QLexpressLexer class in com.alibaba.qlexpress4.parser.lexer package",
+        "Tokenize identifiers (variable names)",
+        "Tokenize integer literals",
+        "Tokenize float literals",
+        "Tokenize string literals with escape sequences",
+        "Tokenize boolean literals (true, false)",
+        "Track line and column numbers",
+        "Unit tests pass for all lexical patterns",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Implement lexer operators and keywords",
+      "description": "As a developer, I need the lexer to tokenize operators and keywords.",
+      "acceptanceCriteria": [
+        "Tokenize all arithmetic operators (+, -, *, /, %, **)",
+        "Tokenize all comparison operators (==, !=, <, >, <=, >=, ===, !==)",
+        "Tokenize all logical operators (&&, ||, !)",
+        "Tokenize all assignment operators (=, +=, -=, *=, /=)",
+        "Tokenize all keywords (if, else, while, for, switch, case, break, continue, return, try, catch, finally, throw, new, instanceof, import, def, macro, type, null)",
+        "Tokenize delimiters (parentheses, braces, brackets, commas, semicolons, colons)",
+        "Unit tests pass for all operators and keywords",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement lexer advanced features",
+      "description": "As a developer, I need the lexer to support interpolation, custom selectors, and newline modes.",
+      "acceptanceCriteria": [
+        "Support interpolation mode configuration (${}, #{})",
+        "Support custom selector start/end tokens",
+        "Handle newlines correctly (strict/non-strict modes)",
+        "Unit tests pass for advanced features",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create base ASTNode class",
+      "description": "As a developer, I need a base AST node class for all syntax tree nodes.",
+      "acceptanceCriteria": [
+        "Create ASTNode base class in com.alibaba.qlexpress4.parser.ast package",
+        "Include common properties: line, column, source",
+        "Implement visitor pattern support (accept method)",
+        "Implement human-readable toString()",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create statement AST nodes",
+      "description": "As a developer, I need AST node classes for all statement types.",
+      "acceptanceCriteria": [
+        "Create BlockNode for statement blocks",
+        "Create IfNode for if-else statements",
+        "Create WhileNode for while loops",
+        "Create ForNode for for loops",
+        "Create SwitchNode for switch statements",
+        "Create TryCatchNode for try-catch-finally",
+        "Create ReturnNode, BreakNode, ContinueNode",
+        "Create VariableDeclarationNode, AssignmentNode",
+        "Create TypeDeclarationNode for type declarations",
+        "Create ImportNode for import statements",
+        "All nodes extend ASTNode base class",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create expression AST nodes",
+      "description": "As a developer, I need AST node classes for all expression types.",
+      "acceptanceCriteria": [
+        "Create LiteralNode for literals",
+        "Create IdentifierNode for variable references",
+        "Create BinaryOpNode for binary operations",
+        "Create UnaryOpNode for unary operations",
+        "Create TernaryNode for ternary expressions",
+        "Create LambdaNode for lambda expressions",
+        "Create MethodCallNode for method invocations",
+        "Create ConstructorCallNode for new expressions",
+        "Create CastNode for type casts",
+        "Create ArrayAccessNode for array access",
+        "Create ArrayLiteralNode for array literals",
+        "Create InstanceOfNode for instanceof checks",
+        "All nodes extend ASTNode base class",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create ProgramNode and package structure",
+      "description": "As a developer, I need the root AST node and complete package structure.",
+      "acceptanceCriteria": [
+        "Create ProgramNode as root AST node",
+        "ProgramNode contains a list of statements (BlockNode)",
+        "Complete ast package with all node types",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Implement parser core (token stream and basic parsing)",
+      "description": "As a developer, I need the parser foundation to read tokens and perform lookahead.",
+      "acceptanceCriteria": [
+        "Create QLexpressParser class in com.alibaba.qlexpress4.parser.parser package",
+        "Implement token stream management with lookahead",
+        "Implement error handling with line/column information",
+        "Implement basic parsing methods (peek, consume, expect, match)",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Implement parser expression parsing (literals and identifiers)",
+      "description": "As a developer, I need the parser to parse primary expressions.",
+      "acceptanceCriteria": [
+        "Parse literals (numbers, strings, booleans, null)",
+        "Parse identifiers",
+        "Parse parentheses expressions",
+        "Build correct AST nodes (LiteralNode, IdentifierNode)",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Implement parser binary and unary operators",
+      "description": "As a developer, I need the parser to parse expressions with correct operator precedence.",
+      "acceptanceCriteria": [
+        "Parse unary operators (!, -, +, ~)",
+        "Parse binary operators with correct precedence (multiplicative, additive, shift, relational, equality, logical, assignment)",
+        "Build correct AST nodes (UnaryOpNode, BinaryOpNode)",
+        "Integrate with ParserOperatorManager for operator types and precedence",
+        "Support operator alias resolution",
+        "Unit tests pass for all operator combinations",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Implement parser ternary, lambda, and method calls",
+      "description": "As a developer, I need the parser to parse complex expressions.",
+      "acceptanceCriteria": [
+        "Parse ternary expressions (?:)",
+        "Parse lambda expressions (arrow syntax, method references)",
+        "Parse method calls and chaining",
+        "Parse constructor calls (new)",
+        "Parse array access",
+        "Parse type casts",
+        "Parse instanceof expressions",
+        "Build correct AST nodes (TernaryNode, LambdaNode, MethodCallNode, etc.)",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Implement parser statement parsing (control flow)",
+      "description": "As a developer, I need the parser to parse control flow statements.",
+      "acceptanceCriteria": [
+        "Parse if-else statements",
+        "Parse while loops",
+        "Parse for loops (traditional, for-in, for-each)",
+        "Parse switch statements",
+        "Build correct AST nodes (IfNode, WhileNode, ForNode, SwitchNode)",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Implement parser remaining statements",
+      "description": "As a developer, I need the parser to parse remaining statement types.",
+      "acceptanceCriteria": [
+        "Parse try-catch-finally statements",
+        "Parse throw statements",
+        "Parse return, break, continue statements",
+        "Parse variable declarations",
+        "Parse assignments",
+        "Parse type declarations",
+        "Parse import statements",
+        "Build correct AST nodes (TryCatchNode, ReturnNode, etc.)",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Implement parser block and program parsing",
+      "description": "As a developer, I need the parser to parse complete programs.",
+      "acceptanceCriteria": [
+        "Parse statement blocks (braced statements)",
+        "Parse complete programs (list of statements)",
+        "Handle empty programs",
+        "Build ProgramNode root AST node",
+        "All testsuite/*.ql scripts parse successfully",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Create InstructionGenerator for expressions",
+      "description": "As a developer, I need an instruction generator that converts expression AST nodes to QVM instructions.",
+      "acceptanceCriteria": [
+        "Create InstructionGenerator class in com.alibaba.qlexpress4.parser.visitor package",
+        "Generate instructions for literals (ConstInstruction)",
+        "Generate instructions for identifiers (LoadInstruction)",
+        "Generate instructions for binary operators (OperatorInstruction)",
+        "Generate instructions for unary operators (OperatorInstruction)",
+        "Generate instructions for ternary expressions (jump instructions)",
+        "Unit tests verify correct instruction output",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Create InstructionGenerator for method calls and lambdas",
+      "description": "As a developer, I need instruction generation for function calls and lambdas.",
+      "acceptanceCriteria": [
+        "Generate instructions for method calls (CallFunctionInstruction)",
+        "Generate instructions for constructor calls",
+        "Generate instructions for lambda expressions",
+        "Generate instructions for array access",
+        "Unit tests verify correct instruction output",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Create InstructionGenerator for statements",
+      "description": "As a developer, I need instruction generation for all statement types.",
+      "acceptanceCriteria": [
+        "Generate instructions for if-else statements",
+        "Generate instructions for while loops",
+        "Generate instructions for for loops",
+        "Generate instructions for switch statements",
+        "Generate instructions for try-catch-finally",
+        "Generate instructions for return, break, continue",
+        "Generate instructions for variable declarations and assignments",
+        "Generate instructions for type declarations and imports",
+        "Unit tests verify correct instruction output",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Create SyntaxTreeFactory replacement",
+      "description": "As a developer, I need to replace SyntaxTreeFactory to use the new parser.",
+      "acceptanceCriteria": [
+        "Create new SyntaxTreeFactory in parser package",
+        "Factory method creates new ProgramNode instead of ANTLR ProgramContext",
+        "Factory supports all existing options: printTree, profile, interpolationMode",
+        "Factory maintains backward compatibility for all parameters",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Implement FunctionExtractor visitor",
+      "description": "As a developer, I need a visitor to extract function calls from AST for compilation.",
+      "acceptanceCriteria": [
+        "Create FunctionExtractor visitor",
+        "Extract all function calls from AST",
+        "Support all function call types (method calls, static calls, constructor calls)",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Implement VariableDetector visitor",
+      "description": "As a developer, I need a visitor to detect variable reads and writes.",
+      "acceptanceCriteria": [
+        "Create VariableDetector visitor",
+        "Detect variable reads (identifier references)",
+        "Detect variable writes (assignments, declarations)",
+        "Track variable usage scopes",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Implement ScopeAnalyzer visitor",
+      "description": "As a developer, I need a visitor to analyze variable scopes.",
+      "acceptanceCriteria": [
+        "Create ScopeAnalyzer visitor",
+        "Analyze block scopes",
+        "Detect shadowed variables",
+        "Track variable declarations across scopes",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Implement TraceGenerator visitor",
+      "description": "As a developer, I need a visitor to generate execution trace information.",
+      "acceptanceCriteria": [
+        "Create TraceGenerator visitor",
+        "Generate trace points for all statements",
+        "Support expression-level tracing",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-025",
+      "title": "Update QCompileCache for new AST",
+      "description": "As a developer, I need to update QCompileCache to cache the new AST structure.",
+      "acceptanceCriteria": [
+        "QCompileCache stores ProgramNode instead of ANTLR ProgramContext",
+        "Cache key generation remains compatible",
+        "Cache invalidation logic works correctly",
+        "Unit tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-026",
+      "title": "Integrate new parser with Express4Runner",
+      "description": "As a developer, I need to update Express4Runner to use the new parser.",
+      "acceptanceCriteria": [
+        "Express4Runner core execution methods (execute, executeExpr) use new parser",
+        "Internal implementation uses new parser package",
+        "Compile-time function support maintained",
+        "Express4RunnerTest passes",
+        "Script execution results identical to old implementation",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-027",
+      "title": "Write lexer unit tests",
+      "description": "As a developer, I need comprehensive tests for the lexer.",
+      "acceptanceCriteria": [
+        "Create QLexpressLexerTest class",
+        "Tests for all token types (identifiers, literals, operators, keywords, delimiters)",
+        "Tests for line/column tracking",
+        "Tests for interpolation modes",
+        "Tests for strict/non-strict newline modes",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-028",
+      "title": "Write parser unit tests",
+      "description": "As a developer, I need comprehensive tests for the parser.",
+      "acceptanceCriteria": [
+        "Create QLexpressParserTest class",
+        "Tests for all expression types",
+        "Tests for all statement types",
+        "Tests for operator precedence",
+        "Tests for error handling with line/column info",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-029",
+      "title": "Update and rewrite existing unit tests",
+      "description": "As a developer, I need to update existing tests that depend on ANTLR APIs.",
+      "acceptanceCriteria": [
+        "CompileTimeFunctionTest updated for new AST",
+        "ImportManagerTest updated for new AST",
+        "All tests that reference ANTLR classes updated",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-030",
+      "title": "Verify full testsuite execution",
+      "description": "As a developer, I need to ensure all existing testsuite scripts execute correctly.",
+      "acceptanceCriteria": [
+        "All testsuite/independent/*.ql scripts execute successfully",
+        "All testsuite/java/*.ql scripts execute successfully",
+        "TestSuiteRunner.suiteTest passes 100%",
+        "All script results match expected output",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-031",
+      "title": "Remove ANTLR dependencies from pom.xml",
+      "description": "As a developer, I need to remove ANTLR from Maven build configuration.",
+      "acceptanceCriteria": [
+        "Remove antlr4-runtime dependency from pom.xml",
+        "Remove antlr4-maven-plugin from pom.xml",
+        "Remove maven-shade-plugin ANTLR relocation configuration",
+        "Build completes successfully (mvn clean package)",
+        "Final JAR size reduced by at least 300KB",
+        "Typecheck passes"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-032",
+      "title": "Remove ANTLR generated files and old aparser package",
+      "description": "As a developer, I need to clean up ANTLR generated code.",
+      "acceptanceCriteria": [
+        "Move .g4 files to docs/grammar/ directory with documentation header",
+        "Delete target/generated-sources/antlr4/ directory contents",
+        "Delete entire com.alibaba.qlexpress4.aparser package",
+        "No references to ANTLR classes remain in source code (grep verify)",
+        "Build completes successfully",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-033",
+      "title": "Update documentation",
+      "description": "As a user, I need accurate documentation reflecting the new parser implementation.",
+      "acceptanceCriteria": [
+        "README-source.adoc updated with parser architecture description",
+        "README-EN-source.adoc updated with parser architecture description",
+        "CLAUDE.md updated with new architecture diagram",
+        "Add architecture diagram showing new parsing flow",
+        "Grammar reference documentation points to docs/grammar/",
+        "Typecheck passes"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
