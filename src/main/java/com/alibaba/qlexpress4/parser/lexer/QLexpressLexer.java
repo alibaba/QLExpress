@@ -208,12 +208,36 @@ public class QLexpressLexer {
             threeChar = twoChar + peek(2);
         }
 
+        String fourChar = null;
+        if (position + 3 < input.length()) {
+            fourChar = threeChar + peek(3);
+        }
+
+        // Four-character operators
+        if (fourChar != null) {
+            switch (fourChar) {
+                case ">>>=":
+                    consume(); consume(); consume(); consume();
+                    return new Token(TokenType.URSHIFT_ASSIGN, fourChar, tokenStartLine, tokenStartColumn, source);
+                case "<<=":
+                    // This is actually 4 characters: < < = =
+                    // But we handle it as 3 characters since << is one token
+                    // Actually, <<= is 3 characters, handled below
+                    break;
+                case ">>=":
+                    // This is actually 4 characters: > > = =
+                    // But we handle it as 3 characters since >> is one token
+                    // Actually, >>= is 3 characters, handled below
+                    break;
+            }
+        }
+
         // Three-character operators
         if (threeChar != null) {
             switch (threeChar) {
-                case ">>>=":
+                case ">>>":
                     consume(); consume(); consume();
-                    return new Token(TokenType.URSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+                    return new Token(TokenType.URSHIFT, threeChar, tokenStartLine, tokenStartColumn, source);
                 case "<<=":
                     consume(); consume(); consume();
                     return new Token(TokenType.LSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
@@ -259,9 +283,6 @@ public class QLexpressLexer {
                 case ">>":
                     consume(); consume();
                     return new Token(TokenType.RIGHSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
-                case ">>>":
-                    consume(); consume();
-                    return new Token(TokenType.URSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
                 case "<<":
                     consume(); consume();
                     return new Token(TokenType.LEFTSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
@@ -289,6 +310,18 @@ public class QLexpressLexer {
                 case "->":
                     consume(); consume();
                     return new Token(TokenType.ARROW, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "==":
+                    consume(); consume();
+                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "!=":
+                    consume(); consume();
+                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "&&":
+                    consume(); consume();
+                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "||":
+                    consume(); consume();
+                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
             }
         }
 
@@ -331,9 +364,50 @@ public class QLexpressLexer {
             case ';': return new Token(TokenType.SEMI, ";", tokenStartLine, tokenStartColumn, source);
             case ',': return new Token(TokenType.COMMA, ",", tokenStartLine, tokenStartColumn, source);
 
+            // Check for OPID (custom operator) - starts with certain chars
+            // These are operators like ==, !=, &&, ||, or longer custom operators
             default:
+                // Check if this could be an OPID (custom operator)
+                if (isOpIdStartChar(ch)) {
+                    return readOpId();
+                }
                 return new Token(TokenType.CATCH_ALL, String.valueOf(ch), tokenStartLine, tokenStartColumn, source);
         }
+    }
+
+    /**
+     * Checks if a character is a valid start character for an OPID (custom operator).
+     * Based on the ANTLR grammar: OpIdItemStart
+     */
+    private boolean isOpIdStartChar(char ch) {
+        return ch == '^' || ch == '~' || ch == '&' || ch == '|' || ch == '*' ||
+               ch == '%' || ch == '=' || ch == '!' || ch == '/' || ch == '+' ||
+               ch == '-' || ch == '?' || ch == '.';
+    }
+
+    /**
+     * Checks if a character is a valid continuation character for an OPID.
+     * Based on the ANTLR grammar: OpIdItem
+     */
+    private boolean isOpIdChar(char ch) {
+        return isOpIdStartChar(ch) || ch == ':' || ch == '<' || ch == '>';
+    }
+
+    /**
+     * Reads an OPID (custom operator) token.
+     * OPID tokens are multi-character operators like ==, !=, &&, ||, etc.
+     */
+    private Token readOpId() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(consume());
+
+        // Continue reading while we have valid OPID characters
+        while (position < input.length() && isOpIdChar(peek())) {
+            sb.append(consume());
+        }
+
+        String text = sb.toString();
+        return new Token(TokenType.OPID, text, tokenStartLine, tokenStartColumn, source);
     }
 
     /**

@@ -4,6 +4,9 @@ import com.alibaba.qlexpress4.parser.token.Token;
 import com.alibaba.qlexpress4.parser.token.TokenType;
 import com.alibaba.qlexpress4.parser.ast.*;
 import com.alibaba.qlexpress4.parser.ast.ExpressionNode;
+import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
+import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
+import com.alibaba.qlexpress4.QLPrecedences;
 
 import java.util.List;
 import java.util.Collections;
@@ -18,20 +21,35 @@ import java.util.ArrayList;
  *   <li>Token stream management with lookahead</li>
  *   <li>Error handling with line/column information</li>
  *   <li>Basic parsing methods (peek, consume, expect, match)</li>
+ *   <li>Unary operator parsing (prefix and suffix)</li>
+ *   <li>Binary operator parsing with proper precedence</li>
  * </ul>
  */
 public class QLexpressParser {
     private final List<Token> tokens;
     private int position;
+    private final ParserOperatorManager operatorManager;
 
     /**
      * Creates a new parser for the given token stream.
+     * Uses default OperatorManager for operator precedence and type resolution.
      *
      * @param tokens the token stream from the lexer
      */
     public QLexpressParser(List<Token> tokens) {
+        this(tokens, new OperatorManager());
+    }
+
+    /**
+     * Creates a new parser for the given token stream with custom operator manager.
+     *
+     * @param tokens the token stream from the lexer
+     * @param operatorManager the operator manager for precedence and type resolution
+     */
+    public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager) {
         this.tokens = tokens != null ? tokens : Collections.emptyList();
         this.position = 0;
+        this.operatorManager = operatorManager != null ? operatorManager : new OperatorManager();
     }
 
     /**
@@ -169,7 +187,7 @@ public class QLexpressParser {
         // Skip newlines inside parentheses
         skipNewlines();
 
-        ExpressionNode expr = parsePrimary();
+        ExpressionNode expr = parseBinary(0);
 
         // Skip newlines before closing paren
         skipNewlines();
@@ -317,6 +335,201 @@ public class QLexpressParser {
                 break;
             }
         }
+    }
+
+    // ==================== Unary Operator Parsing ====================
+
+    /**
+     * Checks if the current token is a prefix unary operator.
+     *
+     * @return true if current token is a prefix unary operator
+     */
+    private boolean isPrefixUnaryOperator() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        // Check for specific token types that are prefix operators
+        if (match(TokenType.BANG, TokenType.TILDE, TokenType.INC, TokenType.DEC)) {
+            return true;
+        }
+        // Check for + and - which need special handling
+        if (current.getType() == TokenType.ADD || current.getType() == TokenType.SUB) {
+            return true;
+        }
+        // Check with operator manager for custom operators
+        String value = current.getValue();
+        if (value != null) {
+            return operatorManager.isOpType(value, ParserOperatorManager.OpType.PREFIX);
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the current token is a suffix unary operator.
+     *
+     * @return true if current token is a suffix unary operator
+     */
+    private boolean isSuffixUnaryOperator() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        // Check for specific token types that are suffix operators
+        if (match(TokenType.INC, TokenType.DEC)) {
+            return true;
+        }
+        // Check with operator manager for custom operators
+        String value = current.getValue();
+        if (value != null) {
+            return operatorManager.isOpType(value, ParserOperatorManager.OpType.SUFFIX);
+        }
+        return false;
+    }
+
+    /**
+     * Parses prefix unary operators.
+     * Handles: !, -, +, ~, ++, --
+     *
+     * @return the UnaryOpNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parsePrefixUnary() throws ParseException {
+        Token opToken = consume();
+        String operator = opToken.getValue();
+        ExpressionNode operand = parseUnary();
+
+        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(),
+                                operator, operand, true);
+    }
+
+    /**
+     * Parses suffix unary operators.
+     * Handles: ++, --
+     *
+     * @param operand the operand expression
+     * @return the UnaryOpNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseSuffixUnary(ExpressionNode operand) throws ParseException {
+        Token opToken = consume();
+        String operator = opToken.getValue();
+
+        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(),
+                                operator, operand, false);
+    }
+
+    /**
+     * Parses a unary expression (prefix or suffix).
+     * Unary expressions include prefix operators (!, -, +, ~, ++, --)
+     * and suffix operators (++, --).
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    public ExpressionNode parseUnary() throws ParseException {
+        // Check for prefix unary operators
+        if (isPrefixUnaryOperator()) {
+            return parsePrefixUnary();
+        }
+
+        // Parse primary expression
+        ExpressionNode expr = parsePrimary();
+
+        // Check for suffix unary operators
+        while (isSuffixUnaryOperator()) {
+            expr = parseSuffixUnary(expr);
+        }
+
+        return expr;
+    }
+
+    // ==================== Binary Operator Parsing ====================
+
+    /**
+     * Checks if the current token is a binary operator.
+     *
+     * @return true if current token is a binary operator
+     */
+    private boolean isBinaryOperator() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        // Check with operator manager for binary operators
+        String value = current.getValue();
+        if (value != null) {
+            return operatorManager.isOpType(value, ParserOperatorManager.OpType.MIDDLE);
+        }
+        return false;
+    }
+
+    /**
+     * Gets the precedence of a binary operator.
+     *
+     * @param operator the operator lexeme
+     * @return the precedence value, or -1 if not a binary operator
+     */
+    private int getBinaryPrecedence(String operator) {
+        Integer precedence = operatorManager.precedence(operator);
+        return precedence != null ? precedence : -1;
+    }
+
+    /**
+     * Parses a binary expression with proper precedence.
+     * Uses recursive descent with precedence climbing.
+     *
+     * @param minPrecedence the minimum precedence for this level
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseBinary(int minPrecedence) throws ParseException {
+        // Parse left operand (unary expression)
+        ExpressionNode left = parseUnary();
+
+        // While we have a binary operator with sufficient precedence
+        while (true) {
+            skipNewlines();
+            Token current = peek();
+            if (current == null) {
+                break;
+            }
+
+            // Check if current token is a binary operator
+            String op = current.getValue();
+            if (!isBinaryOperator()) {
+                break;
+            }
+
+            int precedence = getBinaryPrecedence(op);
+            if (precedence < minPrecedence) {
+                break;
+            }
+
+            // Consume the operator
+            consume();
+            skipNewlines();
+
+            // Parse right operand with higher precedence
+            ExpressionNode right = parseBinary(precedence + 1);
+
+            // Create binary operation node
+            left = new BinaryOpNode(current.getLine(), current.getColumn(), current.getSource(),
+                                     left, op, right);
+        }
+
+        return left;
+    }
+
+    /**
+     * Parses a binary expression.
+     * This is the main entry point for expression parsing.
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    public ExpressionNode parseExpression() throws ParseException {
+        return parseBinary(0);
     }
 
     /**
