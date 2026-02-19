@@ -152,3 +152,31 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - match() method checks if current token is one of several types (useful for decision making)
   - isEOF() checks for both end of stream and explicit EOF token
 ---
+## [Thu Feb 20 07:15:32 AM CST 2025] - US-011
+- Implemented parsePrimary() method for primary expressions
+- Parse literals: integers (hex, binary, octal, decimal), floats, strings, booleans, null
+- Parse identifiers (variable names)
+- Parse parenthesized expressions
+- Handle integer type suffixes (l, L)
+- Handle float type suffixes (f, F, d, D)
+- Handle string escape sequences (\n, \r, \t, \b, \f, \', ", \\)
+- Support digit separators (underscores) in numeric literals (fixed lexer to support this)
+- Correctly distinguish between INTEGER_OR_FLOATING_LITERAL tokens (check for . or e/E to determine actual type)
+- Added comprehensive unit tests (32 tests) in QLexpressParserTest
+- Typecheck passes (mvn compile)
+- Unit tests pass (32/32)
+- Full test suite passes (228 tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified)
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (modified - added underscore support)
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (new file)
+- **Learnings for future iterations:**
+  - The lexer classifies decimal numbers as INTEGER_OR_FLOATING_LITERAL because it needs to look ahead
+  - To determine if an INTEGER_OR_FLOATING_LITERAL token is actually an integer or float, check if the value contains '.', 'e', 'E', or type suffixes
+  - Underscores in numbers must be handled by the lexer (skipped while reading) and the parser (removed when parsing)
+  - Test-driven development helped find issues: lexer underscore support was incomplete, parser needed to distinguish int/float
+  - Parenthesized expressions should skip newlines inside the parentheses for robustness
+  - Typecheck passes with mvn compile, full test suite with mvn test
+  - The project uses JUnit 4 for testing (org.junit.Test, @Test annotations)
+  - Test helpers should use the same lexer mode as production (non-strict newlines by default)
+---
