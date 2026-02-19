@@ -1,0 +1,28 @@
+# Ralph Progress Log
+Started: Fri Feb 20 12:26:12 AM CST 2026
+---
+
+## Codebase Patterns
+- Package structure for new parser: `com.alibaba.qlexpress4.parser.{token,lexer,parser,ast,visitor}`
+- ANTLR grammar files in `src/main/antlr4/` contain the complete language specification
+- The QLexer.g4 and QLParser.g4 files are the source of truth for all token types and grammar rules
+- Keywords include: for, if, else, while, break, continue, return, switch, case, default, function, macro, import, static, new, type keywords (byte, short, int, long, float, double, char, boolean), null, true, false, extends, super, try, catch, finally, throw, then, class, this
+- Operators include arithmetic (+, -, *, /, %, ++, --), bitwise (&, |, ^, ~, <<, >>, >>>), logical (!), comparison (>, <, >=, <=, <>), assignment (=, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=), and other operators (., .*, ->, ::, ?., *., ?, :)
+- Delimiters: (, ), {, }, [, ], ;, ,
+
+---
+
+## [Thu Feb 20 06:32:49 AM CST 2025] - US-001
+- Created TokenType enum in com.alibaba.qlexpress4.parser.token package
+- Included all token types from QLParser.g4: keywords, literals, operators, delimiters, identifiers, special tokens
+- Added utility methods: isKeyword(), isOperator(), isLiteral(), isDelimiter()
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/token/TokenType.java (new file)
+- **Learnings for future iterations:**
+  - The ANTLR grammar files (QLexer.g4, QLParser.g4) are the definitive source for token types
+  - Use enum with both constructors: one with fixed text for keywords/operators, one without for tokens like ID
+  - The hasFixedText field indicates whether a token has a literal text representation
+  - The codebase uses Maven for building with mvn compile for type checking
+  - Current branch is `remove_antlr4` (not `ralph/remove-antlr-dependency` as specified in PRD)
+---
