@@ -25,4 +25,22 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The hasFixedText field indicates whether a token has a literal text representation
   - The codebase uses Maven for building with mvn compile for type checking
   - Current branch is `remove_antlr4` (not `ralph/remove-antlr-dependency` as specified in PRD)
+
+---
+
+## [Thu Feb 20 06:38:15 AM CST 2025] - US-002
+- Created Token class in com.alibaba.qlexpress4.parser.token package
+- Token class includes type, value, line, column, source fields plus endLine, endColumn, length for complete tracking
+- Added utility methods: is(), isKeyword(), isOperator(), isLiteral(), isDelimiter(), isEOF(), getLocationString()
+- Added factory methods: eof(), withPosition(), withSource(), withValue()
+- Added equals(), hashCode(), toString() for proper object behavior
+- Token class works with TokenType enum
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/token/Token.java (new file)
+- **Learnings for future iterations:**
+  - Token class should be immutable for thread safety
+  - Use factory methods (with*) for creating modified copies instead of mutators
+  - Include both start and end positions for better error reporting
+  - Line/column numbers are 1-based (not 0-based) for user-friendly error messages
 ---
