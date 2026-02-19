@@ -108,4 +108,28 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Selector tokens need to be detected before other tokens starting with $ or #
   - Mode stack approach is useful for handling nested contexts (like string interpolation with nested expressions)
   - Unit tests for advanced features should be added in a later US (US-027)
+
+---
+
+## [Thu Feb 20 06:58:12 AM CST 2025] - US-006, US-007, US-008, US-009
+- Created ASTNode base class in com.alibaba.qlexpress4.parser.ast package
+- Include common properties: line, column, source
+- Implement visitor pattern support (accept method)
+- Implement human-readable toString() and toDebugString()
+- Created ASTVisitor interface with visit methods for all node types
+- Created marker interfaces: Node, StatementNode, ExpressionNode
+- Created all statement node stubs (US-007): BlockNode, IfNode, WhileNode, ForNode, SwitchNode, TryCatchNode, ReturnNode, BreakNode, ContinueNode, ThrowNode, VariableDeclarationNode, AssignmentNode, TypeDeclarationNode, ImportNode, FunctionDefinitionNode, MacroDefinitionNode
+- Created all expression node stubs (US-008): LiteralNode, IdentifierNode, BinaryOpNode, UnaryOpNode, TernaryNode, LambdaNode, MethodCallNode, ConstructorCallNode, CastNode, ArrayAccessNode, ArrayLiteralNode, MapLiteralNode, ListLiteralNode, InstanceOfNode, TypeNode
+- Created ProgramNode as root AST node (US-009)
+- Created helper classes: ParameterNode, MapEntryNode, SwitchCaseNode, CatchClauseNode (these don't extend ASTNode as they are internal helper structures)
+- Typecheck passes (mvn compile)
+- Files changed:
+  - 41 new AST node files created in src/main/java/com/alibaba/qlexpress4/parser/ast/
+- **Learnings for future iterations:**
+  - AST nodes follow visitor pattern - all nodes have accept() method that calls the appropriate visit method on the visitor
+  - Helper classes (ParameterNode, MapEntryNode, etc.) don't need to extend ASTNode as they are internal structures
+  - The visitor pattern allows operations like code generation, analysis, transformation, and tracing without modifying node classes
+  - Statement nodes implement StatementNode interface, Expression nodes implement ExpressionNode interface
+  - AssignmentNode is both a StatementNode and ExpressionNode (assignments can be used as expressions)
+  - Line and column tracking is inherited from base ASTNode class
 ---
