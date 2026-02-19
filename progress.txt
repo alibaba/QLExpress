@@ -90,4 +90,22 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Some operators like && and || are handled by ParserOperatorManager as custom operators (OPID)
   - Comments should be skipped during tokenization (not emitted as tokens)
   - The grammar doesn't have instanceof as a keyword - it's handled via method access patterns
+
+---
+
+## [Thu Feb 20 06:52:34 AM CST 2025] - US-005
+- Implemented interpolation mode configuration via InterpolationMode enum (SCRIPT, VARIABLE, DISABLE)
+- Added custom selector start/end token support (default: "${" and "}")
+- Detects selector start tokens: ${, #{, $[, #[
+- Newline modes already working: strict mode emits NEWLINE tokens, non-strict skips them
+- Added constructor overloads for different configuration options
+- Added LexerMode enum (DEFAULT, STATIC_STRING, DYNAMIC_STRING, SELECTOR_VARIABLE) for future mode stack support
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (modified)
+- **Learnings for future iterations:**
+  - InterpolationMode enum is from com.alibaba.qlexpress4.aparser package (reused from existing code)
+  - Selector tokens need to be detected before other tokens starting with $ or #
+  - Mode stack approach is useful for handling nested contexts (like string interpolation with nested expressions)
+  - Unit tests for advanced features should be added in a later US (US-027)
 ---
