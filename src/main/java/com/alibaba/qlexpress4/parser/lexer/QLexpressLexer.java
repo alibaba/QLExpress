@@ -138,10 +138,153 @@ public class QLexpressLexer {
             return readNumber();
         }
 
-        // Everything else is handled by operators/keywords in the next phase
-        // For now, we'll create a catch-all token
+        // Operator or delimiter
+        return readOperatorOrDelimiter();
+    }
+
+    /**
+     * Reads an operator or delimiter token.
+     */
+    private Token readOperatorOrDelimiter() {
+        char ch = peek();
+
+        // Check for multi-character operators first (longest match)
+        String twoChar = null;
+        if (position + 1 < input.length()) {
+            twoChar = String.valueOf(ch) + peek(1);
+        }
+
+        String threeChar = null;
+        if (position + 2 < input.length()) {
+            threeChar = twoChar + peek(2);
+        }
+
+        // Three-character operators
+        if (threeChar != null) {
+            switch (threeChar) {
+                case ">>>=":
+                    consume(); consume(); consume();
+                    return new Token(TokenType.URSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+                case "<<=":
+                    consume(); consume(); consume();
+                    return new Token(TokenType.LSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+                case ">>=":
+                    consume(); consume(); consume();
+                    return new Token(TokenType.RSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+            }
+        }
+
+        // Two-character operators
+        if (twoChar != null) {
+            switch (twoChar) {
+                case "++":
+                    consume(); consume();
+                    return new Token(TokenType.INC, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "--":
+                    consume(); consume();
+                    return new Token(TokenType.DEC, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "+=":
+                    consume(); consume();
+                    return new Token(TokenType.ADD_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "-=":
+                    consume(); consume();
+                    return new Token(TokenType.SUB_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "*=":
+                    consume(); consume();
+                    return new Token(TokenType.MUL_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "/=":
+                    consume(); consume();
+                    return new Token(TokenType.DIV_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "%=":
+                    consume(); consume();
+                    return new Token(TokenType.MOD_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "&=":
+                    consume(); consume();
+                    return new Token(TokenType.AND_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "|=":
+                    consume(); consume();
+                    return new Token(TokenType.OR_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "^=":
+                    consume(); consume();
+                    return new Token(TokenType.XOR_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                case ">>":
+                    consume(); consume();
+                    return new Token(TokenType.RIGHSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
+                case ">>>":
+                    consume(); consume();
+                    return new Token(TokenType.URSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "<<":
+                    consume(); consume();
+                    return new Token(TokenType.LEFTSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
+                case ">=":
+                    consume(); consume();
+                    return new Token(TokenType.GE, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "<=":
+                    consume(); consume();
+                    return new Token(TokenType.LE, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "<>":
+                    consume(); consume();
+                    return new Token(TokenType.NOEQ, twoChar, tokenStartLine, tokenStartColumn, source);
+                case ".*":
+                    consume(); consume();
+                    return new Token(TokenType.DOTMUL, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "?.":
+                    consume(); consume();
+                    return new Token(TokenType.OPTIONAL_CHAINING, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "*.":
+                    consume(); consume();
+                    return new Token(TokenType.SPREAD_CHAINING, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "::":
+                    consume(); consume();
+                    return new Token(TokenType.DCOLON, twoChar, tokenStartLine, tokenStartColumn, source);
+                case "->":
+                    consume(); consume();
+                    return new Token(TokenType.ARROW, twoChar, tokenStartLine, tokenStartColumn, source);
+            }
+        }
+
+        // Single-character operators and delimiters
         consume();
-        return new Token(TokenType.CATCH_ALL, String.valueOf(ch), tokenStartLine, tokenStartColumn, source);
+        switch (ch) {
+            // Arithmetic operators
+            case '+': return new Token(TokenType.ADD, "+", tokenStartLine, tokenStartColumn, source);
+            case '-': return new Token(TokenType.SUB, "-", tokenStartLine, tokenStartColumn, source);
+            case '*': return new Token(TokenType.MUL, "*", tokenStartLine, tokenStartColumn, source);
+            case '/': return new Token(TokenType.DIV, "/", tokenStartLine, tokenStartColumn, source);
+            case '%': return new Token(TokenType.MOD, "%", tokenStartLine, tokenStartColumn, source);
+
+            // Bitwise operators
+            case '&': return new Token(TokenType.BIT_AND, "&", tokenStartLine, tokenStartColumn, source);
+            case '|': return new Token(TokenType.BIT_OR, "|", tokenStartLine, tokenStartColumn, source);
+            case '^': return new Token(TokenType.BIT_XOR, "^", tokenStartLine, tokenStartColumn, source);
+            case '~': return new Token(TokenType.TILDE, "~", tokenStartLine, tokenStartColumn, source);
+
+            // Logical operators
+            case '!': return new Token(TokenType.BANG, "!", tokenStartLine, tokenStartColumn, source);
+
+            // Comparison operators
+            case '>': return new Token(TokenType.GT, ">", tokenStartLine, tokenStartColumn, source);
+            case '<': return new Token(TokenType.LT, "<", tokenStartLine, tokenStartColumn, source);
+            case '=': return new Token(TokenType.EQ, "=", tokenStartLine, tokenStartColumn, source);
+
+            // Other operators
+            case '.': return new Token(TokenType.DOT, ".", tokenStartLine, tokenStartColumn, source);
+            case '?': return new Token(TokenType.QUESTION, "?", tokenStartLine, tokenStartColumn, source);
+            case ':': return new Token(TokenType.COLON, ":", tokenStartLine, tokenStartColumn, source);
+
+            // Delimiters
+            case '(': return new Token(TokenType.LPAREN, "(", tokenStartLine, tokenStartColumn, source);
+            case ')': return new Token(TokenType.RPAREN, ")", tokenStartLine, tokenStartColumn, source);
+            case '{': return new Token(TokenType.LBRACE, "{", tokenStartLine, tokenStartColumn, source);
+            case '}': return new Token(TokenType.RBRACE, "}", tokenStartLine, tokenStartColumn, source);
+            case '[': return new Token(TokenType.LBRACK, "[", tokenStartLine, tokenStartColumn, source);
+            case ']': return new Token(TokenType.RBRACK, "]", tokenStartLine, tokenStartColumn, source);
+            case ';': return new Token(TokenType.SEMI, ";", tokenStartLine, tokenStartColumn, source);
+            case ',': return new Token(TokenType.COMMA, ",", tokenStartLine, tokenStartColumn, source);
+
+            default:
+                return new Token(TokenType.CATCH_ALL, String.valueOf(ch), tokenStartLine, tokenStartColumn, source);
+        }
     }
 
     /**
@@ -385,15 +528,70 @@ public class QLexpressLexer {
     }
 
     /**
-     * Skips whitespace (but not newlines).
+     * Skips whitespace (but not newlines) and comments.
      */
     private void skipWhitespace() {
+        while (position < input.length()) {
+            skipWhitespaceInternal();
+            if (position < input.length() && peek() == '/') {
+                // Check for comments
+                if (peek(1) == '/') {
+                    skipLineComment();
+                    continue;
+                } else if (peek(1) == '*') {
+                    skipBlockComment();
+                    continue;
+                }
+            }
+            if (position < input.length()) {
+                char ch = peek();
+                if (ch == ' ' || ch == '\t' || ch == '\f') {
+                    consume();
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Skips internal whitespace.
+     */
+    private void skipWhitespaceInternal() {
         while (position < input.length()) {
             char ch = peek();
             if (ch == ' ' || ch == '\t' || ch == '\f') {
                 consume();
             } else {
                 break;
+            }
+        }
+    }
+
+    /**
+     * Skips a line comment (//...).
+     */
+    private void skipLineComment() {
+        if (peek() == '/' && peek(1) == '/') {
+            consume(); consume(); // //
+            while (position < input.length() && peek() != '\r' && peek() != '\n') {
+                consume();
+            }
+        }
+    }
+
+    /**
+     * Skips a block comment (/* ... * /).
+     */
+    private void skipBlockComment() {
+        if (peek() == '/' && peek(1) == '*') {
+            consume(); consume(); // /*
+            while (position < input.length()) {
+                if (peek() == '*' && peek(1) == '/') {
+                    consume(); consume();
+                    break;
+                }
+                consume();
             }
         }
     }
