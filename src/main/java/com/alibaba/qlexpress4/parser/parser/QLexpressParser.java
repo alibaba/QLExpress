@@ -2,9 +2,8 @@ package com.alibaba.qlexpress4.parser.parser;
 
 import com.alibaba.qlexpress4.parser.token.Token;
 import com.alibaba.qlexpress4.parser.token.TokenType;
-import com.alibaba.qlexpress4.parser.ast.ProgramNode;
-import com.alibaba.qlexpress4.parser.ast.BlockNode;
-import com.alibaba.qlexpress4.parser.ast.StatementNode;
+import com.alibaba.qlexpress4.parser.ast.*;
+import com.alibaba.qlexpress4.parser.ast.ExpressionNode;
 
 import java.util.List;
 import java.util.Collections;
@@ -56,6 +55,268 @@ public class QLexpressParser {
         List<StatementNode> statements = new ArrayList<>();
 
         return new ProgramNode(line, column, source, statements);
+    }
+
+    // ==================== Expression Parsing ====================
+
+    /**
+     * Parses a primary expression.
+     * <p>
+     * Primary expressions include:
+     * <ul>
+     *   <li>Literals (numbers, strings, booleans, null)</li>
+     *   <li>Identifiers (variable names)</li>
+     *   <li>Parenthesized expressions</li>
+     * </ul>
+     *
+     * @return the parsed expression node
+     * @throws ParseException if parsing fails
+     */
+    public ExpressionNode parsePrimary() throws ParseException {
+        Token current = peek();
+        if (current == null) {
+            throw error("Unexpected end of input, expected expression");
+        }
+
+        switch (current.getType()) {
+            case INTEGER_LITERAL:
+            case FLOATING_POINT_LITERAL:
+            case INTEGER_OR_FLOATING_LITERAL:
+            case QUOTE_STRING_LITERAL:
+            case TRUE:
+            case FALSE:
+            case NULL:
+                return parseLiteral();
+
+            case ID:
+                return parseIdentifier();
+
+            case LPAREN:
+                return parseParenthesizedExpression();
+
+            default:
+                throw error("Expected expression but found " + current.getType());
+        }
+    }
+
+    /**
+     * Parses a literal expression.
+     *
+     * @return the LiteralNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseLiteral() throws ParseException {
+        Token token = consume();
+        Object value;
+
+        switch (token.getType()) {
+            case INTEGER_LITERAL:
+                value = parseIntegerLiteral(token.getValue());
+                break;
+            case FLOATING_POINT_LITERAL:
+                value = parseFloatLiteral(token.getValue());
+                break;
+            case INTEGER_OR_FLOATING_LITERAL:
+                // Need to determine if this is actually an integer or float
+                String strValue = token.getValue();
+                if (strValue.contains(".") || strValue.contains("e") || strValue.contains("E") ||
+                    strValue.endsWith("f") || strValue.endsWith("F") ||
+                    strValue.endsWith("d") || strValue.endsWith("D")) {
+                    value = parseFloatLiteral(strValue);
+                } else {
+                    value = parseIntegerLiteral(strValue);
+                }
+                break;
+            case QUOTE_STRING_LITERAL:
+                value = parseStringLiteral(token.getValue());
+                break;
+            case TRUE:
+                value = Boolean.TRUE;
+                break;
+            case FALSE:
+                value = Boolean.FALSE;
+                break;
+            case NULL:
+                value = null;
+                break;
+            default:
+                throw error("Expected literal but found " + token.getType());
+        }
+
+        return new LiteralNode(token.getLine(), token.getColumn(), token.getSource(), value);
+    }
+
+    /**
+     * Parses an identifier expression.
+     *
+     * @return the IdentifierNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseIdentifier() throws ParseException {
+        Token token = expect(TokenType.ID);
+        return new IdentifierNode(token.getLine(), token.getColumn(), token.getSource(), token.getValue());
+    }
+
+    /**
+     * Parses a parenthesized expression.
+     *
+     * @return the inner expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseParenthesizedExpression() throws ParseException {
+        Token lparen = expect(TokenType.LPAREN);
+
+        // Skip newlines inside parentheses
+        skipNewlines();
+
+        ExpressionNode expr = parsePrimary();
+
+        // Skip newlines before closing paren
+        skipNewlines();
+
+        expect(TokenType.RPAREN);
+
+        return expr;
+    }
+
+    /**
+     * Parses an integer literal from string value.
+     * Handles hex (0x), binary (0b), octal (0), and decimal formats.
+     *
+     * @param value the string value from the token
+     * @return the parsed integer (as Long or Integer)
+     */
+    private Object parseIntegerLiteral(String value) {
+        if (value == null || value.isEmpty()) {
+            return 0;
+        }
+
+        value = value.replace("_", ""); // Remove digit separators
+
+        // Check for type suffix
+        boolean isLong = false;
+        if (value.endsWith("l") || value.endsWith("L")) {
+            isLong = true;
+            value = value.substring(0, value.length() - 1);
+        }
+
+        long parsedValue;
+        if (value.startsWith("0x") || value.startsWith("0X")) {
+            // Hexadecimal
+            parsedValue = Long.parseLong(value.substring(2), 16);
+        } else if (value.startsWith("0b") || value.startsWith("0B")) {
+            // Binary
+            parsedValue = Long.parseLong(value.substring(2), 2);
+        } else if (value.length() > 1 && value.charAt(0) == '0') {
+            // Octal
+            parsedValue = Long.parseLong(value, 8);
+        } else {
+            // Decimal
+            parsedValue = Long.parseLong(value);
+        }
+
+        if (isLong) {
+            return parsedValue;
+        } else {
+            // Return as Integer if it fits, otherwise Long
+            if (parsedValue >= Integer.MIN_VALUE && parsedValue <= Integer.MAX_VALUE) {
+                return (int) parsedValue;
+            }
+            return parsedValue;
+        }
+    }
+
+    /**
+     * Parses a floating point literal from string value.
+     *
+     * @param value the string value from the token
+     * @return the parsed number (as Double or Float)
+     */
+    private Object parseFloatLiteral(String value) {
+        if (value == null || value.isEmpty()) {
+            return 0.0;
+        }
+
+        value = value.replace("_", ""); // Remove digit separators
+
+        // Check for type suffix
+        boolean isFloat = value.endsWith("f") || value.endsWith("F");
+        boolean isDouble = value.endsWith("d") || value.endsWith("D");
+        if (isFloat || isDouble) {
+            value = value.substring(0, value.length() - 1);
+        }
+
+        double parsedValue = Double.parseDouble(value);
+
+        if (isFloat) {
+            return (float) parsedValue;
+        } else if (isDouble) {
+            return parsedValue;
+        } else {
+            // Default to Double if no suffix
+            return parsedValue;
+        }
+    }
+
+    /**
+     * Parses a string literal, processing escape sequences.
+     *
+     * @param value the string value from the token (including quotes)
+     * @return the processed string without quotes
+     */
+    private String parseStringLiteral(String value) {
+        if (value == null || value.isEmpty()) {
+            return "";
+        }
+
+        // Remove surrounding quotes
+        if (value.length() >= 2) {
+            char quote = value.charAt(0);
+            if (quote == '\'' || quote == '"') {
+                value = value.substring(1, value.length() - 1);
+            }
+        }
+
+        // Process escape sequences
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c == '\\' && i + 1 < value.length()) {
+                char next = value.charAt(++i);
+                switch (next) {
+                    case 'n': sb.append('\n'); break;
+                    case 'r': sb.append('\r'); break;
+                    case 't': sb.append('\t'); break;
+                    case 'b': sb.append('\b'); break;
+                    case 'f': sb.append('\f'); break;
+                    case '\'': sb.append('\''); break;
+                    case '"': sb.append('"'); break;
+                    case '\\': sb.append('\\'); break;
+                    default:
+                        // Unknown escape, keep as-is
+                        sb.append('\\').append(next);
+                        break;
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Skips newline tokens if present.
+     */
+    private void skipNewlines() {
+        while (match(TokenType.NEWLINE)) {
+            try {
+                consume();
+            } catch (ParseException e) {
+                // Should not happen since we checked with match()
+                break;
+            }
+        }
     }
 
     /**

@@ -471,16 +471,28 @@ public class QLexpressLexer {
         }
 
         // Decimal number
-        while (position < input.length() && Character.isDigit(peek())) {
-            sb.append(consume());
+        while (position < input.length() && (Character.isDigit(peek()) || peek() == '_')) {
+            char ch = peek();
+            if (ch == '_') {
+                consume(); // Skip underscore
+            } else {
+                sb.append(consume());
+            }
         }
 
         // Check for decimal point
         if (position < input.length() && peek() == '.') {
+            // Need to check if this is actually a decimal point or something else
+            // (e.g., method call on an integer literal)
             isFloat = true;
             sb.append(consume());
-            while (position < input.length() && Character.isDigit(peek())) {
-                sb.append(consume());
+            while (position < input.length() && (Character.isDigit(peek()) || peek() == '_')) {
+                char ch = peek();
+                if (ch == '_') {
+                    consume(); // Skip underscore
+                } else {
+                    sb.append(consume());
+                }
             }
         }
 
@@ -491,8 +503,13 @@ public class QLexpressLexer {
             if (position < input.length() && (peek() == '+' || peek() == '-')) {
                 sb.append(consume());
             }
-            while (position < input.length() && Character.isDigit(peek())) {
-                sb.append(consume());
+            while (position < input.length() && (Character.isDigit(peek()) || peek() == '_')) {
+                char ch = peek();
+                if (ch == '_') {
+                    consume(); // Skip underscore
+                } else {
+                    sb.append(consume());
+                }
             }
         }
 
@@ -522,8 +539,13 @@ public class QLexpressLexer {
         sb.append(consume()); // 0
         sb.append(consume()); // x or X
 
-        while (position < input.length() && isHexDigit(peek())) {
-            sb.append(consume());
+        while (position < input.length() && (isHexDigit(peek()) || peek() == '_')) {
+            char ch = peek();
+            if (ch == '_') {
+                consume(); // Skip underscore
+            } else {
+                sb.append(consume());
+            }
         }
 
         // Check for type suffix
@@ -543,8 +565,13 @@ public class QLexpressLexer {
         sb.append(consume()); // 0
         sb.append(consume()); // b or B
 
-        while (position < input.length() && (peek() == '0' || peek() == '1')) {
-            sb.append(consume());
+        while (position < input.length() && ((peek() == '0' || peek() == '1') || peek() == '_')) {
+            char ch = peek();
+            if (ch == '_') {
+                consume(); // Skip underscore
+            } else {
+                sb.append(consume());
+            }
         }
 
         // Check for type suffix
@@ -563,8 +590,13 @@ public class QLexpressLexer {
         StringBuilder sb = new StringBuilder();
         sb.append(consume()); // 0
 
-        while (position < input.length() && isOctalDigit(peek())) {
-            sb.append(consume());
+        while (position < input.length() && (isOctalDigit(peek()) || peek() == '_')) {
+            char ch = peek();
+            if (ch == '_') {
+                consume(); // Skip underscore
+            } else {
+                sb.append(consume());
+            }
         }
 
         // Check for type suffix
