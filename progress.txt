@@ -66,4 +66,28 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - InterpolationMode enum is in com.alibaba.qlexpress4.aparser package - need to import from existing aparser
   - The grammar allows very flexible Unicode identifiers (CJK characters, full-width parens, etc.)
   - Unit tests for lexical patterns should be added in a later US (US-027)
+
+---
+
+## [Thu Feb 20 06:48:12 AM CST 2025] - US-004
+- Implemented operator tokenization with longest-match precedence
+- Arithmetic operators: +, -, *, /, %, ++, --
+- Bitwise operators: &, |, ^, ~, <<, >>, >>> (with assignment variants: &=, |=, ^=, <<=, >>=, >>>=)
+- Comparison operators: >, <, >=, <=, <>
+- Assignment operators: =, +=, -=, *=, /=, %=, &=, |=, ^=
+- Logical operators: ! (note: && and || are handled by ParserOperatorManager as custom operators, not in lexer)
+- Other operators: ., .*, ->, ::, ?., *., ?, :
+- Keywords already handled via getKeywordType() in readIdentifier()
+- Delimiters: (, ), {, }, [, ], ;, ,, :
+- Added comment skipping: line comments (//...) and block comments (/*...*/)
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (modified)
+- **Learnings for future iterations:**
+  - Operator tokenization uses longest-match: check for 3-char operators first, then 2-char, then 1-char
+  - Note: The PRD mentions **, ===, !==, &&, ||, instanceof, def, type which are NOT in the grammar
+  - The grammar uses NOEQ (<>) instead of != and !==, and doesn't have === or **
+  - Some operators like && and || are handled by ParserOperatorManager as custom operators (OPID)
+  - Comments should be skipped during tokenization (not emitted as tokens)
+  - The grammar doesn't have instanceof as a keyword - it's handled via method access patterns
 ---
