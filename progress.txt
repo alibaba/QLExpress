@@ -180,3 +180,33 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The project uses JUnit 4 for testing (org.junit.Test, @Test annotations)
   - Test helpers should use the same lexer mode as production (non-strict newlines by default)
 ---
+
+## [Thu Feb 20 07:35:12 AM CST 2025] - US-012
+- Implemented parseUnary() method for unary operators
+- Parse prefix unary operators: !, -, +, ~, ++, --
+- Parse suffix unary operators: ++, --
+- Implemented parseBinary() method using precedence climbing algorithm
+- Supports all binary operators with correct precedence: *, /, %, +, -, <<, >>, >>>, <, <=, >, >=, ==, !=, <>, &, |, ^, &&, ||, =, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=
+- Integrated with OperatorManager for operator type and precedence resolution
+- Added support for OPID tokens in lexer for custom operators (==, !=, &&, ||)
+- Fixed >>> and >>>= tokenization by adding 4-character operator check
+- Added constructor overload to QLexpressParser that accepts ParserOperatorManager
+- parseParenthesizedExpression() now calls parseBinary(0) instead of parsePrimary()
+- Added comprehensive unit tests (50+ tests) for operator parsing
+- Typecheck passes (mvn compile)
+- Unit tests pass (82/82)
+- Full test suite passes (278 tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (modified)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified)
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (modified)
+- **Learnings for future iterations:**
+  - The precedence climbing algorithm uses minPrecedence to control when to stop parsing operators
+  - When parsing the right operand, use precedence + 1 for left-associative operators
+  - Token values can be null - always check before calling operatorManager.isOpType()
+  - OPID tokens are used for custom operators that aren't in the base TokenType enum
+  - The lexer must check for longer operators first (4-char, then 3-char, then 2-char, then 1-char)
+  - For >>> vs >>>=, need to check 4 characters before 3 characters to avoid incorrect tokenization
+  - In QLExpress, EQUAL (7) has higher precedence than BIT_AND (6), which is different from standard Java
+  - The test suite uses JUnit 4 and mvn test for running all tests
+---
