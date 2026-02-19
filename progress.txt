@@ -132,4 +132,23 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Statement nodes implement StatementNode interface, Expression nodes implement ExpressionNode interface
   - AssignmentNode is both a StatementNode and ExpressionNode (assignments can be used as expressions)
   - Line and column tracking is inherited from base ASTNode class
+
+---
+
+## [Thu Feb 20 07:02:15 AM CST 2025] - US-010
+- Created QLexpressParser class in com.alibaba.qlexpress4.parser.parser package
+- Implement token stream management with lookahead (peek() and peek(offset))
+- Implement error handling with line/column information via ParseException inner class
+- Implement basic parsing methods: peek(), consume(), expect(), match(), is(), isEOF()
+- Added parseProgram() placeholder method (full implementation in later US)
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (new file)
+- **Learnings for future iterations:**
+  - Parser uses Java 8 compatibility (Collections.emptyList() instead of List.of())
+  - ParseException includes source location for better error messages
+  - Lookahead is essential for recursive descent parsing to decide which production to use
+  - The position variable tracks current token position in the stream
+  - match() method checks if current token is one of several types (useful for decision making)
+  - isEOF() checks for both end of stream and explicit EOF token
 ---
