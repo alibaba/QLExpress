@@ -17,6 +17,8 @@ import java.util.List;
  *   <li>Literals (integers, floats, strings, booleans)</li>
  *   <li>Line and column tracking for error reporting</li>
  *   <li>Interpolation modes (SCRIPT, VARIABLE, DISABLE)</li>
+ *   <li>Custom selector tokens (${}, #{})</li>
+ *   <li>Strict/non-strict newline modes</li>
  * </ul>
  */
 public class QLexpressLexer {
@@ -24,6 +26,8 @@ public class QLexpressLexer {
     private final String source;
     private final InterpolationMode interpolationMode;
     private final boolean strictNewLines;
+    private final String selectorStart;
+    private final String selectorEnd;
 
     private int position;
     private int line;
@@ -37,6 +41,16 @@ public class QLexpressLexer {
     private int tokenStartColumn;
     private int tokenStartPosition;
 
+    // Lexer mode stack for handling different contexts (e.g., string interpolation)
+    private enum LexerMode {
+        DEFAULT,
+        STATIC_STRING,
+        DYNAMIC_STRING,
+        SELECTOR_VARIABLE
+    }
+
+    private java.util.Stack<LexerMode> modeStack;
+
     /**
      * Creates a new lexer for the given input.
      *
@@ -44,16 +58,23 @@ public class QLexpressLexer {
      * @param source the source identifier (e.g., file name)
      * @param interpolationMode the interpolation mode
      * @param strictNewLines whether to emit NEWLINE tokens
+     * @param selectorStart the selector start token (e.g., "${")
+     * @param selectorEnd the selector end token (e.g., "}")
      */
-    public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines) {
+    public QLexpressLexer(String input, String source, InterpolationMode interpolationMode,
+                          boolean strictNewLines, String selectorStart, String selectorEnd) {
         this.input = input != null ? input : "";
         this.source = source;
         this.interpolationMode = interpolationMode != null ? interpolationMode : InterpolationMode.SCRIPT;
         this.strictNewLines = strictNewLines;
+        this.selectorStart = selectorStart != null ? selectorStart : "${";
+        this.selectorEnd = selectorEnd != null ? selectorEnd : "}";
         this.position = 0;
         this.line = 1;
         this.column = 1;
         this.tokens = new ArrayList<>();
+        this.modeStack = new java.util.Stack<>();
+        this.modeStack.push(LexerMode.DEFAULT);
     }
 
     /**
@@ -62,7 +83,19 @@ public class QLexpressLexer {
      * @param input the input source code
      */
     public QLexpressLexer(String input) {
-        this(input, null, InterpolationMode.SCRIPT, true);
+        this(input, null, InterpolationMode.SCRIPT, true, "${", "}");
+    }
+
+    /**
+     * Creates a new lexer with specified interpolation mode and newline handling.
+     *
+     * @param input the input source code
+     * @param source the source identifier
+     * @param interpolationMode the interpolation mode
+     * @param strictNewLines whether to emit NEWLINE tokens
+     */
+    public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines) {
+        this(input, source, interpolationMode, strictNewLines, "${", "}");
     }
 
     /**
@@ -111,6 +144,22 @@ public class QLexpressLexer {
         // Check for end of input
         if (ch == '\0') {
             return null;
+        }
+
+        // Check for selector start (${ or #{ or $[ or #[)
+        if (ch == '$' || ch == '#') {
+            if (position + 1 < input.length()) {
+                char nextCh = peek(1);
+                if ((nextCh == '{' || nextCh == '[')) {
+                    String selector = String.valueOf(ch) + nextCh;
+                    // Check if this matches the configured selector start
+                    if (selector.equals(selectorStart) || selector.equals("${") || selector.equals("#{") ||
+                        selector.equals("$[") || selector.equals("#[")) {
+                        consume(); consume();
+                        return new Token(TokenType.SELECTOR_START, selector, tokenStartLine, tokenStartColumn, source);
+                    }
+                }
+            }
         }
 
         // Newline
