@@ -43,4 +43,27 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Use factory methods (with*) for creating modified copies instead of mutators
   - Include both start and end positions for better error reporting
   - Line/column numbers are 1-based (not 0-based) for user-friendly error messages
+
+---
+
+## [Thu Feb 20 06:43:28 AM CST 2025] - US-003
+- Created QLexpressLexer class in com.alibaba.qlexpress4.parser.lexer package
+- Implemented identifier tokenization with full Unicode support (matches ANTLR IdStart/IdPart rules)
+- Implemented integer literals: hex (0x), binary (0b), octal (0), decimal with type suffixes (l, L)
+- Implemented float literals: decimal point, exponent (e/E), type suffixes (f, F, d, D)
+- Implemented string literals: single-quote with escapes, double-quote with interpolation support
+- Boolean literals (true, false) handled via keyword recognition
+- Tracks line and column numbers (1-based) throughout tokenization
+- Supports interpolation mode configuration (SCRIPT, VARIABLE, DISABLE)
+- Handles strict/non-strict newline modes (non-strict skips NEWLINE tokens)
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (new file)
+- **Learnings for future iterations:**
+  - Identifier matching follows Java's Character.isJavaIdentifierStart/Part with additional Unicode ranges from grammar
+  - Number parsing needs to handle multiple formats: 0x (hex), 0b (binary), leading 0 (octal), decimal
+  - Escape sequences in strings: \n, \r, \t, \b, \f, \', ", \\
+  - InterpolationMode enum is in com.alibaba.qlexpress4.aparser package - need to import from existing aparser
+  - The grammar allows very flexible Unicode identifiers (CJK characters, full-width parens, etc.)
+  - Unit tests for lexical patterns should be added in a later US (US-027)
 ---
