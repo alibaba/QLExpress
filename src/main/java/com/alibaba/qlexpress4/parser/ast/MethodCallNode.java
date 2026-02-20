@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.parser.ast;
 
 import java.util.List;
 
-public class MethodCallNode extends ASTNode implements ExpressionNode {
+public class MethodCallNode extends ASTNode implements ExpressionNode, StatementNode {
     private final ExpressionNode target;
     private final String methodName;
     private final List<ExpressionNode> arguments;

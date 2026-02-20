@@ -1049,27 +1049,635 @@ public class QLexpressParser {
     }
 
     /**
-     * Parses a block expression.
+     * Parses a block statement.
+     * <p>
+     * Block statements have the form: { statements }
      *
-     * @return the expression node
+     * @return the BlockNode
      * @throws ParseException if parsing fails
      */
-    private ExpressionNode parseBlock() throws ParseException {
-        Token lbrace = peek(); // Already consumed
+    private BlockNode parseBlock() throws ParseException {
+        Token lbrace = expect(TokenType.LBRACE);
+        skipNewlines();
 
-        // TODO: Implement block parsing with statements
-        // For now, just consume until closing brace
-        int braceDepth = 1;
-        while (braceDepth > 0 && !isEOF()) {
-            Token token = consume();
-            if (token.getType() == TokenType.LBRACE) {
-                braceDepth++;
-            } else if (token.getType() == TokenType.RBRACE) {
-                braceDepth--;
+        List<StatementNode> statements = new ArrayList<>();
+
+        // Parse statements until we hit RBRACE
+        while (!match(TokenType.RBRACE) && !isEOF()) {
+            StatementNode stmt = parseStatement();
+            if (stmt != null) {
+                statements.add(stmt);
+            }
+            skipNewlines();
+        }
+
+        expect(TokenType.RBRACE);
+
+        return new BlockNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), statements);
+    }
+
+    /**
+     * Parses a statement.
+     * <p>
+     * Statements include:
+     * <ul>
+     *   <li>if-else statements</li>
+     *   <li>while loops</li>
+     *   <li>for loops</li>
+     *   <li>switch statements</li>
+     *   <li>try-catch-finally</li>
+     *   <li>return, break, continue</li>
+     *   <li>throw</li>
+     *   <li>variable declarations</li>
+     *   <li>assignments</li>
+     *   <li>expression statements</li>
+     *   <li>blocks</li>
+     * </ul>
+     *
+     * @return the statement node, or null if empty statement
+     * @throws ParseException if parsing fails
+     */
+    public StatementNode parseStatement() throws ParseException {
+        skipNewlines();
+
+        Token current = peek();
+        if (current == null) {
+            return null;
+        }
+
+        switch (current.getType()) {
+            case IF:
+                return parseIf();
+            case WHILE:
+                return parseWhile();
+            case FOR:
+                return parseFor();
+            case SWITCH:
+                return parseSwitch();
+            case TRY:
+                return parseTryCatch();
+            case RETURN:
+                return parseReturn();
+            case BREAK:
+                return parseBreak();
+            case CONTINUE:
+                return parseContinue();
+            case THROW:
+                return parseThrow();
+            case LBRACE:
+                return parseBlock();
+            case SEMI:
+                consume(); // Empty statement
+                return null;
+            default:
+                // Check for variable declaration with type
+                // Variable declarations can start with:
+                // 1. Primitive type keywords (int, long, etc.)
+                // 2. Class type names followed by another ID (String name, List items, etc.)
+                if (isTypeKeywordToken(current.getType())) {
+                    return parseVariableDeclaration();
+                }
+                // Check for class-type variable declaration (ID followed by ID and optional = or ;)
+                if (current.getType() == TokenType.ID && peek(1) != null && peek(1).getType() == TokenType.ID) {
+                    // Could be "String name" or similar
+                    // Look ahead to verify - if the first ID is a known type or followed by ID and (= or ;), it's a var decl
+                    // We'll use the isTypeKeyword check on the value
+                    if (isTypeKeyword(current.getValue())) {
+                        return parseVariableDeclaration();
+                    }
+                }
+                // Otherwise, it's an expression statement or assignment
+                ExpressionNode expr = parseExpression();
+                // Check for statement terminator
+                skipNewlines();
+                if (match(TokenType.SEMI)) {
+                    consume();
+                }
+                // Expressions can be statements (assignments, method calls, etc.)
+                return expr;
+        }
+    }
+
+    // ==================== Control Flow Statement Parsing ====================
+
+    /**
+     * Parses an if-else statement.
+     * <p>
+     * If statements have the form:
+     * if (condition) thenBody [else elseBody]
+     * <p>
+     * The thenBody and elseBody can be:
+     * <ul>
+     *   <li>A block statement: { statements }</li>
+     *   <li>A single statement</li>
+     *   <li>An expression (for expression form)</li>
+     * </ul>
+     *
+     * @return the IfNode
+     * @throws ParseException if parsing fails
+     */
+    private IfNode parseIf() throws ParseException {
+        Token ifToken = expect(TokenType.IF);
+        skipNewlines();
+
+        expect(TokenType.LPAREN);
+        skipNewlines();
+        ExpressionNode condition = parseExpression();
+        skipNewlines();
+        expect(TokenType.RPAREN);
+        skipNewlines();
+
+        // Check for optional 'then' keyword
+        if (match(TokenType.THEN)) {
+            consume();
+            skipNewlines();
+        }
+
+        // Parse then body - can be block or single statement/expression
+        Node thenBody;
+        if (match(TokenType.LBRACE)) {
+            thenBody = parseBlock();
+        } else if (match(TokenType.IF)) {
+            // Nested if statement without braces
+            thenBody = parseIf();
+        } else {
+            // Single expression or statement
+            thenBody = parseExpression();
+        }
+
+        skipNewlines();
+
+        // Parse optional else clause
+        Node elseBody = null;
+        if (match(TokenType.ELSE)) {
+            consume();
+            skipNewlines();
+
+            if (match(TokenType.LBRACE)) {
+                elseBody = parseBlock();
+            } else if (match(TokenType.IF)) {
+                // "else if" - nested if statement
+                elseBody = parseIf();
+            } else {
+                elseBody = parseExpression();
             }
         }
 
-        return new LiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), null);
+        return new IfNode(ifToken.getLine(), ifToken.getColumn(), ifToken.getSource(),
+                         condition, thenBody, elseBody);
+    }
+
+    /**
+     * Parses a while loop statement.
+     * <p>
+     * While loops have the form: while (condition) { statements }
+     *
+     * @return the WhileNode
+     * @throws ParseException if parsing fails
+     */
+    private WhileNode parseWhile() throws ParseException {
+        Token whileToken = expect(TokenType.WHILE);
+        skipNewlines();
+
+        expect(TokenType.LPAREN);
+        skipNewlines();
+        ExpressionNode condition = parseExpression();
+        skipNewlines();
+        expect(TokenType.RPAREN);
+        skipNewlines();
+
+        BlockNode body = parseBlock();
+
+        return new WhileNode(whileToken.getLine(), whileToken.getColumn(), whileToken.getSource(),
+                            condition, body);
+    }
+
+    /**
+     * Parses a for loop statement.
+     * <p>
+     * For loops come in three forms:
+     * <ul>
+     *   <li>Traditional: for (init; condition; update) { statements }</li>
+     *   <li>For-each: for (type var : iterable) { statements }</li>
+     *   <li>For-in: for (var : iterable) { statements }</li>
+     * </ul>
+     *
+     * @return the ForNode
+     * @throws ParseException if parsing fails
+     */
+    private ForNode parseFor() throws ParseException {
+        Token forToken = expect(TokenType.FOR);
+        skipNewlines();
+
+        expect(TokenType.LPAREN);
+        skipNewlines();
+
+        // Determine which type of for loop this is
+        // Look ahead to see if we have "declType? varId :" pattern (for-each)
+        // or "init; condition; update;" pattern (traditional)
+
+        Node init = null;
+        ExpressionNode condition = null;
+        ExpressionNode update = null;
+        boolean isForEach = false;
+
+        // Check if this is a for-each loop by looking for ':' before ';'
+        int lookaheadPos = 0;
+        boolean foundColon = false;
+        boolean foundSemicolon = false;
+
+        while (lookaheadPos < 50) { // Limit lookahead
+            Token t = peek(lookaheadPos);
+            if (t == null || t.getType() == TokenType.RPAREN) {
+                break;
+            }
+            if (t.getType() == TokenType.COLON) {
+                foundColon = true;
+                break;
+            }
+            if (t.getType() == TokenType.SEMI) {
+                foundSemicolon = true;
+                break;
+            }
+            lookaheadPos++;
+        }
+
+        isForEach = foundColon && !foundSemicolon;
+
+        if (isForEach) {
+            // For-each loop: for (type? var : iterable)
+            // Parse optional type
+            String typeName = null;
+            if (isTypeKeywordToken(peek().getType())) {
+                typeName = consume().getValue();
+            } else if (match(TokenType.ID) && peek(1) != null && peek(1).getType() == TokenType.ID) {
+                // Could be "String name" or similar
+                typeName = consume().getValue();
+            }
+
+            // Variable name
+            String varName;
+            if (match(TokenType.ID)) {
+                varName = consume().getValue();
+            } else {
+                throw error("Expected variable name in for-each loop");
+            }
+
+            // Expect colon
+            expect(TokenType.COLON);
+            skipNewlines();
+
+            // Parse iterable expression
+            ExpressionNode iterable = parseExpression();
+            skipNewlines();
+
+            expect(TokenType.RPAREN);
+            skipNewlines();
+
+            BlockNode body = parseBlock();
+
+            // For for-each, we store the variable info differently
+            // Store as VariableDeclarationNode in init
+            VariableDeclarationNode varDecl = new VariableDeclarationNode(
+                forToken.getLine(), forToken.getColumn(), forToken.getSource(),
+                typeName, varName, iterable);
+
+            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getSource(),
+                             varDecl, null, null, body);
+        } else {
+            // Traditional for loop: for (init; condition; update)
+            // Parse init
+            if (match(TokenType.SEMI)) {
+                // No init
+                consume();
+            } else if (isTypeKeywordToken(peek().getType()) ||
+                       (peek().getType() == TokenType.ID && isTypeKeyword(peek().getValue()))) {
+                // Variable declaration init
+                // Note: parseVariableDeclaration will consume the semicolon
+                init = parseVariableDeclaration();
+            } else {
+                // Expression init
+                init = parseExpression();
+                skipNewlines();
+                expect(TokenType.SEMI);
+            }
+
+            skipNewlines();
+
+            // Parse condition
+            if (!match(TokenType.SEMI)) {
+                condition = parseExpression();
+            }
+            skipNewlines();
+            expect(TokenType.SEMI);
+
+            skipNewlines();
+
+            // Parse update
+            if (!match(TokenType.RPAREN)) {
+                update = parseExpression();
+            }
+
+            skipNewlines();
+            expect(TokenType.RPAREN);
+            skipNewlines();
+
+            BlockNode body = parseBlock();
+
+            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getSource(),
+                              init, condition, update, body);
+        }
+    }
+
+    /**
+     * Parses a switch statement.
+     * <p>
+     * Switch statements have the form:
+     * switch (value) {
+     *   case expr1: statements
+     *   case expr2: statements
+     *   default: statements
+     * }
+     *
+     * @return the SwitchNode
+     * @throws ParseException if parsing fails
+     */
+    private SwitchNode parseSwitch() throws ParseException {
+        Token switchToken = expect(TokenType.SWITCH);
+        skipNewlines();
+
+        expect(TokenType.LPAREN);
+        skipNewlines();
+        ExpressionNode value = parseExpression();
+        skipNewlines();
+        expect(TokenType.RPAREN);
+        skipNewlines();
+
+        expect(TokenType.LBRACE);
+        skipNewlines();
+
+        List<SwitchCaseNode> cases = new ArrayList<>();
+
+        while (!match(TokenType.RBRACE) && !isEOF()) {
+            skipNewlines();
+
+            if (match(TokenType.CASE)) {
+                consume();
+                skipNewlines();
+
+                // Parse case condition (can be expression list in new syntax)
+                ExpressionNode caseExpr = parseExpression();
+                skipNewlines();
+
+                // Expect colon or arrow
+                if (match(TokenType.COLON)) {
+                    consume();
+                } else if (match(TokenType.ARROW)) {
+                    consume();
+                } else {
+                    throw error("Expected ':' or '->' after case expression");
+                }
+                skipNewlines();
+
+                // Parse case statements
+                List<StatementNode> caseStatements = new ArrayList<>();
+                while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
+                    StatementNode stmt = parseStatement();
+                    if (stmt != null) {
+                        caseStatements.add(stmt);
+                    }
+                    skipNewlines();
+                }
+
+                cases.add(new SwitchCaseNode(caseExpr, caseStatements));
+
+            } else if (match(TokenType.DEFAULT)) {
+                consume();
+                skipNewlines();
+
+                // Expect colon or arrow
+                if (match(TokenType.COLON)) {
+                    consume();
+                } else if (match(TokenType.ARROW)) {
+                    consume();
+                } else {
+                    throw error("Expected ':' or '->' after default");
+                }
+                skipNewlines();
+
+                // Parse default statements
+                List<StatementNode> defaultStatements = new ArrayList<>();
+                while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
+                    StatementNode stmt = parseStatement();
+                    if (stmt != null) {
+                        defaultStatements.add(stmt);
+                    }
+                    skipNewlines();
+                }
+
+                // Default case has null condition
+                cases.add(new SwitchCaseNode(null, defaultStatements));
+
+            } else {
+                // Unexpected token, skip
+                consume();
+            }
+        }
+
+        expect(TokenType.RBRACE);
+
+        return new SwitchNode(switchToken.getLine(), switchToken.getColumn(), switchToken.getSource(),
+                             value, cases);
+    }
+
+    /**
+     * Parses a try-catch-finally statement.
+     * <p>
+     * Try-catch statements have the form:
+     * try { statements } catch (Type1|Type2 var) { statements }* [finally { statements }]
+     *
+     * @return the TryCatchNode
+     * @throws ParseException if parsing fails
+     */
+    private TryCatchNode parseTryCatch() throws ParseException {
+        Token tryToken = expect(TokenType.TRY);
+        skipNewlines();
+
+        BlockNode tryBlock = parseBlock();
+        skipNewlines();
+
+        List<CatchClauseNode> catchClauses = new ArrayList<>();
+
+        while (match(TokenType.CATCH)) {
+            Token catchToken = consume();
+            skipNewlines();
+
+            expect(TokenType.LPAREN);
+            skipNewlines();
+
+            // Parse catch parameter types and variable name
+            // Format: (type1 | type2 | ... varName)
+            List<String> exceptionTypes = new ArrayList<>();
+
+            while (true) {
+                String typeName = parseQualifiedTypeName();
+                exceptionTypes.add(typeName);
+                skipNewlines();
+
+                // Check for union types (|)
+                if (match(TokenType.BIT_OR)) {
+                    consume();
+                    skipNewlines();
+                } else {
+                    break;
+                }
+            }
+
+            // Variable name
+            String varName = expect(TokenType.ID).getValue();
+            skipNewlines();
+
+            expect(TokenType.RPAREN);
+            skipNewlines();
+
+            BlockNode catchBlock = parseBlock();
+            skipNewlines();
+
+            catchClauses.add(new CatchClauseNode(exceptionTypes, varName, catchBlock));
+        }
+
+        BlockNode finallyBlock = null;
+        if (match(TokenType.FINALLY)) {
+            consume();
+            skipNewlines();
+            finallyBlock = parseBlock();
+        }
+
+        return new TryCatchNode(tryToken.getLine(), tryToken.getColumn(), tryToken.getSource(),
+                               tryBlock, catchClauses, finallyBlock);
+    }
+
+    /**
+     * Parses a return statement.
+     * <p>
+     * Return statements have the form: return [expression];
+     *
+     * @return the ReturnNode
+     * @throws ParseException if parsing fails
+     */
+    private ReturnNode parseReturn() throws ParseException {
+        Token returnToken = expect(TokenType.RETURN);
+        skipNewlines();
+
+        ExpressionNode value = null;
+
+        // Check if there's a return value
+        if (!match(TokenType.SEMI, TokenType.NEWLINE) && !isEOF()) {
+            value = parseExpression();
+        }
+
+        skipNewlines();
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+
+        return new ReturnNode(returnToken.getLine(), returnToken.getColumn(), returnToken.getSource(), value);
+    }
+
+    /**
+     * Parses a break statement.
+     * <p>
+     * Break statements have the form: break;
+     *
+     * @return the BreakNode
+     * @throws ParseException if parsing fails
+     */
+    private BreakNode parseBreak() throws ParseException {
+        Token breakToken = expect(TokenType.BREAK);
+        skipNewlines();
+
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+
+        return new BreakNode(breakToken.getLine(), breakToken.getColumn(), breakToken.getSource());
+    }
+
+    /**
+     * Parses a continue statement.
+     * <p>
+     * Continue statements have the form: continue;
+     *
+     * @return the ContinueNode
+     * @throws ParseException if parsing fails
+     */
+    private ContinueNode parseContinue() throws ParseException {
+        Token continueToken = expect(TokenType.CONTINUE);
+        skipNewlines();
+
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+
+        return new ContinueNode(continueToken.getLine(), continueToken.getColumn(), continueToken.getSource());
+    }
+
+    /**
+     * Parses a throw statement.
+     * <p>
+     * Throw statements have the form: throw expression;
+     *
+     * @return the ThrowNode
+     * @throws ParseException if parsing fails
+     */
+    private ThrowNode parseThrow() throws ParseException {
+        Token throwToken = expect(TokenType.THROW);
+        skipNewlines();
+
+        ExpressionNode exception = parseExpression();
+        skipNewlines();
+
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+
+        return new ThrowNode(throwToken.getLine(), throwToken.getColumn(), throwToken.getSource(), exception);
+    }
+
+    /**
+     * Parses a variable declaration.
+     * <p>
+     * Variable declarations have the form: Type varName [= expression];
+     *
+     * @return the VariableDeclarationNode
+     * @throws ParseException if parsing fails
+     */
+    private VariableDeclarationNode parseVariableDeclaration() throws ParseException {
+        Token typeToken = peek();
+
+        // Parse type name
+        String typeName = parseQualifiedTypeName();
+        skipNewlines();
+
+        // Parse variable name
+        String varName = expect(TokenType.ID).getValue();
+        skipNewlines();
+
+        // Parse optional initializer
+        ExpressionNode initializer = null;
+        if (match(TokenType.EQ)) {
+            consume();
+            skipNewlines();
+            initializer = parseExpression();
+        }
+
+        skipNewlines();
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+
+        return new VariableDeclarationNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getSource(),
+                                          typeName, varName, initializer);
     }
 
     // ==================== Unary Operator Parsing ====================

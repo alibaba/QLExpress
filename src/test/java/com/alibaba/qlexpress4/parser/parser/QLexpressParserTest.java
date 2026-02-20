@@ -1146,4 +1146,276 @@ public class QLexpressParserTest {
         com.alibaba.qlexpress4.parser.ast.TypeNode typeNode = (com.alibaba.qlexpress4.parser.ast.TypeNode) expr;
         Assert.assertEquals("Type name should be 'int'", "int", typeNode.getTypeName());
     }
+
+    // ==================== Statement Parsing Tests ====================
+
+    // ==================== If Statement Tests ====================
+
+    @Test
+    public void testParseSimpleIfStatement() throws Exception {
+        QLexpressParser parser = createParser("if (true) { x = 1; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+        com.alibaba.qlexpress4.parser.ast.IfNode ifNode = (com.alibaba.qlexpress4.parser.ast.IfNode) stmt;
+        Assert.assertTrue("Condition should be LiteralNode", ifNode.getCondition() instanceof LiteralNode);
+        Assert.assertTrue("Then body should be BlockNode", ifNode.getThenBody() instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+    }
+
+    @Test
+    public void testParseIfElseStatement() throws Exception {
+        QLexpressParser parser = createParser("if (a > b) { x = 1; } else { x = 2; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+        com.alibaba.qlexpress4.parser.ast.IfNode ifNode = (com.alibaba.qlexpress4.parser.ast.IfNode) stmt;
+        Assert.assertNotNull("Else body should not be null", ifNode.getElseBody());
+    }
+
+    @Test
+    public void testParseIfThenElseStatement() throws Exception {
+        QLexpressParser parser = createParser("if (a > b) then { x = 1; } else { x = 2; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+    }
+
+    @Test
+    public void testParseNestedIfStatement() throws Exception {
+        QLexpressParser parser = createParser("if (a) { if (b) { x = 1; } }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+    }
+
+    @Test
+    public void testParseElseIfStatement() throws Exception {
+        QLexpressParser parser = createParser("if (a) { x = 1; } else if (b) { x = 2; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+        com.alibaba.qlexpress4.parser.ast.IfNode ifNode = (com.alibaba.qlexpress4.parser.ast.IfNode) stmt;
+        Assert.assertNotNull("Else body should not be null", ifNode.getElseBody());
+        Assert.assertTrue("Else body should be IfNode (else if)", ifNode.getElseBody() instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+    }
+
+    @Test
+    public void testParseIfWithExpressionThen() throws Exception {
+        QLexpressParser parser = createParser("if (a) x = 1");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be IfNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+        com.alibaba.qlexpress4.parser.ast.IfNode ifNode = (com.alibaba.qlexpress4.parser.ast.IfNode) stmt;
+        Assert.assertTrue("Then body should be ExpressionNode", ifNode.getThenBody() instanceof ExpressionNode);
+    }
+
+    // ==================== While Loop Tests ====================
+
+    @Test
+    public void testParseWhileLoop() throws Exception {
+        QLexpressParser parser = createParser("while (true) { x = x + 1; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be WhileNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.WhileNode);
+        com.alibaba.qlexpress4.parser.ast.WhileNode whileNode = (com.alibaba.qlexpress4.parser.ast.WhileNode) stmt;
+        Assert.assertTrue("Condition should be LiteralNode", whileNode.getCondition() instanceof LiteralNode);
+        Assert.assertTrue("Body should be BlockNode", whileNode.getBody() instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+    }
+
+    @Test
+    public void testParseWhileWithBinaryCondition() throws Exception {
+        QLexpressParser parser = createParser("while (i < 10) { i = i + 1; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be WhileNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.WhileNode);
+        com.alibaba.qlexpress4.parser.ast.WhileNode whileNode = (com.alibaba.qlexpress4.parser.ast.WhileNode) stmt;
+        Assert.assertTrue("Condition should be BinaryOpNode", whileNode.getCondition() instanceof BinaryOpNode);
+    }
+
+    // ==================== For Loop Tests ====================
+
+    @Test
+    public void testParseTraditionalForLoop() throws Exception {
+        QLexpressParser parser = createParser("for (int i = 0; i < 10; i = i + 1) { sum = sum + i; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+        com.alibaba.qlexpress4.parser.ast.ForNode forNode = (com.alibaba.qlexpress4.parser.ast.ForNode) stmt;
+        Assert.assertNotNull("Init should not be null", forNode.getInit());
+        Assert.assertNotNull("Condition should not be null", forNode.getCondition());
+        Assert.assertNotNull("Update should not be null", forNode.getUpdate());
+    }
+
+    @Test
+    public void testParseForLoopWithoutInit() throws Exception {
+        QLexpressParser parser = createParser("for (; i < 10; i = i + 1) { sum = sum + i; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+    }
+
+    @Test
+    public void testParseForLoopWithoutCondition() throws Exception {
+        QLexpressParser parser = createParser("for (int i = 0; ; i = i + 1) { sum = sum + i; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+    }
+
+    @Test
+    public void testParseForLoopWithoutUpdate() throws Exception {
+        QLexpressParser parser = createParser("for (int i = 0; i < 10;) { sum = sum + i; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+    }
+
+    @Test
+    public void testParseForEachLoop() throws Exception {
+        QLexpressParser parser = createParser("for (int x : list) { sum = sum + x; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+        com.alibaba.qlexpress4.parser.ast.ForNode forNode = (com.alibaba.qlexpress4.parser.ast.ForNode) stmt;
+        Assert.assertTrue("Init should be VariableDeclarationNode for for-each", forNode.getInit() instanceof com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode);
+    }
+
+    @Test
+    public void testParseForEachLoopWithoutType() throws Exception {
+        QLexpressParser parser = createParser("for (x : list) { sum = sum + x; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ForNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+    }
+
+    // ==================== Switch Statement Tests ====================
+
+    @Test
+    public void testParseSimpleSwitch() throws Exception {
+        QLexpressParser parser = createParser("switch (x) { case 1: a = 1; break; default: a = 0; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be SwitchNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.SwitchNode);
+        com.alibaba.qlexpress4.parser.ast.SwitchNode switchNode = (com.alibaba.qlexpress4.parser.ast.SwitchNode) stmt;
+        Assert.assertTrue("Value should be IdentifierNode", switchNode.getValue() instanceof IdentifierNode);
+        Assert.assertTrue("Should have at least 2 cases", switchNode.getCases().size() >= 2);
+    }
+
+    @Test
+    public void testParseSwitchWithMultipleCases() throws Exception {
+        QLexpressParser parser = createParser("switch (x) { case 1: a = 1; break; case 2: a = 2; break; default: a = 0; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be SwitchNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.SwitchNode);
+        com.alibaba.qlexpress4.parser.ast.SwitchNode switchNode = (com.alibaba.qlexpress4.parser.ast.SwitchNode) stmt;
+        Assert.assertTrue("Should have at least 3 cases", switchNode.getCases().size() >= 3);
+    }
+
+    @Test
+    public void testParseSwitchWithArrowSyntax() throws Exception {
+        QLexpressParser parser = createParser("switch (x) { case 1 -> a = 1; default -> a = 0; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be SwitchNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.SwitchNode);
+    }
+
+    @Test
+    public void testParseSwitchOnlyDefault() throws Exception {
+        QLexpressParser parser = createParser("switch (x) { default: a = 0; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be SwitchNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.SwitchNode);
+        com.alibaba.qlexpress4.parser.ast.SwitchNode switchNode = (com.alibaba.qlexpress4.parser.ast.SwitchNode) stmt;
+        Assert.assertEquals("Should have 1 case (default)", 1, switchNode.getCases().size());
+    }
+
+    // ==================== Block Statement Tests ====================
+
+    @Test
+    public void testParseEmptyBlock() throws Exception {
+        QLexpressParser parser = createParser("{}");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be BlockNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+        com.alibaba.qlexpress4.parser.ast.BlockNode blockNode = (com.alibaba.qlexpress4.parser.ast.BlockNode) stmt;
+        Assert.assertEquals("Should have 0 statements", 0, blockNode.getStatements().size());
+    }
+
+    @Test
+    public void testParseBlockWithStatements() throws Exception {
+        QLexpressParser parser = createParser("{ x = 1; y = 2; }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be BlockNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+        com.alibaba.qlexpress4.parser.ast.BlockNode blockNode = (com.alibaba.qlexpress4.parser.ast.BlockNode) stmt;
+        Assert.assertTrue("Should have at least 2 statements", blockNode.getStatements().size() >= 2);
+    }
+
+    @Test
+    public void testParseNestedBlocks() throws Exception {
+        QLexpressParser parser = createParser("{ { x = 1; } }");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be BlockNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+        com.alibaba.qlexpress4.parser.ast.BlockNode blockNode = (com.alibaba.qlexpress4.parser.ast.BlockNode) stmt;
+        Assert.assertEquals("Should have 1 statement (inner block)", 1, blockNode.getStatements().size());
+    }
+
+    // ==================== Return Statement Tests ====================
+
+    @Test
+    public void testParseReturnWithValue() throws Exception {
+        QLexpressParser parser = createParser("return 42;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ReturnNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ReturnNode);
+        com.alibaba.qlexpress4.parser.ast.ReturnNode returnNode = (com.alibaba.qlexpress4.parser.ast.ReturnNode) stmt;
+        Assert.assertNotNull("Return value should not be null", returnNode.getValue());
+    }
+
+    @Test
+    public void testParseReturnWithoutValue() throws Exception {
+        QLexpressParser parser = createParser("return;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ReturnNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ReturnNode);
+        com.alibaba.qlexpress4.parser.ast.ReturnNode returnNode = (com.alibaba.qlexpress4.parser.ast.ReturnNode) stmt;
+        Assert.assertNull("Return value should be null", returnNode.getValue());
+    }
+
+    // ==================== Break Statement Tests ====================
+
+    @Test
+    public void testParseBreakStatement() throws Exception {
+        QLexpressParser parser = createParser("break;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be BreakNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.BreakNode);
+    }
+
+    // ==================== Continue Statement Tests ====================
+
+    @Test
+    public void testParseContinueStatement() throws Exception {
+        QLexpressParser parser = createParser("continue;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ContinueNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ContinueNode);
+    }
+
+    // ==================== Throw Statement Tests ====================
+
+    @Test
+    public void testParseThrowStatement() throws Exception {
+        QLexpressParser parser = createParser("throw new Exception();");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be ThrowNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.ThrowNode);
+        com.alibaba.qlexpress4.parser.ast.ThrowNode throwNode = (com.alibaba.qlexpress4.parser.ast.ThrowNode) stmt;
+        Assert.assertNotNull("Exception expression should not be null", throwNode.getException());
+    }
+
+    // ==================== Variable Declaration Tests ====================
+
+    @Test
+    public void testParseVariableDeclaration() throws Exception {
+        QLexpressParser parser = createParser("int x;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be VariableDeclarationNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode);
+        com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode varDecl = (com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode) stmt;
+        Assert.assertEquals("Type should be 'int'", "int", varDecl.getTypeName());
+        Assert.assertEquals("Variable name should be 'x'", "x", varDecl.getVariableName());
+    }
+
+    @Test
+    public void testParseVariableDeclarationWithInitializer() throws Exception {
+        QLexpressParser parser = createParser("int x = 42;");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be VariableDeclarationNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode);
+        com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode varDecl = (com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode) stmt;
+        Assert.assertNotNull("Initializer should not be null", varDecl.getInitialValue());
+    }
+
+    @Test
+    public void testParseStringVariableDeclaration() throws Exception {
+        QLexpressParser parser = createParser("String name = 'test';");
+        com.alibaba.qlexpress4.parser.ast.StatementNode stmt = parser.parseStatement();
+        Assert.assertTrue("Should be VariableDeclarationNode", stmt instanceof com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode);
+        com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode varDecl = (com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode) stmt;
+        Assert.assertEquals("Type should be 'String'", "String", varDecl.getTypeName());
+    }
 }

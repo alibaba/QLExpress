@@ -3,7 +3,7 @@ package com.alibaba.qlexpress4.parser.ast;
 import java.util.List;
 import java.util.Collections;
 
-public class BlockNode extends ASTNode implements StatementNode {
+public class BlockNode extends ASTNode implements StatementNode, ExpressionNode {
     private final List<StatementNode> statements;
 
     public BlockNode(int line, int column, String source, List<StatementNode> statements) {
