@@ -329,3 +329,32 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The project uses JUnit 4 for testing (@Test annotations, assertEquals, assertTrue, etc.)
 
 ---
+## [Thu Feb 20 09:30:00 AM CST 2025] - US-018
+- Implemented visit(MethodCallNode) to generate MethodInvokeInstruction
+- Implemented visit(ConstructorCallNode) to generate NewInstanceInstruction
+- Implemented visit(LambdaNode) to generate LoadLambdaInstruction with QLambdaDefinitionInner
+- Implemented visit(ArrayAccessNode) to generate IndexInstruction
+- Implemented visit(ArrayLiteralNode) to generate NewArrayInstruction
+- Implemented visit(ListLiteralNode) to generate NewListInstruction
+- Implemented visit(MapLiteralNode) to generate NewMapInstruction
+- Added 10 new unit tests for method calls, constructors, arrays, lists, maps, and lambdas
+- Typecheck passes (mvn compile)
+- All tests pass (382/382, including 27 InstructionGenerator tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - ~300 insertions)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (modified - ~170 insertions)
+  - prd.json (modified - marked US-018 as complete)
+- **Learnings for future iterations:**
+  - MethodInvokeInstruction takes (methodName, argNum, optional) - the target is already on the stack
+  - For static calls (target == null), no target instruction is generated
+  - NewInstanceInstruction takes (class, argNum) - needs type resolution (currently placeholder)
+  - LoadLambdaInstruction takes a QLambdaDefinitionInner which contains (name, instructions, params, maxStackSize)
+  - Lambda bodies can be ExpressionNode (with return instruction added) or BlockNode
+  - IndexInstruction works for arrays, lists, and maps - pops array/object and index, pushes result
+  - NewArrayInstruction takes (elementClass, length) - elements are on the stack
+  - NewListInstruction takes (initLength) - elements are on the stack
+  - NewMapInstruction takes (List<String> keys) - values are on the stack in order
+  - MapLiteralNode keys must be string literals (per current implementation)
+  - QLambdaDefinitionInner.Param takes (name, clazz) - clazz is the parameter type
+  - ReturnInstruction needs QResult.ResultType (CONTINUE for normal return)
+
