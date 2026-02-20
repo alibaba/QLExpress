@@ -296,3 +296,36 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The full test suite (355 tests) continues to pass, confirming the parser works correctly
   - TestSuiteRunner successfully executes all testsuite/*.ql scripts without errors
 
+## [Thu Feb 20 09:00:00 AM CST 2025] - US-017
+- Created InstructionGenerator class in parser.visitor package to generate QVM instructions from AST
+- Implemented visit(LiteralNode) to generate ConstInstruction
+- Implemented visit(IdentifierNode) to generate LoadInstruction
+- Implemented visit(BinaryOpNode) to generate OperatorInstruction
+- Implemented visit(UnaryOpNode) to generate UnaryInstruction
+- Implemented visit(TernaryNode) to generate JumpIfInstruction and JumpInstruction for ternary expressions
+- Implemented visit(ProgramNode) to process statement lists with automatic pop for expressions
+- Implemented visit(BlockNode) with child context creation and expression result handling
+- Created GenerationResult class to hold instructions and metadata (isExpressionValue, stackEffect)
+- Created GenerationContext class for tracking state during AST traversal (properties, parent hierarchy)
+- Added 20 comprehensive unit tests covering all expression generation cases
+- Typecheck passes (mvn compile)
+- Unit tests pass (20/20 InstructionGenerator tests, 375/375 total tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/GenerationResult.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/GenerationContext.java (new file)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (new file)
+  - prd.json (modified - marked US-017 as complete)
+- **Learnings for future iterations:**
+  - The ASTVisitor interface uses generic types <R, C> for return type and context type
+  - ExpressionNode and StatementNode are marker interfaces - accept() method is defined in ASTNode base class
+  - When calling accept() on ExpressionNode or StatementNode, must cast to ASTNode first: ((ASTNode) expr).accept(visitor, context)
+  - The OperatorManager class provides getBinaryOperator() and getPrefixUnaryOperator()/getSuffixUnaryOperator() methods
+  - ConstInstruction, LoadInstruction, OperatorInstruction, UnaryInstruction constructors take ErrorReporter and optional traceKey
+  - JumpIfInstruction takes (expect boolean, position int, traceKey Integer) - position is relative offset from instruction
+  - Ternary expression generates: condition, JumpIf(false), thenExpr, Jump, elseExpr - with positions set correctly
+  - Expression statements need PopInstruction to discard their result (handled in BlockNode and ProgramNode)
+  - PureErrReporter.INSTANCE is used as a simple error reporter when detailed source info isn't available
+  - The project uses JUnit 4 for testing (@Test annotations, assertEquals, assertTrue, etc.)
+
+---
