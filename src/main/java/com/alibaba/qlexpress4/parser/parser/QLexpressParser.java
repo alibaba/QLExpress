@@ -4,6 +4,15 @@ import com.alibaba.qlexpress4.parser.token.Token;
 import com.alibaba.qlexpress4.parser.token.TokenType;
 import com.alibaba.qlexpress4.parser.ast.*;
 import com.alibaba.qlexpress4.parser.ast.ExpressionNode;
+import com.alibaba.qlexpress4.parser.ast.TernaryNode;
+import com.alibaba.qlexpress4.parser.ast.LambdaNode;
+import com.alibaba.qlexpress4.parser.ast.MethodCallNode;
+import com.alibaba.qlexpress4.parser.ast.ConstructorCallNode;
+import com.alibaba.qlexpress4.parser.ast.ArrayAccessNode;
+import com.alibaba.qlexpress4.parser.ast.CastNode;
+import com.alibaba.qlexpress4.parser.ast.InstanceOfNode;
+import com.alibaba.qlexpress4.parser.ast.TypeNode;
+import com.alibaba.qlexpress4.parser.ast.ParameterNode;
 import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.QLPrecedences;
@@ -85,6 +94,13 @@ public class QLexpressParser {
      *   <li>Literals (numbers, strings, booleans, null)</li>
      *   <li>Identifiers (variable names)</li>
      *   <li>Parenthesized expressions</li>
+     *   <li>Lambda expressions</li>
+     *   <li>Type casts</li>
+     *   <li>Constructor calls (new)</li>
+     *   <li>Type literals (primitive types)</li>
+     *   <li>List literals</li>
+     *   <li>Map literals</li>
+     *   <li>Block expressions</li>
      * </ul>
      *
      * @return the parsed expression node
@@ -94,6 +110,11 @@ public class QLexpressParser {
         Token current = peek();
         if (current == null) {
             throw error("Unexpected end of input, expected expression");
+        }
+
+        // Check for lambda expression first (can start with ID or LPAREN)
+        if (shouldParseLambda()) {
+            return parseLambda();
         }
 
         switch (current.getType()) {
@@ -107,10 +128,29 @@ public class QLexpressParser {
                 return parseLiteral();
 
             case ID:
-                return parseIdentifier();
+                return parsePrimaryWithIdentifier();
 
             case LPAREN:
-                return parseParenthesizedExpression();
+                return parseParenthesizedOrCast();
+
+            case NEW:
+                return parseConstructorCall();
+
+            case BYTE:
+            case SHORT:
+            case INT:
+            case LONG:
+            case FLOAT:
+            case DOUBLE:
+            case CHAR:
+            case BOOLEAN:
+                return parseTypeLiteral();
+
+            case LBRACK:
+                return parseListLiteral();
+
+            case LBRACE:
+                return parseBraceExpression();
 
             default:
                 throw error("Expected expression but found " + current.getType());
@@ -337,6 +377,701 @@ public class QLexpressParser {
         }
     }
 
+    // ==================== Ternary Expression Parsing ====================
+
+    /**
+     * Checks if the current token could be the start of a lambda expression.
+     * Lambdas can start with:
+     * - An identifier followed by ARROW
+     * - LPAREN followed by parameters and ARROW
+     *
+     * @return true if this looks like a lambda
+     */
+    private boolean shouldParseLambda() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        // Lambda must start with ID or LPAREN
+        if (current.getType() == TokenType.LPAREN) {
+            // Check if there's an ARROW after the closing paren
+            // Find the matching RPAREN and check if next token is ARROW
+            int depth = 1;
+            int offset = 1; // Start after the current LPAREN
+            while (depth > 0 && offset < 100) { // Limit lookahead
+                Token t = peek(offset);
+                if (t == null) {
+                    return false;
+                }
+                if (t.getType() == TokenType.LPAREN) {
+                    depth++;
+                } else if (t.getType() == TokenType.RPAREN) {
+                    depth--;
+                }
+                offset++;
+            }
+            // After finding matching RPAREN, check if next is ARROW
+            Token afterRParen = peek(offset);
+            return afterRParen != null && afterRParen.getType() == TokenType.ARROW;
+        }
+        if (current.getType() == TokenType.ID) {
+            // Check if next token is ARROW
+            Token next = peek(1);
+            return next != null && next.getType() == TokenType.ARROW;
+        }
+        return false;
+    }
+
+    // ==================== Lambda Expression Parsing ====================
+
+    /**
+     * Parses a lambda expression.
+     * <p>
+     * Lambda expressions have the form:
+     * <ul>
+     *   <li>parameter -&gt; expression</li>
+     *   <li>parameter -&gt; { statements }</li>
+     *   <li>(param1, param2, ...) -&gt; expression</li>
+     *   <li>(param1, param2, ...) -&gt; { statements }</li>
+     * </ul>
+     *
+     * @return the LambdaNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseLambda() throws ParseException {
+        int line = peek().getLine();
+        int column = peek().getColumn();
+        String source = peek().getSource();
+
+        // Parse parameters
+        List<ParameterNode> parameters = parseLambdaParameters();
+
+        // Expect arrow
+        skipNewlines();
+        if (!match(TokenType.ARROW)) {
+            throw error("Expected '->' in lambda expression");
+        }
+        consume();
+        skipNewlines();
+
+        // Parse body (expression or block)
+        Node body;
+        if (match(TokenType.LBRACE)) {
+            body = parseBlock();
+        } else {
+            body = parseExpression();
+        }
+
+        return new LambdaNode(line, column, source, parameters, body);
+    }
+
+    /**
+     * Parses lambda parameters.
+     * <p>
+     * Lambda parameters can be:
+     * <ul>
+     *   <li>A single identifier: param</li>
+     *   <li>A parenthesized list: (param1, param2, ...)</li>
+     * </ul>
+     *
+     * @return the list of parameters
+     * @throws ParseException if parsing fails
+     */
+    private List<ParameterNode> parseLambdaParameters() throws ParseException {
+        List<ParameterNode> parameters = new ArrayList<>();
+
+        if (match(TokenType.LPAREN)) {
+            consume();
+            skipNewlines();
+
+            if (!match(TokenType.RPAREN)) {
+                parameters.add(parseLambdaParameter());
+                skipNewlines();
+                while (match(TokenType.COMMA)) {
+                    consume();
+                    skipNewlines();
+                    parameters.add(parseLambdaParameter());
+                    skipNewlines();
+                }
+            }
+
+            expect(TokenType.RPAREN);
+        } else {
+            // Single parameter without parentheses
+            Token param = expect(TokenType.ID);
+            parameters.add(new ParameterNode(null, param.getValue()));
+        }
+
+        return parameters;
+    }
+
+    /**
+     * Parses a single lambda parameter.
+     * <p>
+     * Lambda parameters can have optional type: [Type] name
+     *
+     * @return the parameter node
+     * @throws ParseException if parsing fails
+     */
+    private ParameterNode parseLambdaParameter() throws ParseException {
+        String typeName = null;
+        String paramName;
+
+        // Check if this is a typed parameter
+        // Look ahead to see if we have (TypeKeyword or ID) followed by ID
+        Token current = peek();
+        if (current != null && (current.getType() == TokenType.ID || isTypeKeywordToken(current.getType()))) {
+            Token next = peek(1);
+            if (next != null && next.getType() == TokenType.ID) {
+                // This is a typed parameter like "int x" or "String name"
+                if (isTypeKeywordToken(current.getType())) {
+                    typeName = current.getValue();
+                    consume();
+                } else {
+                    // Check if it's a known type keyword by value
+                    if (isTypeKeyword(current.getValue())) {
+                        typeName = current.getValue();
+                        consume();
+                    } else {
+                        // Could be qualified type like "java.lang.String"
+                        typeName = parseQualifiedTypeName();
+                    }
+                }
+                Token name = expect(TokenType.ID);
+                paramName = name.getValue();
+            } else {
+                // Just an identifier parameter (no type)
+                Token param = expect(TokenType.ID);
+                paramName = param.getValue();
+            }
+        } else {
+            Token param = expect(TokenType.ID);
+            paramName = param.getValue();
+        }
+
+        return new ParameterNode(typeName, paramName);
+    }
+
+    /**
+     * Parses a qualified type name (e.g., "java.lang.String").
+     * Also handles type keywords (int, long, etc.).
+     *
+     * @return the qualified type name
+     * @throws ParseException if parsing fails
+     */
+    private String parseQualifiedTypeName() throws ParseException {
+        StringBuilder sb = new StringBuilder();
+
+        // Check for type keyword first
+        Token current = peek();
+        if (current != null && isTypeKeywordToken(current.getType())) {
+            sb.append(consume().getValue());
+        } else {
+            sb.append(expect(TokenType.ID).getValue());
+        }
+
+        while (match(TokenType.DOT)) {
+            consume();
+            // After dot, we expect an ID (type keywords can't follow dots)
+            sb.append(".").append(expect(TokenType.ID).getValue());
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Checks if the given token type is a type keyword.
+     *
+     * @param type the token type to check
+     * @return true if it's a type keyword token
+     */
+    private boolean isTypeKeywordToken(TokenType type) {
+        return type == TokenType.BYTE ||
+               type == TokenType.SHORT ||
+               type == TokenType.INT ||
+               type == TokenType.LONG ||
+               type == TokenType.FLOAT ||
+               type == TokenType.DOUBLE ||
+               type == TokenType.CHAR ||
+               type == TokenType.BOOLEAN;
+    }
+
+    /**
+     * Checks if the given string is a type keyword.
+     *
+     * @param value the string to check
+     * @return true if it's a type keyword
+     */
+    private boolean isTypeKeyword(String value) {
+        if (value == null) {
+            return false;
+        }
+        return value.equals("byte") || value.equals("short") || value.equals("int") ||
+               value.equals("long") || value.equals("float") || value.equals("double") ||
+               value.equals("char") || value.equals("boolean") ||
+               value.equals("String") || value.equals("Object") ||
+               value.equals("Integer") || value.equals("Long") ||
+               value.equals("Float") || value.equals("Double") ||
+               value.equals("Boolean") || value.equals("Character");
+    }
+
+    // ==================== Method Call and Path Parsing ====================
+
+    /**
+     * Parses a primary expression starting with an identifier.
+     * This handles identifiers, method calls, and field access.
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parsePrimaryWithIdentifier() throws ParseException {
+        Token idToken = peek();
+        String name = idToken.getValue();
+        consume();
+
+        IdentifierNode identifier = new IdentifierNode(idToken.getLine(), idToken.getColumn(), idToken.getSource(), name);
+
+        // Check for method call: id(...)
+        skipNewlines();
+        if (match(TokenType.LPAREN)) {
+            // Parse method call with identifier as the target
+            return parseMethodCallWithIdentifier(identifier);
+        }
+
+        // Check for path operations (field access, array access, etc.)
+        return parsePath(identifier);
+    }
+
+    /**
+     * Parses a method call starting with an identifier as the method name.
+     * <p>
+     * Method calls have the form: methodName(args) or for chained calls: target.methodName(args)
+     *
+     * @param identifier the identifier node (for simple calls) or null (for chained calls)
+     * @return the MethodCallNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseMethodCallWithIdentifier(IdentifierNode identifier) throws ParseException {
+        skipNewlines();
+        Token lparen = expect(TokenType.LPAREN);
+        skipNewlines();
+
+        List<ExpressionNode> arguments = new ArrayList<>();
+        if (!match(TokenType.RPAREN)) {
+            arguments.add(parseExpression());
+            skipNewlines();
+            while (match(TokenType.COMMA)) {
+                consume();
+                skipNewlines();
+                arguments.add(parseExpression());
+                skipNewlines();
+            }
+        }
+
+        expect(TokenType.RPAREN);
+
+        // Create the method call node
+        MethodCallNode methodCall = new MethodCallNode(lparen.getLine(), lparen.getColumn(), lparen.getSource(),
+                                                       null, identifier.getName(), arguments);
+
+        // Check for method chaining: .method(...)
+        return parsePath(methodCall);
+    }
+
+    /**
+     * Parses a path part (method call, field access, array access, method reference).
+     * This is called after parsing a primary expression.
+     *
+     * @param target the target expression
+     * @return the expression node with path applied
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parsePath(ExpressionNode target) throws ParseException {
+        while (true) {
+            skipNewlines();
+            Token current = peek();
+
+            if (current == null) {
+                break;
+            }
+
+            switch (current.getType()) {
+                case DOT: {
+                    consume();
+                    skipNewlines();
+                    Token member = expect(TokenType.ID);
+
+                    // Check for method call
+                    skipNewlines();
+                    if (match(TokenType.LPAREN)) {
+                        consume(); // Consume LPAREN
+                        List<ExpressionNode> arguments = parseArgumentListBody();
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getSource(),
+                                                    target, member.getValue(), arguments);
+                    } else {
+                        // Field access - for now just return the target
+                        // TODO: Implement FieldAccessNode
+                        // For now, create a MethodCallNode with no arguments as a placeholder
+                        // This handles cases like obj.field
+                        target = target;
+                    }
+                    break;
+                }
+
+                case OPTIONAL_CHAINING: {
+                    // ?. operator for optional chaining
+                    Token opToken = consume();
+                    skipNewlines();
+                    Token member = expect(TokenType.ID);
+
+                    // Check for method call
+                    skipNewlines();
+                    if (match(TokenType.LPAREN)) {
+                        consume(); // Consume LPAREN
+                        List<ExpressionNode> arguments = parseArgumentListBody();
+                        // TODO: Create OptionalMethodCallNode
+                        // For now, use regular MethodCallNode
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getSource(),
+                                                    target, member.getValue(), arguments);
+                    } else {
+                        // Optional field access
+                        // TODO: Implement OptionalFieldAccessNode
+                        target = target;
+                    }
+                    break;
+                }
+
+                case SPREAD_CHAINING: {
+                    // *. operator for spread chaining
+                    Token opToken = consume();
+                    skipNewlines();
+                    Token member = expect(TokenType.ID);
+
+                    // Check for method call
+                    skipNewlines();
+                    if (match(TokenType.LPAREN)) {
+                        consume(); // Consume LPAREN
+                        List<ExpressionNode> arguments = parseArgumentListBody();
+                        // TODO: Create SpreadMethodCallNode
+                        // For now, use regular MethodCallNode
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getSource(),
+                                                    target, member.getValue(), arguments);
+                    } else {
+                        // Spread field access
+                        // TODO: Implement SpreadFieldAccessNode
+                        target = target;
+                    }
+                    break;
+                }
+
+                case DCOLON: {
+                    // :: operator for method reference
+                    Token opToken = consume();
+                    skipNewlines();
+                    Token methodName = expect(TokenType.ID);
+                    // TODO: Create MethodReferenceNode
+                    // For now, create a LambdaNode as a placeholder
+                    // Method reference like "obj::method" is equivalent to lambda "x -> x.method()"
+                    List<ParameterNode> params = new ArrayList<>();
+                    params.add(new ParameterNode(null, "it"));
+                    LambdaNode lambda = new LambdaNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(),
+                                                       params, target);
+                    target = lambda;
+                    break;
+                }
+
+                case LBRACK:
+                    target = parseArrayAccess(target);
+                    break;
+
+                default:
+                    return target;
+            }
+        }
+
+        return target;
+    }
+
+    /**
+     * Parses the body of an argument list (without the leading LPAREN).
+     * This is used when we've already consumed the LPAREN.
+     *
+     * @return the list of argument expressions
+     * @throws ParseException if parsing fails
+     */
+    private List<ExpressionNode> parseArgumentListBody() throws ParseException {
+        List<ExpressionNode> arguments = new ArrayList<>();
+
+        // LPAREN already consumed
+        skipNewlines();
+
+        if (!match(TokenType.RPAREN)) {
+            arguments.add(parseExpression());
+            skipNewlines();
+            while (match(TokenType.COMMA)) {
+                consume();
+                skipNewlines();
+                arguments.add(parseExpression());
+                skipNewlines();
+            }
+        }
+
+        expect(TokenType.RPAREN);
+        return arguments;
+    }
+
+    /**
+     * Parses an argument list for method calls.
+     *
+     * @return the list of argument expressions
+     * @throws ParseException if parsing fails
+     */
+    private List<ExpressionNode> parseArgumentList() throws ParseException {
+        List<ExpressionNode> arguments = new ArrayList<>();
+
+        expect(TokenType.LPAREN);
+        return parseArgumentListBody();
+    }
+
+    // ==================== Constructor Call Parsing ====================
+
+    /**
+     * Parses a constructor call.
+     * <p>
+     * Constructor calls have the form: new TypeName(args)
+     *
+     * @return the ConstructorCallNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseConstructorCall() throws ParseException {
+        Token newToken = expect(TokenType.NEW);
+        skipNewlines();
+
+        // Parse type name
+        String typeName = parseQualifiedTypeName();
+        skipNewlines();
+
+        // Check for constructor call with arguments
+        if (match(TokenType.LPAREN)) {
+            List<ExpressionNode> arguments = parseArgumentList();
+            return new ConstructorCallNode(newToken.getLine(), newToken.getColumn(), newToken.getSource(),
+                                           typeName, arguments);
+        }
+
+        throw error("Expected '(' after type name in constructor call");
+    }
+
+    // ==================== Array Access Parsing ====================
+
+    /**
+     * Parses an array access expression.
+     * <p>
+     * Array access has the form: array[index]
+     *
+     * @param array the array expression
+     * @return the ArrayAccessNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseArrayAccess(ExpressionNode array) throws ParseException {
+        Token lbracket = expect(TokenType.LBRACK);
+        skipNewlines();
+
+        ExpressionNode index = parseExpression();
+
+        skipNewlines();
+        expect(TokenType.RBRACK);
+
+        return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(),
+                                   array, index);
+    }
+
+    // ==================== Type Cast Parsing ====================
+
+    /**
+     * Parses a parenthesized expression or type cast.
+     * <p>
+     * Type casts have the form: (Type)expression
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseParenthesizedOrCast() throws ParseException {
+        Token lparen = expect(TokenType.LPAREN);
+        skipNewlines();
+
+        // Check if this is a type cast
+        // Look ahead to see if we have a type followed by )
+        if (isTypeStart(peek())) {
+            String typeName = parseQualifiedTypeName();
+            skipNewlines();
+
+            if (match(TokenType.RPAREN)) {
+                consume();
+                // This is a type cast
+                ExpressionNode expression = parseUnary();
+                return new CastNode(lparen.getLine(), lparen.getColumn(), lparen.getSource(),
+                                   typeName, expression);
+            }
+        }
+
+        // Not a cast, parse as regular parenthesized expression
+        ExpressionNode expr = parseBinary(0);
+
+        skipNewlines();
+        expect(TokenType.RPAREN);
+
+        return expr;
+    }
+
+    /**
+     * Checks if the current token is the start of a type.
+     *
+     * @param token the token to check
+     * @return true if it's the start of a type
+     */
+    private boolean isTypeStart(Token token) {
+        if (token == null) {
+            return false;
+        }
+        if (token.getType() == TokenType.ID) {
+            return isTypeKeyword(token.getValue());
+        }
+        return token.getType() == TokenType.BYTE ||
+               token.getType() == TokenType.SHORT ||
+               token.getType() == TokenType.INT ||
+               token.getType() == TokenType.LONG ||
+               token.getType() == TokenType.FLOAT ||
+               token.getType() == TokenType.DOUBLE ||
+               token.getType() == TokenType.CHAR ||
+               token.getType() == TokenType.BOOLEAN;
+    }
+
+    // ==================== Type Literal Parsing ====================
+
+    /**
+     * Parses a type literal (primitive type reference).
+     *
+     * @return the TypeNode
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseTypeLiteral() throws ParseException {
+        Token typeToken = consume();
+        String typeName = typeToken.getValue();
+        return new TypeNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getSource(), typeName);
+    }
+
+    // ==================== List Literal Parsing ====================
+
+    /**
+     * Parses a list literal.
+     * <p>
+     * List literals have the form: [item1, item2, ...]
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseListLiteral() throws ParseException {
+        Token lbracket = expect(TokenType.LBRACK);
+        skipNewlines();
+
+        List<ExpressionNode> elements = new ArrayList<>();
+        if (!match(TokenType.RBRACK)) {
+            elements.add(parseExpression());
+            skipNewlines();
+            while (match(TokenType.COMMA)) {
+                consume();
+                skipNewlines();
+                elements.add(parseExpression());
+                skipNewlines();
+            }
+        }
+
+        expect(TokenType.RBRACK);
+
+        // TODO: Create ListLiteralNode
+        // For now, return a placeholder
+        return new LiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
+    }
+
+    // ==================== Map and Block Expression Parsing ====================
+
+    /**
+     * Parses a brace expression (map literal or block).
+     * <p>
+     * Brace expressions can be:
+     * <ul>
+     *   <li>Map literal: {key1: value1, key2: value2, ...}</li>
+     *   <li>Block: {statements}</li>
+     * </ul>
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseBraceExpression() throws ParseException {
+        Token lbrace = expect(TokenType.LBRACE);
+        skipNewlines();
+
+        // Check if this is a map literal or block
+        // If next token is ID followed by :, it's a map literal
+        // Otherwise it's a block
+        if (peek() != null && peek().getType() == TokenType.ID &&
+            peek(1) != null && peek(1).getType() == TokenType.COLON) {
+            return parseMapLiteral();
+        }
+
+        return parseBlock();
+    }
+
+    /**
+     * Parses a map literal.
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseMapLiteral() throws ParseException {
+        // LBRACE already consumed
+        skipNewlines();
+
+        // TODO: Implement MapLiteralNode
+        // For now, just consume until closing brace
+        int braceDepth = 1;
+        while (braceDepth > 0 && !isEOF()) {
+            Token token = consume();
+            if (token.getType() == TokenType.LBRACE) {
+                braceDepth++;
+            } else if (token.getType() == TokenType.RBRACE) {
+                braceDepth--;
+            }
+        }
+
+        Token lbrace = new Token(TokenType.LBRACE, "{", 1, 1, null);
+        return new LiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), Collections.emptyMap());
+    }
+
+    /**
+     * Parses a block expression.
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseBlock() throws ParseException {
+        Token lbrace = peek(); // Already consumed
+
+        // TODO: Implement block parsing with statements
+        // For now, just consume until closing brace
+        int braceDepth = 1;
+        while (braceDepth > 0 && !isEOF()) {
+            Token token = consume();
+            if (token.getType() == TokenType.LBRACE) {
+                braceDepth++;
+            } else if (token.getType() == TokenType.RBRACE) {
+                braceDepth--;
+            }
+        }
+
+        return new LiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), null);
+    }
+
     // ==================== Unary Operator Parsing ====================
 
     /**
@@ -441,6 +1176,9 @@ public class QLexpressParser {
             expr = parseSuffixUnary(expr);
         }
 
+        // Check for path operations (method calls, array access, field access)
+        expr = parsePath(expr);
+
         return expr;
     }
 
@@ -522,6 +1260,46 @@ public class QLexpressParser {
     }
 
     /**
+     * Parses a ternary expression.
+     * <p>
+     * Ternary expressions have the form: condition ? thenExpr : elseExpr
+     * The colon and elseExpr are required.
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    public ExpressionNode parseTernary() throws ParseException {
+        ExpressionNode condition = parseBinary(0);
+
+        // Check if we have a ternary operator
+        skipNewlines();
+        if (!match(TokenType.QUESTION)) {
+            return condition;
+        }
+
+        // Consume the question mark
+        Token questionToken = consume();
+        skipNewlines();
+
+        // Parse the then expression (ternaryExpr uses baseExpr[0], which is lowest precedence)
+        ExpressionNode thenExpr = parseBinary(0);
+
+        // Expect and consume colon
+        skipNewlines();
+        if (!match(TokenType.COLON)) {
+            throw error("Expected ':' in ternary expression");
+        }
+        Token colonToken = consume();
+        skipNewlines();
+
+        // Parse the else expression (full expression to allow nested ternary)
+        ExpressionNode elseExpr = parseExpression();
+
+        return new TernaryNode(questionToken.getLine(), questionToken.getColumn(), questionToken.getSource(),
+                               condition, thenExpr, elseExpr);
+    }
+
+    /**
      * Parses a binary expression.
      * This is the main entry point for expression parsing.
      *
@@ -529,7 +1307,7 @@ public class QLexpressParser {
      * @throws ParseException if parsing fails
      */
     public ExpressionNode parseExpression() throws ParseException {
-        return parseBinary(0);
+        return parseTernary();
     }
 
     /**

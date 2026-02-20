@@ -808,4 +808,342 @@ public class QLexpressParserTest {
         BinaryOpNode binary = (BinaryOpNode) expr;
         Assert.assertEquals("Operator should be +", "+", binary.getOperator());
     }
+
+    // ==================== Ternary Expression Tests ====================
+
+    @Test
+    public void testParseSimpleTernary() throws Exception {
+        QLexpressParser parser = createParser("a ? b : c");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Condition should be IdentifierNode", ternary.getCondition() instanceof IdentifierNode);
+        Assert.assertTrue("Then expr should be IdentifierNode", ternary.getThenExpr() instanceof IdentifierNode);
+        Assert.assertTrue("Else expr should be IdentifierNode", ternary.getElseExpr() instanceof IdentifierNode);
+    }
+
+    @Test
+    public void testParseTernaryWithBinaryCondition() throws Exception {
+        QLexpressParser parser = createParser("a > b ? 1 : 0");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Condition should be BinaryOpNode", ternary.getCondition() instanceof BinaryOpNode);
+        BinaryOpNode condition = (BinaryOpNode) ternary.getCondition();
+        Assert.assertEquals("Condition operator should be >", ">", condition.getOperator());
+    }
+
+    @Test
+    public void testParseNestedTernary() throws Exception {
+        QLexpressParser parser = createParser("a ? b : c ? d : e");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        // The else expr should contain the nested ternary (right-nesting)
+        Assert.assertTrue("Else expr should be TernaryNode (nested)", ternary.getElseExpr() instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+    }
+
+    @Test
+    public void testParseTernaryWithMethodCall() throws Exception {
+        QLexpressParser parser = createParser("a ? foo() : bar()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Then expr should be MethodCallNode", ternary.getThenExpr() instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        Assert.assertTrue("Else expr should be MethodCallNode", ternary.getElseExpr() instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+    }
+
+    @Test
+    public void testParseTernaryWithNewlines() throws Exception {
+        QLexpressParser parser = createParser("a\n?\nb\n:\nc");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+    }
+
+    // ==================== Lambda Expression Tests ====================
+
+    @Test
+    public void testParseSimpleLambda() throws Exception {
+        QLexpressParser parser = createParser("x -> x + 1");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 1 parameter", 1, lambda.getParameters().size());
+        Assert.assertEquals("Parameter name should be 'x'", "x", lambda.getParameters().get(0).getParameterName());
+    }
+
+    @Test
+    public void testParseLambdaWithBlock() throws Exception {
+        QLexpressParser parser = createParser("x -> { x + 1 }");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 1 parameter", 1, lambda.getParameters().size());
+    }
+
+    @Test
+    public void testParseMultiParamLambda() throws Exception {
+        QLexpressParser parser = createParser("(x, y) -> x + y");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 2 parameters", 2, lambda.getParameters().size());
+        Assert.assertEquals("First parameter name should be 'x'", "x", lambda.getParameters().get(0).getParameterName());
+        Assert.assertEquals("Second parameter name should be 'y'", "y", lambda.getParameters().get(1).getParameterName());
+    }
+
+    @Test
+    public void testParseEmptyParamLambda() throws Exception {
+        QLexpressParser parser = createParser("() -> 42");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 0 parameters", 0, lambda.getParameters().size());
+    }
+
+    @Test
+    public void testParseTypedParamLambda() throws Exception {
+        QLexpressParser parser = createParser("(int x, String y) -> x + y.length()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 2 parameters", 2, lambda.getParameters().size());
+        Assert.assertEquals("First parameter type should be 'int'", "int", lambda.getParameters().get(0).getTypeName());
+    }
+
+    // ==================== Method Call Tests ====================
+
+    @Test
+    public void testParseSimpleMethodCall() throws Exception {
+        QLexpressParser parser = createParser("foo()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Method name should be 'foo'", "foo", methodCall.getMethodName());
+        Assert.assertEquals("Should have 0 arguments", 0, methodCall.getArguments().size());
+        Assert.assertNull("Target should be null (static call)", methodCall.getTarget());
+    }
+
+    @Test
+    public void testParseMethodCallWithArgs() throws Exception {
+        QLexpressParser parser = createParser("foo(a, b)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Method name should be 'foo'", "foo", methodCall.getMethodName());
+        Assert.assertEquals("Should have 2 arguments", 2, methodCall.getArguments().size());
+    }
+
+    @Test
+    public void testParseChainedMethodCall() throws Exception {
+        QLexpressParser parser = createParser("a.foo().bar()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Outer method name should be 'bar'", "bar", methodCall.getMethodName());
+        Assert.assertNotNull("Target should be another MethodCallNode", methodCall.getTarget());
+    }
+
+    @Test
+    public void testParseMethodCallOnTarget() throws Exception {
+        QLexpressParser parser = createParser("obj.method()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Method name should be 'method'", "method", methodCall.getMethodName());
+        Assert.assertNotNull("Target should not be null", methodCall.getTarget());
+        Assert.assertTrue("Target should be IdentifierNode", methodCall.getTarget() instanceof IdentifierNode);
+    }
+
+    @Test
+    public void testParseNestedMethodCalls() throws Exception {
+        QLexpressParser parser = createParser("foo(bar(a, b), c)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Should have 2 arguments", 2, methodCall.getArguments().size());
+        // First argument should be a MethodCallNode
+        Assert.assertTrue("First arg should be MethodCallNode", methodCall.getArguments().get(0) instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+    }
+
+    @Test
+    public void testParseMethodCallWithExpressionArgs() throws Exception {
+        QLexpressParser parser = createParser("foo(a + b, c * d)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Should have 2 arguments", 2, methodCall.getArguments().size());
+        Assert.assertTrue("First arg should be BinaryOpNode", methodCall.getArguments().get(0) instanceof BinaryOpNode);
+        Assert.assertTrue("Second arg should be BinaryOpNode", methodCall.getArguments().get(1) instanceof BinaryOpNode);
+    }
+
+    @Test
+    public void testParseMethodCallWithNewlines() throws Exception {
+        QLexpressParser parser = createParser("foo\n(\na\n,\nb\n)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Should have 2 arguments", 2, methodCall.getArguments().size());
+    }
+
+    // ==================== Array Access Tests ====================
+
+    @Test
+    public void testParseSimpleArrayAccess() throws Exception {
+        QLexpressParser parser = createParser("arr[0]");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ArrayAccessNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+        com.alibaba.qlexpress4.parser.ast.ArrayAccessNode arrayAccess = (com.alibaba.qlexpress4.parser.ast.ArrayAccessNode) expr;
+        Assert.assertTrue("Array should be IdentifierNode", arrayAccess.getArray() instanceof IdentifierNode);
+        Assert.assertTrue("Index should be LiteralNode", arrayAccess.getIndex() instanceof LiteralNode);
+    }
+
+    @Test
+    public void testParseNestedArrayAccess() throws Exception {
+        QLexpressParser parser = createParser("arr[i][j]");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ArrayAccessNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+        com.alibaba.qlexpress4.parser.ast.ArrayAccessNode arrayAccess = (com.alibaba.qlexpress4.parser.ast.ArrayAccessNode) expr;
+        Assert.assertTrue("Array should be another ArrayAccessNode", arrayAccess.getArray() instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+    }
+
+    @Test
+    public void testParseArrayAccessWithExpression() throws Exception {
+        QLexpressParser parser = createParser("arr[i + 1]");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ArrayAccessNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+        com.alibaba.qlexpress4.parser.ast.ArrayAccessNode arrayAccess = (com.alibaba.qlexpress4.parser.ast.ArrayAccessNode) expr;
+        Assert.assertTrue("Index should be BinaryOpNode", arrayAccess.getIndex() instanceof BinaryOpNode);
+    }
+
+    // ==================== Constructor Call Tests ====================
+
+    @Test
+    public void testParseSimpleConstructorCall() throws Exception {
+        QLexpressParser parser = createParser("new Foo()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ConstructorCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ConstructorCallNode);
+        com.alibaba.qlexpress4.parser.ast.ConstructorCallNode constructorCall = (com.alibaba.qlexpress4.parser.ast.ConstructorCallNode) expr;
+        Assert.assertEquals("Type name should be 'Foo'", "Foo", constructorCall.getTypeName());
+        Assert.assertEquals("Should have 0 arguments", 0, constructorCall.getArguments().size());
+    }
+
+    @Test
+    public void testParseConstructorCallWithArgs() throws Exception {
+        QLexpressParser parser = createParser("new Foo(a, b)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ConstructorCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ConstructorCallNode);
+        com.alibaba.qlexpress4.parser.ast.ConstructorCallNode constructorCall = (com.alibaba.qlexpress4.parser.ast.ConstructorCallNode) expr;
+        Assert.assertEquals("Should have 2 arguments", 2, constructorCall.getArguments().size());
+    }
+
+    @Test
+    public void testParseQualifiedConstructorCall() throws Exception {
+        QLexpressParser parser = createParser("new com.example.Foo()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be ConstructorCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.ConstructorCallNode);
+        com.alibaba.qlexpress4.parser.ast.ConstructorCallNode constructorCall = (com.alibaba.qlexpress4.parser.ast.ConstructorCallNode) expr;
+        Assert.assertEquals("Type name should be 'com.example.Foo'", "com.example.Foo", constructorCall.getTypeName());
+    }
+
+    // ==================== Cast Expression Tests ====================
+
+    @Test
+    public void testParseSimpleCast() throws Exception {
+        QLexpressParser parser = createParser("(int) x");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be CastNode", expr instanceof com.alibaba.qlexpress4.parser.ast.CastNode);
+        com.alibaba.qlexpress4.parser.ast.CastNode cast = (com.alibaba.qlexpress4.parser.ast.CastNode) expr;
+        Assert.assertEquals("Type name should be 'int'", "int", cast.getTypeName());
+        Assert.assertTrue("Expression should be IdentifierNode", cast.getExpression() instanceof IdentifierNode);
+    }
+
+    @Test
+    public void testParseQualifiedCast() throws Exception {
+        QLexpressParser parser = createParser("(String) obj");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be CastNode", expr instanceof com.alibaba.qlexpress4.parser.ast.CastNode);
+        com.alibaba.qlexpress4.parser.ast.CastNode cast = (com.alibaba.qlexpress4.parser.ast.CastNode) expr;
+        Assert.assertEquals("Type name should be 'String'", "String", cast.getTypeName());
+    }
+
+    @Test
+    public void testParseCastWithBinaryExpression() throws Exception {
+        QLexpressParser parser = createParser("(int) (a + b)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be CastNode", expr instanceof com.alibaba.qlexpress4.parser.ast.CastNode);
+        com.alibaba.qlexpress4.parser.ast.CastNode cast = (com.alibaba.qlexpress4.parser.ast.CastNode) expr;
+        Assert.assertTrue("Expression should be BinaryOpNode", cast.getExpression() instanceof BinaryOpNode);
+    }
+
+    // ==================== Combined Expression Tests ====================
+
+    @Test
+    public void testParseTernaryWithDifferentMethodCalls() throws Exception {
+        QLexpressParser parser = createParser("condition ? foo() : bar()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Then expr should be MethodCallNode", ternary.getThenExpr() instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        Assert.assertTrue("Else expr should be MethodCallNode", ternary.getElseExpr() instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+    }
+
+    @Test
+    public void testParseMethodCallChainingWithArrayAccess() throws Exception {
+        QLexpressParser parser = createParser("obj.foo()[0].bar()");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Method name should be 'bar'", "bar", methodCall.getMethodName());
+    }
+
+    @Test
+    public void testParseLambdaWithMethodCallBody() throws Exception {
+        QLexpressParser parser = createParser("x -> foo(x)");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be LambdaNode", expr instanceof com.alibaba.qlexpress4.parser.ast.LambdaNode);
+        com.alibaba.qlexpress4.parser.ast.LambdaNode lambda = (com.alibaba.qlexpress4.parser.ast.LambdaNode) expr;
+        Assert.assertEquals("Should have 1 parameter", 1, lambda.getParameters().size());
+    }
+
+    @Test
+    public void testParseConstructorCallInMethodArg() throws Exception {
+        QLexpressParser parser = createParser("foo(new Bar())");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be MethodCallNode", expr instanceof com.alibaba.qlexpress4.parser.ast.MethodCallNode);
+        com.alibaba.qlexpress4.parser.ast.MethodCallNode methodCall = (com.alibaba.qlexpress4.parser.ast.MethodCallNode) expr;
+        Assert.assertEquals("Should have 1 argument", 1, methodCall.getArguments().size());
+        Assert.assertTrue("Argument should be ConstructorCallNode", methodCall.getArguments().get(0) instanceof com.alibaba.qlexpress4.parser.ast.ConstructorCallNode);
+    }
+
+    @Test
+    public void testParseCastInTernary() throws Exception {
+        QLexpressParser parser = createParser("a ? (int) b : (String) c");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Then expr should be CastNode", ternary.getThenExpr() instanceof com.alibaba.qlexpress4.parser.ast.CastNode);
+        Assert.assertTrue("Else expr should be CastNode", ternary.getElseExpr() instanceof com.alibaba.qlexpress4.parser.ast.CastNode);
+    }
+
+    @Test
+    public void testParseArrayAccessInTernary() throws Exception {
+        QLexpressParser parser = createParser("a ? b[0] : c[1]");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TernaryNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TernaryNode);
+        com.alibaba.qlexpress4.parser.ast.TernaryNode ternary = (com.alibaba.qlexpress4.parser.ast.TernaryNode) expr;
+        Assert.assertTrue("Then expr should be ArrayAccessNode", ternary.getThenExpr() instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+        Assert.assertTrue("Else expr should be ArrayAccessNode", ternary.getElseExpr() instanceof com.alibaba.qlexpress4.parser.ast.ArrayAccessNode);
+    }
+
+    // ==================== Type Literal Tests ====================
+
+    @Test
+    public void testParseTypeLiteral() throws Exception {
+        QLexpressParser parser = createParser("int");
+        ExpressionNode expr = parser.parseExpression();
+        Assert.assertTrue("Should be TypeNode", expr instanceof com.alibaba.qlexpress4.parser.ast.TypeNode);
+        com.alibaba.qlexpress4.parser.ast.TypeNode typeNode = (com.alibaba.qlexpress4.parser.ast.TypeNode) expr;
+        Assert.assertEquals("Type name should be 'int'", "int", typeNode.getTypeName());
+    }
 }
