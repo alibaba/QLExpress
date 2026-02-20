@@ -573,45 +573,177 @@ public class InstructionGeneratorTest {
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitIfNode_NotImplemented() throws Exception {
+    @Test
+    public void testVisitIfNode_Simple() throws Exception {
+        // if (true) { 42 }
         IfNode node = new IfNode(1, 1, null,
                 new LiteralNode(1, 1, null, true),
-                new BlockNode(1, 1, null, Collections.emptyList()),
+                new BlockNode(1, 1, null, Collections.singletonList(
+                        new LiteralNode(1, 1, null, 42)
+                )),
                 null);
-        generator.visit(node, context);
+
+        GenerationResult result = generator.visit(node, context);
+
+        // Should have: const true, jumpIfPop, const 42, jump, const null
+        // The exact sequence depends on how IfNode generates instructions
+        assertFalse(result.isExpressionValue());
+        // Verify it generates instructions (at minimum: condition + jump)
+        assertTrue(result.getInstructions().size() >= 3);
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof JumpIfPopInstruction);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitWhileNode_NotImplemented() throws Exception {
+    @Test
+    public void testVisitIfNode_WithElse() throws Exception {
+        // if (false) { 1 } else { 2 }
+        IfNode node = new IfNode(1, 1, null,
+                new LiteralNode(1, 1, null, false),
+                new BlockNode(1, 1, null, Collections.singletonList(
+                        new LiteralNode(1, 1, null, 1)
+                )),
+                new BlockNode(1, 1, null, Collections.singletonList(
+                        new LiteralNode(1, 1, null, 2)
+                )));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should have: condition, jumpIfPop, then body, jump, else body
+        assertTrue(result.getInstructions().size() >= 4);
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof JumpIfPopInstruction);
+    }
+
+    @Test
+    public void testVisitWhileNode() throws Exception {
+        // while (true) { 42 }
         WhileNode node = new WhileNode(1, 1, null,
                 new LiteralNode(1, 1, null, true),
-                new BlockNode(1, 1, null, Collections.emptyList()));
-        generator.visit(node, context);
+                new BlockNode(1, 1, null, Collections.singletonList(
+                        new LiteralNode(1, 1, null, 42)
+                )));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should have a WhileInstruction
+        assertEquals(1, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof WhileInstruction);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitForNode_NotImplemented() throws Exception {
-        ForNode node = new ForNode(1, 1, null, null, null, null,
+    @Test
+    public void testVisitForNode_ForEach() throws Exception {
+        // for (x : items) { }
+        VariableDeclarationNode varDecl = new VariableDeclarationNode(1, 1, null, "int", "x",
+                new IdentifierNode(1, 1, null, "items"));
+        ForNode node = new ForNode(1, 1, null, varDecl, null, null,
                 new BlockNode(1, 1, null, Collections.emptyList()));
-        generator.visit(node, context);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should have iterable load + ForEachInstruction
+        assertEquals(2, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof LoadInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ForEachInstruction);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitSwitchNode_NotImplemented() throws Exception {
+    @Test
+    public void testVisitForNode_Traditional() throws Exception {
+        // for (int i = 0; i < 10; i++) { }
+        VariableDeclarationNode init = new VariableDeclarationNode(1, 1, null, "int", "i",
+                new LiteralNode(1, 1, null, 0));
+        BinaryOpNode condition = new BinaryOpNode(1, 1, null,
+                new IdentifierNode(1, 1, null, "i"), "<",
+                new LiteralNode(1, 1, null, 10));
+        UnaryOpNode update = new UnaryOpNode(1, 1, null, "++",
+                new IdentifierNode(1, 1, null, "i"), false);
+        ForNode node = new ForNode(1, 1, null, init, condition, update,
+                new BlockNode(1, 1, null, Collections.emptyList()));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should have a ForInstruction
+        assertEquals(1, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof ForInstruction);
+    }
+
+    @Test
+    public void testVisitSwitchNode_Simple() throws Exception {
+        // switch (1) { case 1: { 42 } }
+        List<SwitchCaseNode> cases = Collections.singletonList(
+                new SwitchCaseNode(new LiteralNode(1, 1, null, 1),
+                        Collections.singletonList(
+                                new LiteralNode(1, 1, null, 42)
+                        ))
+        );
         SwitchNode node = new SwitchNode(1, 1, null,
                 new LiteralNode(1, 1, null, 1),
-                Collections.emptyList());
-        generator.visit(node, context);
+                cases);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should generate switch instructions
+        assertTrue(result.getInstructions().size() >= 2);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitTryCatchNode_NotImplemented() throws Exception {
+    @Test
+    public void testVisitSwitchNode_WithDefault() throws Exception {
+        // switch (x) { default: { 42 } }
+        List<SwitchCaseNode> cases = Collections.singletonList(
+                new SwitchCaseNode(null,  // default case
+                        Collections.singletonList(
+                                new LiteralNode(1, 1, null, 42)
+                        ))
+        );
+        SwitchNode node = new SwitchNode(1, 1, null,
+                new IdentifierNode(1, 1, null, "x"),
+                cases);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        assertTrue(result.getInstructions().size() >= 1);
+    }
+
+    @Test
+    public void testVisitTryCatchNode_Simple() throws Exception {
+        // try { 42 } catch (Exception e) { }
+        List<CatchClauseNode> catchClauses = Collections.singletonList(
+                new CatchClauseNode(Collections.singletonList("Exception"), "e",
+                        new BlockNode(1, 1, null, Collections.emptyList()))
+        );
+        TryCatchNode node = new TryCatchNode(1, 1, null,
+                new BlockNode(1, 1, null, Collections.singletonList(
+                        new LiteralNode(1, 1, null, 42)
+                )),
+                catchClauses,
+                null);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        // Should have a TryCatchInstruction
+        assertEquals(1, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof TryCatchInstruction);
+    }
+
+    @Test
+    public void testVisitTryCatchNode_WithFinally() throws Exception {
+        // try { } finally { }
         TryCatchNode node = new TryCatchNode(1, 1, null,
                 new BlockNode(1, 1, null, Collections.emptyList()),
                 Collections.emptyList(),
-                null);
-        generator.visit(node, context);
+                new BlockNode(1, 1, null, Collections.emptyList()));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertFalse(result.isExpressionValue());
+        assertEquals(1, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof TryCatchInstruction);
     }
 
     @Test(expected = UnsupportedOperationException.class)

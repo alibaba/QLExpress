@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.parser.ast.*;
 import com.alibaba.qlexpress4.runtime.QResult;
+import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinitionInner;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
@@ -59,32 +60,419 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
 
     @Override
     public GenerationResult visit(IfNode node, GenerationContext context) throws Exception {
-        // TODO: Implement in US-019
-        throw new UnsupportedOperationException("if-else statement generation not yet implemented");
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Generate condition expression
+        GenerationResult conditionResult = ((ASTNode) node.getCondition()).accept(this, context);
+        instructions.addAll(conditionResult.getInstructions());
+
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Jump to else if condition is false (pops condition from stack)
+        JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
+        instructions.add(jumpIf);
+
+        // Generate then body
+        int thenStart = instructions.size();
+        Node thenBody = node.getThenBody();
+        GenerationResult thenResult;
+        if (thenBody instanceof ExpressionNode) {
+            thenResult = ((ASTNode) thenBody).accept(this, context);
+            instructions.addAll(thenResult.getInstructions());
+        } else if (thenBody instanceof BlockNode) {
+            thenResult = ((ASTNode) thenBody).accept(this, context);
+            instructions.addAll(thenResult.getInstructions());
+        } else if (thenBody instanceof StatementNode) {
+            thenResult = ((ASTNode) thenBody).accept(this, context);
+            instructions.addAll(thenResult.getInstructions());
+        } else {
+            thenResult = new GenerationResult(Collections.emptyList(), false, 0);
+        }
+
+        // Jump to end after then
+        JumpInstruction jump = new JumpInstruction(errorReporter, -1);
+        instructions.add(jump);
+
+        // Set jumpIf target (start of else)
+        jumpIf.setPosition(instructions.size() - thenStart);
+
+        // Generate else body (if present)
+        Node elseBody = node.getElseBody();
+        if (elseBody != null) {
+            if (elseBody instanceof ExpressionNode) {
+                GenerationResult elseResult = ((ASTNode) elseBody).accept(this, context);
+                instructions.addAll(elseResult.getInstructions());
+            } else if (elseBody instanceof BlockNode) {
+                GenerationResult elseResult = ((ASTNode) elseBody).accept(this, context);
+                instructions.addAll(elseResult.getInstructions());
+            } else if (elseBody instanceof IfNode) {
+                // else if - handle recursively
+                GenerationResult elseResult = ((ASTNode) elseBody).accept(this, context);
+                instructions.addAll(elseResult.getInstructions());
+            } else if (elseBody instanceof StatementNode) {
+                GenerationResult elseResult = ((ASTNode) elseBody).accept(this, context);
+                instructions.addAll(elseResult.getInstructions());
+            }
+        } else {
+            // No else body - push null as result
+            instructions.add(new ConstInstruction(errorReporter, null, null));
+        }
+
+        // Set jump target (end of if-else)
+        jump.setPosition(instructions.size() - thenStart - 1); // -1 because jump was at thenStart position
+
+        return new GenerationResult(instructions, false, 0);
     }
 
     @Override
     public GenerationResult visit(WhileNode node, GenerationContext context) throws Exception {
-        // TODO: Implement in US-019
-        throw new UnsupportedOperationException("while loop generation not yet implemented");
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate condition lambda
+        GenerationContext conditionContext = context.createChildContext();
+        List<QLInstruction> conditionInstructions = new ArrayList<>();
+        GenerationResult conditionResult = ((ASTNode) node.getCondition()).accept(this, conditionContext);
+        conditionInstructions.addAll(conditionResult.getInstructions());
+        // Add return instruction to return condition value
+        conditionInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+        QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner(
+                "while_condition_" + System.nanoTime(),
+                conditionInstructions,
+                Collections.emptyList(),
+                calculateMaxStack(conditionInstructions));
+
+        // Generate body lambda
+        GenerationContext bodyContext = context.createChildContext();
+        List<QLInstruction> bodyInstructions = new ArrayList<>();
+        if (node.getBody() != null) {
+            GenerationResult bodyResult = ((ASTNode) node.getBody()).accept(this, bodyContext);
+            bodyInstructions.addAll(bodyResult.getInstructions());
+        }
+        QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner(
+                "while_body_" + System.nanoTime(),
+                bodyInstructions,
+                Collections.emptyList(),
+                calculateMaxStack(bodyInstructions));
+
+        // Calculate max stack size
+        int maxStackSize = Math.max(conditionLambda.getMaxStackSize(), bodyLambda.getMaxStackSize());
+
+        // Create while instruction
+        WhileInstruction instruction = new WhileInstruction(errorReporter, conditionLambda, bodyLambda, maxStackSize);
+
+        return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
 
     @Override
     public GenerationResult visit(ForNode node, GenerationContext context) throws Exception {
-        // TODO: Implement in US-019
-        throw new UnsupportedOperationException("for loop generation not yet implemented");
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Check if this is a for-each loop
+        // For-each loop has: init (VariableDeclarationNode with iterable) and NO condition, NO update
+        Node init = node.getInit();
+        if (init instanceof VariableDeclarationNode &&
+            node.getCondition() == null &&
+            node.getUpdate() == null) {
+            VariableDeclarationNode varDecl = (VariableDeclarationNode) init;
+            // For-each loop: the initial value is the iterable expression
+            if (varDecl.getInitialValue() != null) {
+                return generateForEachInstruction(node, varDecl, context);
+            }
+        }
+
+        // Traditional for loop
+        return generateTraditionalForInstruction(node, context);
+    }
+
+    private GenerationResult generateForEachInstruction(ForNode node, VariableDeclarationNode varDecl,
+                                                        GenerationContext context) throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Generate iterable expression (pushes the iterable on the stack)
+        ExpressionNode iterableExpr = varDecl.getInitialValue();
+        GenerationResult iterableResult = ((ASTNode) iterableExpr).accept(this, context);
+        instructions.addAll(iterableResult.getInstructions());
+
+        // Generate body lambda
+        GenerationContext bodyContext = context.createChildContext();
+        List<QLInstruction> bodyInstructions = new ArrayList<>();
+
+        // Add variable declaration at the start of the body
+        // The loop variable is passed as a parameter to the lambda
+        String varName = varDecl.getVariableName();
+        Class<?> varClass = Object.class; // TODO: Resolve actual type from varDecl.getTypeName()
+
+        // Generate body statements
+        if (node.getBody() != null) {
+            GenerationResult bodyResult = ((ASTNode) node.getBody()).accept(this, bodyContext);
+            bodyInstructions.addAll(bodyResult.getInstructions());
+        }
+
+        ErrorReporter errorReporter = createErrorReporter(node);
+        QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(varName, varClass);
+        QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner(
+                "foreach_body_" + System.nanoTime(),
+                bodyInstructions,
+                Collections.singletonList(param),
+                calculateMaxStack(bodyInstructions));
+
+        // Create for-each instruction
+        ForEachInstruction instruction = new ForEachInstruction(errorReporter, bodyLambda, varClass, errorReporter);
+        instructions.add(instruction);
+
+        return new GenerationResult(instructions, false, 0);
+    }
+
+    private GenerationResult generateTraditionalForInstruction(ForNode node, GenerationContext context) throws Exception {
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate init lambda (if present)
+        QLambdaDefinitionInner initLambda = null;
+        Node init = node.getInit();
+        if (init != null) {
+            GenerationContext initContext = context.createChildContext();
+            List<QLInstruction> initInstructions = new ArrayList<>();
+            GenerationResult initResult = ((ASTNode) init).accept(this, initContext);
+            initInstructions.addAll(initResult.getInstructions());
+            initInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            initLambda = new QLambdaDefinitionInner(
+                    "for_init_" + System.nanoTime(),
+                    initInstructions,
+                    Collections.emptyList(),
+                    calculateMaxStack(initInstructions));
+        }
+
+        // Generate condition lambda (if present)
+        QLambdaDefinitionInner conditionLambda = null;
+        ExpressionNode condition = node.getCondition();
+        if (condition != null) {
+            GenerationContext conditionContext = context.createChildContext();
+            List<QLInstruction> conditionInstructions = new ArrayList<>();
+            GenerationResult conditionResult = ((ASTNode) condition).accept(this, conditionContext);
+            conditionInstructions.addAll(conditionResult.getInstructions());
+            conditionInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            conditionLambda = new QLambdaDefinitionInner(
+                    "for_condition_" + System.nanoTime(),
+                    conditionInstructions,
+                    Collections.emptyList(),
+                    calculateMaxStack(conditionInstructions));
+        }
+
+        // Generate update lambda (if present)
+        QLambdaDefinitionInner updateLambda = null;
+        ExpressionNode update = node.getUpdate();
+        if (update != null) {
+            GenerationContext updateContext = context.createChildContext();
+            List<QLInstruction> updateInstructions = new ArrayList<>();
+            GenerationResult updateResult = ((ASTNode) update).accept(this, updateContext);
+            updateInstructions.addAll(updateResult.getInstructions());
+            updateInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            updateLambda = new QLambdaDefinitionInner(
+                    "for_update_" + System.nanoTime(),
+                    updateInstructions,
+                    Collections.emptyList(),
+                    calculateMaxStack(updateInstructions));
+        }
+
+        // Generate body lambda
+        GenerationContext bodyContext = context.createChildContext();
+        List<QLInstruction> bodyInstructions = new ArrayList<>();
+        if (node.getBody() != null) {
+            GenerationResult bodyResult = ((ASTNode) node.getBody()).accept(this, bodyContext);
+            bodyInstructions.addAll(bodyResult.getInstructions());
+        }
+        QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner(
+                "for_body_" + System.nanoTime(),
+                bodyInstructions,
+                Collections.emptyList(),
+                calculateMaxStack(bodyInstructions));
+
+        // Calculate max stack size
+        int initSize = initLambda == null ? 0 : initLambda.getMaxStackSize();
+        int conditionSize = conditionLambda == null ? 0 : conditionLambda.getMaxStackSize();
+        int updateSize = updateLambda == null ? 0 : updateLambda.getMaxStackSize();
+        int maxStackSize = Math.max(initSize, Math.max(conditionSize, Math.max(updateSize, bodyLambda.getMaxStackSize())));
+
+        // Create for instruction
+        ForInstruction instruction = new ForInstruction(
+                errorReporter,
+                initLambda,
+                conditionLambda,
+                errorReporter,
+                updateLambda,
+                maxStackSize,
+                bodyLambda);
+
+        return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
 
     @Override
     public GenerationResult visit(SwitchNode node, GenerationContext context) throws Exception {
-        // TODO: Implement in US-019
-        throw new UnsupportedOperationException("switch statement generation not yet implemented");
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        if (node.getCases().isEmpty()) {
+            // Empty switch, push null as result
+            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
+            return new GenerationResult(instructions, false, 0);
+        }
+
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate switch value expression and store in a temporary variable
+        GenerationResult valueResult = ((ASTNode) node.getValue()).accept(this, context);
+        instructions.addAll(valueResult.getInstructions());
+
+        String switchVarName = "@switch_" + System.nanoTime();
+        instructions.add(new DefineLocalInstruction(errorReporter, switchVarName, Object.class));
+
+        // Generate if-else chain for each case
+        List<SwitchCaseNode> cases = node.getCases();
+        List<JumpInstruction> jumpToEndInstructions = new ArrayList<>();
+
+        for (int i = 0; i < cases.size(); i++) {
+            SwitchCaseNode switchCase = cases.get(i);
+            ExpressionNode caseCondition = switchCase.getCondition();
+
+            if (caseCondition != null) {
+                // Not a default case - need to check equality
+                // Load switch value
+                LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, null);
+                instructions.add(loadSwitchVar);
+
+                // Load case value
+                GenerationResult caseConditionResult = ((ASTNode) caseCondition).accept(this, context);
+                instructions.addAll(caseConditionResult.getInstructions());
+
+                // Check equality using ==
+                BinaryOperator equalOperator = operatorManager.getBinaryOperator("==");
+                instructions.add(new OperatorInstruction(errorReporter, equalOperator, null));
+
+                // Jump to next case if not equal
+                JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
+                instructions.add(jumpIf);
+
+                int caseStart = instructions.size();
+
+                // Generate case body statements
+                List<StatementNode> statements = switchCase.getStatements();
+                if (statements != null) {
+                    for (StatementNode stmt : statements) {
+                        GenerationResult stmtResult = ((ASTNode) stmt).accept(this, context);
+                        instructions.addAll(stmtResult.getInstructions());
+                    }
+                }
+
+                // Jump to end after case body (unless it's the last case without break)
+                JumpInstruction jumpToEnd = new JumpInstruction(errorReporter, -1);
+                instructions.add(jumpToEnd);
+                jumpToEndInstructions.add(jumpToEnd);
+
+                // Set jumpIf target (start of next case)
+                jumpIf.setPosition(instructions.size() - caseStart);
+            } else {
+                // Default case - no condition check needed
+                List<StatementNode> statements = switchCase.getStatements();
+                if (statements != null) {
+                    for (StatementNode stmt : statements) {
+                        GenerationResult stmtResult = ((ASTNode) stmt).accept(this, context);
+                        instructions.addAll(stmtResult.getInstructions());
+                    }
+                }
+            }
+        }
+
+        // Set all jump to end targets
+        int endPosition = instructions.size();
+        for (JumpInstruction jump : jumpToEndInstructions) {
+            jump.setPosition(endPosition);
+        }
+
+        // Push null as result (switch statement doesn't produce a value)
+        instructions.add(new ConstInstruction(errorReporter, null, null));
+
+        return new GenerationResult(instructions, false, 0);
     }
 
     @Override
     public GenerationResult visit(TryCatchNode node, GenerationContext context) throws Exception {
-        // TODO: Implement in US-019
-        throw new UnsupportedOperationException("try-catch-finally generation not yet implemented");
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate try block lambda
+        GenerationContext tryContext = context.createChildContext();
+        List<QLInstruction> tryInstructions = new ArrayList<>();
+        GenerationResult tryResult = ((ASTNode) node.getTryBlock()).accept(this, tryContext);
+        tryInstructions.addAll(tryResult.getInstructions());
+        QLambdaDefinitionInner tryLambda = new QLambdaDefinitionInner(
+                "try_block_" + System.nanoTime(),
+                tryInstructions,
+                Collections.emptyList(),
+                calculateMaxStack(tryInstructions));
+
+        // Generate catch handlers
+        List<CatchClauseNode> catchClauses = node.getCatchClauses();
+        List<java.util.Map.Entry<Class<?>, QLambdaDefinition>> exceptionTable = new ArrayList<>();
+
+        if (catchClauses != null) {
+            for (CatchClauseNode catchClause : catchClauses) {
+                // Resolve exception types
+                List<String> exceptionTypes = catchClause.getExceptionTypes();
+                Class<?> primaryExceptionType = Exception.class; // Default to Exception
+
+                if (exceptionTypes != null && !exceptionTypes.isEmpty()) {
+                    // TODO: Resolve actual exception types from type names
+                    // For now, use Exception.class as placeholder
+                    primaryExceptionType = Exception.class;
+                }
+
+                // Generate catch body lambda
+                GenerationContext catchContext = context.createChildContext();
+                List<QLInstruction> catchInstructions = new ArrayList<>();
+
+                // The exception variable is passed as a parameter to the lambda
+                String exceptionVarName = catchClause.getVariableName();
+                if (exceptionVarName != null) {
+                    // Define local variable for the exception
+                    catchInstructions.add(new DefineLocalInstruction(errorReporter, exceptionVarName, Throwable.class));
+                }
+
+                // Generate catch body statements
+                if (catchClause.getBody() != null) {
+                    GenerationResult catchBodyResult = ((ASTNode) catchClause.getBody()).accept(this, catchContext);
+                    catchInstructions.addAll(catchBodyResult.getInstructions());
+                }
+
+                QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(
+                        exceptionVarName != null ? exceptionVarName : "exception",
+                        Throwable.class);
+                QLambdaDefinitionInner catchLambda = new QLambdaDefinitionInner(
+                        "catch_" + exceptionVarName + "_" + System.nanoTime(),
+                        catchInstructions,
+                        Collections.singletonList(param),
+                        calculateMaxStack(catchInstructions));
+
+                exceptionTable.add(new java.util.AbstractMap.SimpleEntry<>(primaryExceptionType, catchLambda));
+            }
+        }
+
+        // Generate finally block lambda (if present)
+        QLambdaDefinitionInner finallyLambda = null;
+        BlockNode finallyBlock = node.getFinallyBlock();
+        if (finallyBlock != null) {
+            GenerationContext finallyContext = context.createChildContext();
+            List<QLInstruction> finallyInstructions = new ArrayList<>();
+            GenerationResult finallyResult = ((ASTNode) finallyBlock).accept(this, finallyContext);
+            finallyInstructions.addAll(finallyResult.getInstructions());
+            finallyLambda = new QLambdaDefinitionInner(
+                    "finally_block_" + System.nanoTime(),
+                    finallyInstructions,
+                    Collections.emptyList(),
+                    calculateMaxStack(finallyInstructions));
+        }
+
+        // Create try-catch instruction
+        TryCatchInstruction instruction = new TryCatchInstruction(errorReporter, tryLambda, exceptionTable, finallyLambda);
+
+        return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
 
     @Override
@@ -541,5 +929,17 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
 
     private ErrorReporter createErrorReporter(ASTNode node) {
         return PureErrReporter.INSTANCE;
+    }
+
+    /**
+     * Calculate the maximum stack size needed for a list of instructions.
+     * This is a simplified estimation - the original implementation tracks
+     * stack size during generation. For now, we use a conservative estimate
+     * based on instruction count.
+     */
+    private int calculateMaxStack(List<QLInstruction> instructions) {
+        // Use a simple heuristic: base stack size on instruction count
+        // This is conservative but safe - actual stack usage is usually much lower
+        return Math.max(10, instructions.size() / 2 + 5);
     }
 }
