@@ -439,8 +439,8 @@
         "Typecheck passes"
       ],
       "priority": 26,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated Express4Runner to use new parser via SyntaxTreeFactory and ASTCompiler. Modified InstructionGenerator to not pop result of last expression. Modified QLambdaInner to return stack value on normal completion. Fixed ParseException handling by converting to QLSyntaxException. Updated ClearDfaCacheTest to use correct method name. Basic execution test passes."
     },
     {
       "id": "US-027",

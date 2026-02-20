@@ -572,3 +572,26 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Test assertions should account for the PopInstruction added after expression statements
 
 ---
+## [Fri Feb 20 20:05:00 CST 2026] - US-026
+- Integrated new parser with Express4Runner core execution methods
+- Modified InstructionGenerator to NOT pop result of last expression in ProgramNode and BlockNode
+- Modified QLambdaInner.callInner() to return value on top of stack when execution completes normally
+- Updated Express4Runner.parseToSyntaxTree() to convert ParseException to QLSyntaxException
+- Updated ClearDfaCacheTest to use clearCompileCache() instead of clearDFACache()
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/Express4Runner.java (modified - added QLErrorCodes import, removed ParseException static import, updated parseToSyntaxTree to throw QLSyntaxException)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - fixed ProgramNode and BlockNode to not pop last expression result)
+  - src/main/java/com/alibaba/qlexpress4/runtime/QLambdaInner.java (modified - return stack value on normal completion)
+  - src/test/java/com/alibaba/qlexpress4/ClearDfaCacheTest.java (modified - method name update)
+- Typecheck passes (mvn compile)
+- Basic test passes (docQuickStartTest)
+- **Learnings for future iterations:**
+  - The QLambdaInner.callInner() method returns QResult.NEXT_INSTRUCTION by default which has Value.NULL_VALUE as result
+  - To support expression-as-value in scripts, need to return the actual value on top of the stack
+  - Use runtime.getCurrentScope().peek() to get the top value from the stack
+  - ProgramNode and BlockNode should NOT pop the result of the last expression/statement
+  - The pattern for last-statement detection: `if (result.isExpressionValue() && i < numStatements - 1)` - don't pop if i == numStatements - 1
+  - ParseException from new parser needs to be caught and converted to QLSyntaxException for public API
+  - clearDFACache() was renamed to clearCompileCache() - likely during a previous refactoring
+
+---
