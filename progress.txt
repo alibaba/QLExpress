@@ -457,3 +457,29 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The visitor pattern is useful for analysis and transformation without modifying node classes
 
 ---
+
+## [Thu Feb 20 13:00:00 AM CST 2025] - US-022
+- Created VariableDetector visitor in com.alibaba.qlexpress4.parser.visitor package
+- Detects variable reads (identifier references), variable writes (assignments), and variable declarations
+- Supports all assignment operators: =, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=
+- Detects variables in lambda parameters, catch clause exception parameters
+- VariableAccess contains: type (READ/WRITE), name, line, column
+- VariableDeclaration contains: typeName, variableName, line, column
+- Added 20 unit tests covering various variable detection scenarios
+- Typecheck passes (mvn compile)
+- All tests pass (471/471, including 20 VariableDetector tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java (new file)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/VariableDetectorTest.java (new file)
+  - prd.json (modified - marked US-022 as complete)
+- **Learnings for future iterations:**
+  - The parser treats `x = 42` (without type) as a BinaryOpNode with operator `=`, not an AssignmentNode
+  - The parser treats `int x = 10` (with type) as a VariableDeclarationNode
+  - Assignment expressions like `x = y + 1` have the left operand as the target and right operand as the value
+  - For compound assignments like `x += 1`, the left operand `x` is both read (for the current value) and written (for the result)
+  - Lambda parameters should be treated as variable declarations with getParameterName() not getName()
+  - Catch clause exception parameters are variable declarations stored in CatchClauseNode
+  - VariableDetector uses getAllVariableNames() to collect all unique variable names from reads, writes, and declarations
+  - When writing tests, avoid using string literals with quotes inside test code - the parser may interpret them incorrectly
+
+---
