@@ -433,3 +433,27 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Tests can be run with mvn test -Dtest=ClassName for specific test classes
 
 ---
+
+## [Thu Feb 20 12:00:00 AM CST 2025] - US-021
+- Created FunctionExtractor visitor in com.alibaba.qlexpress4.parser.visitor package
+- Extracts all function calls from AST including direct calls, method calls, static calls, and constructor calls
+- Supports all function call types: DIRECT_CALL, METHOD_CALL, STATIC_CALL, CONSTRUCTOR_CALL
+- FunctionCall contains: type, name, arity, line, column
+- Added 20 unit tests covering various function call scenarios
+- Typecheck passes (mvn compile)
+- All tests pass (451/451, including 20 FunctionExtractor tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java (new file)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractorTest.java (new file)
+  - prd.json (modified - marked US-021 as complete)
+- **Learnings for future iterations:**
+  - The ASTVisitor interface throws Exception in all visit methods
+  - When implementing a visitor, all visit methods must declare `throws Exception`
+  - The visitor pattern allows parent-first traversal - the parent node's visit method is called before children
+  - For MethodCallNode: target == null means direct call, target is IdentifierNode with uppercase name means static call
+  - For ConstructorCallNode: the type name and arguments are directly accessible
+  - Function calls are extracted during traversal - parent call is added to list before recursing into arguments
+  - This means for nested calls like `outer(inner(arg))`, "outer" appears before "inner" in the result list
+  - The visitor pattern is useful for analysis and transformation without modifying node classes
+
+---
