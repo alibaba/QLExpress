@@ -239,8 +239,8 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Also implemented parseTryCatch, parseReturn, parseBreak, parseContinue, parseThrow, parseVariableDeclaration as part of this story."
     },
     {
       "id": "US-015",
@@ -259,8 +259,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed as part of US-014: try-catch-finally, throw, return, break, continue, variable declarations, and assignments are all implemented. Only type declarations and import statements remain for a future story."
     },
     {
       "id": "US-016",

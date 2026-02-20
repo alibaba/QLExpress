@@ -240,3 +240,35 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The grammar defines primaryNoFixNonPathable for lambdas - they can't have path operations attached
   - Optional chaining (?.) and spread chaining (*.) are in the grammar for future use
 ---
+
+## [Thu Feb 20 08:25:30 AM CST 2025] - US-014, US-015
+- Implemented control flow statement parsing: if-else, while, for loops (traditional and for-each), switch
+- Implemented remaining statement parsing: try-catch-finally, throw, return, break, continue, variable declarations
+- Added parseStatement() as main entry point for statement parsing
+- Implemented parseBlock() for proper statement block parsing
+- Updated BlockNode to implement both StatementNode and ExpressionNode (blocks can be expressions)
+- Updated ExpressionNode to extend StatementNode (any expression can be a statement in QLExpress)
+- Updated MethodCallNode to implement StatementNode (method calls can be statements)
+- Made parseStatement() public for testing
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/BlockNode.java (modified)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ExpressionNode.java (modified)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/MethodCallNode.java (modified)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified - ~700 insertions)
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (modified - ~320 insertions, 39 new tests)
+- Typecheck passes (mvn compile)
+- Unit tests pass (144/144 parser tests, 340/340 total tests)
+- **Learnings for future iterations:**
+  - In QLExpress, any expression can be used as a statement, so ExpressionNode should extend StatementNode
+  - BlockNode implements both StatementNode and ExpressionNode because blocks can be used as expressions
+  - SEMI is the token type for semicolon (;), not SEMICOLON
+  - EQ is the token type for assignment (=), not ASSIGN
+  - Variable declarations can start with primitive type keywords or class names (ID followed by ID)
+  - The isTypeKeyword() method already includes common Java types like String, Object, Integer, etc.
+  - parseVariableDeclaration() consumes the trailing semicolon, so don't expect it again in the caller
+  - For loops have two forms: traditional (init; condition; update) and for-each (type var : iterable)
+  - In for-each loops, the colon (:) vs semicolon (;) is detected via lookahead before parsing
+  - Switch statements support both colon (:) and arrow (->) syntax for case labels
+  - The THEN keyword is optional in if statements after the condition
+  - Token names in TokenType enum: SEMI (not SEMICOLON), EQ (not ASSIGN), BIT_OR (not just OR)
+---
