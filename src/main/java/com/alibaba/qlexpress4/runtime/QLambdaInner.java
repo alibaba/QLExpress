@@ -61,8 +61,11 @@ public class QLambdaInner implements QLambda {
                     return qResult;
             }
         }
-        
-        return QResult.NEXT_INSTRUCTION;
+
+        // Return the value on top of the stack as the result
+        // This handles the case where the program ends with an expression
+        Value resultValue = runtime.getCurrentScope().peek();
+        return new QResult(resultValue != null ? resultValue : Value.NULL_VALUE, QResult.ResultType.NEXT_INSTRUCTION);
     }
     
     private QContext inheritScope(Object[] params)

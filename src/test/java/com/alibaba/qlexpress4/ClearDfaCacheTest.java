@@ -27,7 +27,7 @@ public class ClearDfaCacheTest {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         runner.parseToSyntaxTree(complexDataProcessingExpress);
         double beforeMemoryUsed = getMemoryUsedMB();
-        runner.clearDFACache();
+        runner.clearCompileCache();
         double afterMemoryUsed = getMemoryUsedMB();
         Assert.assertTrue(afterMemoryUsed < beforeMemoryUsed / 2);
         System.out.printf("Before Used: %.2f MB, After Used: %.2f MB%n", beforeMemoryUsed, afterMemoryUsed);
@@ -37,14 +37,14 @@ public class ClearDfaCacheTest {
     public void bestPractice()
         throws URISyntaxException, IOException {
         String exampleExpress = "1+1";
-        // tag::clearDFACacheBestPractice[]
+        // tag::clearCompileCacheBestPractice[]
         /*
          * When the expression changes, parse it and add it to the expression cache;
-         * after parsing is complete, call clearDFACache.
+         * after parsing is complete, call clearCompileCache.
          */
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         runner.parseToDefinitionWithCache(exampleExpress);
-        runner.clearDFACache();
+        runner.clearCompileCache();
         
         /*
          * All subsequent runs of this script must enable the cache option to ensure that re-compilation does not occur.
@@ -52,7 +52,7 @@ public class ClearDfaCacheTest {
         for (int i = 0; i < 3; i++) {
             runner.execute(exampleExpress, ExpressContext.EMPTY_CONTEXT, QLOptions.builder().cache(true).build());
         }
-        // end::clearDFACacheBestPractice[]
+        // end::clearCompileCacheBestPractice[]
     }
     
     private double getMemoryUsedMB() {

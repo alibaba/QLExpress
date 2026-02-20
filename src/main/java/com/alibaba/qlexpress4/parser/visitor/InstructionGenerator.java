@@ -45,12 +45,16 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         GenerationContext blockContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
 
-        for (StatementNode statement : node.getStatements()) {
+        List<StatementNode> statements = node.getStatements();
+        int numStatements = statements.size();
+
+        for (int i = 0; i < numStatements; i++) {
+            StatementNode statement = statements.get(i);
             GenerationResult result = ((ASTNode) statement).accept(this, blockContext);
             instructions.addAll(result.getInstructions());
 
             // If the statement is an expression, pop its result unless it's the last statement
-            if (result.isExpressionValue()) {
+            if (result.isExpressionValue() && i < numStatements - 1) {
                 instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
             }
         }
@@ -912,12 +916,16 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         GenerationContext programContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
 
-        for (StatementNode statement : node.getStatements()) {
+        List<StatementNode> statements = node.getStatements();
+        int numStatements = statements.size();
+
+        for (int i = 0; i < numStatements; i++) {
+            StatementNode statement = statements.get(i);
             GenerationResult result = ((ASTNode) statement).accept(this, programContext);
             instructions.addAll(result.getInstructions());
 
             // If the statement is an expression, pop its result unless it's the last statement
-            if (result.isExpressionValue()) {
+            if (result.isExpressionValue() && i < numStatements - 1) {
                 instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
             }
         }
