@@ -331,7 +331,7 @@
       ],
       "priority": 19,
       "passes": false,
-      "notes": ""
+      "notes": "PARTIAL COMPLETION: Implemented return, break, continue, throw, variable declarations, and assignments. Control flow statements (if-else, while, for, switch, try-catch) and type/import declarations remain for future implementation."
     },
     {
       "id": "US-020",
