@@ -276,8 +276,8 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "parseBlock() was already implemented in US-014. parseProgram() now parses statements until EOF."
     },
     {
       "id": "US-017",
