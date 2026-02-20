@@ -271,4 +271,28 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Switch statements support both colon (:) and arrow (->) syntax for case labels
   - The THEN keyword is optional in if statements after the condition
   - Token names in TokenType enum: SEMI (not SEMICOLON), EQ (not ASSIGN), BIT_OR (not just OR)
----
+---## [Thu Feb 20 08:45:12 AM CST 2025] - US-016
+- Implemented parseProgram() method for complete program parsing
+- parseProgram() now parses statements until EOF, skipping leading/trailing newlines
+- Handles empty programs (returns ProgramNode with empty statements list)
+- Added 17 new unit tests for parseProgram() covering:
+  - Empty programs
+  - Single statement programs
+  - Multiple statement programs
+  - Programs with newlines
+  - Programs with blocks, if statements, while loops, for loops, switch, try-catch, return, variable declarations
+  - Mixed statement programs
+- Typecheck passes (mvn compile)
+- Unit tests pass (159/159 parser tests, 355/355 total tests)
+- All testsuite/*.ql scripts execute successfully via TestSuiteRunner
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified - implemented parseProgram)
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (modified - added 17 tests)
+  - prd.json (modified - marked US-016 as complete)
+- **Learnings for future iterations:**
+  - parseBlock() was already implemented in US-014, only parseProgram() needed to be completed
+  - The parser correctly skips leading newlines before parsing statements via skipNewlines()
+  - parseStatement() already handles trailing semicolons, so parseProgram() doesn't need to worry about them
+  - The full test suite (355 tests) continues to pass, confirming the parser works correctly
+  - TestSuiteRunner successfully executes all testsuite/*.ql scripts without errors
+
