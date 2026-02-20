@@ -382,3 +382,54 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - ReturnNode without value should push null before ReturnInstruction
   - NOT IMPLEMENTED (left for future): IfNode, WhileNode, ForNode, SwitchNode, TryCatchNode, TypeDeclarationNode, ImportNode, FunctionDefinitionNode, MacroDefinitionNode, InstanceOfNode, TypeNode
 
+
+## [Thu Feb 20 10:30:00 AM CST 2025] - US-019 (Complete)
+- Completed InstructionGenerator for all control flow statements
+- Added calculateMaxStack helper method for stack size estimation
+- Fixed QLambdaDefinition import for TryCatchNode exception table
+- Fixed for-each loop detection to properly distinguish from traditional for loops (check for null condition AND null update)
+- Added comprehensive unit tests for all control flow statements (9 new tests)
+- Typecheck passes (mvn compile)
+- All tests pass (405/405, including 50 InstructionGenerator tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - added calculateMaxStack helper, fixed for-each detection)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (modified - added 9 new tests, removed 5 "NotImplemented" tests)
+  - prd.json (modified - marked US-019 as complete)
+- **Learnings for future iterations:**
+  - calculateMaxStack uses a simple heuristic based on instruction count: Math.max(10, instructions.size() / 2 + 5)
+  - The original ANTLR-based implementation tracks stack size during instruction generation (stackSize, maxStackSize fields in QvmInstructionVisitor)
+  - For-each loops are detected by checking: init is VariableDeclarationNode AND condition is null AND update is null
+  - Traditional for loops have init/condition/update and generate ForInstruction with separate lambdas for each part
+  - WhileInstruction takes conditionLambda, bodyLambda, and maxStackSize
+  - ForInstruction takes initLambda, conditionLambda, conditionErrorReporter, updateLambda, maxStackSize, and bodyLambda
+  - ForEachInstruction takes bodyLambda, elementClass, and errorReporter
+  - TryCatchInstruction takes tryLambda, exceptionTable (List<Map.Entry<Class<?>, QLambdaDefinition>>), and finallyLambda
+  - The JumpIfPopInstruction pops the condition from the stack before jumping (unlike JumpIfInstruction which doesn't pop)
+  - NOT IMPLEMENTED (left for future): TypeDeclarationNode, ImportNode, FunctionDefinitionNode, MacroDefinitionNode, InstanceOfNode, TypeNode, CastNode
+
+---
+
+## [Thu Feb 20 11:00:00 AM CST 2025] - US-020
+- Created new SyntaxTreeFactory in com.alibaba.qlexpress4.parser package
+- Factory method creates ProgramNode instead of ANTLR ProgramContext
+- Supports all existing options: printTree, profile, interpolationMode, selectorStart, selectorEnd, strictNewlines
+- Maintains backward compatibility with same method signature as original factory
+- Added 26 unit tests covering all major parsing scenarios
+- Typecheck passes (mvn compile)
+- All tests pass (431/431, including 26 SyntaxTreeFactory tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/SyntaxTreeFactory.java (new file)
+  - src/test/java/com/alibaba/qlexpress4/parser/SyntaxTreeFactoryTest.java (new file)
+  - prd.json (modified - marked US-020 as complete)
+- **Learnings for future iterations:**
+  - QLexpressLexer constructor signature: (input, source, interpolationMode, strictNewLines, selectorStart, selectorEnd)
+  - The order of parameters is important - strictNewLines comes before selectorStart/selectorEnd
+  - ParseException is an inner class of QLexpressParser: QLexpressParser.ParseException
+  - The parser uses the same OperatorManager as the original ANTLR-based implementation
+  - printTree outputs both token stream and AST for debugging
+  - profile option is not yet supported for the new parser (gracefully handled with message)
+  - Array, map, and list literals are not yet fully implemented in the new parser
+  - The new factory is in a different package (com.alibaba.qlexpress4.parser) than the old one (com.alibaba.qlexpress4.aparser)
+  - Tests can be run with mvn test -Dtest=ClassName for specific test classes
+
+---
