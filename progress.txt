@@ -545,3 +545,30 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The visitor pattern requires handling checked exceptions - use try-catch in helper methods to avoid needing `throws Exception` on all visit methods
 
 ---
+
+## [Thu Feb 20 16:00:00 AM CST 2025] - US-025
+- Created ASTCompiler utility class in com.alibaba.qlexpress4.parser package
+- ASTCompiler.compile() compiles ProgramNode to QLambdaDefinition using InstructionGenerator
+- ASTCompiler.compileWithTrace() compiles ProgramNode and generates trace points
+- ASTCompiler.generateTracePoints() generates TracePointTree from ProgramNode using TraceGenerator
+- Added CompilationResult inner class to hold lambda definition and trace points
+- Added 25 comprehensive unit tests covering compilation of all statement and expression types
+- Typecheck passes (mvn compile)
+- All tests pass (554/554, including 25 ASTCompiler tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ASTCompiler.java (new file - ~175 lines)
+  - src/test/java/com/alibaba/qlexpress4/parser/ASTCompilerTest.java (new file - ~270 lines)
+  - prd.json (modified - marked US-025 as complete)
+- **Learnings for future iterations:**
+  - QCompileCache itself doesn't need structural changes - it already stores QLambdaDefinition and List<TracePointTree>, not the AST
+  - The AST is only used during compilation and then discarded
+  - The actual requirement was to create compilation infrastructure for the new AST
+  - ASTCompiler serves as the bridge between the new parser (ProgramNode) and the runtime (QLambdaDefinition)
+  - QLambdaDefinition interface only exposes getName(), not getInstructions() - need to cast to QLambdaDefinitionInner to access instructions
+  - TracePointTree has getType() method not getTraceType()
+  - ProgramNode-level expressions get an automatic PopInstruction to clear their result from the stack
+  - The max stack size heuristic is Math.max(10, instructions.size() / 2 + 5)
+  - InstructionGenerator throws Exception from all visit methods - need to handle or declare throws
+  - Test assertions should account for the PopInstruction added after expression statements
+
+---

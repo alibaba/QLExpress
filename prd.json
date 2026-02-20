@@ -423,8 +423,8 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created ASTCompiler utility class in parser package to compile ProgramNode to QLambdaDefinition using InstructionGenerator and generate TracePointTree using TraceGenerator. Added CompilationResult inner class to hold both lambda definition and trace points. Note: QCompileCache itself doesn't store AST - it stores compilation result (QLambdaDefinition + trace points). The cache infrastructure works with the new AST via ASTCompiler. 25 unit tests added and passing."
     },
     {
       "id": "US-026",
