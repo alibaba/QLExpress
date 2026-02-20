@@ -78,8 +78,19 @@ public class QLexpressParser {
         }
 
         // Parse statements until EOF
-        // This is a placeholder - full implementation in later US
         List<StatementNode> statements = new ArrayList<>();
+
+        // Skip leading newlines
+        skipNewlines();
+
+        while (!isEOF()) {
+            StatementNode stmt = parseStatement();
+            if (stmt != null) {
+                statements.add(stmt);
+            }
+            // Skip newlines between statements
+            skipNewlines();
+        }
 
         return new ProgramNode(line, column, source, statements);
     }

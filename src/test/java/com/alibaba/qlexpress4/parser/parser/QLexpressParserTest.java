@@ -1418,4 +1418,143 @@ public class QLexpressParserTest {
         com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode varDecl = (com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode) stmt;
         Assert.assertEquals("Type should be 'String'", "String", varDecl.getTypeName());
     }
+
+    // ==================== Program Parsing Tests ====================
+
+    @Test
+    public void testParseEmptyProgram() throws Exception {
+        QLexpressParser parser = createParser("");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 0 statements", 0, program.getStatements().size());
+    }
+
+    @Test
+    public void testParseSingleStatementProgram() throws Exception {
+        QLexpressParser parser = createParser("x = 1;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+    }
+
+    @Test
+    public void testParseMultipleStatementProgram() throws Exception {
+        QLexpressParser parser = createParser("x = 1; y = 2; z = 3;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 3 statements", 3, program.getStatements().size());
+    }
+
+    @Test
+    public void testParseProgramWithNewlines() throws Exception {
+        QLexpressParser parser = createParser("x = 1;\ny = 2;\nz = 3;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 3 statements", 3, program.getStatements().size());
+    }
+
+    @Test
+    public void testParseProgramWithBlocks() throws Exception {
+        QLexpressParser parser = createParser("{ x = 1; } { y = 2; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 2 statements", 2, program.getStatements().size());
+        Assert.assertTrue("First statement should be BlockNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+        Assert.assertTrue("Second statement should be BlockNode", program.getStatements().get(1) instanceof com.alibaba.qlexpress4.parser.ast.BlockNode);
+    }
+
+    @Test
+    public void testParseProgramWithIfStatement() throws Exception {
+        QLexpressParser parser = createParser("if (true) { x = 1; } else { x = 2; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be IfNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.IfNode);
+    }
+
+    @Test
+    public void testParseProgramWithWhileLoop() throws Exception {
+        QLexpressParser parser = createParser("while (i < 10) { i = i + 1; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be WhileNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.WhileNode);
+    }
+
+    @Test
+    public void testParseProgramWithForLoop() throws Exception {
+        QLexpressParser parser = createParser("for (int i = 0; i < 10; i = i + 1) { sum = sum + i; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be ForNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.ForNode);
+    }
+
+    @Test
+    public void testParseProgramWithSwitch() throws Exception {
+        QLexpressParser parser = createParser("switch (x) { case 1: a = 1; break; default: a = 0; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be SwitchNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.SwitchNode);
+    }
+
+    @Test
+    public void testParseProgramWithTryCatch() throws Exception {
+        QLexpressParser parser = createParser("try { x = 1; } catch (Exception e) { x = 0; }");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be TryCatchNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.TryCatchNode);
+    }
+
+    @Test
+    public void testParseProgramWithReturn() throws Exception {
+        QLexpressParser parser = createParser("return 42;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be ReturnNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.ReturnNode);
+    }
+
+    @Test
+    public void testParseProgramWithVariableDeclaration() throws Exception {
+        QLexpressParser parser = createParser("int x = 42;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+        Assert.assertTrue("Statement should be VariableDeclarationNode", program.getStatements().get(0) instanceof com.alibaba.qlexpress4.parser.ast.VariableDeclarationNode);
+    }
+
+    @Test
+    public void testParseProgramWithMixedStatements() throws Exception {
+        String source = "int x = 0;" +
+                        "while (x < 10) {" +
+                        "  if (x % 2 == 0) {" +
+                        "    println(x);" +
+                        "  }" +
+                        "  x = x + 1;" +
+                        "}" +
+                        "return x;";
+        QLexpressParser parser = createParser(source);
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertTrue("Should have at least 2 statements", program.getStatements().size() >= 2);
+    }
+
+    @Test
+    public void testParseProgramWithLeadingNewlines() throws Exception {
+        QLexpressParser parser = createParser("\n\nx = 1;");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+    }
+
+    @Test
+    public void testParseProgramWithTrailingNewlines() throws Exception {
+        QLexpressParser parser = createParser("x = 1;\n\n");
+        com.alibaba.qlexpress4.parser.ast.ProgramNode program = parser.parseProgram();
+        Assert.assertNotNull("Program should not be null", program);
+        Assert.assertEquals("Should have 1 statement", 1, program.getStatements().size());
+    }
 }
