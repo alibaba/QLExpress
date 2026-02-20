@@ -408,8 +408,8 @@
         "Typecheck passes"
       ],
       "priority": 24,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented TraceGenerator with 30 unit tests. Supports all statement and expression types. List literals, function/macro definitions not yet tested as parser support is incomplete."
     },
     {
       "id": "US-025",
