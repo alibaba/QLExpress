@@ -358,3 +358,27 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - QLambdaDefinitionInner.Param takes (name, clazz) - clazz is the parameter type
   - ReturnInstruction needs QResult.ResultType (CONTINUE for normal return)
 
+## [Thu Feb 20 10:00:00 AM CST 2025] - US-019 (Partial)
+- Implemented visit(ReturnNode) to generate ReturnInstruction
+- Implemented visit(BreakNode) to generate BreakContinueInstruction for LOOP_BREAK_RESULT
+- Implemented visit(ContinueNode) to generate BreakContinueInstruction for LOOP_CONTINUE_RESULT
+- Implemented visit(ThrowNode) to generate ThrowInstruction
+- Implemented visit(VariableDeclarationNode) to generate DefineLocalInstruction
+- Implemented visit(AssignmentNode) for simple (=) and compound (+=, -=, etc.) assignments
+- Added 19 new unit tests for basic statements
+- Typecheck passes (mvn compile)
+- All tests pass (401/401, including 46 InstructionGenerator tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - ~150 insertions)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (modified - ~130 insertions)
+  - prd.json (modified - marked US-019 as partial completion)
+- **Learnings for future iterations:**
+  - ReturnInstruction takes (resultType, traceKey) - resultType is QResult.ResultType.RETURN
+  - BreakContinueInstruction takes (QResult) - use QResult.LOOP_BREAK_RESULT or QResult.LOOP_CONTINUE_RESULT
+  - ThrowInstruction pops the exception from the stack and throws it
+  - DefineLocalInstruction takes (variableName, Class<?>) - defines a local variable in current scope
+  - AssignmentNode can be simple (=) or compound (+=, -=, etc.) - compound needs target + operator
+  - Variable declarations without initial value push null (ConstInstruction with null)
+  - ReturnNode without value should push null before ReturnInstruction
+  - NOT IMPLEMENTED (left for future): IfNode, WhileNode, ForNode, SwitchNode, TryCatchNode, TypeDeclarationNode, ImportNode, FunctionDefinitionNode, MacroDefinitionNode, InstanceOfNode, TypeNode
+
