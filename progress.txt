@@ -210,3 +210,33 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - In QLExpress, EQUAL (7) has higher precedence than BIT_AND (6), which is different from standard Java
   - The test suite uses JUnit 4 and mvn test for running all tests
 ---
+
+## [Thu Feb 20 07:55:30 AM CST 2025] - US-013
+- Implemented parseTernary() method for ternary expressions (?:)
+- Implemented lambda expression parsing with shouldParseLambda() and parseLambda() methods
+- Lambda expressions support: single param (x -> expr), multi param ((x, y) -> expr), typed params ((int x, String y) -> expr), empty params (() -> expr)
+- Implemented parsePath() for method chaining and path operations
+- Method calls now properly chain: a().b().c() works correctly
+- Added support for optional chaining (?.) and spread chaining (*.)
+- Added method reference parsing (:: operator) - uses LambdaNode as placeholder
+- Fixed parseQualifiedTypeName() to handle type keyword tokens (int, long, etc.)
+- Fixed parsePath() to properly consume LPAREN before calling parseArgumentListBody()
+- Added comprehensive unit tests for complex expressions (115 total parser tests)
+- Typecheck passes (mvn compile)
+- Unit tests pass (115/115)
+- Full test suite passes (311 tests)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified - 1119 insertions, 3 deletions)
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (modified - extensive additions)
+- **Learnings for future iterations:**
+  - Ternary expressions are right-associative: a ? b : c ? d : e = a ? b : (c ? d : e)
+  - Lambda expressions can start with ID or LPAREN - need lookahead to distinguish from regular expressions
+  - For () -> 42, lookahead should find matching RPAREN then check for ARROW
+  - Method chaining requires parsePath() to continue looping after each method call
+  - parseArgumentListBody() assumes LPAREN is already consumed - need to consume LPAREN in caller
+  - Type keywords (int, long, etc.) are TokenType keywords, not ID - need isTypeKeywordToken() check
+  - instanceof is NOT in the ANTLR grammar - it's not a language feature in QLExpress
+  - Method references (::) are in the grammar but no dedicated AST node exists - using LambdaNode as placeholder
+  - The grammar defines primaryNoFixNonPathable for lambdas - they can't have path operations attached
+  - Optional chaining (?.) and spread chaining (*.) are in the grammar for future use
+---
