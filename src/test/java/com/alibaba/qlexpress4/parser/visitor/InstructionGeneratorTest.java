@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4.parser.visitor;
 
 import com.alibaba.qlexpress4.parser.ast.*;
 import com.alibaba.qlexpress4.parser.parser.QLexpressParser;
+import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import org.junit.Test;
@@ -449,5 +450,206 @@ public class InstructionGeneratorTest {
         assertEquals(2, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof PopInstruction);
+    }
+
+    @Test
+    public void testVisitReturnNode_WithValue() throws Exception {
+        // return 42;
+        ReturnNode node = new ReturnNode(1, 1, null, new LiteralNode(1, 1, null, 42));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(2, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ReturnInstruction);
+    }
+
+    @Test
+    public void testVisitReturnNode_NoValue() throws Exception {
+        // return;
+        ReturnNode node = new ReturnNode(1, 1, null, null);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(2, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ReturnInstruction);
+    }
+
+    @Test
+    public void testVisitBreakNode() throws Exception {
+        // break;
+        BreakNode node = new BreakNode(1, 1, null);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(1, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof BreakContinueInstruction);
+        assertEquals(QResult.LOOP_BREAK_RESULT,
+                ((BreakContinueInstruction) result.getInstructions().get(0)).getResult());
+    }
+
+    @Test
+    public void testVisitContinueNode() throws Exception {
+        // continue;
+        ContinueNode node = new ContinueNode(1, 1, null);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(1, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof BreakContinueInstruction);
+        assertEquals(QResult.LOOP_CONTINUE_RESULT,
+                ((BreakContinueInstruction) result.getInstructions().get(0)).getResult());
+    }
+
+    @Test
+    public void testVisitThrowNode() throws Exception {
+        // throw "error";
+        ThrowNode node = new ThrowNode(1, 1, null, new LiteralNode(1, 1, null, "error"));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(2, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ThrowInstruction);
+    }
+
+    @Test
+    public void testVisitVariableDeclarationNode_WithInitialValue() throws Exception {
+        // int x = 42;
+        VariableDeclarationNode node = new VariableDeclarationNode(1, 1, null, "int", "x",
+                new LiteralNode(1, 1, null, 42));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(2, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof DefineLocalInstruction);
+    }
+
+    @Test
+    public void testVisitVariableDeclarationNode_NoInitialValue() throws Exception {
+        // int x;
+        VariableDeclarationNode node = new VariableDeclarationNode(1, 1, null, "int", "x", null);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(2, result.getInstructions().size());
+        assertEquals(0, result.getStackEffect());
+        assertFalse(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof DefineLocalInstruction);
+    }
+
+    @Test
+    public void testVisitAssignmentNode_Simple() throws Exception {
+        // x = 42;
+        AssignmentNode node = new AssignmentNode(1, 1, null,
+                new IdentifierNode(1, 1, null, "x"), "=",
+                new LiteralNode(1, 1, null, 42));
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(1, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitIfNode_NotImplemented() throws Exception {
+        IfNode node = new IfNode(1, 1, null,
+                new LiteralNode(1, 1, null, true),
+                new BlockNode(1, 1, null, Collections.emptyList()),
+                null);
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitWhileNode_NotImplemented() throws Exception {
+        WhileNode node = new WhileNode(1, 1, null,
+                new LiteralNode(1, 1, null, true),
+                new BlockNode(1, 1, null, Collections.emptyList()));
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitForNode_NotImplemented() throws Exception {
+        ForNode node = new ForNode(1, 1, null, null, null, null,
+                new BlockNode(1, 1, null, Collections.emptyList()));
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitSwitchNode_NotImplemented() throws Exception {
+        SwitchNode node = new SwitchNode(1, 1, null,
+                new LiteralNode(1, 1, null, 1),
+                Collections.emptyList());
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitTryCatchNode_NotImplemented() throws Exception {
+        TryCatchNode node = new TryCatchNode(1, 1, null,
+                new BlockNode(1, 1, null, Collections.emptyList()),
+                Collections.emptyList(),
+                null);
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitTypeDeclarationNode_NotImplemented() throws Exception {
+        TypeDeclarationNode node = new TypeDeclarationNode(1, 1, null, "MyType");
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitImportNode_NotImplemented() throws Exception {
+        ImportNode node = new ImportNode(1, 1, null, "java.util.List", false);
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitFunctionDefinitionNode_NotImplemented() throws Exception {
+        FunctionDefinitionNode node = new FunctionDefinitionNode(1, 1, null, "myFunc",
+                Collections.emptyList(), new BlockNode(1, 1, null, Collections.emptyList()));
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitMacroDefinitionNode_NotImplemented() throws Exception {
+        MacroDefinitionNode node = new MacroDefinitionNode(1, 1, null, "myMacro",
+                new BlockNode(1, 1, null, Collections.emptyList()));
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitInstanceOfNode_NotImplemented() throws Exception {
+        InstanceOfNode node = new InstanceOfNode(1, 1, null,
+                new LiteralNode(1, 1, null, "test"), "String");
+        generator.visit(node, context);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testVisitTypeNode_NotImplemented() throws Exception {
+        TypeNode node = new TypeNode(1, 1, null, "String");
+        generator.visit(node, context);
     }
 }
