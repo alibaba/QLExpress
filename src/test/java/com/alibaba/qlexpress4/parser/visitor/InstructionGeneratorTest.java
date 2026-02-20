@@ -6,7 +6,9 @@ import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -223,21 +225,190 @@ public class InstructionGeneratorTest {
         assertTrue(result.getInstructions().get(4) instanceof LoadInstruction);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitLambdaNode_NotImplemented() throws Exception {
-        LambdaNode node = new LambdaNode(1, 1, null, Collections.emptyList(), null);
-        generator.visit(node, context);
+    @Test
+    public void testVisitArrayAccessNode() throws Exception {
+        // arr[0]
+        IdentifierNode array = new IdentifierNode(1, 1, null, "arr");
+        LiteralNode index = new LiteralNode(1, 1, null, 0);
+        ArrayAccessNode node = new ArrayAccessNode(1, 1, null, array, index);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(3, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof LoadInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof IndexInstruction);
+    }
+
+    @Test
+    public void testVisitArrayLiteralNode() throws Exception {
+        // [1, 2, 3]
+        List<ExpressionNode> elements = Arrays.asList(
+                new LiteralNode(1, 1, null, 1),
+                new LiteralNode(1, 1, null, 2),
+                new LiteralNode(1, 1, null, 3)
+        );
+        ArrayLiteralNode node = new ArrayLiteralNode(1, 1, null, elements);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(4, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof NewArrayInstruction);
+    }
+
+    @Test
+    public void testVisitListLiteralNode() throws Exception {
+        // [1, 2, 3]
+        List<ExpressionNode> elements = Arrays.asList(
+                new LiteralNode(1, 1, null, 1),
+                new LiteralNode(1, 1, null, 2),
+                new LiteralNode(1, 1, null, 3)
+        );
+        ListLiteralNode node = new ListLiteralNode(1, 1, null, elements);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(4, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof NewListInstruction);
+    }
+
+    @Test
+    public void testVisitMapLiteralNode() throws Exception {
+        // {"a": 1, "b": 2}
+        List<MapEntryNode> entries = Arrays.asList(
+                new MapEntryNode(new LiteralNode(1, 1, null, "a"), new LiteralNode(1, 1, null, 1)),
+                new MapEntryNode(new LiteralNode(1, 1, null, "b"), new LiteralNode(1, 1, null, 2))
+        );
+        MapLiteralNode node = new MapLiteralNode(1, 1, null, entries);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(3, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof NewMapInstruction);
+    }
+
+    @Test
+    public void testVisitMethodCallNode() throws Exception {
+        // obj.method(1, 2)
+        IdentifierNode target = new IdentifierNode(1, 1, null, "obj");
+        List<ExpressionNode> args = Arrays.asList(
+                new LiteralNode(1, 1, null, 1),
+                new LiteralNode(1, 1, null, 2)
+        );
+        MethodCallNode node = new MethodCallNode(1, 1, null, target, "method", args);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(4, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof LoadInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof MethodInvokeInstruction);
+    }
+
+    @Test
+    public void testVisitMethodCallNode_NoTarget() throws Exception {
+        // method(1, 2)
+        List<ExpressionNode> args = Arrays.asList(
+                new LiteralNode(1, 1, null, 1),
+                new LiteralNode(1, 1, null, 2)
+        );
+        MethodCallNode node = new MethodCallNode(1, 1, null, null, "method", args);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(3, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof MethodInvokeInstruction);
+    }
+
+    @Test
+    public void testVisitConstructorCallNode() throws Exception {
+        // new MyClass(1, 2)
+        List<ExpressionNode> args = Arrays.asList(
+                new LiteralNode(1, 1, null, 1),
+                new LiteralNode(1, 1, null, 2)
+        );
+        ConstructorCallNode node = new ConstructorCallNode(1, 1, null, "MyClass", args);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(3, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof NewInstanceInstruction);
+    }
+
+    @Test
+    public void testVisitLambdaNode_Simple() throws Exception {
+        // x -> x + 1
+        List<ParameterNode> params = Collections.singletonList(
+                new ParameterNode(null, "x")
+        );
+        BinaryOpNode body = new BinaryOpNode(1, 1, null,
+                new IdentifierNode(1, 1, null, "x"),
+                "+",
+                new LiteralNode(1, 1, null, 1)
+        );
+        LambdaNode node = new LambdaNode(1, 1, null, params, body);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(1, result.getInstructions().size());
+        assertEquals(1, result.getStackEffect());
+        assertTrue(result.isExpressionValue());
+
+        assertTrue(result.getInstructions().get(0) instanceof LoadLambdaInstruction);
+    }
+
+    @Test
+    public void testVisitLambdaNode_BlockBody() throws Exception {
+        // () -> { 42 }
+        List<ParameterNode> params = Collections.emptyList();
+        BlockNode body = new BlockNode(1, 1, null, Collections.singletonList(
+                new LiteralNode(1, 1, null, 42)
+        ));
+        LambdaNode node = new LambdaNode(1, 1, null, params, body);
+
+        GenerationResult result = generator.visit(node, context);
+
+        assertEquals(1, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof LoadLambdaInstruction);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testVisitMethodCallNode_NotImplemented() throws Exception {
-        MethodCallNode node = new MethodCallNode(1, 1, null, null, "test", Collections.emptyList());
-        generator.visit(node, context);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVisitConstructorCallNode_NotImplemented() throws Exception {
-        ConstructorCallNode node = new ConstructorCallNode(1, 1, null, null, Collections.emptyList());
+    public void testVisitCastNode_NotImplemented() throws Exception {
+        CastNode node = new CastNode(1, 1, null, null, null);
         generator.visit(node, context);
     }
 
