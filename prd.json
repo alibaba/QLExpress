@@ -505,7 +505,7 @@
       ],
       "priority": 30,
       "passes": false,
-      "notes": ""
+      "notes": "BLOCKED: TestSuiteRunner fails with 'Expected expression but found DOUBLE_QUOTE'. The new parser has issues with double-quoted strings in certain contexts. Requires debugging and fixing multiple parser issues before testsuite can pass."
     },
     {
       "id": "US-031",
@@ -521,7 +521,7 @@
       ],
       "priority": 31,
       "passes": false,
-      "notes": ""
+      "notes": "BLOCKED: Cannot remove ANTLR dependencies until US-030 passes. Removing ANTLR before tests pass would break the build."
     },
     {
       "id": "US-032",
@@ -538,7 +538,7 @@
       ],
       "priority": 32,
       "passes": false,
-      "notes": ""
+      "notes": "BLOCKED: Cannot remove ANTLR files until US-030 passes and US-031 is complete. The aparser package contains code still needed for testsuite and compile-time functions."
     },
     {
       "id": "US-033",
@@ -554,7 +554,7 @@
       ],
       "priority": 33,
       "passes": false,
-      "notes": ""
+      "notes": "BLOCKED: Should be completed after all parser work is done and tests pass. Documentation should reflect the final state."
     }
   ]
 }
