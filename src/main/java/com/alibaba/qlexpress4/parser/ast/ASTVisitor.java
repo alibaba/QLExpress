@@ -176,7 +176,13 @@ public interface ASTVisitor<R, C> {
      */
     R visit(ArrayAccessNode node, C context)
         throws Exception;
-    
+
+    /**
+     * Visits an array slice node.
+     */
+    R visit(ArraySliceNode node, C context)
+        throws Exception;
+
     /**
      * Visits an array literal node.
      */

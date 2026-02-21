@@ -929,23 +929,68 @@ public class QLexpressParser {
     /**
      * Parses an array access expression.
      * <p>
-     * Array access has the form: array[index]
+     * Array access can be:
+     * <ul>
+     *   <li>array[index] - single index access</li>
+     *   <li>array[start:end] - slice with start and end</li>
+     *   <li>array[start:] - slice with start only</li>
+     *   <li>array[:end] - slice with end only</li>
+     *   <li>array[:] - empty slice (all elements)</li>
+     * </ul>
      *
      * @param array the array expression
-     * @return the ArrayAccessNode
+     * @return the ArrayAccessNode or ArraySliceNode
      * @throws ParseException if parsing fails
      */
     private ExpressionNode parseArrayAccess(ExpressionNode array)
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-        
-        ExpressionNode index = parseExpression();
-        
+
+        // Check if this is a slice (has colon) or single index access
+        // We need to look ahead to see if there's a COLON after the index expression
+        // But we can't parse the full expression first because we need to detect the colon
+
+        // Check for empty brackets [] or starting colon [:...]
+        if (match(TokenType.RBRACK)) {
+            // Empty brackets [] - treat as array access with no index (error?)
+            consume();
+            return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, null);
+        }
+
+        if (match(TokenType.COLON)) {
+            // Slice with no start: [:end]
+            consume();
+            skipNewlines();
+            ExpressionNode end = null;
+            if (!match(TokenType.RBRACK)) {
+                end = parseExpression();
+            }
+            skipNewlines();
+            expect(TokenType.RBRACK);
+            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, null, end);
+        }
+
+        // Parse the first expression (could be start of slice or single index)
+        ExpressionNode firstExpr = parseExpression();
         skipNewlines();
+
+        if (match(TokenType.COLON)) {
+            // This is a slice: [start:end] or [start:]
+            consume();
+            skipNewlines();
+            ExpressionNode end = null;
+            if (!match(TokenType.RBRACK)) {
+                end = parseExpression();
+            }
+            skipNewlines();
+            expect(TokenType.RBRACK);
+            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, firstExpr, end);
+        }
+
+        // Single index access: array[index]
         expect(TokenType.RBRACK);
-        
-        return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, index);
+        return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, firstExpr);
     }
     
     // ==================== Type Cast Parsing ====================

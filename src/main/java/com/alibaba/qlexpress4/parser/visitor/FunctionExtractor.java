@@ -375,7 +375,7 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         visitExpression(node.getExpression(), context);
         return null;
     }
-    
+
     @Override
     public Void visit(ArrayAccessNode node, Context context)
         throws Exception {
@@ -383,7 +383,20 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         visitExpression(node.getIndex(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(ArraySliceNode node, Context context)
+        throws Exception {
+        visitNode(node.getArray(), context);
+        if (node.getStart() != null) {
+            visitExpression(node.getStart(), context);
+        }
+        if (node.getEnd() != null) {
+            visitExpression(node.getEnd(), context);
+        }
+        return null;
+    }
+
     @Override
     public Void visit(ArrayLiteralNode node, Context context)
         throws Exception {

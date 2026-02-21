@@ -865,23 +865,65 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(ArrayAccessNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Generate array expression
         GenerationResult arrayResult = ((ASTNode)node.getArray()).accept(this, context);
         instructions.addAll(arrayResult.getInstructions());
-        
+
         // Generate index expression
         GenerationResult indexResult = ((ASTNode)node.getIndex()).accept(this, context);
         instructions.addAll(indexResult.getInstructions());
-        
+
         // Generate index instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         IndexInstruction instruction = new IndexInstruction(errorReporter);
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
-    
+
+    @Override
+    public GenerationResult visit(ArraySliceNode node, GenerationContext context)
+        throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Generate array expression
+        GenerationResult arrayResult = ((ASTNode)node.getArray()).accept(this, context);
+        instructions.addAll(arrayResult.getInstructions());
+
+        // Determine the slice mode and generate appropriate instructions
+        ErrorReporter errorReporter = createErrorReporter(node);
+        ExpressionNode start = node.getStart();
+        ExpressionNode end = node.getEnd();
+
+        if (start == null && end == null) {
+            // [:] - COPY mode (no indices needed)
+            instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.COPY));
+        }
+        else if (start == null) {
+            // [:end] - LEFT mode (only end index)
+            GenerationResult endResult = ((ASTNode)end).accept(this, context);
+            instructions.addAll(endResult.getInstructions());
+            instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.LEFT));
+        }
+        else if (end == null) {
+            // [start:] - RIGHT mode (only start index)
+            GenerationResult startResult = ((ASTNode)start).accept(this, context);
+            instructions.addAll(startResult.getInstructions());
+            instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.RIGHT));
+        }
+        else {
+            // [start:end] - BOTH mode (both indices)
+            GenerationResult startResult = ((ASTNode)start).accept(this, context);
+            instructions.addAll(startResult.getInstructions());
+            GenerationResult endResult = ((ASTNode)end).accept(this, context);
+            instructions.addAll(endResult.getInstructions());
+            instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.BOTH));
+        }
+
+        return new GenerationResult(instructions, true, 1);
+    }
+
     @Override
     public GenerationResult visit(ArrayLiteralNode node, GenerationContext context)
         throws Exception {

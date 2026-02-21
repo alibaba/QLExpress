@@ -505,7 +505,7 @@
       ],
       "priority": 30,
       "passes": false,
-      "notes": "PARTIAL PROGRESS: Fixed DOUBLE_QUOTE token handling in parseLiteral() and parsePrimary(). Implemented proper map literal parsing with support for ID, DOUBLE_QUOTE, and QUOTE_STRING_LITERAL keys. Fixed RBRACE consumption issue. However, TestSuiteRunner still fails with runtime error when executing config scripts (QLOptions.builder() calls). This is because the new parser's LoadInstruction loads QLOptions as a variable instead of a class - the original ANTLR parser has special handling for class references that needs to be replicated. Also, 'function' keyword is not yet supported (needed for some tests like switch_fallthrough.ql). The main branch passes all testsuite tests successfully."
+      "notes": "PROGRESS: Fixed DOUBLE_QUOTE token handling, map literal parsing, function definition support (parseFunctionDefinition, parseMacroDefinition), and class reference resolution for static method calls (QLOptions.builder() now works). ImportManager support added to InstructionGenerator. Known limitations: Array slice syntax '[start:end]' is not yet supported - tests using this feature fail with 'Expected RBRACK but found COLON'. Several other features may also be missing (import statements, type declarations, etc.). The main branch passes all testsuite tests successfully."
     },
     {
       "id": "US-031",

@@ -288,24 +288,50 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
         // Cast expressions are traced as their expression
         return acceptNode(node.getExpression());
     }
-    
+
     @Override
     public TracePointTree visit(ArrayAccessNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-        
+
         TracePointTree arrayTrace = acceptNode(node.getArray());
         if (arrayTrace != null) {
             children.add(arrayTrace);
         }
-        
+
         TracePointTree indexTrace = acceptNode(node.getIndex());
         if (indexTrace != null) {
             children.add(indexTrace);
         }
-        
+
         return newPoint(TraceType.OPERATOR, children, "[", node);
     }
-    
+
+    @Override
+    public TracePointTree visit(ArraySliceNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
+
+        TracePointTree arrayTrace = acceptNode(node.getArray());
+        if (arrayTrace != null) {
+            children.add(arrayTrace);
+        }
+
+        if (node.getStart() != null) {
+            TracePointTree startTrace = acceptNode(node.getStart());
+            if (startTrace != null) {
+                children.add(startTrace);
+            }
+        }
+
+        if (node.getEnd() != null) {
+            TracePointTree endTrace = acceptNode(node.getEnd());
+            if (endTrace != null) {
+                children.add(endTrace);
+            }
+        }
+
+        return newPoint(TraceType.OPERATOR, children, "[", node);
+    }
+
     @Override
     public TracePointTree visit(ArrayLiteralNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();

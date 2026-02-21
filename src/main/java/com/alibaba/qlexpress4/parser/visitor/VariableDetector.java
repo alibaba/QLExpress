@@ -448,7 +448,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         visitExpression(node.getExpression(), context);
         return null;
     }
-    
+
     @Override
     public Void visit(ArrayAccessNode node, Context context)
         throws Exception {
@@ -456,7 +456,20 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         visitExpression(node.getIndex(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(ArraySliceNode node, Context context)
+        throws Exception {
+        visitNode(node.getArray(), context);
+        if (node.getStart() != null) {
+            visitExpression(node.getStart(), context);
+        }
+        if (node.getEnd() != null) {
+            visitExpression(node.getEnd(), context);
+        }
+        return null;
+    }
+
     @Override
     public Void visit(ArrayLiteralNode node, Context context)
         throws Exception {
