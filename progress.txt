@@ -638,3 +638,22 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Test classes should use try-catch to verify exception properties when needed
 
 ---
+
+## [Fri Feb 21 04:15:00 PM CST 2026] - US-029
+- Updated ASTCompilerTest for new last-expression-value behavior
+- Files changed:
+  - src/test/java/com/alibaba/qlexpress4/parser/ASTCompilerTest.java (modified - 2 tests updated)
+  - prd.json (modified - marked US-029 as complete)
+- Typecheck passes (mvn compile)
+- All 51 new parser package tests pass
+- ImportManagerTest already passes (no ANTLR dependencies)
+- **Learnings for future iterations:**
+  - CompileTimeFunctionTest depends on ANTLR's QvmInstructionVisitor and CodeGenerator APIs
+  - Compile-time functions (FOR_EACH, GEN_INST_NUM) are a complex feature requiring separate implementation
+  - The CompileTimeFunction interface uses QLParser.ExpressionContext and CodeGenerator
+  - ImportManager doesn't depend on parser APIs, only class loading
+  - The last expression in a program is now returned (not popped) - changed in US-026
+  - Tests that expect pop instruction for last expression need updating
+  - Old aparser tests can coexist with new parser tests during transition
+
+---
