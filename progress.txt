@@ -619,3 +619,22 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - For empty input, tokenize() returns a list with only EOF token (removed in tests for simplicity)
 
 ---
+
+## [Fri Feb 21 04:10:00 PM CST 2026] - US-028
+- Enhanced parser test suite with comprehensive error handling tests
+- Added 10 new tests for ParseException with line/column verification
+- Files changed:
+  - src/test/java/com/alibaba/qlexpress4/parser/parser/QLexpressParserTest.java (modified - added 10 tests)
+  - prd.json (modified - marked US-028 as complete)
+- Typecheck passes (mvn compile)
+- All 169 parser tests pass (159 existing + 10 new)
+- **Learnings for future iterations:**
+  - QLexpressParser.ParseException has getLine(), getColumn(), getSource() methods
+  - The parser is lenient with some edge cases (unclosed strings, invalid numbers)
+  - parsePrimary() throws ParseException for invalid syntax
+  - Line numbers are 1-based for user-friendly error messages
+  - The lexer handles unclosed strings by returning what it has (no error thrown)
+  - Number parsing is permissive - "123abc" tokenizes as "123" followed by "abc"
+  - Test classes should use try-catch to verify exception properties when needed
+
+---

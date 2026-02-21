@@ -473,8 +473,8 @@
         "Typecheck passes"
       ],
       "priority": 28,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Parser test class already existed with 159 tests. Added 10 new error handling tests with line/column info verification. Total: 169 tests, all passing."
     },
     {
       "id": "US-029",
