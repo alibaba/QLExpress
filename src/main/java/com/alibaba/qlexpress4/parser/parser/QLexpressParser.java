@@ -36,9 +36,11 @@ import java.util.ArrayList;
  */
 public class QLexpressParser {
     private final List<Token> tokens;
-    
+
     private int position;
-    
+
+    private Token lastToken;
+
     private final ParserOperatorManager operatorManager;
     
     /**
@@ -137,6 +139,7 @@ public class QLexpressParser {
             case FLOATING_POINT_LITERAL:
             case INTEGER_OR_FLOATING_LITERAL:
             case QUOTE_STRING_LITERAL:
+            case DOUBLE_QUOTE:
             case TRUE:
             case FALSE:
             case NULL:
@@ -203,6 +206,10 @@ public class QLexpressParser {
                 break;
             case QUOTE_STRING_LITERAL:
                 value = parseStringLiteral(token.getValue());
+                break;
+            case DOUBLE_QUOTE:
+                // Double-quoted strings are already processed by the lexer
+                value = token.getValue();
                 break;
             case TRUE:
                 value = Boolean.TRUE;
@@ -1065,18 +1072,30 @@ public class QLexpressParser {
         throws ParseException {
         Token lbrace = expect(TokenType.LBRACE);
         skipNewlines();
-        
+
         // Check if this is a map literal or block
-        // If next token is ID followed by :, it's a map literal
+        // Map literal if:
+        // 1. Next token is COLON (empty map entry)
+        // 2. Next token is ID, DOUBLE_QUOTE, or QUOTE_STRING_LITERAL followed by COLON
         // Otherwise it's a block
-        if (peek() != null && peek().getType() == TokenType.ID && peek(1) != null
-            && peek(1).getType() == TokenType.COLON) {
-            return parseMapLiteral();
+        Token next = peek();
+        if (next != null) {
+            if (next.getType() == TokenType.COLON) {
+                return parseMapLiteral();
+            }
+            Token nextNext = peek(1);
+            if (nextNext != null && nextNext.getType() == TokenType.COLON) {
+                if (next.getType() == TokenType.ID ||
+                    next.getType() == TokenType.DOUBLE_QUOTE ||
+                    next.getType() == TokenType.QUOTE_STRING_LITERAL) {
+                    return parseMapLiteral();
+                }
+            }
         }
-        
+
         return parseBlock();
     }
-    
+
     /**
      * Parses a map literal.
      *
@@ -1087,22 +1106,89 @@ public class QLexpressParser {
         throws ParseException {
         // LBRACE already consumed
         skipNewlines();
-        
-        // TODO: Implement MapLiteralNode
-        // For now, just consume until closing brace
-        int braceDepth = 1;
-        while (braceDepth > 0 && !isEOF()) {
-            Token token = consume();
-            if (token.getType() == TokenType.LBRACE) {
-                braceDepth++;
+
+        // Check for empty map (single :)
+        if (match(TokenType.COLON)) {
+            skipNewlines();
+            expect(TokenType.RBRACE);
+            return new MapLiteralNode(getPreviousToken().getLine(), getPreviousToken().getColumn(),
+                getPreviousToken().getSource(), Collections.emptyList());
+        }
+
+        // Parse map entries
+        List<MapEntryNode> entries = new ArrayList<>();
+        while (!match(TokenType.RBRACE)) {
+            skipNewlines();
+
+            // Parse map key
+            ExpressionNode key = parseMapKey();
+            skipNewlines();
+
+            // Expect colon
+            expect(TokenType.COLON);
+            skipNewlines();
+
+            // Parse map value
+            ExpressionNode value = parseMapValue();
+            skipNewlines();
+
+            entries.add(new MapEntryNode(key, value));
+
+            // Check for comma separator
+            if (match(TokenType.COMMA)) {
+                consume(); // Consume the comma
+                skipNewlines();
             }
-            else if (token.getType() == TokenType.RBRACE) {
-                braceDepth--;
+            // If next is RBRACE, exit loop (will be consumed after loop)
+            if (match(TokenType.RBRACE)) {
+                break;
             }
         }
-        
-        Token lbrace = new Token(TokenType.LBRACE, "{", 1, 1, null);
-        return new LiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), Collections.emptyMap());
+
+        // Consume the closing RBRACE
+        expect(TokenType.RBRACE);
+
+        return new MapLiteralNode(getPreviousToken().getLine(), getPreviousToken().getColumn(),
+            getPreviousToken().getSource(), entries);
+    }
+
+    /**
+     * Parses a map key (can be ID, DOUBLE_QUOTE, or QUOTE_STRING_LITERAL).
+     *
+     * @return the expression node for the key
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseMapKey()
+        throws ParseException {
+        Token current = peek();
+        if (current == null) {
+            throw error("Expected map key but found end of input");
+        }
+
+        switch (current.getType()) {
+            case ID:
+                Token id = consume();
+                return new IdentifierNode(id.getLine(), id.getColumn(), id.getSource(), id.getValue());
+            case DOUBLE_QUOTE:
+            case QUOTE_STRING_LITERAL:
+                return parseLiteral();
+            default:
+                throw error("Expected map key (identifier or string) but found " + current.getType());
+        }
+    }
+
+    /**
+     * Parses a map value.
+     * Special case: if the key is '@class', the value must be a string literal.
+     *
+     * @return the expression node for the value
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseMapValue()
+        throws ParseException {
+        // For now, just parse as expression
+        // TODO: Handle the '@class' special case
+        return parseExpression();
     }
     
     /**
@@ -1158,12 +1244,12 @@ public class QLexpressParser {
     public StatementNode parseStatement()
         throws ParseException {
         skipNewlines();
-        
+
         Token current = peek();
         if (current == null) {
             return null;
         }
-        
+
         switch (current.getType()) {
             case IF:
                 return parseIf();
@@ -1184,7 +1270,7 @@ public class QLexpressParser {
             case THROW:
                 return parseThrow();
             case LBRACE:
-                return parseBlock();
+                return parseBraceExpression();
             case SEMI:
                 consume(); // Empty statement
                 return null;
@@ -2036,7 +2122,8 @@ public class QLexpressParser {
         if (position >= tokens.size()) {
             throw error("Unexpected end of input");
         }
-        return tokens.get(position++);
+        lastToken = tokens.get(position++);
+        return lastToken;
     }
     
     /**
@@ -2087,7 +2174,16 @@ public class QLexpressParser {
         Token current = peek();
         return current != null && current.getType() == type;
     }
-    
+
+    /**
+     * Returns the last consumed token.
+     *
+     * @return the last consumed token, or null if no token has been consumed
+     */
+    public Token getPreviousToken() {
+        return lastToken;
+    }
+
     /**
      * Creates a parse exception at the current position.
      *
