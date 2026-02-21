@@ -343,19 +343,20 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitMethodCallNode_NoTarget()
         throws Exception {
-        // method(1, 2)
+        // method(1, 2) - direct function call (no target)
         List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2));
         MethodCallNode node = new MethodCallNode(1, 1, null, null, "method", args);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
+
+        // Should have: arg1, arg2, CallFunctionInstruction (no target instruction)
         assertEquals(3, result.getInstructions().size());
         assertEquals(1, result.getStackEffect());
         assertTrue(result.isExpressionValue());
-        
+
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
-        assertTrue(result.getInstructions().get(2) instanceof MethodInvokeInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof CallFunctionInstruction);
     }
     
     @Test
@@ -432,13 +433,12 @@ public class InstructionGeneratorTest {
         // Just an expression statement
         LiteralNode expr = new LiteralNode(1, 1, null, 42);
         ProgramNode node = new ProgramNode(1, 1, Collections.singletonList(expr));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        // Should have const instruction + pop instruction
-        assertEquals(2, result.getInstructions().size());
+
+        // Should have const instruction only (last statement's value is kept on stack)
+        assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
-        assertTrue(result.getInstructions().get(1) instanceof PopInstruction);
     }
     
     @Test
@@ -446,13 +446,12 @@ public class InstructionGeneratorTest {
         throws Exception {
         // { 42 }
         BlockNode node = new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42)));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        // Should have const instruction + pop instruction
-        assertEquals(2, result.getInstructions().size());
+
+        // Should have const instruction only (last statement's value is kept on stack)
+        assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
-        assertTrue(result.getInstructions().get(1) instanceof PopInstruction);
     }
     
     @Test
@@ -745,20 +744,24 @@ public class InstructionGeneratorTest {
         generator.visit(node, context);
     }
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testVisitFunctionDefinitionNode_NotImplemented()
         throws Exception {
         FunctionDefinitionNode node = new FunctionDefinitionNode(1, 1, null, "myFunc", Collections.emptyList(),
             new BlockNode(1, 1, null, Collections.emptyList()));
-        generator.visit(node, context);
+        GenerationResult result = generator.visit(node, context);
+        // Function definition is now implemented
+        assertTrue(result.getInstructions().get(0) instanceof DefineFunctionInstruction);
     }
-    
-    @Test(expected = UnsupportedOperationException.class)
+
+    @Test
     public void testVisitMacroDefinitionNode_NotImplemented()
         throws Exception {
         MacroDefinitionNode node =
             new MacroDefinitionNode(1, 1, null, "myMacro", new BlockNode(1, 1, null, Collections.emptyList()));
-        generator.visit(node, context);
+        GenerationResult result = generator.visit(node, context);
+        // Macro definition is now implemented but returns empty instructions (compile-time only)
+        assertTrue(result.getInstructions().isEmpty());
     }
     
     @Test(expected = UnsupportedOperationException.class)

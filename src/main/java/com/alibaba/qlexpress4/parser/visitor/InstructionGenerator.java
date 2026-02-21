@@ -309,50 +309,51 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(SwitchNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         if (node.getCases().isEmpty()) {
             // Empty switch, push null as result
             instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
             return new GenerationResult(instructions, false, 0);
         }
-        
+
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Generate switch value expression and store in a temporary variable
         GenerationResult valueResult = ((ASTNode)node.getValue()).accept(this, context);
         instructions.addAll(valueResult.getInstructions());
-        
+
         String switchVarName = "@switch_" + System.nanoTime();
         instructions.add(new DefineLocalInstruction(errorReporter, switchVarName, Object.class));
-        
+
         // Generate if-else chain for each case
         List<SwitchCaseNode> cases = node.getCases();
         List<JumpInstruction> jumpToEndInstructions = new ArrayList<>();
-        
+        List<Integer> jumpToEndPositions = new ArrayList<>();
+
         for (int i = 0; i < cases.size(); i++) {
             SwitchCaseNode switchCase = cases.get(i);
             ExpressionNode caseCondition = switchCase.getCondition();
-            
+
             if (caseCondition != null) {
                 // Not a default case - need to check equality
                 // Load switch value
                 LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, null);
                 instructions.add(loadSwitchVar);
-                
+
                 // Load case value
                 GenerationResult caseConditionResult = ((ASTNode)caseCondition).accept(this, context);
                 instructions.addAll(caseConditionResult.getInstructions());
-                
+
                 // Check equality using ==
                 BinaryOperator equalOperator = operatorManager.getBinaryOperator("==");
                 instructions.add(new OperatorInstruction(errorReporter, equalOperator, null));
-                
+
                 // Jump to next case if not equal
                 JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
                 instructions.add(jumpIf);
-                
+
                 int caseStart = instructions.size();
-                
+
                 // Generate case body statements
                 List<StatementNode> statements = switchCase.getStatements();
                 if (statements != null) {
@@ -361,12 +362,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                         instructions.addAll(stmtResult.getInstructions());
                     }
                 }
-                
+
                 // Jump to end after case body (unless it's the last case without break)
                 JumpInstruction jumpToEnd = new JumpInstruction(errorReporter, -1);
                 instructions.add(jumpToEnd);
                 jumpToEndInstructions.add(jumpToEnd);
-                
+                jumpToEndPositions.add(instructions.size() - 1); // Track position of jump instruction
+
                 // Set jumpIf target (start of next case)
                 jumpIf.setPosition(instructions.size() - caseStart);
             }
@@ -381,16 +383,23 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 }
             }
         }
-        
+
         // Set all jump to end targets
         int endPosition = instructions.size();
-        for (JumpInstruction jump : jumpToEndInstructions) {
-            jump.setPosition(endPosition);
+        for (int i = 0; i < jumpToEndInstructions.size(); i++) {
+            JumpInstruction jump = jumpToEndInstructions.get(i);
+            int jumpPosition = jumpToEndPositions.get(i);
+            // Calculate relative offset: (endPosition) - (jumpPosition + 1)
+            // The +1 is because the jump instruction will be at jumpPosition, and we need to jump to endPosition
+            // After executing the jump at jumpPosition, i becomes jumpPosition + position
+            // So we need: jumpPosition + position = endPosition
+            // Therefore: position = endPosition - jumpPosition
+            jump.setPosition(endPosition - jumpPosition);
         }
-        
+
         // Push null as result (switch statement doesn't produce a value)
         instructions.add(new ConstInstruction(errorReporter, null, null));
-        
+
         return new GenerationResult(instructions, false, 0);
     }
     
@@ -788,6 +797,24 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
+
+        // If target is null, this is a direct function call (e.g., stest(9))
+        // Use CallFunctionInstruction which loads the function by name from the context
+        if (node.getTarget() == null) {
+            // Generate arguments
+            for (ExpressionNode arg : node.getArguments()) {
+                GenerationResult argResult = ((ASTNode)arg).accept(this, context);
+                instructions.addAll(argResult.getInstructions());
+            }
+
+            // Generate call function instruction
+            ErrorReporter errorReporter = createErrorReporter(node);
+            CallFunctionInstruction instruction =
+                new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), null);
+            instructions.add(instruction);
+
+            return new GenerationResult(instructions, true, 1);
+        }
 
         // Check if this is a static method call on a class
         // For example: QLOptions.builder() where QLOptions is a class

@@ -46,13 +46,13 @@ public class CallFunctionInstruction extends QLInstruction {
         try {
             Object functionResultObj = function.call(qContext, parameters);
             qContext.push(new DataValue(functionResultObj));
-            
+
             // trace
             ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
             if (expressionTrace != null) {
                 expressionTrace.valueEvaluated(functionResultObj);
             }
-            
+
             return QResult.NEXT_INSTRUCTION;
         }
         catch (UserDefineException e) {
