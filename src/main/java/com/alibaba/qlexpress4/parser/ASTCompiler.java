@@ -31,11 +31,11 @@ import java.util.List;
  * @author QLExpress Team
  */
 public class ASTCompiler {
-
+    
     private ASTCompiler() {
         // Static utility class
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition.
      * <p>
@@ -48,30 +48,30 @@ public class ASTCompiler {
      * @throws Exception if compilation fails
      */
     public static QLambdaDefinition compile(ProgramNode programNode, OperatorManager operatorManager)
-            throws Exception {
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Create instruction generator
         InstructionGenerator generator = new InstructionGenerator(operatorManager);
-
+        
         // Generate instructions from AST
-        GenerationResult result = ((ASTNode) programNode).accept(generator, new GenerationContext());
-
+        GenerationResult result = ((ASTNode)programNode).accept(generator, new GenerationContext());
+        
         // Extract instructions
         List<QLInstruction> instructions = result.getInstructions();
-
+        
         // Calculate max stack size
         int maxStackSize = calculateMaxStackSize(instructions);
-
+        
         // Create main lambda definition
         return new QLambdaDefinitionInner("main", instructions, Collections.emptyList(), maxStackSize);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with trace points.
      * <p>
@@ -83,25 +83,24 @@ public class ASTCompiler {
      * @return A CompilationResult containing the lambda definition and trace points
      * @throws Exception if compilation fails
      */
-    public static CompilationResult compileWithTrace(ProgramNode programNode,
-                                                      OperatorManager operatorManager)
-            throws Exception {
+    public static CompilationResult compileWithTrace(ProgramNode programNode, OperatorManager operatorManager)
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Compile to lambda definition
         QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager);
-
+        
         // Generate trace points
         List<TracePointTree> tracePoints = generateTracePoints(programNode);
-
+        
         return new CompilationResult(lambdaDefinition, tracePoints);
     }
-
+    
     /**
      * Generates execution trace points from a ProgramNode.
      *
@@ -112,19 +111,20 @@ public class ASTCompiler {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
-
+        
         TraceGenerator traceGenerator = new TraceGenerator();
         try {
-            ((ASTNode) programNode).accept(traceGenerator, null);
-        } catch (Exception e) {
+            ((ASTNode)programNode).accept(traceGenerator, null);
+        }
+        catch (Exception e) {
             // Trace generation should not fail compilation
             // Return empty list on error
             return Collections.emptyList();
         }
-
+        
         return traceGenerator.getTracePoints();
     }
-
+    
     /**
      * Calculates the maximum stack size needed for a list of instructions.
      * <p>
@@ -139,7 +139,7 @@ public class ASTCompiler {
         // This matches the heuristic used in the original QvmInstructionVisitor
         return Math.max(10, instructions.size() / 2 + 5);
     }
-
+    
     /**
      * Compilation result containing both the lambda definition and trace points.
      * <p>
@@ -148,18 +148,18 @@ public class ASTCompiler {
      */
     public static class CompilationResult {
         private final QLambdaDefinition lambdaDefinition;
+        
         private final List<TracePointTree> tracePoints;
-
-        public CompilationResult(QLambdaDefinition lambdaDefinition,
-                                 List<TracePointTree> tracePoints) {
+        
+        public CompilationResult(QLambdaDefinition lambdaDefinition, List<TracePointTree> tracePoints) {
             this.lambdaDefinition = lambdaDefinition;
             this.tracePoints = tracePoints;
         }
-
+        
         public QLambdaDefinition getLambdaDefinition() {
             return lambdaDefinition;
         }
-
+        
         public List<TracePointTree> getTracePoints() {
             return tracePoints;
         }

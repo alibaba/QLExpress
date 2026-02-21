@@ -4,16 +4,19 @@ import java.util.List;
 
 public class ArrayLiteralNode extends ASTNode implements ExpressionNode {
     private final List<ExpressionNode> elements;
-
+    
     public ArrayLiteralNode(int line, int column, String source, List<ExpressionNode> elements) {
         super(line, column, source);
         this.elements = elements;
     }
-
+    
     @Override
-    public <R, C> R accept(ASTVisitor<R, C> visitor, C context) throws Exception {
+    public <R, C> R accept(ASTVisitor<R, C> visitor, C context)
+        throws Exception {
         return visitor.visit(this, context);
     }
-
-    public List<ExpressionNode> getElements() { return elements; }
+    
+    public List<ExpressionNode> getElements() {
+        return elements;
+    }
 }

@@ -20,9 +20,11 @@ package com.alibaba.qlexpress4.parser.ast;
  */
 public abstract class ASTNode {
     private final int line;
+    
     private final int column;
+    
     private final String source;
-
+    
     /**
      * Creates a new AST node with source location information.
      *
@@ -35,7 +37,7 @@ public abstract class ASTNode {
         this.column = column;
         this.source = source;
     }
-
+    
     /**
      * Creates a new AST node without source information.
      *
@@ -45,7 +47,7 @@ public abstract class ASTNode {
     protected ASTNode(int line, int column) {
         this(line, column, null);
     }
-
+    
     /**
      * Returns the starting line number of this node.
      *
@@ -54,7 +56,7 @@ public abstract class ASTNode {
     public int getLine() {
         return line;
     }
-
+    
     /**
      * Returns the starting column number of this node.
      *
@@ -63,7 +65,7 @@ public abstract class ASTNode {
     public int getColumn() {
         return column;
     }
-
+    
     /**
      * Returns the source file or string identifier.
      *
@@ -72,7 +74,7 @@ public abstract class ASTNode {
     public String getSource() {
         return source;
     }
-
+    
     /**
      * Returns a human-readable location string for this node.
      *
@@ -84,7 +86,7 @@ public abstract class ASTNode {
         }
         return line + ":" + column;
     }
-
+    
     /**
      * Accepts a visitor, implementing the Visitor pattern.
      *
@@ -97,20 +99,25 @@ public abstract class ASTNode {
      * @return the result of visiting this node
      * @throws Exception if the visitation fails
      */
-    public abstract <R, C> R accept(ASTVisitor<R, C> visitor, C context) throws Exception;
-
+    public abstract <R, C> R accept(ASTVisitor<R, C> visitor, C context)
+        throws Exception;
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ASTNode astNode = (ASTNode) o;
-
-        if (line != astNode.line) return false;
-        if (column != astNode.column) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        
+        ASTNode astNode = (ASTNode)o;
+        
+        if (line != astNode.line)
+            return false;
+        if (column != astNode.column)
+            return false;
         return source != null ? source.equals(astNode.source) : astNode.source == null;
     }
-
+    
     @Override
     public int hashCode() {
         int result = line;
@@ -118,12 +125,12 @@ public abstract class ASTNode {
         result = 31 * result + (source != null ? source.hashCode() : 0);
         return result;
     }
-
+    
     @Override
     public String toString() {
         return getClass().getSimpleName() + "@" + getLocationString();
     }
-
+    
     /**
      * Returns a human-readable representation of this node for debugging.
      *

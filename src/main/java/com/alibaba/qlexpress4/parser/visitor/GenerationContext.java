@@ -12,26 +12,27 @@ import java.util.Map;
  * @author QLExpress Team
  */
 public class GenerationContext {
-
+    
     private final GenerationContext parent;
+    
     private final Map<String, Object> properties;
-
+    
     public GenerationContext() {
         this(null);
     }
-
+    
     public GenerationContext(GenerationContext parent) {
         this.parent = parent;
         this.properties = new HashMap<>();
     }
-
+    
     /**
      * Creates a child context for nested scopes (blocks, loops, etc.).
      */
     public GenerationContext createChildContext() {
         return new GenerationContext(this);
     }
-
+    
     /**
      * Gets a property value from this context or any parent context.
      */
@@ -42,14 +43,14 @@ public class GenerationContext {
         }
         return value;
     }
-
+    
     /**
      * Sets a property value in this context.
      */
     public void setProperty(String key, Object value) {
         properties.put(key, value);
     }
-
+    
     /**
      * Returns the parent context, or null if this is the root context.
      */

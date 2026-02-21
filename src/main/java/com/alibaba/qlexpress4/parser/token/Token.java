@@ -17,14 +17,21 @@ import java.util.Objects;
  */
 public class Token {
     private final TokenType type;
+    
     private final String value;
+    
     private final int line;
+    
     private final int column;
+    
     private final String source;
+    
     private final int endLine;
+    
     private final int endColumn;
+    
     private final int length;
-
+    
     /**
      * Creates a new token with full location information.
      *
@@ -37,7 +44,7 @@ public class Token {
     public Token(TokenType type, String value, int line, int column, String source) {
         this(type, value, line, column, source, line, column + (value != null ? value.length() : 0));
     }
-
+    
     /**
      * Creates a new token with full start and end location information.
      *
@@ -59,7 +66,7 @@ public class Token {
         this.endColumn = endColumn;
         this.length = value != null ? value.length() : 0;
     }
-
+    
     /**
      * Creates a new token without source information.
      *
@@ -71,7 +78,7 @@ public class Token {
     public Token(TokenType type, String value, int line, int column) {
         this(type, value, line, column, null);
     }
-
+    
     /**
      * Returns the token type.
      *
@@ -80,7 +87,7 @@ public class Token {
     public TokenType getType() {
         return type;
     }
-
+    
     /**
      * Returns the actual text content of the token.
      *
@@ -89,7 +96,7 @@ public class Token {
     public String getValue() {
         return value;
     }
-
+    
     /**
      * Returns the starting line number of this token.
      *
@@ -98,7 +105,7 @@ public class Token {
     public int getLine() {
         return line;
     }
-
+    
     /**
      * Returns the starting column number of this token.
      *
@@ -107,7 +114,7 @@ public class Token {
     public int getColumn() {
         return column;
     }
-
+    
     /**
      * Returns the source file or string identifier.
      *
@@ -116,7 +123,7 @@ public class Token {
     public String getSource() {
         return source;
     }
-
+    
     /**
      * Returns the ending line number of this token.
      *
@@ -125,7 +132,7 @@ public class Token {
     public int getEndLine() {
         return endLine;
     }
-
+    
     /**
      * Returns the ending column number of this token (exclusive).
      *
@@ -134,7 +141,7 @@ public class Token {
     public int getEndColumn() {
         return endColumn;
     }
-
+    
     /**
      * Returns the length of this token in characters.
      *
@@ -143,7 +150,7 @@ public class Token {
     public int getLength() {
         return length;
     }
-
+    
     /**
      * Returns a human-readable location string for this token.
      *
@@ -155,7 +162,7 @@ public class Token {
         }
         return line + ":" + column;
     }
-
+    
     /**
      * Returns true if this token is of the specified type.
      *
@@ -165,7 +172,7 @@ public class Token {
     public boolean is(TokenType type) {
         return this.type == type;
     }
-
+    
     /**
      * Returns true if this token is a keyword.
      *
@@ -174,7 +181,7 @@ public class Token {
     public boolean isKeyword() {
         return type.isKeyword();
     }
-
+    
     /**
      * Returns true if this token is an operator.
      *
@@ -183,7 +190,7 @@ public class Token {
     public boolean isOperator() {
         return type.isOperator();
     }
-
+    
     /**
      * Returns true if this token is a literal.
      *
@@ -192,7 +199,7 @@ public class Token {
     public boolean isLiteral() {
         return type.isLiteral();
     }
-
+    
     /**
      * Returns true if this token is a delimiter.
      *
@@ -201,7 +208,7 @@ public class Token {
     public boolean isDelimiter() {
         return type.isDelimiter();
     }
-
+    
     /**
      * Returns true if this token is the EOF token.
      *
@@ -210,26 +217,23 @@ public class Token {
     public boolean isEOF() {
         return type == TokenType.EOF;
     }
-
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Token token = (Token) o;
-        return line == token.line &&
-               column == token.column &&
-               endLine == token.endLine &&
-               endColumn == token.endColumn &&
-               type == token.type &&
-               Objects.equals(value, token.value) &&
-               Objects.equals(source, token.source);
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Token token = (Token)o;
+        return line == token.line && column == token.column && endLine == token.endLine && endColumn == token.endColumn
+            && type == token.type && Objects.equals(value, token.value) && Objects.equals(source, token.source);
     }
-
+    
     @Override
     public int hashCode() {
         return Objects.hash(type, value, line, column, source, endLine, endColumn);
     }
-
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -242,7 +246,7 @@ public class Token {
         sb.append("}");
         return sb.toString();
     }
-
+    
     /**
      * Creates a new Token with the same type and value but different position.
      *
@@ -253,7 +257,7 @@ public class Token {
     public Token withPosition(int line, int column) {
         return new Token(type, value, line, column, source, endLine + (line - this.line), endColumn);
     }
-
+    
     /**
      * Creates a new Token with the same type, value, and position but different source.
      *
@@ -263,7 +267,7 @@ public class Token {
     public Token withSource(String source) {
         return new Token(type, value, line, column, source, endLine, endColumn);
     }
-
+    
     /**
      * Creates a new Token with a different value but same type and position.
      *
@@ -271,9 +275,10 @@ public class Token {
      * @return a new token with the updated value
      */
     public Token withValue(String value) {
-        return new Token(type, value, line, column, source, endLine, endColumn + (value != null ? value.length() - this.length : 0));
+        return new Token(type, value, line, column, source, endLine,
+            endColumn + (value != null ? value.length() - this.length : 0));
     }
-
+    
     /**
      * Creates an EOF token.
      *
@@ -285,7 +290,7 @@ public class Token {
     public static Token eof(int line, int column, String source) {
         return new Token(TokenType.EOF, null, line, column, source);
     }
-
+    
     /**
      * Creates an EOF token without source.
      *

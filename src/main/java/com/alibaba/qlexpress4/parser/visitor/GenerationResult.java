@@ -13,11 +13,13 @@ import java.util.List;
  * @author QLExpress Team
  */
 public class GenerationResult {
-
+    
     private final List<QLInstruction> instructions;
+    
     private final boolean expressionValue;
+    
     private final int stackEffect;
-
+    
     /**
      * Creates a generation result.
      *
@@ -30,14 +32,14 @@ public class GenerationResult {
         this.expressionValue = expressionValue;
         this.stackEffect = stackEffect;
     }
-
+    
     /**
      * Returns the generated instructions.
      */
     public List<QLInstruction> getInstructions() {
         return instructions;
     }
-
+    
     /**
      * Returns whether this result represents an expression value.
      * Expression values may need to be popped when used as statements.
@@ -45,7 +47,7 @@ public class GenerationResult {
     public boolean isExpressionValue() {
         return expressionValue;
     }
-
+    
     /**
      * Returns the net stack effect (number of values pushed minus popped).
      */

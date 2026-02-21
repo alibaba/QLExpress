@@ -27,11 +27,11 @@ import static com.alibaba.qlexpress4.parser.parser.QLexpressParser.ParseExceptio
  * @author QLExpress Team
  */
 public class SyntaxTreeFactory {
-
+    
     private SyntaxTreeFactory() {
         // Static factory class
     }
-
+    
     /**
      * Builds an AST (ProgramNode) from the given script.
      * <p>
@@ -51,60 +51,49 @@ public class SyntaxTreeFactory {
      * @return The parsed AST as a ProgramNode
      * @throws com.alibaba.qlexpress4.parser.parser.QLexpressParser.ParseException if parsing fails
      */
-    public static ProgramNode buildTree(
-            String script,
-            OperatorManager operatorManager,
-            boolean printTree,
-            boolean profile,
-            Consumer<String> printer,
-            InterpolationMode interpolationMode,
-            String selectorStart,
-            String selectorEnd,
-            boolean strictNewlines) throws ParseException {
-
+    public static ProgramNode buildTree(String script, OperatorManager operatorManager, boolean printTree,
+        boolean profile, Consumer<String> printer, InterpolationMode interpolationMode, String selectorStart,
+        String selectorEnd, boolean strictNewlines)
+        throws ParseException {
+        
         // Create lexer with the specified configuration
         // Note: QLexpressLexer constructor signature is:
         // (input, source, interpolationMode, strictNewLines, selectorStart, selectorEnd)
-        QLexpressLexer lexer = new QLexpressLexer(
-                script,
-                null,  // source identifier (can be null)
-                interpolationMode,
-                strictNewlines,
-                selectorStart,
-                selectorEnd);
-
+        QLexpressLexer lexer = new QLexpressLexer(script, null, // source identifier (can be null)
+            interpolationMode, strictNewlines, selectorStart, selectorEnd);
+        
         // Tokenize the input
         List<com.alibaba.qlexpress4.parser.token.Token> tokens = lexer.tokenize();
-
+        
         if (printTree) {
             // Print token stream for debugging
             printer.accept(tokens.stream()
-                    .map(t -> t.getType().name() + "(" + t.getValue() + ")")
-                    .reduce((a, b) -> a + " | " + b)
-                    .orElse(""));
+                .map(t -> t.getType().name() + "(" + t.getValue() + ")")
+                .reduce((a, b) -> a + " | " + b)
+                .orElse(""));
         }
-
+        
         // Create parser with the operator manager
         QLexpressParser parser = new QLexpressParser(tokens, operatorManager);
-
+        
         // Parse the program
         ProgramNode programNode = parser.parseProgram();
-
+        
         if (printTree) {
             // Print AST for debugging
             printer.accept(programNode.toString());
         }
-
+        
         if (profile) {
             // Note: Profiling is not currently supported for the new parser
             // The original ANTLR-based implementation provided detailed profiling
             // information about parse decisions, lookahead, etc.
             printer.accept("Parser profiling is not yet supported for the new parser implementation.");
         }
-
+        
         return programNode;
     }
-
+    
     /**
      * Builds an AST (ProgramNode) from the given script with default settings.
      * <p>
@@ -115,19 +104,12 @@ public class SyntaxTreeFactory {
      * @return The parsed AST as a ProgramNode
      * @throws com.alibaba.qlexpress4.parser.parser.QLexpressParser.ParseException if parsing fails
      */
-    public static ProgramNode buildTree(String script, OperatorManager operatorManager) throws ParseException {
-        return buildTree(
-                script,
-                operatorManager,
-                false,
-                false,
-                s -> {},
-                InterpolationMode.SCRIPT,
-                "${",
-                "}",
-                false);
+    public static ProgramNode buildTree(String script, OperatorManager operatorManager)
+        throws ParseException {
+        return buildTree(script, operatorManager, false, false, s -> {
+        }, InterpolationMode.SCRIPT, "${", "}", false);
     }
-
+    
     /**
      * Builds an AST (ProgramNode) from the given script with debug output enabled.
      *
@@ -137,19 +119,9 @@ public class SyntaxTreeFactory {
      * @return The parsed AST as a ProgramNode
      * @throws com.alibaba.qlexpress4.parser.parser.QLexpressParser.ParseException if parsing fails
      */
-    public static ProgramNode buildTreeWithDebug(
-            String script,
-            OperatorManager operatorManager,
-            Consumer<String> printer) throws ParseException {
-        return buildTree(
-                script,
-                operatorManager,
-                true,
-                false,
-                printer,
-                InterpolationMode.SCRIPT,
-                "${",
-                "}",
-                false);
+    public static ProgramNode buildTreeWithDebug(String script, OperatorManager operatorManager,
+        Consumer<String> printer)
+        throws ParseException {
+        return buildTree(script, operatorManager, true, false, printer, InterpolationMode.SCRIPT, "${", "}", false);
     }
 }
