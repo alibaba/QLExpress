@@ -742,3 +742,36 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The array slice syntax now parses correctly and creates appropriate AST nodes and instructions
 
 ---
+
+---
+
+## [Fri Feb 21 09:45:00 PM CST 2026] - US-030 (Function Call and Switch Fixes)
+- Fixed critical bug in InstructionGenerator.visit(MethodCallNode) for direct function calls
+- When MethodCallNode.target is null (direct function call like `stest(9)`), now uses CallFunctionInstruction instead of MethodInvokeInstruction
+- MethodInvokeInstruction expects target on stack (argNum + 1), but CallFunctionInstruction only needs argNum
+- Fixed critical bug in InstructionGenerator.visit(SwitchNode) jump position calculation
+- Jump positions were being set as absolute indices instead of relative offsets
+- This caused switch statements to jump over subsequent statements including function definitions
+- Fixed by tracking jump instruction positions and calculating relative offset: position = endPosition - jumpPosition
+- Updated InstructionGeneratorTest expectations for direct function calls and single statement programs
+- All 50 InstructionGenerator tests pass
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - 72 insertions, 42 deletions)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (modified - test updates)
+  - src/main/java/com/alibaba/qlexpress4/runtime/QLambdaInner.java (reverted debug changes)
+  - src/main/java/com/alibaba/qlexpress4/runtime/instruction/CallFunctionInstruction.java (reverted debug changes)
+  - src/main/java/com/alibaba/qlexpress4/runtime/instruction/DefineFunctionInstruction.java (reverted debug changes)
+- Typecheck passes (mvn compile)
+- All 50 InstructionGenerator tests pass
+- **Learnings for future iterations:**
+  - Direct function calls (target == null) must use CallFunctionInstruction, not MethodInvokeInstruction
+  - MethodInvokeInstruction pops target + args from stack (argNum + 1 items)
+  - CallFunctionInstruction only pops args from stack (argNum items)
+  - Jump positions in QVM are relative offsets from the current instruction, not absolute indices
+  - The jump formula is: after executing instruction at position i, if it returns position p, next instruction is at i + 1 + p
+  - So to jump from instruction at position j to instruction at position e, we need p = e - j - 1, which simplifies to e - j since i++ happens after the jump
+  - Switch statement fallthrough is implemented via jump instructions that skip case bodies
+  - The DebugOutput pattern: Add System.err.println debug statements, then remove before committing
+  - The testsuite still has failures related to avoidNullPointer option and other features
+  - Some tests that pass in main branch fail in remove_antlr4, indicating behavioral differences remain
+  - The fix handles the immediate ArrayIndexOutOfBoundsException but other issues remain
