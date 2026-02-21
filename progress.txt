@@ -710,3 +710,35 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The main branch passes all testsuite tests successfully, so this is specific to the new parser implementation
 
 ---
+
+## [Fri Feb 21 09:20:00 PM CST 2026] - US-030 (Array Slice Syntax)
+- Implemented array slice syntax [start:end] parsing and instruction generation
+- Created ArraySliceNode AST node in parser.ast package
+- Updated parseArrayAccess() to handle slice syntax with lookahead for COLON token
+- Slice syntax variations supported: a[start:end], a[start:], a[:end], a[:]
+- Added visit(ArraySliceNode) methods to all visitor classes (InstructionGenerator, TraceGenerator, FunctionExtractor, ScopeAnalyzer, VariableDetector, ScriptChecker)
+- Integrated with existing SliceInstruction for runtime execution
+- All 169 parser tests pass
+- Typecheck passes (mvn compile)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ArraySliceNode.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ASTVisitor.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (updated parseArrayAccess)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScopeAnalyzer.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java (added visit method)
+- **Learnings for future iterations:**
+  - The ANTLR grammar defines indexValueExpr with two alternatives: singleIndex (expression) and sliceIndex (start?:end?)
+  - SliceInstruction.Mode enum has four modes: COPY ([:]), LEFT ([:end]), RIGHT ([start:]), BOTH ([start:end])
+  - When parsing array access, need to check for COLON after parsing the first expression to detect slice syntax
+  - For empty brackets [], parseArrayAccess now returns ArrayAccessNode with null index (though this may need error handling)
+  - The slice syntax grammar: `'[' newlines? indexValueExpr? newlines? ']'` where indexValueExpr is optional
+  - SliceIndexContext in ANTLR has nullable start and end fields - both can be null for [:] syntax
+  - The visitor pattern requires adding visit methods to all visitor implementations when adding a new AST node type
+  - TestSuiteRunner still has ArrayIndexOutOfBoundsException issues that predate this change (from commit 31c51f5d)
+  - The array slice syntax now parses correctly and creates appropriate AST nodes and instructions
+
+---

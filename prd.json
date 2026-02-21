@@ -505,7 +505,7 @@
       ],
       "priority": 30,
       "passes": false,
-      "notes": "PROGRESS: Fixed DOUBLE_QUOTE token handling, map literal parsing, function definition support (parseFunctionDefinition, parseMacroDefinition), and class reference resolution for static method calls (QLOptions.builder() now works). ImportManager support added to InstructionGenerator. Known limitations: Array slice syntax '[start:end]' is not yet supported - tests using this feature fail with 'Expected RBRACK but found COLON'. Several other features may also be missing (import statements, type declarations, etc.). The main branch passes all testsuite tests successfully."
+      "notes": "PROGRESS: Fixed DOUBLE_QUOTE token handling, map literal parsing, function definition support (parseFunctionDefinition, parseMacroDefinition), class reference resolution for static method calls (QLOptions.builder() now works), and array slice syntax [start:end]. ImportManager support added to InstructionGenerator. ArraySliceNode AST node created with SliceInstruction integration. Known limitations: Several features may still be missing (import statements, type declarations, try-catch-finally, etc.). There's also a pre-existing ArrayIndexOutOfBoundsException issue from commit 31c51f5d affecting some tests. The main branch passes all testsuite tests successfully."
     },
     {
       "id": "US-031",
