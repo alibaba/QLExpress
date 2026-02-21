@@ -505,7 +505,7 @@
       ],
       "priority": 30,
       "passes": false,
-      "notes": "BLOCKED: TestSuiteRunner fails with 'Expected expression but found DOUBLE_QUOTE'. The new parser has issues with double-quoted strings in certain contexts. Requires debugging and fixing multiple parser issues before testsuite can pass."
+      "notes": "PARTIAL PROGRESS: Fixed DOUBLE_QUOTE token handling in parseLiteral() and parsePrimary(). Implemented proper map literal parsing with support for ID, DOUBLE_QUOTE, and QUOTE_STRING_LITERAL keys. Fixed RBRACE consumption issue. However, TestSuiteRunner still fails with runtime error when executing config scripts (QLOptions.builder() calls). This is because the new parser's LoadInstruction loads QLOptions as a variable instead of a class - the original ANTLR parser has special handling for class references that needs to be replicated. Also, 'function' keyword is not yet supported (needed for some tests like switch_fallthrough.ql). The main branch passes all testsuite tests successfully."
     },
     {
       "id": "US-031",

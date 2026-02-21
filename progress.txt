@@ -682,3 +682,31 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - Cannot remove ANTLR until the new parser is feature-complete
 
 ---
+
+## [Fri Feb 21 05:00:00 PM CST 2026] - US-030 Progress
+- Added DOUBLE_QUOTE token handling in parseLiteral() and parsePrimary()
+- Implemented proper map literal parsing with MapEntryNode
+- Map keys can be ID, DOUBLE_QUOTE, or QUOTE_STRING_LITERAL
+- Fixed RBRACE consumption issue in parseMapLiteral()
+- Refactored parseBlock() to support parseBlockAfterLBrace() helper
+- parseBraceExpression() now correctly distinguishes between map literals and block expressions
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (modified - 123 insertions, 27 deletions)
+- Typecheck passes (mvn compile)
+- All 169 parser tests pass
+- All 114 lexer tests pass
+- **Learnings for future iterations:**
+  - DOUBLE_QUOTE tokens (double-quoted strings) are used in map literals and for dynamic string interpolation
+  - The parseBraceExpression() needs to decide between map literal and block expression AFTER consuming LBRACE
+  - Map literal detection: check if next token is COLON (empty map) or ID/DOUBLE_QUOTE/QUOTE_STRING_LITERAL followed by COLON
+  - parseBlock() expects to consume LBRACE, so created parseBlockAfterLBrace() for cases where LBRACE is already consumed
+  - The lastToken field tracks the most recently consumed token for use in AST node creation
+  - getPreviousToken() helper returns the last consumed token
+  - The RBRACE was not being consumed after parsing map entries - added expect(TokenType.RBRACE) at the end of parseMapLiteral()
+  - TestSuiteRunner still has issues - the config script `{"qlOptions": QLOptions.builder().avoidNullPointer(true)}` fails with runtime error
+  - The runtime error occurs because LoadInstruction loads QLOptions as a variable instead of a class
+  - The original ANTLR parser has special handling for class references that needs to be replicated
+  - Some tests use `function` keyword which is not yet supported in the new parser (needed for switch_fallthrough.ql)
+  - The main branch passes all testsuite tests successfully, so this is specific to the new parser implementation
+
+---
