@@ -1081,28 +1081,29 @@ public class QLexpressParser {
         Token next = peek();
         if (next != null) {
             if (next.getType() == TokenType.COLON) {
-                return parseMapLiteral();
+                return parseMapLiteral(lbrace);
             }
             Token nextNext = peek(1);
             if (nextNext != null && nextNext.getType() == TokenType.COLON) {
                 if (next.getType() == TokenType.ID ||
                     next.getType() == TokenType.DOUBLE_QUOTE ||
                     next.getType() == TokenType.QUOTE_STRING_LITERAL) {
-                    return parseMapLiteral();
+                    return parseMapLiteral(lbrace);
                 }
             }
         }
 
-        return parseBlock();
+        return parseBlockAfterLBrace(lbrace);
     }
 
     /**
      * Parses a map literal.
      *
+     * @param lbrace the left brace token (already consumed)
      * @return the expression node
      * @throws ParseException if parsing fails
      */
-    private ExpressionNode parseMapLiteral()
+    private ExpressionNode parseMapLiteral(Token lbrace)
         throws ParseException {
         // LBRACE already consumed
         skipNewlines();
@@ -1111,8 +1112,8 @@ public class QLexpressParser {
         if (match(TokenType.COLON)) {
             skipNewlines();
             expect(TokenType.RBRACE);
-            return new MapLiteralNode(getPreviousToken().getLine(), getPreviousToken().getColumn(),
-                getPreviousToken().getSource(), Collections.emptyList());
+            return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(),
+                lbrace.getSource(), Collections.emptyList());
         }
 
         // Parse map entries
@@ -1148,8 +1149,8 @@ public class QLexpressParser {
         // Consume the closing RBRACE
         expect(TokenType.RBRACE);
 
-        return new MapLiteralNode(getPreviousToken().getLine(), getPreviousToken().getColumn(),
-            getPreviousToken().getSource(), entries);
+        return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(),
+            lbrace.getSource(), entries);
     }
 
     /**
@@ -1202,10 +1203,24 @@ public class QLexpressParser {
     private BlockNode parseBlock()
         throws ParseException {
         Token lbrace = expect(TokenType.LBRACE);
+        return parseBlockAfterLBrace(lbrace);
+    }
+
+    /**
+     * Parses a block statement after the LBRACE has been consumed.
+     * <p>
+     * Block statements have the form: { statements }
+     *
+     * @param lbrace the left brace token (already consumed)
+     * @return the BlockNode
+     * @throws ParseException if parsing fails
+     */
+    private BlockNode parseBlockAfterLBrace(Token lbrace)
+        throws ParseException {
         skipNewlines();
-        
+
         List<StatementNode> statements = new ArrayList<>();
-        
+
         // Parse statements until we hit RBRACE
         while (!match(TokenType.RBRACE) && !isEOF()) {
             StatementNode stmt = parseStatement();
@@ -1214,9 +1229,9 @@ public class QLexpressParser {
             }
             skipNewlines();
         }
-        
+
         expect(TokenType.RBRACE);
-        
+
         return new BlockNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), statements);
     }
     
@@ -1269,6 +1284,10 @@ public class QLexpressParser {
                 return parseContinue();
             case THROW:
                 return parseThrow();
+            case FUNCTION:
+                return parseFunctionDefinition();
+            case MACRO:
+                return parseMacroDefinition();
             case LBRACE:
                 return parseBraceExpression();
             case SEMI:
@@ -1799,17 +1818,86 @@ public class QLexpressParser {
         throws ParseException {
         Token throwToken = expect(TokenType.THROW);
         skipNewlines();
-        
+
         ExpressionNode exception = parseExpression();
         skipNewlines();
-        
+
         if (match(TokenType.SEMI)) {
             consume();
         }
-        
+
         return new ThrowNode(throwToken.getLine(), throwToken.getColumn(), throwToken.getSource(), exception);
     }
-    
+
+    /**
+     * Parses a function definition statement.
+     * <p>
+     * Function definitions have the form: function functionName(params) { body }
+     *
+     * @return the FunctionDefinitionNode
+     * @throws ParseException if parsing fails
+     */
+    private FunctionDefinitionNode parseFunctionDefinition()
+        throws ParseException {
+        Token functionToken = expect(TokenType.FUNCTION);
+        skipNewlines();
+
+        // Parse function name
+        Token nameToken = expect(TokenType.ID);
+        String functionName = nameToken.getValue();
+        skipNewlines();
+
+        // Parse parameters
+        expect(TokenType.LPAREN);
+        skipNewlines();
+
+        List<ParameterNode> parameters = new ArrayList<>();
+        if (!match(TokenType.RPAREN)) {
+            parameters.add(parseLambdaParameter());
+            skipNewlines();
+            while (match(TokenType.COMMA)) {
+                consume();
+                skipNewlines();
+                parameters.add(parseLambdaParameter());
+                skipNewlines();
+            }
+        }
+
+        expect(TokenType.RPAREN);
+        skipNewlines();
+
+        // Parse body
+        BlockNode body = parseBlock();
+
+        return new FunctionDefinitionNode(functionToken.getLine(), functionToken.getColumn(),
+            functionToken.getSource(), functionName, parameters, body);
+    }
+
+    /**
+     * Parses a macro definition statement.
+     * <p>
+     * Macro definitions have the form: macro macroName { body }
+     *
+     * @return the MacroDefinitionNode
+     * @throws ParseException if parsing fails
+     */
+    private MacroDefinitionNode parseMacroDefinition()
+        throws ParseException {
+        Token macroToken = expect(TokenType.MACRO);
+        skipNewlines();
+
+        // Parse macro name
+        Token nameToken = expect(TokenType.ID);
+        String macroName = nameToken.getValue();
+        skipNewlines();
+
+        // Parse body
+        BlockNode body = parseBlock();
+
+        return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(),
+            macroToken.getSource(), macroName, body);
+    }
+
     /**
      * Parses a variable declaration.
      * <p>

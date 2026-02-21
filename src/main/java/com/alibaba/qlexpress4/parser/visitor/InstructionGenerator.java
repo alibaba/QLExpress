@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.parser.visitor;
 
+import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.parser.ast.*;
@@ -10,6 +11,7 @@ import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 import com.alibaba.qlexpress4.runtime.instruction.*;
+import com.alibaba.qlexpress4.runtime.MetaClass;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,15 +29,22 @@ import java.util.stream.Collectors;
  * @author QLExpress Team
  */
 public class InstructionGenerator implements ASTVisitor<GenerationResult, GenerationContext> {
-    
+
     private final OperatorManager operatorManager;
-    
-    public InstructionGenerator(OperatorManager operatorManager) {
+
+    private final ImportManager importManager;
+
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
         this.operatorManager = operatorManager;
+        this.importManager = importManager;
     }
-    
+
+    public InstructionGenerator(OperatorManager operatorManager) {
+        this(operatorManager, null);
+    }
+
     public InstructionGenerator() {
-        this(new OperatorManager());
+        this(new OperatorManager(), null);
     }
     
     // ==================== Statement Visitors ====================
@@ -592,15 +601,43 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     @Override
     public GenerationResult visit(FunctionDefinitionNode node, GenerationContext context)
         throws Exception {
-        // TODO: Implement in a future story
-        throw new UnsupportedOperationException("function definition generation not yet implemented");
+        // Generate instructions for function body in a child context (new scope)
+        GenerationContext functionContext = context.createChildContext();
+        List<QLInstruction> bodyInstructions = new ArrayList<>();
+
+        GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, functionContext);
+        bodyInstructions.addAll(bodyResult.getInstructions());
+
+        // Convert parameters to QLambdaDefinitionInner.Param format
+        List<QLambdaDefinitionInner.Param> params = node.getParameters()
+            .stream()
+            .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), Object.class))
+            .collect(Collectors.toList());
+
+        // Calculate max stack size
+        int maxStackSize = calculateMaxStack(bodyInstructions);
+
+        // Create function definition
+        String functionName = node.getFunctionName();
+        QLambdaDefinitionInner functionDefinition = new QLambdaDefinitionInner(
+            functionName, bodyInstructions, params, maxStackSize);
+
+        // Define the function in the current context
+        ErrorReporter errorReporter = createErrorReporter(node);
+        DefineFunctionInstruction instruction = new DefineFunctionInstruction(errorReporter, functionName, functionDefinition);
+
+        return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
     
     @Override
     public GenerationResult visit(MacroDefinitionNode node, GenerationContext context)
         throws Exception {
-        // TODO: Implement in a future story
-        throw new UnsupportedOperationException("macro definition generation not yet implemented");
+        // Macros are compile-time constructs that store instructions for later inlining
+        // They don't generate runtime instructions directly
+        // The macro definition is stored in the context/scope for use during compilation
+        // For now, we generate no runtime instructions for macro definitions
+        // TODO: Implement macro definition storage in context when needed
+        return new GenerationResult(Collections.emptyList(), false, 0);
     }
     
     // ==================== Expression Visitors ====================
@@ -751,25 +788,45 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
-        // Generate target expression (if not null - for static calls, target is null)
-        if (node.getTarget() != null) {
+
+        // Check if this is a static method call on a class
+        // For example: QLOptions.builder() where QLOptions is a class
+        if (node.getTarget() instanceof IdentifierNode && importManager != null) {
+            IdentifierNode targetId = (IdentifierNode)node.getTarget();
+            List<String> ids = new ArrayList<>();
+            ids.add(targetId.getName());
+
+            // Check if this single identifier can be resolved to a class
+            ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
+            if (result.getCls() != null && result.getRestIndex() == 1) {
+                // This is a class reference - generate MetaClass const instruction
+                ErrorReporter errorReporter = createErrorReporter(targetId);
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), null));
+            }
+            else {
+                // Not a class - generate load instruction
+                GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+                instructions.addAll(targetResult.getInstructions());
+            }
+        }
+        else if (node.getTarget() != null) {
+            // Generate target expression (if not null - for static calls, target is null)
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-        
+
         // Generate arguments
         for (ExpressionNode arg : node.getArguments()) {
             GenerationResult argResult = ((ASTNode)arg).accept(this, context);
             instructions.addAll(argResult.getInstructions());
         }
-        
+
         // Generate method invoke instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         MethodInvokeInstruction instruction =
             new MethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), false); // optional = false for now
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
     
