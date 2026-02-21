@@ -595,3 +595,27 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - clearDFACache() was renamed to clearCompileCache() - likely during a previous refactoring
 
 ---
+
+## [Fri Feb 21 04:05:00 PM CST 2026] - US-027
+- Created comprehensive test suite for QLexpressLexer
+- 114 tests covering all lexer functionality
+- Files changed:
+  - src/test/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexerTest.java (new file - 1097 lines)
+  - prd.json (modified - marked US-027 as complete)
+- Typecheck passes (mvn compile)
+- All 114 lexer tests pass
+- **Learnings for future iterations:**
+  - Java 8 does not have String.repeat() - use StringBuilder for repeating characters
+  - The lexer treats octal numbers (0755) as INTEGER_LITERAL, not INTEGER_OR_FLOATING_LITERAL
+  - The lexer does NOT split string interpolation into separate tokens - the "${}" part is included in the DOUBLE_QUOTE token value
+  - In DISABLE interpolation mode, backslash escapes in double-quoted strings are processed
+  - Non-strict newline mode skips NEWLINE tokens during tokenization
+  - Strict newline mode includes NEWLINE tokens in the output
+  - Line/column tracking is 1-based (not 0-based) for user-friendly error messages
+  - Carriage return (\r) and CRLF (\r\n) are both treated as NEWLINE tokens
+  - Comments (both //... and /*...*/) are skipped during tokenization
+  - The lexer uses longest-match for multi-character operators (check 4-char, then 3-char, then 2-char)
+  - Digit separators (underscores) are removed from numeric literals during tokenization
+  - For empty input, tokenize() returns a list with only EOF token (removed in tests for simplicity)
+
+---
