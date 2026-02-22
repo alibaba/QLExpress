@@ -836,3 +836,50 @@ REMAINING ISSUES FOR US-030:
 - SELECTOR_START parsing issue - custom selector syntax not working
 - The TestSuiteRunner.suiteTest still has multiple failures
 ---
+
+## [Sat Feb 22 03:45:00 PM CST 2026] - US-030 (Method Reference and Field Access Fix)
+- Created MethodReferenceNode AST node for :: operator (method references)
+- Created FieldAccessNode AST node for . field access operator
+- Updated InstructionGenerator to generate GetMethodInstruction for method references
+- Updated InstructionGenerator to generate GetFieldInstruction for field access
+- Updated parser to use MethodReferenceNode instead of LambdaNode placeholder
+- Updated parser to use FieldAccessNode instead of ignoring field access
+- Added visit methods to all visitor classes (TraceGenerator, FunctionExtractor, ScopeAnalyzer, VariableDetector, ScriptChecker)
+- Fixed parseIntegerLiteral to use BigInteger for arbitrarily large integers (matching ANTLR behavior)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/MethodReferenceNode.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/FieldAccessNode.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ASTVisitor.java (added visit methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added BigInteger import, updated parseIntegerLiteral, fixed DCOLON and DOT handling)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added visit methods for MethodReferenceNode and FieldAccessNode)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java (added visit methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java (added visit methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScopeAnalyzer.java (added visit methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java (added visit methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java (added visit methods)
+- Typecheck passes (mvn compile)
+- Tests passing:
+  - independent/avoidnullpointer/avoid_null_pointer.ql (all 10 assertions pass)
+  - independent/avoidnullpointer/get_from_null.ql (throws NULL_FIELD_ACCESS correctly)
+  - independent/avoidnullpointer/can_not_find_function.ql (passes)
+  - independent/avoidnullpointer/get_method_from_null.ql (passes)
+  - independent/number/precise.ql (passes with BigInteger arithmetic)
+  - independent/number/number.ql (passes)
+- **Learnings for future iterations:**
+  - The :: operator is a method reference, NOT a lambda - it generates GetMethodInstruction, not LoadLambdaInstruction
+  - GetMethodInstruction respects avoidNullPointer option and returns null when target is null (instead of throwing)
+  - Field access with . operator generates GetFieldInstruction, not MethodInvokeInstruction
+  - GetFieldInstruction throws NULL_FIELD_ACCESS when target is null and avoidNullPointer is false
+  - Large integers (beyond Long range) need to use BigInteger to avoid NumberFormatException
+  - The ANTLR parser uses BigInteger internally and auto-converts to Integer/Long if the value fits
+  - Field access was completely broken in the new parser (target = target; was a no-op)
+  - All visitors must have visit methods for new AST node types or compilation fails
+  - The for-each type checking (FOR_EACH_TYPE_MISMATCH) is not implemented in new parser yet
+
+REMAINING ISSUES FOR US-030:
+- for-each type checking not implemented (FOR_EACH_TYPE_MISMATCH error expected but not thrown)
+- DEFAULT keyword parsing issue - can't be used as variable name in expressions
+- IMPORT keyword parsing issue - import statements not working correctly
+- SELECTOR_START parsing issue - custom selector syntax not working
+- More testsuite tests may have issues that need investigation
+---
