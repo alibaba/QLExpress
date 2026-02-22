@@ -309,185 +309,200 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(SwitchNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         if (node.getCases().isEmpty()) {
             // Empty switch, push null as result
             instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
             return new GenerationResult(instructions, false, 0);
         }
-        
+
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Generate switch value expression and store in a temporary variable
         GenerationResult valueResult = ((ASTNode)node.getValue()).accept(this, context);
         instructions.addAll(valueResult.getInstructions());
-        
+
         String switchVarName = "@switch_" + System.nanoTime();
         instructions.add(new DefineLocalInstruction(errorReporter, switchVarName, Object.class));
-        
+
         // Set up context to track break jump targets for this switch
         context.setProperty("inSwitch", Boolean.TRUE);
         List<JumpInstruction> switchBreakTargets = new ArrayList<>();
         context.setProperty("switchBreakTargets", switchBreakTargets);
-        
-        // Collect cases and group consecutive cases with empty bodies
+
+        // First pass: Group consecutive cases and collect metadata
+        // We need to group cases like: case 10: case 9: { body } into one group
         List<SwitchCaseNode> cases = node.getCases();
-        List<SwitchCaseNode> groupedCases = new ArrayList<>();
-        List<Integer> caseLabelPositions = new ArrayList<>();
-        
-        for (int i = 0; i < cases.size(); i++) {
-            SwitchCaseNode currentCase = cases.get(i);
-            List<StatementNode> statements = currentCase.getStatements();
-            
-            // Check if this case has a body
-            boolean hasBody = statements != null && !statements.isEmpty();
-            
-            if (currentCase.getCondition() != null) {
-                // Regular case
-                if (hasBody) {
-                    // This case has a body - add it as a new group
-                    groupedCases.add(currentCase);
-                    caseLabelPositions.add(instructions.size());
+
+        // Build case groups: each group has a list of conditions and a body
+        // Fallthrough cases (empty body) get grouped with the next case that has a body
+        class CaseGroup {
+            List<ExpressionNode> conditions = new ArrayList<>();
+            List<StatementNode> body;
+            boolean isDefault;
+
+            CaseGroup(ExpressionNode condition, List<StatementNode> body, boolean isDefault) {
+                if (condition != null) {
+                    conditions.add(condition);
                 }
-                else {
-                    // Empty case - check if next case has a body
-                    if (i + 1 < cases.size()) {
-                        SwitchCaseNode nextCase = cases.get(i + 1);
-                        List<StatementNode> nextStatements = nextCase.getStatements();
-                        boolean nextHasBody = nextStatements != null && !nextStatements.isEmpty();
-                        
-                        if (nextHasBody && nextCase.getCondition() != null) {
-                            // Next case has a body - combine with current case
-                            // We'll handle this by making the current case jump to the next case's body
-                            groupedCases.add(currentCase);
-                            caseLabelPositions.add(instructions.size());
-                        }
-                        else {
-                            // Skip this empty case
-                            continue;
-                        }
-                    }
+                this.body = body;
+                this.isDefault = isDefault;
+            }
+
+            boolean hasBody() {
+                return body != null && !body.isEmpty();
+            }
+        }
+
+        List<CaseGroup> caseGroups = new ArrayList<>();
+        CaseGroup currentGroup = null;
+
+        for (SwitchCaseNode switchCase : cases) {
+            ExpressionNode condition = switchCase.getCondition();
+            List<StatementNode> statements = switchCase.getStatements();
+            boolean isDefault = (condition == null); // null condition means default case
+
+            if (currentGroup == null) {
+                // Start a new group
+                currentGroup = new CaseGroup(condition, statements, isDefault);
+            }
+            else if (!currentGroup.hasBody() && !isDefault) {
+                // Current group has no body (fallthrough), add this condition to it
+                currentGroup.conditions.add(condition);
+                // If this case has a body, set it as the group's body
+                if (statements != null && !statements.isEmpty()) {
+                    currentGroup.body = statements;
                 }
             }
             else {
-                // Default case - always add
-                groupedCases.add(currentCase);
-                caseLabelPositions.add(instructions.size());
+                // Current group is complete, start a new one
+                caseGroups.add(currentGroup);
+                currentGroup = new CaseGroup(condition, statements, isDefault);
             }
         }
-        
-        // Generate instructions for grouped cases
-        List<JumpInstruction> jumpToEndInstructions = new ArrayList<>();
-        List<Integer> jumpToEndPositions = new ArrayList<>();
-        List<JumpIfPopInstruction> jumpIfInstructions = new ArrayList<>();
-        List<Integer> jumpIfPositions = new ArrayList<>();
-        List<Integer> nextCasePositions = new ArrayList<>();
-        
-        for (int i = 0; i < groupedCases.size(); i++) {
-            SwitchCaseNode switchCase = groupedCases.get(i);
-            ExpressionNode caseCondition = switchCase.getCondition();
-            
-            if (caseCondition != null) {
-                List<StatementNode> statements = switchCase.getStatements();
-                boolean hasBody = statements != null && !statements.isEmpty();
-                
+
+        // Add the last group
+        if (currentGroup != null) {
+            caseGroups.add(currentGroup);
+        }
+
+        // Find the default case index
+        int defaultIndex = -1;
+        for (int i = 0; i < caseGroups.size(); i++) {
+            if (caseGroups.get(i).isDefault) {
+                defaultIndex = i;
+                break;
+            }
+        }
+
+        // Second pass: Generate all comparison instructions first
+        List<JumpIfPopInstruction> caseJumpIfs = new ArrayList<>();
+        List<Integer> caseJumpIfPositions = new ArrayList<>();
+
+        for (CaseGroup group : caseGroups) {
+            if (group.isDefault) {
+                continue; // Skip default case, it doesn't need a comparison
+            }
+
+            for (ExpressionNode condition : group.conditions) {
                 // Load switch value
                 LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, null);
                 instructions.add(loadSwitchVar);
-                
+
                 // Load case value
-                GenerationResult caseConditionResult = ((ASTNode)caseCondition).accept(this, context);
+                GenerationResult caseConditionResult = ((ASTNode)condition).accept(this, context);
                 instructions.addAll(caseConditionResult.getInstructions());
-                
+
                 // Check equality using ==
                 BinaryOperator equalOperator = operatorManager.getBinaryOperator("==");
                 instructions.add(new OperatorInstruction(errorReporter, equalOperator, null));
-                
-                // Jump to next case if not equal
-                JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
-                instructions.add(jumpIf);
-                jumpIfInstructions.add(jumpIf);
-                jumpIfPositions.add(instructions.size() - 1);
-                
-                // If this case has an empty body (fallthrough), find the next case with a body
-                int targetPos;
-                if (!hasBody && i + 1 < groupedCases.size()) {
-                    // Find the next case with a body
-                    targetPos = -1;
-                    for (int j = i + 1; j < groupedCases.size(); j++) {
-                        List<StatementNode> nextStatements = groupedCases.get(j).getStatements();
-                        if (nextStatements != null && !nextStatements.isEmpty()) {
-                            targetPos = caseLabelPositions.get(j);
-                            break;
-                        }
+
+                // If equal (result is true), jump to case body
+                // We use JumpIfPop with expect=true, so it jumps if the comparison result is true
+                JumpIfPopInstruction jumpToCase = new JumpIfPopInstruction(errorReporter, true, -1);
+                instructions.add(jumpToCase);
+                caseJumpIfs.add(jumpToCase);
+                caseJumpIfPositions.add(instructions.size() - 1);
+            }
+        }
+
+        // If no case matched, jump to default or end
+        JumpInstruction jumpToDefaultOrEnd = new JumpInstruction(errorReporter, -1);
+        instructions.add(jumpToDefaultOrEnd);
+        int jumpToDefaultPosition = instructions.size() - 1;
+
+        // Third pass: Generate case bodies and fix up jump targets
+        List<JumpInstruction> jumpToEndInstructions = new ArrayList<>();
+        List<Integer> jumpToEndPositions = new ArrayList<>();
+        int caseJumpIfIndex = 0;
+        int endOfAllComparisons = instructions.size();
+
+        for (int i = 0; i < caseGroups.size(); i++) {
+            CaseGroup group = caseGroups.get(i);
+            int caseStartPos = instructions.size();
+
+            // Fix up jump targets for this case's comparisons
+            if (!group.isDefault) {
+                int numConditions = group.conditions.size();
+                for (int j = 0; j < numConditions; j++) {
+                    if (caseJumpIfIndex < caseJumpIfs.size()) {
+                        JumpIfPopInstruction jumpIf = caseJumpIfs.get(caseJumpIfIndex);
+                        int jumpIfPosition = caseJumpIfPositions.get(caseJumpIfIndex);
+                        // Position is relative to instruction AFTER the JumpIfPop
+                        jumpIf.setPosition(caseStartPos - jumpIfPosition - 1);
+                        caseJumpIfIndex++;
                     }
-                    if (targetPos == -1) {
-                        targetPos = instructions.size();
-                    }
-                    nextCasePositions.add(targetPos);
-                }
-                else {
-                    nextCasePositions.add(instructions.size());
-                }
-                
-                // Generate case body statements
-                if (statements != null) {
-                    for (StatementNode stmt : statements) {
-                        GenerationResult stmtResult = ((ASTNode)stmt).accept(this, context);
-                        instructions.addAll(stmtResult.getInstructions());
-                    }
-                }
-                
-                // Jump to end after case body
-                if (hasBody) {
-                    JumpInstruction jumpToEnd = new JumpInstruction(errorReporter, -1);
-                    instructions.add(jumpToEnd);
-                    jumpToEndInstructions.add(jumpToEnd);
-                    jumpToEndPositions.add(instructions.size() - 1);
                 }
             }
             else {
-                // Default case - no condition check needed
-                List<StatementNode> statements = switchCase.getStatements();
-                if (statements != null) {
-                    for (StatementNode stmt : statements) {
-                        GenerationResult stmtResult = ((ASTNode)stmt).accept(this, context);
-                        instructions.addAll(stmtResult.getInstructions());
-                    }
+                // This is the default case, fix up the jump to default
+                jumpToDefaultOrEnd.setPosition(caseStartPos - jumpToDefaultPosition - 1);
+            }
+
+            // Generate case body statements
+            if (group.body != null) {
+                for (StatementNode stmt : group.body) {
+                    GenerationResult stmtResult = ((ASTNode)stmt).accept(this, context);
+                    instructions.addAll(stmtResult.getInstructions());
                 }
             }
+
+            // Add jump to end after case body (for fallthrough prevention)
+            if (group.hasBody()) {
+                JumpInstruction jumpToEnd = new JumpInstruction(errorReporter, -1);
+                instructions.add(jumpToEnd);
+                jumpToEndInstructions.add(jumpToEnd);
+                jumpToEndPositions.add(instructions.size() - 1);
+            }
         }
-        
+
+        // If no default case, set jump to end
+        if (defaultIndex == -1) {
+            jumpToDefaultOrEnd.setPosition(instructions.size() - jumpToDefaultPosition - 1);
+        }
+
         // Clear the inSwitch flag
         context.setProperty("inSwitch", Boolean.FALSE);
-        
-        // Set jumpIf targets
+
+        // Fix up all jump to end instructions
         int endPosition = instructions.size();
-        for (int i = 0; i < jumpIfInstructions.size(); i++) {
-            JumpIfPopInstruction jumpIf = jumpIfInstructions.get(i);
-            int jumpIfPosition = jumpIfPositions.get(i);
-            int targetPos = nextCasePositions.get(i);
-            jumpIf.setPosition(targetPos - jumpIfPosition - 1);
-        }
-        
-        // Set all jump to end targets
         for (int i = 0; i < jumpToEndInstructions.size(); i++) {
             JumpInstruction jump = jumpToEndInstructions.get(i);
             int jumpPosition = jumpToEndPositions.get(i);
             jump.setPosition(endPosition - jumpPosition - 1);
         }
-        
-        // Set break statement jump targets
+
+        // Fix up break statement jump targets
         for (JumpInstruction breakJump : switchBreakTargets) {
             int jumpPosition = instructions.indexOf(breakJump);
             if (jumpPosition >= 0) {
                 breakJump.setPosition(endPosition - jumpPosition - 1);
             }
         }
-        
+
         // Push null as result (switch statement doesn't produce a value)
         instructions.add(new ConstInstruction(errorReporter, null, null));
-        
+
         return new GenerationResult(instructions, false, 0);
     }
     
@@ -721,10 +736,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate instructions for function body in a child context (new scope)
         GenerationContext functionContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
-        
+
         GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, functionContext);
         bodyInstructions.addAll(bodyResult.getInstructions());
-        
+
         // Convert parameters to QLambdaDefinitionInner.Param format
         List<QLambdaDefinitionInner.Param> params = node.getParameters()
             .stream()
