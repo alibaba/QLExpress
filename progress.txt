@@ -947,3 +947,35 @@ REMAINING ISSUES FOR US-030:
 ---
 - Several Express4RunnerTest tests fail with syntax errors (SELECTOR_START, IMPORT, BIT_AND, GT)
 ---
+
+## [Sat Feb 22 09:00:00 PM CST 2026] - US-030 (Path-based Selectors and Field Access Fixes)
+- Implemented readSelectorVariable() in QLexpressLexer to read full selector content
+- Selector values now contain the full expression (e.g., "${/a/aa}" instead of just "${")
+- Added extractSelectorVariableName() helper in QLexpressParser to extract variable name
+- Updated visit(FieldAccessNode) to check ImportManager for class references
+- Field access on imported classes now generates ConstInstruction with MetaClass
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (added readSelectorVariable, endsWith methods)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (updated parseSelectorStart, added extractSelectorVariableName)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (updated visit(FieldAccessNode))
+- Typecheck passes (mvn compile)
+- Tests pass: customExpressKeyValue, Pf4jClassSupplierTest
+- **Learnings for future iterations:**
+  - Path-based selectors like ${/a/aa} require the lexer to read everything between ${ and }
+  - The ANTLR lexer uses consumeSelectorVariable() which reads until the selector end
+  - Field access on classes (e.g., TestPluginInterface.FIELD) requires MetaClass on stack
+  - ImportManager.loadPartQualified() resolves identifiers to Class<?> objects
+  - ConstInstruction with MetaClass wraps Class<?> for runtime use
+  - Pattern: check ImportManager in instruction generation for static access patterns
+  - Function keyword parsing works but function definitions may have scope issues
+
+REMAINING ISSUES FOR US-030:
+- c_for.ql has pre-existing runtime error (also on main branch - NPE in MapItemValue)
+- Diamond operator <> in constructor calls (mapSetGetTest fails)
+- Empty map parsing {:} (emptyMapCacheTest fails)
+- CLASS keyword in type references (classFieldTest fails)
+- DOT in map literal keys with Chinese comma (chineseCommaPropertyTest fails)
+- Many Express4RunnerTest tests still fail (43 failures/errors)
+- switch_fallthrough.ql has issues with function definitions
+- InterpolationTest, disableShortCircuitTest, and others fail
+---
