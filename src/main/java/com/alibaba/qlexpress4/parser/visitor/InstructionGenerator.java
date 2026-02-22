@@ -1,8 +1,11 @@
 package com.alibaba.qlexpress4.parser.visitor;
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.aparser.BuiltInTypesSet;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
+import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.parser.ast.*;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.QLambdaDefinition;
@@ -217,7 +220,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Add variable declaration at the start of the body
         // The loop variable is passed as a parameter to the lambda
         String varName = varDecl.getVariableName();
-        Class<?> varClass = Object.class; // TODO: Resolve actual type from varDecl.getTypeName()
+        Class<?> varClass = resolveType(varDecl.getTypeName());
         
         // Generate body statements
         if (node.getBody() != null) {
@@ -674,8 +677,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         // Add define local instruction
         ErrorReporter errorReporter = createErrorReporter(node);
-        // Note: For now, use Object.class as the type - in real implementation, resolve typeName
-        Class<?> varClass = Object.class; // TODO: Resolve actual type from node.getTypeName()
+        Class<?> varClass = resolveType(node.getTypeName());
         DefineLocalInstruction instruction =
             new DefineLocalInstruction(errorReporter, node.getVariableName(), varClass);
         instructions.add(instruction);
@@ -1240,5 +1242,46 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Use a simple heuristic: base stack size on instruction count
         // This is conservative but safe - actual stack usage is usually much lower
         return Math.max(10, instructions.size() / 2 + 5);
+    }
+
+    /**
+     * Resolve a type name to a Class<?> object.
+     * Handles primitive types (int, long, etc.) and class types.
+     * For class types, uses ImportManager to resolve the class.
+     * Returns Object.class if typeName is null or resolution fails.
+     */
+    private Class<?> resolveType(String typeName) {
+        if (typeName == null || typeName.isEmpty()) {
+            return Object.class;
+        }
+
+        // Check for primitive types first
+        Class<?> primitiveClass = BuiltInTypesSet.getCls(typeName);
+        if (primitiveClass != null) {
+            return primitiveClass;
+        }
+
+        // If no ImportManager is available, return Object.class
+        if (importManager == null) {
+            return Object.class;
+        }
+
+        // Split the type name by dots to handle qualified names
+        String[] parts = typeName.split("\\.");
+        java.util.List<String> fieldIds = new java.util.ArrayList<>();
+        for (String part : parts) {
+            fieldIds.add(part);
+        }
+
+        try {
+            ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(fieldIds);
+            if (result.getCls() != null && result.getRestIndex() == fieldIds.size()) {
+                return result.getCls();
+            }
+        } catch (Exception e) {
+            // If resolution fails, return Object.class
+        }
+
+        return Object.class;
     }
 }
