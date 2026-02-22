@@ -1003,3 +1003,44 @@ REMAINING ISSUES FOR US-030:
 REMAINING ISSUES FOR US-030:
 - dynamic_string.ql fails - string interpolation with ${} syntax needs special lexer/parser handling
 ---
+
+## [Sun Feb 23 05:00:00 PM CST 2026] - US-030 (String Interpolation Implementation)
+- Implemented string interpolation for double-quoted strings with ${expression} syntax
+- Created InterpolatedStringNode AST node to represent interpolated strings
+- Added parseInterpolatedString() method to parse double-quoted strings as interpolated
+- Added findUnescapedDollarBrace() method to handle escaped \${ sequences
+- Updated InstructionGenerator.visit(InterpolatedStringNode) to generate StringJoinInstruction
+- Fixed BlockNode visitor to properly report expression value (stackDelta = 1 for expressions)
+- Fixed IfNode visitor to properly report expression value (stackDelta = 1 for expressions)
+- Added visit(InterpolatedStringNode) method to all visitor classes
+- Updated SyntaxTreeFactory to pass interpolationMode to parser
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/InterpolatedStringNode.java (new file)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ASTVisitor.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/SyntaxTreeFactory.java (pass interpolationMode to parser)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added interpolation support)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added visit method, fixed BlockNode/IfNode stackDelta)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScopeAnalyzer.java (added visit method)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java (added visit method)
+- Typecheck passes (mvn compile)
+- Tests pass: Simple variable and expression interpolation works correctly
+- **Learnings for future iterations:**
+  - String interpolation uses ${expression} syntax inside double-quoted strings
+  - The lexer reads the entire string content (including ${}) as a DOUBLE_QUOTE token
+  - The parser splits the string content into segments (static text and expressions)
+  - Escaped \${ sequences are not treated as interpolation start
+  - StringJoinInstruction joins all segments (pops n values, concatenates, pushes result)
+  - BlockNode must report isExpressionValue=true when last statement is an expression
+  - IfNode must report isExpressionValue=true when used as an expression
+  - Complex statements (if, switch) inside string interpolation have issues - the result is just the statement result, not the concatenated string
+  - This appears to be a deeper issue with how statement-expressions report their stack values when used as operands
+  - The basic interpolation infrastructure is in place but complex expressions need further work
+
+REMAINING ISSUES FOR US-030:
+- dynamic_string.ql fails - complex statements (if, switch) inside ${} don't work correctly
+- The issue is that when an if statement is used inside string interpolation, only the if result is returned, not the concatenated string
+- This also affects binary operations with if statements: 'x' + if (true) { 'a' } returns just 'a', not 'xa'
+- The root cause appears to be in how statement-expressions (IfNode, SwitchNode) interact with the stack when used as operands in larger expressions
