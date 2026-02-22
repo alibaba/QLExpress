@@ -248,7 +248,34 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     public TracePointTree visit(LambdaNode node, Void context) {
         return newPoint(TraceType.PRIMARY, Collections.emptyList(), "->", node);
     }
-    
+
+    @Override
+    public TracePointTree visit(MethodReferenceNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
+
+        // Add target
+        TracePointTree targetTrace = acceptNode(node.getTarget());
+        if (targetTrace != null) {
+            children.add(targetTrace);
+        }
+
+        return newPoint(TraceType.METHOD, children, node.getMethodName() + "::", node);
+    }
+
+    @Override
+    public TracePointTree visit(FieldAccessNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
+
+        // Add target
+        TracePointTree targetTrace = acceptNode(node.getTarget());
+        if (targetTrace != null) {
+            children.add(targetTrace);
+        }
+
+        String token = (node.isOptional() ? "?." : ".") + node.getFieldName();
+        return newPoint(TraceType.FIELD, children, token, node);
+    }
+
     @Override
     public TracePointTree visit(MethodCallNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();

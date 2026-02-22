@@ -278,7 +278,21 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(MethodReferenceNode node, Void context)
+        throws Exception {
+        visitNode(node.getTarget(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(FieldAccessNode node, Void context)
+        throws Exception {
+        visitNode(node.getTarget(), context);
+        return null;
+    }
+
     @Override
     public Void visit(MethodCallNode node, Void context)
         throws Exception {

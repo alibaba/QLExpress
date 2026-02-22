@@ -152,7 +152,19 @@ public interface ASTVisitor<R, C> {
      */
     R visit(LambdaNode node, C context)
         throws Exception;
-    
+
+    /**
+     * Visits a method reference node (:: operator).
+     */
+    R visit(MethodReferenceNode node, C context)
+        throws Exception;
+
+    /**
+     * Visits a field access node (. operator).
+     */
+    R visit(FieldAccessNode node, C context)
+        throws Exception;
+
     /**
      * Visits a method call node.
      */

@@ -420,7 +420,24 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(MethodReferenceNode node, Context context)
+        throws Exception {
+        // Visit the target (method reference doesn't introduce new variables)
+        visitExpression(node.getTarget(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(FieldAccessNode node, Context context)
+        throws Exception {
+        // Field access reads the target and writes the field (conceptually)
+        // But we only track the target as a read
+        visitExpression(node.getTarget(), context);
+        return null;
+    }
+
     @Override
     public Void visit(MethodCallNode node, Context context)
         throws Exception {

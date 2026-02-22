@@ -916,7 +916,41 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
-    
+
+    @Override
+    public GenerationResult visit(MethodReferenceNode node, GenerationContext context)
+        throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Generate target expression
+        GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+        instructions.addAll(targetResult.getInstructions());
+
+        // Generate get method instruction
+        ErrorReporter errorReporter = createErrorReporter(node);
+        GetMethodInstruction instruction = new GetMethodInstruction(errorReporter, node.getMethodName());
+        instructions.add(instruction);
+
+        return new GenerationResult(instructions, true, 1);
+    }
+
+    @Override
+    public GenerationResult visit(FieldAccessNode node, GenerationContext context)
+        throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Generate target expression
+        GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+        instructions.addAll(targetResult.getInstructions());
+
+        // Generate get field instruction
+        ErrorReporter errorReporter = createErrorReporter(node);
+        GetFieldInstruction instruction = new GetFieldInstruction(errorReporter, node.getFieldName(), node.isOptional());
+        instructions.add(instruction);
+
+        return new GenerationResult(instructions, true, 1);
+    }
+
     @Override
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {

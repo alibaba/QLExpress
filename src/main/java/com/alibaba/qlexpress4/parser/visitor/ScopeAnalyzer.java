@@ -708,7 +708,21 @@ public class ScopeAnalyzer implements ASTVisitor<Void, ScopeAnalyzer.Context> {
         
         return null;
     }
-    
+
+    @Override
+    public Void visit(MethodReferenceNode node, Context context)
+        throws Exception {
+        visitExpression(node.getTarget(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(FieldAccessNode node, Context context)
+        throws Exception {
+        visitExpression(node.getTarget(), context);
+        return null;
+    }
+
     @Override
     public Void visit(MethodCallNode node, Context context)
         throws Exception {

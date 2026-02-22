@@ -299,7 +299,23 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(MethodReferenceNode node, Context context)
+        throws Exception {
+        // Method reference is not a function call, just visit the target
+        visitNode(node.getTarget(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(FieldAccessNode node, Context context)
+        throws Exception {
+        // Field access is not a function call, just visit the target
+        visitNode(node.getTarget(), context);
+        return null;
+    }
+
     @Override
     public Void visit(MethodCallNode node, Context context)
         throws Exception {

@@ -17,6 +17,7 @@ import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.QLPrecedences;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
@@ -275,51 +276,68 @@ public class QLexpressParser {
     /**
      * Parses an integer literal from string value.
      * Handles hex (0x), binary (0b), octal (0), and decimal formats.
+     * Uses BigInteger to handle arbitrarily large integers.
      *
      * @param value the string value from the token
-     * @return the parsed integer (as Long or Integer)
+     * @return the parsed integer (as Integer, Long, or BigInteger)
      */
     private Object parseIntegerLiteral(String value) {
         if (value == null || value.isEmpty()) {
             return 0;
         }
-        
+
         value = value.replace("_", ""); // Remove digit separators
-        
+
+        // Constants for type detection
+        final BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
+        final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+        final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+        final BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
+
         // Check for type suffix
         boolean isLong = false;
         if (value.endsWith("l") || value.endsWith("L")) {
             isLong = true;
             value = value.substring(0, value.length() - 1);
         }
-        
-        long parsedValue;
+
+        // Parse as BigInteger first to handle arbitrarily large numbers
+        BigInteger parsedValue;
         if (value.startsWith("0x") || value.startsWith("0X")) {
             // Hexadecimal
-            parsedValue = Long.parseLong(value.substring(2), 16);
+            parsedValue = new BigInteger(value.substring(2), 16);
         }
         else if (value.startsWith("0b") || value.startsWith("0B")) {
             // Binary
-            parsedValue = Long.parseLong(value.substring(2), 2);
+            parsedValue = new BigInteger(value.substring(2), 2);
         }
         else if (value.length() > 1 && value.charAt(0) == '0') {
             // Octal
-            parsedValue = Long.parseLong(value, 8);
+            parsedValue = new BigInteger(value, 8);
         }
         else {
             // Decimal
-            parsedValue = Long.parseLong(value);
+            parsedValue = new BigInteger(value);
         }
-        
+
         if (isLong) {
-            return parsedValue;
+            // With 'l' or 'L' suffix, always return long (or BigInteger if too large)
+            if (parsedValue.compareTo(MAX_LONG) > 0 || parsedValue.compareTo(MIN_LONG) < 0) {
+                return parsedValue; // Return BigInteger for values outside Long range
+            }
+            return parsedValue.longValue();
         }
         else {
-            // Return as Integer if it fits, otherwise Long
-            if (parsedValue >= Integer.MIN_VALUE && parsedValue <= Integer.MAX_VALUE) {
-                return (int)parsedValue;
+            // Auto type: return Integer if fits, Long if fits in long, otherwise BigInteger
+            if (parsedValue.compareTo(MAX_INTEGER) <= 0 && parsedValue.compareTo(MIN_INTEGER) >= 0) {
+                return parsedValue.intValue();
             }
-            return parsedValue;
+            else if (parsedValue.compareTo(MAX_LONG) <= 0 && parsedValue.compareTo(MIN_LONG) >= 0) {
+                return parsedValue.longValue();
+            }
+            else {
+                return parsedValue; // Return BigInteger for very large values
+            }
         }
     }
     
@@ -777,11 +795,9 @@ public class QLexpressParser {
                             member.getValue(), arguments);
                     }
                     else {
-                        // Field access - for now just return the target
-                        // TODO: Implement FieldAccessNode
-                        // For now, create a MethodCallNode with no arguments as a placeholder
-                        // This handles cases like obj.field
-                        target = target;
+                        // Field access - create FieldAccessNode
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
+                            target, member.getValue(), false);
                     }
                     break;
                 }
@@ -803,9 +819,9 @@ public class QLexpressParser {
                             member.getValue(), arguments);
                     }
                     else {
-                        // Optional field access
-                        // TODO: Implement OptionalFieldAccessNode
-                        target = target;
+                        // Optional field access - create optional FieldAccessNode
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
+                            target, member.getValue(), true);
                     }
                     break;
                 }
@@ -827,9 +843,10 @@ public class QLexpressParser {
                             member.getValue(), arguments);
                     }
                     else {
-                        // Spread field access
-                        // TODO: Implement SpreadFieldAccessNode
-                        target = target;
+                        // Spread field access - TODO: Implement SpreadGetFieldInstruction
+                        // For now, create regular FieldAccessNode
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
+                            target, member.getValue(), false);
                     }
                     break;
                 }
@@ -839,14 +856,10 @@ public class QLexpressParser {
                     Token opToken = consume();
                     skipNewlines();
                     Token methodName = expect(TokenType.ID);
-                    // TODO: Create MethodReferenceNode
-                    // For now, create a LambdaNode as a placeholder
-                    // Method reference like "obj::method" is equivalent to lambda "x -> x.method()"
-                    List<ParameterNode> params = new ArrayList<>();
-                    params.add(new ParameterNode(null, "it"));
-                    LambdaNode lambda =
-                        new LambdaNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(), params, target);
-                    target = lambda;
+                    // Method reference like "obj::method" creates a MethodReferenceNode
+                    // This will be handled by GetMethodInstruction at runtime
+                    target = new MethodReferenceNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(),
+                        target, methodName.getValue());
                     break;
                 }
                 
