@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.parser.ASTCompiler;
 import com.alibaba.qlexpress4.parser.SyntaxTreeFactory;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;
+import com.alibaba.qlexpress4.parser.ast.StatementNode;
 import com.alibaba.qlexpress4.parser.visitor.FunctionExtractor;
 import com.alibaba.qlexpress4.parser.visitor.VariableDetector;
 import com.alibaba.qlexpress4.parser.visitor.ScriptChecker;
@@ -684,7 +685,10 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         ProgramNode programNode = parseToSyntaxTree(script);
         ImportManager importManager = inheritDefaultImport();
-        
+
+        // Process import statements from the program
+        importManager = processImports(programNode, importManager);
+
         try {
             if (initOptions.isTraceExpression()) {
                 // Compile with trace points
@@ -706,7 +710,39 @@ public class Express4Runner {
             throw new RuntimeException("Compilation failed", e);
         }
     }
-    
+
+    /**
+     * Process import statements from a ProgramNode and add them to the ImportManager.
+     *
+     * @param programNode the program node containing statements
+     * @param importManager the base import manager with default imports
+     * @return a new ImportManager with all imports added
+     */
+    private ImportManager processImports(ProgramNode programNode, ImportManager importManager) {
+        // Create a new ImportManager with all the existing imports
+        // Note: ImportManager is mutable, so we need to be careful
+        // We'll add imports to the existing manager
+
+        for (StatementNode statement : programNode.getStatements()) {
+            if (statement instanceof com.alibaba.qlexpress4.parser.ast.ImportNode) {
+                com.alibaba.qlexpress4.parser.ast.ImportNode importNode =
+                    (com.alibaba.qlexpress4.parser.ast.ImportNode)statement;
+                String importPath = importNode.getImportPath();
+
+                if (importNode.isWildcard()) {
+                    // Wildcard import: import com.example.*
+                    importManager.addImport(ImportManager.importCls(importPath + ".*"));
+                }
+                else {
+                    // Regular import: import com.example.ClassName
+                    importManager.addImport(ImportManager.importCls(importPath));
+                }
+            }
+        }
+
+        return importManager;
+    }
+
     private ImportManager inheritDefaultImport() {
         return new ImportManager(initOptions.getClassSupplier(), initOptions.getDefaultImport());
     }

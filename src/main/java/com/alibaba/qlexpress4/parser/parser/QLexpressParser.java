@@ -147,6 +147,9 @@ public class QLexpressParser {
                 return parseLiteral();
 
             case ID:
+            case FUNCTION:
+            case CASE:
+            case DEFAULT:
                 return parsePrimaryWithIdentifier();
 
             case LPAREN:
@@ -171,6 +174,10 @@ public class QLexpressParser {
             case LBRACE:
                 return parseBraceExpression();
 
+            case SELECTOR_START:
+                // Handle custom selector interpolation like ${var} or #{var}
+                return parseSelectorStart();
+
             // These statements can also be used as expressions in QLExpress
             case TRY:
                 return parseTryCatch();
@@ -179,7 +186,12 @@ public class QLexpressParser {
                 return parseIf();
 
             case SWITCH:
-                return parseSwitch();
+                // SWITCH can be used as an identifier or as a switch expression
+                // Check if followed by LPAREN to determine which
+                if (peek(1) != null && peek(1).getType() == TokenType.LPAREN) {
+                    return parseSwitch();
+                }
+                return parsePrimaryWithIdentifier();
 
             default:
                 throw error("Expected expression but found " + current.getType());
@@ -784,8 +796,8 @@ public class QLexpressParser {
                 case DOT: {
                     consume();
                     skipNewlines();
-                    Token member = expect(TokenType.ID);
-                    
+                    Token member = consumeFieldIdentifier();
+
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -801,13 +813,13 @@ public class QLexpressParser {
                     }
                     break;
                 }
-                
+
                 case OPTIONAL_CHAINING: {
                     // ?. operator for optional chaining
                     Token opToken = consume();
                     skipNewlines();
-                    Token member = expect(TokenType.ID);
-                    
+                    Token member = consumeFieldIdentifier();
+
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -825,13 +837,13 @@ public class QLexpressParser {
                     }
                     break;
                 }
-                
+
                 case SPREAD_CHAINING: {
                     // *. operator for spread chaining
                     Token opToken = consume();
                     skipNewlines();
-                    Token member = expect(TokenType.ID);
-                    
+                    Token member = consumeFieldIdentifier();
+
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -850,12 +862,12 @@ public class QLexpressParser {
                     }
                     break;
                 }
-                
+
                 case DCOLON: {
                     // :: operator for method reference
                     Token opToken = consume();
                     skipNewlines();
-                    Token methodName = expect(TokenType.ID);
+                    Token methodName = consumeFieldIdentifier();
                     // Method reference like "obj::method" creates a MethodReferenceNode
                     // This will be handled by GetMethodInstruction at runtime
                     target = new MethodReferenceNode(opToken.getLine(), opToken.getColumn(), opToken.getSource(),
@@ -1088,7 +1100,64 @@ public class QLexpressParser {
         String typeName = typeToken.getValue();
         return new TypeNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getSource(), typeName);
     }
-    
+
+    /**
+     * Parses a selector interpolation expression (e.g., ${var} or #{var} or #[var]).
+     * <p>
+     * Selector expressions are used for string interpolation with custom selectors.
+     * The content inside the selector is treated as a variable name (identifier), even if it's a number.
+     *
+     * @return the IdentifierNode for the selector variable
+     * @throws ParseException if parsing fails
+     */
+    private ExpressionNode parseSelectorStart()
+        throws ParseException {
+        Token selectorStart = expect(TokenType.SELECTOR_START);
+        // The next token should be the selector variable name
+        // It's typically an identifier, but can also be a number (like #[0])
+        Token next = peek();
+        if (next == null) {
+            throw error("Expected variable name after selector start");
+        }
+
+        String variableName;
+        int line = selectorStart.getLine();
+        int column = selectorStart.getColumn();
+        String source = selectorStart.getSource();
+
+        // Get the variable name from the next token
+        switch (next.getType()) {
+            case ID:
+                variableName = consume().getValue();
+                break;
+            case INTEGER_LITERAL:
+            case INTEGER_OR_FLOATING_LITERAL:
+            case FLOATING_POINT_LITERAL:
+                // Numbers inside selectors are treated as variable names
+                variableName = consume().getValue();
+                break;
+            case QUOTE_STRING_LITERAL:
+            case DOUBLE_QUOTE:
+                // String literals - use the value without quotes
+                Token strToken = consume();
+                variableName = strToken.getValue();
+                if (variableName != null && variableName.startsWith("'")) {
+                    variableName = variableName.substring(1, variableName.length() - 1);
+                }
+                break;
+            default:
+                throw error("Expected variable name after selector start but found " + next.getType());
+        }
+
+        // Consume the closing delimiter if present (] for #[...] or } for ${...})
+        if (match(TokenType.RBRACK) || match(TokenType.RBRACE)) {
+            consume();
+        }
+
+        // Create an identifier node for the variable
+        return new IdentifierNode(line, column, source, variableName);
+    }
+
     // ==================== List Literal Parsing ====================
     
     /**
@@ -1340,7 +1409,29 @@ public class QLexpressParser {
             case FOR:
                 return parseFor();
             case SWITCH:
-                return parseSwitch();
+                // SWITCH can be used as an identifier or as a switch statement
+                // Check if followed by LPAREN to determine which
+                if (peek(1) != null && peek(1).getType() == TokenType.LPAREN) {
+                    return parseSwitch();
+                }
+                // Fall through to expression parsing
+                return parseExpressionStatement();
+            case FUNCTION:
+                // FUNCTION can be used as an identifier or as a function definition
+                // Check if followed by LPAREN to determine which
+                if (peek(1) != null && peek(1).getType() == TokenType.LPAREN) {
+                    return parseFunctionDefinition();
+                }
+                // Fall through to expression parsing
+                return parseExpressionStatement();
+            case MACRO:
+                return parseMacroDefinition();
+            case IMPORT:
+                return parseImport();
+            case CASE:
+            case DEFAULT:
+                // CASE and DEFAULT can be used as identifiers
+                return parseExpressionStatement();
             case TRY:
                 return parseTryCatch();
             case RETURN:
@@ -1351,10 +1442,6 @@ public class QLexpressParser {
                 return parseContinue();
             case THROW:
                 return parseThrow();
-            case FUNCTION:
-                return parseFunctionDefinition();
-            case MACRO:
-                return parseMacroDefinition();
             case LBRACE:
                 return parseBraceExpression();
             case SEMI:
@@ -1378,15 +1465,26 @@ public class QLexpressParser {
                     }
                 }
                 // Otherwise, it's an expression statement or assignment
-                ExpressionNode expr = parseExpression();
-                // Check for statement terminator
-                skipNewlines();
-                if (match(TokenType.SEMI)) {
-                    consume();
-                }
-                // Expressions can be statements (assignments, method calls, etc.)
-                return expr;
+                return parseExpressionStatement();
         }
+    }
+
+    /**
+     * Parses an expression statement.
+     * Expression statements have the form: expression [;]
+     *
+     * @return the expression node
+     * @throws ParseException if parsing fails
+     */
+    private StatementNode parseExpressionStatement() throws ParseException {
+        ExpressionNode expr = parseExpression();
+        // Check for statement terminator
+        skipNewlines();
+        if (match(TokenType.SEMI)) {
+            consume();
+        }
+        // Expressions can be statements (assignments, method calls, etc.)
+        return expr;
     }
     
     // ==================== Control Flow Statement Parsing ====================
@@ -1983,7 +2081,64 @@ public class QLexpressParser {
         return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(), macroToken.getSource(), macroName,
             body);
     }
-    
+
+    /**
+     * Parses an import statement.
+     * <p>
+     * Import statements have the form:
+     * - import com.example.ClassName;
+     * - import com.example.*;
+     * - import com.example.ClassName.*; (equivalent to above)
+     *
+     * @return the ImportNode
+     * @throws ParseException if parsing fails
+     */
+    private ImportNode parseImport()
+        throws ParseException {
+        Token importToken = expect(TokenType.IMPORT);
+        skipNewlines();
+
+        // Build the import path
+        StringBuilder importPath = new StringBuilder();
+
+        // Get first identifier (must be present)
+        Token firstId = expect(TokenType.ID);
+        importPath.append(firstId.getValue());
+        skipNewlines();
+
+        // Continue with .id or .*
+        while (match(TokenType.DOT)) {
+            consume(); // Consume DOT
+            skipNewlines();
+
+            if (match(TokenType.MUL)) {
+                consume(); // Consume MUL (*)
+                // Wildcard import
+                expect(TokenType.SEMI);
+                return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
+                    importPath.toString(), true);
+            }
+
+            // Regular identifier
+            Token id = expect(TokenType.ID);
+            importPath.append('.').append(id.getValue());
+            skipNewlines();
+        }
+
+        // Check for .* or .* at end (DOTMUL token handles this)
+        if (match(TokenType.DOTMUL)) {
+            consume();
+            expect(TokenType.SEMI);
+            return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
+                importPath.toString(), true);
+        }
+
+        // Regular class import
+        expect(TokenType.SEMI);
+        return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
+            importPath.toString(), false);
+    }
+
     /**
      * Parses a variable declaration.
      * <p>
@@ -2348,7 +2503,63 @@ public class QLexpressParser {
         Token current = peek();
         return current != null && current.getType() == type;
     }
-    
+
+    /**
+     * Checks if the current token can be used as an identifier (varId).
+     * In QLExpress, certain keywords can be used as identifiers: FUNCTION, CASE, DEFAULT, SWITCH.
+     *
+     * @return true if the current token can be used as an identifier
+     */
+    private boolean isIdentifierToken() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        TokenType type = current.getType();
+        return type == TokenType.ID
+            || type == TokenType.FUNCTION
+            || type == TokenType.CASE
+            || type == TokenType.DEFAULT
+            || type == TokenType.SWITCH;
+    }
+
+    /**
+     * Checks if the current token can be used as a field identifier (fieldId).
+     * In QLExpress, field identifiers include: varId (ID, FUNCTION, CASE, DEFAULT, SWITCH),
+     * CLASS, and QUOTE_STRING_LITERAL.
+     *
+     * @return true if the current token can be used as a field identifier
+     */
+    private boolean isFieldIdentifierToken() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        TokenType type = current.getType();
+        return type == TokenType.ID
+            || type == TokenType.FUNCTION
+            || type == TokenType.CASE
+            || type == TokenType.DEFAULT
+            || type == TokenType.SWITCH
+            || type == TokenType.CLASS
+            || type == TokenType.QUOTE_STRING_LITERAL;
+    }
+
+    /**
+     * Consumes a field identifier token.
+     * Field identifiers can be: ID, FUNCTION, CASE, DEFAULT, SWITCH, CLASS, QUOTE_STRING_LITERAL.
+     *
+     * @return the field identifier token
+     * @throws ParseException if the current token is not a field identifier
+     */
+    private Token consumeFieldIdentifier() throws ParseException {
+        Token current = peek();
+        if (current == null || !isFieldIdentifierToken()) {
+            throw error("Expected field identifier but found " + (current != null ? current.getType() : "EOF"));
+        }
+        return consume();
+    }
+
     /**
      * Returns the last consumed token.
      *

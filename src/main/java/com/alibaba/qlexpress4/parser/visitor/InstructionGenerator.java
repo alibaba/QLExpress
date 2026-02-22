@@ -243,8 +243,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     private GenerationResult generateTraditionalForInstruction(ForNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Generate init lambda (if present)
+        // Init and update are statement-like - they execute for side effects, no return value needed
+        // Condition is expression-like - it leaves a Boolean value on the stack
         QLambdaDefinitionInner initLambda = null;
         Node init = node.getInit();
         if (init != null) {
@@ -252,12 +254,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> initInstructions = new ArrayList<>();
             GenerationResult initResult = ((ASTNode)init).accept(this, initContext);
             initInstructions.addAll(initResult.getInstructions());
-            initInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            // No ReturnInstruction needed for init - it's executed for side effects
             initLambda = new QLambdaDefinitionInner("for_init_" + System.nanoTime(), initInstructions,
                 Collections.emptyList(), calculateMaxStack(initInstructions));
         }
-        
+
         // Generate condition lambda (if present)
+        // Condition leaves a Boolean value on the stack - no ReturnInstruction needed
         QLambdaDefinitionInner conditionLambda = null;
         ExpressionNode condition = node.getCondition();
         if (condition != null) {
@@ -265,13 +268,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> conditionInstructions = new ArrayList<>();
             GenerationResult conditionResult = ((ASTNode)condition).accept(this, conditionContext);
             conditionInstructions.addAll(conditionResult.getInstructions());
-            conditionInstructions
-                .add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            // No ReturnInstruction needed - the result is left on the stack
             conditionLambda = new QLambdaDefinitionInner("for_condition_" + System.nanoTime(), conditionInstructions,
                 Collections.emptyList(), calculateMaxStack(conditionInstructions));
         }
-        
+
         // Generate update lambda (if present)
+        // Update is statement-like - it executes for side effects, no return value needed
         QLambdaDefinitionInner updateLambda = null;
         ExpressionNode update = node.getUpdate();
         if (update != null) {
@@ -279,11 +282,11 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> updateInstructions = new ArrayList<>();
             GenerationResult updateResult = ((ASTNode)update).accept(this, updateContext);
             updateInstructions.addAll(updateResult.getInstructions());
-            updateInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            // No ReturnInstruction needed for update - it's executed for side effects
             updateLambda = new QLambdaDefinitionInner("for_update_" + System.nanoTime(), updateInstructions,
                 Collections.emptyList(), calculateMaxStack(updateInstructions));
         }
-        
+
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
@@ -293,18 +296,18 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner("for_body_" + System.nanoTime(),
             bodyInstructions, Collections.emptyList(), calculateMaxStack(bodyInstructions));
-        
+
         // Calculate max stack size
         int initSize = initLambda == null ? 0 : initLambda.getMaxStackSize();
         int conditionSize = conditionLambda == null ? 0 : conditionLambda.getMaxStackSize();
         int updateSize = updateLambda == null ? 0 : updateLambda.getMaxStackSize();
         int maxStackSize =
             Math.max(initSize, Math.max(conditionSize, Math.max(updateSize, bodyLambda.getMaxStackSize())));
-        
+
         // Create for instruction
         ForInstruction instruction = new ForInstruction(errorReporter, initLambda, conditionLambda, errorReporter,
             updateLambda, maxStackSize, bodyLambda);
-        
+
         return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
     
@@ -728,10 +731,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     @Override
     public GenerationResult visit(ImportNode node, GenerationContext context)
         throws Exception {
-        // TODO: Implement in a future story
-        throw new UnsupportedOperationException("import generation not yet implemented");
+        // Import statements don't generate runtime instructions
+        // They are handled by the ImportManager during compilation
+        // The import is already processed by Express4Runner before calling ASTCompiler
+        return new GenerationResult(Collections.emptyList(), false, 0);
     }
-    
+
     @Override
     public GenerationResult visit(FunctionDefinitionNode node, GenerationContext context)
         throws Exception {
