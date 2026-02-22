@@ -521,7 +521,7 @@
       ],
       "priority": 31,
       "passes": false,
-      "notes": "BLOCKED: Cannot remove ANTLR dependencies until US-030 passes. Removing ANTLR before tests pass would break the build."
+      "notes": "BLOCKED: Cannot remove ANTLR dependencies until US-032 completes (aparser package still uses ANTLR). The aparser package must be removed first (US-032), then ANTLR dependencies can be removed (US-031)."
     },
     {
       "id": "US-032",
@@ -538,7 +538,7 @@
       ],
       "priority": 32,
       "passes": false,
-      "notes": "BLOCKED: Cannot remove ANTLR files until US-030 passes and US-031 is complete. The aparser package contains code still needed for testsuite and compile-time functions."
+      "notes": "REQUIRES SIGNIFICANT REFACTORING: The aparser package contains both ANTLR-dependent code and shared infrastructure classes (ImportManager, InterpolationMode, BuiltInTypesSet, ParserOperatorManager, GeneratorScope, etc.) used by both old and new parsers. To properly remove aparser:\n1. Move shared infrastructure to com.alibaba.qlexpress4.common package\n2. Delete ANTLR-dependent classes\n3. Update all imports\n\nThis refactoring is estimated to take significant effort and should be planned separately. The new parser is functionally complete (US-030 passes) so the removal of aparser is a cleanup task that can be deferred.\n\nAlternative approach: Keep the minimal aparser infrastructure classes and only delete the ANTLR-generated and ANTLR-dependent classes."
     },
     {
       "id": "US-033",
@@ -554,7 +554,7 @@
       ],
       "priority": 33,
       "passes": false,
-      "notes": "BLOCKED: Should be completed after all parser work is done and tests pass. Documentation should reflect the final state."
+      "notes": "READY TO PROCEED: The new parser is functionally complete (US-030 passes). Documentation can be updated to describe the new parser architecture while noting that aparser package still exists for backward compatibility and will be removed in a future refactoring (US-032)."
     }
   ]
 }
