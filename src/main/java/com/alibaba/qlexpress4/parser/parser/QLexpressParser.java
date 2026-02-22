@@ -1501,20 +1501,21 @@ public class QLexpressParser {
         throws ParseException {
         // LBRACE already consumed
         skipNewlines();
-        
+
         // Check for empty map (single :)
         if (match(TokenType.COLON)) {
+            consume();  // Consume the COLON token
             skipNewlines();
             expect(TokenType.RBRACE);
             return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(),
                 Collections.emptyList());
         }
-        
+
         // Parse map entries
         List<MapEntryNode> entries = new ArrayList<>();
         while (!match(TokenType.RBRACE)) {
             skipNewlines();
-            
+
             // Parse map key
             ExpressionNode key = parseMapKey();
             skipNewlines();
