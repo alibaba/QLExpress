@@ -1196,14 +1196,14 @@ public class QLexpressParser {
      * <p>
      * List literals have the form: [item1, item2, ...]
      *
-     * @return the expression node
+     * @return the ListLiteralNode
      * @throws ParseException if parsing fails
      */
     private ExpressionNode parseListLiteral()
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-        
+
         List<ExpressionNode> elements = new ArrayList<>();
         if (!match(TokenType.RBRACK)) {
             elements.add(parseExpression());
@@ -1215,12 +1215,10 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-        
+
         expect(TokenType.RBRACK);
-        
-        // TODO: Create ListLiteralNode
-        // For now, return a placeholder
-        return new LiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
+
+        return new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
     }
     
     // ==================== Map and Block Expression Parsing ====================
