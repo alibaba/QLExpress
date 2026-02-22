@@ -320,7 +320,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         visitNode(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayAccessNode node, Void context)
         throws Exception {
@@ -328,7 +328,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         visitNode(node.getIndex(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArraySliceNode node, Void context)
         throws Exception {
@@ -341,7 +341,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayLiteralNode node, Void context)
         throws Exception {

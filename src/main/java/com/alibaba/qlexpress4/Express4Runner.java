@@ -343,14 +343,14 @@ public class Express4Runner {
     private MacroDefine parseMacroDefine(String name, String macroScript) {
         ProgramNode macroProgram = parseToSyntaxTree(macroScript);
         ImportManager importManager = inheritDefaultImport();
-
+        
         try {
             // Compile the macro using the new AST compiler
             QLambdaDefinitionInner macroLambdaDef =
                 (QLambdaDefinitionInner)ASTCompiler.compile(macroProgram, operatorManager, importManager);
             QLInstruction[] macroInstructionsArray = macroLambdaDef.getInstructions();
             List<QLInstruction> macroInstructions = java.util.Arrays.asList(macroInstructionsArray);
-
+            
             // Determine if the last statement is an expression
             // The new AST's ProgramNode has a list of statements
             boolean lastStmtExpress = false;
@@ -360,7 +360,7 @@ public class Express4Runner {
                 // Check if the last statement is an expression (implements ExpressionNode)
                 lastStmtExpress = lastStmt instanceof com.alibaba.qlexpress4.parser.ast.ExpressionNode;
             }
-
+            
             return new MacroDefine(macroInstructions, lastStmtExpress);
         }
         catch (Exception e) {
@@ -684,7 +684,7 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         ProgramNode programNode = parseToSyntaxTree(script);
         ImportManager importManager = inheritDefaultImport();
-
+        
         try {
             if (initOptions.isTraceExpression()) {
                 // Compile with trace points

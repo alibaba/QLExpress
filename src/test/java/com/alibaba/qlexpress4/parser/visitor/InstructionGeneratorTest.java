@@ -346,14 +346,14 @@ public class InstructionGeneratorTest {
         // method(1, 2) - direct function call (no target)
         List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2));
         MethodCallNode node = new MethodCallNode(1, 1, null, null, "method", args);
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Should have: arg1, arg2, CallFunctionInstruction (no target instruction)
         assertEquals(3, result.getInstructions().size());
         assertEquals(1, result.getStackEffect());
         assertTrue(result.isExpressionValue());
-
+        
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(2) instanceof CallFunctionInstruction);
@@ -433,9 +433,9 @@ public class InstructionGeneratorTest {
         // Just an expression statement
         LiteralNode expr = new LiteralNode(1, 1, null, 42);
         ProgramNode node = new ProgramNode(1, 1, Collections.singletonList(expr));
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Should have const instruction only (last statement's value is kept on stack)
         assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
@@ -446,9 +446,9 @@ public class InstructionGeneratorTest {
         throws Exception {
         // { 42 }
         BlockNode node = new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42)));
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Should have const instruction only (last statement's value is kept on stack)
         assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
@@ -753,7 +753,7 @@ public class InstructionGeneratorTest {
         // Function definition is now implemented
         assertTrue(result.getInstructions().get(0) instanceof DefineFunctionInstruction);
     }
-
+    
     @Test
     public void testVisitMacroDefinitionNode_NotImplemented()
         throws Exception {

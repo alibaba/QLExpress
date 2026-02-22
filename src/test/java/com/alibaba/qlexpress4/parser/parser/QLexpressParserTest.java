@@ -346,7 +346,7 @@ public class QLexpressParserTest {
         QLexpressParser parser = createParser("+");
         parser.parsePrimary();
     }
-
+    
     @Test
     public void testParseExceptionHasLineAndColumn()
         throws Exception {
@@ -354,13 +354,14 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("(42");
             parser.parsePrimary();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertEquals("Line should be 1", 1, e.getLine());
             Assert.assertTrue("Column should be positive", e.getColumn() > 0);
             Assert.assertNotNull("Message should not be null", e.getMessage());
         }
     }
-
+    
     @Test
     public void testParseExceptionMultiLine()
         throws Exception {
@@ -368,12 +369,13 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("(\n42");
             parser.parsePrimary();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertEquals("Line should be 2", 2, e.getLine());
             Assert.assertTrue("Column should be positive", e.getColumn() > 0);
         }
     }
-
+    
     @Test
     public void testParseExceptionWithIndent()
         throws Exception {
@@ -381,12 +383,13 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("    (42");
             parser.parsePrimary();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertEquals("Line should be 1", 1, e.getLine());
             Assert.assertTrue("Column should be 5 or greater", e.getColumn() >= 5);
         }
     }
-
+    
     @Test
     public void testParseErrorUnclosedBrace()
         throws Exception {
@@ -394,11 +397,12 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("{ return 42;");
             parser.parseStatement();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertNotNull("Message should not be null", e.getMessage());
         }
     }
-
+    
     @Test
     public void testParseErrorUnclosedBracket()
         throws Exception {
@@ -406,11 +410,12 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("arr[0");
             parser.parseExpression();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertNotNull("Message should not be null", e.getMessage());
         }
     }
-
+    
     @Test
     public void testParseErrorMissingLambdaBody()
         throws Exception {
@@ -418,11 +423,12 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("x ->");
             parser.parseExpression();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertNotNull("Message should not be null", e.getMessage());
         }
     }
-
+    
     @Test
     public void testParseErrorInvalidTernary()
         throws Exception {
@@ -430,11 +436,12 @@ public class QLexpressParserTest {
             QLexpressParser parser = createParser("x ?");
             parser.parseExpression();
             Assert.fail("Should have thrown ParseException");
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             Assert.assertNotNull("Message should not be null", e.getMessage());
         }
     }
-
+    
     @Test
     public void testParseErrorMissingForLoopParts()
         throws Exception {
@@ -443,11 +450,12 @@ public class QLexpressParserTest {
             parser.parseStatement();
             // This might not throw an error, as for (;;) is technically valid (infinite loop)
             // Let's test a definitely invalid case
-        } catch (QLexpressParser.ParseException e) {
+        }
+        catch (QLexpressParser.ParseException e) {
             // Expected - for (;;) might be valid, this test documents current behavior
         }
     }
-
+    
     @Test
     public void testParseErrorUnclosedString()
         throws Exception {
@@ -457,7 +465,7 @@ public class QLexpressParserTest {
         ExpressionNode expr = parser.parsePrimary();
         Assert.assertNotNull("Should return a node even for unclosed string", expr);
     }
-
+    
     @Test
     public void testParseErrorInvalidNumber()
         throws Exception {
@@ -469,7 +477,7 @@ public class QLexpressParserTest {
         ExpressionNode expr = parser.parsePrimary();
         Assert.assertNotNull("Should parse the number part", expr);
     }
-
+    
     // ==================== Prefix Unary Operator Tests ====================
     
     @Test

@@ -29,20 +29,20 @@ import java.util.stream.Collectors;
  * @author QLExpress Team
  */
 public class InstructionGenerator implements ASTVisitor<GenerationResult, GenerationContext> {
-
+    
     private final OperatorManager operatorManager;
-
+    
     private final ImportManager importManager;
-
+    
     public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
         this.operatorManager = operatorManager;
         this.importManager = importManager;
     }
-
+    
     public InstructionGenerator(OperatorManager operatorManager) {
         this(operatorManager, null);
     }
-
+    
     public InstructionGenerator() {
         this(new OperatorManager(), null);
     }
@@ -309,103 +309,106 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(SwitchNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         if (node.getCases().isEmpty()) {
             // Empty switch, push null as result
             instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
             return new GenerationResult(instructions, false, 0);
         }
-
+        
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Generate switch value expression and store in a temporary variable
         GenerationResult valueResult = ((ASTNode)node.getValue()).accept(this, context);
         instructions.addAll(valueResult.getInstructions());
-
+        
         String switchVarName = "@switch_" + System.nanoTime();
         instructions.add(new DefineLocalInstruction(errorReporter, switchVarName, Object.class));
-
+        
         // Set up context to track break jump targets for this switch
         context.setProperty("inSwitch", Boolean.TRUE);
         List<JumpInstruction> switchBreakTargets = new ArrayList<>();
         context.setProperty("switchBreakTargets", switchBreakTargets);
-
+        
         // Collect cases and group consecutive cases with empty bodies
         List<SwitchCaseNode> cases = node.getCases();
         List<SwitchCaseNode> groupedCases = new ArrayList<>();
         List<Integer> caseLabelPositions = new ArrayList<>();
-
+        
         for (int i = 0; i < cases.size(); i++) {
             SwitchCaseNode currentCase = cases.get(i);
             List<StatementNode> statements = currentCase.getStatements();
-
+            
             // Check if this case has a body
             boolean hasBody = statements != null && !statements.isEmpty();
-
+            
             if (currentCase.getCondition() != null) {
                 // Regular case
                 if (hasBody) {
                     // This case has a body - add it as a new group
                     groupedCases.add(currentCase);
                     caseLabelPositions.add(instructions.size());
-                } else {
+                }
+                else {
                     // Empty case - check if next case has a body
                     if (i + 1 < cases.size()) {
                         SwitchCaseNode nextCase = cases.get(i + 1);
                         List<StatementNode> nextStatements = nextCase.getStatements();
                         boolean nextHasBody = nextStatements != null && !nextStatements.isEmpty();
-
+                        
                         if (nextHasBody && nextCase.getCondition() != null) {
                             // Next case has a body - combine with current case
                             // We'll handle this by making the current case jump to the next case's body
                             groupedCases.add(currentCase);
                             caseLabelPositions.add(instructions.size());
-                        } else {
+                        }
+                        else {
                             // Skip this empty case
                             continue;
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 // Default case - always add
                 groupedCases.add(currentCase);
                 caseLabelPositions.add(instructions.size());
             }
         }
-
+        
         // Generate instructions for grouped cases
         List<JumpInstruction> jumpToEndInstructions = new ArrayList<>();
         List<Integer> jumpToEndPositions = new ArrayList<>();
         List<JumpIfPopInstruction> jumpIfInstructions = new ArrayList<>();
         List<Integer> jumpIfPositions = new ArrayList<>();
         List<Integer> nextCasePositions = new ArrayList<>();
-
+        
         for (int i = 0; i < groupedCases.size(); i++) {
             SwitchCaseNode switchCase = groupedCases.get(i);
             ExpressionNode caseCondition = switchCase.getCondition();
-
+            
             if (caseCondition != null) {
                 List<StatementNode> statements = switchCase.getStatements();
                 boolean hasBody = statements != null && !statements.isEmpty();
-
+                
                 // Load switch value
                 LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, null);
                 instructions.add(loadSwitchVar);
-
+                
                 // Load case value
                 GenerationResult caseConditionResult = ((ASTNode)caseCondition).accept(this, context);
                 instructions.addAll(caseConditionResult.getInstructions());
-
+                
                 // Check equality using ==
                 BinaryOperator equalOperator = operatorManager.getBinaryOperator("==");
                 instructions.add(new OperatorInstruction(errorReporter, equalOperator, null));
-
+                
                 // Jump to next case if not equal
                 JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
                 instructions.add(jumpIf);
                 jumpIfInstructions.add(jumpIf);
                 jumpIfPositions.add(instructions.size() - 1);
-
+                
                 // If this case has an empty body (fallthrough), find the next case with a body
                 int targetPos;
                 if (!hasBody && i + 1 < groupedCases.size()) {
@@ -422,10 +425,11 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                         targetPos = instructions.size();
                     }
                     nextCasePositions.add(targetPos);
-                } else {
+                }
+                else {
                     nextCasePositions.add(instructions.size());
                 }
-
+                
                 // Generate case body statements
                 if (statements != null) {
                     for (StatementNode stmt : statements) {
@@ -433,7 +437,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                         instructions.addAll(stmtResult.getInstructions());
                     }
                 }
-
+                
                 // Jump to end after case body
                 if (hasBody) {
                     JumpInstruction jumpToEnd = new JumpInstruction(errorReporter, -1);
@@ -441,7 +445,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                     jumpToEndInstructions.add(jumpToEnd);
                     jumpToEndPositions.add(instructions.size() - 1);
                 }
-            } else {
+            }
+            else {
                 // Default case - no condition check needed
                 List<StatementNode> statements = switchCase.getStatements();
                 if (statements != null) {
@@ -452,10 +457,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 }
             }
         }
-
+        
         // Clear the inSwitch flag
         context.setProperty("inSwitch", Boolean.FALSE);
-
+        
         // Set jumpIf targets
         int endPosition = instructions.size();
         for (int i = 0; i < jumpIfInstructions.size(); i++) {
@@ -464,14 +469,14 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             int targetPos = nextCasePositions.get(i);
             jumpIf.setPosition(targetPos - jumpIfPosition - 1);
         }
-
+        
         // Set all jump to end targets
         for (int i = 0; i < jumpToEndInstructions.size(); i++) {
             JumpInstruction jump = jumpToEndInstructions.get(i);
             int jumpPosition = jumpToEndPositions.get(i);
             jump.setPosition(endPosition - jumpPosition - 1);
         }
-
+        
         // Set break statement jump targets
         for (JumpInstruction breakJump : switchBreakTargets) {
             int jumpPosition = instructions.indexOf(breakJump);
@@ -479,10 +484,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 breakJump.setPosition(endPosition - jumpPosition - 1);
             }
         }
-
+        
         // Push null as result (switch statement doesn't produce a value)
         instructions.add(new ConstInstruction(errorReporter, null, null));
-
+        
         return new GenerationResult(instructions, false, 0);
     }
     
@@ -587,25 +592,25 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(BreakNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Check if we're in a switch statement
         Boolean inSwitch = (Boolean)context.getProperty("inSwitch");
         if (inSwitch != null && inSwitch) {
             // In a switch, break should jump to the end of the switch
             JumpInstruction jumpInstruction = new JumpInstruction(errorReporter, -1);
-
+            
             // Add this jump to the list of break targets
             // The position will be calculated after all instructions are generated
             @SuppressWarnings("unchecked")
             List<JumpInstruction> breakTargets = (List<JumpInstruction>)context.getProperty("switchBreakTargets");
-
+            
             if (breakTargets != null) {
                 breakTargets.add(jumpInstruction);
             }
-
+            
             return new GenerationResult(Collections.singletonList(jumpInstruction), false, 0);
         }
-
+        
         // In a loop, break returns LOOP_BREAK_RESULT
         BreakContinueInstruction instruction = new BreakContinueInstruction(errorReporter, QResult.LOOP_BREAK_RESULT);
         return new GenerationResult(Collections.singletonList(instruction), false, 0);
@@ -716,28 +721,29 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate instructions for function body in a child context (new scope)
         GenerationContext functionContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
-
+        
         GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, functionContext);
         bodyInstructions.addAll(bodyResult.getInstructions());
-
+        
         // Convert parameters to QLambdaDefinitionInner.Param format
         List<QLambdaDefinitionInner.Param> params = node.getParameters()
             .stream()
             .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), Object.class))
             .collect(Collectors.toList());
-
+        
         // Calculate max stack size
         int maxStackSize = calculateMaxStack(bodyInstructions);
-
+        
         // Create function definition
         String functionName = node.getFunctionName();
-        QLambdaDefinitionInner functionDefinition = new QLambdaDefinitionInner(
-            functionName, bodyInstructions, params, maxStackSize);
-
+        QLambdaDefinitionInner functionDefinition =
+            new QLambdaDefinitionInner(functionName, bodyInstructions, params, maxStackSize);
+        
         // Define the function in the current context
         ErrorReporter errorReporter = createErrorReporter(node);
-        DefineFunctionInstruction instruction = new DefineFunctionInstruction(errorReporter, functionName, functionDefinition);
-
+        DefineFunctionInstruction instruction =
+            new DefineFunctionInstruction(errorReporter, functionName, functionDefinition);
+        
         return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
     
@@ -900,7 +906,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // If target is null, this is a direct function call (e.g., stest(9))
         // Use CallFunctionInstruction which loads the function by name from the context
         if (node.getTarget() == null) {
@@ -909,23 +915,23 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 GenerationResult argResult = ((ASTNode)arg).accept(this, context);
                 instructions.addAll(argResult.getInstructions());
             }
-
+            
             // Generate call function instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             CallFunctionInstruction instruction =
                 new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), null);
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Check if this is a static method call on a class
         // For example: QLOptions.builder() where QLOptions is a class
         if (node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
-
+            
             // Check if this single identifier can be resolved to a class
             ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
             if (result.getCls() != null && result.getRestIndex() == 1) {
@@ -944,19 +950,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-
+        
         // Generate arguments
         for (ExpressionNode arg : node.getArguments()) {
             GenerationResult argResult = ((ASTNode)arg).accept(this, context);
             instructions.addAll(argResult.getInstructions());
         }
-
+        
         // Generate method invoke instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         MethodInvokeInstruction instruction =
             new MethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), false); // optional = false for now
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -995,37 +1001,37 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(ArrayAccessNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Generate array expression
         GenerationResult arrayResult = ((ASTNode)node.getArray()).accept(this, context);
         instructions.addAll(arrayResult.getInstructions());
-
+        
         // Generate index expression
         GenerationResult indexResult = ((ASTNode)node.getIndex()).accept(this, context);
         instructions.addAll(indexResult.getInstructions());
-
+        
         // Generate index instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         IndexInstruction instruction = new IndexInstruction(errorReporter);
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
-
+    
     @Override
     public GenerationResult visit(ArraySliceNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Generate array expression
         GenerationResult arrayResult = ((ASTNode)node.getArray()).accept(this, context);
         instructions.addAll(arrayResult.getInstructions());
-
+        
         // Determine the slice mode and generate appropriate instructions
         ErrorReporter errorReporter = createErrorReporter(node);
         ExpressionNode start = node.getStart();
         ExpressionNode end = node.getEnd();
-
+        
         if (start == null && end == null) {
             // [:] - COPY mode (no indices needed)
             instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.COPY));
@@ -1050,10 +1056,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             instructions.addAll(endResult.getInstructions());
             instructions.add(new SliceInstruction(errorReporter, SliceInstruction.Mode.BOTH));
         }
-
+        
         return new GenerationResult(instructions, true, 1);
     }
-
+    
     @Override
     public GenerationResult visit(ArrayLiteralNode node, GenerationContext context)
         throws Exception {

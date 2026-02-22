@@ -35,13 +35,13 @@ public class ASTCompilerTest {
         assertTrue("Should have instructions", instructions.length > 0);
         assertTrue("Max stack size should be positive", lambdaInner.getMaxStackSize() > 0);
     }
-
+    
     @org.junit.Test
     public void testCompileLiteralExpression()
         throws Exception {
         ProgramNode program = SyntaxTreeFactory.buildTree("42", operatorManager);
         QLambdaDefinition lambda = ASTCompiler.compile(program, operatorManager);
-
+        
         assertNotNull("Lambda definition should not be null", lambda);
         QLambdaDefinitionInner lambdaInner = (QLambdaDefinitionInner)lambda;
         // A literal expression at program level has only const instruction (no pop, value is returned)
@@ -253,7 +253,7 @@ public class ASTCompilerTest {
         throws Exception {
         ProgramNode program = SyntaxTreeFactory.buildTree("-5", operatorManager);
         QLambdaDefinition lambda = ASTCompiler.compile(program, operatorManager);
-
+        
         assertNotNull("Lambda definition should not be null", lambda);
         QLambdaDefinitionInner lambdaInner = (QLambdaDefinitionInner)lambda;
         // A unary expression at program level has const + unary instructions (no pop, value is returned)

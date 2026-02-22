@@ -52,7 +52,7 @@ public class ASTCompiler {
         throws Exception {
         return compile(programNode, operatorManager, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with ImportManager support.
      * <p>
@@ -74,19 +74,19 @@ public class ASTCompiler {
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Create instruction generator
         InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager);
-
+        
         // Generate instructions from AST
         GenerationResult result = ((ASTNode)programNode).accept(generator, new GenerationContext());
-
+        
         // Extract instructions
         List<QLInstruction> instructions = result.getInstructions();
-
+        
         // Calculate max stack size
         int maxStackSize = calculateMaxStackSize(instructions);
-
+        
         // Create main lambda definition
         return new QLambdaDefinitionInner("main", instructions, Collections.emptyList(), maxStackSize);
     }
@@ -106,7 +106,7 @@ public class ASTCompiler {
         throws Exception {
         return compileWithTrace(programNode, operatorManager, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with trace points and ImportManager support.
      * <p>
@@ -128,13 +128,13 @@ public class ASTCompiler {
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Compile to lambda definition
         QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager);
-
+        
         // Generate trace points
         List<TracePointTree> tracePoints = generateTracePoints(programNode);
-
+        
         return new CompilationResult(lambdaDefinition, tracePoints);
     }
     

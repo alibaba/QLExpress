@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.*;
 
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.qlexpress4.aparser.ImportManager;
@@ -42,6 +43,10 @@ public class TestSuiteRunner {
         .addDefaultImport(Arrays.asList(ImportManager.importCls("com.alibaba.qlexpress4.QLOptions"),
             ImportManager.importCls("com.alibaba.qlexpress4.InitOptions")))
         .build());
+    
+    private static final ExecutorService TIMEOUT_EXECUTOR = Executors.newCachedThreadPool();
+    
+    private static final long EXECUTION_TIMEOUT_SECONDS = 10;
     
     private Express4Runner prepareRunner(InitOptions initOptions) {
         Express4Runner testRunner = new Express4Runner(initOptions);
@@ -105,24 +110,42 @@ public class TestSuiteRunner {
         QLOptions qlOptions = optionsBuilder.isPresent() ? optionsBuilder.get().attachments(attachments).build()
             : QLOptions.builder().attachments(attachments).build();
         Boolean noReturn = scriptOptionOp.map(scriptOption -> (Boolean)scriptOption.get("noReturn")).orElse(null);
-        if (errCodeOp.isPresent()) {
-            long start = System.currentTimeMillis();
-            assertErrCode(express4Runner, path, qlScript, qlOptions, errCodeOp.get(), debug);
-            printOk(path, System.currentTimeMillis() - start);
-            return;
-        }
-        
-        try {
-            long start = System.currentTimeMillis();
-            QLResult qlResult = express4Runner.execute(qlScript, Collections.emptyMap(), qlOptions);
-            if (noReturn != null && noReturn) {
-                assertNull(qlResult.getResult());
+        long start = System.currentTimeMillis();
+        Future<?> future = TIMEOUT_EXECUTOR.submit((Callable<Void>)() -> {
+            if (errCodeOp.isPresent()) {
+                assertErrCode(express4Runner, path, qlScript, qlOptions, errCodeOp.get(), debug);
             }
+            else {
+                QLResult qlResult = express4Runner.execute(qlScript, Collections.emptyMap(), qlOptions);
+                if (noReturn != null && noReturn) {
+                    assertNull(qlResult.getResult());
+                }
+            }
+            return null;
+        });
+        try {
+            future.get(EXECUTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             printOk(path, System.currentTimeMillis() - start);
         }
-        catch (Exception e) {
+        catch (TimeoutException e) {
+            future.cancel(true);
+            System.out.printf("%1$-95s %2$s\n", path, "timeout");
+            throw new RuntimeException(path + " execution timeout (exceeded " + EXECUTION_TIMEOUT_SECONDS + "s)");
+        }
+        catch (ExecutionException e) {
             System.out.printf("%1$-95s %2$s\n", path, "error");
-            throw e;
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException)cause;
+            }
+            if (cause instanceof Error) {
+                throw (Error)cause;
+            }
+            throw new RuntimeException(cause);
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(path + " execution interrupted");
         }
     }
     

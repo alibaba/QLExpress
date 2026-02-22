@@ -36,11 +36,11 @@ import java.util.ArrayList;
  */
 public class QLexpressParser {
     private final List<Token> tokens;
-
+    
     private int position;
-
+    
     private Token lastToken;
-
+    
     private final ParserOperatorManager operatorManager;
     
     /**
@@ -946,18 +946,18 @@ public class QLexpressParser {
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-
+        
         // Check if this is a slice (has colon) or single index access
         // We need to look ahead to see if there's a COLON after the index expression
         // But we can't parse the full expression first because we need to detect the colon
-
+        
         // Check for empty brackets [] or starting colon [:...]
         if (match(TokenType.RBRACK)) {
             // Empty brackets [] - treat as array access with no index (error?)
             consume();
             return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, null);
         }
-
+        
         if (match(TokenType.COLON)) {
             // Slice with no start: [:end]
             consume();
@@ -970,11 +970,11 @@ public class QLexpressParser {
             expect(TokenType.RBRACK);
             return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, null, end);
         }
-
+        
         // Parse the first expression (could be start of slice or single index)
         ExpressionNode firstExpr = parseExpression();
         skipNewlines();
-
+        
         if (match(TokenType.COLON)) {
             // This is a slice: [start:end] or [start:]
             consume();
@@ -985,9 +985,10 @@ public class QLexpressParser {
             }
             skipNewlines();
             expect(TokenType.RBRACK);
-            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, firstExpr, end);
+            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, firstExpr,
+                end);
         }
-
+        
         // Single index access: array[index]
         expect(TokenType.RBRACK);
         return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), array, firstExpr);
@@ -1117,7 +1118,7 @@ public class QLexpressParser {
         throws ParseException {
         Token lbrace = expect(TokenType.LBRACE);
         skipNewlines();
-
+        
         // Check if this is a map literal or block
         // Map literal if:
         // 1. Next token is COLON (empty map entry)
@@ -1130,17 +1131,16 @@ public class QLexpressParser {
             }
             Token nextNext = peek(1);
             if (nextNext != null && nextNext.getType() == TokenType.COLON) {
-                if (next.getType() == TokenType.ID ||
-                    next.getType() == TokenType.DOUBLE_QUOTE ||
-                    next.getType() == TokenType.QUOTE_STRING_LITERAL) {
+                if (next.getType() == TokenType.ID || next.getType() == TokenType.DOUBLE_QUOTE
+                    || next.getType() == TokenType.QUOTE_STRING_LITERAL) {
                     return parseMapLiteral(lbrace);
                 }
             }
         }
-
+        
         return parseBlockAfterLBrace(lbrace);
     }
-
+    
     /**
      * Parses a map literal.
      *
@@ -1152,34 +1152,34 @@ public class QLexpressParser {
         throws ParseException {
         // LBRACE already consumed
         skipNewlines();
-
+        
         // Check for empty map (single :)
         if (match(TokenType.COLON)) {
             skipNewlines();
             expect(TokenType.RBRACE);
-            return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(),
-                lbrace.getSource(), Collections.emptyList());
+            return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(),
+                Collections.emptyList());
         }
-
+        
         // Parse map entries
         List<MapEntryNode> entries = new ArrayList<>();
         while (!match(TokenType.RBRACE)) {
             skipNewlines();
-
+            
             // Parse map key
             ExpressionNode key = parseMapKey();
             skipNewlines();
-
+            
             // Expect colon
             expect(TokenType.COLON);
             skipNewlines();
-
+            
             // Parse map value
             ExpressionNode value = parseMapValue();
             skipNewlines();
-
+            
             entries.add(new MapEntryNode(key, value));
-
+            
             // Check for comma separator
             if (match(TokenType.COMMA)) {
                 consume(); // Consume the comma
@@ -1190,14 +1190,13 @@ public class QLexpressParser {
                 break;
             }
         }
-
+        
         // Consume the closing RBRACE
         expect(TokenType.RBRACE);
-
-        return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(),
-            lbrace.getSource(), entries);
+        
+        return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), entries);
     }
-
+    
     /**
      * Parses a map key (can be ID, DOUBLE_QUOTE, or QUOTE_STRING_LITERAL).
      *
@@ -1210,7 +1209,7 @@ public class QLexpressParser {
         if (current == null) {
             throw error("Expected map key but found end of input");
         }
-
+        
         switch (current.getType()) {
             case ID:
                 Token id = consume();
@@ -1222,7 +1221,7 @@ public class QLexpressParser {
                 throw error("Expected map key (identifier or string) but found " + current.getType());
         }
     }
-
+    
     /**
      * Parses a map value.
      * Special case: if the key is '@class', the value must be a string literal.
@@ -1250,7 +1249,7 @@ public class QLexpressParser {
         Token lbrace = expect(TokenType.LBRACE);
         return parseBlockAfterLBrace(lbrace);
     }
-
+    
     /**
      * Parses a block statement after the LBRACE has been consumed.
      * <p>
@@ -1263,9 +1262,9 @@ public class QLexpressParser {
     private BlockNode parseBlockAfterLBrace(Token lbrace)
         throws ParseException {
         skipNewlines();
-
+        
         List<StatementNode> statements = new ArrayList<>();
-
+        
         // Parse statements until we hit RBRACE
         while (!match(TokenType.RBRACE) && !isEOF()) {
             StatementNode stmt = parseStatement();
@@ -1274,9 +1273,9 @@ public class QLexpressParser {
             }
             skipNewlines();
         }
-
+        
         expect(TokenType.RBRACE);
-
+        
         return new BlockNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), statements);
     }
     
@@ -1304,12 +1303,12 @@ public class QLexpressParser {
     public StatementNode parseStatement()
         throws ParseException {
         skipNewlines();
-
+        
         Token current = peek();
         if (current == null) {
             return null;
         }
-
+        
         switch (current.getType()) {
             case IF:
                 return parseIf();
@@ -1863,17 +1862,17 @@ public class QLexpressParser {
         throws ParseException {
         Token throwToken = expect(TokenType.THROW);
         skipNewlines();
-
+        
         ExpressionNode exception = parseExpression();
         skipNewlines();
-
+        
         if (match(TokenType.SEMI)) {
             consume();
         }
-
+        
         return new ThrowNode(throwToken.getLine(), throwToken.getColumn(), throwToken.getSource(), exception);
     }
-
+    
     /**
      * Parses a function definition statement.
      * <p>
@@ -1886,16 +1885,16 @@ public class QLexpressParser {
         throws ParseException {
         Token functionToken = expect(TokenType.FUNCTION);
         skipNewlines();
-
+        
         // Parse function name
         Token nameToken = expect(TokenType.ID);
         String functionName = nameToken.getValue();
         skipNewlines();
-
+        
         // Parse parameters
         expect(TokenType.LPAREN);
         skipNewlines();
-
+        
         List<ParameterNode> parameters = new ArrayList<>();
         if (!match(TokenType.RPAREN)) {
             parameters.add(parseLambdaParameter());
@@ -1907,17 +1906,17 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-
+        
         expect(TokenType.RPAREN);
         skipNewlines();
-
+        
         // Parse body
         BlockNode body = parseBlock();
-
-        return new FunctionDefinitionNode(functionToken.getLine(), functionToken.getColumn(),
-            functionToken.getSource(), functionName, parameters, body);
+        
+        return new FunctionDefinitionNode(functionToken.getLine(), functionToken.getColumn(), functionToken.getSource(),
+            functionName, parameters, body);
     }
-
+    
     /**
      * Parses a macro definition statement.
      * <p>
@@ -1930,19 +1929,19 @@ public class QLexpressParser {
         throws ParseException {
         Token macroToken = expect(TokenType.MACRO);
         skipNewlines();
-
+        
         // Parse macro name
         Token nameToken = expect(TokenType.ID);
         String macroName = nameToken.getValue();
         skipNewlines();
-
+        
         // Parse body
         BlockNode body = parseBlock();
-
-        return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(),
-            macroToken.getSource(), macroName, body);
+        
+        return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(), macroToken.getSource(), macroName,
+            body);
     }
-
+    
     /**
      * Parses a variable declaration.
      * <p>
@@ -2307,7 +2306,7 @@ public class QLexpressParser {
         Token current = peek();
         return current != null && current.getType() == type;
     }
-
+    
     /**
      * Returns the last consumed token.
      *
@@ -2316,7 +2315,7 @@ public class QLexpressParser {
     public Token getPreviousToken() {
         return lastToken;
     }
-
+    
     /**
      * Creates a parse exception at the current position.
      *

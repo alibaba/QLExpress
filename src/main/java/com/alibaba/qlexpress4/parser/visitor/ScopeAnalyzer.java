@@ -734,7 +734,7 @@ public class ScopeAnalyzer implements ASTVisitor<Void, ScopeAnalyzer.Context> {
         visitExpression(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayAccessNode node, Context context)
         throws Exception {
@@ -742,7 +742,7 @@ public class ScopeAnalyzer implements ASTVisitor<Void, ScopeAnalyzer.Context> {
         visitExpression(node.getIndex(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArraySliceNode node, Context context)
         throws Exception {
@@ -755,7 +755,7 @@ public class ScopeAnalyzer implements ASTVisitor<Void, ScopeAnalyzer.Context> {
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayLiteralNode node, Context context)
         throws Exception {
