@@ -805,3 +805,34 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - There are remaining testsuite failures that need investigation before US-030 can be marked complete
 
 ---
+
+## [Sat Feb 22 03:30:00 PM CST 2026] - US-030 (Progress Update)
+- Fixed syntax error in QLexpressParser.java (duplicate code causing compilation failure)
+- Fixed ArrayIndexOutOfBoundsException in QLambdaInner.callInner() when stack is empty
+- Made TryCatchNode, IfNode, SwitchNode implement ExpressionNode for statement-as-expression support
+- Added TRY, IF, SWITCH keywords to parsePrimary() as expressions
+- Updated parseTryCatch() to handle optional exception types in catch clause (format: catch(e) vs catch(Exception e))
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/TryCatchNode.java (implements ExpressionNode)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/IfNode.java (implements ExpressionNode)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/SwitchNode.java (implements ExpressionNode)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added TRY/IF/SWITCH to parsePrimary, fixed parseTryCatch)
+  - src/main/java/com/alibaba/qlexpress4/runtime/QLambdaInner.java (try-catch for empty stack peek)
+- Typecheck passes (mvn compile)
+- addFunctionsDefinedInScriptTest now passes
+- **Learnings for future iterations:**
+  - In QLExpress, statements like try-catch, if-else, and switch can be used as expressions (they return values)
+  - This means these nodes should implement ExpressionNode, not just StatementNode
+  - ExpressionNode extends StatementNode, so ExpressionNode implementations automatically get StatementNode behavior
+  - The parsePrimary() method needs to handle keywords that start expressions (TRY, IF, SWITCH)
+  - Catch clauses can have optional types: catch(e) vs catch(Exception e) - need lookahead to distinguish
+  - When catching ArrayIndexOutOfBoundsException from peek(), return Value.NULL_VALUE instead
+  - The branch switch (git checkout) reverts uncommitted changes, need to be careful with this
+
+REMAINING ISSUES FOR US-030:
+- Try-catch runtime issue: exception handling not working correctly - QLRuntimeException being thrown instead of caught
+- DEFAULT keyword parsing issue - can't be used as variable name in expressions
+- IMPORT keyword parsing issue - import statements not working correctly  
+- SELECTOR_START parsing issue - custom selector syntax not working
+- The TestSuiteRunner.suiteTest still has multiple failures
+---
