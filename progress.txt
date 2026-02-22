@@ -907,10 +907,43 @@ REMAINING ISSUES FOR US-030:
   - The c_for.ql test has a pre-existing runtime error (NPE in MapItemValue) that also occurs on main branch
   - This is unrelated to the parser changes and needs separate investigation
 
+---
+
+## [Sun Feb 23 12:00:00 PM CST 2026] - US-030 (DEFAULT, IMPORT, SELECTOR_START Fixes)
+- Added support for DEFAULT, SWITCH, FUNCTION, CASE keywords as variable names
+- Added isIdentifierToken() helper to check if token can be used as identifier
+- Updated parsePrimary() and parseStatement() with lookahead (LPAREN check) to distinguish keywords as identifiers
+- Added isFieldIdentifierToken() and consumeFieldIdentifier() helpers for field access
+- Updated parsePath() to accept keywords as field names
+- Added IMPORT statement parsing with parseImport() method
+- Import statements are processed by Express4Runner.processImports() before compilation
+- Added SELECTOR_START parsing for selector interpolation (${var}, #{var}, #[var])
+- Numbers inside selectors are treated as variable names
+- defaultAndSwitchAsVariable test passes
+- docImportJavaTest passes
+- customSelectorTest passes
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added helpers, updated parsePrimary, parseStatement, parsePath, added parseImport, parseSelectorStart)
+  - src/main/java/com/alibaba/qlexpress4/Express4Runner.java (added processImports method, added StatementNode import)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (updated visit(ImportNode) to return empty instructions)
+  - prd.json (updated notes)
+- Typecheck passes (mvn compile)
+- Tests pass: defaultAndSwitchAsVariable, docImportJavaTest, customSelectorTest
+- **Learnings for future iterations:**
+  - Keywords DEFAULT, SWITCH, FUNCTION, CASE can be used as identifiers in QLExpress
+  - Use lookahead to distinguish keyword usage (e.g., SWITCH followed by LPAREN is a switch statement)
+  - Import statements don't generate runtime instructions - they're handled by ImportManager
+  - Selector expressions like #[0] need to treat numbers as variable names, not numeric literals
+  - Path-based selectors like ${/a/aa} require more complex parsing (not yet supported)
+  - TestSuiteRunner has only 1 failure (c_for.ql) which is a pre-existing issue on main branch
+
 REMAINING ISSUES FOR US-030:
 - c_for.ql has pre-existing runtime error (also on main branch - NPE in MapItemValue at map.get(key))
-- DEFAULT keyword parsing issue - can't be used as variable name in expressions
-- IMPORT keyword parsing issue - import statements not working correctly
-- SELECTOR_START parsing issue - custom selector syntax not working
+- Path-based selectors like ${/a/aa} not yet supported (customExpressKeyValue fails)
+- Diamond operator <> in constructor calls (mapSetGetTest fails)
+- Empty map parsing {:} (emptyMapCacheTest fails)
+- CLASS keyword in type references (classFieldTest fails)
+- DOT in map literal keys with Chinese comma (chineseCommaPropertyTest fails)
+---
 - Several Express4RunnerTest tests fail with syntax errors (SELECTOR_START, IMPORT, BIT_AND, GT)
 ---
