@@ -1044,3 +1044,37 @@ REMAINING ISSUES FOR US-030:
 - The issue is that when an if statement is used inside string interpolation, only the if result is returned, not the concatenated string
 - This also affects binary operations with if statements: 'x' + if (true) { 'a' } returns just 'a', not 'xa'
 - The root cause appears to be in how statement-expressions (IfNode, SwitchNode) interact with the stack when used as operands in larger expressions
+
+---
+
+## [Sun Feb 23 07:00:00 PM CST 2026] - US-030 (String Interpolation with Complex Expressions Fix)
+- Fixed IfNode jump position calculation in InstructionGenerator
+- Changed jump position from -1 to -2 to correctly skip the else branch when IfNode is used as an expression
+- The issue was: when IfNode is embedded in a larger expression (e.g., binary op or string interpolation), the jump position was incorrect
+- The Jump instruction was jumping too far, skipping the next instruction (e.g., Operator(+) or StringJoin)
+- Fixed empty map parsing in QLexpressParser - added missing consume() after match(COLON) in parseMapLiteral
+- The match() method only checks the token type but doesn't consume it - need to call consume() explicitly
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (line 165: changed -1 to -2)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (line 1507: added consume())
+- Typecheck passes (mvn compile)
+- Tests pass:
+  - dynamic_string.ql - string interpolation with if statements now works correctly
+  - if_then.ql - basic if statement tests pass
+  - Empty map literal syntax {:} now parses correctly
+- TestSuiteRunner: 22/23 tests pass (96% pass rate)
+- **Learnings for future iterations:**
+  - Jump positions in QVM are relative offsets: after executing instruction at position i, if it returns position p, next instruction is at i + 1 + p
+  - For Jump instruction at position jumpPos, to skip to position targetPos, the jump value is: targetPos - jumpPos - 1
+  - The previous formula (instructions.size() - thenStart - 1) was calculating the position to jump from the thenStart, not from the Jump instruction
+  - The correct formula is (instructions.size() - thenStart - 2) to account for the Jump instruction position
+  - The match() method only checks token type, it doesn't consume the token - must call consume() explicitly after match()
+  - Other places in the parser (slice parsing, switch parsing) correctly use match() followed by consume()
+  - The empty map {:} case was missing the consume() call after match(TokenType.COLON)
+  - The instanceof operator issue (convenient_syntax_elements.ql runtime failure) is separate from parsing - it's about class literal resolution
+
+REMAINING ISSUES FOR US-030:
+- convenient_syntax_elements.ql has runtime error with instanceof operator (class literal resolution not working)
+- This is a separate issue from parsing - the file parses correctly but fails at runtime
+- The instanceof operator needs to resolve class literals like "ArrayList" to Class<?> objects
+
