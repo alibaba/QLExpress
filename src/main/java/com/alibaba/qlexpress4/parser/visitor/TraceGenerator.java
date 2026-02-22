@@ -216,7 +216,25 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     public TracePointTree visit(LiteralNode node, Void context) {
         return newPoint(TraceType.VALUE, Collections.emptyList(), String.valueOf(node.getValue()), node);
     }
-    
+
+    @Override
+    public TracePointTree visit(InterpolatedStringNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
+        // For each segment, generate a trace point
+        for (Object segment : node.getSegments()) {
+            if (segment instanceof String) {
+                children.add(newPoint(TraceType.VALUE, Collections.emptyList(), (String) segment, node));
+            }
+            else if (segment instanceof ExpressionNode) {
+                TracePointTree childTrace = acceptNode((ExpressionNode) segment);
+                if (childTrace != null) {
+                    children.add(childTrace);
+                }
+            }
+        }
+        return newPoint(TraceType.VALUE, children, "interpolated string", node);
+    }
+
     @Override
     public TracePointTree visit(IdentifierNode node, Void context) {
         return newPoint(TraceType.VARIABLE, Collections.emptyList(), node.getName(), node);

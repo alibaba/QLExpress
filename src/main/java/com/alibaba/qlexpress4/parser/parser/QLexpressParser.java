@@ -14,6 +14,7 @@ import com.alibaba.qlexpress4.parser.ast.InstanceOfNode;
 import com.alibaba.qlexpress4.parser.ast.TypeNode;
 import com.alibaba.qlexpress4.parser.ast.ParameterNode;
 import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
+import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.QLPrecedences;
 
@@ -37,13 +38,15 @@ import java.util.ArrayList;
  */
 public class QLexpressParser {
     private final List<Token> tokens;
-    
+
     private int position;
-    
+
     private Token lastToken;
-    
+
     private final ParserOperatorManager operatorManager;
-    
+
+    private final InterpolationMode interpolationMode;
+
     /**
      * Creates a new parser for the given token stream.
      * Uses default OperatorManager for operator precedence and type resolution.
@@ -51,9 +54,9 @@ public class QLexpressParser {
      * @param tokens the token stream from the lexer
      */
     public QLexpressParser(List<Token> tokens) {
-        this(tokens, new OperatorManager());
+        this(tokens, new OperatorManager(), InterpolationMode.SCRIPT);
     }
-    
+
     /**
      * Creates a new parser for the given token stream with custom operator manager.
      *
@@ -61,9 +64,21 @@ public class QLexpressParser {
      * @param operatorManager the operator manager for precedence and type resolution
      */
     public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager) {
+        this(tokens, operatorManager, InterpolationMode.SCRIPT);
+    }
+
+    /**
+     * Creates a new parser for the given token stream with custom operator manager and interpolation mode.
+     *
+     * @param tokens the token stream from the lexer
+     * @param operatorManager the operator manager for precedence and type resolution
+     * @param interpolationMode the interpolation mode for string processing
+     */
+    public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager, InterpolationMode interpolationMode) {
         this.tokens = tokens != null ? tokens : Collections.emptyList();
         this.position = 0;
         this.operatorManager = operatorManager != null ? operatorManager : new OperatorManager();
+        this.interpolationMode = interpolationMode != null ? interpolationMode : InterpolationMode.SCRIPT;
     }
     
     /**
@@ -208,7 +223,7 @@ public class QLexpressParser {
         throws ParseException {
         Token token = consume();
         Object value;
-        
+
         switch (token.getType()) {
             case INTEGER_LITERAL:
                 value = parseIntegerLiteral(token.getValue());
@@ -231,9 +246,8 @@ public class QLexpressParser {
                 value = parseStringLiteral(token.getValue());
                 break;
             case DOUBLE_QUOTE:
-                // Double-quoted strings are already processed by the lexer
-                value = token.getValue();
-                break;
+                // Double-quoted strings may contain interpolation
+                return parseInterpolatedString(token);
             case TRUE:
                 value = Boolean.TRUE;
                 break;
@@ -261,7 +275,221 @@ public class QLexpressParser {
         Token token = expect(TokenType.ID);
         return new IdentifierNode(token.getLine(), token.getColumn(), token.getSource(), token.getValue());
     }
-    
+
+    /**
+     * Parses an interpolated string (double-quoted string with potential interpolation).
+     *
+     * <p>When interpolation mode is DISABLE, returns a simple LiteralNode.
+     * When interpolation mode is SCRIPT or VARIABLE, returns an InterpolatedStringNode
+     * with segments for static text and interpolated expressions.
+     *
+     * @param token the DOUBLE_QUOTE token containing the string content
+     * @return either a LiteralNode (for static strings) or InterpolatedStringNode (for interpolated strings)
+     */
+    private ExpressionNode parseInterpolatedString(Token token)
+        throws ParseException {
+        String content = token.getValue();
+
+        // If interpolation is disabled, return a simple literal
+        if (interpolationMode == InterpolationMode.DISABLE) {
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getSource(), content);
+        }
+
+        // Check if the string contains any ${...} patterns
+        if (!content.contains("${")) {
+            // No interpolation, return a simple literal
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getSource(), content);
+        }
+
+        // Parse the interpolated string into segments
+        InterpolatedStringNode node = new InterpolatedStringNode(token.getLine(), token.getColumn(), token.getSource());
+        parseInterpolatedStringSegments(content, node);
+        return node;
+    }
+
+    /**
+     * Parses the content of an interpolated string into segments.
+     *
+     * <p>The string is split into segments:
+     * <ul>
+     *   <li>Static text (String objects)</li>
+     *   <li>Interpolated expressions (ExpressionNode objects parsed from ${...} content)</li>
+     * </ul>
+     *
+     * @param content the string content (without the surrounding quotes)
+     * @param node the InterpolatedStringNode to add segments to
+     * @throws ParseException if parsing fails
+     */
+    private void parseInterpolatedStringSegments(String content, InterpolatedStringNode node)
+        throws ParseException {
+        int pos = 0;
+        int length = content.length();
+
+        while (pos < length) {
+            // Find the next ${ or end of string
+            int interpolationStart = findUnescapedDollarBrace(content, pos);
+
+            if (interpolationStart == -1) {
+                // No more interpolation, add the rest as static text
+                if (pos < length) {
+                    String staticText = content.substring(pos);
+                    node.addSegment(parseStringEscape(staticText));
+                }
+                break;
+            }
+
+            // Add static text before the interpolation
+            if (interpolationStart > pos) {
+                String staticText = content.substring(pos, interpolationStart);
+                node.addSegment(parseStringEscape(staticText));
+            }
+
+            // Find the matching }
+            int interpolationEnd = findMatchingBrace(content, interpolationStart + 2);
+            if (interpolationEnd == -1) {
+                throw error("Unterminated string interpolation, missing closing '}'");
+            }
+
+            // Parse the expression inside ${...}
+            String expressionText = content.substring(interpolationStart + 2, interpolationEnd).trim();
+
+            if (interpolationMode == InterpolationMode.SCRIPT) {
+                // Parse as a full expression (including if/switch statements)
+                // Create a temporary lexer to tokenize the expression
+                com.alibaba.qlexpress4.parser.lexer.QLexpressLexer tempLexer =
+                    new com.alibaba.qlexpress4.parser.lexer.QLexpressLexer(expressionText, null,
+                        interpolationMode, false, "${", "}");
+                List<Token> exprTokens = tempLexer.tokenize();
+
+                // Create a temporary parser to parse the expression
+                // Note: We use parseExpression() to parse full expressions including if/switch
+                QLexpressParser tempParser = new QLexpressParser(exprTokens, operatorManager, interpolationMode);
+                ExpressionNode expr = tempParser.parseExpression();
+                node.addSegment(expr);
+            }
+            else {
+                // VARIABLE mode - treat as a variable name
+                node.addSegment(new IdentifierNode(node.getLine(), node.getColumn(), node.getSource(), expressionText));
+            }
+
+            pos = interpolationEnd + 1;
+        }
+    }
+
+    /**
+     * Finds the next unescaped ${ in the string.
+     *
+     * @param content the string to search
+     * @param start the position to start searching from
+     * @return the position of the next unescaped ${, or -1 if not found
+     */
+    private int findUnescapedDollarBrace(String content, int start) {
+        int pos = start;
+        while (pos < content.length()) {
+            int dollarBracePos = content.indexOf("${", pos);
+            if (dollarBracePos == -1) {
+                return -1;
+            }
+
+            // Check if the $ is escaped
+            if (dollarBracePos > 0 && content.charAt(dollarBracePos - 1) == '\\') {
+                // This is an escaped ${, skip it
+                pos = dollarBracePos + 2;
+                continue;
+            }
+
+            return dollarBracePos;
+        }
+        return -1;
+    }
+
+    /**
+     * Finds the matching closing brace for a string interpolation expression.
+     *
+     * @param content the string content
+     * @param start the position to start searching from (after "${")
+     * @return the position of the matching '}', or -1 if not found
+     */
+    private int findMatchingBrace(String content, int start) {
+        int braceCount = 0;
+        for (int i = start; i < content.length(); i++) {
+            char ch = content.charAt(i);
+            if (ch == '{') {
+                braceCount++;
+            }
+            else if (ch == '}') {
+                if (braceCount == 0) {
+                    return i;
+                }
+                braceCount--;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Parses escape sequences in a string literal.
+     *
+     * @param text the text with potential escape sequences
+     * @return the text with escape sequences processed
+     */
+    private String parseStringEscape(String text) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch == '\\' && i + 1 < text.length()) {
+                char next = text.charAt(i + 1);
+                switch (next) {
+                    case 'n':
+                        sb.append('\n');
+                        i++;
+                        break;
+                    case 'r':
+                        sb.append('\r');
+                        i++;
+                        break;
+                    case 't':
+                        sb.append('\t');
+                        i++;
+                        break;
+                    case 'b':
+                        sb.append('\b');
+                        i++;
+                        break;
+                    case 'f':
+                        sb.append('\f');
+                        i++;
+                        break;
+                    case '\'':
+                        sb.append('\'');
+                        i++;
+                        break;
+                    case '"':
+                        sb.append('"');
+                        i++;
+                        break;
+                    case '\\':
+                        sb.append('\\');
+                        i++;
+                        break;
+                    case '$':
+                        // Escaped $, just include the $
+                        sb.append('$');
+                        i++;
+                        break;
+                    default:
+                        // Unknown escape, just include both characters
+                        sb.append(ch);
+                        break;
+                }
+            }
+            else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
+    }
+
     /**
      * Parses a parenthesized expression.
      *

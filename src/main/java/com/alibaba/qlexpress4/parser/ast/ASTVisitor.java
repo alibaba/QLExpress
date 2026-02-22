@@ -122,7 +122,13 @@ public interface ASTVisitor<R, C> {
      */
     R visit(LiteralNode node, C context)
         throws Exception;
-    
+
+    /**
+     * Visits an interpolated string node (e.g., "hello, ${name}").
+     */
+    R visit(InterpolatedStringNode node, C context)
+        throws Exception;
+
     /**
      * Visits an identifier node.
      */

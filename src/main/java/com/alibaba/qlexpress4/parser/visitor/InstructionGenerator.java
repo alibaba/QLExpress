@@ -57,22 +57,29 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         GenerationContext blockContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         List<StatementNode> statements = node.getStatements();
         int numStatements = statements.size();
-        
+
+        GenerationResult lastResult = null;
         for (int i = 0; i < numStatements; i++) {
             StatementNode statement = statements.get(i);
             GenerationResult result = ((ASTNode)statement).accept(this, blockContext);
             instructions.addAll(result.getInstructions());
-            
+
             // If the statement is an expression, pop its result unless it's the last statement
             if (result.isExpressionValue() && i < numStatements - 1) {
                 instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
             }
+
+            lastResult = result;
         }
-        
-        return new GenerationResult(instructions, false, 0);
+
+        // If the last statement is an expression, the block produces a value
+        boolean isExpressionValue = (lastResult != null && lastResult.isExpressionValue());
+        int stackDelta = isExpressionValue ? 1 : 0;
+
+        return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
     @Override
@@ -109,44 +116,54 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         else {
             thenResult = new GenerationResult(Collections.emptyList(), false, 0);
         }
-        
+
         // Jump to end after then
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
-        
+
         // Set jumpIf target (start of else)
         jumpIf.setPosition(instructions.size() - thenStart);
-        
+
         // Generate else body (if present)
         Node elseBody = node.getElseBody();
+        boolean elseProducesValue = false;
         if (elseBody != null) {
             if (elseBody instanceof ExpressionNode) {
                 GenerationResult elseResult = ((ASTNode)elseBody).accept(this, context);
                 instructions.addAll(elseResult.getInstructions());
+                elseProducesValue = elseResult.isExpressionValue();
             }
             else if (elseBody instanceof BlockNode) {
                 GenerationResult elseResult = ((ASTNode)elseBody).accept(this, context);
                 instructions.addAll(elseResult.getInstructions());
+                elseProducesValue = elseResult.isExpressionValue();
             }
             else if (elseBody instanceof IfNode) {
                 // else if - handle recursively
                 GenerationResult elseResult = ((ASTNode)elseBody).accept(this, context);
                 instructions.addAll(elseResult.getInstructions());
+                elseProducesValue = elseResult.isExpressionValue();
             }
             else if (elseBody instanceof StatementNode) {
                 GenerationResult elseResult = ((ASTNode)elseBody).accept(this, context);
                 instructions.addAll(elseResult.getInstructions());
+                elseProducesValue = elseResult.isExpressionValue();
             }
         }
         else {
             // No else body - push null as result
             instructions.add(new ConstInstruction(errorReporter, null, null));
+            elseProducesValue = true; // ConstInstruction produces a value
         }
-        
+
         // Set jump target (end of if-else)
         jump.setPosition(instructions.size() - thenStart - 1); // -1 because jump was at thenStart position
-        
-        return new GenerationResult(instructions, false, 0);
+
+        // If the if node produces a value (when used as an expression)
+        boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
+        int stackDelta = isExpressionValue ? 1 : 0;
+
+        return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
     @Override
@@ -790,7 +807,35 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         ConstInstruction instruction = new ConstInstruction(errorReporter, node.getValue(), null);
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
-    
+
+    @Override
+    public GenerationResult visit(InterpolatedStringNode node, GenerationContext context)
+        throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate instructions for each segment
+        List<Object> segments = node.getSegments();
+        for (Object segment : segments) {
+            if (segment instanceof String) {
+                // Static text segment - push constant
+                ConstInstruction instruction = new ConstInstruction(errorReporter, segment, null);
+                instructions.add(instruction);
+            }
+            else if (segment instanceof ExpressionNode) {
+                // Expression segment - generate expression instructions
+                ExpressionNode expr = (ExpressionNode) segment;
+                GenerationResult result = ((ASTNode)expr).accept(this, context);
+                instructions.addAll(result.getInstructions());
+            }
+        }
+
+        // Add StringJoinInstruction to join all segments
+        instructions.add(new StringJoinInstruction(errorReporter, segments.size()));
+
+        return new GenerationResult(instructions, true, 1);
+    }
+
     @Override
     public GenerationResult visit(IdentifierNode node, GenerationContext context)
         throws Exception {

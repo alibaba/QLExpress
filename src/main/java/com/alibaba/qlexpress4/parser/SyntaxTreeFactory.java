@@ -73,9 +73,9 @@ public class SyntaxTreeFactory {
                 .orElse(""));
         }
         
-        // Create parser with the operator manager
-        QLexpressParser parser = new QLexpressParser(tokens, operatorManager);
-        
+        // Create parser with the operator manager and interpolation mode
+        QLexpressParser parser = new QLexpressParser(tokens, operatorManager, interpolationMode);
+
         // Parse the program
         ProgramNode programNode = parser.parseProgram();
         

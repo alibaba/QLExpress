@@ -527,16 +527,28 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         throws Exception {
         return null;
     }
-    
+
+    @Override
+    public Void visit(InterpolatedStringNode node, Context context)
+        throws Exception {
+        // Visit each expression segment in the interpolated string
+        for (Object segment : node.getSegments()) {
+            if (segment instanceof ExpressionNode) {
+                visitExpression((ExpressionNode) segment, context);
+            }
+        }
+        return null;
+    }
+
     // ==================== Helper Methods ====================
-    
+
     private void visitExpression(Node node, Context context)
         throws Exception {
         if (node instanceof ExpressionNode) {
             ((ASTNode)node).accept(this, context);
         }
     }
-    
+
     private void visitNode(Node node, Context context)
         throws Exception {
         if (node instanceof ASTNode) {

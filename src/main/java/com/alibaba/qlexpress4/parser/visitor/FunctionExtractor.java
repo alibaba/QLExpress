@@ -262,7 +262,19 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         throws Exception {
         return null;
     }
-    
+
+    @Override
+    public Void visit(InterpolatedStringNode node, Context context)
+        throws Exception {
+        // Visit each expression segment in the interpolated string
+        for (Object segment : node.getSegments()) {
+            if (segment instanceof ExpressionNode) {
+                visitExpression((ExpressionNode) segment, context);
+            }
+        }
+        return null;
+    }
+
     @Override
     public Void visit(IdentifierNode node, Context context)
         throws Exception {
