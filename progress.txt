@@ -775,3 +775,33 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
   - The testsuite still has failures related to avoidNullPointer option and other features
   - Some tests that pass in main branch fail in remove_antlr4, indicating behavioral differences remain
   - The fix handles the immediate ArrayIndexOutOfBoundsException but other issues remain
+
+## [Sat Feb 22 10:30:00 AM CST 2026] - US-030 (Switch Statement Fix)
+- Rewrote SwitchNode instruction generation to use two-pass approach like ANTLR version
+- Group consecutive fallthrough cases (case 10: case 9: { body }) into CaseGroups
+- Fixed jump position calculation to use relative offsets correctly
+- First pass generates all comparison instructions for all cases
+- Second pass generates case bodies and fixes up jump targets
+- Handles both regular cases and default case correctly
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - 143 insertions, 128 deletions)
+  - prd.json (modified - updated US-030 notes)
+- Typecheck passes (mvn compile)
+- Simple switch tests pass
+- Function definitions containing switch statements work correctly
+- **Learnings for future iterations:**
+  - The ANTLR-based switch implementation uses a two-pass approach which is cleaner
+  - First pass: generate all comparisons and collect metadata about cases
+  - Second pass: generate case bodies and fix up jump targets
+  - Jump positions in QVM are relative offsets: position = targetPos - jumpPos - 1
+  - For fallthrough cases, group them into CaseGroups where one group can have multiple conditions sharing one body
+  - JumpIfPopInstruction with expect=true jumps if the comparison result is true
+  - The jump to default/end instruction is created before generating case bodies
+  - Case bodies that end with fallthrough should not generate jump to end (only cases with explicit break or return)
+  - The switch statement needs to track break targets to fix up their jump positions
+  - The `inSwitch` context property is used by BreakNode to determine if it should generate a jump instruction
+  - Functions defined after certain statements (like assert) may have scope issues that need investigation
+  - The avoidNullPointer option tests fail - unrelated to switch statement fix
+  - There are remaining testsuite failures that need investigation before US-030 can be marked complete
+
+---
