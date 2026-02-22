@@ -883,3 +883,34 @@ REMAINING ISSUES FOR US-030:
 - SELECTOR_START parsing issue - custom selector syntax not working
 - More testsuite tests may have issues that need investigation
 ---
+
+## [Sat Feb 22 04:15:00 PM CST 2026] - US-030 (Type Resolution Fix)
+- Added type resolution for for-each loops and variable declarations
+- Created resolveType() helper method in InstructionGenerator
+- Uses BuiltInTypesSet.getCls() for primitive types (int, long, etc.)
+- Uses ImportManager.loadPartQualified() for class types
+- FOR_EACH_TYPE_MISMATCH test now passes correctly
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added resolveType method, updated generateForEachInstruction and visit(VariableDeclarationNode))
+  - prd.json (updated notes)
+- Typecheck passes (mvn compile)
+- All 51 parser package tests pass
+- All 50 InstructionGenerator tests pass
+- for_each_invalid_type.ql now correctly throws FOR_EACH_TYPE_MISMATCH
+- **Learnings for future iterations:**
+  - The ForEachInstruction takes a Class<?> parameter (itCls) for type checking during iteration
+  - ForEachInstruction catches UserDefineException and throws FOR_EACH_TYPE_MISMATCH when the type doesn't match
+  - VariableDeclarationNode.getTypeName() returns the type name as a String (e.g., "int", "String", "java.util.List")
+  - The ANTLR version uses parseDeclType() to resolve type names to Class<?> objects
+  - BuiltInTypesSet.getCls() maps primitive type names to their wrapper classes (int -> Integer.class)
+  - ImportManager.loadPartQualified() resolves qualified class names (e.g., "java.util.List" -> List.class)
+  - The c_for.ql test has a pre-existing runtime error (NPE in MapItemValue) that also occurs on main branch
+  - This is unrelated to the parser changes and needs separate investigation
+
+REMAINING ISSUES FOR US-030:
+- c_for.ql has pre-existing runtime error (also on main branch - NPE in MapItemValue at map.get(key))
+- DEFAULT keyword parsing issue - can't be used as variable name in expressions
+- IMPORT keyword parsing issue - import statements not working correctly
+- SELECTOR_START parsing issue - custom selector syntax not working
+- Several Express4RunnerTest tests fail with syntax errors (SELECTOR_START, IMPORT, BIT_AND, GT)
+---
