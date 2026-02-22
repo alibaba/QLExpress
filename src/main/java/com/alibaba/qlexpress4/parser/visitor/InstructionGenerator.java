@@ -946,9 +946,31 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
 
-        // Generate target expression
-        GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
-        instructions.addAll(targetResult.getInstructions());
+        // Check if this is a static field access on a class
+        // For example: TestPluginInterface.TEST_CONSTANT where TestPluginInterface is an imported class
+        if (node.getTarget() instanceof IdentifierNode && importManager != null) {
+            IdentifierNode targetId = (IdentifierNode)node.getTarget();
+            List<String> ids = new ArrayList<>();
+            ids.add(targetId.getName());
+
+            // Check if this single identifier can be resolved to a class
+            ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
+            if (result.getCls() != null && result.getRestIndex() == 1) {
+                // This is a class reference - generate MetaClass const instruction
+                ErrorReporter errorReporter = createErrorReporter(targetId);
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), null));
+            }
+            else {
+                // Not a class - generate load instruction
+                GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+                instructions.addAll(targetResult.getInstructions());
+            }
+        }
+        else {
+            // Generate target expression
+            GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+            instructions.addAll(targetResult.getInstructions());
+        }
 
         // Generate get field instruction
         ErrorReporter errorReporter = createErrorReporter(node);

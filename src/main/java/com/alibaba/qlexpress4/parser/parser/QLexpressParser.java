@@ -1106,6 +1106,9 @@ public class QLexpressParser {
      * <p>
      * Selector expressions are used for string interpolation with custom selectors.
      * The content inside the selector is treated as a variable name (identifier), even if it's a number.
+     * <p>
+     * The SELECTOR_START token value contains the full selector expression including the
+     * variable content (e.g., "${/a/aa}" or "${var}"). We extract the variable name from it.
      *
      * @return the IdentifierNode for the selector variable
      * @throws ParseException if parsing fails
@@ -1113,49 +1116,77 @@ public class QLexpressParser {
     private ExpressionNode parseSelectorStart()
         throws ParseException {
         Token selectorStart = expect(TokenType.SELECTOR_START);
-        // The next token should be the selector variable name
-        // It's typically an identifier, but can also be a number (like #[0])
-        Token next = peek();
-        if (next == null) {
+        String selectorValue = selectorStart.getValue();
+
+        if (selectorValue == null || selectorValue.isEmpty()) {
             throw error("Expected variable name after selector start");
         }
 
-        String variableName;
         int line = selectorStart.getLine();
         int column = selectorStart.getColumn();
         String source = selectorStart.getSource();
 
-        // Get the variable name from the next token
-        switch (next.getType()) {
-            case ID:
-                variableName = consume().getValue();
-                break;
-            case INTEGER_LITERAL:
-            case INTEGER_OR_FLOATING_LITERAL:
-            case FLOATING_POINT_LITERAL:
-                // Numbers inside selectors are treated as variable names
-                variableName = consume().getValue();
-                break;
-            case QUOTE_STRING_LITERAL:
-            case DOUBLE_QUOTE:
-                // String literals - use the value without quotes
-                Token strToken = consume();
-                variableName = strToken.getValue();
-                if (variableName != null && variableName.startsWith("'")) {
-                    variableName = variableName.substring(1, variableName.length() - 1);
-                }
-                break;
-            default:
-                throw error("Expected variable name after selector start but found " + next.getType());
-        }
-
-        // Consume the closing delimiter if present (] for #[...] or } for ${...})
-        if (match(TokenType.RBRACK) || match(TokenType.RBRACE)) {
-            consume();
+        // Extract the variable name from the selector expression
+        // Selector value format: "${content}" or "#{content}" or "$[content]" or "#[content]"
+        // We need to extract just the content part
+        String variableName = extractSelectorVariableName(selectorValue);
+        if (variableName == null || variableName.isEmpty()) {
+            throw error("Expected variable name after selector start but found: " + selectorValue);
         }
 
         // Create an identifier node for the variable
         return new IdentifierNode(line, column, source, variableName);
+    }
+
+    /**
+     * Extracts the variable name from a selector expression.
+     * <p>
+     * Examples:
+     * <ul>
+     *   <li>"${var}" -> "var"</li>
+     *   <li>"${/a/aa}" -> "/a/aa"</li>
+     *   <li>"#{0}" -> "0"</li>
+     *   <li>"$[abc]" -> "abc"</li>
+     * </ul>
+     *
+     * @param selectorValue the selector expression (e.g., "${var}")
+     * @return the variable name, or null if extraction fails
+     */
+    private String extractSelectorVariableName(String selectorValue) {
+        if (selectorValue == null || selectorValue.length() < 3) {
+            return null;
+        }
+
+        // Find the selector start (${, #{, $[, #[)
+        String start = null;
+        String end = null;
+
+        if (selectorValue.startsWith("${")) {
+            start = "${";
+            end = "}";
+        } else if (selectorValue.startsWith("#{")) {
+            start = "#{";
+            end = "}";
+        } else if (selectorValue.startsWith("$[")) {
+            start = "$[";
+            end = "]";
+        } else if (selectorValue.startsWith("#[")) {
+            start = "#[";
+            end = "]";
+        }
+
+        if (start == null || !selectorValue.startsWith(start)) {
+            return null;
+        }
+
+        // Check if the selector ends properly
+        if (!selectorValue.endsWith(end)) {
+            // Selector might be unterminated - return what we have
+            return selectorValue.substring(start.length());
+        }
+
+        // Extract the variable name (between start and end)
+        return selectorValue.substring(start.length(), selectorValue.length() - end.length());
     }
 
     // ==================== List Literal Parsing ====================
