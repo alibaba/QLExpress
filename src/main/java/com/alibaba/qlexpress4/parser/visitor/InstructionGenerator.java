@@ -556,37 +556,35 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             for (CatchClauseNode catchClause : catchClauses) {
                 // Resolve exception types
                 List<String> exceptionTypes = catchClause.getExceptionTypes();
-                Class<?> primaryExceptionType = Exception.class; // Default to Exception
-                
+                // Use Object.class to catch all exceptions
+                // When catchObj is null in QLRuntimeException, it's replaced with new Object()
+                Class<?> primaryExceptionType = Object.class;
+
                 if (exceptionTypes != null && !exceptionTypes.isEmpty()) {
                     // TODO: Resolve actual exception types from type names
-                    // For now, use Exception.class as placeholder
-                    primaryExceptionType = Exception.class;
+                    // For now, use Object.class as placeholder
+                    primaryExceptionType = Object.class;
                 }
-                
+
                 // Generate catch body lambda
                 GenerationContext catchContext = context.createChildContext();
                 List<QLInstruction> catchInstructions = new ArrayList<>();
-                
+
                 // The exception variable is passed as a parameter to the lambda
                 String exceptionVarName = catchClause.getVariableName();
-                if (exceptionVarName != null) {
-                    // Define local variable for the exception
-                    catchInstructions.add(new DefineLocalInstruction(errorReporter, exceptionVarName, Throwable.class));
-                }
-                
+
                 // Generate catch body statements
                 if (catchClause.getBody() != null) {
                     GenerationResult catchBodyResult = ((ASTNode)catchClause.getBody()).accept(this, catchContext);
                     catchInstructions.addAll(catchBodyResult.getInstructions());
                 }
-                
+
                 QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(
-                    exceptionVarName != null ? exceptionVarName : "exception", Throwable.class);
+                    exceptionVarName != null ? exceptionVarName : "exception", Object.class);
                 QLambdaDefinitionInner catchLambda =
                     new QLambdaDefinitionInner("catch_" + exceptionVarName + "_" + System.nanoTime(), catchInstructions,
                         Collections.singletonList(param), calculateMaxStack(catchInstructions));
-                
+
                 exceptionTable.add(new java.util.AbstractMap.SimpleEntry<>(primaryExceptionType, catchLambda));
             }
         }
@@ -606,8 +604,9 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Create try-catch instruction
         TryCatchInstruction instruction =
             new TryCatchInstruction(errorReporter, tryLambda, exceptionTable, finallyLambda);
-        
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+
+        // Try-catch can be used as an expression, so it leaves a value on the stack
+        return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
     
     @Override
@@ -853,15 +852,67 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(BinaryOpNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
+        // Special handling for instanceof operator
+        if ("instanceof".equals(node.getOperator())) {
+            // Generate left operand (the object to check)
+            GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
+            instructions.addAll(leftResult.getInstructions());
+
+            // Generate right operand (the class to check against)
+            // For instanceof, the right operand should be a Class<?> object
+            if (node.getRight() instanceof IdentifierNode) {
+                // Simple identifier like "ArrayList" - resolve to class
+                IdentifierNode idNode = (IdentifierNode) node.getRight();
+                String className = idNode.getName();
+                Class<?> clazz = resolveType(className);
+                if (clazz == null && importManager != null) {
+                    // Try to resolve via ImportManager
+                    // First try as a simple class name from java.lang
+                    try {
+                        clazz = Class.forName("java.lang." + className);
+                    } catch (ClassNotFoundException e) {
+                        // Not in java.lang, try importing
+                        ImportManager.LoadPartQualifiedResult result =
+                            importManager.loadPartQualified(java.util.Collections.singletonList(className));
+                        if (result != null && result.getCls() != null) {
+                            clazz = result.getCls();
+                        }
+                    }
+                }
+                if (clazz == null) {
+                    throw new IllegalStateException("Cannot find class: " + className +
+                        " for instanceof operator at line " + node.getLine());
+                }
+                ErrorReporter errorReporter = createErrorReporter(idNode);
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(clazz), null));
+            } else {
+                // Complex expression - generate normally (will likely fail at runtime)
+                GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
+                instructions.addAll(rightResult.getInstructions());
+            }
+
+            // Generate instanceof operator instruction
+            ErrorReporter errorReporter = createErrorReporter(node);
+            BinaryOperator operator = operatorManager.getBinaryOperator("instanceof");
+            if (operator == null) {
+                throw new UnsupportedOperationException("instanceof operator not found");
+            }
+            OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, null);
+            instructions.add(instruction);
+
+            return new GenerationResult(instructions, true, 1);
+        }
+
+        // Normal binary operator handling
         // Generate left operand
         GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
         instructions.addAll(leftResult.getInstructions());
-        
+
         // Generate right operand
         GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
         instructions.addAll(rightResult.getInstructions());
-        
+
         // Generate operator instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         BinaryOperator operator = operatorManager.getBinaryOperator(node.getOperator());
@@ -870,7 +921,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, null);
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
     
