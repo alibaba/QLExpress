@@ -3,7 +3,7 @@ package com.alibaba.qlexpress4.parser.ast;
 import java.util.List;
 import java.util.Collections;
 
-public class SwitchNode extends ASTNode implements StatementNode {
+public class SwitchNode extends ASTNode implements ExpressionNode {
     private final ExpressionNode value;
     
     private final List<SwitchCaseNode> cases;

@@ -128,12 +128,12 @@ public class QLexpressParser {
         if (current == null) {
             throw error("Unexpected end of input, expected expression");
         }
-        
+
         // Check for lambda expression first (can start with ID or LPAREN)
         if (shouldParseLambda()) {
             return parseLambda();
         }
-        
+
         switch (current.getType()) {
             case INTEGER_LITERAL:
             case FLOATING_POINT_LITERAL:
@@ -144,16 +144,16 @@ public class QLexpressParser {
             case FALSE:
             case NULL:
                 return parseLiteral();
-            
+
             case ID:
                 return parsePrimaryWithIdentifier();
-            
+
             case LPAREN:
                 return parseParenthesizedOrCast();
-            
+
             case NEW:
                 return parseConstructorCall();
-            
+
             case BYTE:
             case SHORT:
             case INT:
@@ -163,13 +163,23 @@ public class QLexpressParser {
             case CHAR:
             case BOOLEAN:
                 return parseTypeLiteral();
-            
+
             case LBRACK:
                 return parseListLiteral();
-            
+
             case LBRACE:
                 return parseBraceExpression();
-            
+
+            // These statements can also be used as expressions in QLExpress
+            case TRY:
+                return parseTryCatch();
+
+            case IF:
+                return parseIf();
+
+            case SWITCH:
+                return parseSwitch();
+
             default:
                 throw error("Expected expression but found " + current.getType());
         }
@@ -1726,58 +1736,77 @@ public class QLexpressParser {
         throws ParseException {
         Token tryToken = expect(TokenType.TRY);
         skipNewlines();
-        
+
         BlockNode tryBlock = parseBlock();
         skipNewlines();
-        
+
         List<CatchClauseNode> catchClauses = new ArrayList<>();
-        
+
         while (match(TokenType.CATCH)) {
             Token catchToken = consume();
             skipNewlines();
-            
+
             expect(TokenType.LPAREN);
             skipNewlines();
-            
+
             // Parse catch parameter types and variable name
-            // Format: (type1 | type2 | ... varName)
+            // Format: (type1 | type2 | ... varName) or (varName)
             List<String> exceptionTypes = new ArrayList<>();
-            
-            while (true) {
-                String typeName = parseQualifiedTypeName();
-                exceptionTypes.add(typeName);
-                skipNewlines();
-                
-                // Check for union types (|)
-                if (match(TokenType.BIT_OR)) {
-                    consume();
+            String varName;
+
+            // Check if we have types or just a variable name
+            // Use lookahead: if current is type keyword/ID and next is ID followed by | or RPAREN, we have types
+            Token current = peek();
+            Token next = peek(1);
+            Token afterNext = peek(2);
+
+            if (current != null && next != null &&
+                (current.getType() == TokenType.ID || isTypeKeywordToken(current.getType())) &&
+                next.getType() == TokenType.ID &&
+                (afterNext == null || afterNext.getType() == TokenType.BIT_OR || afterNext.getType() == TokenType.RPAREN)) {
+                // We have types: type1 | type2 | ... varName
+                while (true) {
+                    String typeName = parseQualifiedTypeName();
+                    exceptionTypes.add(typeName);
                     skipNewlines();
+
+                    // Check for union types (|)
+                    if (match(TokenType.BIT_OR)) {
+                        consume();
+                        skipNewlines();
+                    }
+                    else {
+                        break;
+                    }
                 }
-                else {
-                    break;
-                }
+
+                // Variable name
+                varName = expect(TokenType.ID).getValue();
             }
-            
-            // Variable name
-            String varName = expect(TokenType.ID).getValue();
+            else {
+                // Just a variable name without types
+                Token varToken = expect(TokenType.ID);
+                varName = varToken.getValue();
+            }
+
             skipNewlines();
-            
+
             expect(TokenType.RPAREN);
             skipNewlines();
-            
+
             BlockNode catchBlock = parseBlock();
             skipNewlines();
-            
+
             catchClauses.add(new CatchClauseNode(exceptionTypes, varName, catchBlock));
         }
-        
+
         BlockNode finallyBlock = null;
         if (match(TokenType.FINALLY)) {
             consume();
             skipNewlines();
             finallyBlock = parseBlock();
         }
-        
+
         return new TryCatchNode(tryToken.getLine(), tryToken.getColumn(), tryToken.getSource(), tryBlock, catchClauses,
             finallyBlock);
     }

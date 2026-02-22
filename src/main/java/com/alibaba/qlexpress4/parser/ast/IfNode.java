@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.parser.ast;
 
-public class IfNode extends ASTNode implements StatementNode {
+public class IfNode extends ASTNode implements ExpressionNode {
     private final ExpressionNode condition;
     
     private final Node thenBody;

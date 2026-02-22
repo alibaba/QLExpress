@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.parser.ast;
 
 import java.util.List;
 
-public class TryCatchNode extends ASTNode implements StatementNode {
+public class TryCatchNode extends ASTNode implements ExpressionNode {
     private final BlockNode tryBlock;
     
     private final List<CatchClauseNode> catchClauses;
