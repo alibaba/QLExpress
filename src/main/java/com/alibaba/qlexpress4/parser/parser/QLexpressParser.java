@@ -1446,13 +1446,8 @@ public class QLexpressParser {
                 // Fall through to expression parsing
                 return parseExpressionStatement();
             case FUNCTION:
-                // FUNCTION can be used as an identifier or as a function definition
-                // Check if followed by LPAREN to determine which
-                if (peek(1) != null && peek(1).getType() == TokenType.LPAREN) {
-                    return parseFunctionDefinition();
-                }
-                // Fall through to expression parsing
-                return parseExpressionStatement();
+                // FUNCTION keyword always starts a function definition in QLExpress
+                return parseFunctionDefinition();
             case MACRO:
                 return parseMacroDefinition();
             case IMPORT:

@@ -979,3 +979,27 @@ REMAINING ISSUES FOR US-030:
 - switch_fallthrough.ql has issues with function definitions
 - InterpolationTest, disableShortCircuitTest, and others fail
 ---
+
+## [Sun Feb 23 01:26:00 AM CST 2026] - US-030 (For Loop, While Loop, Function Definition Fixes)
+- Fixed for loop instruction generation - added ReturnInstruction to condition lambdas
+- Fixed while loop instruction generation - changed from CONTINUE to RETURN result type
+- Fixed function definition parsing - FUNCTION keyword now always starts a function definition
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added ReturnInstruction to for/while condition lambdas)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (fixed FUNCTION keyword handling)
+  - src/test/java/com/alibaba/qlexpress4/ForLoopTest.java (fixed InitOptions constructor usage)
+  - prd.json (updated notes)
+- Typecheck passes (mvn compile)
+- Tests pass: 20/24 testsuite tests (83% pass rate)
+- **Learnings for future iterations:**
+  - For loop and while loop condition lambdas need ReturnInstruction to properly return the Boolean value
+  - The ANTLR version uses parseExprBodyWithSubVisitor with Context.BLOCK which adds ReturnInstruction
+  - Without ReturnInstruction, the lambda doesn't properly return the value from the stack
+  - The result type should be QResult.ResultType.RETURN, not CONTINUE
+  - FUNCTION keyword should always start a function definition, not check for LPAREN
+  - The function definition format is: FUNCTION name(params) { body }, not FUNCTION(params) { body }
+  - String interpolation (dynamic_string.ql) is a complex feature that requires special lexer handling
+
+REMAINING ISSUES FOR US-030:
+- dynamic_string.ql fails - string interpolation with ${} syntax needs special lexer/parser handling
+---

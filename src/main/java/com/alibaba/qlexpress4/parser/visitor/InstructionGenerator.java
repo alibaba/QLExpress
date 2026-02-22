@@ -153,17 +153,17 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(WhileNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Generate condition lambda
         GenerationContext conditionContext = context.createChildContext();
         List<QLInstruction> conditionInstructions = new ArrayList<>();
         GenerationResult conditionResult = ((ASTNode)node.getCondition()).accept(this, conditionContext);
         conditionInstructions.addAll(conditionResult.getInstructions());
-        // Add return instruction to return condition value
-        conditionInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+        // Add return instruction to properly return condition value from lambda
+        conditionInstructions.add(new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()), QResult.ResultType.RETURN, null));
         QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner("while_condition_" + System.nanoTime(),
             conditionInstructions, Collections.emptyList(), calculateMaxStack(conditionInstructions));
-        
+
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
@@ -173,13 +173,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner("while_body_" + System.nanoTime(),
             bodyInstructions, Collections.emptyList(), calculateMaxStack(bodyInstructions));
-        
+
         // Calculate max stack size
         int maxStackSize = Math.max(conditionLambda.getMaxStackSize(), bodyLambda.getMaxStackSize());
-        
+
         // Create while instruction
         WhileInstruction instruction = new WhileInstruction(errorReporter, conditionLambda, bodyLambda, maxStackSize);
-        
+
         return new GenerationResult(Collections.singletonList(instruction), false, 0);
     }
     
@@ -254,13 +254,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> initInstructions = new ArrayList<>();
             GenerationResult initResult = ((ASTNode)init).accept(this, initContext);
             initInstructions.addAll(initResult.getInstructions());
-            // No ReturnInstruction needed for init - it's executed for side effects
+            // Init doesn't need explicit ReturnInstruction - value is discarded
             initLambda = new QLambdaDefinitionInner("for_init_" + System.nanoTime(), initInstructions,
                 Collections.emptyList(), calculateMaxStack(initInstructions));
         }
 
         // Generate condition lambda (if present)
-        // Condition leaves a Boolean value on the stack - no ReturnInstruction needed
+        // Condition leaves a Boolean value on the stack - MUST add ReturnInstruction for proper return
         QLambdaDefinitionInner conditionLambda = null;
         ExpressionNode condition = node.getCondition();
         if (condition != null) {
@@ -268,7 +268,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> conditionInstructions = new ArrayList<>();
             GenerationResult conditionResult = ((ASTNode)condition).accept(this, conditionContext);
             conditionInstructions.addAll(conditionResult.getInstructions());
-            // No ReturnInstruction needed - the result is left on the stack
+            // Add ReturnInstruction to properly return the condition result from the lambda
+            conditionInstructions.add(new ReturnInstruction(createErrorReporter((ASTNode)condition), QResult.ResultType.RETURN, null));
             conditionLambda = new QLambdaDefinitionInner("for_condition_" + System.nanoTime(), conditionInstructions,
                 Collections.emptyList(), calculateMaxStack(conditionInstructions));
         }
@@ -282,7 +283,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             List<QLInstruction> updateInstructions = new ArrayList<>();
             GenerationResult updateResult = ((ASTNode)update).accept(this, updateContext);
             updateInstructions.addAll(updateResult.getInstructions());
-            // No ReturnInstruction needed for update - it's executed for side effects
+            // Update doesn't need explicit ReturnInstruction - value is discarded
             updateLambda = new QLambdaDefinitionInner("for_update_" + System.nanoTime(), updateInstructions,
                 Collections.emptyList(), calculateMaxStack(updateInstructions));
         }
