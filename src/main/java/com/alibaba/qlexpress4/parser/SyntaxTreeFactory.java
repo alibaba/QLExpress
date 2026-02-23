@@ -75,7 +75,7 @@ public class SyntaxTreeFactory {
         
         // Create parser with the operator manager and interpolation mode
         QLexpressParser parser = new QLexpressParser(tokens, operatorManager, interpolationMode);
-
+        
         // Parse the program
         ProgramNode programNode = parser.parseProgram();
         

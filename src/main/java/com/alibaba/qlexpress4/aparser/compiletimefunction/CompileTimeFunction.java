@@ -21,7 +21,7 @@ import com.alibaba.qlexpress4.common.OperatorFactory;
  */
 @Deprecated
 public interface CompileTimeFunction {
-
+    
     /**
      * Create instructions for function at compile time.
      *
@@ -31,7 +31,7 @@ public interface CompileTimeFunction {
      * @param codeGenerator tool for code generation (currently not supported)
      * @throws UnsupportedOperationException always - feature not yet migrated
      */
-    void createFunctionInstruction(String functionName, Object arguments,
-        OperatorFactory operatorFactory, Object codeGenerator);
-
+    void createFunctionInstruction(String functionName, Object arguments, OperatorFactory operatorFactory,
+        Object codeGenerator);
+    
 }

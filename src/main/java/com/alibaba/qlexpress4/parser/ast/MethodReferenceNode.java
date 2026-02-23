@@ -8,20 +8,21 @@ package com.alibaba.qlexpress4.parser.ast;
  */
 public class MethodReferenceNode extends ASTNode implements ExpressionNode {
     private final ExpressionNode target;
+    
     private final String methodName;
-
+    
     public MethodReferenceNode(int line, int column, String source, ExpressionNode target, String methodName) {
         super(line, column, source);
         this.target = target;
         this.methodName = methodName;
     }
-
+    
     @Override
     public <R, C> R accept(ASTVisitor<R, C> visitor, C context)
         throws Exception {
         return visitor.visit(this, context);
     }
-
+    
     /**
      * Get the target object expression (left side of ::).
      * For example, in "obj::method", this is the expression for "obj".
@@ -29,7 +30,7 @@ public class MethodReferenceNode extends ASTNode implements ExpressionNode {
     public ExpressionNode getTarget() {
         return target;
     }
-
+    
     /**
      * Get the method name being referenced (right side of ::).
      * For example, in "obj::method", this is "method".

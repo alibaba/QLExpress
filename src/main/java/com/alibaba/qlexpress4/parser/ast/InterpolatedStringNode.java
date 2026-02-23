@@ -20,23 +20,23 @@ import java.util.ArrayList;
  */
 public class InterpolatedStringNode extends ASTNode implements ExpressionNode {
     private final List<Object> segments;
-
+    
     public InterpolatedStringNode(int line, int column, String source) {
         super(line, column, source);
         this.segments = new ArrayList<>();
     }
-
+    
     public InterpolatedStringNode(int line, int column, String source, List<Object> segments) {
         super(line, column, source);
         this.segments = segments != null ? segments : new ArrayList<>();
     }
-
+    
     @Override
     public <R, C> R accept(ASTVisitor<R, C> visitor, C context)
         throws Exception {
         return visitor.visit(this, context);
     }
-
+    
     /**
      * Adds a segment to this interpolated string.
      *
@@ -45,7 +45,7 @@ public class InterpolatedStringNode extends ASTNode implements ExpressionNode {
     public void addSegment(Object segment) {
         segments.add(segment);
     }
-
+    
     /**
      * Returns the list of segments in this interpolated string.
      *
@@ -54,7 +54,7 @@ public class InterpolatedStringNode extends ASTNode implements ExpressionNode {
     public List<Object> getSegments() {
         return segments;
     }
-
+    
     /**
      * Returns the number of segments in this interpolated string.
      *

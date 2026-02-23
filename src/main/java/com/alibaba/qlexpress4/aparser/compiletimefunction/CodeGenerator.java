@@ -21,17 +21,16 @@ import java.util.List;
  */
 @Deprecated
 public interface CodeGenerator {
-
+    
     void addInstruction(QLInstruction qlInstruction);
-
+    
     void addInstructionsByTree(Object tree);
-
+    
     QLSyntaxException reportParseErr(String errCode, String errReason);
-
-    QLambdaDefinition generateLambdaDefinition(Object expressionContext,
-        List<QLambdaDefinitionInner.Param> params);
-
+    
+    QLambdaDefinition generateLambdaDefinition(Object expressionContext, List<QLambdaDefinitionInner.Param> params);
+    
     ErrorReporter getErrorReporter();
-
+    
     ErrorReporter newReporterWithToken(Object token);
 }

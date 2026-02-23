@@ -11,27 +11,27 @@ import java.util.Map;
  * Author: DQinYuan
  */
 public class ImportManager {
-
+    
     private final ClassSupplier classSupplier;
-
+    
     private final List<QLImport> importedPacks;
-
+    
     private final Map<String, Class<?>> importedClses;
-
+    
     public ImportManager(ClassSupplier classSupplier, List<QLImport> imports) {
         this.classSupplier = classSupplier;
         this.importedPacks = new ArrayList<>();
         this.importedClses = new HashMap<>();
         imports.forEach(this::addImport);
     }
-
+    
     public ImportManager(ClassSupplier classSupplier, List<QLImport> importedPacks,
         Map<String, Class<?>> importedClses) {
         this.classSupplier = classSupplier;
         this.importedPacks = importedPacks;
         this.importedClses = importedClses;
     }
-
+    
     public boolean addImport(QLImport anImport) {
         switch (anImport.getScope()) {
             case PACK:
@@ -53,11 +53,11 @@ public class ImportManager {
                 return false;
         }
     }
-
+    
     public Class<?> loadQualified(String qualifiedCls) {
         return classSupplier.loadCls(qualifiedCls);
     }
-
+    
     public LoadPartQualifiedResult loadPartQualified(List<String> fieldIds) {
         Class<?> qualifiedCls = null;
         List<String> qualifiedPath = null;
@@ -151,7 +151,7 @@ public class ImportManager {
                     break;
             }
         }
-
+        
         switch (state) {
             case continueState:
                 return new LoadPartQualifiedResult(null, 0);
@@ -169,29 +169,29 @@ public class ImportManager {
                 return new LoadPartQualifiedResult(null, 0);
         }
     }
-
+    
     public static class LoadPartQualifiedResult {
         private final Class<?> cls;
-
+        
         /**
          * first no class path field index
          */
         private final int restIndex;
-
+        
         public LoadPartQualifiedResult(Class<?> cls, int restIndex) {
             this.cls = cls;
             this.restIndex = restIndex;
         }
-
+        
         public Class<?> getCls() {
             return cls;
         }
-
+        
         public int getRestIndex() {
             return restIndex;
         }
     }
-
+    
     public enum ImportScope {
         // import java.lang.*;
         PACK,
@@ -202,19 +202,19 @@ public class ImportManager {
         // for Code Obfuscation Use Cases
         ALIAS
     }
-
+    
     public static QLImport importInnerCls(String clsPath) {
         return new QLImport(ImportScope.InnerCls, clsPath);
     }
-
+    
     public static QLImport importPack(String packPath) {
         return new QLImport(ImportScope.PACK, packPath);
     }
-
+    
     public static QLImport importCls(String clsPath) {
         return new QLImport(ImportScope.CLS, clsPath);
     }
-
+    
     public static QLImport importClsAlias(Class<?> cls, String alias) {
         if (cls == null) {
             throw new IllegalArgumentException("Class cannot be null");
@@ -227,40 +227,40 @@ public class ImportManager {
         }
         return new QLImport(cls, alias);
     }
-
+    
     public static class QLImport {
         private final ImportScope scope;
-
+        
         private String target;
-
+        
         private Class<?> cls;
-
+        
         private String alias;
-
+        
         public QLImport(ImportScope scope, String target) {
             this.scope = scope;
             this.target = target;
             this.cls = null;
         }
-
+        
         public QLImport(Class<?> cls, String alias) {
             this.scope = ImportScope.ALIAS;
             this.cls = cls;
             this.alias = alias;
         }
-
+        
         public ImportScope getScope() {
             return scope;
         }
-
+        
         public String getTarget() {
             return target;
         }
-
+        
         public Class<?> getCls() {
             return cls;
         }
-
+        
         public String getAlias() {
             return alias;
         }

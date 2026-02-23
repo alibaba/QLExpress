@@ -38,15 +38,15 @@ import java.util.ArrayList;
  */
 public class QLexpressParser {
     private final List<Token> tokens;
-
+    
     private int position;
-
+    
     private Token lastToken;
-
+    
     private final ParserOperatorManager operatorManager;
-
+    
     private final InterpolationMode interpolationMode;
-
+    
     /**
      * Creates a new parser for the given token stream.
      * Uses default OperatorManager for operator precedence and type resolution.
@@ -56,7 +56,7 @@ public class QLexpressParser {
     public QLexpressParser(List<Token> tokens) {
         this(tokens, new OperatorManager(), InterpolationMode.SCRIPT);
     }
-
+    
     /**
      * Creates a new parser for the given token stream with custom operator manager.
      *
@@ -66,7 +66,7 @@ public class QLexpressParser {
     public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager) {
         this(tokens, operatorManager, InterpolationMode.SCRIPT);
     }
-
+    
     /**
      * Creates a new parser for the given token stream with custom operator manager and interpolation mode.
      *
@@ -74,7 +74,8 @@ public class QLexpressParser {
      * @param operatorManager the operator manager for precedence and type resolution
      * @param interpolationMode the interpolation mode for string processing
      */
-    public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager, InterpolationMode interpolationMode) {
+    public QLexpressParser(List<Token> tokens, ParserOperatorManager operatorManager,
+        InterpolationMode interpolationMode) {
         this.tokens = tokens != null ? tokens : Collections.emptyList();
         this.position = 0;
         this.operatorManager = operatorManager != null ? operatorManager : new OperatorManager();
@@ -144,12 +145,12 @@ public class QLexpressParser {
         if (current == null) {
             throw error("Unexpected end of input, expected expression");
         }
-
+        
         // Check for lambda expression first (can start with ID or LPAREN)
         if (shouldParseLambda()) {
             return parseLambda();
         }
-
+        
         switch (current.getType()) {
             case INTEGER_LITERAL:
             case FLOATING_POINT_LITERAL:
@@ -160,19 +161,19 @@ public class QLexpressParser {
             case FALSE:
             case NULL:
                 return parseLiteral();
-
+            
             case ID:
             case FUNCTION:
             case CASE:
             case DEFAULT:
                 return parsePrimaryWithIdentifier();
-
+            
             case LPAREN:
                 return parseParenthesizedOrCast();
-
+            
             case NEW:
                 return parseConstructorCall();
-
+            
             case BYTE:
             case SHORT:
             case INT:
@@ -182,24 +183,24 @@ public class QLexpressParser {
             case CHAR:
             case BOOLEAN:
                 return parseTypeLiteral();
-
+            
             case LBRACK:
                 return parseListLiteral();
-
+            
             case LBRACE:
                 return parseBraceExpression();
-
+            
             case SELECTOR_START:
                 // Handle custom selector interpolation like ${var} or #{var}
                 return parseSelectorStart();
-
+            
             // These statements can also be used as expressions in QLExpress
             case TRY:
                 return parseTryCatch();
-
+            
             case IF:
                 return parseIf();
-
+            
             case SWITCH:
                 // SWITCH can be used as an identifier or as a switch expression
                 // Check if followed by LPAREN to determine which
@@ -207,7 +208,7 @@ public class QLexpressParser {
                     return parseSwitch();
                 }
                 return parsePrimaryWithIdentifier();
-
+            
             default:
                 throw error("Expected expression but found " + current.getType());
         }
@@ -223,7 +224,7 @@ public class QLexpressParser {
         throws ParseException {
         Token token = consume();
         Object value;
-
+        
         switch (token.getType()) {
             case INTEGER_LITERAL:
                 value = parseIntegerLiteral(token.getValue());
@@ -275,7 +276,7 @@ public class QLexpressParser {
         Token token = expect(TokenType.ID);
         return new IdentifierNode(token.getLine(), token.getColumn(), token.getSource(), token.getValue());
     }
-
+    
     /**
      * Parses an interpolated string (double-quoted string with potential interpolation).
      *
@@ -289,24 +290,24 @@ public class QLexpressParser {
     private ExpressionNode parseInterpolatedString(Token token)
         throws ParseException {
         String content = token.getValue();
-
+        
         // If interpolation is disabled, return a simple literal
         if (interpolationMode == InterpolationMode.DISABLE) {
             return new LiteralNode(token.getLine(), token.getColumn(), token.getSource(), content);
         }
-
+        
         // Check if the string contains any ${...} patterns
         if (!content.contains("${")) {
             // No interpolation, return a simple literal
             return new LiteralNode(token.getLine(), token.getColumn(), token.getSource(), content);
         }
-
+        
         // Parse the interpolated string into segments
         InterpolatedStringNode node = new InterpolatedStringNode(token.getLine(), token.getColumn(), token.getSource());
         parseInterpolatedStringSegments(content, node);
         return node;
     }
-
+    
     /**
      * Parses the content of an interpolated string into segments.
      *
@@ -324,11 +325,11 @@ public class QLexpressParser {
         throws ParseException {
         int pos = 0;
         int length = content.length();
-
+        
         while (pos < length) {
             // Find the next ${ or end of string
             int interpolationStart = findUnescapedDollarBrace(content, pos);
-
+            
             if (interpolationStart == -1) {
                 // No more interpolation, add the rest as static text
                 if (pos < length) {
@@ -337,30 +338,30 @@ public class QLexpressParser {
                 }
                 break;
             }
-
+            
             // Add static text before the interpolation
             if (interpolationStart > pos) {
                 String staticText = content.substring(pos, interpolationStart);
                 node.addSegment(parseStringEscape(staticText));
             }
-
+            
             // Find the matching }
             int interpolationEnd = findMatchingBrace(content, interpolationStart + 2);
             if (interpolationEnd == -1) {
                 throw error("Unterminated string interpolation, missing closing '}'");
             }
-
+            
             // Parse the expression inside ${...}
             String expressionText = content.substring(interpolationStart + 2, interpolationEnd).trim();
-
+            
             if (interpolationMode == InterpolationMode.SCRIPT) {
                 // Parse as a full expression (including if/switch statements)
                 // Create a temporary lexer to tokenize the expression
                 com.alibaba.qlexpress4.parser.lexer.QLexpressLexer tempLexer =
-                    new com.alibaba.qlexpress4.parser.lexer.QLexpressLexer(expressionText, null,
-                        interpolationMode, false, "${", "}");
+                    new com.alibaba.qlexpress4.parser.lexer.QLexpressLexer(expressionText, null, interpolationMode,
+                        false, "${", "}");
                 List<Token> exprTokens = tempLexer.tokenize();
-
+                
                 // Create a temporary parser to parse the expression
                 // Note: We use parseExpression() to parse full expressions including if/switch
                 QLexpressParser tempParser = new QLexpressParser(exprTokens, operatorManager, interpolationMode);
@@ -371,11 +372,11 @@ public class QLexpressParser {
                 // VARIABLE mode - treat as a variable name
                 node.addSegment(new IdentifierNode(node.getLine(), node.getColumn(), node.getSource(), expressionText));
             }
-
+            
             pos = interpolationEnd + 1;
         }
     }
-
+    
     /**
      * Finds the next unescaped ${ in the string.
      *
@@ -390,19 +391,19 @@ public class QLexpressParser {
             if (dollarBracePos == -1) {
                 return -1;
             }
-
+            
             // Check if the $ is escaped
             if (dollarBracePos > 0 && content.charAt(dollarBracePos - 1) == '\\') {
                 // This is an escaped ${, skip it
                 pos = dollarBracePos + 2;
                 continue;
             }
-
+            
             return dollarBracePos;
         }
         return -1;
     }
-
+    
     /**
      * Finds the matching closing brace for a string interpolation expression.
      *
@@ -426,7 +427,7 @@ public class QLexpressParser {
         }
         return -1;
     }
-
+    
     /**
      * Parses escape sequences in a string literal.
      *
@@ -489,7 +490,7 @@ public class QLexpressParser {
         }
         return sb.toString();
     }
-
+    
     /**
      * Parses a parenthesized expression.
      *
@@ -525,22 +526,22 @@ public class QLexpressParser {
         if (value == null || value.isEmpty()) {
             return 0;
         }
-
+        
         value = value.replace("_", ""); // Remove digit separators
-
+        
         // Constants for type detection
         final BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
         final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
         final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
         final BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
-
+        
         // Check for type suffix
         boolean isLong = false;
         if (value.endsWith("l") || value.endsWith("L")) {
             isLong = true;
             value = value.substring(0, value.length() - 1);
         }
-
+        
         // Parse as BigInteger first to handle arbitrarily large numbers
         BigInteger parsedValue;
         if (value.startsWith("0x") || value.startsWith("0X")) {
@@ -559,7 +560,7 @@ public class QLexpressParser {
             // Decimal
             parsedValue = new BigInteger(value);
         }
-
+        
         if (isLong) {
             // With 'l' or 'L' suffix, always return long (or BigInteger if too large)
             if (parsedValue.compareTo(MAX_LONG) > 0 || parsedValue.compareTo(MIN_LONG) < 0) {
@@ -1025,7 +1026,7 @@ public class QLexpressParser {
                     consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-
+                    
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -1036,18 +1037,18 @@ public class QLexpressParser {
                     }
                     else {
                         // Field access - create FieldAccessNode
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
-                            target, member.getValue(), false);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(), target,
+                            member.getValue(), false);
                     }
                     break;
                 }
-
+                
                 case OPTIONAL_CHAINING: {
                     // ?. operator for optional chaining
                     Token opToken = consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-
+                    
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -1060,18 +1061,18 @@ public class QLexpressParser {
                     }
                     else {
                         // Optional field access - create optional FieldAccessNode
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
-                            target, member.getValue(), true);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(), target,
+                            member.getValue(), true);
                     }
                     break;
                 }
-
+                
                 case SPREAD_CHAINING: {
                     // *. operator for spread chaining
                     Token opToken = consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-
+                    
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -1085,12 +1086,12 @@ public class QLexpressParser {
                     else {
                         // Spread field access - TODO: Implement SpreadGetFieldInstruction
                         // For now, create regular FieldAccessNode
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(),
-                            target, member.getValue(), false);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(), target,
+                            member.getValue(), false);
                     }
                     break;
                 }
-
+                
                 case DCOLON: {
                     // :: operator for method reference
                     Token opToken = consume();
@@ -1328,7 +1329,7 @@ public class QLexpressParser {
         String typeName = typeToken.getValue();
         return new TypeNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getSource(), typeName);
     }
-
+    
     /**
      * Parses a selector interpolation expression (e.g., ${var} or #{var} or #[var]).
      * <p>
@@ -1345,15 +1346,15 @@ public class QLexpressParser {
         throws ParseException {
         Token selectorStart = expect(TokenType.SELECTOR_START);
         String selectorValue = selectorStart.getValue();
-
+        
         if (selectorValue == null || selectorValue.isEmpty()) {
             throw error("Expected variable name after selector start");
         }
-
+        
         int line = selectorStart.getLine();
         int column = selectorStart.getColumn();
         String source = selectorStart.getSource();
-
+        
         // Extract the variable name from the selector expression
         // Selector value format: "${content}" or "#{content}" or "$[content]" or "#[content]"
         // We need to extract just the content part
@@ -1361,11 +1362,11 @@ public class QLexpressParser {
         if (variableName == null || variableName.isEmpty()) {
             throw error("Expected variable name after selector start but found: " + selectorValue);
         }
-
+        
         // Create an identifier node for the variable
         return new IdentifierNode(line, column, source, variableName);
     }
-
+    
     /**
      * Extracts the variable name from a selector expression.
      * <p>
@@ -1384,39 +1385,42 @@ public class QLexpressParser {
         if (selectorValue == null || selectorValue.length() < 3) {
             return null;
         }
-
+        
         // Find the selector start (${, #{, $[, #[)
         String start = null;
         String end = null;
-
+        
         if (selectorValue.startsWith("${")) {
             start = "${";
             end = "}";
-        } else if (selectorValue.startsWith("#{")) {
+        }
+        else if (selectorValue.startsWith("#{")) {
             start = "#{";
             end = "}";
-        } else if (selectorValue.startsWith("$[")) {
+        }
+        else if (selectorValue.startsWith("$[")) {
             start = "$[";
             end = "]";
-        } else if (selectorValue.startsWith("#[")) {
+        }
+        else if (selectorValue.startsWith("#[")) {
             start = "#[";
             end = "]";
         }
-
+        
         if (start == null || !selectorValue.startsWith(start)) {
             return null;
         }
-
+        
         // Check if the selector ends properly
         if (!selectorValue.endsWith(end)) {
             // Selector might be unterminated - return what we have
             return selectorValue.substring(start.length());
         }
-
+        
         // Extract the variable name (between start and end)
         return selectorValue.substring(start.length(), selectorValue.length() - end.length());
     }
-
+    
     // ==================== List Literal Parsing ====================
     
     /**
@@ -1431,7 +1435,7 @@ public class QLexpressParser {
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-
+        
         List<ExpressionNode> elements = new ArrayList<>();
         if (!match(TokenType.RBRACK)) {
             elements.add(parseExpression());
@@ -1443,9 +1447,9 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-
+        
         expect(TokenType.RBRACK);
-
+        
         return new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
     }
     
@@ -1501,21 +1505,21 @@ public class QLexpressParser {
         throws ParseException {
         // LBRACE already consumed
         skipNewlines();
-
+        
         // Check for empty map (single :)
         if (match(TokenType.COLON)) {
-            consume();  // Consume the COLON token
+            consume(); // Consume the COLON token
             skipNewlines();
             expect(TokenType.RBRACE);
             return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(),
                 Collections.emptyList());
         }
-
+        
         // Parse map entries
         List<MapEntryNode> entries = new ArrayList<>();
         while (!match(TokenType.RBRACE)) {
             skipNewlines();
-
+            
             // Parse map key
             ExpressionNode key = parseMapKey();
             skipNewlines();
@@ -1721,7 +1725,7 @@ public class QLexpressParser {
                 return parseExpressionStatement();
         }
     }
-
+    
     /**
      * Parses an expression statement.
      * Expression statements have the form: expression [;]
@@ -1729,7 +1733,8 @@ public class QLexpressParser {
      * @return the expression node
      * @throws ParseException if parsing fails
      */
-    private StatementNode parseExpressionStatement() throws ParseException {
+    private StatementNode parseExpressionStatement()
+        throws ParseException {
         ExpressionNode expr = parseExpression();
         // Check for statement terminator
         skipNewlines();
@@ -2100,40 +2105,40 @@ public class QLexpressParser {
         throws ParseException {
         Token tryToken = expect(TokenType.TRY);
         skipNewlines();
-
+        
         BlockNode tryBlock = parseBlock();
         skipNewlines();
-
+        
         List<CatchClauseNode> catchClauses = new ArrayList<>();
-
+        
         while (match(TokenType.CATCH)) {
             Token catchToken = consume();
             skipNewlines();
-
+            
             expect(TokenType.LPAREN);
             skipNewlines();
-
+            
             // Parse catch parameter types and variable name
             // Format: (type1 | type2 | ... varName) or (varName)
             List<String> exceptionTypes = new ArrayList<>();
             String varName;
-
+            
             // Check if we have types or just a variable name
             // Use lookahead: if current is type keyword/ID and next is ID followed by | or RPAREN, we have types
             Token current = peek();
             Token next = peek(1);
             Token afterNext = peek(2);
-
-            if (current != null && next != null &&
-                (current.getType() == TokenType.ID || isTypeKeywordToken(current.getType())) &&
-                next.getType() == TokenType.ID &&
-                (afterNext == null || afterNext.getType() == TokenType.BIT_OR || afterNext.getType() == TokenType.RPAREN)) {
+            
+            if (current != null && next != null
+                && (current.getType() == TokenType.ID || isTypeKeywordToken(current.getType()))
+                && next.getType() == TokenType.ID && (afterNext == null || afterNext.getType() == TokenType.BIT_OR
+                    || afterNext.getType() == TokenType.RPAREN)) {
                 // We have types: type1 | type2 | ... varName
                 while (true) {
                     String typeName = parseQualifiedTypeName();
                     exceptionTypes.add(typeName);
                     skipNewlines();
-
+                    
                     // Check for union types (|)
                     if (match(TokenType.BIT_OR)) {
                         consume();
@@ -2143,7 +2148,7 @@ public class QLexpressParser {
                         break;
                     }
                 }
-
+                
                 // Variable name
                 varName = expect(TokenType.ID).getValue();
             }
@@ -2152,25 +2157,25 @@ public class QLexpressParser {
                 Token varToken = expect(TokenType.ID);
                 varName = varToken.getValue();
             }
-
+            
             skipNewlines();
-
+            
             expect(TokenType.RPAREN);
             skipNewlines();
-
+            
             BlockNode catchBlock = parseBlock();
             skipNewlines();
-
+            
             catchClauses.add(new CatchClauseNode(exceptionTypes, varName, catchBlock));
         }
-
+        
         BlockNode finallyBlock = null;
         if (match(TokenType.FINALLY)) {
             consume();
             skipNewlines();
             finallyBlock = parseBlock();
         }
-
+        
         return new TryCatchNode(tryToken.getLine(), tryToken.getColumn(), tryToken.getSource(), tryBlock, catchClauses,
             finallyBlock);
     }
@@ -2334,7 +2339,7 @@ public class QLexpressParser {
         return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(), macroToken.getSource(), macroName,
             body);
     }
-
+    
     /**
      * Parses an import statement.
      * <p>
@@ -2350,20 +2355,20 @@ public class QLexpressParser {
         throws ParseException {
         Token importToken = expect(TokenType.IMPORT);
         skipNewlines();
-
+        
         // Build the import path
         StringBuilder importPath = new StringBuilder();
-
+        
         // Get first identifier (must be present)
         Token firstId = expect(TokenType.ID);
         importPath.append(firstId.getValue());
         skipNewlines();
-
+        
         // Continue with .id or .*
         while (match(TokenType.DOT)) {
             consume(); // Consume DOT
             skipNewlines();
-
+            
             if (match(TokenType.MUL)) {
                 consume(); // Consume MUL (*)
                 // Wildcard import
@@ -2371,13 +2376,13 @@ public class QLexpressParser {
                 return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
                     importPath.toString(), true);
             }
-
+            
             // Regular identifier
             Token id = expect(TokenType.ID);
             importPath.append('.').append(id.getValue());
             skipNewlines();
         }
-
+        
         // Check for .* or .* at end (DOTMUL token handles this)
         if (match(TokenType.DOTMUL)) {
             consume();
@@ -2385,13 +2390,13 @@ public class QLexpressParser {
             return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
                 importPath.toString(), true);
         }
-
+        
         // Regular class import
         expect(TokenType.SEMI);
         return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
             importPath.toString(), false);
     }
-
+    
     /**
      * Parses a variable declaration.
      * <p>
@@ -2756,7 +2761,7 @@ public class QLexpressParser {
         Token current = peek();
         return current != null && current.getType() == type;
     }
-
+    
     /**
      * Checks if the current token can be used as an identifier (varId).
      * In QLExpress, certain keywords can be used as identifiers: FUNCTION, CASE, DEFAULT, SWITCH.
@@ -2769,13 +2774,10 @@ public class QLexpressParser {
             return false;
         }
         TokenType type = current.getType();
-        return type == TokenType.ID
-            || type == TokenType.FUNCTION
-            || type == TokenType.CASE
-            || type == TokenType.DEFAULT
+        return type == TokenType.ID || type == TokenType.FUNCTION || type == TokenType.CASE || type == TokenType.DEFAULT
             || type == TokenType.SWITCH;
     }
-
+    
     /**
      * Checks if the current token can be used as a field identifier (fieldId).
      * In QLExpress, field identifiers include: varId (ID, FUNCTION, CASE, DEFAULT, SWITCH),
@@ -2789,15 +2791,10 @@ public class QLexpressParser {
             return false;
         }
         TokenType type = current.getType();
-        return type == TokenType.ID
-            || type == TokenType.FUNCTION
-            || type == TokenType.CASE
-            || type == TokenType.DEFAULT
-            || type == TokenType.SWITCH
-            || type == TokenType.CLASS
-            || type == TokenType.QUOTE_STRING_LITERAL;
+        return type == TokenType.ID || type == TokenType.FUNCTION || type == TokenType.CASE || type == TokenType.DEFAULT
+            || type == TokenType.SWITCH || type == TokenType.CLASS || type == TokenType.QUOTE_STRING_LITERAL;
     }
-
+    
     /**
      * Consumes a field identifier token.
      * Field identifiers can be: ID, FUNCTION, CASE, DEFAULT, SWITCH, CLASS, QUOTE_STRING_LITERAL.
@@ -2805,14 +2802,15 @@ public class QLexpressParser {
      * @return the field identifier token
      * @throws ParseException if the current token is not a field identifier
      */
-    private Token consumeFieldIdentifier() throws ParseException {
+    private Token consumeFieldIdentifier()
+        throws ParseException {
         Token current = peek();
         if (current == null || !isFieldIdentifierToken()) {
             throw error("Expected field identifier but found " + (current != null ? current.getType() : "EOF"));
         }
         return consume();
     }
-
+    
     /**
      * Returns the last consumed token.
      *

@@ -216,17 +216,17 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     public TracePointTree visit(LiteralNode node, Void context) {
         return newPoint(TraceType.VALUE, Collections.emptyList(), String.valueOf(node.getValue()), node);
     }
-
+    
     @Override
     public TracePointTree visit(InterpolatedStringNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
         // For each segment, generate a trace point
         for (Object segment : node.getSegments()) {
             if (segment instanceof String) {
-                children.add(newPoint(TraceType.VALUE, Collections.emptyList(), (String) segment, node));
+                children.add(newPoint(TraceType.VALUE, Collections.emptyList(), (String)segment, node));
             }
             else if (segment instanceof ExpressionNode) {
-                TracePointTree childTrace = acceptNode((ExpressionNode) segment);
+                TracePointTree childTrace = acceptNode((ExpressionNode)segment);
                 if (childTrace != null) {
                     children.add(childTrace);
                 }
@@ -234,7 +234,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
         }
         return newPoint(TraceType.VALUE, children, "interpolated string", node);
     }
-
+    
     @Override
     public TracePointTree visit(IdentifierNode node, Void context) {
         return newPoint(TraceType.VARIABLE, Collections.emptyList(), node.getName(), node);
@@ -266,34 +266,34 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     public TracePointTree visit(LambdaNode node, Void context) {
         return newPoint(TraceType.PRIMARY, Collections.emptyList(), "->", node);
     }
-
+    
     @Override
     public TracePointTree visit(MethodReferenceNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-
+        
         // Add target
         TracePointTree targetTrace = acceptNode(node.getTarget());
         if (targetTrace != null) {
             children.add(targetTrace);
         }
-
+        
         return newPoint(TraceType.METHOD, children, node.getMethodName() + "::", node);
     }
-
+    
     @Override
     public TracePointTree visit(FieldAccessNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-
+        
         // Add target
         TracePointTree targetTrace = acceptNode(node.getTarget());
         if (targetTrace != null) {
             children.add(targetTrace);
         }
-
+        
         String token = (node.isOptional() ? "?." : ".") + node.getFieldName();
         return newPoint(TraceType.FIELD, children, token, node);
     }
-
+    
     @Override
     public TracePointTree visit(MethodCallNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();

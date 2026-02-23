@@ -555,6 +555,17 @@
       "priority": 33,
       "passes": true,
       "notes": "COMPLETED (2026-02-23):\n\n- Updated README-source.adoc to reflect hand-written recursive descent parser (replaced ANTLR4 references)\n- Updated README-EN-source.adoc with same changes\n- Updated CLAUDE.md with comprehensive new parser architecture documentation\n- Added detailed section 5 describing the new parser architecture, package structure, token types, AST nodes, visitor pattern, and parsing flow\n- Noted that aparser package still exists for backward compatibility\n\nThe documentation now accurately reflects the new hand-written parser while acknowledging the legacy aparser package."
+    },
+    {
+      "id": "US-034",
+      "title": "Fix all failing unit tests",
+      "description": "As a developer, I need all 644 unit tests to pass so that the new hand-written parser is fully production-ready. Currently 52 tests fail (25 failures + 27 errors) across multiple categories.",
+      "acceptanceCriteria": [
+        "All 644 tests pass with mvn test"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": "Current state (2026-02-23): 644 tests total, 592 pass, 25 failures + 27 errors = 52 failing.\n\nFailure categories:\n1. Parser SYNTAX_ERRORs: BIT_AND, GT in generics, COMMA spread, DOT chain, CATCH_ALL wildcard import, FUNCTION as identifier\n2. InstructionGenerator: IfNode and TryCatchNode visitor methods broken\n3. ScriptChecker/OperatorLimit: operator count logic off\n4. Error position reporting: line/column numbers incorrect\n5. Macro support: macro definition/invocation returning null\n6. Function registry: getOutFunctions returning built-ins\n7. Spread operator: list spread not expanding\n8. Number/string literals: edge case parsing\n9. Variable detection: qualified paths (a.b.c) not tracked\n10. Import aliases and static imports\n11. Operator alias/extension functions\n12. Short-circuit evaluation options\n13. Reflection: class fields, default interface methods\n14. Timeout detection\n15. Suite test failures"
     }
   ]
 }

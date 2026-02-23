@@ -137,7 +137,7 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     }
     
     private static final Map<String, Integer> ALIASABLE_KEYWORDS = new HashMap<>();
-
+    
     static {
         // Unique identifiers for keywords (used for aliasing)
         ALIASABLE_KEYWORDS.put("if", 1);

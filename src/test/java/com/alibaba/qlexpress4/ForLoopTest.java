@@ -11,19 +11,21 @@ import java.util.HashMap;
  * Test for for-loop compilation and execution
  */
 public class ForLoopTest {
-
+    
     @Test
-    public void testSimpleForLoop() throws QLException {
+    public void testSimpleForLoop()
+        throws QLException {
         InitOptions initOptions = InitOptions.builder().build();
         Express4Runner runner = new Express4Runner(initOptions);
         String script = "l = []; for (int i = 3; i < 6; i++) { l.add(i); } return l;";
-        QLResult result = runner.execute(script, (ExpressContext) null, QLOptions.builder().build());
+        QLResult result = runner.execute(script, (ExpressContext)null, QLOptions.builder().build());
         assertNotNull(result.getResult());
         System.out.println("Result: " + result.getResult());
     }
-
+    
     @Test
-    public void testEmptyList() throws QLException {
+    public void testEmptyList()
+        throws QLException {
         InitOptions initOptions = InitOptions.builder().build();
         Express4Runner runner = new Express4Runner(initOptions);
         String script = "l = []; return l;";

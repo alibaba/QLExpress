@@ -61,14 +61,15 @@ public class QLambdaInner implements QLambda {
                     return qResult;
             }
         }
-
+        
         // Return the value on top of the stack as the result
         // This handles the case where the program ends with an expression
         // If the stack is empty (no expression result), return NULL_VALUE
         Value resultValue;
         try {
             resultValue = runtime.getCurrentScope().peek();
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
             // Stack is empty - the script didn't leave any value on the stack
             // This happens when the script only has statements like function definitions
             resultValue = Value.NULL_VALUE;

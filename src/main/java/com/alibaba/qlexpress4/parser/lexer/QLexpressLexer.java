@@ -166,7 +166,8 @@ public class QLexpressLexer {
                         || selector.equals("$[") || selector.equals("#[")) {
                         // Read the selector variable content (everything until selector end)
                         String selectorContent = readSelectorVariable(selector);
-                        return new Token(TokenType.SELECTOR_START, selectorContent, tokenStartLine, tokenStartColumn, source);
+                        return new Token(TokenType.SELECTOR_START, selectorContent, tokenStartLine, tokenStartColumn,
+                            source);
                     }
                 }
             }
@@ -1027,38 +1028,39 @@ public class QLexpressLexer {
         // Consume the selector start
         consume(); // $ or #
         consume(); // { or [
-
+        
         StringBuilder sb = new StringBuilder();
         sb.append(selectorStart);
-
+        
         // Determine the selector end based on selector start
         String selectorEnd;
         if (selectorStart.endsWith("{")) {
             selectorEnd = this.selectorEnd != null ? this.selectorEnd : "}";
-        } else { // [ selector
+        }
+        else { // [ selector
             selectorEnd = "]";
         }
-
+        
         // Read until we find the selector end
         int selectorEndLength = selectorEnd.length();
         char lastCharOfSelector = selectorEnd.charAt(selectorEndLength - 1);
         sb.ensureCapacity(selectorEndLength * 2);
-
+        
         while (true) {
             if (position >= input.length()) {
                 // Unterminated selector - error, but return what we have
                 break;
             }
-
+            
             char curCh = peek();
             if (curCh == '\n') {
                 // Unterminated selector - newline before closing
                 break;
             }
-
+            
             sb.append(curCh);
             consume();
-
+            
             if (curCh == lastCharOfSelector && sb.length() >= selectorEndLength) {
                 if (endsWith(sb, selectorEnd)) {
                     // Found the selector end
@@ -1066,21 +1068,21 @@ public class QLexpressLexer {
                 }
             }
         }
-
+        
         return sb.toString();
     }
-
+    
     /**
      * Checks if the StringBuilder ends with the given suffix.
      */
     private boolean endsWith(StringBuilder sb, String suffix) {
         int suffixLength = suffix.length();
         int sbLength = sb.length();
-
+        
         if (sbLength < suffixLength) {
             return false;
         }
-
+        
         for (int i = 0; i < suffixLength; i++) {
             if (sb.charAt(sbLength - suffixLength + i) != suffix.charAt(i)) {
                 return false;
@@ -1088,7 +1090,7 @@ public class QLexpressLexer {
         }
         return true;
     }
-
+    
     /**
      * Resets the lexer for re-tokenization.
      */

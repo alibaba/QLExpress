@@ -233,19 +233,19 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(InterpolatedStringNode node, Void context)
         throws Exception {
         // Visit each expression segment in the interpolated string
         for (Object segment : node.getSegments()) {
             if (segment instanceof ExpressionNode) {
-                visitNode((ExpressionNode) segment, context);
+                visitNode((ExpressionNode)segment, context);
             }
         }
         return null;
     }
-
+    
     @Override
     public Void visit(IdentifierNode node, Void context)
         throws Exception {
@@ -290,21 +290,21 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(MethodReferenceNode node, Void context)
         throws Exception {
         visitNode(node.getTarget(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(FieldAccessNode node, Void context)
         throws Exception {
         visitNode(node.getTarget(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(MethodCallNode node, Void context)
         throws Exception {

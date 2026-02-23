@@ -62,7 +62,8 @@ public class ImportManagerTest {
     public void loadInnerTest() {
         ImportManager importManager =
             new ImportManager(DefaultClassSupplier.getInstance(), new ArrayList<>(), new HashMap<>());
-        importManager.addImport(com.alibaba.qlexpress4.common.ImportManager.importInnerCls("com.alibaba.qlexpress4.aparser.ImportManagerTest"));
+        importManager.addImport(com.alibaba.qlexpress4.common.ImportManager
+            .importInnerCls("com.alibaba.qlexpress4.aparser.ImportManagerTest"));
         ImportManager.LoadPartQualifiedResult result =
             importManager.loadPartQualified(Arrays.asList("TestImportInner", "TestImportInner2"));
         assertEquals(TestImportInner.TestImportInner2.class, result.getCls());
