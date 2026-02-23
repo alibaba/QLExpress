@@ -1213,3 +1213,37 @@ as a separate initiative.
   - The aparser package now only contains the deprecated compiletimefunction subpackage
   - JAR size reduction: antlr4-runtime is ~400KB, so removal reduces final JAR by ~300-400KB
 
+
+## [Mon Feb 23 10:00:00 PM CST 2026] - US-034 (Partial Progress)
+- Fixed COMMA in variable declarations: `int a = 1, b = 10;` now parses correctly
+- Fixed diamond operator parsing: `new HashMap<>()` now parses correctly
+- Added getWriteOnlyVariables() method to VariableDetector
+- parseVariableDeclaration() now returns BlockNode for multiple declarations
+- Updated InstructionGenerator to handle BlockNode in for loop init
+- Added type arguments parsing to parseConstructorCall()
+- Handles LT, GT, NOEQ (<>), RIGHSHIFT (>>), URSHIFT (>>>)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java
+  - src/main/java/com/alibaba/qlexpress4/Express4Runner.java
+- Test status: 644 tests total, 592 pass, 52 failures (same as baseline)
+- **Learnings for future iterations:**
+  - Multiple variable declarations in one statement require returning a BlockNode from parseVariableDeclaration()
+  - For loop init can be BlockNode (multiple declarations) or VariableDeclarationNode (single declaration) or ExpressionNode (expression init)
+  - Diamond operator <> is a special token type (NOEQ) in the lexer
+  - Type arguments in constructor calls can be <Type>, <> (diamond), or nested with >>, >>>
+  - The getOutVarNames() method requires scope-aware tracking to handle variables read in else branches
+  - The OutVarNamesVisitor uses a stack-based approach to track variables as they're written to in different scopes
+  - To properly implement getOutVarNames(), we'd need to replicate the stack-based approach with scope push/pop
+
+REMAINING CRITICAL ISSUES:
+- CATCH_ALL wildcard import not supported (import *)
+- DOT in map literal keys with Chinese comma
+- BIT_AND in expressions
+- GT in generics
+- FUNCTION as identifier
+- Macro support not working
+- getOutFunctions returning built-ins
+- Spread operator not expanding
+- Many other runtime and reflection issues
