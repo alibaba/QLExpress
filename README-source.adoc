@@ -23,7 +23,7 @@ image::https://api.star-history.com/svg?repos=alibaba/QLExpress&type=Date[Star H
 * 解释执行，不占用 JVM 元空间，可以开启缓存提升解释性能
 * 代码精简，依赖最小，适合所有java的运行环境
 
-QLExpress4 作为 QLExpress 的最新演进版本，基于 Antlr4 重写了解析引擎，将原先的优点进一步发扬光大，新增了大量特色功能，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
+QLExpress4 作为 QLExpress 的最新演进版本，采用手写的递归下降解析器重写了解析引擎，移除了对 ANTLR4 的依赖，进一步减小了 JAR 包体积，提升了启动性能。新版本将原先的优点进一步发扬光大，新增了大量特色功能，彻底拥抱函数式编程，在性能和表达能力上都进行了进一步增强。
 
 > 如果项目还是使用旧版本的 QLExpress，可以跳转 link:https://github.com/alibaba/QLExpress/tree/branch_version_3.x.x[branch_version_3.x.x] 维护分支查看旧版文档。如需升级可以参考 link:#附录一-升级指南[附录一-升级指南]
 
@@ -383,13 +383,13 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=pars
 
 注意该缓存的大小是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
 
-=== 清除 DFA 缓存
+=== 清除编译缓存
 
-QLExpress 使用 ANTLR4 作为解析引擎，ANTLR4 在运行时会构建 DFA (确定有限状态自动机) 缓存来加速后续的语法解析。这个缓存会占用一定的内存空间。
+QLExpress 使用手写的递归下降解析器作为解析引擎。编译过程中会产生缓存以提升后续脚本解析的性能。这个缓存会占用一定的内存空间。
 
-在某些内存敏感的场景下，可以通过调用 `clearDFACache` 方法来清除 DFA 缓存，释放内存。
+在某些内存敏感的场景下，可以通过调用 `clearCompileCache` 方法来清除编译缓存，释放内存。
 
-> **重要警告**: 清除 DFA 缓存会导致编译性能大幅下降，正常情况下不建议使用此方法。
+> **重要警告**: 清除编译缓存会导致编译性能大幅下降，正常情况下不建议使用此方法。
 
 ==== 适用场景
 

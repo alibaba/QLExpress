@@ -553,8 +553,8 @@
         "Typecheck passes"
       ],
       "priority": 33,
-      "passes": false,
-      "notes": "READY TO PROCEED: The new parser is functionally complete (US-030 passes). Documentation can be updated to describe the new parser architecture while noting that aparser package still exists for backward compatibility and will be removed in a future refactoring (US-032)."
+      "passes": true,
+      "notes": "COMPLETED (2026-02-23):\n\n- Updated README-source.adoc to reflect hand-written recursive descent parser (replaced ANTLR4 references)\n- Updated README-EN-source.adoc with same changes\n- Updated CLAUDE.md with comprehensive new parser architecture documentation\n- Added detailed section 5 describing the new parser architecture, package structure, token types, AST nodes, visitor pattern, and parsing flow\n- Noted that aparser package still exists for backward compatibility\n\nThe documentation now accurately reflects the new hand-written parser while acknowledging the legacy aparser package."
     }
   ]
 }
