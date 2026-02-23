@@ -366,6 +366,13 @@ public class QLexpressLexer {
                     consume();
                     consume();
                     return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                default:
+                    // Check for OPID patterns (like +&, |*, etc.) that are not explicitly handled
+                    // Only check if both characters are valid OPID characters
+                    if (isOpIdStartChar(ch) && isOpIdChar(twoChar.charAt(1))) {
+                        return readOpId();
+                    }
+                    break;
             }
         }
         
@@ -455,9 +462,14 @@ public class QLexpressLexer {
     /**
      * Checks if a character is a valid continuation character for an OPID.
      * Based on the ANTLR grammar: OpIdItem
+     * Note: OpIdItem does NOT include ADD (+) or SUB (-), only continuation chars
      */
     private boolean isOpIdChar(char ch) {
-        return isOpIdStartChar(ch) || ch == ':' || ch == '<' || ch == '>';
+        // OpIdItem from grammar: CARET, TILDE, BIT_AND, BIT_OR, MUL, MOD, EQ, BANG,
+        //                       LT, GT, DIV, COLON, QUESTION, DOT
+        // Note: ADD (+) and SUB (-) are NOT in OpIdItem, only in OpIdItemStart
+        return ch == '^' || ch == '~' || ch == '&' || ch == '|' || ch == '*' || ch == '%' || ch == '=' || ch == '!'
+            || ch == '<' || ch == '>' || ch == '/' || ch == ':' || ch == '?' || ch == '.';
     }
     
     /**
