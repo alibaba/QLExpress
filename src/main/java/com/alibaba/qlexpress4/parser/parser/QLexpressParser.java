@@ -1173,18 +1173,68 @@ public class QLexpressParser {
         throws ParseException {
         Token newToken = expect(TokenType.NEW);
         skipNewlines();
-        
+
         // Parse type name
         String typeName = parseQualifiedTypeName();
         skipNewlines();
-        
+
+        // Check for type arguments (e.g., <String>, <>, etc.)
+        // The diamond operator <> is a special case
+        if (match(TokenType.LT, TokenType.NOEQ)) {
+            // Skip type arguments - we don't need to parse them for now
+            // NOEQ (<> diamond operator) is a single token
+            if (match(TokenType.NOEQ)) {
+                consume();
+            }
+            else {
+                // LT - need to parse until matching GT
+                consume(); // Consume LT
+                skipNewlines();
+
+                // Parse type argument list (or empty for diamond)
+                int depth = 1;
+                while (depth > 0 && !isEOF()) {
+                    Token current = peek();
+                    if (current == null) {
+                        throw error("Unclosed type arguments");
+                    }
+
+                    if (current.getType() == TokenType.LT) {
+                        depth++;
+                    }
+                    else if (current.getType() == TokenType.GT) {
+                        depth--;
+                    }
+                    // Handle multi-character operators >> and >>>
+                    else if (current.getType() == TokenType.RIGHSHIFT) {
+                        // This is >>, reduce depth by 2
+                        depth -= 2;
+                    }
+                    else if (current.getType() == TokenType.URSHIFT) {
+                        // This is >>>, reduce depth by 3
+                        depth -= 3;
+                    }
+
+                    consume();
+                    skipNewlines();
+
+                    // Check for comma in type argument list
+                    if (depth > 0 && match(TokenType.COMMA)) {
+                        consume();
+                        skipNewlines();
+                    }
+                }
+            }
+            skipNewlines();
+        }
+
         // Check for constructor call with arguments
         if (match(TokenType.LPAREN)) {
             List<ExpressionNode> arguments = parseArgumentList();
             return new ConstructorCallNode(newToken.getLine(), newToken.getColumn(), newToken.getSource(), typeName,
                 arguments);
         }
-        
+
         throw error("Expected '(' after type name in constructor call");
     }
     
@@ -2405,33 +2455,74 @@ public class QLexpressParser {
      * @return the VariableDeclarationNode
      * @throws ParseException if parsing fails
      */
-    private VariableDeclarationNode parseVariableDeclaration()
+    /**
+     * Parses a variable declaration.
+     * <p>
+     * Variable declarations have the form:
+     * type varName [= initializer] [, varName [= initializer]]* [;]
+     * <p>
+     * Multiple variables can be declared in one statement using commas:
+     * int a = 1, b = 10;
+     *
+     * @return a StatementNode (VariableDeclarationNode for single var, BlockNode for multiple)
+     * @throws ParseException if parsing fails
+     */
+    private StatementNode parseVariableDeclaration()
         throws ParseException {
         Token typeToken = peek();
-        
+        int line = typeToken.getLine();
+        int column = typeToken.getColumn();
+        String source = typeToken.getSource();
+
         // Parse type name
         String typeName = parseQualifiedTypeName();
         skipNewlines();
-        
-        // Parse variable name
-        String varName = expect(TokenType.ID).getValue();
-        skipNewlines();
-        
-        // Parse optional initializer
-        ExpressionNode initializer = null;
-        if (match(TokenType.EQ)) {
-            consume();
+
+        // Parse variable declarator(s)
+        List<StatementNode> declarations = new ArrayList<>();
+
+        do {
+            // Parse variable name
+            String varName = expect(TokenType.ID).getValue();
             skipNewlines();
-            initializer = parseExpression();
-        }
-        
+
+            // Parse optional initializer
+            ExpressionNode initializer = null;
+            if (match(TokenType.EQ)) {
+                consume();
+                skipNewlines();
+                initializer = parseExpression();
+            }
+
+            skipNewlines();
+
+            // Create a variable declaration node for this variable
+            declarations.add(new VariableDeclarationNode(line, column, source, typeName, varName, initializer));
+
+            // Check for comma (more variables in the same declaration)
+            if (match(TokenType.COMMA)) {
+                consume();
+                skipNewlines();
+                // Continue to parse next variable
+            } else {
+                break;
+            }
+        } while (true);
+
+        // Consume trailing semicolon if present
         skipNewlines();
         if (match(TokenType.SEMI)) {
             consume();
         }
-        
-        return new VariableDeclarationNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getSource(), typeName,
-            varName, initializer);
+
+        // Return single declaration or block of declarations
+        if (declarations.size() == 1) {
+            return declarations.get(0);
+        } else {
+            // Return a block containing all the declarations
+            // Note: We create an implicit block for multiple declarations in one statement
+            return new BlockNode(line, column, source, declarations);
+        }
     }
     
     // ==================== Unary Operator Parsing ====================

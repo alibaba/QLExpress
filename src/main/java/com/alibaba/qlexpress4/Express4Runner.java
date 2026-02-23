@@ -234,17 +234,29 @@ public class Express4Runner {
         catch (Exception e) {
             throw new RuntimeException("Failed to detect variables", e);
         }
-        
-        // Get all variable reads (external variables are those that are read but not declared)
-        Set<String> allVars = context.getAllVariableNames();
-        
+
+        // Get all variable READS (external variables are those that are read but not declared)
+        Set<String> outVars = new java.util.HashSet<>();
+        for (com.alibaba.qlexpress4.parser.visitor.VariableDetector.VariableAccess read : context
+            .getVariableReads()) {
+            if (read.getType() == com.alibaba.qlexpress4.parser.visitor.VariableDetector.VariableAccessType.READ) {
+                outVars.add(read.getVariableName());
+            }
+        }
+
         // Remove declared variables (local variables)
         for (com.alibaba.qlexpress4.parser.visitor.VariableDetector.VariableDeclaration decl : context
             .getVariableDeclarations()) {
-            allVars.remove(decl.getVariableName());
+            outVars.remove(decl.getVariableName());
         }
-        
-        return allVars;
+
+        // Remove all variables that are written to (they're outputs, not inputs)
+        for (com.alibaba.qlexpress4.parser.visitor.VariableDetector.VariableAccess write : context
+            .getVariableWrites()) {
+            outVars.remove(write.getVariableName());
+        }
+
+        return outVars;
     }
     
     /**
