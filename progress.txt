@@ -1283,3 +1283,30 @@ REMAINING ISSUES FOR US-034:
 - InstructionGenerator tests failing (if/try-catch related)
 - clearDFACacheTest fails because clearDFACache was removed (needs test update)
 - getOutVarAttrs returns empty set (attribute path tracking not implemented)
+
+## [Mon Feb 24 02:10:00 AM CST 2026] - US-034 (Test Fixes)
+- Fixed NPE in QvmGlobalScope.getSymbol() when ExpressContext is null
+  - Added null check before calling externalVariable.get()
+  - This allows scripts to run without an external context
+- Fixed ForLoopTest to use QLSecurityStrategy.open() for Java method calls
+  - StrategyIsolation blocks ALL Java method calls for security
+  - Tests that call Java methods need to use open security strategy
+- Fixed Express4RunnerTest imports (aparser -> common)
+- Fixed ClearDfaCacheTest to handle ParseException
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/runtime/QvmGlobalScope.java
+  - src/test/java/com/alibaba/qlexpress4/ForLoopTest.java
+  - src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java
+  - src/test/java/com/alibaba/qlexpress4/ClearDfaCacheTest.java
+- **Learnings for future iterations:**
+  - QvmGlobalScope.getSymbol() needs null check for externalVariable
+  - StrategyIsolation (default security) blocks all Java reflection including method calls
+  - QLSecurityStrategy.open() allows all Java method calls
+  - Tests that call Java methods must explicitly use open security strategy
+  - The default security strategy is isolation() for security reasons
+  - aparser package was renamed to common package in US-032
+
+REMAINING ISSUES FOR US-034:
+- Many tests still failing (need to run full test suite to get exact count)
+- Some tests may need security strategy changes
+- Some tests may have parser issues with specific syntax patterns
