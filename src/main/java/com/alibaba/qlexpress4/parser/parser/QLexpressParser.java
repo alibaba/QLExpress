@@ -13,8 +13,8 @@ import com.alibaba.qlexpress4.parser.ast.CastNode;
 import com.alibaba.qlexpress4.parser.ast.InstanceOfNode;
 import com.alibaba.qlexpress4.parser.ast.TypeNode;
 import com.alibaba.qlexpress4.parser.ast.ParameterNode;
-import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
-import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.common.ParserOperatorManager;
+import com.alibaba.qlexpress4.common.InterpolationMode;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.QLPrecedences;
 

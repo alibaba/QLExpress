@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.DefaultClassSupplier;
+import com.alibaba.qlexpress4.common.ImportManager;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class ImportManagerTest {
             new ImportManager(DefaultClassSupplier.getInstance(), new ArrayList<>(), new HashMap<>());
         ImportManager.LoadPartQualifiedResult result0 = importManager.loadPartQualified(Arrays.asList("Function"));
         assertNull(result0.getCls());
-        importManager.addImport(ImportManager.importPack("java.util.function"));
+        importManager.addImport(com.alibaba.qlexpress4.common.ImportManager.importPack("java.util.function"));
         
         ImportManager.LoadPartQualifiedResult result1 = importManager.loadPartQualified(Arrays.asList("Function"));
         assertEquals(Function.class, result1.getCls());
@@ -61,7 +62,7 @@ public class ImportManagerTest {
     public void loadInnerTest() {
         ImportManager importManager =
             new ImportManager(DefaultClassSupplier.getInstance(), new ArrayList<>(), new HashMap<>());
-        importManager.addImport(ImportManager.importInnerCls("com.alibaba.qlexpress4.aparser.ImportManagerTest"));
+        importManager.addImport(com.alibaba.qlexpress4.common.ImportManager.importInnerCls("com.alibaba.qlexpress4.aparser.ImportManagerTest"));
         ImportManager.LoadPartQualifiedResult result =
             importManager.loadPartQualified(Arrays.asList("TestImportInner", "TestImportInner2"));
         assertEquals(TestImportInner.TestImportInner2.class, result.getCls());

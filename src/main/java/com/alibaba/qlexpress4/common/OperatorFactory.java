@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.aparser;
+package com.alibaba.qlexpress4.common;
 
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
@@ -7,11 +7,11 @@ import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
  * Author: DQinYuan
  */
 public interface OperatorFactory {
-    
+
     BinaryOperator getBinaryOperator(String operatorLexeme);
-    
+
     UnaryOperator getPrefixUnaryOperator(String operatorLexeme);
-    
+
     UnaryOperator getSuffixUnaryOperator(String operatorLexeme);
-    
+
 }

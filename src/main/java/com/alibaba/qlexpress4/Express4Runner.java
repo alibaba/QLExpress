@@ -1,9 +1,9 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.qlexpress4.aparser.GeneratorScope;
-import com.alibaba.qlexpress4.aparser.ImportManager;
-import com.alibaba.qlexpress4.aparser.MacroDefine;
-import com.alibaba.qlexpress4.aparser.QCompileCache;
+import com.alibaba.qlexpress4.common.GeneratorScope;
+import com.alibaba.qlexpress4.common.ImportManager;
+import com.alibaba.qlexpress4.common.MacroDefine;
+import com.alibaba.qlexpress4.common.QCompileCache;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.parser.ASTCompiler;
 import com.alibaba.qlexpress4.parser.SyntaxTreeFactory;

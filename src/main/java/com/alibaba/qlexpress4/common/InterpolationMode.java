@@ -1,4 +1,4 @@
-package com.alibaba.qlexpress4.aparser;
+package com.alibaba.qlexpress4.common;
 
 /**
  * How to manage string interpolation, for instance, "a ${t-c} b"

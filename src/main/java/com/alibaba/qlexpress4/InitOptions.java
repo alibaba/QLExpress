@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4;
 
-import com.alibaba.qlexpress4.aparser.ImportManager;
-import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.common.ImportManager;
+import com.alibaba.qlexpress4.common.InterpolationMode;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.ArrayList;

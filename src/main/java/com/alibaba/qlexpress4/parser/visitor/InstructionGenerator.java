@@ -1,7 +1,7 @@
 package com.alibaba.qlexpress4.parser.visitor;
 
-import com.alibaba.qlexpress4.aparser.ImportManager;
-import com.alibaba.qlexpress4.aparser.BuiltInTypesSet;
+import com.alibaba.qlexpress4.common.ImportManager;
+import com.alibaba.qlexpress4.common.BuiltInTypesSet;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;

@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.parser;
 
-import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.common.ImportManager;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;
 import com.alibaba.qlexpress4.parser.ast.ASTNode;
 import com.alibaba.qlexpress4.parser.visitor.InstructionGenerator;

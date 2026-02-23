@@ -8,9 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
-import com.alibaba.qlexpress4.aparser.OperatorFactory;
-import com.alibaba.qlexpress4.aparser.ParserOperatorManager;
-import com.alibaba.qlexpress4.aparser.QLexer;
+import com.alibaba.qlexpress4.common.OperatorFactory;
+import com.alibaba.qlexpress4.common.ParserOperatorManager;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.UserDefineException;
 import com.alibaba.qlexpress4.runtime.QRuntime;
@@ -138,22 +137,23 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     }
     
     private static final Map<String, Integer> ALIASABLE_KEYWORDS = new HashMap<>();
-    
+
     static {
-        ALIASABLE_KEYWORDS.put("if", QLexer.IF);
-        ALIASABLE_KEYWORDS.put("then", QLexer.THEN);
-        ALIASABLE_KEYWORDS.put("else", QLexer.ELSE);
-        ALIASABLE_KEYWORDS.put("for", QLexer.FOR);
-        ALIASABLE_KEYWORDS.put("while", QLexer.WHILE);
-        ALIASABLE_KEYWORDS.put("break", QLexer.BREAK);
-        ALIASABLE_KEYWORDS.put("continue", QLexer.CONTINUE);
-        ALIASABLE_KEYWORDS.put("return", QLexer.RETURN);
-        ALIASABLE_KEYWORDS.put("function", QLexer.FUNCTION);
-        ALIASABLE_KEYWORDS.put("macro", QLexer.MACRO);
-        ALIASABLE_KEYWORDS.put("new", QLexer.NEW);
-        ALIASABLE_KEYWORDS.put("null", QLexer.NULL);
-        ALIASABLE_KEYWORDS.put("true", QLexer.TRUE);
-        ALIASABLE_KEYWORDS.put("false", QLexer.FALSE);
+        // Unique identifiers for keywords (used for aliasing)
+        ALIASABLE_KEYWORDS.put("if", 1);
+        ALIASABLE_KEYWORDS.put("then", 2);
+        ALIASABLE_KEYWORDS.put("else", 3);
+        ALIASABLE_KEYWORDS.put("for", 4);
+        ALIASABLE_KEYWORDS.put("while", 5);
+        ALIASABLE_KEYWORDS.put("break", 6);
+        ALIASABLE_KEYWORDS.put("continue", 7);
+        ALIASABLE_KEYWORDS.put("return", 8);
+        ALIASABLE_KEYWORDS.put("function", 9);
+        ALIASABLE_KEYWORDS.put("macro", 10);
+        ALIASABLE_KEYWORDS.put("new", 11);
+        ALIASABLE_KEYWORDS.put("null", 12);
+        ALIASABLE_KEYWORDS.put("true", 13);
+        ALIASABLE_KEYWORDS.put("false", 14);
     }
     
     private final Map<String, BinaryOperator> customBinaryOperatorMap = new ConcurrentHashMap<>();

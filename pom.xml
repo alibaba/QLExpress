@@ -63,11 +63,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.9.3</version>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
@@ -239,45 +234,6 @@
                     <nexusUrl>https://ossrh-staging-api.central.sonatype.com/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.9.3</version>
-                <configuration>
-                    <listener>true</listener>
-                    <visitor>true</visitor>
-                    <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/alibaba/qlexpress4/aparser</outputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- antlr4 默认绑定在 generate-sources 阶段 -->
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.antlr.v4.runtime</pattern>
-                                    <shadedPattern>com.alibaba.qlexpress4.a4runtime</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <!-- JaCoCo plugin -->
             <plugin>

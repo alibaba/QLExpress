@@ -1,6 +1,6 @@
 package com.alibaba.qlexpress4.parser;
 
-import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.common.InterpolationMode;
 import com.alibaba.qlexpress4.parser.lexer.QLexpressLexer;
 import com.alibaba.qlexpress4.parser.parser.QLexpressParser;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;

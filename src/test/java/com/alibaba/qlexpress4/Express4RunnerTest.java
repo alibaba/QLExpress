@@ -2,8 +2,8 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.annotation.QLFunction;
-import com.alibaba.qlexpress4.aparser.ImportManager;
-import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.common.ImportManager;
+import com.alibaba.qlexpress4.common.InterpolationMode;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;

@@ -1,8 +1,25 @@
 lexer grammar QLexer;
 
+// ============================================================================
+// QLExpress Grammar Definition
+// ============================================================================
+//
+// This file contains the lexer grammar definition for the QLExpress language.
+// The grammar was originally used with ANTLR4 to generate a lexer.
+//
+// As of 2026, QLExpress uses a hand-written recursive descent parser
+// (com.alibaba.qlexpress4.parser package) instead of ANTLR4. This grammar
+// file is preserved for documentation and reference purposes.
+//
+// The hand-written lexer implements the same tokenization rules as defined
+// in this grammar. For the actual implementation, see:
+// - com.alibaba.qlexpress4.parser.lexer.QLexpressLexer
+// - com.alibaba.qlexpress4.parser.token.TokenType
+// ============================================================================
+
 @header {
     package com.alibaba.qlexpress4.aparser;
-    import static com.alibaba.qlexpress4.aparser.InterpolationMode.*;
+    import static com.alibaba.qlexpress4.common.InterpolationMode.*;
 }
 
 @members {

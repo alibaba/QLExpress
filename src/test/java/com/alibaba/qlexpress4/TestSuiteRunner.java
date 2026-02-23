@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import com.alibaba.fastjson2.JSONException;
-import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.common.ImportManager;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.UserDefineException;

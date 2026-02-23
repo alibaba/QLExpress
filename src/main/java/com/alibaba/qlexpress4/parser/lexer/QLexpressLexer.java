@@ -2,7 +2,7 @@ package com.alibaba.qlexpress4.parser.lexer;
 
 import com.alibaba.qlexpress4.parser.token.Token;
 import com.alibaba.qlexpress4.parser.token.TokenType;
-import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.common.InterpolationMode;
 
 import java.util.ArrayList;
 import java.util.List;

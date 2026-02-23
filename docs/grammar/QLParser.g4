@@ -1,13 +1,30 @@
 parser grammar QLParser;
 
+// ============================================================================
+// QLExpress Grammar Definition
+// ============================================================================
+//
+// This file contains the grammar definition for the QLExpress language.
+// The grammar was originally used with ANTLR4 to generate a parser.
+//
+// As of 2026, QLExpress uses a hand-written recursive descent parser
+// (com.alibaba.qlexpress4.parser package) instead of ANTLR4. This grammar
+// file is preserved for documentation and reference purposes.
+//
+// The hand-written parser implements the same language syntax as defined
+// in this grammar. For the actual implementation, see:
+// - com.alibaba.qlexpress4.parser.lexer.QLexpressLexer (lexical analysis)
+// - com.alibaba.qlexpress4.parser.parser.QLexpressParser (syntax analysis)
+// ============================================================================
+
 options {
     tokenVocab = QLexer;
 }
 
 @header {
     package com.alibaba.qlexpress4.aparser;
-    import com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType;
-    import static com.alibaba.qlexpress4.aparser.ParserOperatorManager.OpType.*;
+    import com.alibaba.qlexpress4.common.ParserOperatorManager.OpType;
+    import static com.alibaba.qlexpress4.common.ParserOperatorManager.OpType.*;
     import static com.alibaba.qlexpress4.QLPrecedences.*;
     import static com.alibaba.qlexpress4.aparser.InterpolationMode.*;
 }
