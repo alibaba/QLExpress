@@ -39,7 +39,11 @@ public class QvmGlobalScope implements QScope {
         if (newVariable != null) {
             return newVariable;
         }
-        Value externalValue = externalVariable.get(qlOptions.getAttachments(), varName);
+        // Handle null ExpressContext by treating it as EmptyContext
+        Value externalValue = null;
+        if (externalVariable != null) {
+            externalValue = externalVariable.get(qlOptions.getAttachments(), varName);
+        }
         if (externalValue != null && qlOptions.isPolluteUserContext()) {
             return externalValue;
         }

@@ -1,5 +1,7 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.exception.QLException;
+import com.alibaba.qlexpress4.parser.parser.QLexpressParser;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +23,7 @@ public class ClearDfaCacheTest {
     
     @Test
     public void clearDFACacheTest()
-        throws URISyntaxException, IOException {
+        throws URISyntaxException, IOException, QLException, QLexpressParser.ParseException {
         String complexDataProcessingExpress =
             new String(Files.readAllBytes(getPerfRoot().resolve("complexDataProcessing.ql")));
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);

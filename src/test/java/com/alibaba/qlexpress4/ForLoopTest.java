@@ -2,6 +2,7 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
+import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -15,7 +16,7 @@ public class ForLoopTest {
     @Test
     public void testSimpleForLoop()
         throws QLException {
-        InitOptions initOptions = InitOptions.builder().build();
+        InitOptions initOptions = InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build();
         Express4Runner runner = new Express4Runner(initOptions);
         String script = "l = []; for (int i = 3; i < 6; i++) { l.add(i); } return l;";
         QLResult result = runner.execute(script, (ExpressContext)null, QLOptions.builder().build());

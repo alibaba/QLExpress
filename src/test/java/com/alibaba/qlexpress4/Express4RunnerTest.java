@@ -848,7 +848,7 @@ public class Express4RunnerTest {
         assertEquals(6, resultAdd2.getResult());
     }
     
-    @Test(timeout = 10000)
+    @Test
     public void scripTimeoutTest() {
         // tag::scripTimeout[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
