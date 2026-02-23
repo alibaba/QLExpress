@@ -23,7 +23,7 @@ Based on basic expression calculation, it has the following features:
 * Interpreted execution, doesn't occupy JVM metaspace, can enable caching to improve interpretation performance
 * Lightweight code with minimal dependencies, suitable for all Java runtime environments
 
-QLExpress4, as the latest evolution of QLExpress, rewrote the parsing engine based on Antlr4, further enhancing the original advantages and fully embracing functional programming, with further improvements in both performance and expressive power.
+QLExpress4, as the latest evolution of QLExpress, rewrote the parsing engine using a hand-written recursive descent parser, removing the dependency on ANTLR4, further reducing JAR size, and improving startup performance. The new version further enhances the original advantages and fully embraces functional programming, with further improvements in both performance and expressive power.
 
 Usage scenarios:
 
@@ -636,13 +636,13 @@ You can cache scripts before first execution using the following method to ensur
 
 Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
 
-=== Clearing DFA Cache
+=== Clearing Compilation Cache
 
-QLExpress uses ANTLR4 as its parsing engine. ANTLR4 builds a DFA (Deterministic Finite Automaton) cache at runtime to accelerate subsequent syntax parsing. This cache consumes a certain amount of memory.
+QLExpress uses a hand-written recursive descent parser as its parsing engine. During compilation, a cache is generated to accelerate subsequent script parsing. This cache consumes a certain amount of memory.
 
-In some memory-sensitive scenarios, you can call the `clearDFACache` method to clear the DFA cache and release memory.
+In some memory-sensitive scenarios, you can call the `clearCompileCache` method to clear the compilation cache and release memory.
 
-> **IMPORTANT WARNING**: Clearing the DFA cache will cause a significant compilation performance degradation. It is NOT recommended for normal use cases.
+> **IMPORTANT WARNING**: Clearing the compilation cache will cause a significant compilation performance degradation. It is NOT recommended for normal use cases.
 
 ==== Use Cases
 
@@ -655,20 +655,6 @@ Call this method immediately after parsing and caching your expression, and ensu
 
 [source,java,indent=0]
 ----
-        /*
-         * When the expression changes, parse it and add it to the expression cache;
-         * after parsing is complete, call clearDFACache.
-         */
-        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        runner.parseToDefinitionWithCache(exampleExpress);
-        runner.clearDFACache();
-        
-        /*
-         * All subsequent runs of this script must enable the cache option to ensure that re-compilation does not occur.
-         */
-        for (int i = 0; i < 3; i++) {
-            runner.execute(exampleExpress, ExpressContext.EMPTY_CONTEXT, QLOptions.builder().cache(true).build());
-        }
 ----
 
 By following this approach, you can minimize memory usage while maintaining performance.
