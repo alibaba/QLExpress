@@ -359,7 +359,7 @@ public class Express4Runner {
             
             // Compile the AST to instructions
             ImportManager importManager = inheritDefaultImport();
-            QLambdaDefinition lambdaDefinition = ASTCompiler.compile(macroProgram, operatorManager, importManager);
+            QLambdaDefinition lambdaDefinition = ASTCompiler.compile(macroProgram, operatorManager, importManager, null, null);
             
             // Determine if the last statement is an expression
             List<StatementNode> statements = macroProgram.getStatements();
@@ -723,11 +723,11 @@ public class Express4Runner {
 
             if (initOptions.isTraceExpression()) {
                 ASTCompiler.CompilationResult result =
-                    ASTCompiler.compileWithTrace(program, operatorManager, importManager, globalScope);
+                    ASTCompiler.compileWithTrace(program, operatorManager, importManager, globalScope, script);
                 return new QCompileCache(result.getLambdaDefinition(), result.getTracePoints());
             }
             else {
-                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager, globalScope);
+                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager, globalScope, script);
                 return new QCompileCache(lambdaDefinition, Collections.emptyList());
             }
         }

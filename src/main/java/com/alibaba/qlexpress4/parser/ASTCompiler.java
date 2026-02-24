@@ -88,6 +88,27 @@ public class ASTCompiler {
     public static QLambdaDefinition compile(ProgramNode programNode, OperatorManager operatorManager,
         ImportManager importManager, GeneratorScope generatorScope)
         throws Exception {
+        return compile(programNode, operatorManager, importManager, generatorScope, null);
+    }
+
+    /**
+     * Compiles a ProgramNode to a QLambdaDefinition with script source support.
+     * <p>
+     * This method generates QVM instructions from the AST and creates
+     * a main lambda definition that can be executed. The script source
+     * is used for error reporting.
+     *
+     * @param programNode     The AST to compile
+     * @param operatorManager The operator manager for resolving custom operators
+     * @param importManager   The import manager for resolving class references
+     * @param generatorScope  The generator scope containing macro definitions
+     * @param script          The script source code for error reporting
+     * @return A QLambdaDefinition containing the compiled instructions
+     * @throws Exception if compilation fails
+     */
+    public static QLambdaDefinition compile(ProgramNode programNode, OperatorManager operatorManager,
+        ImportManager importManager, GeneratorScope generatorScope, String script)
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
@@ -96,7 +117,7 @@ public class ASTCompiler {
         }
 
         // Create instruction generator
-        InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager, generatorScope);
+        InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager, generatorScope, script);
 
         // Generate instructions from AST
         GenerationResult result = ((ASTNode)programNode).accept(generator, new GenerationContext());
@@ -161,6 +182,26 @@ public class ASTCompiler {
     public static CompilationResult compileWithTrace(ProgramNode programNode, OperatorManager operatorManager,
         ImportManager importManager, GeneratorScope generatorScope)
         throws Exception {
+        return compileWithTrace(programNode, operatorManager, importManager, generatorScope, null);
+    }
+
+    /**
+     * Compiles a ProgramNode to a QLambdaDefinition with trace points and script source support.
+     * <p>
+     * This method generates both QVM instructions and execution trace information
+     * from the AST. The script source is used for error reporting.
+     *
+     * @param programNode     The AST to compile
+     * @param operatorManager The operator manager for resolving custom operators
+     * @param importManager   The import manager for resolving class references
+     * @param generatorScope  The generator scope containing macro definitions
+     * @param script          The script source code for error reporting
+     * @return A CompilationResult containing the lambda definition and trace points
+     * @throws Exception if compilation fails
+     */
+    public static CompilationResult compileWithTrace(ProgramNode programNode, OperatorManager operatorManager,
+        ImportManager importManager, GeneratorScope generatorScope, String script)
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
@@ -169,7 +210,7 @@ public class ASTCompiler {
         }
 
         // Compile to lambda definition
-        QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager, generatorScope);
+        QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager, generatorScope, script);
 
         // Generate trace points
         List<TracePointTree> tracePoints = generateTracePoints(programNode);

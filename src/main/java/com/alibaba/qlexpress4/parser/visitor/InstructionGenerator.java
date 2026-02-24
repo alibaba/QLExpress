@@ -5,6 +5,7 @@ import com.alibaba.qlexpress4.common.BuiltInTypesSet;
 import com.alibaba.qlexpress4.common.GeneratorScope;
 import com.alibaba.qlexpress4.common.MacroDefine;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
+import com.alibaba.qlexpress4.exception.DefaultErrReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
@@ -41,24 +42,35 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
 
     private final GeneratorScope generatorScope;
 
-    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope) {
+    private final String script;
+
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope, String script) {
         this.operatorManager = operatorManager;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
+        this.script = script;
+    }
+
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope) {
+        this(operatorManager, importManager, generatorScope, null);
     }
 
     public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
-        this(operatorManager, importManager, null);
+        this(operatorManager, importManager, null, null);
     }
 
     public InstructionGenerator(OperatorManager operatorManager) {
-        this(operatorManager, null, null);
+        this(operatorManager, null, null, null);
     }
 
     public InstructionGenerator() {
-        this(new OperatorManager(), null, null);
+        this(new OperatorManager(), null, null, null);
     }
-    
+
+    public InstructionGenerator withScript(String script) {
+        return new InstructionGenerator(operatorManager, importManager, generatorScope, script);
+    }
+
     // ==================== Statement Visitors ====================
     
     @Override
@@ -1504,6 +1516,16 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     // ==================== Helper Methods ====================
     
     private ErrorReporter createErrorReporter(ASTNode node) {
+        if (script != null) {
+            return new DefaultErrReporter(script, 0, node.getLine(), node.getColumn(), "");
+        }
+        return PureErrReporter.INSTANCE;
+    }
+
+    private ErrorReporter createErrorReporter(ASTNode node, String lexeme) {
+        if (script != null) {
+            return new DefaultErrReporter(script, 0, node.getLine(), node.getColumn(), lexeme);
+        }
         return PureErrReporter.INSTANCE;
     }
     

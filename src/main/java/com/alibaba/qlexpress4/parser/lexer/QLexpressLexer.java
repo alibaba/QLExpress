@@ -554,12 +554,26 @@ public class QLexpressLexer {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
 
+        int braceDepth = 0; // Track nesting depth of ${...} blocks
         while (position < input.length()) {
             char ch = peek();
 
-            if (ch == '"') {
+            if (ch == '"' && braceDepth == 0) {
                 consume(); // closing quote
                 return new Token(TokenType.DOUBLE_QUOTE, sb.toString(), tokenStartLine, tokenStartColumn, source);
+            }
+
+            // Track ${...} blocks to handle nested strings correctly
+            if (ch == '$' && position + 1 < input.length() && peek(1) == '{') {
+                braceDepth++;
+                sb.append(consume()); // $
+                sb.append(consume()); // {
+                continue;
+            }
+            if (ch == '}' && braceDepth > 0) {
+                braceDepth--;
+                sb.append(consume());
+                continue;
             }
 
             // Always handle escape sequences in double-quoted strings
@@ -568,7 +582,15 @@ public class QLexpressLexer {
                 consume(); // backslash
                 if (position < input.length()) {
                     char escaped = consume();
-                    sb.append(escapeChar(escaped));
+                    // Special case: \${ should be preserved in the string content
+                    // so that the parser can detect it as an escaped interpolation
+                    if (escaped == '$' && position < input.length() && peek() == '{') {
+                        sb.append("\\${");
+                        consume(); // consume the '{'
+                    }
+                    else {
+                        sb.append(escapeChar(escaped));
+                    }
                 }
             }
             else {
@@ -979,6 +1001,10 @@ public class QLexpressLexer {
                 return '"';
             case '\\':
                 return '\\';
+            // For interpolation, we preserve $ when escaped (\${ stays as \${ in the string content)
+            // This is handled by the string reading logic, not here
+            case '$':
+                return '$';
             default:
                 return ch;
         }

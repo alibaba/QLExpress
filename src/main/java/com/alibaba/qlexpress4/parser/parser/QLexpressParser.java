@@ -145,12 +145,12 @@ public class QLexpressParser {
         if (current == null) {
             throw error("Unexpected end of input, expected expression");
         }
-        
+
         // Check for lambda expression first (can start with ID or LPAREN)
         if (shouldParseLambda()) {
             return parseLambda();
         }
-        
+
         switch (current.getType()) {
             case INTEGER_LITERAL:
             case FLOATING_POINT_LITERAL:
@@ -224,7 +224,7 @@ public class QLexpressParser {
         throws ParseException {
         Token token = consume();
         Object value;
-        
+
         switch (token.getType()) {
             case INTEGER_LITERAL:
                 value = parseIntegerLiteral(token.getValue());
@@ -1047,7 +1047,7 @@ public class QLexpressParser {
                     consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-                    
+
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
@@ -1145,10 +1145,10 @@ public class QLexpressParser {
     private List<ExpressionNode> parseArgumentListBody()
         throws ParseException {
         List<ExpressionNode> arguments = new ArrayList<>();
-        
+
         // LPAREN already consumed
         skipNewlines();
-        
+
         if (!match(TokenType.RPAREN)) {
             arguments.add(parseExpression());
             skipNewlines();
@@ -1159,7 +1159,7 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-        
+
         expect(TokenType.RPAREN);
         return arguments;
     }
@@ -2586,9 +2586,15 @@ public class QLexpressParser {
             return true;
         }
         // Check with operator manager for custom operators
-        String value = current.getValue();
-        if (value != null) {
-            return operatorManager.isOpType(value, ParserOperatorManager.OpType.PREFIX);
+        // But only if the token type is an operator, not a literal
+        TokenType type = current.getType();
+        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL &&
+            type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL &&
+            type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
+            String value = current.getValue();
+            if (value != null) {
+                return operatorManager.isOpType(value, ParserOperatorManager.OpType.PREFIX);
+            }
         }
         return false;
     }
@@ -2608,9 +2614,15 @@ public class QLexpressParser {
             return true;
         }
         // Check with operator manager for custom operators
-        String value = current.getValue();
-        if (value != null) {
-            return operatorManager.isOpType(value, ParserOperatorManager.OpType.SUFFIX);
+        // But only if the token type is an operator, not a literal
+        TokenType type = current.getType();
+        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL &&
+            type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL &&
+            type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
+            String value = current.getValue();
+            if (value != null) {
+                return operatorManager.isOpType(value, ParserOperatorManager.OpType.SUFFIX);
+            }
         }
         return false;
     }
@@ -2661,18 +2673,18 @@ public class QLexpressParser {
         if (isPrefixUnaryOperator()) {
             return parsePrefixUnary();
         }
-        
+
         // Parse primary expression
         ExpressionNode expr = parsePrimary();
-        
+
         // Check for suffix unary operators
         while (isSuffixUnaryOperator()) {
             expr = parseSuffixUnary(expr);
         }
-        
+
         // Check for path operations (method calls, array access, field access)
         expr = parsePath(expr);
-        
+
         return expr;
     }
     
@@ -2791,20 +2803,20 @@ public class QLexpressParser {
     public ExpressionNode parseTernary()
         throws ParseException {
         ExpressionNode condition = parseBinary(0);
-        
+
         // Check if we have a ternary operator
         skipNewlines();
         if (!match(TokenType.QUESTION)) {
             return condition;
         }
-        
+
         // Consume the question mark
         Token questionToken = consume();
         skipNewlines();
-        
+
         // Parse the then expression (ternaryExpr uses baseExpr[0], which is lowest precedence)
         ExpressionNode thenExpr = parseBinary(0);
-        
+
         // Expect and consume colon
         skipNewlines();
         if (!match(TokenType.COLON)) {
@@ -2812,10 +2824,10 @@ public class QLexpressParser {
         }
         Token colonToken = consume();
         skipNewlines();
-        
+
         // Parse the else expression (full expression to allow nested ternary)
         ExpressionNode elseExpr = parseExpression();
-        
+
         return new TernaryNode(questionToken.getLine(), questionToken.getColumn(), questionToken.getSource(), condition,
             thenExpr, elseExpr);
     }
