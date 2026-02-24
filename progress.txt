@@ -4,11 +4,15 @@ Started: Fri Feb 20 12:26:12 AM CST 2026
 
 ## Codebase Patterns
 - Package structure for new parser: `com.alibaba.qlexpress4.parser.{token,lexer,parser,ast,visitor}`
-- ANTLR grammar files in `src/main/antlr4/` contain the complete language specification
+- ANTLR grammar files in `src/main/antlr4/` contain the complete language specification (now legacy - moved to docs/grammar/)
 - The QLexer.g4 and QLParser.g4 files are the source of truth for all token types and grammar rules
 - Keywords include: for, if, else, while, break, continue, return, switch, case, default, function, macro, import, static, new, type keywords (byte, short, int, long, float, double, char, boolean), null, true, false, extends, super, try, catch, finally, throw, then, class, this
 - Operators include arithmetic (+, -, *, /, %, ++, --), bitwise (&, |, ^, ~, <<, >>, >>>), logical (!), comparison (>, <, >=, <=, <>), assignment (=, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=), and other operators (., .*, ->, ::, ?., *., ?, :)
 - Delimiters: (, ), {, }, [, ], ;, ,
+- **Lambda max stack size**: Always use calculateMaxStack() for QLambdaDefinitionInner, never hardcode to 0
+- **Type resolution**: Use resolveType() method with ImportManager for resolving class names, never hardcode Object.class
+- **Method chaining**: ListLiteralNode, MapLiteralNode, and other literal nodes must call parsePath() to support method chaining like `[1,2,3].stream()`
+- **Test isolation**: Some tests have state pollution issues - they pass individually but fail when run with others
 
 ---
 
@@ -1439,3 +1443,21 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
 - Pattern: Exception cause is important for debugging and error handling
   - Tests like methodInvokeCauseTest verify that the original exception (e.g., IndexOutOfBoundsException) is preserved as the cause
   - This allows proper error handling and debugging in production code
+
+## [2026-02-24] - US-034
+- Fixed LambdaNode max stack size calculation (was hardcoded to 0, now uses calculateMaxStack())
+- Fixed ConstructorCallNode type resolution (was hardcoded to Object.class, now uses resolveType())
+- Fixed ListLiteralNode and MapLiteralNode to support method chaining by calling parsePath()
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+- **Learnings for future iterations:**
+  - Lambda expressions were failing with ArrayIndexOutOfBoundsException because maxStackSize was 0
+  - Constructor calls like `new HashMap<>()` were creating Object instances instead of HashMap due to hardcoded type
+  - List and map literals need to call parsePath() to support method chaining like `[1,2,3].stream()`
+  - Test isolation issue: some tests pass individually but fail when run with others (state pollution)
+- Test progress: 644 tests run, 20 failures + 15 errors (down from 20 failures + 20 errors)
+  - Fixed: mapSetGetTest and related map/index tests
+  - Fixed: list/map literal method chaining tests
+  - Remaining issues: short circuit, extension functions, import aliases, error reporting, etc.
+---
