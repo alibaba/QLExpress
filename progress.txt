@@ -1591,3 +1591,48 @@ The new hand-written parser reports more accurate error positions. These differe
 - TracePeekInstruction was added for trace position tracking, increasing instruction count by 1
 
 ---
+
+## [2026-02-25] - US-034 (Lexer String Escapes and getOutFunctions Fix)
+- Fixed lexer string escape sequences for single-quote strings
+  - readSingleQuoteString() now uses escapeChar() helper for all escape sequences (\n, \t, \r, \b, \f, \")
+  - Previously only \\ and \' were handled, causing test failures
+- Fixed double-quoted string interpolation handling
+  - When InterpolationMode is DISABLE, \${ is processed as $ (not preserved as \${)
+  - braceDepth tracking only applies when interpolation is ENABLED
+- Created FunctionDefinitionExtractor class for extracting function definitions from AST
+- Enhanced FunctionExtractor to track top-level function calls
+  - Function calls inside function definitions are marked with isTopLevel=false
+  - Added functionDepth tracking (0 = top-level, not inside any function)
+  - Added topLevelFunctionDefinitions Set to track functions defined at top level
+- Updated Express4Runner.getOutFunctions() to:
+  - Use FunctionExtractor.extractWithContext() to get both calls and definitions
+  - Filter calls by: 1) isTopLevel() == true, 2) not in userDefineFunction, 3) not in localDefinitions
+- Added FunctionDefinitionExtractor.java (new file, ~285 lines)
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (string escape fixes, braceDepth logic)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java (top-level tracking)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionDefinitionExtractor.java (new file)
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java (updated getOutFunctions)
+- prd.json (updated progress notes)
+
+**Test results:** 644 tests run, 628 pass (97.5% pass rate)
+- Reduced from 30 issues to 28 issues
+- All 114 lexer tests pass
+- getOutFunctionsTest passes (all 6 assertions)
+- interpolationTest passes
+
+**Learnings for future iterations:**
+- String escape sequences in QLExpress should be processed at the lexer level
+  - Single-quote strings: \n, \t, \r, \b, \f, \", \\, \' all need to be converted to actual characters
+  - Double-quote strings: same escapes, plus \${ handling for interpolation
+- Interpolation mode affects both ${...} processing AND escape sequence handling
+  - DISABLE mode: ${ is literal text, \${ is processed as $
+  - ENABLED modes: ${ starts interpolation, \${ is preserved (escaped interpolation)
+- For getOutFunctions(), the key insight is that function calls INSIDE function definitions should NOT be considered "out functions"
+  - Only top-level function calls (outside any function definition) should be checked
+  - Local function definitions at the top level should also be excluded
+- The test expectations were complex: nested function definitions don't make their names available at outer scope
+  - Example: `function add() { function sub() {...} }` - `sub` is NOT available at top level
+
+---
