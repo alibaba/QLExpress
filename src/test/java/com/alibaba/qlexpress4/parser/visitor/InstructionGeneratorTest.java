@@ -212,20 +212,21 @@ public class InstructionGeneratorTest {
         LiteralNode thenExpr = new LiteralNode(1, 1, 0, null, 1);
         LiteralNode elseExpr = new LiteralNode(1, 1, 0, null, 2);
         TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        // Should have: const true, jumpIf, const 1, jump, const 2
-        // With jump positions set correctly
-        assertEquals(5, result.getInstructions().size());
+
+        // Should have: const true, jumpIf, const 1, jump, const 2, tracePeek
+        // TracePeekInstruction was added for trace position tracking (US-034)
+        assertEquals(6, result.getInstructions().size());
         assertEquals(1, result.getStackEffect());
         assertTrue(result.isExpressionValue());
-        
+
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof JumpIfInstruction);
         assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(3) instanceof JumpInstruction);
         assertTrue(result.getInstructions().get(4) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(5) instanceof TracePeekInstruction);
     }
     
     @Test
@@ -236,13 +237,16 @@ public class InstructionGeneratorTest {
         IdentifierNode thenExpr = new IdentifierNode(1, 1, 0, null, "a");
         IdentifierNode elseExpr = new IdentifierNode(1, 1, 0, null, "b");
         TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(5, result.getInstructions().size());
+
+        // Should have: load flag, jumpIf, load a, jump, load b, tracePeek
+        // TracePeekInstruction was added for trace position tracking (US-034)
+        assertEquals(6, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof LoadInstruction);
         assertTrue(result.getInstructions().get(2) instanceof LoadInstruction);
         assertTrue(result.getInstructions().get(4) instanceof LoadInstruction);
+        assertTrue(result.getInstructions().get(5) instanceof TracePeekInstruction);
     }
     
     @Test

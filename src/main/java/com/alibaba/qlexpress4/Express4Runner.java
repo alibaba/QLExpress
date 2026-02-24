@@ -14,6 +14,7 @@ import com.alibaba.qlexpress4.parser.SyntaxTreeFactory;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;
 import com.alibaba.qlexpress4.parser.ast.StatementNode;
 import com.alibaba.qlexpress4.parser.visitor.FunctionExtractor;
+import com.alibaba.qlexpress4.parser.visitor.OutVariableDetector;
 import com.alibaba.qlexpress4.parser.visitor.ScriptChecker;
 import com.alibaba.qlexpress4.parser.visitor.VariableDetector;
 import com.alibaba.qlexpress4.runtime.DelegateQContext;
@@ -232,24 +233,11 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-        
-        VariableDetector detector = new VariableDetector();
+
+        // Use scope-aware out variable detection
+        OutVariableDetector detector = new OutVariableDetector();
         try {
-            VariableDetector.Context context = detector.detect(programNode);
-            // Get all variables that are read but not declared in the script
-            Set<String> readVars = new HashSet<>();
-            Set<String> declaredVars = new HashSet<>();
-
-            for (VariableDetector.VariableAccess read : context.getVariableReads()) {
-                readVars.add(read.getVariableName());
-            }
-            for (VariableDetector.VariableDeclaration decl : context.getVariableDeclarations()) {
-                declaredVars.add(decl.getVariableName());
-            }
-
-            // External variables are those that are read but not declared
-            readVars.removeAll(declaredVars);
-            return readVars;
+            return detector.detect(programNode);
         }
         catch (Exception e) {
             throw new RuntimeException("Error detecting external variables", e);
