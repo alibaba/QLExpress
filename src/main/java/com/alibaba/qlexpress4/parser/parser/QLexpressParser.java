@@ -1504,7 +1504,7 @@ public class QLexpressParser {
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-        
+
         List<ExpressionNode> elements = new ArrayList<>();
         if (!match(TokenType.RBRACK)) {
             elements.add(parseExpression());
@@ -1516,10 +1516,14 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-        
+
         expect(TokenType.RBRACK);
-        
-        return new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
+
+        ListLiteralNode listLiteral = new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getSource(), elements);
+
+        // Check for path operations (method calls, field access, etc.) on the list literal
+        // e.g., [1, 2, 3].stream()
+        return parsePath(listLiteral);
     }
     
     // ==================== Map and Block Expression Parsing ====================
@@ -1580,8 +1584,9 @@ public class QLexpressParser {
             consume(); // Consume the COLON token
             skipNewlines();
             expect(TokenType.RBRACE);
-            return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(),
+            MapLiteralNode emptyMap = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(),
                 Collections.emptyList());
+            return parsePath(emptyMap);
         }
         
         // Parse map entries
@@ -1616,8 +1621,12 @@ public class QLexpressParser {
         
         // Consume the closing RBRACE
         expect(TokenType.RBRACE);
-        
-        return new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), entries);
+
+        MapLiteralNode mapLiteral = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getSource(), entries);
+
+        // Check for path operations (method calls, field access, etc.) on the map literal
+        // e.g., {a: 1}.entrySet()
+        return parsePath(mapLiteral);
     }
     
     /**

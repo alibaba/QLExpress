@@ -1063,7 +1063,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         // Create lambda definition
         String lambdaName = "LAMBDA_" + System.nanoTime();
-        QLambdaDefinitionInner lambdaDefinition = new QLambdaDefinitionInner(lambdaName, bodyInstructions, params, 0);
+        int maxStackSize = calculateMaxStack(bodyInstructions);
+        QLambdaDefinitionInner lambdaDefinition = new QLambdaDefinitionInner(lambdaName, bodyInstructions, params, maxStackSize);
         
         // Load the lambda
         ErrorReporter errorReporter = createErrorReporter(node);
@@ -1242,10 +1243,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         // Generate constructor call instruction
         ErrorReporter errorReporter = createErrorReporter(node);
-        // Note: We need to resolve the type name to a Class<?> object
-        // For now, we'll use Object.class as a placeholder - in a real implementation,
-        // this would use an ImportManager to resolve the type
-        Class<?> typeClass = Object.class; // TODO: Resolve actual type
+        // Resolve the type name to a Class<?> object using ImportManager
+        Class<?> typeClass = resolveType(node.getTypeName());
         NewInstanceInstruction instruction =
             new NewInstanceInstruction(errorReporter, typeClass, node.getArguments().size());
         instructions.add(instruction);
