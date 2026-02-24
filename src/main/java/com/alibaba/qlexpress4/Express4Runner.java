@@ -272,23 +272,31 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-        
+
         FunctionExtractor extractor = new FunctionExtractor();
+
         try {
-            List<FunctionExtractor.FunctionCall> functionCalls = extractor.extract(programNode);
+            // Extract function calls with top-level tracking and function definitions
+            FunctionExtractor.Context context = extractor.extractWithContext(programNode);
+            Set<String> localDefinitions = context.getTopLevelFunctionDefinitions();
+
             Set<String> outFunctions = new HashSet<>();
-            
-            // Filter for direct calls that are not user-defined
-            for (FunctionExtractor.FunctionCall call : functionCalls) {
-                if (call.getType() == FunctionExtractor.FunctionCallType.DIRECT_CALL) {
+
+            // Filter for direct calls that are:
+            // 1. At the top level (not inside function definitions)
+            // 2. Not user-defined via addFunction()
+            // 3. Not defined locally in the script
+            for (FunctionExtractor.FunctionCall call : context.getFunctionCalls()) {
+                if (call.getType() == FunctionExtractor.FunctionCallType.DIRECT_CALL && call.isTopLevel()) {
                     String functionName = call.getName();
                     // Check if it's a built-in or user-defined function
-                    if (!userDefineFunction.containsKey(functionName)) {
+                    if (!userDefineFunction.containsKey(functionName)
+                            && !localDefinitions.contains(functionName)) {
                         outFunctions.add(functionName);
                     }
                 }
             }
-            
+
             return outFunctions;
         }
         catch (Exception e) {

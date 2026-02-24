@@ -517,27 +517,28 @@ public class QLexpressLexer {
     private Token readSingleQuoteString() {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
-        
+
         while (position < input.length()) {
             char ch = peek();
-            
-            if (ch == '\'') {
-                consume(); // closing quote
-                return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
-            }
-            
+
+            // Handle escape sequences: \n, \r, \t, \b, \f, \\, \', \"
+            // Single-quoted strings support all standard escape sequences
             if (ch == '\\') {
-                consume(); // backslash
+                consume(); // consume the backslash
                 if (position < input.length()) {
                     char escaped = consume();
                     sb.append(escapeChar(escaped));
                 }
             }
+            else if (ch == '\'') {
+                consume(); // closing quote
+                return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
+            }
             else {
                 sb.append(consume());
             }
         }
-        
+
         // Unterminated string - error, but return what we have
         return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
     }
@@ -552,7 +553,9 @@ public class QLexpressLexer {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
 
-        int braceDepth = 0; // Track nesting depth of ${...} blocks
+        int braceDepth = 0; // Track nesting depth of ${...} blocks (only when interpolation enabled)
+        boolean interpolationEnabled = interpolationMode != InterpolationMode.DISABLE;
+
         while (position < input.length()) {
             char ch = peek();
 
@@ -561,28 +564,30 @@ public class QLexpressLexer {
                 return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
             }
 
-            // Track ${...} blocks to handle nested strings correctly
-            if (ch == '$' && position + 1 < input.length() && peek(1) == '{') {
+            // Track ${...} blocks to handle nested strings correctly (only when interpolation enabled)
+            if (interpolationEnabled && ch == '$' && position + 1 < input.length() && peek(1) == '{') {
                 braceDepth++;
                 sb.append(consume()); // $
                 sb.append(consume()); // {
                 continue;
             }
-            if (ch == '}' && braceDepth > 0) {
+            if (interpolationEnabled && ch == '}' && braceDepth > 0) {
                 braceDepth--;
                 sb.append(consume());
                 continue;
             }
 
             // Always handle escape sequences in double-quoted strings
-            // The interpolation mode controls ${...} processing, not escape sequences
+            // The interpolation mode controls ${...} processing
             if (ch == '\\') {
                 consume(); // backslash
                 if (position < input.length()) {
                     char escaped = consume();
                     // Special case: \${ should be preserved in the string content
                     // so that the parser can detect it as an escaped interpolation
-                    if (escaped == '$' && position < input.length() && peek() == '{') {
+                    // BUT only when interpolation is enabled
+                    if (escaped == '$' && position < input.length() && peek() == '{'
+                            && interpolationEnabled) {
                         sb.append("\\${");
                         consume(); // consume the '{'
                     }
