@@ -546,20 +546,25 @@ public class QLexpressLexer {
     
     /**
      * Reads a double-quoted string literal (with potential interpolation).
+     * <p>
+     * Double-quoted strings always support escape sequences like \", \n, \t, etc.
+     * The interpolation mode controls whether ${...} expressions are processed.
      */
     private Token readDoubleQuoteString() {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
-        
+
         while (position < input.length()) {
             char ch = peek();
-            
+
             if (ch == '"') {
                 consume(); // closing quote
                 return new Token(TokenType.DOUBLE_QUOTE, sb.toString(), tokenStartLine, tokenStartColumn, source);
             }
-            
-            if (ch == '\\' && interpolationMode == InterpolationMode.DISABLE) {
+
+            // Always handle escape sequences in double-quoted strings
+            // The interpolation mode controls ${...} processing, not escape sequences
+            if (ch == '\\') {
                 consume(); // backslash
                 if (position < input.length()) {
                     char escaped = consume();
@@ -570,7 +575,7 @@ public class QLexpressLexer {
                 sb.append(consume());
             }
         }
-        
+
         // Unterminated string
         return new Token(TokenType.DOUBLE_QUOTE, sb.toString(), tokenStartLine, tokenStartColumn, source);
     }

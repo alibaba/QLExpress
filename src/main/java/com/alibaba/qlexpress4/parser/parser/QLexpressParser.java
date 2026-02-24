@@ -890,7 +890,7 @@ public class QLexpressParser {
     private String parseQualifiedTypeName()
         throws ParseException {
         StringBuilder sb = new StringBuilder();
-        
+
         // Check for type keyword first
         Token current = peek();
         if (current != null && isTypeKeywordToken(current.getType())) {
@@ -899,13 +899,13 @@ public class QLexpressParser {
         else {
             sb.append(expect(TokenType.ID).getValue());
         }
-        
+
         while (match(TokenType.DOT)) {
             consume();
-            // After dot, we expect an ID (type keywords can't follow dots)
+            // After dot, we expect an ID
             sb.append(".").append(expect(TokenType.ID).getValue());
         }
-        
+
         return sb.toString();
     }
     
@@ -922,19 +922,40 @@ public class QLexpressParser {
     }
     
     /**
-     * Checks if the given string is a type keyword.
+     * Checks if the given string is a type keyword or commonly used class name.
+     * <p>
+     * This includes primitive types, wrapper classes, and other commonly used Java classes
+     * that appear in type casts and declarations.
      *
      * @param value the string to check
-     * @return true if it's a type keyword
+     * @return true if it's a type keyword or common class name
      */
     private boolean isTypeKeyword(String value) {
         if (value == null) {
             return false;
         }
-        return value.equals("byte") || value.equals("short") || value.equals("int") || value.equals("long")
-            || value.equals("float") || value.equals("double") || value.equals("char") || value.equals("boolean")
-            || value.equals("String") || value.equals("Object") || value.equals("Integer") || value.equals("Long")
-            || value.equals("Float") || value.equals("Double") || value.equals("Boolean") || value.equals("Character");
+        // Primitive types
+        if (value.equals("byte") || value.equals("short") || value.equals("int") || value.equals("long")
+            || value.equals("float") || value.equals("double") || value.equals("char") || value.equals("boolean")) {
+            return true;
+        }
+        // Common wrapper classes and String
+        if (value.equals("String") || value.equals("Object") || value.equals("Integer") || value.equals("Long")
+            || value.equals("Float") || value.equals("Double") || value.equals("Boolean") || value.equals("Character")) {
+            return true;
+        }
+        // Common numeric and collection types
+        if (value.equals("Number") || value.equals("BigDecimal") || value.equals("BigInteger")
+            || value.equals("List") || value.equals("Map") || value.equals("Set") || value.equals("Collection")) {
+            return true;
+        }
+        // Common collection implementations
+        if (value.equals("ArrayList") || value.equals("LinkedList") || value.equals("HashMap")
+            || value.equals("LinkedHashMap") || value.equals("TreeMap") || value.equals("HashSet")
+            || value.equals("TreeSet") || value.equals("ConcurrentHashMap")) {
+            return true;
+        }
+        return false;
     }
     
     // ==================== Method Call and Path Parsing ====================
@@ -2402,6 +2423,10 @@ public class QLexpressParser {
      * - import com.example.ClassName;
      * - import com.example.*;
      * - import com.example.ClassName.*; (equivalent to above)
+     * <p>
+     * Note: Java allows keywords to be used in package and class names, so we accept
+     * any identifier-like token (including keywords) in import paths. For example,
+     * "import java.util.function.Function;" is valid Java.
      *
      * @return the ImportNode
      * @throws ParseException if parsing fails
@@ -2410,20 +2435,21 @@ public class QLexpressParser {
         throws ParseException {
         Token importToken = expect(TokenType.IMPORT);
         skipNewlines();
-        
+
         // Build the import path
         StringBuilder importPath = new StringBuilder();
-        
+
         // Get first identifier (must be present)
-        Token firstId = expect(TokenType.ID);
+        // Use consumeImportPathIdentifier to accept keywords in import paths
+        Token firstId = consumeImportPathIdentifier();
         importPath.append(firstId.getValue());
         skipNewlines();
-        
+
         // Continue with .id or .*
         while (match(TokenType.DOT)) {
             consume(); // Consume DOT
             skipNewlines();
-            
+
             if (match(TokenType.MUL)) {
                 consume(); // Consume MUL (*)
                 // Wildcard import
@@ -2431,13 +2457,13 @@ public class QLexpressParser {
                 return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
                     importPath.toString(), true);
             }
-            
-            // Regular identifier
-            Token id = expect(TokenType.ID);
+
+            // Regular identifier - use consumeImportPathIdentifier to accept keywords
+            Token id = consumeImportPathIdentifier();
             importPath.append('.').append(id.getValue());
             skipNewlines();
         }
-        
+
         // Check for .* or .* at end (DOTMUL token handles this)
         if (match(TokenType.DOTMUL)) {
             consume();
@@ -2445,7 +2471,7 @@ public class QLexpressParser {
             return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
                 importPath.toString(), true);
         }
-        
+
         // Regular class import
         expect(TokenType.SEMI);
         return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getSource(),
@@ -2900,6 +2926,50 @@ public class QLexpressParser {
         TokenType type = current.getType();
         return type == TokenType.ID || type == TokenType.FUNCTION || type == TokenType.CASE || type == TokenType.DEFAULT
             || type == TokenType.SWITCH;
+    }
+
+    /**
+     * Checks if the current token can be used as an import path identifier.
+     * In Java import statements, any keyword that looks like a valid Java identifier
+     * can be part of a package or class name (e.g., "function" in "java.util.function.Function").
+     *
+     * @return true if the current token can be used as an import path identifier
+     */
+    private boolean isImportPathIdentifier() {
+        Token current = peek();
+        if (current == null) {
+            return false;
+        }
+        // Accept regular ID
+        if (current.getType() == TokenType.ID) {
+            return true;
+        }
+        // Accept any keyword that could be part of a Java package/class name
+        // In Java, package and class names can contain any identifier, even keywords
+        TokenType type = current.getType();
+        if (type.isKeyword() && type.hasFixedText()) {
+            String text = type.getText();
+            // Check if it's a valid Java identifier (all keywords are valid identifiers)
+            // This allows things like "function", "class", "interface", etc. in import paths
+            return Character.isJavaIdentifierStart(text.charAt(0));
+        }
+        return false;
+    }
+
+    /**
+     * Consumes a token that can be used as an import path identifier.
+     * Import path identifiers can be regular IDs or any keyword that forms a valid identifier.
+     *
+     * @return the consumed token
+     * @throws ParseException if the current token is not a valid import path identifier
+     */
+    private Token consumeImportPathIdentifier()
+        throws ParseException {
+        Token current = peek();
+        if (current == null || !isImportPathIdentifier()) {
+            throw error("Expected import path identifier but found " + (current != null ? current.getType() : "EOF"));
+        }
+        return consume();
     }
     
     /**
