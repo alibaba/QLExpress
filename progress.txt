@@ -1310,3 +1310,56 @@ REMAINING ISSUES FOR US-034:
 - Many tests still failing (need to run full test suite to get exact count)
 - Some tests may need security strategy changes
 - Some tests may have parser issues with specific syntax patterns
+
+## [Mon Feb 24 11:10:00 AM CST 2026] - US-034 (Assignment Validation, Map Literals, Instruction Tests)
+- Changed PARSE_ERROR to SYNTAX_ERROR in Express4Runner for consistency with old parser
+- Added assignment target validation in parser to catch invalid assignments (e.g., "1 = 0")
+  - Added isAssignmentOperator() method to identify assignment operators
+  - Added validateAssignable() method to check left side is assignable
+  - Validation happens during parseBinary() for assignment operators
+- Added assignment target validation in ScriptChecker for extra safety
+- Fixed InstructionGenerator.visit(MapLiteralNode) to support IdentifierNode keys (not just LiteralNode)
+  - Map literals like {a:123} now work (a is treated as string key "a")
+- Fixed parser to apply parsePath after map literals when used in statement context
+  - {'key':'value'}.field now works correctly
+  - Chinese comma in field access now works: {'销售方地址、电话':'test'}.销售方地址、电话
+- Updated InstructionGeneratorTest to reflect that IfNode and TryCatchNode can be expressions
+  - In QLExpress, if and try-catch CAN be used as expressions (they return values)
+  - Changed assertFalse to assertTrue for isExpressionValue() checks
+- Removed expected UnsupportedOperationException from ImportNode test
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/Express4Runner.java (PARSE_ERROR -> SYNTAX_ERROR)
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added assignment validation, path after map literal)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (map literal identifier keys)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java (assignment validation)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (updated test expectations)
+- Test progress: 644 tests total, 600 pass (~93% pass rate, up from 92%)
+- Fixed 9 issues (went from 53 to 44 total failing tests)
+- **Learnings for future iterations:**
+  - In QLExpress, statements like if/try-catch/switch CAN be used as expressions
+  - This means IfNode, TryCatchNode, SwitchNode implement ExpressionNode
+  - isExpressionValue() should return true when the body produces a value
+  - Map literals support both quoted strings and identifiers as keys
+  - Map literals used in statement context need parsePath applied after parsing
+  - LBRACE in statement context can be either block or map literal
+  - Chinese comma (\u3001) is valid in identifiers (isIdPart in lexer)
+  - The error code should be SYNTAX_ERROR for syntax issues, not PARSE_ERROR
+
+REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
+- Parser: CATCH_ALL wildcard import not supported (import *)
+- Parser: BIT_AND in expressions
+- Parser: GT in generics
+- ScriptChecker/OperatorLimit: operator count logic off
+- Error position reporting: line/column numbers incorrect
+- Macro support: macro definition/invocation returning null
+- Function registry: getOutFunctions returning built-ins
+- Spread operator: list spread not expanding
+- Number/string literals: edge case parsing
+- Variable detection: qualified paths (a.b.c) not tracked
+- Import aliases and static imports
+- Operator alias/extension functions
+- Short-circuit evaluation options
+- Reflection: class fields, default interface methods
+- Timeout detection
+- Suite test: lambda.ql fails in suite but passes individually
+---
