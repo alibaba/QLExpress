@@ -1,8 +1,8 @@
 package com.alibaba.qlexpress4.parser.ast;
 
 public class BreakNode extends ASTNode implements StatementNode {
-    public BreakNode(int line, int column, String source) {
-        super(line, column, source);
+    public BreakNode(int line, int column, int startPosition, String source) {
+        super(line, column, startPosition, source);
     }
     
     @Override

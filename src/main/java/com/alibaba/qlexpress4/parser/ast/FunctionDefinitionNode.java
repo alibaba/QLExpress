@@ -9,9 +9,9 @@ public class FunctionDefinitionNode extends ASTNode implements StatementNode {
     
     private final BlockNode body;
     
-    public FunctionDefinitionNode(int line, int column, String source, String functionName,
+    public FunctionDefinitionNode(int line, int column, int startPosition, String source, String functionName,
         List<ParameterNode> parameters, BlockNode body) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.functionName = functionName;
         this.parameters = parameters;
         this.body = body;

@@ -7,8 +7,8 @@ public class UnaryOpNode extends ASTNode implements ExpressionNode {
     
     private final boolean prefix;
     
-    public UnaryOpNode(int line, int column, String source, String operator, ExpressionNode operand, boolean prefix) {
-        super(line, column, source);
+    public UnaryOpNode(int line, int column, int startPosition, String source, String operator, ExpressionNode operand, boolean prefix) {
+        super(line, column, startPosition, source);
         this.operator = operator;
         this.operand = operand;
         this.prefix = prefix;

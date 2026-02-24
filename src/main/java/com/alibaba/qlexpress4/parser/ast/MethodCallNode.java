@@ -11,14 +11,14 @@ public class MethodCallNode extends ASTNode implements ExpressionNode, Statement
 
     private final boolean spread;
 
-    public MethodCallNode(int line, int column, String source, ExpressionNode target, String methodName,
+    public MethodCallNode(int line, int column, int startPosition, String source, ExpressionNode target, String methodName,
         List<ExpressionNode> arguments) {
-        this(line, column, source, target, methodName, arguments, false);
+        this(line, column, startPosition, source, target, methodName, arguments, false);
     }
 
-    public MethodCallNode(int line, int column, String source, ExpressionNode target, String methodName,
+    public MethodCallNode(int line, int column, int startPosition, String source, ExpressionNode target, String methodName,
         List<ExpressionNode> arguments, boolean spread) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.target = target;
         this.methodName = methodName;
         this.arguments = arguments;

@@ -3,8 +3,8 @@ package com.alibaba.qlexpress4.parser.ast;
 public class ReturnNode extends ASTNode implements StatementNode {
     private final ExpressionNode value;
     
-    public ReturnNode(int line, int column, String source, ExpressionNode value) {
-        super(line, column, source);
+    public ReturnNode(int line, int column, int startPosition, String source, ExpressionNode value) {
+        super(line, column, startPosition, source);
         this.value = value;
     }
     

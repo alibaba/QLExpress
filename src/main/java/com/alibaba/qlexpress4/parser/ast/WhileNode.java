@@ -5,8 +5,8 @@ public class WhileNode extends ASTNode implements StatementNode {
     
     private final BlockNode body;
     
-    public WhileNode(int line, int column, String source, ExpressionNode condition, BlockNode body) {
-        super(line, column, source);
+    public WhileNode(int line, int column, int startPosition, String source, ExpressionNode condition, BlockNode body) {
+        super(line, column, startPosition, source);
         this.condition = condition;
         this.body = body;
     }

@@ -12,24 +12,27 @@ import java.util.Objects;
  *   <li>value: The actual text content of the token</li>
  *   <li>line: The starting line number in the source (1-based)</li>
  *   <li>column: The starting column number in the source (1-based)</li>
+ *   <li>startIndex: The starting character position in the source (0-based)</li>
  *   <li>source: The source file or string identifier (optional)</li>
  * </ul>
  */
 public class Token {
     private final TokenType type;
-    
+
     private final String value;
-    
+
     private final int line;
-    
+
     private final int column;
-    
+
+    private final int startIndex;
+
     private final String source;
-    
+
     private final int endLine;
-    
+
     private final int endColumn;
-    
+
     private final int length;
     
     /**
@@ -42,7 +45,21 @@ public class Token {
      * @param source the source file or string identifier (may be null)
      */
     public Token(TokenType type, String value, int line, int column, String source) {
-        this(type, value, line, column, source, line, column + (value != null ? value.length() : 0));
+        this(type, value, line, column, -1, source, line, column + (value != null ? value.length() : 0));
+    }
+
+    /**
+     * Creates a new token with full location information including character position.
+     *
+     * @param type the token type
+     * @param value the actual text content of the token
+     * @param line the starting line number (1-based)
+     * @param column the starting column number (1-based)
+     * @param startIndex the starting character position in source (0-based)
+     * @param source the source file or string identifier (may be null)
+     */
+    public Token(TokenType type, String value, int line, int column, int startIndex, String source) {
+        this(type, value, line, column, startIndex, source, line, column + (value != null ? value.length() : 0));
     }
     
     /**
@@ -52,15 +69,17 @@ public class Token {
      * @param value the actual text content of the token
      * @param line the starting line number (1-based)
      * @param column the starting column number (1-based)
+     * @param startIndex the starting character position in source (0-based)
      * @param source the source file or string identifier (may be null)
      * @param endLine the ending line number (1-based)
      * @param endColumn the ending column number (1-based, exclusive)
      */
-    public Token(TokenType type, String value, int line, int column, String source, int endLine, int endColumn) {
+    public Token(TokenType type, String value, int line, int column, int startIndex, String source, int endLine, int endColumn) {
         this.type = Objects.requireNonNull(type, "Token type cannot be null");
         this.value = value;
         this.line = line;
         this.column = column;
+        this.startIndex = startIndex;
         this.source = source;
         this.endLine = endLine;
         this.endColumn = endColumn;
@@ -76,7 +95,20 @@ public class Token {
      * @param column the starting column number (1-based)
      */
     public Token(TokenType type, String value, int line, int column) {
-        this(type, value, line, column, null);
+        this(type, value, line, column, -1, null);
+    }
+
+    /**
+     * Creates a new token with position but without source information.
+     *
+     * @param type the token type
+     * @param value the actual text content of the token
+     * @param line the starting line number (1-based)
+     * @param column the starting column number (1-based)
+     * @param startIndex the starting character position in source (0-based)
+     */
+    public Token(TokenType type, String value, int line, int column, int startIndex) {
+        this(type, value, line, column, startIndex, null);
     }
     
     /**
@@ -114,7 +146,16 @@ public class Token {
     public int getColumn() {
         return column;
     }
-    
+
+    /**
+     * Returns the starting character position of this token in the source.
+     *
+     * @return the starting character position (0-based), or -1 if not available
+     */
+    public int getStartIndex() {
+        return startIndex;
+    }
+
     /**
      * Returns the source file or string identifier.
      *
@@ -225,13 +266,13 @@ public class Token {
         if (o == null || getClass() != o.getClass())
             return false;
         Token token = (Token)o;
-        return line == token.line && column == token.column && endLine == token.endLine && endColumn == token.endColumn
+        return line == token.line && column == token.column && startIndex == token.startIndex && endLine == token.endLine && endColumn == token.endColumn
             && type == token.type && Objects.equals(value, token.value) && Objects.equals(source, token.source);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(type, value, line, column, source, endLine, endColumn);
+        return Objects.hash(type, value, line, column, startIndex, source, endLine, endColumn);
     }
     
     @Override
@@ -255,7 +296,19 @@ public class Token {
      * @return a new token with the updated position
      */
     public Token withPosition(int line, int column) {
-        return new Token(type, value, line, column, source, endLine + (line - this.line), endColumn);
+        return new Token(type, value, line, column, -1, source, endLine + (line - this.line), endColumn);
+    }
+
+    /**
+     * Creates a new Token with the same type and value but different position including character index.
+     *
+     * @param line the new line number
+     * @param column the new column number
+     * @param startIndex the new character position in source
+     * @return a new token with the updated position
+     */
+    public Token withPosition(int line, int column, int startIndex) {
+        return new Token(type, value, line, column, startIndex, source, endLine + (line - this.line), endColumn);
     }
     
     /**
@@ -265,9 +318,9 @@ public class Token {
      * @return a new token with the updated source
      */
     public Token withSource(String source) {
-        return new Token(type, value, line, column, source, endLine, endColumn);
+        return new Token(type, value, line, column, startIndex, source, endLine, endColumn);
     }
-    
+
     /**
      * Creates a new Token with a different value but same type and position.
      *
@@ -275,7 +328,7 @@ public class Token {
      * @return a new token with the updated value
      */
     public Token withValue(String value) {
-        return new Token(type, value, line, column, source, endLine,
+        return new Token(type, value, line, column, startIndex, source, endLine,
             endColumn + (value != null ? value.length() - this.length : 0));
     }
     

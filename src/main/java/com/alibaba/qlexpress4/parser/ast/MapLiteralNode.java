@@ -6,8 +6,8 @@ import java.util.Map;
 public class MapLiteralNode extends ASTNode implements ExpressionNode {
     private final List<MapEntryNode> entries;
     
-    public MapLiteralNode(int line, int column, String source, List<MapEntryNode> entries) {
-        super(line, column, source);
+    public MapLiteralNode(int line, int column, int startPosition, String source, List<MapEntryNode> entries) {
+        super(line, column, startPosition, source);
         this.entries = entries;
     }
     

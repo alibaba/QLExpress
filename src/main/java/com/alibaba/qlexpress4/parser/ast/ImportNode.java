@@ -5,8 +5,8 @@ public class ImportNode extends ASTNode implements StatementNode {
     
     private final boolean isWildcard;
     
-    public ImportNode(int line, int column, String source, String importPath, boolean isWildcard) {
-        super(line, column, source);
+    public ImportNode(int line, int column, int startPosition, String source, String importPath, boolean isWildcard) {
+        super(line, column, startPosition, source);
         this.importPath = importPath;
         this.isWildcard = isWildcard;
     }

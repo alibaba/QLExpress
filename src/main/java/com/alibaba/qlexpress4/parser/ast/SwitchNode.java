@@ -8,8 +8,8 @@ public class SwitchNode extends ASTNode implements ExpressionNode {
     
     private final List<SwitchCaseNode> cases;
     
-    public SwitchNode(int line, int column, String source, ExpressionNode value, List<SwitchCaseNode> cases) {
-        super(line, column, source);
+    public SwitchNode(int line, int column, int startPosition, String source, ExpressionNode value, List<SwitchCaseNode> cases) {
+        super(line, column, startPosition, source);
         this.value = value;
         this.cases = cases != null ? cases : Collections.emptyList();
     }

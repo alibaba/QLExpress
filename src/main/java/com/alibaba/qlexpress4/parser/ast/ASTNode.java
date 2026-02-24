@@ -6,7 +6,7 @@ package com.alibaba.qlexpress4.parser.ast;
  * <p>AST nodes represent syntactic constructs in the parsed source code.
  * Each node has:
  * <ul>
- *   <li>Source location information (line, column)</li>
+ *   <li>Source location information (line, column, position)</li>
  *   <li>Optional source file identifier</li>
  *   <li>Visitor pattern support via accept() method</li>
  * </ul>
@@ -20,9 +20,11 @@ package com.alibaba.qlexpress4.parser.ast;
  */
 public abstract class ASTNode {
     private final int line;
-    
+
     private final int column;
-    
+
+    private final int startPosition;
+
     private final String source;
     
     /**
@@ -30,22 +32,46 @@ public abstract class ASTNode {
      *
      * @param line the starting line number (1-based)
      * @param column the starting column number (1-based)
+     * @param startPosition the starting character position in source (0-based)
      * @param source the source file or string identifier (may be null)
      */
-    protected ASTNode(int line, int column, String source) {
+    protected ASTNode(int line, int column, int startPosition, String source) {
         this.line = line;
         this.column = column;
+        this.startPosition = startPosition;
         this.source = source;
     }
-    
+
     /**
      * Creates a new AST node without source information.
      *
      * @param line the starting line number (1-based)
      * @param column the starting column number (1-based)
+     * @param startPosition the starting character position in source (0-based)
+     */
+    protected ASTNode(int line, int column, int startPosition) {
+        this(line, column, startPosition, null);
+    }
+
+    /**
+     * Creates a new AST node with source location information (no position).
+     *
+     * @param line the starting line number (1-based)
+     * @param column the starting column number (1-based)
+     * @param source the source file or string identifier (may be null)
+     */
+    protected ASTNode(int line, int column, String source) {
+        this(line, column, -1, source);
+    }
+
+    /**
+     * Creates a new AST node without source information (no position).
+     *
+     * @param line the starting line number (1-based)
+     * @param column the starting column number (1-based)
      */
     protected ASTNode(int line, int column) {
-        this(line, column, null);
+        this(line, column, -1, null);
     }
     
     /**
@@ -65,7 +91,16 @@ public abstract class ASTNode {
     public int getColumn() {
         return column;
     }
-    
+
+    /**
+     * Returns the starting character position of this node in the source.
+     *
+     * @return the starting character position (0-based), or -1 if not available
+     */
+    public int getStartPosition() {
+        return startPosition;
+    }
+
     /**
      * Returns the source file or string identifier.
      *

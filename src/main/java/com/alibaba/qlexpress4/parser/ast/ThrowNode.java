@@ -3,8 +3,8 @@ package com.alibaba.qlexpress4.parser.ast;
 public class ThrowNode extends ASTNode implements StatementNode {
     private final ExpressionNode exception;
     
-    public ThrowNode(int line, int column, String source, ExpressionNode exception) {
-        super(line, column, source);
+    public ThrowNode(int line, int column, int startPosition, String source, ExpressionNode exception) {
+        super(line, column, startPosition, source);
         this.exception = exception;
     }
     

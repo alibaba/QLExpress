@@ -7,9 +7,9 @@ public class AssignmentNode extends ASTNode implements StatementNode, Expression
     
     private final ExpressionNode value;
     
-    public AssignmentNode(int line, int column, String source, ExpressionNode target, String operator,
+    public AssignmentNode(int line, int column, int startPosition, String source, ExpressionNode target, String operator,
         ExpressionNode value) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.target = target;
         this.operator = operator;
         this.value = value;

@@ -7,9 +7,9 @@ public class VariableDeclarationNode extends ASTNode implements StatementNode {
     
     private final ExpressionNode initialValue;
     
-    public VariableDeclarationNode(int line, int column, String source, String typeName, String variableName,
+    public VariableDeclarationNode(int line, int column, int startPosition, String source, String typeName, String variableName,
         ExpressionNode initialValue) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.typeName = typeName;
         this.variableName = variableName;
         this.initialValue = initialValue;

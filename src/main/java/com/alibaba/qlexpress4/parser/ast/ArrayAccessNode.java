@@ -5,8 +5,8 @@ public class ArrayAccessNode extends ASTNode implements ExpressionNode {
     
     private final ExpressionNode index;
     
-    public ArrayAccessNode(int line, int column, String source, ExpressionNode array, ExpressionNode index) {
-        super(line, column, source);
+    public ArrayAccessNode(int line, int column, int startPosition, String source, ExpressionNode array, ExpressionNode index) {
+        super(line, column, startPosition, source);
         this.array = array;
         this.index = index;
     }

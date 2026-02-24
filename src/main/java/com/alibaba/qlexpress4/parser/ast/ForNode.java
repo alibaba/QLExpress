@@ -9,9 +9,9 @@ public class ForNode extends ASTNode implements StatementNode {
     
     private final BlockNode body;
     
-    public ForNode(int line, int column, String source, Node init, ExpressionNode condition, ExpressionNode update,
+    public ForNode(int line, int column, int startPosition, String source, Node init, ExpressionNode condition, ExpressionNode update,
         BlockNode body) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.init = init;
         this.condition = condition;
         this.update = update;

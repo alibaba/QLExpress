@@ -21,13 +21,13 @@ import java.util.ArrayList;
 public class InterpolatedStringNode extends ASTNode implements ExpressionNode {
     private final List<Object> segments;
     
-    public InterpolatedStringNode(int line, int column, String source) {
-        super(line, column, source);
+    public InterpolatedStringNode(int line, int column, int startPosition, String source) {
+        super(line, column, startPosition, source);
         this.segments = new ArrayList<>();
     }
     
-    public InterpolatedStringNode(int line, int column, String source, List<Object> segments) {
-        super(line, column, source);
+    public InterpolatedStringNode(int line, int column, int startPosition, String source, List<Object> segments) {
+        super(line, column, startPosition, source);
         this.segments = segments != null ? segments : new ArrayList<>();
     }
     

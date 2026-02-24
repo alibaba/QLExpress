@@ -3,8 +3,8 @@ package com.alibaba.qlexpress4.parser.ast;
 public class LiteralNode extends ASTNode implements ExpressionNode {
     private final Object value;
     
-    public LiteralNode(int line, int column, String source, Object value) {
-        super(line, column, source);
+    public LiteralNode(int line, int column, int startPosition, String source, Object value) {
+        super(line, column, startPosition, source);
         this.value = value;
     }
     

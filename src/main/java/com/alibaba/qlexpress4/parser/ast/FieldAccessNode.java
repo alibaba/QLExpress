@@ -14,14 +14,14 @@ public class FieldAccessNode extends ASTNode implements ExpressionNode {
 
     private final boolean spread;
 
-    public FieldAccessNode(int line, int column, String source, ExpressionNode target, String fieldName,
+    public FieldAccessNode(int line, int column, int startPosition, String source, ExpressionNode target, String fieldName,
         boolean optional) {
-        this(line, column, source, target, fieldName, optional, false);
+        this(line, column, startPosition, source, target, fieldName, optional, false);
     }
 
-    public FieldAccessNode(int line, int column, String source, ExpressionNode target, String fieldName,
+    public FieldAccessNode(int line, int column, int startPosition, String source, ExpressionNode target, String fieldName,
         boolean optional, boolean spread) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.target = target;
         this.fieldName = fieldName;
         this.optional = optional;

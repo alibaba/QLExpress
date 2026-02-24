@@ -7,8 +7,8 @@ public class IfNode extends ASTNode implements ExpressionNode {
     
     private final Node elseBody;
     
-    public IfNode(int line, int column, String source, ExpressionNode condition, Node thenBody, Node elseBody) {
-        super(line, column, source);
+    public IfNode(int line, int column, int startPosition, String source, ExpressionNode condition, Node thenBody, Node elseBody) {
+        super(line, column, startPosition, source);
         this.condition = condition;
         this.thenBody = thenBody;
         this.elseBody = elseBody;

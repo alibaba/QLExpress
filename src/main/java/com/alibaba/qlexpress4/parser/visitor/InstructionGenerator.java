@@ -173,7 +173,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         else {
             // No else body - push null as result
-            instructions.add(new ConstInstruction(errorReporter, null, null));
+            instructions.add(new ConstInstruction(errorReporter, null, node.getStartPosition()));
             elseProducesValue = true; // ConstInstruction produces a value
         }
         
@@ -204,7 +204,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         conditionInstructions.addAll(conditionResult.getInstructions());
         // Add return instruction to properly return condition value from lambda
         conditionInstructions.add(
-            new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()), QResult.ResultType.RETURN, null));
+            new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()), QResult.ResultType.RETURN, node.getStartPosition()));
         QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner("while_condition_" + System.nanoTime(),
             conditionInstructions, Collections.emptyList(), calculateMaxStack(conditionInstructions));
         
@@ -380,7 +380,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         if (node.getCases().isEmpty()) {
             // Empty switch, push null as result
-            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
+            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
             return new GenerationResult(instructions, false, 0);
         }
         
@@ -476,7 +476,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             
             for (ExpressionNode condition : group.conditions) {
                 // Load switch value
-                LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, null);
+                LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, node.getStartPosition());
                 instructions.add(loadSwitchVar);
                 
                 // Load case value
@@ -485,7 +485,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 
                 // Check equality using ==
                 BinaryOperator equalOperator = operatorManager.getBinaryOperator("==");
-                instructions.add(new OperatorInstruction(errorReporter, equalOperator, null));
+                instructions.add(new OperatorInstruction(errorReporter, equalOperator, node.getStartPosition()));
                 
                 // If equal (result is true), jump to case body
                 // We use JumpIfPop with expect=true, so it jumps if the comparison result is true
@@ -571,7 +571,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         
         // Push null as result (switch statement doesn't produce a value)
-        instructions.add(new ConstInstruction(errorReporter, null, null));
+        instructions.add(new ConstInstruction(errorReporter, null, node.getStartPosition()));
         
         return new GenerationResult(instructions, false, 0);
     }
@@ -662,12 +662,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         else {
             // No return value, push null
-            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
+            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
         }
         
         // Add return instruction
         ErrorReporter errorReporter = createErrorReporter(node);
-        instructions.add(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN, null));
+        instructions.add(new ReturnInstruction(errorReporter, QResult.ResultType.RETURN, node.getStartPosition()));
         
         return new GenerationResult(instructions, false, 0);
     }
@@ -738,7 +738,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         else {
             // No initial value, push null
-            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, null));
+            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
         }
         
         // Add define local instruction
@@ -777,7 +777,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             BinaryOperator operator = operatorManager.getBinaryOperator(node.getOperator());
             if (operator != null) {
                 ErrorReporter errorReporter = createErrorReporter(node);
-                instructions.add(new OperatorInstruction(errorReporter, operator, null));
+                instructions.add(new OperatorInstruction(errorReporter, operator, node.getStartPosition()));
             }
         }
         
@@ -849,7 +849,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(LiteralNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-        ConstInstruction instruction = new ConstInstruction(errorReporter, node.getValue(), null);
+        ConstInstruction instruction = new ConstInstruction(errorReporter, node.getValue(), node.getStartPosition());
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
     
@@ -864,7 +864,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         for (Object segment : segments) {
             if (segment instanceof String) {
                 // Static text segment - push constant
-                ConstInstruction instruction = new ConstInstruction(errorReporter, segment, null);
+                ConstInstruction instruction = new ConstInstruction(errorReporter, segment, node.getStartPosition());
                 instructions.add(instruction);
             }
             else if (segment instanceof ExpressionNode) {
@@ -900,7 +900,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
 
         // Not a macro, generate regular load instruction
-        LoadInstruction instruction = new LoadInstruction(errorReporter, node.getName(), null);
+        LoadInstruction instruction = new LoadInstruction(errorReporter, node.getName(), node.getStartPosition());
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
     
@@ -942,7 +942,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                         "Cannot find class: " + className + " for instanceof operator at line " + node.getLine());
                 }
                 ErrorReporter errorReporter = createErrorReporter(idNode);
-                instructions.add(new ConstInstruction(errorReporter, new MetaClass(clazz), null));
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(clazz), node.getStartPosition()));
             }
             else {
                 // Complex expression - generate normally (will likely fail at runtime)
@@ -956,7 +956,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             if (operator == null) {
                 throw new UnsupportedOperationException("instanceof operator not found");
             }
-            OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, null);
+            OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, node.getStartPosition());
             instructions.add(instruction);
 
             return new GenerationResult(instructions, true, 1);
@@ -984,7 +984,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         if (binaryOperator == null) {
             throw new UnsupportedOperationException("Unknown binary operator: " + node.getOperator());
         }
-        OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, null);
+        OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
         instructions.add(instruction);
 
         return new GenerationResult(instructions, true, 1);
@@ -1019,7 +1019,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // For ||: jump if left is true (to skip right)
         // JumpIf internally checks !shortCircuitDisable
         // Position will be set to skip the right operand and operator
-        JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, !isAnd, -1, null);
+        JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, !isAnd, -1, node.getStartPosition());
         instructions.add(jumpIf);
 
         // Non-short-circuit path: left value is still on stack
@@ -1028,7 +1028,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         instructions.addAll(rightResult.getInstructions());
 
         BinaryOperator binaryOperator = operatorManager.getBinaryOperator(node.getOperator());
-        OperatorInstruction operatorInstruction = new OperatorInstruction(errorReporter, binaryOperator, null);
+        OperatorInstruction operatorInstruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
         instructions.add(operatorInstruction);
 
         // Set jumpIf position to skip the right operand and operator
@@ -1063,7 +1063,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             throw new UnsupportedOperationException("Unknown unary operator: " + node.getOperator());
         }
         
-        UnaryInstruction instruction = new UnaryInstruction(errorReporter, operator, null);
+        UnaryInstruction instruction = new UnaryInstruction(errorReporter, operator, node.getStartPosition());
         instructions.add(instruction);
         
         return new GenerationResult(instructions, true, 1);
@@ -1081,7 +1081,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         ErrorReporter errorReporter = createErrorReporter(node);
         
         // Jump to else if condition is false
-        JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, false, -1, null);
+        JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, false, -1, node.getStartPosition());
         instructions.add(jumpIf);
         
         // Generate then expression
@@ -1117,7 +1117,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, lambdaContext);
             bodyInstructions.addAll(bodyResult.getInstructions());
             // Add return for expression body
-            bodyInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, null));
+            bodyInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, node.getStartPosition()));
         }
         else if (node.getBody() instanceof BlockNode) {
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, lambdaContext);
@@ -1191,7 +1191,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             if (result.getCls() != null && result.getRestIndex() == 1) {
                 // This is a class reference - generate MetaClass const instruction
                 ErrorReporter errorReporter = createErrorReporter(targetId);
-                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), null));
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
             }
             else {
                 // Not a class - generate load instruction
@@ -1231,7 +1231,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             // Generate call function instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             CallFunctionInstruction instruction =
-                new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), null);
+                new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), node.getStartPosition());
             instructions.add(instruction);
 
             return new GenerationResult(instructions, true, 1);
@@ -1270,7 +1270,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             if (result.getCls() != null && result.getRestIndex() == 1) {
                 // This is a class reference - generate MetaClass const instruction
                 ErrorReporter errorReporter = createErrorReporter(targetId);
-                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), null));
+                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
             }
             else {
                 // Not a class - generate load instruction

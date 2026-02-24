@@ -166,8 +166,7 @@ public class QLexpressLexer {
                         || selector.equals("$[") || selector.equals("#[")) {
                         // Read the selector variable content (everything until selector end)
                         String selectorContent = readSelectorVariable(selector);
-                        return new Token(TokenType.SELECTOR_START, selectorContent, tokenStartLine, tokenStartColumn,
-                            source);
+                        return createToken(TokenType.SELECTOR_START, selectorContent);
                     }
                 }
             }
@@ -232,7 +231,7 @@ public class QLexpressLexer {
                     consume();
                     consume();
                     consume();
-                    return new Token(TokenType.URSHIFT_ASSIGN, fourChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.URSHIFT_ASSIGN, fourChar);
                 case "<<=":
                     // This is actually 4 characters: < < = =
                     // But we handle it as 3 characters since << is one token
@@ -253,17 +252,17 @@ public class QLexpressLexer {
                     consume();
                     consume();
                     consume();
-                    return new Token(TokenType.URSHIFT, threeChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.URSHIFT, threeChar);
                 case "<<=":
                     consume();
                     consume();
                     consume();
-                    return new Token(TokenType.LSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.LSHIFT_ASSIGN, threeChar);
                 case ">>=":
                     consume();
                     consume();
                     consume();
-                    return new Token(TokenType.RSHIFT_ASSIGN, threeChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.RSHIFT_ASSIGN, threeChar);
             }
         }
         
@@ -273,99 +272,99 @@ public class QLexpressLexer {
                 case "++":
                     consume();
                     consume();
-                    return new Token(TokenType.INC, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.INC, twoChar);
                 case "--":
                     consume();
                     consume();
-                    return new Token(TokenType.DEC, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.DEC, twoChar);
                 case "+=":
                     consume();
                     consume();
-                    return new Token(TokenType.ADD_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.ADD_ASSIGN, twoChar);
                 case "-=":
                     consume();
                     consume();
-                    return new Token(TokenType.SUB_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.SUB_ASSIGN, twoChar);
                 case "*=":
                     consume();
                     consume();
-                    return new Token(TokenType.MUL_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.MUL_ASSIGN, twoChar);
                 case "/=":
                     consume();
                     consume();
-                    return new Token(TokenType.DIV_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.DIV_ASSIGN, twoChar);
                 case "%=":
                     consume();
                     consume();
-                    return new Token(TokenType.MOD_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.MOD_ASSIGN, twoChar);
                 case "&=":
                     consume();
                     consume();
-                    return new Token(TokenType.AND_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.AND_ASSIGN, twoChar);
                 case "|=":
                     consume();
                     consume();
-                    return new Token(TokenType.OR_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OR_ASSIGN, twoChar);
                 case "^=":
                     consume();
                     consume();
-                    return new Token(TokenType.XOR_ASSIGN, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.XOR_ASSIGN, twoChar);
                 case ">>":
                     consume();
                     consume();
-                    return new Token(TokenType.RIGHSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.RIGHSHIFT, twoChar);
                 case "<<":
                     consume();
                     consume();
-                    return new Token(TokenType.LEFTSHIFT, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.LEFTSHIFT, twoChar);
                 case ">=":
                     consume();
                     consume();
-                    return new Token(TokenType.GE, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.GE, twoChar);
                 case "<=":
                     consume();
                     consume();
-                    return new Token(TokenType.LE, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.LE, twoChar);
                 case "<>":
                     consume();
                     consume();
-                    return new Token(TokenType.NOEQ, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.NOEQ, twoChar);
                 case ".*":
                     consume();
                     consume();
-                    return new Token(TokenType.DOTMUL, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.DOTMUL, twoChar);
                 case "?.":
                     consume();
                     consume();
-                    return new Token(TokenType.OPTIONAL_CHAINING, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OPTIONAL_CHAINING, twoChar);
                 case "*.":
                     consume();
                     consume();
-                    return new Token(TokenType.SPREAD_CHAINING, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.SPREAD_CHAINING, twoChar);
                 case "::":
                     consume();
                     consume();
-                    return new Token(TokenType.DCOLON, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.DCOLON, twoChar);
                 case "->":
                     consume();
                     consume();
-                    return new Token(TokenType.ARROW, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.ARROW, twoChar);
                 case "==":
                     consume();
                     consume();
-                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OPID, twoChar);
                 case "!=":
                     consume();
                     consume();
-                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OPID, twoChar);
                 case "&&":
                     consume();
                     consume();
-                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OPID, twoChar);
                 case "||":
                     consume();
                     consume();
-                    return new Token(TokenType.OPID, twoChar, tokenStartLine, tokenStartColumn, source);
+                    return createToken(TokenType.OPID, twoChar);
                 default:
                     // Check for OPID patterns (like +&, |*, etc.) that are not explicitly handled
                     // Only check if both characters are valid OPID characters
@@ -381,63 +380,63 @@ public class QLexpressLexer {
         switch (ch) {
             // Arithmetic operators
             case '+':
-                return new Token(TokenType.ADD, "+", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.ADD, "+");
             case '-':
-                return new Token(TokenType.SUB, "-", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.SUB, "-");
             case '*':
-                return new Token(TokenType.MUL, "*", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.MUL, "*");
             case '/':
-                return new Token(TokenType.DIV, "/", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.DIV, "/");
             case '%':
-                return new Token(TokenType.MOD, "%", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.MOD, "%");
             
             // Bitwise operators
             case '&':
-                return new Token(TokenType.BIT_AND, "&", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.BIT_AND, "&");
             case '|':
-                return new Token(TokenType.BIT_OR, "|", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.BIT_OR, "|");
             case '^':
-                return new Token(TokenType.BIT_XOR, "^", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.BIT_XOR, "^");
             case '~':
-                return new Token(TokenType.TILDE, "~", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.TILDE, "~");
             
             // Logical operators
             case '!':
-                return new Token(TokenType.BANG, "!", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.BANG, "!");
             
             // Comparison operators
             case '>':
-                return new Token(TokenType.GT, ">", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.GT, ">");
             case '<':
-                return new Token(TokenType.LT, "<", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.LT, "<");
             case '=':
-                return new Token(TokenType.EQ, "=", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.EQ, "=");
             
             // Other operators
             case '.':
-                return new Token(TokenType.DOT, ".", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.DOT, ".");
             case '?':
-                return new Token(TokenType.QUESTION, "?", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.QUESTION, "?");
             case ':':
-                return new Token(TokenType.COLON, ":", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.COLON, ":");
             
             // Delimiters
             case '(':
-                return new Token(TokenType.LPAREN, "(", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.LPAREN, "(");
             case ')':
-                return new Token(TokenType.RPAREN, ")", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.RPAREN, ")");
             case '{':
-                return new Token(TokenType.LBRACE, "{", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.LBRACE, "{");
             case '}':
-                return new Token(TokenType.RBRACE, "}", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.RBRACE, "}");
             case '[':
-                return new Token(TokenType.LBRACK, "[", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.LBRACK, "[");
             case ']':
-                return new Token(TokenType.RBRACK, "]", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.RBRACK, "]");
             case ';':
-                return new Token(TokenType.SEMI, ";", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.SEMI, ";");
             case ',':
-                return new Token(TokenType.COMMA, ",", tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.COMMA, ",");
             
             // Check for OPID (custom operator) - starts with certain chars
             // These are operators like ==, !=, &&, ||, or longer custom operators
@@ -446,7 +445,7 @@ public class QLexpressLexer {
                 if (isOpIdStartChar(ch)) {
                     return readOpId();
                 }
-                return new Token(TokenType.CATCH_ALL, String.valueOf(ch), tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.CATCH_ALL, String.valueOf(ch));
         }
     }
     
@@ -486,7 +485,7 @@ public class QLexpressLexer {
         }
         
         String text = sb.toString();
-        return new Token(TokenType.OPID, text, tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.OPID, text);
     }
     
     /**
@@ -509,7 +508,7 @@ public class QLexpressLexer {
             sb.append('\n');
         }
         
-        return new Token(TokenType.NEWLINE, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.NEWLINE, sb.toString());
     }
     
     /**
@@ -524,8 +523,7 @@ public class QLexpressLexer {
             
             if (ch == '\'') {
                 consume(); // closing quote
-                return new Token(TokenType.QUOTE_STRING_LITERAL, sb.toString(), tokenStartLine, tokenStartColumn,
-                    source);
+                return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
             }
             
             if (ch == '\\') {
@@ -541,7 +539,7 @@ public class QLexpressLexer {
         }
         
         // Unterminated string - error, but return what we have
-        return new Token(TokenType.QUOTE_STRING_LITERAL, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
     }
     
     /**
@@ -560,7 +558,7 @@ public class QLexpressLexer {
 
             if (ch == '"' && braceDepth == 0) {
                 consume(); // closing quote
-                return new Token(TokenType.DOUBLE_QUOTE, sb.toString(), tokenStartLine, tokenStartColumn, source);
+                return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
             }
 
             // Track ${...} blocks to handle nested strings correctly
@@ -599,7 +597,7 @@ public class QLexpressLexer {
         }
 
         // Unterminated string
-        return new Token(TokenType.DOUBLE_QUOTE, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
     }
     
     /**
@@ -618,10 +616,10 @@ public class QLexpressLexer {
         // Check if it's a keyword
         TokenType type = getKeywordType(text);
         if (type != null) {
-            return new Token(type, text, tokenStartLine, tokenStartColumn, source);
+            return createToken(type, text);
         }
         
-        return new Token(TokenType.ID, text, tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.ID, text);
     }
     
     /**
@@ -706,10 +704,10 @@ public class QLexpressLexer {
         
         // Determine token type
         if (isFloat || hasExponent) {
-            return new Token(TokenType.FLOATING_POINT_LITERAL, text, tokenStartLine, tokenStartColumn, source);
+            return createToken(TokenType.FLOATING_POINT_LITERAL, text);
         }
         
-        return new Token(TokenType.INTEGER_OR_FLOATING_LITERAL, text, tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.INTEGER_OR_FLOATING_LITERAL, text);
     }
     
     /**
@@ -735,7 +733,7 @@ public class QLexpressLexer {
             sb.append(consume());
         }
         
-        return new Token(TokenType.INTEGER_LITERAL, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.INTEGER_LITERAL, sb.toString());
     }
     
     /**
@@ -761,7 +759,7 @@ public class QLexpressLexer {
             sb.append(consume());
         }
         
-        return new Token(TokenType.INTEGER_LITERAL, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.INTEGER_LITERAL, sb.toString());
     }
     
     /**
@@ -786,7 +784,7 @@ public class QLexpressLexer {
             sb.append(consume());
         }
         
-        return new Token(TokenType.INTEGER_LITERAL, sb.toString(), tokenStartLine, tokenStartColumn, source);
+        return createToken(TokenType.INTEGER_LITERAL, sb.toString());
     }
     
     /**
@@ -1018,7 +1016,18 @@ public class QLexpressLexer {
         tokenStartColumn = column;
         tokenStartPosition = position;
     }
-    
+
+    /**
+     * Creates a token with the current token start position information.
+     *
+     * @param type the token type
+     * @param value the token value
+     * @return a new token with position information
+     */
+    private Token createToken(TokenType type, String value) {
+        return new Token(type, value, tokenStartLine, tokenStartColumn, tokenStartPosition, source);
+    }
+
     /**
      * Returns the current character without consuming it.
      */

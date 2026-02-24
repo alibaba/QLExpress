@@ -214,7 +214,12 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     
     @Override
     public TracePointTree visit(LiteralNode node, Void context) {
-        return newPoint(TraceType.VALUE, Collections.emptyList(), String.valueOf(node.getValue()), node);
+        String token = String.valueOf(node.getValue());
+        // For string literals, include quotes in the token to match old ANTLR behavior
+        if (node.getValue() instanceof String) {
+            token = "'" + node.getValue() + "'";
+        }
+        return newPoint(TraceType.VALUE, Collections.emptyList(), token, node);
     }
     
     @Override
@@ -466,6 +471,6 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
      * Creates a new TracePointTree with the given type, children, and token.
      */
     private TracePointTree newPoint(TraceType type, List<TracePointTree> children, String token, ASTNode node) {
-        return new TracePointTree(type, token, children, node.getLine(), node.getColumn(), 0);
+        return new TracePointTree(type, token, children, node.getLine(), node.getColumn(), node.getStartPosition());
     }
 }

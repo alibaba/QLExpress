@@ -7,9 +7,9 @@ public class BinaryOpNode extends ASTNode implements ExpressionNode {
     
     private final ExpressionNode right;
     
-    public BinaryOpNode(int line, int column, String source, ExpressionNode left, String operator,
+    public BinaryOpNode(int line, int column, int startPosition, String source, ExpressionNode left, String operator,
         ExpressionNode right) {
-        super(line, column, source);
+        super(line, column, startPosition, source);
         this.left = left;
         this.operator = operator;
         this.right = right;

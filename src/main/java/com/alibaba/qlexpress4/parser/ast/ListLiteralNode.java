@@ -5,8 +5,8 @@ import java.util.List;
 public class ListLiteralNode extends ASTNode implements ExpressionNode {
     private final List<ExpressionNode> elements;
     
-    public ListLiteralNode(int line, int column, String source, List<ExpressionNode> elements) {
-        super(line, column, source);
+    public ListLiteralNode(int line, int column, int startPosition, String source, List<ExpressionNode> elements) {
+        super(line, column, startPosition, source);
         this.elements = elements;
     }
     

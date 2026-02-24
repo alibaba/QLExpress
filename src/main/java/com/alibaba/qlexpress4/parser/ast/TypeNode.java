@@ -3,8 +3,8 @@ package com.alibaba.qlexpress4.parser.ast;
 public class TypeNode extends ASTNode implements ExpressionNode {
     private final String typeName;
     
-    public TypeNode(int line, int column, String source, String typeName) {
-        super(line, column, source);
+    public TypeNode(int line, int column, int startPosition, String source, String typeName) {
+        super(line, column, startPosition, source);
         this.typeName = typeName;
     }
     

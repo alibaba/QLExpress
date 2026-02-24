@@ -6,8 +6,8 @@ import java.util.Collections;
 public class BlockNode extends ASTNode implements StatementNode, ExpressionNode {
     private final List<StatementNode> statements;
     
-    public BlockNode(int line, int column, String source, List<StatementNode> statements) {
-        super(line, column, source);
+    public BlockNode(int line, int column, int startPosition, String source, List<StatementNode> statements) {
+        super(line, column, startPosition, source);
         this.statements = statements != null ? statements : Collections.emptyList();
     }
     
