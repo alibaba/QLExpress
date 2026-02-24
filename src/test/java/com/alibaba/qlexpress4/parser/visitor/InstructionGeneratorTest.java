@@ -146,13 +146,17 @@ public class InstructionGeneratorTest {
         LiteralNode left = new LiteralNode(1, 1, null, true);
         LiteralNode right = new LiteralNode(1, 1, null, false);
         BinaryOpNode node = new BinaryOpNode(1, 1, null, left, "&&", right);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(3, result.getInstructions().size());
-        assertTrue(result.getInstructions().get(2) instanceof OperatorInstruction);
-        
-        OperatorInstruction opInstr = (OperatorInstruction)result.getInstructions().get(2);
+
+        // Short-circuit AND generates: Const(left), JumpIf, Const(right), Operator
+        assertEquals(4, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof JumpIfInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof OperatorInstruction);
+
+        OperatorInstruction opInstr = (OperatorInstruction)result.getInstructions().get(3);
         assertEquals("&&", opInstr.getOperator().getOperator());
     }
     

@@ -896,13 +896,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(BinaryOpNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Special handling for instanceof operator
         if ("instanceof".equals(node.getOperator())) {
             // Generate left operand (the object to check)
             GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
             instructions.addAll(leftResult.getInstructions());
-            
+
             // Generate right operand (the class to check against)
             // For instanceof, the right operand should be a Class<?> object
             if (node.getRight() instanceof IdentifierNode) {
@@ -937,7 +937,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
                 instructions.addAll(rightResult.getInstructions());
             }
-            
+
             // Generate instanceof operator instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             BinaryOperator operator = operatorManager.getBinaryOperator("instanceof");
@@ -946,28 +946,85 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             }
             OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, null);
             instructions.add(instruction);
-            
+
             return new GenerationResult(instructions, true, 1);
         }
-        
+
+        // Special handling for && and || short-circuit operators
+        String operator = node.getOperator();
+        if ("&&".equals(operator) || "and".equalsIgnoreCase(operator) || "||".equals(operator) || "or".equalsIgnoreCase(operator)) {
+            boolean isAnd = "&&".equals(operator) || "and".equalsIgnoreCase(operator);
+            return generateShortCircuitLogic(node, context, isAnd);
+        }
+
         // Normal binary operator handling
         // Generate left operand
         GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
         instructions.addAll(leftResult.getInstructions());
-        
+
         // Generate right operand
         GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
         instructions.addAll(rightResult.getInstructions());
-        
+
         // Generate operator instruction
         ErrorReporter errorReporter = createErrorReporter(node);
-        BinaryOperator operator = operatorManager.getBinaryOperator(node.getOperator());
-        if (operator == null) {
+        BinaryOperator binaryOperator = operatorManager.getBinaryOperator(node.getOperator());
+        if (binaryOperator == null) {
             throw new UnsupportedOperationException("Unknown binary operator: " + node.getOperator());
         }
-        OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, null);
+        OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, null);
         instructions.add(instruction);
-        
+
+        return new GenerationResult(instructions, true, 1);
+    }
+
+    /**
+     * Generate short-circuit code for && and || operators.
+     * <p>
+     * Structure:
+     * 1. Evaluate left operand
+     * 2. JumpIf(shouldShortCircuit) -> end (skip right operand and operator)
+     * 3. (non-short-circuit path) Evaluate right operand, Apply operator
+     * 4. (end) - if we jumped, left value is on stack; otherwise operator result is on stack
+     * <p>
+     * When JumpIf jumps (short-circuits), it goes to the end, leaving the left value on stack.
+     * When JumpIf doesn't jump, we evaluate right and apply operator, which consumes left and right
+     * and pushes the result.
+     * <p>
+     * Note: Jump positions are relative offsets from the current instruction, not absolute indices.
+     */
+    private GenerationResult generateShortCircuitLogic(BinaryOpNode node, GenerationContext context, boolean isAnd)
+        throws Exception {
+        List<QLInstruction> instructions = new ArrayList<>();
+        ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Generate left operand
+        GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
+        instructions.addAll(leftResult.getInstructions());
+
+        // JumpIf that checks if we should short-circuit
+        // For &&: jump if left is false (to skip right)
+        // For ||: jump if left is true (to skip right)
+        // JumpIf internally checks !shortCircuitDisable
+        // Position will be set to skip the right operand and operator
+        JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, !isAnd, -1, null);
+        instructions.add(jumpIf);
+
+        // Non-short-circuit path: left value is still on stack
+        // Evaluate right operand, apply operator
+        GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
+        instructions.addAll(rightResult.getInstructions());
+
+        BinaryOperator binaryOperator = operatorManager.getBinaryOperator(node.getOperator());
+        OperatorInstruction operatorInstruction = new OperatorInstruction(errorReporter, binaryOperator, null);
+        instructions.add(operatorInstruction);
+
+        // Set jumpIf position to skip the right operand and operator
+        // The position is a relative offset from the JumpIf instruction
+        // We need to skip: right instructions + 1 operator instruction
+        int offset = rightResult.getInstructions().size() + 1;
+        jumpIf.setPosition(offset);
+
         return new GenerationResult(instructions, true, 1);
     }
     

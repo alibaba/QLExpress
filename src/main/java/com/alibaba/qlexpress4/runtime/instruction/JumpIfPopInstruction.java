@@ -32,8 +32,13 @@ public class JumpIfPopInstruction extends QLInstruction {
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         boolean conditionBool = conditionToBool(qContext.pop().get());
-        return conditionBool == expect ? new QResult(new DataValue(position), QResult.ResultType.JUMP)
-            : QResult.NEXT_INSTRUCTION;
+        if (conditionBool == expect && !qlOptions.isShortCircuitDisable()) {
+            // short circuit
+            return new QResult(new DataValue(position), QResult.ResultType.JUMP);
+        }
+        else {
+            return QResult.NEXT_INSTRUCTION;
+        }
     }
     
     private boolean conditionToBool(Object condition) {

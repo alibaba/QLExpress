@@ -42,11 +42,11 @@ public class LogicAndOperator extends BaseBinaryOperator {
         if (rightValue == null) {
             rightValue = false;
         }
-        
+
         if (!(leftValue instanceof Boolean) || !(rightValue instanceof Boolean)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }
-        
+
         return (Boolean)leftValue && (Boolean)rightValue;
     }
     
