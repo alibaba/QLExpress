@@ -257,11 +257,44 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws Exception {
         // Check binary operator
         checkOperator(node.getOperator(), node.getLine(), node.getColumn(), 0);
-        
+
+        // For assignment operators, validate that the left side is assignable
+        if (isAssignmentOperator(node.getOperator())) {
+            validateAssignable(node.getLeft(), "Left side of assignment");
+        }
+
         // Continue visiting children
         visitNode(node.getLeft(), context);
         visitNode(node.getRight(), context);
         return null;
+    }
+
+    /**
+     * Checks if the given operator is an assignment operator.
+     */
+    private boolean isAssignmentOperator(String operator) {
+        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") ||
+               operator.equals("*=") || operator.equals("/=") || operator.equals("%=") ||
+               operator.equals("&=") || operator.equals("|=") || operator.equals("^=") ||
+               operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
+    }
+
+    /**
+     * Validates that an expression is assignable (can be used as the left side of an assignment).
+     * Only identifiers and field accesses are assignable.
+     */
+    private void validateAssignable(Node node, String context) throws QLSyntaxException {
+        if (!(node instanceof IdentifierNode) && !(node instanceof FieldAccessNode) &&
+            !(node instanceof ArrayAccessNode)) {
+            String reason = context + " must be an identifier, field access, or array access";
+            int line = 1, column = 1;
+            if (node instanceof ASTNode) {
+                line = ((ASTNode)node).getLine();
+                column = ((ASTNode)node).getColumn();
+            }
+            throw QLException.reportScannerErr(script,
+                0, line, column, "", QLErrorCodes.SYNTAX_ERROR.name(), reason);
+        }
     }
     
     @Override

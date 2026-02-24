@@ -1750,7 +1750,12 @@ public class QLexpressParser {
             case THROW:
                 return parseThrow();
             case LBRACE:
-                return parseBraceExpression();
+                ExpressionNode braceExpr = parseBraceExpression();
+                // If the brace expression is a map literal, check for path operations (field access)
+                if (braceExpr instanceof MapLiteralNode) {
+                    braceExpr = parsePath(braceExpr);
+                }
+                return braceExpr;
             case SEMI:
                 consume(); // Empty statement
                 return null;
@@ -2681,7 +2686,7 @@ public class QLexpressParser {
         throws ParseException {
         // Parse left operand (unary expression)
         ExpressionNode left = parseUnary();
-        
+
         // While we have a binary operator with sufficient precedence
         while (true) {
             skipNewlines();
@@ -2689,30 +2694,56 @@ public class QLexpressParser {
             if (current == null) {
                 break;
             }
-            
+
             // Check if current token is a binary operator
             String op = current.getValue();
             if (!isBinaryOperator()) {
                 break;
             }
-            
+
             int precedence = getBinaryPrecedence(op);
             if (precedence < minPrecedence) {
                 break;
             }
-            
+
+            // For assignment operators, validate that the left side is assignable
+            if (isAssignmentOperator(op)) {
+                validateAssignable(left, "Left side of assignment");
+            }
+
             // Consume the operator
             consume();
             skipNewlines();
-            
+
             // Parse right operand with higher precedence
             ExpressionNode right = parseBinary(precedence + 1);
-            
+
             // Create binary operation node
             left = new BinaryOpNode(current.getLine(), current.getColumn(), current.getSource(), left, op, right);
         }
-        
+
         return left;
+    }
+
+    /**
+     * Checks if the given operator is an assignment operator.
+     */
+    private boolean isAssignmentOperator(String operator) {
+        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") ||
+               operator.equals("*=") || operator.equals("/=") || operator.equals("%=") ||
+               operator.equals("&=") || operator.equals("|=") || operator.equals("^=") ||
+               operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
+    }
+
+    /**
+     * Validates that an expression is assignable (can be used as the left side of an assignment).
+     * Only identifiers, field accesses, and array accesses are assignable.
+     */
+    private void validateAssignable(ExpressionNode expr, String context) throws ParseException {
+        if (!(expr instanceof IdentifierNode) && !(expr instanceof FieldAccessNode) &&
+            !(expr instanceof ArrayAccessNode)) {
+            throw error(context + " must be an identifier, field access, or array access");
+        }
     }
     
     /**

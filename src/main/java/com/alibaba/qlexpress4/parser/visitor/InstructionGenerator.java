@@ -1289,34 +1289,41 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MapLiteralNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Generate value expressions (keys must be string literals or constant expressions)
         List<String> keys = new ArrayList<>();
         for (MapEntryNode entry : node.getEntries()) {
-            // Key must be a constant (string literal)
+            // Key must be a constant (string literal or identifier treated as string)
+            String keyValue;
             if (entry.getKey() instanceof LiteralNode) {
-                Object keyValue = ((LiteralNode)entry.getKey()).getValue();
-                if (keyValue instanceof String) {
-                    keys.add((String)keyValue);
+                Object keyValueObj = ((LiteralNode)entry.getKey()).getValue();
+                if (keyValueObj instanceof String) {
+                    keyValue = (String)keyValueObj;
                 }
                 else {
                     throw new UnsupportedOperationException("Map keys must be string literals");
                 }
             }
+            else if (entry.getKey() instanceof IdentifierNode) {
+                // Identifiers are treated as string keys in map literals
+                keyValue = ((IdentifierNode)entry.getKey()).getName();
+            }
             else {
                 throw new UnsupportedOperationException("Map keys must be string literals");
             }
-            
+
+            keys.add(keyValue);
+
             // Generate value expression
             GenerationResult valueResult = ((ASTNode)entry.getValue()).accept(this, context);
             instructions.addAll(valueResult.getInstructions());
         }
-        
+
         // Generate new map instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         NewMapInstruction instruction = new NewMapInstruction(errorReporter, keys);
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
     

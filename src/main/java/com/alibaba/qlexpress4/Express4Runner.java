@@ -633,7 +633,7 @@ public class Express4Runner {
                 e.getLine(),
                 e.getColumn(),
                 "", // lexeme unknown
-                "PARSE_ERROR",
+                "SYNTAX_ERROR",
                 e.getMessage());
         }
         ScriptChecker scriptChecker = new ScriptChecker(checkOptions, script);
@@ -738,7 +738,7 @@ public class Express4Runner {
                 e.getLine(),
                 e.getColumn(),
                 "", // lexeme unknown
-                "PARSE_ERROR",
+                "SYNTAX_ERROR",
                 e.getMessage());
         }
         catch (QLSyntaxException e) {

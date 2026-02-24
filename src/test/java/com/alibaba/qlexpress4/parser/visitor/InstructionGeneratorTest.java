@@ -588,18 +588,19 @@ public class InstructionGeneratorTest {
         // if (true) { 42 }
         IfNode node = new IfNode(1, 1, null, new LiteralNode(1, 1, null, true),
             new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42))), null);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        // Should have: const true, jumpIfPop, const 42, jump, const null
-        // The exact sequence depends on how IfNode generates instructions
-        assertFalse(result.isExpressionValue());
-        // Verify it generates instructions (at minimum: condition + jump)
-        assertTrue(result.getInstructions().size() >= 3);
+
+        // In QLExpress, if statements can be used as expressions
+        // When the then body produces a value (like a literal), the if node also produces a value
+        // When there's no else body, null is pushed as the default else value
+        assertTrue(result.isExpressionValue());
+        // Verify it generates instructions (at minimum: condition + jump + then body + null)
+        assertTrue(result.getInstructions().size() >= 4);
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof JumpIfPopInstruction);
     }
-    
+
     @Test
     public void testVisitIfNode_WithElse()
         throws Exception {
@@ -607,10 +608,12 @@ public class InstructionGeneratorTest {
         IfNode node = new IfNode(1, 1, null, new LiteralNode(1, 1, null, false),
             new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 1))),
             new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 2))));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertFalse(result.isExpressionValue());
+
+        // In QLExpress, if statements can be used as expressions
+        // When both branches produce values, the if node produces a value
+        assertTrue(result.isExpressionValue());
         // Should have: condition, jumpIfPop, then body, jump, else body
         assertTrue(result.getInstructions().size() >= 4);
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
@@ -707,25 +710,29 @@ public class InstructionGeneratorTest {
                 new BlockNode(1, 1, null, Collections.emptyList())));
         TryCatchNode node = new TryCatchNode(1, 1, null,
             new BlockNode(1, 1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42))), catchClauses, null);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertFalse(result.isExpressionValue());
+
+        // In QLExpress, try-catch can be used as an expression
+        // When the try block produces a value, the try-catch node also produces a value
+        assertTrue(result.isExpressionValue());
         // Should have a TryCatchInstruction
         assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof TryCatchInstruction);
     }
-    
+
     @Test
     public void testVisitTryCatchNode_WithFinally()
         throws Exception {
         // try { } finally { }
         TryCatchNode node = new TryCatchNode(1, 1, null, new BlockNode(1, 1, null, Collections.emptyList()),
             Collections.emptyList(), new BlockNode(1, 1, null, Collections.emptyList()));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertFalse(result.isExpressionValue());
+
+        // In QLExpress, try-catch can be used as an expression
+        // Even empty blocks produce a value (null in this case)
+        assertTrue(result.isExpressionValue());
         assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof TryCatchInstruction);
     }
@@ -737,11 +744,13 @@ public class InstructionGeneratorTest {
         generator.visit(node, context);
     }
     
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testVisitImportNode_NotImplemented()
         throws Exception {
         ImportNode node = new ImportNode(1, 1, null, "java.util.List", false);
-        generator.visit(node, context);
+        GenerationResult result = generator.visit(node, context);
+        // Import statements don't generate runtime instructions - they're handled by ImportManager
+        assertTrue(result.getInstructions().isEmpty());
     }
     
     @Test
