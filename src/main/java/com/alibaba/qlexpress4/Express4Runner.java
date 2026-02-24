@@ -239,14 +239,14 @@ public class Express4Runner {
             // Get all variables that are read but not declared in the script
             Set<String> readVars = new HashSet<>();
             Set<String> declaredVars = new HashSet<>();
-            
+
             for (VariableDetector.VariableAccess read : context.getVariableReads()) {
                 readVars.add(read.getVariableName());
             }
             for (VariableDetector.VariableDeclaration decl : context.getVariableDeclarations()) {
                 declaredVars.add(decl.getVariableName());
             }
-            
+
             // External variables are those that are read but not declared
             readVars.removeAll(declaredVars);
             return readVars;
@@ -720,14 +720,14 @@ public class Express4Runner {
         try {
             ProgramNode program = parseToSyntaxTree(script);
             ImportManager importManager = inheritDefaultImport();
-            
+
             if (initOptions.isTraceExpression()) {
                 ASTCompiler.CompilationResult result =
-                    ASTCompiler.compileWithTrace(program, operatorManager, importManager);
+                    ASTCompiler.compileWithTrace(program, operatorManager, importManager, globalScope);
                 return new QCompileCache(result.getLambdaDefinition(), result.getTracePoints());
             }
             else {
-                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager);
+                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager, globalScope);
                 return new QCompileCache(lambdaDefinition, Collections.emptyList());
             }
         }

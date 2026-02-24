@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4.parser.visitor;
 
 import com.alibaba.qlexpress4.common.ImportManager;
 import com.alibaba.qlexpress4.common.BuiltInTypesSet;
+import com.alibaba.qlexpress4.common.GeneratorScope;
+import com.alibaba.qlexpress4.common.MacroDefine;
 import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
@@ -32,22 +34,29 @@ import java.util.stream.Collectors;
  * @author QLExpress Team
  */
 public class InstructionGenerator implements ASTVisitor<GenerationResult, GenerationContext> {
-    
+
     private final OperatorManager operatorManager;
-    
+
     private final ImportManager importManager;
-    
-    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
+
+    private final GeneratorScope generatorScope;
+
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope) {
         this.operatorManager = operatorManager;
         this.importManager = importManager;
+        this.generatorScope = generatorScope;
     }
-    
+
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
+        this(operatorManager, importManager, null);
+    }
+
     public InstructionGenerator(OperatorManager operatorManager) {
-        this(operatorManager, null);
+        this(operatorManager, null, null);
     }
-    
+
     public InstructionGenerator() {
-        this(new OperatorManager(), null);
+        this(new OperatorManager(), null, null);
     }
     
     // ==================== Statement Visitors ====================
@@ -864,6 +873,21 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(IdentifierNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
+
+        // Check if this identifier is a macro
+        if (generatorScope != null) {
+            MacroDefine macroDefine = generatorScope.getMacroInstructions(node.getName());
+            if (macroDefine != null) {
+                // Expand the macro by inlining its instructions
+                List<QLInstruction> macroInstructions = new ArrayList<>(macroDefine.getMacroInstructions());
+                // The macro produces a value if its last statement is an expression
+                boolean isExpressionValue = macroDefine.isLastStmtExpress();
+                int stackDelta = isExpressionValue ? 1 : 0;
+                return new GenerationResult(macroInstructions, isExpressionValue, stackDelta);
+            }
+        }
+
+        // Not a macro, generate regular load instruction
         LoadInstruction instruction = new LoadInstruction(errorReporter, node.getName(), null);
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
     }
@@ -1069,14 +1093,29 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(FieldAccessNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
+        // Check if this is a spread field access (e.g., list*.field)
+        if (node.isSpread()) {
+            // Generate target expression
+            GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+            instructions.addAll(targetResult.getInstructions());
+
+            // Generate spread get field instruction
+            ErrorReporter errorReporter = createErrorReporter(node);
+            SpreadGetFieldInstruction instruction =
+                new SpreadGetFieldInstruction(errorReporter, node.getFieldName());
+            instructions.add(instruction);
+
+            return new GenerationResult(instructions, true, 1);
+        }
+
         // Check if this is a static field access on a class
         // For example: TestPluginInterface.TEST_CONSTANT where TestPluginInterface is an imported class
         if (node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
-            
+
             // Check if this single identifier can be resolved to a class
             ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
             if (result.getCls() != null && result.getRestIndex() == 1) {
@@ -1095,13 +1134,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-        
+
         // Generate get field instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         GetFieldInstruction instruction =
             new GetFieldInstruction(errorReporter, node.getFieldName(), node.isOptional());
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -1109,7 +1148,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // If target is null, this is a direct function call (e.g., stest(9))
         // Use CallFunctionInstruction which loads the function by name from the context
         if (node.getTarget() == null) {
@@ -1118,23 +1157,44 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 GenerationResult argResult = ((ASTNode)arg).accept(this, context);
                 instructions.addAll(argResult.getInstructions());
             }
-            
+
             // Generate call function instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             CallFunctionInstruction instruction =
                 new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), null);
             instructions.add(instruction);
-            
+
             return new GenerationResult(instructions, true, 1);
         }
-        
+
+        // Check if this is a spread method call (e.g., list*.method())
+        if (node.isSpread()) {
+            // Generate target expression
+            GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
+            instructions.addAll(targetResult.getInstructions());
+
+            // Generate arguments
+            for (ExpressionNode arg : node.getArguments()) {
+                GenerationResult argResult = ((ASTNode)arg).accept(this, context);
+                instructions.addAll(argResult.getInstructions());
+            }
+
+            // Generate spread method invoke instruction
+            ErrorReporter errorReporter = createErrorReporter(node);
+            SpreadMethodInvokeInstruction instruction =
+                new SpreadMethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size());
+            instructions.add(instruction);
+
+            return new GenerationResult(instructions, true, 1);
+        }
+
         // Check if this is a static method call on a class
         // For example: QLOptions.builder() where QLOptions is a class
         if (node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
-            
+
             // Check if this single identifier can be resolved to a class
             ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
             if (result.getCls() != null && result.getRestIndex() == 1) {
@@ -1153,19 +1213,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-        
+
         // Generate arguments
         for (ExpressionNode arg : node.getArguments()) {
             GenerationResult argResult = ((ASTNode)arg).accept(this, context);
             instructions.addAll(argResult.getInstructions());
         }
-        
+
         // Generate method invoke instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         MethodInvokeInstruction instruction =
             new MethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), false); // optional = false for now
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, true, 1);
     }
     

@@ -1,6 +1,7 @@
 package com.alibaba.qlexpress4.parser;
 
 import com.alibaba.qlexpress4.common.ImportManager;
+import com.alibaba.qlexpress4.common.GeneratorScope;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;
 import com.alibaba.qlexpress4.parser.ast.ASTNode;
 import com.alibaba.qlexpress4.parser.visitor.InstructionGenerator;
@@ -68,25 +69,44 @@ public class ASTCompiler {
     public static QLambdaDefinition compile(ProgramNode programNode, OperatorManager operatorManager,
         ImportManager importManager)
         throws Exception {
+        return compile(programNode, operatorManager, importManager, null);
+    }
+
+    /**
+     * Compiles a ProgramNode to a QLambdaDefinition with ImportManager and GeneratorScope support.
+     * <p>
+     * This method generates QVM instructions from the AST and creates
+     * a main lambda definition that can be executed.
+     *
+     * @param programNode     The AST to compile
+     * @param operatorManager The operator manager for resolving custom operators
+     * @param importManager   The import manager for resolving class references
+     * @param generatorScope  The generator scope containing macro definitions
+     * @return A QLambdaDefinition containing the compiled instructions
+     * @throws Exception if compilation fails
+     */
+    public static QLambdaDefinition compile(ProgramNode programNode, OperatorManager operatorManager,
+        ImportManager importManager, GeneratorScope generatorScope)
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-        
+
         // Create instruction generator
-        InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager);
-        
+        InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager, generatorScope);
+
         // Generate instructions from AST
         GenerationResult result = ((ASTNode)programNode).accept(generator, new GenerationContext());
-        
+
         // Extract instructions
         List<QLInstruction> instructions = result.getInstructions();
-        
+
         // Calculate max stack size
         int maxStackSize = calculateMaxStackSize(instructions);
-        
+
         // Create main lambda definition
         return new QLambdaDefinitionInner("main", instructions, Collections.emptyList(), maxStackSize);
     }
@@ -122,19 +142,38 @@ public class ASTCompiler {
     public static CompilationResult compileWithTrace(ProgramNode programNode, OperatorManager operatorManager,
         ImportManager importManager)
         throws Exception {
+        return compileWithTrace(programNode, operatorManager, importManager, null);
+    }
+
+    /**
+     * Compiles a ProgramNode to a QLambdaDefinition with trace points, ImportManager, and GeneratorScope support.
+     * <p>
+     * This method generates both QVM instructions and execution trace information
+     * from the AST.
+     *
+     * @param programNode     The AST to compile
+     * @param operatorManager The operator manager for resolving custom operators
+     * @param importManager   The import manager for resolving class references
+     * @param generatorScope  The generator scope containing macro definitions
+     * @return A CompilationResult containing the lambda definition and trace points
+     * @throws Exception if compilation fails
+     */
+    public static CompilationResult compileWithTrace(ProgramNode programNode, OperatorManager operatorManager,
+        ImportManager importManager, GeneratorScope generatorScope)
+        throws Exception {
         if (programNode == null) {
             throw new IllegalArgumentException("programNode cannot be null");
         }
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-        
+
         // Compile to lambda definition
-        QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager);
-        
+        QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager, generatorScope);
+
         // Generate trace points
         List<TracePointTree> tracePoints = generateTracePoints(programNode);
-        
+
         return new CompilationResult(lambdaDefinition, tracePoints);
     }
     

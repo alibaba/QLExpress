@@ -1093,22 +1093,20 @@ public class QLexpressParser {
                     Token opToken = consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-                    
+
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
                         consume(); // Consume LPAREN
                         List<ExpressionNode> arguments = parseArgumentListBody();
-                        // TODO: Create SpreadMethodCallNode
-                        // For now, use regular MethodCallNode
+                        // Create spread method call with spread=true flag
                         target = new MethodCallNode(member.getLine(), member.getColumn(), member.getSource(), target,
-                            member.getValue(), arguments);
+                            member.getValue(), arguments, true);
                     }
                     else {
-                        // Spread field access - TODO: Implement SpreadGetFieldInstruction
-                        // For now, create regular FieldAccessNode
+                        // Spread field access - use isSpread=true flag
                         target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getSource(), target,
-                            member.getValue(), false);
+                            member.getValue(), true);
                     }
                     break;
                 }
