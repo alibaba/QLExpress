@@ -1363,3 +1363,24 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
 - Timeout detection
 - Suite test: lambda.ql fails in suite but passes individually
 ---
+
+## [2026-02-24] - US-034
+- Fixed import parsing to accept keywords as identifiers in import paths
+  - Added isImportPathIdentifier() and consumeImportPathIdentifier() methods in QLexpressParser
+  - Allows keywords like 'function' in Java package names (e.g., java.util.function.Function)
+  - Files changed: src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+- Fixed type casting with Number and other common Java types
+  - Added Number, BigDecimal, BigInteger, List, Map, Set, Collection, ArrayList, LinkedList, HashMap, LinkedHashMap, TreeMap, HashSet, TreeSet, ConcurrentHashMap to isTypeKeyword()
+  - Files changed: src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+- Fixed escape sequence handling in double-quoted strings
+  - Modified readDoubleQuoteString() to always process escape sequences like \", \n, \t regardless of interpolation mode
+  - Files changed: src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java
+- Test progress: 644 tests run, 601 tests pass (~93% pass rate), down from 43 failing
+
+**Learnings for future iterations:**
+- Pattern: Java allows any identifier (including keywords) to be part of package/class names in import statements
+- Pattern: Escape sequences in strings should always be processed, regardless of other parsing modes
+- Pattern: Type keywords in QLExpress need to include common Java classes for proper cast parsing
+- Gotcha: The parser's isTypeStart() check must be restrictive to avoid treating regular expressions as casts
+  - Example: (value * weight) is a parenthesized expression, not (value) cast
+  - Solution: Only recognize specific type keywords as valid cast targets, not all identifiers
