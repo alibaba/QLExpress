@@ -1461,3 +1461,25 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
   - Fixed: list/map literal method chaining tests
   - Remaining issues: short circuit, extension functions, import aliases, error reporting, etc.
 ---
+
+## [Mon Feb 24 04:20:00 PM CST 2026] - US-034 (short circuit)
+- Fixed short circuit evaluation for && and || operators
+- Implemented bytecode-level short circuit using JumpIfInstruction with correct relative offset calculation
+- Key issue: JumpIf position is relative offset from current instruction, not absolute index
+- Formula: offset = rightInstructions.size() + 1 (to skip right operand + operator)
+- Fixed JumpIfPopInstruction to respect shortCircuitDisable option
+- Updated InstructionGeneratorTest for LogicalAnd to expect 4 instructions (Const, JumpIf, Const, Operator)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/runtime/instruction/JumpIfPopInstruction.java
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java
+- **Learnings for future iterations:**
+  - Jump positions in QLExpress are RELATIVE offsets, not absolute indices
+  - When QLInner executes JumpIf, it does: `i += (int)qResult.getResult().get()`
+  - For short-circuit &&: JumpIf(false) jumps if left value is false
+  - For short-circuit ||: JumpIf(true) jumps if left value is true
+  - JumpIf internally checks `!qlOptions.isShortCircuitDisable()` to decide whether to jump
+  - When short circuit triggers, left value remains on stack (JumpIf peeks, doesn't pop)
+  - When short circuit doesn't trigger, we evaluate right + operator which consumes both and pushes result
+  - Test status: 644 tests run, 612 pass (~95% pass rate) - improved from 609 passing
+
