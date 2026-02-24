@@ -1384,3 +1384,36 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
 - Gotcha: The parser's isTypeStart() check must be restrictive to avoid treating regular expressions as casts
   - Example: (value * weight) is a parenthesized expression, not (value) cast
   - Solution: Only recognize specific type keywords as valid cast targets, not all identifiers
+
+---
+
+## [2026-02-24] - US-034 (continued)
+- Fixed macro expansion - macros now return expected values
+  - Added GeneratorScope to InstructionGenerator for macro lookup
+  - Updated ASTCompiler to accept GeneratorScope parameter and pass to InstructionGenerator
+  - Updated Express4Runner.parseDefinition() to pass globalScope to ASTCompiler
+  - In IdentifierNode visitor, check if identifier is a macro and expand inline
+  - Files changed:
+    - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+    - src/main/java/com/alibaba/qlexpress4/parser/ASTCompiler.java
+    - src/main/java/com/alibaba/qlexpress4/Express4Runner.java
+- Fixed spread operator support - *.method() and *.field now work correctly
+  - Added spread flag to MethodCallNode and FieldAccessNode
+  - Modified QLexpressParser to set spread=true when creating nodes for SPREAD_CHAINING
+  - Updated InstructionGenerator to generate SpreadMethodInvokeInstruction for spread method calls
+  - Updated InstructionGenerator to generate SpreadGetFieldInstruction for spread field access
+  - Files changed:
+    - src/main/java/com/alibaba/qlexpress4/parser/ast/MethodCallNode.java
+    - src/main/java/com/alibaba/qlexpress4/parser/ast/FieldAccessNode.java
+    - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+    - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+- Test progress: 644 tests run, 603 tests pass (~94% pass rate), down from 43 failing to 40 failing
+
+**Learnings for future iterations:**
+- Pattern: Macros are expanded inline at compile time, not at runtime
+  - When a macro name is encountered as an identifier, the InstructionGenerator checks the GeneratorScope
+  - If found, the macro's pre-compiled instructions are inlined directly
+- Pattern: Spread operators require special runtime instructions
+  - SpreadMethodInvokeInstruction: applies method call to each element in a collection
+  - SpreadGetFieldInstruction: applies field access to each element in a collection
+  - The parser needs to mark AST nodes with spread flag so the instruction generator knows which instruction to use
