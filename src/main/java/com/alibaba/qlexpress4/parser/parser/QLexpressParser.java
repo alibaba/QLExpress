@@ -1173,11 +1173,11 @@ public class QLexpressParser {
         throws ParseException {
         Token newToken = expect(TokenType.NEW);
         skipNewlines();
-
+        
         // Parse type name
         String typeName = parseQualifiedTypeName();
         skipNewlines();
-
+        
         // Check for type arguments (e.g., <String>, <>, etc.)
         // The diamond operator <> is a special case
         if (match(TokenType.LT, TokenType.NOEQ)) {
@@ -1190,7 +1190,7 @@ public class QLexpressParser {
                 // LT - need to parse until matching GT
                 consume(); // Consume LT
                 skipNewlines();
-
+                
                 // Parse type argument list (or empty for diamond)
                 int depth = 1;
                 while (depth > 0 && !isEOF()) {
@@ -1198,7 +1198,7 @@ public class QLexpressParser {
                     if (current == null) {
                         throw error("Unclosed type arguments");
                     }
-
+                    
                     if (current.getType() == TokenType.LT) {
                         depth++;
                     }
@@ -1214,10 +1214,10 @@ public class QLexpressParser {
                         // This is >>>, reduce depth by 3
                         depth -= 3;
                     }
-
+                    
                     consume();
                     skipNewlines();
-
+                    
                     // Check for comma in type argument list
                     if (depth > 0 && match(TokenType.COMMA)) {
                         consume();
@@ -1227,14 +1227,14 @@ public class QLexpressParser {
             }
             skipNewlines();
         }
-
+        
         // Check for constructor call with arguments
         if (match(TokenType.LPAREN)) {
             List<ExpressionNode> arguments = parseArgumentList();
             return new ConstructorCallNode(newToken.getLine(), newToken.getColumn(), newToken.getSource(), typeName,
                 arguments);
         }
-
+        
         throw error("Expected '(' after type name in constructor call");
     }
     
@@ -2473,19 +2473,19 @@ public class QLexpressParser {
         int line = typeToken.getLine();
         int column = typeToken.getColumn();
         String source = typeToken.getSource();
-
+        
         // Parse type name
         String typeName = parseQualifiedTypeName();
         skipNewlines();
-
+        
         // Parse variable declarator(s)
         List<StatementNode> declarations = new ArrayList<>();
-
+        
         do {
             // Parse variable name
             String varName = expect(TokenType.ID).getValue();
             skipNewlines();
-
+            
             // Parse optional initializer
             ExpressionNode initializer = null;
             if (match(TokenType.EQ)) {
@@ -2493,32 +2493,34 @@ public class QLexpressParser {
                 skipNewlines();
                 initializer = parseExpression();
             }
-
+            
             skipNewlines();
-
+            
             // Create a variable declaration node for this variable
             declarations.add(new VariableDeclarationNode(line, column, source, typeName, varName, initializer));
-
+            
             // Check for comma (more variables in the same declaration)
             if (match(TokenType.COMMA)) {
                 consume();
                 skipNewlines();
                 // Continue to parse next variable
-            } else {
+            }
+            else {
                 break;
             }
         } while (true);
-
+        
         // Consume trailing semicolon if present
         skipNewlines();
         if (match(TokenType.SEMI)) {
             consume();
         }
-
+        
         // Return single declaration or block of declarations
         if (declarations.size() == 1) {
             return declarations.get(0);
-        } else {
+        }
+        else {
             // Return a block containing all the declarations
             // Note: We create an implicit block for multiple declarations in one statement
             return new BlockNode(line, column, source, declarations);

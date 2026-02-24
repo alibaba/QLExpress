@@ -27,35 +27,35 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
      */
     public static class Context {
         private final List<VariableAccess> variableReads = new ArrayList<>();
-
+        
         private final List<VariableAccess> variableWrites = new ArrayList<>();
-
+        
         private final List<VariableDeclaration> variableDeclarations = new ArrayList<>();
-
+        
         public List<VariableAccess> getVariableReads() {
             return Collections.unmodifiableList(variableReads);
         }
-
+        
         public List<VariableAccess> getVariableWrites() {
             return Collections.unmodifiableList(variableWrites);
         }
-
+        
         public List<VariableDeclaration> getVariableDeclarations() {
             return Collections.unmodifiableList(variableDeclarations);
         }
-
+        
         public void addVariableRead(VariableAccess access) {
             variableReads.add(access);
         }
-
+        
         public void addVariableWrite(VariableAccess access) {
             variableWrites.add(access);
         }
-
+        
         public void addVariableDeclaration(VariableDeclaration declaration) {
             variableDeclarations.add(declaration);
         }
-
+        
         public Set<String> getAllVariableNames() {
             Set<String> names = new HashSet<>();
             for (VariableAccess read : variableReads) {
@@ -69,7 +69,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             }
             return names;
         }
-
+        
         /**
          * Get variables that are only written to (not read).
          * These should be excluded from "out variables".
@@ -309,7 +309,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         // Record the variable declaration
         context.addVariableDeclaration(
             new VariableDeclaration(node.getTypeName(), node.getVariableName(), node.getLine(), node.getColumn()));
-
+        
         // Visit the initializer expression
         visitNode(node.getInitialValue(), context);
         return null;
@@ -328,7 +328,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             // For complex targets (e.g., array[index], obj.field), visit them
             visitNode(node.getTarget(), context);
         }
-
+        
         // Visit the value expression
         visitExpression(node.getValue(), context);
         return null;
@@ -386,13 +386,13 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             operator.equals("=") || operator.equals("+=") || operator.equals("-=") || operator.equals("*=")
                 || operator.equals("/=") || operator.equals("%=") || operator.equals("&=") || operator.equals("|=")
                 || operator.equals("^=") || operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
-
+        
         if (isAssignment && node.getLeft() instanceof IdentifierNode) {
             // Record the variable write
             IdentifierNode target = (IdentifierNode)node.getLeft();
             context.addVariableWrite(
                 new VariableAccess(VariableAccessType.WRITE, target.getName(), node.getLine(), node.getColumn()));
-
+            
             // For compound assignments (+=, -=, etc.), the left operand is also read
             if (!operator.equals("=")) {
                 context.addVariableRead(
@@ -403,7 +403,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             // Visit the left operand normally for non-assignment expressions
             visitExpression(node.getLeft(), context);
         }
-
+        
         // Visit the right operand (the value being assigned)
         visitExpression(node.getRight(), context);
         return null;

@@ -65,32 +65,32 @@ import static com.alibaba.qlexpress4.parser.parser.QLexpressParser.ParseExceptio
  */
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
-
+    
     private final Map<String, Future<QCompileCache>> compileCache = new ConcurrentHashMap<>();
-
+    
     private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
-
+    
     private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
-
+    
     private final GeneratorScope globalScope = new GeneratorScope(null, "global", new ConcurrentHashMap<>());
-
+    
     private final ReflectLoader reflectLoader;
-
+    
     private final InitOptions initOptions;
-
+    
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.isAllowPrivateAccess());
     }
-
+    
     public CustomFunction getFunction(String functionName) {
         return userDefineFunction.get(functionName);
     }
-
+    
     public CompileTimeFunction getCompileTimeFunction(String functionName) {
         return compileTimeFunctions.get(functionName);
     }
-
+    
     /**
      * Execute the script with variables set in the context; the map key corresponds to the
      * variable name referenced in the script.
@@ -105,7 +105,7 @@ public class Express4Runner {
         throws QLException {
         return execute(script, new MapExpressContext(context), qlOptions);
     }
-
+    
     /**
      * Execute a template string by wrapping it as a dynamic string literal.
      * Template does not support newlines in this mode.
@@ -121,7 +121,7 @@ public class Express4Runner {
         String script = wrapAsDynamicString(template);
         return execute(script, context, qlOptions);
     }
-
+    
     private String wrapAsDynamicString(String template) {
         if (template == null) {
             return "\"\"";
@@ -129,7 +129,7 @@ public class Express4Runner {
         String escaped = template.replace("\"", "\\\"");
         return "\"" + escaped + "\"";
     }
-
+    
     /**
      * Execute the script with variables resolved from the fields of the given context object.
      * The variable name in the script corresponds to the field name on the object.
@@ -144,7 +144,7 @@ public class Express4Runner {
         throws QLException {
         return execute(script, new ObjectFieldExpressContext(context, this), qlOptions);
     }
-
+    
     /**
      * Execute the script using objects annotated with {@code @QLAlias}.
      * The {@code QLAlias.value} serves as the variable name for each object.
@@ -159,7 +159,7 @@ public class Express4Runner {
     public QLResult executeWithAliasObjects(String script, QLOptions qlOptions, Object... objects) {
         return execute(script, new QLAliasContext(objects), qlOptions);
     }
-
+    
     public QLResult execute(String script, ExpressContext context, QLOptions qlOptions) {
         QLambdaTrace mainLambdaTrace;
         if (initOptions.isDebug()) {
@@ -183,7 +183,7 @@ public class Express4Runner {
             else {
                 result = mainLambda.call().getResult().get();
             }
-
+            
             return new QLResult(result, mainLambdaTrace.getTraces().getExpressionTraces());
         }
         catch (QLException e) {
@@ -194,7 +194,7 @@ public class Express4Runner {
             throw new RuntimeException(nuKnown);
         }
     }
-
+    
     private QTraces convertPoints2QTraces(List<TracePointTree> expressionTracePoints) {
         Map<Integer, ExpressionTrace> traceMap = new HashMap<>();
         List<ExpressionTrace> expressionTraces = expressionTracePoints.stream()
@@ -202,7 +202,7 @@ public class Express4Runner {
             .collect(Collectors.toList());
         return new QTraces(expressionTraces, traceMap);
     }
-
+    
     private ExpressionTrace convertPoint2Trace(TracePointTree tree, Map<Integer, ExpressionTrace> traceMap) {
         if (tree.getChildren().isEmpty()) {
             ExpressionTrace result = new ExpressionTrace(tree.getType(), tree.getToken(), Collections.emptyList(),
@@ -217,7 +217,7 @@ public class Express4Runner {
         traceMap.put(result.getPosition(), result);
         return result;
     }
-
+    
     /**
      * Get external variables (those that must be provided via context) referenced by the script.
      *
@@ -232,21 +232,21 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-
+        
         VariableDetector detector = new VariableDetector();
         try {
             VariableDetector.Context context = detector.detect(programNode);
             // Get all variables that are read but not declared in the script
             Set<String> readVars = new HashSet<>();
             Set<String> declaredVars = new HashSet<>();
-
+            
             for (VariableDetector.VariableAccess read : context.getVariableReads()) {
                 readVars.add(read.getVariableName());
             }
             for (VariableDetector.VariableDeclaration decl : context.getVariableDeclarations()) {
                 declaredVars.add(decl.getVariableName());
             }
-
+            
             // External variables are those that are read but not declared
             readVars.removeAll(declaredVars);
             return readVars;
@@ -255,7 +255,7 @@ public class Express4Runner {
             throw new RuntimeException("Error detecting external variables", e);
         }
     }
-
+    
     /**
      * Get external variable attribute access paths referenced by the script.
      * NOTE: This is a simplified implementation that does not track attribute paths.
@@ -269,7 +269,7 @@ public class Express4Runner {
         // This requires tracking field access chains like a.b.c
         return Collections.emptySet();
     }
-
+    
     /**
      * Get external functions (those that must be provided via context) referenced by the script.
      *
@@ -284,12 +284,12 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-
+        
         FunctionExtractor extractor = new FunctionExtractor();
         try {
             List<FunctionExtractor.FunctionCall> functionCalls = extractor.extract(programNode);
             Set<String> outFunctions = new HashSet<>();
-
+            
             // Filter for direct calls that are not user-defined
             for (FunctionExtractor.FunctionCall call : functionCalls) {
                 if (call.getType() == FunctionExtractor.FunctionCallType.DIRECT_CALL) {
@@ -300,14 +300,14 @@ public class Express4Runner {
                     }
                 }
             }
-
+            
             return outFunctions;
         }
         catch (Exception e) {
             throw new RuntimeException("Error extracting external functions", e);
         }
     }
-
+    
     /**
      * Get the expression trace trees for the script without executing it.
      *
@@ -324,7 +324,7 @@ public class Express4Runner {
         }
         return ASTCompiler.generateTracePoints(programNode);
     }
-
+    
     /**
      * add user defined global macro to QLExpress engine
      * @param name macro name
@@ -334,7 +334,7 @@ public class Express4Runner {
     public boolean addMacro(String name, String macroScript) {
         return globalScope.defineMacroIfAbsent(name, parseMacroDefine(name, macroScript));
     }
-
+    
     /**
      * add or replace user defined global macro to QLExpress engine
      * @param name macro name
@@ -343,7 +343,7 @@ public class Express4Runner {
     public void addOrReplaceMacro(String name, String macroScript) {
         globalScope.defineMacro(name, parseMacroDefine(name, macroScript));
     }
-
+    
     /**
      * Parse a macro definition script and create a MacroDefine object.
      * NOTE: This implementation uses the new parser architecture.
@@ -356,17 +356,16 @@ public class Express4Runner {
         try {
             // Parse the macro script to get AST
             ProgramNode macroProgram = parseToSyntaxTree(macroScript);
-
+            
             // Compile the AST to instructions
             ImportManager importManager = inheritDefaultImport();
-            QLambdaDefinition lambdaDefinition = ASTCompiler.compile(macroProgram, operatorManager,
-                importManager);
-
+            QLambdaDefinition lambdaDefinition = ASTCompiler.compile(macroProgram, operatorManager, importManager);
+            
             // Determine if the last statement is an expression
             List<StatementNode> statements = macroProgram.getStatements();
             boolean lastStmtExpress = !statements.isEmpty()
                 && statements.get(statements.size() - 1) instanceof com.alibaba.qlexpress4.parser.ast.ExpressionNode;
-
+            
             // Get instructions from the lambda definition
             List<com.alibaba.qlexpress4.runtime.instruction.QLInstruction> macroInstructions;
             if (lambdaDefinition instanceof QLambdaDefinitionInner) {
@@ -377,14 +376,14 @@ public class Express4Runner {
             else {
                 throw new RuntimeException("Unexpected lambda definition type: " + lambdaDefinition.getClass());
             }
-
+            
             return new MacroDefine(macroInstructions, lastStmtExpress);
         }
         catch (Exception e) {
             throw new RuntimeException("Failed to parse macro definition: " + name, e);
         }
     }
-
+    
     /**
      * add user defined function to QLExpress engine
      * @param name function name
@@ -395,14 +394,14 @@ public class Express4Runner {
         CustomFunction preFunction = userDefineFunction.putIfAbsent(name, function);
         return preFunction == null;
     }
-
+    
     public <T, R> boolean addFunction(String name, Function<T, R> function) {
         return addFunction(name, (qContext, parameters) -> {
             T t = parameters.size() > 0 ? (T)parameters.get(0).get() : null;
             return function.apply(t);
         });
     }
-
+    
     public boolean addVarArgsFunction(String name, QLFunctionalVarargs functionalVarargs) {
         return addFunction(name, (qContext, parameters) -> {
             Object[] paramArr = new Object[parameters.size()];
@@ -412,21 +411,21 @@ public class Express4Runner {
             return functionalVarargs.call(paramArr);
         });
     }
-
+    
     public <T> boolean addFunction(String name, Predicate<T> predicate) {
         return addFunction(name, (qContext, parameters) -> {
             T t = parameters.size() > 0 ? (T)parameters.get(0).get() : null;
             return predicate.test(t);
         });
     }
-
+    
     public boolean addFunction(String name, Runnable runnable) {
         return addFunction(name, (qContext, parameters) -> {
             runnable.run();
             return null;
         });
     }
-
+    
     public <T> boolean addFunction(String name, Consumer<T> consumer) {
         return addFunction(name, (qContext, parameters) -> {
             T t = parameters.size() > 0 ? (T)parameters.get(0).get() : null;
@@ -434,7 +433,7 @@ public class Express4Runner {
             return null;
         });
     }
-
+    
     /**
      * Add a user-defined function backed by a specific Java service instance method.
      *
@@ -454,7 +453,7 @@ public class Express4Runner {
         if (methodName == null) {
             throw new IllegalArgumentException("methodName must not be null");
         }
-
+        
         Class<?>[] parameterTypes = parameterClassTypes == null ? new Class<?>[0] : parameterClassTypes;
         Method method;
         try {
@@ -465,10 +464,10 @@ public class Express4Runner {
                 + java.util.Arrays.toString(parameterTypes) + " on service object class '"
                 + serviceObject.getClass().getName() + "'", e);
         }
-
+        
         return addFunction(name, new QMethodFunction(serviceObject, method));
     }
-
+    
     /**
      * execute `scriptWithFunctionDefine` and add functions defined in script
      * @param scriptWithFunctionDefine script with function define
@@ -496,7 +495,7 @@ public class Express4Runner {
             throw new RuntimeException(e);
         }
     }
-
+    
     /**
      * add object member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction} as function
      * @param object object with member method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction}
@@ -505,7 +504,7 @@ public class Express4Runner {
     public BatchAddFunctionResult addObjFunction(Object object) {
         return addFunctionByAnnotation(object.getClass(), object);
     }
-
+    
     /**
      * add class static method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction} as function
      * @param clazz class with static method with annotation {@link com.alibaba.qlexpress4.annotation.QLFunction}
@@ -514,7 +513,7 @@ public class Express4Runner {
     public BatchAddFunctionResult addStaticFunction(Class<?> clazz) {
         return addFunctionByAnnotation(clazz, null);
     }
-
+    
     private BatchAddFunctionResult addFunctionByAnnotation(Class<?> clazz, Object object) {
         BatchAddFunctionResult result = new BatchAddFunctionResult();
         Method[] methods = clazz.getDeclaredMethods();
@@ -532,7 +531,7 @@ public class Express4Runner {
         }
         return result;
     }
-
+    
     /**
      * add compile time function
      * @param name function name
@@ -544,7 +543,7 @@ public class Express4Runner {
     public boolean addCompileTimeFunction(String name, CompileTimeFunction compileTimeFunction) {
         return compileTimeFunctions.putIfAbsent(name, compileTimeFunction) == null;
     }
-
+    
     /**
      * add extension function
      * @param extensionFunction definition of extansion function
@@ -552,7 +551,7 @@ public class Express4Runner {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         this.reflectLoader.addExtendFunction(extensionFunction);
     }
-
+    
     /**
      * add an extension function with variable arguments.
      * @param name the name of the extension function
@@ -565,22 +564,22 @@ public class Express4Runner {
             public Class<?>[] getParameterTypes() {
                 return new Class[] {Object[].class};
             }
-
+            
             @Override
             public boolean isVarArgs() {
                 return true;
             }
-
+            
             @Override
             public String getName() {
                 return name;
             }
-
+            
             @Override
             public Class<?> getDeclaringClass() {
                 return bindingClass;
             }
-
+            
             @Override
             public Object invoke(Object obj, Object[] args)
                 throws InvocationTargetException, IllegalAccessException {
@@ -592,7 +591,7 @@ public class Express4Runner {
             }
         });
     }
-
+    
     /**
      * Parse script to AST (ProgramNode).
      * <p>
@@ -602,7 +601,8 @@ public class Express4Runner {
      * @return the parsed AST as a ProgramNode
      * @throws ParseException if parsing fails
      */
-    public ProgramNode parseToSyntaxTree(String script) throws ParseException {
+    public ProgramNode parseToSyntaxTree(String script)
+        throws ParseException {
         return SyntaxTreeFactory.buildTree(script,
             operatorManager,
             initOptions.isDebug(),
@@ -613,7 +613,7 @@ public class Express4Runner {
             initOptions.getSelectorEnd(),
             initOptions.isStrictNewLines());
     }
-
+    
     /**
      * Check the script for syntax and security violations.
      *
@@ -628,20 +628,18 @@ public class Express4Runner {
             programNode = parseToSyntaxTree(script);
         }
         catch (ParseException e) {
-            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(
-                script,
-                0,  // position unknown
+            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
+                0, // position unknown
                 e.getLine(),
                 e.getColumn(),
-                "",  // lexeme unknown
+                "", // lexeme unknown
                 "PARSE_ERROR",
-                e.getMessage()
-            );
+                e.getMessage());
         }
         ScriptChecker scriptChecker = new ScriptChecker(checkOptions, script);
         scriptChecker.check(programNode);
     }
-
+    
     /**
      * Check the script with default options.
      *
@@ -652,7 +650,7 @@ public class Express4Runner {
         throws QLSyntaxException {
         check(script, CheckOptions.DEFAULT_OPTIONS);
     }
-
+    
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine =
             qlOptions.isCache() ? parseToDefinitionWithCache(script) : parseDefinition(script);
@@ -660,11 +658,11 @@ public class Express4Runner {
             initOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.getQLambdaDefinition().println(0, initOptions.getDebugInfoConsumer());
         }
-
+        
         QTraces qTraces = initOptions.isTraceExpression() && qlOptions.isTraceExpression()
             ? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints())
             : new QTraces(null, null);
-
+        
         QvmRuntime qvmRuntime =
             new QvmRuntime(qTraces, qlOptions.getAttachments(), reflectLoader, System.currentTimeMillis());
         QvmGlobalScope globalScope = new QvmGlobalScope(context, userDefineFunction, qlOptions);
@@ -672,7 +670,7 @@ public class Express4Runner {
             .toLambda(new DelegateQContext(qvmRuntime, globalScope), qlOptions, true);
         return new QLambdaTrace(qLambda, qTraces);
     }
-
+    
     /**
      * parse script with cache
      * @param script script to parse
@@ -688,11 +686,12 @@ public class Express4Runner {
                 : new RuntimeException(compileException);
         }
     }
-
+    
     public Value loadField(Object object, String fieldName) {
-        return reflectLoader.loadField(object, fieldName, true, com.alibaba.qlexpress4.exception.PureErrReporter.INSTANCE);
+        return reflectLoader
+            .loadField(object, fieldName, true, com.alibaba.qlexpress4.exception.PureErrReporter.INSTANCE);
     }
-
+    
     /**
      * Clear the compilation cache.
      * This method clears the cache that stores compiled scripts for performance optimization.
@@ -702,7 +701,7 @@ public class Express4Runner {
     public void clearCompileCache() {
         compileCache.clear();
     }
-
+    
     private Future<QCompileCache> getParseFuture(String script) {
         Future<QCompileCache> parseFuture = compileCache.get(script);
         if (parseFuture != null) {
@@ -716,34 +715,31 @@ public class Express4Runner {
         }
         return preTask;
     }
-
+    
     private QCompileCache parseDefinition(String script) {
         try {
             ProgramNode program = parseToSyntaxTree(script);
             ImportManager importManager = inheritDefaultImport();
-
+            
             if (initOptions.isTraceExpression()) {
-                ASTCompiler.CompilationResult result = ASTCompiler.compileWithTrace(program,
-                    operatorManager, importManager);
+                ASTCompiler.CompilationResult result =
+                    ASTCompiler.compileWithTrace(program, operatorManager, importManager);
                 return new QCompileCache(result.getLambdaDefinition(), result.getTracePoints());
             }
             else {
-                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager,
-                    importManager);
+                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager);
                 return new QCompileCache(lambdaDefinition, Collections.emptyList());
             }
         }
         catch (ParseException e) {
             // Convert parser exception to QLSyntaxException with proper diagnostic
-            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(
-                script,
-                0,  // position unknown
+            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
+                0, // position unknown
                 e.getLine(),
                 e.getColumn(),
-                "",  // lexeme unknown
+                "", // lexeme unknown
                 "PARSE_ERROR",
-                e.getMessage()
-            );
+                e.getMessage());
         }
         catch (QLSyntaxException e) {
             throw e;
@@ -752,21 +748,21 @@ public class Express4Runner {
             throw new RuntimeException("Failed to parse script", e);
         }
     }
-
+    
     private ImportManager inheritDefaultImport() {
         return new ImportManager(initOptions.getClassSupplier(), initOptions.getDefaultImport());
     }
-
+    
     public <T, U, R> boolean addOperatorBiFunction(String operator, BiFunction<T, U, R> biFunction) {
         return operatorManager.addBinaryOperator(operator,
             (left, right) -> biFunction.apply((T)left.get(), (U)right.get()),
             QLPrecedences.MULTI);
     }
-
+    
     public boolean addOperator(String operator, QLFunctionalVarargs functionalVarargs) {
         return addOperator(operator, (left, right) -> functionalVarargs.call(left.get(), right.get()));
     }
-
+    
     /**
      * add operator with multi precedences
      * @param operator operator name
@@ -776,7 +772,7 @@ public class Express4Runner {
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator) {
         return operatorManager.addBinaryOperator(operator, customBinaryOperator, QLPrecedences.MULTI);
     }
-
+    
     /**
      * add operator
      * @param operator operator name
@@ -787,7 +783,7 @@ public class Express4Runner {
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int precedence) {
         return operatorManager.addBinaryOperator(operator, customBinaryOperator, precedence);
     }
-
+    
     /**
      * @param operator operator name
      * @param customBinaryOperator operator implement
@@ -796,7 +792,7 @@ public class Express4Runner {
     public boolean replaceDefaultOperator(String operator, CustomBinaryOperator customBinaryOperator) {
         return operatorManager.replaceDefaultOperator(operator, customBinaryOperator);
     }
-
+    
     /**
      * add alias for keyWord, operator and function
      * @param alias must be a valid id
@@ -807,10 +803,10 @@ public class Express4Runner {
         boolean addKeyWordAliasResult = operatorManager.addKeyWordAlias(alias, originToken);
         boolean addOperatorAliasResult = operatorManager.addOperatorAlias(alias, originToken);
         boolean addFunctionAliasResult = addFunctionAlias(alias, originToken);
-
+        
         return addKeyWordAliasResult || addOperatorAliasResult || addFunctionAliasResult;
     }
-
+    
     private boolean addFunctionAlias(String alias, String originToken) {
         CustomFunction customFunction = userDefineFunction.get(originToken);
         if (customFunction != null) {

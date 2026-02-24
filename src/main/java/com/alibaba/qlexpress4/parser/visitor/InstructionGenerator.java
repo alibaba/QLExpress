@@ -210,34 +210,34 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(ForNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Check if this is a for-each loop
         // For-each loop has: init (VariableDeclarationNode with iterable) and NO condition, NO update
         Node init = node.getInit();
         if (node.getCondition() == null && node.getUpdate() == null) {
             VariableDeclarationNode varDecl = null;
-
+            
             // Check if init is a single variable declaration
             if (init instanceof VariableDeclarationNode) {
-                varDecl = (VariableDeclarationNode) init;
+                varDecl = (VariableDeclarationNode)init;
             }
             // Check if init is a BlockNode containing a single variable declaration
             // This happens when parseVariableDeclaration returns a BlockNode for multi-variable declarations
             // For for-each loops, we only support single variable declarations
             else if (init instanceof BlockNode) {
-                BlockNode block = (BlockNode) init;
+                BlockNode block = (BlockNode)init;
                 List<StatementNode> statements = block.getStatements();
                 if (statements.size() == 1 && statements.get(0) instanceof VariableDeclarationNode) {
-                    varDecl = (VariableDeclarationNode) statements.get(0);
+                    varDecl = (VariableDeclarationNode)statements.get(0);
                 }
             }
-
+            
             // For-each loop: the initial value is the iterable expression
             if (varDecl != null && varDecl.getInitialValue() != null) {
                 return generateForEachInstruction(node, varDecl, context);
             }
         }
-
+        
         // Traditional for loop
         return generateTraditionalForInstruction(node, context);
     }
