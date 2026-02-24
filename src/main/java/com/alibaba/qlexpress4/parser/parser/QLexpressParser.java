@@ -17,6 +17,7 @@ import com.alibaba.qlexpress4.common.ParserOperatorManager;
 import com.alibaba.qlexpress4.common.InterpolationMode;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.QLPrecedences;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -1017,9 +1018,10 @@ public class QLexpressParser {
         }
         
         expect(TokenType.RPAREN);
-        
+
         // Create the method call node
-        MethodCallNode methodCall = new MethodCallNode(lparen.getLine(), lparen.getColumn(), lparen.getStartIndex(), lparen.getSource(), null,
+        // For direct function calls, use identifier position for better error reporting
+        MethodCallNode methodCall = new MethodCallNode(identifier.getLine(), identifier.getColumn(), identifier.getStartPosition(), identifier.getSource(), null,
             identifier.getName(), arguments);
         
         // Check for method chaining: .method(...)
@@ -1288,9 +1290,8 @@ public class QLexpressParser {
         
         // Check for empty brackets [] or starting colon [:...]
         if (match(TokenType.RBRACK)) {
-            // Empty brackets [] - treat as array access with no index (error?)
-            consume();
-            return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(), lbracket.getSource(), array, null);
+            // Empty brackets [] - this is a syntax error, need an index expression
+            throw new ParseException("missing index expression", lbracket.getLine(), lbracket.getColumn(), lbracket.getSource());
         }
         
         if (match(TokenType.COLON)) {

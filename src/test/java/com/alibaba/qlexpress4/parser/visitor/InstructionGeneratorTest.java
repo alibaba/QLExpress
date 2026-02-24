@@ -26,7 +26,7 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitLiteralNode_Integer()
         throws Exception {
-        LiteralNode node = new LiteralNode(1, 1, null, 42);
+        LiteralNode node = new LiteralNode(1, 1, 0, null, 42);
         GenerationResult result = generator.visit(node, context);
         
         assertEquals(1, result.getInstructions().size());
@@ -41,7 +41,7 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitLiteralNode_String()
         throws Exception {
-        LiteralNode node = new LiteralNode(1, 1, null, "hello");
+        LiteralNode node = new LiteralNode(1, 1, 0, null, "hello");
         GenerationResult result = generator.visit(node, context);
         
         assertEquals(1, result.getInstructions().size());
@@ -52,7 +52,7 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitLiteralNode_Null()
         throws Exception {
-        LiteralNode node = new LiteralNode(1, 1, null, null);
+        LiteralNode node = new LiteralNode(1, 1, 0, null, null);
         GenerationResult result = generator.visit(node, context);
         
         assertEquals(1, result.getInstructions().size());
@@ -62,11 +62,11 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitLiteralNode_Boolean()
         throws Exception {
-        LiteralNode trueNode = new LiteralNode(1, 1, null, true);
+        LiteralNode trueNode = new LiteralNode(1, 1, 0, null, true);
         GenerationResult trueResult = generator.visit(trueNode, context);
         assertEquals(true, ((ConstInstruction)trueResult.getInstructions().get(0)).getConstObj());
         
-        LiteralNode falseNode = new LiteralNode(1, 1, null, false);
+        LiteralNode falseNode = new LiteralNode(1, 1, 0, null, false);
         GenerationResult falseResult = generator.visit(falseNode, context);
         assertEquals(false, ((ConstInstruction)falseResult.getInstructions().get(0)).getConstObj());
     }
@@ -74,7 +74,7 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitIdentifierNode()
         throws Exception {
-        IdentifierNode node = new IdentifierNode(1, 1, null, "myVar");
+        IdentifierNode node = new IdentifierNode(1, 1, 0, null, "myVar");
         GenerationResult result = generator.visit(node, context);
         
         assertEquals(1, result.getInstructions().size());
@@ -90,9 +90,9 @@ public class InstructionGeneratorTest {
     public void testVisitBinaryOpNode_Addition()
         throws Exception {
         // 1 + 2
-        LiteralNode left = new LiteralNode(1, 1, null, 1);
-        LiteralNode right = new LiteralNode(1, 1, null, 2);
-        BinaryOpNode node = new BinaryOpNode(1, 1, null, left, "+", right);
+        LiteralNode left = new LiteralNode(1, 1, 0, null, 1);
+        LiteralNode right = new LiteralNode(1, 1, 0, null, 2);
+        BinaryOpNode node = new BinaryOpNode(1, 1, 0, null, left, "+", right);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -110,9 +110,9 @@ public class InstructionGeneratorTest {
     public void testVisitBinaryOpNode_Multiplication()
         throws Exception {
         // 3 * 4
-        LiteralNode left = new LiteralNode(1, 1, null, 3);
-        LiteralNode right = new LiteralNode(1, 1, null, 4);
-        BinaryOpNode node = new BinaryOpNode(1, 1, null, left, "*", right);
+        LiteralNode left = new LiteralNode(1, 1, 0, null, 3);
+        LiteralNode right = new LiteralNode(1, 1, 0, null, 4);
+        BinaryOpNode node = new BinaryOpNode(1, 1, 0, null, left, "*", right);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -127,9 +127,9 @@ public class InstructionGeneratorTest {
     public void testVisitBinaryOpNode_Comparison()
         throws Exception {
         // a > b
-        IdentifierNode left = new IdentifierNode(1, 1, null, "a");
-        IdentifierNode right = new IdentifierNode(1, 1, null, "b");
-        BinaryOpNode node = new BinaryOpNode(1, 1, null, left, ">", right);
+        IdentifierNode left = new IdentifierNode(1, 1, 0, null, "a");
+        IdentifierNode right = new IdentifierNode(1, 1, 0, null, "b");
+        BinaryOpNode node = new BinaryOpNode(1, 1, 0, null, left, ">", right);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -143,9 +143,9 @@ public class InstructionGeneratorTest {
     public void testVisitBinaryOpNode_LogicalAnd()
         throws Exception {
         // true && false
-        LiteralNode left = new LiteralNode(1, 1, null, true);
-        LiteralNode right = new LiteralNode(1, 1, null, false);
-        BinaryOpNode node = new BinaryOpNode(1, 1, null, left, "&&", right);
+        LiteralNode left = new LiteralNode(1, 1, 0, null, true);
+        LiteralNode right = new LiteralNode(1, 1, 0, null, false);
+        BinaryOpNode node = new BinaryOpNode(1, 1, 0, null, left, "&&", right);
 
         GenerationResult result = generator.visit(node, context);
 
@@ -164,8 +164,8 @@ public class InstructionGeneratorTest {
     public void testVisitUnaryOpNode_PrefixMinus()
         throws Exception {
         // -5
-        LiteralNode operand = new LiteralNode(1, 1, null, 5);
-        UnaryOpNode node = new UnaryOpNode(1, 1, null, "-", operand, true);
+        LiteralNode operand = new LiteralNode(1, 1, 0, null, 5);
+        UnaryOpNode node = new UnaryOpNode(1, 1, 0, null, "-", operand, true);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -181,8 +181,8 @@ public class InstructionGeneratorTest {
     public void testVisitUnaryOpNode_PrefixNot()
         throws Exception {
         // !true
-        LiteralNode operand = new LiteralNode(1, 1, null, true);
-        UnaryOpNode node = new UnaryOpNode(1, 1, null, "!", operand, true);
+        LiteralNode operand = new LiteralNode(1, 1, 0, null, true);
+        UnaryOpNode node = new UnaryOpNode(1, 1, 0, null, "!", operand, true);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -194,8 +194,8 @@ public class InstructionGeneratorTest {
     public void testVisitUnaryOpNode_PrefixIncrement()
         throws Exception {
         // ++x
-        IdentifierNode operand = new IdentifierNode(1, 1, null, "x");
-        UnaryOpNode node = new UnaryOpNode(1, 1, null, "++", operand, true);
+        IdentifierNode operand = new IdentifierNode(1, 1, 0, null, "x");
+        UnaryOpNode node = new UnaryOpNode(1, 1, 0, null, "++", operand, true);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -208,10 +208,10 @@ public class InstructionGeneratorTest {
     public void testVisitTernaryNode()
         throws Exception {
         // true ? 1 : 2
-        LiteralNode condition = new LiteralNode(1, 1, null, true);
-        LiteralNode thenExpr = new LiteralNode(1, 1, null, 1);
-        LiteralNode elseExpr = new LiteralNode(1, 1, null, 2);
-        TernaryNode node = new TernaryNode(1, 1, null, condition, thenExpr, elseExpr);
+        LiteralNode condition = new LiteralNode(1, 1, 0, null, true);
+        LiteralNode thenExpr = new LiteralNode(1, 1, 0, null, 1);
+        LiteralNode elseExpr = new LiteralNode(1, 1, 0, null, 2);
+        TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -232,10 +232,10 @@ public class InstructionGeneratorTest {
     public void testVisitTernaryNode_WithIdentifiers()
         throws Exception {
         // flag ? a : b
-        IdentifierNode condition = new IdentifierNode(1, 1, null, "flag");
-        IdentifierNode thenExpr = new IdentifierNode(1, 1, null, "a");
-        IdentifierNode elseExpr = new IdentifierNode(1, 1, null, "b");
-        TernaryNode node = new TernaryNode(1, 1, null, condition, thenExpr, elseExpr);
+        IdentifierNode condition = new IdentifierNode(1, 1, 0, null, "flag");
+        IdentifierNode thenExpr = new IdentifierNode(1, 1, 0, null, "a");
+        IdentifierNode elseExpr = new IdentifierNode(1, 1, 0, null, "b");
+        TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -249,9 +249,9 @@ public class InstructionGeneratorTest {
     public void testVisitArrayAccessNode()
         throws Exception {
         // arr[0]
-        IdentifierNode array = new IdentifierNode(1, 1, null, "arr");
-        LiteralNode index = new LiteralNode(1, 1, null, 0);
-        ArrayAccessNode node = new ArrayAccessNode(1, 1, null, array, index);
+        IdentifierNode array = new IdentifierNode(1, 1, 0, null, "arr");
+        LiteralNode index = new LiteralNode(1, 1, 0, null, 0);
+        ArrayAccessNode node = new ArrayAccessNode(1, 1, 0, null, array, index);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -269,8 +269,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // [1, 2, 3]
         List<ExpressionNode> elements = Arrays
-            .asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2), new LiteralNode(1, 1, null, 3));
-        ArrayLiteralNode node = new ArrayLiteralNode(1, 1, null, elements);
+            .asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2), new LiteralNode(1, 1, 0, null, 3));
+        ArrayLiteralNode node = new ArrayLiteralNode(1, 1, 0, null, elements);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -289,8 +289,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // [1, 2, 3]
         List<ExpressionNode> elements = Arrays
-            .asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2), new LiteralNode(1, 1, null, 3));
-        ListLiteralNode node = new ListLiteralNode(1, 1, null, elements);
+            .asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2), new LiteralNode(1, 1, 0, null, 3));
+        ListLiteralNode node = new ListLiteralNode(1, 1, 0, null, elements);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -309,9 +309,9 @@ public class InstructionGeneratorTest {
         throws Exception {
         // {"a": 1, "b": 2}
         List<MapEntryNode> entries =
-            Arrays.asList(new MapEntryNode(new LiteralNode(1, 1, null, "a"), new LiteralNode(1, 1, null, 1)),
-                new MapEntryNode(new LiteralNode(1, 1, null, "b"), new LiteralNode(1, 1, null, 2)));
-        MapLiteralNode node = new MapLiteralNode(1, 1, null, entries);
+            Arrays.asList(new MapEntryNode(new LiteralNode(1, 1, 0, null, "a"), new LiteralNode(1, 1, 0, null, 1)),
+                new MapEntryNode(new LiteralNode(1, 1, 0, null, "b"), new LiteralNode(1, 1, 0, null, 2)));
+        MapLiteralNode node = new MapLiteralNode(1, 1, 0, null, entries);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -328,9 +328,9 @@ public class InstructionGeneratorTest {
     public void testVisitMethodCallNode()
         throws Exception {
         // obj.method(1, 2)
-        IdentifierNode target = new IdentifierNode(1, 1, null, "obj");
-        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2));
-        MethodCallNode node = new MethodCallNode(1, 1, null, target, "method", args);
+        IdentifierNode target = new IdentifierNode(1, 1, 0, null, "obj");
+        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2));
+        MethodCallNode node = new MethodCallNode(1, 1, 0, null, target, "method", args);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -348,8 +348,8 @@ public class InstructionGeneratorTest {
     public void testVisitMethodCallNode_NoTarget()
         throws Exception {
         // method(1, 2) - direct function call (no target)
-        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2));
-        MethodCallNode node = new MethodCallNode(1, 1, null, null, "method", args);
+        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2));
+        MethodCallNode node = new MethodCallNode(1, 1, 0, null, null, "method", args);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -367,8 +367,8 @@ public class InstructionGeneratorTest {
     public void testVisitConstructorCallNode()
         throws Exception {
         // new MyClass(1, 2)
-        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, null, 1), new LiteralNode(1, 1, null, 2));
-        ConstructorCallNode node = new ConstructorCallNode(1, 1, null, "MyClass", args);
+        List<ExpressionNode> args = Arrays.asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2));
+        ConstructorCallNode node = new ConstructorCallNode(1, 1, 0, null, "MyClass", args);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -387,8 +387,8 @@ public class InstructionGeneratorTest {
         // x -> x + 1
         List<ParameterNode> params = Collections.singletonList(new ParameterNode(null, "x"));
         BinaryOpNode body =
-            new BinaryOpNode(1, 1, null, new IdentifierNode(1, 1, null, "x"), "+", new LiteralNode(1, 1, null, 1));
-        LambdaNode node = new LambdaNode(1, 1, null, params, body);
+            new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "+", new LiteralNode(1, 1, 0, null, 1));
+        LambdaNode node = new LambdaNode(1, 1, 0, null, params, body);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -404,8 +404,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // () -> { 42 }
         List<ParameterNode> params = Collections.emptyList();
-        BlockNode body = new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42)));
-        LambdaNode node = new LambdaNode(1, 1, null, params, body);
+        BlockNode body = new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42)));
+        LambdaNode node = new LambdaNode(1, 1, 0, null, params, body);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -416,14 +416,14 @@ public class InstructionGeneratorTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testVisitCastNode_NotImplemented()
         throws Exception {
-        CastNode node = new CastNode(1, 1, null, null, null);
+        CastNode node = new CastNode(1, 1, 0, null, null, null);
         generator.visit(node, context);
     }
     
     @Test
     public void testVisitProgramNode_Empty()
         throws Exception {
-        ProgramNode node = new ProgramNode(1, 1, Collections.emptyList());
+        ProgramNode node = new ProgramNode(1, 1, 0, null, Collections.emptyList());
         GenerationResult result = generator.visit(node, context);
         
         assertTrue(result.getInstructions().isEmpty());
@@ -435,8 +435,8 @@ public class InstructionGeneratorTest {
     public void testVisitProgramNode_SingleStatement()
         throws Exception {
         // Just an expression statement
-        LiteralNode expr = new LiteralNode(1, 1, null, 42);
-        ProgramNode node = new ProgramNode(1, 1, Collections.singletonList(expr));
+        LiteralNode expr = new LiteralNode(1, 1, 0, null, 42);
+        ProgramNode node = new ProgramNode(1, 1, 0, null, Collections.singletonList(expr));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -449,7 +449,7 @@ public class InstructionGeneratorTest {
     public void testVisitBlockNode_SingleStatement()
         throws Exception {
         // { 42 }
-        BlockNode node = new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42)));
+        BlockNode node = new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42)));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -462,7 +462,7 @@ public class InstructionGeneratorTest {
     public void testVisitReturnNode_WithValue()
         throws Exception {
         // return 42;
-        ReturnNode node = new ReturnNode(1, 1, null, new LiteralNode(1, 1, null, 42));
+        ReturnNode node = new ReturnNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, 42));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -478,7 +478,7 @@ public class InstructionGeneratorTest {
     public void testVisitReturnNode_NoValue()
         throws Exception {
         // return;
-        ReturnNode node = new ReturnNode(1, 1, null, null);
+        ReturnNode node = new ReturnNode(1, 1, 0, null, null);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -491,7 +491,7 @@ public class InstructionGeneratorTest {
     public void testVisitBreakNode()
         throws Exception {
         // break;
-        BreakNode node = new BreakNode(1, 1, null);
+        BreakNode node = new BreakNode(1, 1, 0, null);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -508,7 +508,7 @@ public class InstructionGeneratorTest {
     public void testVisitContinueNode()
         throws Exception {
         // continue;
-        ContinueNode node = new ContinueNode(1, 1, null);
+        ContinueNode node = new ContinueNode(1, 1, 0, null);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -525,7 +525,7 @@ public class InstructionGeneratorTest {
     public void testVisitThrowNode()
         throws Exception {
         // throw "error";
-        ThrowNode node = new ThrowNode(1, 1, null, new LiteralNode(1, 1, null, "error"));
+        ThrowNode node = new ThrowNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, "error"));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -542,7 +542,7 @@ public class InstructionGeneratorTest {
         throws Exception {
         // int x = 42;
         VariableDeclarationNode node =
-            new VariableDeclarationNode(1, 1, null, "int", "x", new LiteralNode(1, 1, null, 42));
+            new VariableDeclarationNode(1, 1, 0, null, "int", "x", new LiteralNode(1, 1, 0, null, 42));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -558,7 +558,7 @@ public class InstructionGeneratorTest {
     public void testVisitVariableDeclarationNode_NoInitialValue()
         throws Exception {
         // int x;
-        VariableDeclarationNode node = new VariableDeclarationNode(1, 1, null, "int", "x", null);
+        VariableDeclarationNode node = new VariableDeclarationNode(1, 1, 0, null, "int", "x", null);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -575,7 +575,7 @@ public class InstructionGeneratorTest {
         throws Exception {
         // x = 42;
         AssignmentNode node =
-            new AssignmentNode(1, 1, null, new IdentifierNode(1, 1, null, "x"), "=", new LiteralNode(1, 1, null, 42));
+            new AssignmentNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "=", new LiteralNode(1, 1, 0, null, 42));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -590,8 +590,8 @@ public class InstructionGeneratorTest {
     public void testVisitIfNode_Simple()
         throws Exception {
         // if (true) { 42 }
-        IfNode node = new IfNode(1, 1, null, new LiteralNode(1, 1, null, true),
-            new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42))), null);
+        IfNode node = new IfNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, true),
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))), null);
 
         GenerationResult result = generator.visit(node, context);
 
@@ -609,9 +609,9 @@ public class InstructionGeneratorTest {
     public void testVisitIfNode_WithElse()
         throws Exception {
         // if (false) { 1 } else { 2 }
-        IfNode node = new IfNode(1, 1, null, new LiteralNode(1, 1, null, false),
-            new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 1))),
-            new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 2))));
+        IfNode node = new IfNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, false),
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 1))),
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 2))));
 
         GenerationResult result = generator.visit(node, context);
 
@@ -628,8 +628,8 @@ public class InstructionGeneratorTest {
     public void testVisitWhileNode()
         throws Exception {
         // while (true) { 42 }
-        WhileNode node = new WhileNode(1, 1, null, new LiteralNode(1, 1, null, true),
-            new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42))));
+        WhileNode node = new WhileNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, true),
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -644,8 +644,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // for (x : items) { }
         VariableDeclarationNode varDecl =
-            new VariableDeclarationNode(1, 1, null, "int", "x", new IdentifierNode(1, 1, null, "items"));
-        ForNode node = new ForNode(1, 1, null, varDecl, null, null, new BlockNode(1, 1, -1, null, Collections.emptyList()));
+            new VariableDeclarationNode(1, 1, 0, null, "int", "x", new IdentifierNode(1, 1, 0, null, "items"));
+        ForNode node = new ForNode(1, 1, 0, null, varDecl, null, null, new BlockNode(1, 1, 0, null, Collections.emptyList()));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -661,12 +661,12 @@ public class InstructionGeneratorTest {
         throws Exception {
         // for (int i = 0; i < 10; i++) { }
         VariableDeclarationNode init =
-            new VariableDeclarationNode(1, 1, null, "int", "i", new LiteralNode(1, 1, null, 0));
+            new VariableDeclarationNode(1, 1, 0, null, "int", "i", new LiteralNode(1, 1, 0, null, 0));
         BinaryOpNode condition =
-            new BinaryOpNode(1, 1, null, new IdentifierNode(1, 1, null, "i"), "<", new LiteralNode(1, 1, null, 10));
-        UnaryOpNode update = new UnaryOpNode(1, 1, null, "++", new IdentifierNode(1, 1, null, "i"), false);
+            new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "i"), "<", new LiteralNode(1, 1, 0, null, 10));
+        UnaryOpNode update = new UnaryOpNode(1, 1, 0, null, "++", new IdentifierNode(1, 1, 0, null, "i"), false);
         ForNode node =
-            new ForNode(1, 1, null, init, condition, update, new BlockNode(1, 1, -1, null, Collections.emptyList()));
+            new ForNode(1, 1, 0, null, init, condition, update, new BlockNode(1, 1, 0, null, Collections.emptyList()));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -680,9 +680,9 @@ public class InstructionGeneratorTest {
     public void testVisitSwitchNode_Simple()
         throws Exception {
         // switch (1) { case 1: { 42 } }
-        List<SwitchCaseNode> cases = Collections.singletonList(new SwitchCaseNode(new LiteralNode(1, 1, null, 1),
-            Collections.singletonList(new LiteralNode(1, 1, null, 42))));
-        SwitchNode node = new SwitchNode(1, 1, null, new LiteralNode(1, 1, null, 1), cases);
+        List<SwitchCaseNode> cases = Collections.singletonList(new SwitchCaseNode(new LiteralNode(1, 1, 0, null, 1),
+            Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))));
+        SwitchNode node = new SwitchNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, 1), cases);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -696,8 +696,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // switch (x) { default: { 42 } }
         List<SwitchCaseNode> cases = Collections.singletonList(new SwitchCaseNode(null, // default case
-            Collections.singletonList(new LiteralNode(1, 1, null, 42))));
-        SwitchNode node = new SwitchNode(1, 1, null, new IdentifierNode(1, 1, null, "x"), cases);
+            Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))));
+        SwitchNode node = new SwitchNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), cases);
         
         GenerationResult result = generator.visit(node, context);
         
@@ -711,9 +711,9 @@ public class InstructionGeneratorTest {
         // try { 42 } catch (Exception e) { }
         List<CatchClauseNode> catchClauses =
             Collections.singletonList(new CatchClauseNode(Collections.singletonList("Exception"), "e",
-                new BlockNode(1, 1, -1, null, Collections.emptyList())));
-        TryCatchNode node = new TryCatchNode(1, 1, -1, null,
-            new BlockNode(1, 1, -1, null, Collections.singletonList(new LiteralNode(1, 1, null, 42))), catchClauses, null);
+                new BlockNode(1, 1, 0, null, Collections.emptyList())));
+        TryCatchNode node = new TryCatchNode(1, 1, 0, null,
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))), catchClauses, null);
 
         GenerationResult result = generator.visit(node, context);
 
@@ -729,8 +729,8 @@ public class InstructionGeneratorTest {
     public void testVisitTryCatchNode_WithFinally()
         throws Exception {
         // try { } finally { }
-        TryCatchNode node = new TryCatchNode(1, 1, -1, null, new BlockNode(1, 1, -1, null, Collections.emptyList()),
-            Collections.emptyList(), new BlockNode(1, 1, -1, null, Collections.emptyList()));
+        TryCatchNode node = new TryCatchNode(1, 1, 0, null, new BlockNode(1, 1, 0, null, Collections.emptyList()),
+            Collections.emptyList(), new BlockNode(1, 1, 0, null, Collections.emptyList()));
 
         GenerationResult result = generator.visit(node, context);
 
@@ -760,8 +760,8 @@ public class InstructionGeneratorTest {
     @Test
     public void testVisitFunctionDefinitionNode_NotImplemented()
         throws Exception {
-        FunctionDefinitionNode node = new FunctionDefinitionNode(1, 1, null, "myFunc", Collections.emptyList(),
-            new BlockNode(1, 1, -1, null, Collections.emptyList()));
+        FunctionDefinitionNode node = new FunctionDefinitionNode(1, 1, 0, null, "myFunc", Collections.emptyList(),
+            new BlockNode(1, 1, 0, null, Collections.emptyList()));
         GenerationResult result = generator.visit(node, context);
         // Function definition is now implemented
         assertTrue(result.getInstructions().get(0) instanceof DefineFunctionInstruction);
@@ -771,7 +771,7 @@ public class InstructionGeneratorTest {
     public void testVisitMacroDefinitionNode_NotImplemented()
         throws Exception {
         MacroDefinitionNode node =
-            new MacroDefinitionNode(1, 1, null, "myMacro", new BlockNode(1, 1, -1, null, Collections.emptyList()));
+            new MacroDefinitionNode(1, 1, 0, null, "myMacro", new BlockNode(1, 1, 0, null, Collections.emptyList()));
         GenerationResult result = generator.visit(node, context);
         // Macro definition is now implemented but returns empty instructions (compile-time only)
         assertTrue(result.getInstructions().isEmpty());
@@ -780,14 +780,14 @@ public class InstructionGeneratorTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testVisitInstanceOfNode_NotImplemented()
         throws Exception {
-        InstanceOfNode node = new InstanceOfNode(1, 1, null, new LiteralNode(1, 1, null, "test"), "String");
+        InstanceOfNode node = new InstanceOfNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, "test"), "String");
         generator.visit(node, context);
     }
     
     @Test(expected = UnsupportedOperationException.class)
     public void testVisitTypeNode_NotImplemented()
         throws Exception {
-        TypeNode node = new TypeNode(1, 1, null, "String");
+        TypeNode node = new TypeNode(1, 1, 0, null, "String");
         generator.visit(node, context);
     }
 }

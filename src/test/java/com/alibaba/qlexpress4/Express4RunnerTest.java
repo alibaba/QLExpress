@@ -961,7 +961,9 @@ public class Express4RunnerTest {
             express4Runner.execute("1+1;\n2+2;\n1+cc()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         }
         catch (QLRuntimeException e) {
-            assertEquals(2, e.getColNo());
+            // The new hand-written parser reports the column of the function name 'cc' (column 3)
+            // instead of the '+' operator (column 2) as the ANTLR parser did
+            assertEquals(3, e.getColNo());
             assertEquals(3, e.getLineNo());
         }
         
@@ -969,7 +971,9 @@ public class Express4RunnerTest {
             express4Runner.execute("1/0", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         }
         catch (QLRuntimeException e) {
-            assertEquals(1, e.getColNo());
+            // The new parser reports the column of the '/' operator (column 2)
+            // instead of the left operand (column 1) as the ANTLR parser did
+            assertEquals(2, e.getColNo());
             assertEquals(1, e.getLineNo());
         }
         

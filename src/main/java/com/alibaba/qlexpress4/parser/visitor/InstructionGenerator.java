@@ -1073,35 +1073,40 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(TernaryNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Generate condition
         GenerationResult conditionResult = ((ASTNode)node.getCondition()).accept(this, context);
         instructions.addAll(conditionResult.getInstructions());
-        
+
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Jump to else if condition is false
         JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, false, -1, node.getStartPosition());
         instructions.add(jumpIf);
-        
+
         // Generate then expression
         GenerationResult thenResult = ((ASTNode)node.getThenExpr()).accept(this, context);
         instructions.addAll(thenResult.getInstructions());
-        
+
         // Jump to end after then
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
-        
+
         // Set jumpIf target (start of else)
         jumpIf.setPosition(instructions.size());
-        
+
         // Generate else expression
         GenerationResult elseResult = ((ASTNode)node.getElseExpr()).accept(this, context);
         instructions.addAll(elseResult.getInstructions());
-        
+
         // Set jump target (end of ternary)
         jump.setPosition(instructions.size());
-        
+
+        // Add trace peek instruction to capture the ternary result value
+        // This allows the trace system to record the final value of the ternary expression
+        TracePeekInstruction tracePeek = new TracePeekInstruction(errorReporter, node.getStartPosition());
+        instructions.add(tracePeek);
+
         return new GenerationResult(instructions, true, 1);
     }
     
