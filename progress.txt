@@ -1483,3 +1483,32 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
   - When short circuit doesn't trigger, we evaluate right + operator which consumes both and pushes result
   - Test status: 644 tests run, 612 pass (~95% pass rate) - improved from 609 passing
 
+
+## [2026-02-24] - US-034 (Iteration 2)
+- Fixed runtime error reporting by adding script source to InstructionGenerator
+- Added script field to InstructionGenerator class
+- Updated ASTCompiler.compile() methods to accept optional script parameter  
+- Updated Express4Runner.parseDefinition() to pass script to compiler
+- Updated InstructionGenerator.createErrorReporter() to use DefaultErrReporter when script is available
+- Fixed errorReportColNumTest - no longer throws NullPointerException
+- Fixed VariableDetector.visit(BinaryOpNode) to add implicit declarations for assignment operators
+- Fixed getOutVarNames first test assertion (simple assignments)
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added script field, updated createErrorReporter)
+- src/main/java/com/alibaba/qlexpress4/parser/ASTCompiler.java (added script parameter to compile methods)
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java (pass script to compile methods)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java (BinaryOpNode now adds implicit declarations)
+- prd.json (updated progress notes)
+- progress.txt (this entry)
+
+**Test results:** 644 tests run, 623 pass (~96.7% pass rate)
+- Reduced failures from 22 to 21
+
+**Learnings for future iterations:**
+- The old parser used different error reporting positions (column at identifier, new parser at opening paren)
+- BinaryOpNode with = operator is used for assignments, not AssignmentNode
+- Test isolation issues exist where tests pass individually but fail in suite run
+- Variable detection for control flow (if/else/while) requires scope-aware analysis not yet implemented
+
+---
