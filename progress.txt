@@ -1417,3 +1417,25 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
   - SpreadMethodInvokeInstruction: applies method call to each element in a collection
   - SpreadGetFieldInstruction: applies field access to each element in a collection
   - The parser needs to mark AST nodes with spread flag so the instruction generator knows which instruction to use
+
+---
+
+## [2026-02-24] - US-034 (continued - exception cause handling)
+- Fixed exception cause handling in QLRuntimeException and PureErrReporter
+  - QLRuntimeException now calls initCause() when catchObj is a Throwable
+  - PureErrReporter.reportFormatWithCatch() now passes catchObj instead of null to QLRuntimeException
+  - This fixes methodInvokeCauseTest which expects exceptions to preserve their cause chain
+  - The innerFunctionExceptionTest moved from error to failure (progress - exception is now being thrown with cause)
+  - Files changed:
+    - src/main/java/com/alibaba/qlexpress4/exception/QLRuntimeException.java
+    - src/main/java/com/alibaba/qlexpress4/exception/PureErrReporter.java
+- Test progress: 644 tests run, 604 tests pass (~94% pass rate), down from 41 failing to 40 failing (1 error test converted to failure)
+
+**Learnings for future iterations:**
+- Pattern: When creating exception wrappers, always preserve the original cause
+  - QLRuntimeException has two constructors: one takes (catchObj, reason, errorCode), another takes (catchObj, message, Diagnostic)
+  - Only the second constructor called initCause() - fixed the first to also call initCause()
+  - PureErrReporter was passing null instead of catchObj to QLRuntimeException - fixed to pass catchObj
+- Pattern: Exception cause is important for debugging and error handling
+  - Tests like methodInvokeCauseTest verify that the original exception (e.g., IndexOutOfBoundsException) is preserved as the cause
+  - This allows proper error handling and debugging in production code
