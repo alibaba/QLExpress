@@ -1512,3 +1512,25 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
 - Variable detection for control flow (if/else/while) requires scope-aware analysis not yet implemented
 
 ---
+
+## [2026-02-24] - US-034 (Trace Position Tracking)
+- Implemented character position tracking for trace value evaluation
+- Added startIndex field to Token class (0-based character position in source)
+- Added startPosition field to ASTNode base class
+- Updated QLexpressLexer to track and report token start positions
+- Updated QLexpressParser to pass start positions to all AST node creations
+- Updated TraceGenerator to use node.getStartPosition() instead of hardcoded 0
+- Updated InstructionGenerator to pass trace keys (node position) to instructions
+- Fixed string literal trace tokens to include quotes ('ab' instead of ab)
+- Updated all 44 AST node classes with new constructor signature
+
+**Learnings for future iterations:**
+- The old ANTLR parser used ctx.getStartIndex() which returned the character position in source
+- The trace key is the character position, used to map runtime values to trace points
+- Trace value evaluation works via getExpressionTraceByKey(traceKey) calling valueEvaluated()
+- ExpressionTrace stores both token (for display) and value (runtime result)
+- String literals need quotes in the token for proper trace display format
+- Test files that create AST nodes directly need updating when node constructors change
+- The pattern new Token(type, value, line, column, source) became new Token(type, value, line, column, startIndex, source)
+
+---
