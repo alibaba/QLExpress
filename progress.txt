@@ -1561,3 +1561,33 @@ REMAINING ISSUES (44 tests still failing - 21 failures + 23 errors):
 **Behavior Differences from ANTLR Parser:**
 The new hand-written parser reports more accurate error positions. These differences make error reporting more useful by pointing to the actual source of the error rather than the operator position.
 ---
+
+## [2026-02-25] - US-034 (getOutVarNames and ternary test fixes)
+- Fixed testVisitTernaryNode in InstructionGeneratorTest - updated to expect 6 instructions
+  - TracePeekInstruction was added in previous iteration for trace position tracking
+- Created OutVariableDetector for scope-aware out variable detection
+  - Uses scope stack to properly track variable declarations
+  - Function and lambda parameters create isolated scopes
+  - Class references (Math, java, etc.) are filtered from out variables
+  - IfNode handling: variables in else branch that aren't declared before if are out vars
+- Updated Express4Runner.getOutVarNames to use OutVariableDetector
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/OutVariableDetector.java (new file, ~460 lines)
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java (updated getOutVarNames)
+- src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (updated test expectations)
+
+**Test results:** 644 tests run, 18 failures + 12 errors (30 total issues, down from 33)
+- Fixed: getOutVarNamesTest (all 5 assertions now pass)
+- Fixed: testVisitTernaryNode (both tests now pass)
+
+**Learnings for future iterations:**
+- OutVariableDetector needs scope-aware tracking similar to old OutVarNamesVisitor
+- Function parameters must create isolated scopes to avoid being detected as out variables
+- Class references like Math, String, java.lang need to be filtered from out variables
+- Package prefixes (java, javax, org, com) should not be treated as out variables
+- For if-else: variables read in else branch that aren't declared before if ARE out variables
+  - Example: `if (true) {a = 10} else {a}` - `a` in else is an out var
+- TracePeekInstruction was added for trace position tracking, increasing instruction count by 1
+
+---
