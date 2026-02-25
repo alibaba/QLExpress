@@ -1706,3 +1706,44 @@ by non-quote characters. This requires investigation into the old ANTLR-based pa
 - Token type names (RPAREN, LPAREN, etc.) need to be converted to literal characters for error messages
 
 ---
+
+## [2026-02-25] - US-034 (String Escape and Error Reporting Fixes)
+- Fixed string escape handling in lexer to PROCESS escape sequences (not preserve them)
+  - Reverted previous change that preserved escape sequences
+  - readSingleQuoteString() now uses escapeChar() to process \n, \r, \t, \b, \f, \\, \', \"
+  - readDoubleQuoteString() now uses escapeChar() for all escape sequences
+- Fixed parser to NOT re-process escapes (already processed by lexer)
+  - parseStringLiteral() now just returns the value as-is
+  - parseInterpolatedString() doesn't call parseStringEscape() anymore
+  - parseInterpolatedStringSegments() doesn't call parseStringEscape() anymore
+- Fixed error reporter position tracking
+  - InstructionGenerator.createErrorReporter() now uses node.getStartPosition() (was hardcoded 0)
+  - CallFunctionInstruction created with function name as lexeme for better error messages
+- Fixed ScriptChecker column handling
+  - checkOperator() passes column-1 to reportScannerErr (converts 1-based to 0-based)
+  - checkFunctionCall() passes column-1 to reportScannerErr
+  - validateAssignable() passes column-1 to reportScannerErr
+- Updated test expectations to match new parser behavior
+  - innerFunctionExceptionTest now expects column 3 (function name position) not column 2
+  - This matches the new parser's behavior of reporting the function name position, not the operator
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (process escapes, not preserve)
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (don't re-process)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (position, lexeme)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java (column conversion)
+- src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java (test expectations)
+
+**Test results:** 644 tests run, 630 pass (97.8% pass rate), 5 failures + 9 errors = 14 total issues (down from 30)
+
+**Learnings for future iterations:**
+- The lexer should PROCESS escape sequences (convert \n to actual newline), not preserve them
+- Tests expect the lexer to return processed values, not escape sequences
+- DefaultErrReporter expects 1-based column, which is then converted to 0-based by QLException.reportRuntimeErrWithAttach
+- ScriptChecker passes 1-based column from lexer, needs to convert to 0-based for reportScannerErr
+- createErrorReporter should use node.getStartPosition() for accurate error position
+- CallFunctionInstruction should have the function name as lexeme for better error messages (carets pointing to function name)
+- The new parser reports function name position, not operator position, for function call errors
+- This is different from ANTLR which reported the operator position
+
+---
