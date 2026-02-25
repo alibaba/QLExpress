@@ -1747,3 +1747,39 @@ by non-quote characters. This requires investigation into the old ANTLR-based pa
 - This is different from ANTLR which reported the operator position
 
 ---
+
+## [2026-02-25] - US-034 (Keyword Alias and Custom Operator Support)
+- Added keyword alias support to QLexpressLexer
+  - Added OperatorManager field to lexer constructor
+  - Updated getKeywordType to check operatorManager.getAlias() for keyword aliases
+  - Added getKeywordTypeById method to map alias IDs (1-14) to TokenTypes
+  - IDs map: 1=IF, 2=THEN, 3=ELSE, 4=FOR, 5=WHILE, 6=BREAK, 7=CONTINUE, 8=RETURN, 9=FUNCTION, 10=MACRO, 11=NEW, 12=NULL, 13=TRUE, 14=FALSE
+- Updated SyntaxTreeFactory to pass OperatorManager to lexer
+- Added special handling for .* operator with identifier right operand
+  - When operator is .* and right is IdentifierNode, use identifier name as string literal
+  - This allows .*a to work where 'a' is treated as field name "a", not variable reference
+- Added special handling for .* operator with array access
+  - When .* is followed by ArraySliceNode or ArrayAccessNode with simple identifier target
+  - Apply array access to RESULT of .* operation, not to the identifier
+  - This allows list.*field[1:-1] to work correctly
+- Added DOTMUL check in parsePath to break early and let binary expression parser handle it
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java
+- src/main/java/com/alibaba/qlexpress4/parser/SyntaxTreeFactory.java
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+
+**Test results:** 644 tests run, 632 pass (98.1% pass rate), 4 failures + 8 errors = 12 total issues (down from 14)
+
+**Learnings for future iterations:**
+- Pattern: When adding custom operator support, need to handle both the operator registration and the parsing behavior
+- Pattern: Keyword aliases work by checking OperatorManager.getAlias() in lexer's getKeywordType method
+- Pattern: For operators like .* that need special handling with identifiers, use InstructionGenerator to convert identifier to string literal
+- Pattern: Array access/slicing after binary operators needs special handling - apply to result of operator, not to right operand
+- Pattern: parsePath should break on tokens that are handled by binary expression parser (like DOTMUL)
+- Pattern: The alias ID mapping must match OperatorManager.ALIASABLE_KEYWORDS exactly
+- Gotcha: When operator has GROUP precedence (same as . and []), array access binds tighter than operator
+  - Need to restructure AST or handle specially in InstructionGenerator
+- Gotcha: The test expects .*a[indices] to mean (.*a)[indices], not.*(a[indices])
+  - This requires checking the AST structure and "floating up" the array access
