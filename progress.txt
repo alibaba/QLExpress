@@ -1636,3 +1636,31 @@ The new hand-written parser reports more accurate error positions. These differe
   - Example: `function add() { function sub() {...} }` - `sub` is NOT available at top level
 
 ---
+
+## [Tue Feb 25 14:30:00 PM CST 2025] - US-034 (Iteration 2)
+- Implemented OutVarAttrDetector for field access path tracking
+- Created OutVarAttrDetector visitor in parser.visitor package
+- Updated Express4Runner.getOutVarAttrs() to use the new detector
+- getOutVarAttrsTest now passes (all 6 assertions)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/OutVarAttrDetector.java (new file, 587 lines)
+  - src/main/java/com/alibaba/qlexpress4/Express4Runner.java (updated getOutVarAttrs method)
+- Test Results: 644 tests run, 592 pass (92%), 27 failures remaining (15 failures + 12 errors)
+- **Learnings for future iterations:**
+  - Field access paths are tracked as List<String> where each element is a path component (e.g., ["a", "b", "c"] for a.b.c)
+  - OutVarAttrDetector.extractPath() recursively builds paths from FieldAccessNode chains
+  - Class references like Math, String, System should be filtered out (checked via BuiltInTypesSet and COMMON_JAVA_CLASSES)
+  - The detector uses the same scope tracking as OutVariableDetector (pushScope/popScope for functions/lambdas)
+  - Variable declarations exclude read variables that haven't been written yet
+  - For compound assignments like x += 1, x is both read and written
+
+## Known Issue - stringEscapeTest:
+The stringEscapeTest failure is due to a lexer bug in handling `\'` in single-quoted strings.
+The test input `"\"\"\"+'\\'\na'"` should produce `"'\na` but currently produces just `"\n"`.
+The issue is in readSingleQuoteString() - when it sees `\'` (backslash + quote), it processes
+it as an escape sequence but then continues the loop, consuming the following newline as
+part of the string. According to the ANTLR grammar fragment QuoteStringCharacter: `'\\' '\''?`,
+the sequence `\'` might need special handling - possibly terminating the string when followed
+by non-quote characters. This requires investigation into the old ANTLR-based parser behavior.
+
+---
