@@ -293,18 +293,20 @@ public class QLexpressParser {
     private ExpressionNode parseInterpolatedString(Token token)
         throws ParseException {
         String content = token.getValue();
-        
-        // If interpolation is disabled, return a simple literal
+
+        // If interpolation is disabled, process escapes and return a simple literal
         if (interpolationMode == InterpolationMode.DISABLE) {
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
+            String processedContent = parseStringEscape(content);
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), processedContent);
         }
-        
+
         // Check if the string contains any ${...} patterns
         if (!content.contains("${")) {
-            // No interpolation, return a simple literal
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
+            // No interpolation, but still need to process escapes
+            String processedContent = parseStringEscape(content);
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), processedContent);
         }
-        
+
         // Parse the interpolated string into segments
         InterpolatedStringNode node = new InterpolatedStringNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource());
         parseInterpolatedStringSegments(content, node);
@@ -3062,10 +3064,97 @@ public class QLexpressParser {
      * @param message the error message
      * @return the parse exception
      */
+    /**
+     * Converts a token type name to its literal representation for error messages.
+     * For example, RPAREN -> "'", LPAREN -> "'(", etc.
+     * Multi-character operators are returned as-is (e.g., AND -> "&&").
+     */
+    private String tokenTypeToLiteral(String tokenType) {
+        // Handle common tokens that should be displayed as their literal characters
+        switch (tokenType) {
+            case "LPAREN": return "'(";
+            case "RPAREN": return "')'";
+            case "LBRACE": return "'{'";
+            case "RBRACE": return "'}'";
+            case "LBRACK": return "'['";
+            case "RBRACK": return "']'";
+            case "SEMI": return "';'";
+            case "COMMA": return "','";
+            case "DOT": return "'.'";
+            case "COLON": return "':'";
+            case "DCOLON": return "::";
+            case "QUESTION": return "'?'";
+            case "ADD": return "'+'";
+            case "SUB": return "'-'";
+            case "MUL": return "'*'";
+            case "DIV": return "'/'";
+            case "MOD": return "'%'";
+            case "ASSIGN": return "'='";
+            case "EQ": return "'=='";
+            case "LT": return "'<'";
+            case "GT": return "'>'";
+            case "LE": return "<=";
+            case "GE": return ">=";
+            case "NE": return "!=";
+            case "NOEQ": return "<>";
+            case "AND": return "'&&'";
+            case "OR": return "'||'";
+            case "NOT": return "'!'";
+            case "BIT_AND": return "'&'";
+            case "BIT_OR": return "'|'";
+            case "XOR": return "'^'";
+            case "LSHIFT": return "<<";
+            case "RSHIFT": return ">>";
+            case "URSHIFT": return ">>>";
+            case "INC": return "'++'";
+            case "DEC": return "'--'";
+            case "ARROW": return "->";
+            case "ELLIPSIS": return "...";
+            default: return tokenType;
+        }
+    }
+
     public ParseException error(String message) {
         Token current = peek();
         if (current != null) {
-            return new ParseException(message, current.getLine(), current.getColumn(), current.getSource());
+            int line = current.getLine();
+            int column = current.getColumn();
+            String source = current.getSource();
+
+            // If current token is EOF, use the last token's position for better error reporting
+            // This matches ANTLR's behavior where errors are reported at the position of the
+            // last valid token, not at the EOF position
+            if (current.getType() == TokenType.EOF && lastToken != null) {
+                line = lastToken.getLine();
+                column = lastToken.getColumn();
+                // For EOF, format the error message to match ANTLR's format
+                if (message.startsWith("Expected ")) {
+                    // Extract just the expected part (before " but found")
+                    String expected = message.substring("Expected ".length());
+                    int butIndex = expected.indexOf(" but found");
+                    if (butIndex >= 0) {
+                        expected = expected.substring(0, butIndex);
+                    }
+                    // Convert token type to literal representation
+                    expected = tokenTypeToLiteral(expected);
+                    message = "mismatched input '<EOF>' expecting " + expected;
+                }
+            } else if (message.startsWith("Expected ")) {
+                // Format "Expected X but found Y" as "mismatched input 'Y' expecting X"
+                // to match ANTLR's error format
+                String expected = message.substring("Expected ".length());
+                int butIndex = expected.indexOf(" but found ");
+                if (butIndex >= 0) {
+                    String expectedPart = expected.substring(0, butIndex);
+                    String foundPart = expected.substring(butIndex + " but found ".length());
+                    // Convert token types to literal representations
+                    expectedPart = tokenTypeToLiteral(expectedPart);
+                    foundPart = tokenTypeToLiteral(foundPart);
+                    message = "mismatched input '" + foundPart + "' expecting " + expectedPart;
+                }
+            }
+
+            return new ParseException(message, line, column, source);
         }
         return new ParseException(message, -1, -1, null);
     }
