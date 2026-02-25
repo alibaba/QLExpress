@@ -1802,3 +1802,27 @@ REMAINING ISSUES (12 total):
 - 5 Express4RunnerTest failures: importNotAtBeginningTest, multilineStrNotCloseTest, checkSyntaxTest, expressionTraceTest, suiteTest
 - 7 Express4RunnerTest errors: scripTimeoutTest, docImportJavaTest, classFieldTest, testSwitchMixedSyntaxError, qlStaticFunctionTest, clearDFACacheTest, testPluginClassSupplier
 - Note: suiteTest failure is due to string_not_close.ql not throwing SYNTAX_ERROR (lexer accepts unterminated strings)
+
+## [2026-02-26] - US-034 (Import Position Validation and Interpolation Escape Fix)
+- Added validateImportPositions() to Express4Runner to check that import statements only appear at the beginning of a script
+  - Throws SYNTAX_ERROR with message "Import statement is not at the beginning of the file." when import appears after other statements
+- Fixed parseInterpolatedStringSegments() to process \${ escape sequences correctly in interpolated strings
+  - Added processStaticTextEscapes() helper method to convert \${ to ${ in static text portions
+  - The lexer preserves \${ so the parser needs to convert it back for the final result
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java (added validateImportPositions method and imports)
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added processStaticTextEscapes helper)
+
+**Test results:** 644 tests run, 633 pass (98.3% pass rate)
+- Reduced from 12 issues to 11 issues (4 failures + 7 errors)
+- importNotAtBeginningTest now passes
+- interpolation.ql test now passes
+
+**Learnings for future iterations:**
+- Pattern: Import statement position validation should be done during parsing/compilation phase, not during execution
+- Pattern: The lexer preserves escape sequences like \${ for the parser to handle, as different contexts (interpolation modes) require different handling
+- Pattern: When processing interpolated strings, static text portions need to have escape sequences converted back to their final form
+- Gotcha: The test "Hello \${a bb cc" should equal "Hello ${a bb cc" - the backslash should be removed in the final result
+- Remaining issue: multilineStrNotCloseTest expects unterminated strings to throw error, but lexer accepts them leniently (known limitation)
+
