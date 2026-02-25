@@ -78,28 +78,54 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         GenerationContext blockContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         List<StatementNode> statements = node.getStatements();
         int numStatements = statements.size();
-        
-        GenerationResult lastResult = null;
-        for (int i = 0; i < numStatements; i++) {
-            StatementNode statement = statements.get(i);
-            GenerationResult result = ((ASTNode)statement).accept(this, blockContext);
-            instructions.addAll(result.getInstructions());
-            
-            // If the statement is an expression, pop its result unless it's the last statement
-            if (result.isExpressionValue() && i < numStatements - 1) {
-                instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
+
+        // Hoist function definitions to the beginning of the block
+        // This allows functions to be called before they are defined (like JavaScript)
+        List<StatementNode> functionDefs = new ArrayList<>();
+        List<StatementNode> otherStatements = new ArrayList<>();
+        for (StatementNode stmt : statements) {
+            if (stmt instanceof FunctionDefinitionNode) {
+                functionDefs.add(stmt);
+            } else {
+                otherStatements.add(stmt);
             }
-            
+        }
+
+        // Process function definitions first (hoisting)
+        List<QLInstruction> functionDefInstructions = new ArrayList<>();
+        for (StatementNode functionDef : functionDefs) {
+            GenerationResult result = ((ASTNode)functionDef).accept(this, blockContext);
+            functionDefInstructions.addAll(result.getInstructions());
+        }
+
+        // Process other statements
+        List<QLInstruction> otherStmtInstructions = new ArrayList<>();
+        GenerationResult lastResult = null;
+        int totalOtherStmts = otherStatements.size();
+        for (int i = 0; i < totalOtherStmts; i++) {
+            StatementNode statement = otherStatements.get(i);
+            GenerationResult result = ((ASTNode)statement).accept(this, blockContext);
+            otherStmtInstructions.addAll(result.getInstructions());
+
+            // If the statement is an expression, pop its result unless it's the last statement
+            if (result.isExpressionValue() && i < totalOtherStmts - 1) {
+                otherStmtInstructions.add(new PopInstruction(PureErrReporter.INSTANCE));
+            }
+
             lastResult = result;
         }
-        
+
+        // Combine hoisted function definitions with other statements
+        instructions.addAll(functionDefInstructions);
+        instructions.addAll(otherStmtInstructions);
+
         // If the last statement is an expression, the block produces a value
         boolean isExpressionValue = (lastResult != null && lastResult.isExpressionValue());
         int stackDelta = isExpressionValue ? 1 : 0;
-        
+
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
@@ -1311,9 +1337,27 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             return new GenerationResult(instructions, true, 1);
         }
 
-        // Check if this is a static field access on a class
-        // For example: TestPluginInterface.TEST_CONSTANT where TestPluginInterface is an imported class
-        if (node.getTarget() instanceof IdentifierNode && importManager != null) {
+        // Check if this is a class literal access (e.g., List.class or java.util.List.class)
+        boolean foundClass = false;
+        String fieldName = node.getFieldName();
+
+        // Special case for .class - this is a class literal access
+        if ("class".equals(fieldName)) {
+            // Try to resolve the target as a class name
+            String className = extractClassName(node.getTarget());
+            if (className != null) {
+                Class<?> cls = tryResolveClass(className);
+                if (cls != null) {
+                    // Generate MetaClass const instruction for the class
+                    ErrorReporter errorReporter = createErrorReporter(node);
+                    instructions.add(new ConstInstruction(errorReporter, new MetaClass(cls), node.getStartPosition()));
+                    foundClass = true;
+                }
+            }
+        }
+
+        // Check if this is a static field access on an imported class
+        if (!foundClass && node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
@@ -1324,15 +1368,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 // This is a class reference - generate MetaClass const instruction
                 ErrorReporter errorReporter = createErrorReporter(targetId);
                 instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
-            }
-            else {
-                // Not a class - generate load instruction
-                GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
-                instructions.addAll(targetResult.getInstructions());
+                foundClass = true;
             }
         }
-        else {
-            // Generate target expression
+
+        if (!foundClass) {
+            // Generate target expression (variable load or other expression)
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
@@ -1344,6 +1385,88 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         instructions.add(instruction);
 
         return new GenerationResult(instructions, true, 1);
+    }
+
+    /**
+     * Extracts a class name from an expression node.
+     * Handles simple identifiers (List) and qualified names (java.util.List).
+     *
+     * @param node the expression node
+     * @return the class name if found, null otherwise
+     */
+    private String extractClassName(ExpressionNode node) {
+        if (node instanceof IdentifierNode) {
+            return ((IdentifierNode) node).getName();
+        }
+        else if (node instanceof FieldAccessNode) {
+            // Build qualified name from field access chain (e.g., java.util.List)
+            StringBuilder className = new StringBuilder();
+            ExpressionNode current = node;
+            boolean first = true;
+
+            while (current instanceof FieldAccessNode) {
+                FieldAccessNode fieldAccess = (FieldAccessNode) current;
+                if (first) {
+                    className.insert(0, fieldAccess.getFieldName());
+                    first = false;
+                } else {
+                    className.insert(0, ".");
+                    className.insert(0, fieldAccess.getFieldName());
+                }
+                current = fieldAccess.getTarget();
+            }
+
+            if (current instanceof IdentifierNode) {
+                className.insert(0, ".");
+                className.insert(0, ((IdentifierNode) current).getName());
+                return className.toString();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Tries to resolve an identifier as a class name.
+     * First checks built-in types, then tries to load from common Java packages.
+     *
+     * @param className the class name to resolve
+     * @return the Class<?> if found, null otherwise
+     */
+    private Class<?> tryResolveClass(String className) {
+        // First check built-in primitive wrapper types
+        Class<?> cls = BuiltInTypesSet.getCls(className);
+        if (cls != null) {
+            return cls;
+        }
+
+        // If importManager is available, try to load the class
+        if (importManager != null) {
+            // Try loading directly (for fully qualified names like java.util.List)
+            cls = importManager.loadQualified(className);
+            if (cls != null) {
+                return cls;
+            }
+
+            // Try java.lang package (most common)
+            cls = importManager.loadQualified("java.lang." + className);
+            if (cls != null) {
+                return cls;
+            }
+
+            // Try java.util package (common collections)
+            cls = importManager.loadQualified("java.util." + className);
+            if (cls != null) {
+                return cls;
+            }
+
+            // Try java.io package
+            cls = importManager.loadQualified("java.io." + className);
+            if (cls != null) {
+                return cls;
+            }
+        }
+
+        return null;
     }
     
     @Override
@@ -1627,21 +1750,50 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         GenerationContext programContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         List<StatementNode> statements = node.getStatements();
         int numStatements = statements.size();
-        
-        for (int i = 0; i < numStatements; i++) {
-            StatementNode statement = statements.get(i);
-            GenerationResult result = ((ASTNode)statement).accept(this, programContext);
-            instructions.addAll(result.getInstructions());
-            
-            // If the statement is an expression, pop its result unless it's the last statement
-            if (result.isExpressionValue() && i < numStatements - 1) {
-                instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
+
+        // Hoist function definitions to the beginning of the program
+        // This allows functions to be called before they are defined (like JavaScript)
+        List<StatementNode> functionDefs = new ArrayList<>();
+        List<StatementNode> otherStatements = new ArrayList<>();
+        for (StatementNode stmt : statements) {
+            if (stmt instanceof FunctionDefinitionNode) {
+                functionDefs.add(stmt);
+            } else {
+                otherStatements.add(stmt);
             }
         }
-        
+
+        // Process function definitions first (hoisting)
+        List<QLInstruction> functionDefInstructions = new ArrayList<>();
+        for (StatementNode functionDef : functionDefs) {
+            GenerationResult result = ((ASTNode)functionDef).accept(this, programContext);
+            functionDefInstructions.addAll(result.getInstructions());
+        }
+
+        // Process other statements
+        List<QLInstruction> otherStmtInstructions = new ArrayList<>();
+        GenerationResult lastResult = null;
+        int totalOtherStmts = otherStatements.size();
+        for (int i = 0; i < totalOtherStmts; i++) {
+            StatementNode statement = otherStatements.get(i);
+            GenerationResult result = ((ASTNode)statement).accept(this, programContext);
+            otherStmtInstructions.addAll(result.getInstructions());
+
+            // If the statement is an expression, pop its result unless it's the last statement
+            if (result.isExpressionValue() && i < totalOtherStmts - 1) {
+                otherStmtInstructions.add(new PopInstruction(PureErrReporter.INSTANCE));
+            }
+
+            lastResult = result;
+        }
+
+        // Combine hoisted function definitions with other statements
+        instructions.addAll(functionDefInstructions);
+        instructions.addAll(otherStmtInstructions);
+
         return new GenerationResult(instructions, false, 0);
     }
     

@@ -48,6 +48,7 @@ import com.alibaba.qlexpress4.utils.QLFunctionUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -736,7 +737,21 @@ public class Express4Runner {
             // Validate that import statements are at the beginning of the file
             validateImportPositions(program, script);
 
-            ImportManager importManager = inheritDefaultImport();
+            // Process import statements and build ImportManager with them
+            List<ImportManager.QLImport> imports = new ArrayList<>(initOptions.getDefaultImport());
+            for (StatementNode stmt : program.getStatements()) {
+                if (stmt instanceof ImportNode) {
+                    ImportNode importNode = (ImportNode) stmt;
+                    if (importNode.isWildcard()) {
+                        // Wildcard import: import java.util.*
+                        imports.add(ImportManager.importPack(importNode.getImportPath()));
+                    } else {
+                        // Regular class import: import java.util.List
+                        imports.add(ImportManager.importCls(importNode.getImportPath()));
+                    }
+                }
+            }
+            ImportManager importManager = new ImportManager(initOptions.getClassSupplier(), imports);
 
             if (initOptions.isTraceExpression()) {
                 ASTCompiler.CompilationResult result =

@@ -874,10 +874,10 @@ public class QLexpressParser {
     }
     
     /**
-     * Parses a qualified type name (e.g., "java.lang.String").
-     * Also handles type keywords (int, long, etc.).
+     * Parses a qualified type name (e.g., "java.lang.String", "String[]").
+     * Also handles type keywords (int, long, etc.) and array brackets.
      *
-     * @return the qualified type name
+     * @return the qualified type name (including array brackets)
      * @throws ParseException if parsing fails
      */
     private String parseQualifiedTypeName()
@@ -897,6 +897,22 @@ public class QLexpressParser {
             consume();
             // After dot, we expect an ID
             sb.append(".").append(expect(TokenType.ID).getValue());
+        }
+
+        // Handle array brackets: String[], String[][], etc.
+        while (match(TokenType.LBRACK)) {
+            // Check if this is really an array type declaration by looking ahead
+            // Array type declarations have LBRACK followed immediately by RBRACK
+            if (peek(1) != null && peek(1).getType() == TokenType.RBRACK) {
+                consume(); // LBRACK
+                consume(); // RBRACK
+                sb.append("[]");
+            }
+            else {
+                // This is not an array type - it's an array access
+                // Don't consume the LBRACK, let the caller handle it
+                break;
+            }
         }
 
         return sb.toString();
@@ -1794,16 +1810,21 @@ public class QLexpressParser {
                 // Variable declarations can start with:
                 // 1. Primitive type keywords (int, long, etc.)
                 // 2. Class type names followed by another ID (String name, List items, etc.)
+                // 3. Class type names followed by [] for array types (String[] name, int[] arr, etc.)
                 if (isTypeKeywordToken(current.getType())) {
                     return parseVariableDeclaration();
                 }
                 // Check for class-type variable declaration (ID followed by ID and optional = or ;)
-                if (current.getType() == TokenType.ID && peek(1) != null && peek(1).getType() == TokenType.ID) {
-                    // Could be "String name" or similar
-                    // Look ahead to verify - if the first ID is a known type or followed by ID and (= or ;), it's a var decl
-                    // We'll use the isTypeKeyword check on the value
-                    if (isTypeKeyword(current.getValue())) {
-                        return parseVariableDeclaration();
+                // Or ID followed by [] for array type declarations
+                if (current.getType() == TokenType.ID && peek(1) != null) {
+                    // Check for "String name" or "String[] name" pattern
+                    boolean isArrayType = peek(1).getType() == TokenType.LBRACK;
+                    boolean isNextId = peek(1).getType() == TokenType.ID;
+                    if (isNextId || isArrayType) {
+                        // Look ahead to verify - if the first ID is a known type, it's a var decl
+                        if (isTypeKeyword(current.getValue())) {
+                            return parseVariableDeclaration();
+                        }
                     }
                 }
                 // Otherwise, it's an expression statement or assignment
@@ -2087,42 +2108,55 @@ public class QLexpressParser {
         throws ParseException {
         Token switchToken = expect(TokenType.SWITCH);
         skipNewlines();
-        
+
         expect(TokenType.LPAREN);
         skipNewlines();
         ExpressionNode value = parseExpression();
         skipNewlines();
         expect(TokenType.RPAREN);
         skipNewlines();
-        
+
         expect(TokenType.LBRACE);
         skipNewlines();
-        
+
         List<SwitchCaseNode> cases = new ArrayList<>();
-        
+        Boolean usesArrowSyntax = null; // Track which syntax is used (null = not determined yet)
+
         while (!match(TokenType.RBRACE) && !isEOF()) {
             skipNewlines();
-            
+
             if (match(TokenType.CASE)) {
                 consume();
                 skipNewlines();
-                
+
                 // Parse case condition (can be expression list in new syntax)
                 ExpressionNode caseExpr = parseExpression();
                 skipNewlines();
-                
+
                 // Expect colon or arrow
+                boolean isArrow = false;
                 if (match(TokenType.COLON)) {
                     consume();
+                    isArrow = false;
                 }
                 else if (match(TokenType.ARROW)) {
                     consume();
+                    isArrow = true;
                 }
                 else {
                     throw error("Expected ':' or '->' after case expression");
                 }
+
+                // Check for mixed syntax
+                if (usesArrowSyntax == null) {
+                    usesArrowSyntax = isArrow;
+                }
+                else if (usesArrowSyntax != isArrow) {
+                    throw error("Cannot mix traditional switch syntax (case x: ...) with expression syntax (case x -> ...)");
+                }
+
                 skipNewlines();
-                
+
                 // Parse case statements
                 List<StatementNode> caseStatements = new ArrayList<>();
                 while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
@@ -2132,26 +2166,38 @@ public class QLexpressParser {
                     }
                     skipNewlines();
                 }
-                
+
                 cases.add(new SwitchCaseNode(caseExpr, caseStatements));
-                
+
             }
             else if (match(TokenType.DEFAULT)) {
                 consume();
                 skipNewlines();
-                
+
                 // Expect colon or arrow
+                boolean isArrow = false;
                 if (match(TokenType.COLON)) {
                     consume();
+                    isArrow = false;
                 }
                 else if (match(TokenType.ARROW)) {
                     consume();
+                    isArrow = true;
                 }
                 else {
                     throw error("Expected ':' or '->' after default");
                 }
+
+                // Check for mixed syntax
+                if (usesArrowSyntax == null) {
+                    usesArrowSyntax = isArrow;
+                }
+                else if (usesArrowSyntax != isArrow) {
+                    throw error("Cannot mix traditional switch syntax (default: ...) with expression syntax (default -> ...)");
+                }
+
                 skipNewlines();
-                
+
                 // Parse default statements
                 List<StatementNode> defaultStatements = new ArrayList<>();
                 while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
@@ -2161,19 +2207,19 @@ public class QLexpressParser {
                     }
                     skipNewlines();
                 }
-                
+
                 // Default case has null condition
                 cases.add(new SwitchCaseNode(null, defaultStatements));
-                
+
             }
             else {
                 // Unexpected token, skip
                 consume();
             }
         }
-        
+
         expect(TokenType.RBRACE);
-        
+
         return new SwitchNode(switchToken.getLine(), switchToken.getColumn(), switchToken.getStartIndex(), switchToken.getSource(), value, cases);
     }
     
