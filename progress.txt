@@ -1689,3 +1689,20 @@ by non-quote characters. This requires investigation into the old ANTLR-based pa
 - Keyword alias feature requires OperatorManager integration in the lexer (not yet implemented)
 - Many remaining test failures are related to alias functionality not working
 ---
+
+## [2026-02-25] - US-034
+- Fixed string escape handling in lexer to preserve escape sequences for parser processing
+- Fixed parseInterpolatedString to process escape sequences even without interpolation
+- Improved error position reporting for EOF errors
+- Added tokenTypeToLiteral helper for better error messages
+- stringEscapeTest now passes
+- Test results: 644 tests run, 623 pass (96.7% pass rate), 21 failures + 9 errors = 30 total issues (progress from previous)
+- Files changed: QLexpressLexer.java, QLexpressParser.java
+
+**Learnings for future iterations:**
+- The lexer should preserve escape sequences in the token value for the parser to process
+- parseInterpolatedString needs to call parseStringEscape even when there's no interpolation
+- Error position for EOF should use the last token's position, not the EOF token's position
+- Token type names (RPAREN, LPAREN, etc.) need to be converted to literal characters for error messages
+
+---
