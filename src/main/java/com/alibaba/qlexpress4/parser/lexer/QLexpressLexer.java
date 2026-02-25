@@ -665,18 +665,31 @@ public class QLexpressLexer {
         }
         
         // Check for decimal point
+        // The ANTLR grammar uses a lookahead predicate to avoid treating .d as a decimal point
+        // when followed by letters (e.g., 1.doubleValue() should be parsed as 1 .doubleValue() not 1.d)
         if (position < input.length() && peek() == '.') {
-            // Need to check if this is actually a decimal point or something else
-            // (e.g., method call on an integer literal)
-            isFloat = true;
-            sb.append(consume());
-            while (position < input.length() && (Character.isDigit(peek()) || peek() == '_')) {
-                char ch = peek();
-                if (ch == '_') {
-                    consume(); // Skip underscore
+            // Lookahead check: if the next 2+ chars are letters, this is likely a method call, not a decimal point
+            // This implements the ANTLR grammar's predicate: !((LA(2) is letter) && (LA(3) is letter))
+            boolean isMethodCall = false;
+            if (position + 2 < input.length()) {
+                char la2 = input.charAt(position + 1);
+                char la3 = input.charAt(position + 2);
+                if (Character.isLetter(la2) && Character.isLetter(la3)) {
+                    isMethodCall = true;
                 }
-                else {
-                    sb.append(consume());
+            }
+
+            if (!isMethodCall) {
+                isFloat = true;
+                sb.append(consume());
+                while (position < input.length() && (Character.isDigit(peek()) || peek() == '_')) {
+                    char ch = peek();
+                    if (ch == '_') {
+                        consume(); // Skip underscore
+                    }
+                    else {
+                        sb.append(consume());
+                    }
                 }
             }
         }

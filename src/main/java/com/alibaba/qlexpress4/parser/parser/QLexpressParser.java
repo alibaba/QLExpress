@@ -20,6 +20,7 @@ import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 
 import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
@@ -590,32 +591,49 @@ public class QLexpressParser {
      * @param value the string value from the token
      * @return the parsed number (as Double or Float)
      */
+    private static final BigDecimal MAX_DOUBLE = new BigDecimal(String.valueOf(Double.MAX_VALUE));
+
     private Object parseFloatLiteral(String value) {
         if (value == null || value.isEmpty()) {
             return 0.0;
         }
-        
+
         value = value.replace("_", ""); // Remove digit separators
-        
+
         // Check for type suffix
         boolean isFloat = value.endsWith("f") || value.endsWith("F");
         boolean isDouble = value.endsWith("d") || value.endsWith("D");
         if (isFloat || isDouble) {
             value = value.substring(0, value.length() - 1);
         }
-        
-        double parsedValue = Double.parseDouble(value);
-        
+
         if (isFloat) {
-            return (float)parsedValue;
+            return new BigDecimal(value).floatValue();
         }
         else if (isDouble) {
-            return parsedValue;
+            return new BigDecimal(value).doubleValue();
         }
         else {
-            // Default to Double if no suffix
-            return parsedValue;
+            // Default: Use BigDecimal and maybe convert to Double for exact values
+            BigDecimal baseDecimal = new BigDecimal(value);
+            if (baseDecimal.compareTo(MAX_DOUBLE) <= 0) {
+                return maybePresentWithDouble(baseDecimal);
+            }
+            else {
+                return baseDecimal;
+            }
         }
+    }
+
+    /**
+     * Returns a Double if the BigDecimal can be exactly represented as a double,
+     * otherwise returns the BigDecimal.
+     * This matches the ANTLR parser's behavior for numeric literals.
+     */
+    private Number maybePresentWithDouble(BigDecimal origin) {
+        double doubleValue = origin.doubleValue();
+        BigDecimal reference = new BigDecimal(doubleValue);
+        return reference.compareTo(origin) == 0 ? doubleValue : origin;
     }
     
     /**
