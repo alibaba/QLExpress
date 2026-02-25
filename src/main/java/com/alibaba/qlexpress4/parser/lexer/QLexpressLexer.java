@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4.parser.lexer;
 import com.alibaba.qlexpress4.parser.token.Token;
 import com.alibaba.qlexpress4.parser.token.TokenType;
 import com.alibaba.qlexpress4.common.InterpolationMode;
+import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,20 +20,27 @@ import java.util.List;
  *   <li>Interpolation modes (SCRIPT, VARIABLE, DISABLE)</li>
  *   <li>Custom selector tokens (${}, #{})</li>
  *   <li>Strict/non-strict newline modes</li>
+ *   <li>Keyword and operator aliases via OperatorManager</li>
  * </ul>
  */
 public class QLexpressLexer {
     private final String input;
-    
+
     private final String source;
-    
+
     private final InterpolationMode interpolationMode;
-    
+
     private final boolean strictNewLines;
-    
+
     private final String selectorStart;
-    
+
     private final String selectorEnd;
+
+    /**
+     * Optional operator manager for resolving keyword and operator aliases.
+     * Can be null for simple lexing without alias support.
+     */
+    private final OperatorManager operatorManager;
     
     private int position;
     
@@ -61,6 +69,34 @@ public class QLexpressLexer {
     private java.util.Stack<LexerMode> modeStack;
     
     /**
+     * Creates a new lexer for the given input with operator manager support.
+     *
+     * @param input the input source code
+     * @param source the source identifier (e.g., file name)
+     * @param interpolationMode the interpolation mode
+     * @param strictNewLines whether to emit NEWLINE tokens
+     * @param selectorStart the selector start token (e.g., "${")
+     * @param selectorEnd the selector end token (e.g., "}")
+     * @param operatorManager the operator manager for resolving aliases (can be null)
+     */
+    public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines,
+        String selectorStart, String selectorEnd, OperatorManager operatorManager) {
+        this.input = input != null ? input : "";
+        this.source = source;
+        this.interpolationMode = interpolationMode != null ? interpolationMode : InterpolationMode.SCRIPT;
+        this.strictNewLines = strictNewLines;
+        this.selectorStart = selectorStart != null ? selectorStart : "${";
+        this.selectorEnd = selectorEnd != null ? selectorEnd : "}";
+        this.operatorManager = operatorManager;
+        this.position = 0;
+        this.line = 1;
+        this.column = 1;
+        this.tokens = new ArrayList<>();
+        this.modeStack = new java.util.Stack<>();
+        this.modeStack.push(LexerMode.DEFAULT);
+    }
+
+    /**
      * Creates a new lexer for the given input.
      *
      * @param input the input source code
@@ -72,29 +108,18 @@ public class QLexpressLexer {
      */
     public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines,
         String selectorStart, String selectorEnd) {
-        this.input = input != null ? input : "";
-        this.source = source;
-        this.interpolationMode = interpolationMode != null ? interpolationMode : InterpolationMode.SCRIPT;
-        this.strictNewLines = strictNewLines;
-        this.selectorStart = selectorStart != null ? selectorStart : "${";
-        this.selectorEnd = selectorEnd != null ? selectorEnd : "}";
-        this.position = 0;
-        this.line = 1;
-        this.column = 1;
-        this.tokens = new ArrayList<>();
-        this.modeStack = new java.util.Stack<>();
-        this.modeStack.push(LexerMode.DEFAULT);
+        this(input, source, interpolationMode, strictNewLines, selectorStart, selectorEnd, null);
     }
-    
+
     /**
      * Creates a new lexer with default settings.
      *
      * @param input the input source code
      */
     public QLexpressLexer(String input) {
-        this(input, null, InterpolationMode.SCRIPT, true, "${", "}");
+        this(input, null, InterpolationMode.SCRIPT, true, "${", "}", null);
     }
-    
+
     /**
      * Creates a new lexer with specified interpolation mode and newline handling.
      *
@@ -104,7 +129,17 @@ public class QLexpressLexer {
      * @param strictNewLines whether to emit NEWLINE tokens
      */
     public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines) {
-        this(input, source, interpolationMode, strictNewLines, "${", "}");
+        this(input, source, interpolationMode, strictNewLines, "${", "}", null);
+    }
+
+    /**
+     * Creates a new lexer with operator manager support.
+     *
+     * @param input the input source code
+     * @param operatorManager the operator manager for resolving aliases
+     */
+    public QLexpressLexer(String input, OperatorManager operatorManager) {
+        this(input, null, InterpolationMode.SCRIPT, true, "${", "}", operatorManager);
     }
     
     /**
@@ -919,8 +954,10 @@ public class QLexpressLexer {
     
     /**
      * Returns the keyword type for a given identifier, or null if not a keyword.
+     * Also checks for keyword aliases registered in the OperatorManager.
      */
     private TokenType getKeywordType(String text) {
+        // First check for built-in keywords
         switch (text) {
             case "for":
                 return TokenType.FOR;
@@ -992,6 +1029,57 @@ public class QLexpressLexer {
                 return TokenType.CLASS;
             case "this":
                 return TokenType.THIS;
+            default:
+                // Check for keyword aliases via OperatorManager
+                if (operatorManager != null) {
+                    Integer aliasId = operatorManager.getAlias(text);
+                    if (aliasId != null) {
+                        return getKeywordTypeById(aliasId);
+                    }
+                }
+                return null;
+        }
+    }
+
+    /**
+     * Returns the keyword type for a given keyword alias ID.
+     * The ID values are defined in OperatorManager.ALIASABLE_KEYWORDS:
+     * 1=if, 2=then, 3=else, 4=for, 5=while, 6=break, 7=continue,
+     * 8=return, 9=function, 10=macro, 11=new, 12=null, 13=true, 14=false
+     */
+    private TokenType getKeywordTypeById(Integer aliasId) {
+        if (aliasId == null) {
+            return null;
+        }
+        switch (aliasId) {
+            case 1:
+                return TokenType.IF;
+            case 2:
+                return TokenType.THEN;
+            case 3:
+                return TokenType.ELSE;
+            case 4:
+                return TokenType.FOR;
+            case 5:
+                return TokenType.WHILE;
+            case 6:
+                return TokenType.BREAK;
+            case 7:
+                return TokenType.CONTINUE;
+            case 8:
+                return TokenType.RETURN;
+            case 9:
+                return TokenType.FUNCTION;
+            case 10:
+                return TokenType.MACRO;
+            case 11:
+                return TokenType.NEW;
+            case 12:
+                return TokenType.NULL;
+            case 13:
+                return TokenType.TRUE;
+            case 14:
+                return TokenType.FALSE;
             default:
                 return null;
         }

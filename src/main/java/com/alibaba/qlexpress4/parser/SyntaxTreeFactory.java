@@ -57,10 +57,9 @@ public class SyntaxTreeFactory {
         throws ParseException {
         
         // Create lexer with the specified configuration
-        // Note: QLexpressLexer constructor signature is:
-        // (input, source, interpolationMode, strictNewLines, selectorStart, selectorEnd)
+        // Pass operatorManager to enable keyword and operator alias resolution
         QLexpressLexer lexer = new QLexpressLexer(script, null, // source identifier (can be null)
-            interpolationMode, strictNewlines, selectorStart, selectorEnd);
+            interpolationMode, strictNewlines, selectorStart, selectorEnd, operatorManager);
         
         // Tokenize the input
         List<com.alibaba.qlexpress4.parser.token.Token> tokens = lexer.tokenize();

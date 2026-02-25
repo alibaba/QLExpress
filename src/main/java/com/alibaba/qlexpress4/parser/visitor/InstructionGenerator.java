@@ -969,6 +969,129 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             return generateShortCircuitLogic(node, context, isAnd);
         }
 
+        // Special handling for .* operator with identifier right operand
+        // When the right operand of .* is an identifier, treat it as a string literal
+        // (the field name) rather than a variable reference
+        if (".*".equals(operator) && node.getRight() instanceof IdentifierNode) {
+            // Generate left operand
+            GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
+            instructions.addAll(leftResult.getInstructions());
+
+            // For .* operator with identifier, use the identifier name as string literal
+            IdentifierNode idNode = (IdentifierNode)node.getRight();
+            ErrorReporter errorReporter = createErrorReporter(idNode);
+            instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
+
+            // Generate operator instruction
+            errorReporter = createErrorReporter(node);
+            BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
+            if (binaryOperator == null) {
+                throw new UnsupportedOperationException(".* operator not found");
+            }
+            OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+            instructions.add(instruction);
+
+            return new GenerationResult(instructions, true, 1);
+        }
+
+        // Special handling for .* operator with ArrayAccess right operand
+        // When .* is followed by an array access like .*a[1:-1], the array access
+        // should apply to the RESULT of the .* operation, not to the identifier
+        if (".*".equals(operator) && node.getRight() instanceof ArraySliceNode) {
+            ArraySliceNode arraySlice = (ArraySliceNode)node.getRight();
+
+            // Check if the array access target is a simple identifier
+            if (arraySlice.getArray() instanceof IdentifierNode) {
+                // This is the case: .*a[indices]
+                // We want to: (left .* a)[indices], not left .* (a[indices])
+
+                // Generate left operand
+                GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
+                instructions.addAll(leftResult.getInstructions());
+
+                // Generate the identifier as string literal (field name)
+                IdentifierNode idNode = (IdentifierNode)arraySlice.getArray();
+                ErrorReporter errorReporter = createErrorReporter(idNode);
+                instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
+
+                // Generate .* operator instruction
+                errorReporter = createErrorReporter(node);
+                BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
+                if (binaryOperator == null) {
+                    throw new UnsupportedOperationException(".* operator not found");
+                }
+                OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+                instructions.add(instruction);
+
+                // Now generate the array slice instructions (indices only, array is already on stack)
+                ExpressionNode start = arraySlice.getStart();
+                ExpressionNode end = arraySlice.getEnd();
+
+                if (start == null && end == null) {
+                    // [:] - COPY mode (no indices needed)
+                    instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.COPY));
+                }
+                else if (start == null) {
+                    // [:end] - LEFT mode (only end index)
+                    GenerationResult endResult = ((ASTNode)end).accept(this, context);
+                    instructions.addAll(endResult.getInstructions());
+                    instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.LEFT));
+                }
+                else if (end == null) {
+                    // [start:] - RIGHT mode (only start index)
+                    GenerationResult startResult = ((ASTNode)start).accept(this, context);
+                    instructions.addAll(startResult.getInstructions());
+                    instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.RIGHT));
+                }
+                else {
+                    // [start:end] - BOTH mode (both indices)
+                    GenerationResult startResult = ((ASTNode)start).accept(this, context);
+                    instructions.addAll(startResult.getInstructions());
+                    GenerationResult endResult = ((ASTNode)end).accept(this, context);
+                    instructions.addAll(endResult.getInstructions());
+                    instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.BOTH));
+                }
+
+                return new GenerationResult(instructions, true, 1);
+            }
+        }
+
+        // Special handling for .* operator with ArrayAccess (single index) right operand
+        if (".*".equals(operator) && node.getRight() instanceof ArrayAccessNode) {
+            ArrayAccessNode arrayAccess = (ArrayAccessNode)node.getRight();
+
+            // Check if the array access target is a simple identifier
+            if (arrayAccess.getArray() instanceof IdentifierNode) {
+                // This is the case: .*a[index]
+                // We want to: (left .* a)[index], not left .* (a[index])
+
+                // Generate left operand
+                GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
+                instructions.addAll(leftResult.getInstructions());
+
+                // Generate the identifier as string literal (field name)
+                IdentifierNode idNode = (IdentifierNode)arrayAccess.getArray();
+                ErrorReporter errorReporter = createErrorReporter(idNode);
+                instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
+
+                // Generate .* operator instruction
+                errorReporter = createErrorReporter(node);
+                BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
+                if (binaryOperator == null) {
+                    throw new UnsupportedOperationException(".* operator not found");
+                }
+                OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+                instructions.add(instruction);
+
+                // Now generate the index expression (array is already on stack)
+                GenerationResult indexResult = ((ASTNode)arrayAccess.getIndex()).accept(this, context);
+                instructions.addAll(indexResult.getInstructions());
+                instructions.add(new IndexInstruction(createErrorReporter(arrayAccess)));
+
+                return new GenerationResult(instructions, true, 1);
+            }
+        }
+
         // Normal binary operator handling
         // Generate left operand
         GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);

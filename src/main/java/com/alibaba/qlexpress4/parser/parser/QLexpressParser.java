@@ -1015,12 +1015,20 @@ public class QLexpressParser {
         while (true) {
             skipNewlines();
             Token current = peek();
-            
+
             if (current == null) {
                 break;
             }
-            
-            switch (current.getType()) {
+
+            TokenType currentType = current.getType();
+
+            // DOTMUL (.* ) is handled as a binary operator by parseBinary
+            // Don't consume it here - let parseBinary handle it
+            if (currentType == TokenType.DOTMUL) {
+                break;
+            }
+
+            switch (currentType) {
                 case DOT: {
                     consume();
                     skipNewlines();
