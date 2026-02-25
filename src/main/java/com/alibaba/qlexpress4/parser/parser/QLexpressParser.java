@@ -339,7 +339,8 @@ public class QLexpressParser {
                 // No more interpolation, add the rest as static text
                 if (pos < length) {
                     String staticText = content.substring(pos);
-                    // Escapes are already processed by the lexer
+                    // Process \${ to ${ for escaped interpolation sequences
+                    staticText = processStaticTextEscapes(staticText);
                     node.addSegment(staticText);
                 }
                 break;
@@ -348,7 +349,8 @@ public class QLexpressParser {
             // Add static text before the interpolation
             if (interpolationStart > pos) {
                 String staticText = content.substring(pos, interpolationStart);
-                // Escapes are already processed by the lexer
+                // Process \${ to ${ for escaped interpolation sequences
+                staticText = processStaticTextEscapes(staticText);
                 node.addSegment(staticText);
             }
 
@@ -398,17 +400,31 @@ public class QLexpressParser {
             if (dollarBracePos == -1) {
                 return -1;
             }
-            
-            // Check if the $ is escaped
+
+            // Check if the $ is escaped (preceded by \)
             if (dollarBracePos > 0 && content.charAt(dollarBracePos - 1) == '\\') {
                 // This is an escaped ${, skip it
+                // We'll process the backslash when adding static text
                 pos = dollarBracePos + 2;
                 continue;
             }
-            
+
             return dollarBracePos;
         }
         return -1;
+    }
+
+    /**
+     * Processes escaped sequences in static text portions of interpolated strings.
+     * Converts \${ to ${ (removes the backslash).
+     *
+     * @param staticText the static text to process
+     * @return the processed text with escaped interpolation sequences converted
+     */
+    private String processStaticTextEscapes(String staticText) {
+        // Replace \${ with ${ (escaped interpolation becomes literal text)
+        // The lexer preserves \${ so we need to convert it back to ${ for the final result
+        return staticText.replace("\\${", "${");
     }
     
     /**

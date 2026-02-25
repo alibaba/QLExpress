@@ -7,10 +7,13 @@ import com.alibaba.qlexpress4.common.GeneratorScope;
 import com.alibaba.qlexpress4.common.ImportManager;
 import com.alibaba.qlexpress4.common.MacroDefine;
 import com.alibaba.qlexpress4.common.QCompileCache;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.parser.ASTCompiler;
 import com.alibaba.qlexpress4.parser.SyntaxTreeFactory;
+import com.alibaba.qlexpress4.parser.ast.ASTNode;
+import com.alibaba.qlexpress4.parser.ast.ImportNode;
 import com.alibaba.qlexpress4.parser.ast.ProgramNode;
 import com.alibaba.qlexpress4.parser.ast.StatementNode;
 import com.alibaba.qlexpress4.parser.visitor.FunctionExtractor;
@@ -729,6 +732,10 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         try {
             ProgramNode program = parseToSyntaxTree(script);
+
+            // Validate that import statements are at the beginning of the file
+            validateImportPositions(program, script);
+
             ImportManager importManager = inheritDefaultImport();
 
             if (initOptions.isTraceExpression()) {
@@ -756,6 +763,35 @@ public class Express4Runner {
         }
         catch (Exception e) {
             throw new RuntimeException("Failed to parse script", e);
+        }
+    }
+
+    /**
+     * Validates that all import statements are at the beginning of the file.
+     *
+     * @param program the AST to validate
+     * @param script the script content for error reporting
+     * @throws QLSyntaxException if an import statement is found after a non-import statement
+     */
+    private void validateImportPositions(ProgramNode program, String script) throws QLSyntaxException {
+        boolean foundNonImportStatement = false;
+        for (StatementNode stmt : program.getStatements()) {
+            if (stmt instanceof ImportNode) {
+                if (foundNonImportStatement) {
+                    // Import statement found after a non-import statement
+                    String reason = "Import statement is not at the beginning of the file.";
+                    ASTNode astNode = (ASTNode)stmt;
+                    throw QLException.reportScannerErr(script,
+                        astNode.getStartPosition(),
+                        astNode.getLine(),
+                        astNode.getColumn() - 1,
+                        "import",
+                        QLErrorCodes.SYNTAX_ERROR.name(),
+                        reason);
+                }
+            } else {
+                foundNonImportStatement = true;
+            }
         }
     }
     
