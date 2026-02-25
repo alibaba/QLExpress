@@ -137,11 +137,14 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         else {
             thenResult = new GenerationResult(Collections.emptyList(), false, 0);
         }
-        
+
+        // Track the number of then instructions for correct jump position calculation
+        int numThenInstructions = instructions.size() - thenStart;
+
         // Jump to end after then
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
-        
+
         // Set jumpIf target (start of else)
         jumpIf.setPosition(instructions.size() - thenStart);
         
@@ -179,11 +182,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         
         // Set jump target (end of if-else)
         // The jump position is relative to the current instruction, so we need to calculate:
-        // jumpOffset = targetPos - jumpPos - 1
+        // jumpOffset = targetPos - jumpPos
         // where targetPos = instructions.size() (end of if-else)
-        // and jumpPos = position of Jump instruction
-        // The Jump instruction is at position (thenStart + numThenInstructions), which we track indirectly
-        jump.setPosition(instructions.size() - thenStart - 2); // -2 because jump position is 0-indexed relative
+        // and jumpPos = thenStart + numThenInstructions + 1 (position of Jump instruction)
+        // Therefore: jumpOffset = instructions.size() - (thenStart + numThenInstructions + 1)
+        // Simplifying: jumpOffset = instructions.size() - thenStart - numThenInstructions - 1
+        jump.setPosition(instructions.size() - thenStart - numThenInstructions - 1);
         
         // If the if node produces a value (when used as an expression)
         boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
