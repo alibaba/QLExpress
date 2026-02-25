@@ -70,10 +70,11 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
             String reason = String.format(QLErrorCodes.OPERATOR_NOT_ALLOWED.getErrorMsg(),
                 operatorString,
                 operatorCheckStrategy.getOperators());
+            // Convert 1-based column from lexer to 0-based for reportScannerErr
             throw QLException.reportScannerErr(script,
                 position,
                 line,
-                column,
+                column - 1,
                 operatorString,
                 QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
                 reason);
@@ -84,8 +85,9 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws QLSyntaxException {
         if (disableFunctionCalls) {
             String reason = "Function calls are not allowed in this context";
+            // Convert 1-based column from lexer to 0-based for reportScannerErr
             throw QLException
-                .reportScannerErr(script, position, line, column, "function call", "FUNCTION_CALL_NOT_ALLOWED", reason);
+                .reportScannerErr(script, position, line, column - 1, "function call", "FUNCTION_CALL_NOT_ALLOWED", reason);
         }
     }
     
@@ -256,7 +258,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
     public Void visit(BinaryOpNode node, Void context)
         throws Exception {
         // Check binary operator
-        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), 0);
+        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
 
         // For assignment operators, validate that the left side is assignable
         if (isAssignmentOperator(node.getOperator())) {
@@ -292,8 +294,9 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
                 line = ((ASTNode)node).getLine();
                 column = ((ASTNode)node).getColumn();
             }
+            // Convert 1-based column from lexer to 0-based for reportScannerErr
             throw QLException.reportScannerErr(script,
-                0, line, column, "", QLErrorCodes.SYNTAX_ERROR.name(), reason);
+                0, line, column - 1, "", QLErrorCodes.SYNTAX_ERROR.name(), reason);
         }
     }
     
@@ -301,8 +304,8 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
     public Void visit(UnaryOpNode node, Void context)
         throws Exception {
         // Check unary operator
-        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), 0);
-        
+        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
+
         // Continue visiting children
         visitNode(node.getOperand(), context);
         return null;
@@ -365,8 +368,8 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
     public Void visit(AssignmentNode node, Void context)
         throws Exception {
         // Check assignment operator
-        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), 0);
-        
+        checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
+
         // Continue visiting children
         visitNode(node.getTarget(), context);
         visitNode(node.getValue(), context);

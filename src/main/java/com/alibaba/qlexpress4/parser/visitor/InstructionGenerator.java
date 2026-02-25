@@ -1233,8 +1233,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 instructions.addAll(argResult.getInstructions());
             }
 
-            // Generate call function instruction
-            ErrorReporter errorReporter = createErrorReporter(node);
+            // Generate call function instruction with function name as lexeme for error reporting
+            ErrorReporter errorReporter = createErrorReporter(node, node.getMethodName());
             CallFunctionInstruction instruction =
                 new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), node.getStartPosition());
             instructions.add(instruction);
@@ -1519,21 +1519,21 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     }
     
     // ==================== Helper Methods ====================
-    
+
     private ErrorReporter createErrorReporter(ASTNode node) {
         if (script != null) {
-            return new DefaultErrReporter(script, 0, node.getLine(), node.getColumn(), "");
+            return new DefaultErrReporter(script, node.getStartPosition(), node.getLine(), node.getColumn(), "");
         }
         return PureErrReporter.INSTANCE;
     }
 
     private ErrorReporter createErrorReporter(ASTNode node, String lexeme) {
         if (script != null) {
-            return new DefaultErrReporter(script, 0, node.getLine(), node.getColumn(), lexeme);
+            return new DefaultErrReporter(script, node.getStartPosition(), node.getLine(), node.getColumn(), lexeme);
         }
         return PureErrReporter.INSTANCE;
     }
-    
+
     /**
      * Calculate the maximum stack size needed for a list of instructions.
      * This is a simplified estimation - the original implementation tracks

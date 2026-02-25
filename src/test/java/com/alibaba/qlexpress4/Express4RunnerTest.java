@@ -1379,7 +1379,7 @@ public class Express4RunnerTest {
             assertEquals("inner test", e.getCause().getMessage());
             assertEquals(
                 "[Error INVOKE_FUNCTION_INNER_ERROR: exception from inner when invoking function 'testExp', error message: inner test]\n"
-                    + "[Near: 1+testExp()+10]\n" + "         ^^^^^^^\n" + "[Line: 1, Column: 2]",
+                    + "[Near: 1+testExp()+10]\n" + "         ^^^^^^^\n" + "[Line: 1, Column: 3]",
                 e.getMessage());
             assertEquals(2, e.getPos());
         }

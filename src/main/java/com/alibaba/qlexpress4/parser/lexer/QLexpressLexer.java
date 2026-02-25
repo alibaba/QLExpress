@@ -513,11 +513,7 @@ public class QLexpressLexer {
     
     /**
      * Reads a single-quoted string literal.
-     * According to ANTLR grammar: '\\' '\''? means backslash optionally followed by quote.
-     * So:
-     * - \' matches the pattern and produces \' (the quote is consumed)
-     * - \ followed by any other char produces \ followed by that char
-     * The escape processing (converting \' to ') happens in a later stage.
+     * Processes escape sequences like \n, \r, \t, \b, \f, \\, \', \".
      */
     private Token readSingleQuoteString() {
         StringBuilder sb = new StringBuilder();
@@ -526,18 +522,13 @@ public class QLexpressLexer {
         while (position < input.length()) {
             char ch = peek();
 
-            // Handle escape sequences according to ANTLR grammar: '\\' '\' '?
+            // Handle escape sequences: \n, \r, \t, \b, \f, \\, \', \"
+            // Single-quoted strings support all standard escape sequences
             if (ch == '\\') {
                 consume(); // consume the backslash
-                sb.append('\\');
                 if (position < input.length()) {
-                    char next = peek();
-                    if (next == '\'') {
-                        consume(); // consume the quote as part of the escape
-                        sb.append('\'');
-                    }
-                    // If next is not a quote, we don't consume it
-                    // It will be processed in the next iteration as a regular character
+                    char escaped = consume();
+                    sb.append(escapeChar(escaped));
                 }
             }
             else if (ch == '\'') {
@@ -587,27 +578,23 @@ public class QLexpressLexer {
                 continue;
             }
 
-            // Handle escape sequences in double-quoted strings
-            // According to ANTLR grammar: '\\' ('"' | '$')? means backslash optionally followed by quote or dollar
-            // So:
-            // - \" matches the pattern and produces \" (the quote is consumed)
-            // - \$ matches the pattern and produces \$ (the dollar is consumed) only when interpolation is enabled
-            // - \ followed by any other char produces \ followed by that char
-            // The escape processing (converting \" to ") happens in a later stage.
+            // Always handle escape sequences in double-quoted strings
+            // The interpolation mode controls ${...} processing
             if (ch == '\\') {
-                consume(); // consume the backslash
-                sb.append('\\');
+                consume(); // backslash
                 if (position < input.length()) {
-                    char next = peek();
-                    if (next == '"') {
-                        consume(); // consume the quote as part of the escape
-                        sb.append('"');
-                    } else if (next == '$' && interpolationEnabled) {
-                        consume(); // consume the dollar as part of the escape
-                        sb.append('$');
+                    char escaped = consume();
+                    // Special case: \${ should be preserved in the string content
+                    // so that the parser can detect it as an escaped interpolation
+                    // BUT only when interpolation is enabled
+                    if (escaped == '$' && position < input.length() && peek() == '{'
+                            && interpolationEnabled) {
+                        sb.append("\\${");
+                        consume(); // consume the '{'
                     }
-                    // If next is not a quote or dollar, we don't consume it
-                    // It will be processed in the next iteration as a regular character
+                    else {
+                        sb.append(escapeChar(escaped));
+                    }
                 }
             }
             else {

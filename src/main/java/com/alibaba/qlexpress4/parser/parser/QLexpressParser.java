@@ -294,17 +294,17 @@ public class QLexpressParser {
         throws ParseException {
         String content = token.getValue();
 
-        // If interpolation is disabled, process escapes and return a simple literal
+        // If interpolation is disabled, return a simple literal
+        // Escapes are already processed by the lexer
         if (interpolationMode == InterpolationMode.DISABLE) {
-            String processedContent = parseStringEscape(content);
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), processedContent);
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
         }
 
         // Check if the string contains any ${...} patterns
         if (!content.contains("${")) {
-            // No interpolation, but still need to process escapes
-            String processedContent = parseStringEscape(content);
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), processedContent);
+            // No interpolation, return as literal
+            // Escapes are already processed by the lexer
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
         }
 
         // Parse the interpolated string into segments
@@ -330,35 +330,37 @@ public class QLexpressParser {
         throws ParseException {
         int pos = 0;
         int length = content.length();
-        
+
         while (pos < length) {
             // Find the next ${ or end of string
             int interpolationStart = findUnescapedDollarBrace(content, pos);
-            
+
             if (interpolationStart == -1) {
                 // No more interpolation, add the rest as static text
                 if (pos < length) {
                     String staticText = content.substring(pos);
-                    node.addSegment(parseStringEscape(staticText));
+                    // Escapes are already processed by the lexer
+                    node.addSegment(staticText);
                 }
                 break;
             }
-            
+
             // Add static text before the interpolation
             if (interpolationStart > pos) {
                 String staticText = content.substring(pos, interpolationStart);
-                node.addSegment(parseStringEscape(staticText));
+                // Escapes are already processed by the lexer
+                node.addSegment(staticText);
             }
-            
+
             // Find the matching }
             int interpolationEnd = findMatchingBrace(content, interpolationStart + 2);
             if (interpolationEnd == -1) {
                 throw error("Unterminated string interpolation, missing closing '}'");
             }
-            
+
             // Parse the expression inside ${...}
             String expressionText = content.substring(interpolationStart + 2, interpolationEnd).trim();
-            
+
             if (interpolationMode == InterpolationMode.SCRIPT) {
                 // Parse as a full expression (including if/switch statements)
                 // Create a temporary lexer to tokenize the expression
@@ -366,7 +368,7 @@ public class QLexpressParser {
                     new com.alibaba.qlexpress4.parser.lexer.QLexpressLexer(expressionText, null, interpolationMode,
                         false, "${", "}");
                 List<Token> exprTokens = tempLexer.tokenize();
-                
+
                 // Create a temporary parser to parse the expression
                 // Note: We use parseExpression() to parse full expressions including if/switch
                 QLexpressParser tempParser = new QLexpressParser(exprTokens, operatorManager, interpolationMode);
@@ -377,7 +379,7 @@ public class QLexpressParser {
                 // VARIABLE mode - treat as a variable name
                 node.addSegment(new IdentifierNode(node.getLine(), node.getColumn(), node.getStartPosition(), node.getSource(), expressionText));
             }
-            
+
             pos = interpolationEnd + 1;
         }
     }
@@ -639,67 +641,19 @@ public class QLexpressParser {
     }
     
     /**
-     * Parses a string literal, processing escape sequences.
+     * Parses a string literal.
+     * The lexer has already processed escape sequences and removed quotes.
      *
-     * @param value the string value from the token (including quotes)
-     * @return the processed string without quotes
+     * @param value the string value from the token (without quotes, escapes already processed)
+     * @return the string value as-is (already processed by lexer)
      */
     private String parseStringLiteral(String value) {
         if (value == null || value.isEmpty()) {
             return "";
         }
-        
-        // Remove surrounding quotes
-        if (value.length() >= 2) {
-            char quote = value.charAt(0);
-            if (quote == '\'' || quote == '"') {
-                value = value.substring(1, value.length() - 1);
-            }
-        }
-        
-        // Process escape sequences
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < value.length(); i++) {
-            char c = value.charAt(i);
-            if (c == '\\' && i + 1 < value.length()) {
-                char next = value.charAt(++i);
-                switch (next) {
-                    case 'n':
-                        sb.append('\n');
-                        break;
-                    case 'r':
-                        sb.append('\r');
-                        break;
-                    case 't':
-                        sb.append('\t');
-                        break;
-                    case 'b':
-                        sb.append('\b');
-                        break;
-                    case 'f':
-                        sb.append('\f');
-                        break;
-                    case '\'':
-                        sb.append('\'');
-                        break;
-                    case '"':
-                        sb.append('"');
-                        break;
-                    case '\\':
-                        sb.append('\\');
-                        break;
-                    default:
-                        // Unknown escape, keep as-is
-                        sb.append('\\').append(next);
-                        break;
-                }
-            }
-            else {
-                sb.append(c);
-            }
-        }
-        
-        return sb.toString();
+        // The lexer already processed escape sequences and removed quotes
+        // Just return the value as-is
+        return value;
     }
     
     /**
