@@ -1783,3 +1783,22 @@ by non-quote characters. This requires investigation into the old ANTLR-based pa
   - Need to restructure AST or handle specially in InstructionGenerator
 - Gotcha: The test expects .*a[indices] to mean (.*a)[indices], not.*(a[indices])
   - This requires checking the AST structure and "floating up" the array access
+
+## [2026-02-26] - US-034 (Interpolation Fix)
+- Fixed IfNode jump position calculation in InstructionGenerator
+- Changed formula from `instructions.size() - thenStart - 2` to `instructions.size() - thenStart - numThenInstructions - 1`
+- Added tracking of numThenInstructions to correctly calculate jump offset
+- Fixes interpolation_test_simple.ql (nested if statement inside string interpolation with nested interpolation)
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+- Test results: 644 tests run, 632 pass (98.1% pass rate), 5 failures + 7 errors = 12 total issues
+- **Learnings for future iterations:**
+- The QVM jump semantics: `i += offset` means offset = targetPos - jumpPos (not targetPos - jumpPos - 1)
+- For IfNode jump instruction: offset = instructions.size() - thenStart - numThenInstructions - 1
+- The jump instruction must skip only the else branch instructions, not the entire remaining program
+- Tracking the number of instructions in each branch is essential for correct jump position calculation
+
+REMAINING ISSUES (12 total):
+- 5 Express4RunnerTest failures: importNotAtBeginningTest, multilineStrNotCloseTest, checkSyntaxTest, expressionTraceTest, suiteTest
+- 7 Express4RunnerTest errors: scripTimeoutTest, docImportJavaTest, classFieldTest, testSwitchMixedSyntaxError, qlStaticFunctionTest, clearDFACacheTest, testPluginClassSupplier
+- Note: suiteTest failure is due to string_not_close.ql not throwing SYNTAX_ERROR (lexer accepts unterminated strings)
