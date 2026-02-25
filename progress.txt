@@ -1664,3 +1664,28 @@ the sequence `\'` might need special handling - possibly terminating the string 
 by non-quote characters. This requires investigation into the old ANTLR-based parser behavior.
 
 ---
+
+## [2026-02-25] - US-034 (Number Parsing and Lexer Fixes)
+- Fixed number parsing to use BigDecimal by default (matching ANTLR behavior)
+  - parseFloatLiteral now returns BigDecimal for floating-point literals without type suffix
+  - Added maybePresentWithDouble helper to convert to Double only when value can be exactly represented
+  - Added MAX_DOUBLE constant for comparison
+- Fixed lexer lookahead for decimal point followed by letters
+  - Implemented ANTLR grammar's lookahead predicate: !((LA(2) is letter) && (LA(3) is letter))
+  - This fixes `1.doubleValue()` being tokenized as `1.d` + `oubleValue()` instead of `1` + `.` + `doubleValue()`
+- numberTest, docPreciseTest, numberAmbiguousValueTest now pass
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/parser/lexer/QLexpressLexer.java (added lookahead check for decimal point)
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (added BigDecimal support, MAX_DOUBLE, maybePresentWithDouble)
+
+**Test results:** 644 tests run, 622 pass (96.6% pass rate), 22 issues remaining (13 failures + 9 errors)
+
+**Learnings for future iterations:**
+- The ANTLR parser uses BigDecimal for floating-point literals and only converts to Double when exact
+- The maybePresentWithDouble logic: compare BigDecimal with new BigDecimal(doubleValue) to check if exact
+- Lexer lookahead is needed to distinguish `1.doubleValue()` from `1.d` (type suffix)
+- The lookahead checks if the next 2+ characters after the dot are letters
+- Keyword alias feature requires OperatorManager integration in the lexer (not yet implemented)
+- Many remaining test failures are related to alias functionality not working
+---
