@@ -522,7 +522,7 @@ public class QLexpressLexer {
             char ch = peek();
 
             // Handle escape sequences: \n, \r, \t, \b, \f, \\, \', \"
-            // Single-quoted strings support all standard escape sequences
+            // According to ANTLR grammar, single-quoted strings use '\\' '\''? rule
             if (ch == '\\') {
                 consume(); // consume the backslash
                 if (position < input.length()) {

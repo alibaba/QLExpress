@@ -15,6 +15,7 @@ import com.alibaba.qlexpress4.parser.ast.ProgramNode;
 import com.alibaba.qlexpress4.parser.ast.StatementNode;
 import com.alibaba.qlexpress4.parser.visitor.FunctionExtractor;
 import com.alibaba.qlexpress4.parser.visitor.OutVariableDetector;
+import com.alibaba.qlexpress4.parser.visitor.OutVarAttrDetector;
 import com.alibaba.qlexpress4.parser.visitor.ScriptChecker;
 import com.alibaba.qlexpress4.parser.visitor.VariableDetector;
 import com.alibaba.qlexpress4.runtime.DelegateQContext;
@@ -246,16 +247,29 @@ public class Express4Runner {
     
     /**
      * Get external variable attribute access paths referenced by the script.
-     * NOTE: This is a simplified implementation that does not track attribute paths.
-     * The full implementation would require more complex analysis.
+     * <p>
+     * Returns field access paths like ["a", "b", "c"] for expressions like a.b.c
+     * that reference variables not declared in the script.
      *
      * @param script the script content
-     * @return empty set (attribute path tracking not yet implemented for new parser)
+     * @return set of variable attribute paths (each path is a List<String>)
      */
     public Set<List<String>> getOutVarAttrs(String script) {
-        // TODO: Implement attribute path tracking for the new parser
-        // This requires tracking field access chains like a.b.c
-        return Collections.emptySet();
+        ProgramNode programNode;
+        try {
+            programNode = parseToSyntaxTree(script);
+        }
+        catch (ParseException e) {
+            throw new RuntimeException("Failed to parse script", e);
+        }
+
+        OutVarAttrDetector detector = new OutVarAttrDetector();
+        try {
+            return detector.detect(programNode);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Error detecting external variable attributes", e);
+        }
     }
     
     /**
