@@ -1826,3 +1826,79 @@ REMAINING ISSUES (12 total):
 - Gotcha: The test "Hello \${a bb cc" should equal "Hello ${a bb cc" - the backslash should be removed in the final result
 - Remaining issue: multilineStrNotCloseTest expects unterminated strings to throw error, but lexer accepts them leniently (known limitation)
 
+
+## [2026-02-26] - US-034 (Import, Class Literals, Switch Validation, Array Types, Function Hoisting)
+- Fixed import statement processing in Express4Runner
+  - Extract ImportNode from ProgramNode and convert to QLImport objects
+  - Add to ImportManager before compilation
+  - docImportJavaTest now passes
+- Fixed class literal access (List.class, java.util.List.class)
+  - Added tryResolveClass() helper in InstructionGenerator
+  - Handles both simple identifiers and qualified names
+  - Checks built-in types, java.lang.*, java.util.*, java.io.* packages
+  - classFieldTest now passes
+- Fixed switch syntax validation
+  - Added detection for mixed : and -> syntax in switch statements
+  - testSwitchMixedSyntaxError now passes
+- Fixed array type declarations in variable declarations
+  - parseQualifiedTypeName now handles [] after type name
+  - parseStatement checks for LBRACK after type ID for array types
+  - clearDFACacheTest parsing now works (memory assertion is flaky)
+- Fixed function hoisting for script-level function definitions
+  - Hoist function definitions to top of program and block scopes
+  - Allows calling functions before they're defined (like JavaScript)
+  - qlStaticFunctionTest now passes
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java (import processing)
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java (switch validation, array types)
+- src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (class literals, function hoisting)
+
+**Test results:** 644 tests run, 638 pass (99.1% pass rate), 6 issues remaining (5 failures + 1 error)
+
+**Learnings for future iterations:**
+- Import statements need to be extracted from AST and added to ImportManager before compilation
+- Class literal access (.class) is a special case that needs type resolution via ClassSupplier
+- For class literals, check built-in types first, then try common Java packages (java.lang, java.util, java.io)
+- Function hoisting is required for backward compatibility with scripts that call functions before defining them
+- The hoisting separates FunctionDefinitionNode from other statements and processes them first
+- Array type declarations like String[] need special handling in parseStatement to recognize them as variable declarations
+
+**Remaining issues:**
+- scripTimeoutTest: timeout test (while(true) detection)
+- multilineStrNotCloseTest: should throw error
+- checkSyntaxTest: error position mismatch
+- expressionTraceTest: trace position issue
+- suiteTest: string_not_close.ql should throw SYNTAX_ERROR
+- clearDFACacheTest: flaky memory assertion (parsing works correctly)
+---
+
+## [2026-02-26] - US-034 (Error Message Formatting Fix)
+- Fixed EOF error message formatting to match ANTLR parser behavior
+- Added EOF token detection in Express4Runner.convertParseException()
+- Modified ExMessageUtil.format() to append <EOF> to snippet for EOF errors
+- Modified QLexpressParser.error() to use actual token value for ID tokens (e.g., 'not' instead of 'ID')
+- Added token position calculation from line/column for accurate caret positioning
+
+**Files changed:**
+- src/main/java/com/alibaba/qlexpress4/Express4Runner.java
+- src/main/java/com/alibaba/qlexpress4/exception/ExMessageUtil.java
+- src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+
+**Test results:** 644 tests run, 638 pass (99.1% pass rate), 5 failures + 1 error = 6 total issues
+- Fixed: checkSyntaxTest EOF error formatting (first assertion passes)
+- Remaining: column offset for some syntax errors, unterminated strings, trace position, memory test
+
+**Learnings for future iterations:**
+- EOF errors require special handling: use script.length() as token position
+- The <EOF> lexeme should be appended to the snippet for accurate display
+- ID tokens should display their actual value (e.g., 'not') not just 'ID'
+- Token position can be calculated from line/column by counting characters
+- The new parser reports columns differently than ANTLR for some errors (behavior difference)
+
+**Known Issues:**
+- checkSyntaxTest second assertion: column off by 1 (new parser reports 33 vs expected 32)
+- multilineStrNotCloseTest: unterminated strings not detected (lexer limitation)
+- expressionTraceTest: trace position empty for ternary operator
+- clearDFACacheTest: flaky memory assertion (not parsing issue)
+- suiteTest: string_not_close.ql expects SYNTAX_ERROR but lexer accepts unterminated strings

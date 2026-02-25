@@ -642,16 +642,105 @@ public class Express4Runner {
             programNode = parseToSyntaxTree(script);
         }
         catch (ParseException e) {
-            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
-                0, // position unknown
-                e.getLine(),
-                e.getColumn(),
-                "", // lexeme unknown
-                "SYNTAX_ERROR",
-                e.getMessage());
+            throw convertParseException(script, e);
         }
         ScriptChecker scriptChecker = new ScriptChecker(checkOptions, script);
         scriptChecker.check(programNode);
+    }
+
+    /**
+     * Converts ParseException to QLSyntaxException with proper error message formatting.
+     * Extracts the lexeme from the error message for accurate caret positioning.
+     */
+    private QLSyntaxException convertParseException(String script, ParseException e) {
+        String errorMessage = e.getMessage();
+        String lexeme = extractLexemeFromErrorMessage(errorMessage);
+
+        // Calculate token position for accurate caret positioning
+        int tokenStartPos = calculateTokenStartPos(script, e, lexeme);
+
+        return com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
+            tokenStartPos,
+            e.getLine(),
+            e.getColumn(),
+            lexeme,
+            "SYNTAX_ERROR",
+            errorMessage);
+    }
+
+    /**
+     * Calculates the token start position for error reporting.
+     * For EOF errors, uses the end of the script.
+     * For other errors, calculates position from line and column.
+     */
+    private int calculateTokenStartPos(String script, ParseException e, String lexeme) {
+        if ("<EOF>".equals(lexeme)) {
+            // For EOF errors, position is at the end of the script
+            return script.length();
+        }
+
+        // For non-EOF errors, calculate position from line and column
+        int line = e.getLine();
+        int column = e.getColumn();
+
+        if (line <= 0 || column <= 0) {
+            return 0;
+        }
+
+        // Convert to 0-based
+        int targetLine = line - 1;
+        int targetCol = column - 1;
+
+        int currentLine = 0;
+        int pos = 0;
+
+        while (pos < script.length() && currentLine < targetLine) {
+            char ch = script.charAt(pos);
+            if (ch == '\n') {
+                currentLine++;
+            }
+            pos++;
+        }
+
+        // Now we're at the start of the target line
+        // Move to the target column
+        int columnPos = pos;
+        while (columnPos < script.length() && (columnPos - pos) < targetCol) {
+            char ch = script.charAt(columnPos);
+            if (ch == '\n') {
+                break; // End of line
+            }
+            columnPos++;
+        }
+
+        return columnPos;
+    }
+
+    /**
+     * Extracts the lexeme from a parser error message.
+     * For EOF errors, returns "<EOF>" (5 characters for proper caret positioning).
+     * For other errors with quoted tokens, extracts the quoted content.
+     */
+    private String extractLexemeFromErrorMessage(String errorMessage) {
+        if (errorMessage == null) {
+            return "";
+        }
+
+        // Check for EOF error format: "mismatched input '<EOF>' expecting ..."
+        if (errorMessage.contains("<EOF>")) {
+            return "<EOF>";
+        }
+
+        // Check for quoted token format: "mismatched input 'TOKEN' expecting ..."
+        int startQuote = errorMessage.indexOf("'");
+        if (startQuote >= 0) {
+            int endQuote = errorMessage.indexOf("'", startQuote + 1);
+            if (endQuote > startQuote) {
+                return errorMessage.substring(startQuote + 1, endQuote);
+            }
+        }
+
+        return "";
     }
     
     /**
@@ -765,13 +854,7 @@ public class Express4Runner {
         }
         catch (ParseException e) {
             // Convert parser exception to QLSyntaxException with proper diagnostic
-            throw com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
-                0, // position unknown
-                e.getLine(),
-                e.getColumn(),
-                "", // lexeme unknown
-                "SYNTAX_ERROR",
-                e.getMessage());
+            throw convertParseException(script, e);
         }
         catch (QLSyntaxException e) {
             throw e;

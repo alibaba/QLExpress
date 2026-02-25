@@ -3173,7 +3173,12 @@ public class QLexpressParser {
                     String foundPart = expected.substring(butIndex + " but found ".length());
                     // Convert token types to literal representations
                     expectedPart = tokenTypeToLiteral(expectedPart);
-                    foundPart = tokenTypeToLiteral(foundPart);
+                    // For ID tokens, use the actual token value instead of "ID"
+                    if ("ID".equals(foundPart) && current.getValue() != null) {
+                        foundPart = current.getValue().toString();
+                    } else {
+                        foundPart = tokenTypeToLiteral(foundPart);
+                    }
                     message = "mismatched input '" + foundPart + "' expecting " + expectedPart;
                 }
             }
