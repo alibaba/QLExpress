@@ -1902,3 +1902,19 @@ REMAINING ISSUES (12 total):
 - expressionTraceTest: trace position empty for ternary operator
 - clearDFACacheTest: flaky memory assertion (not parsing issue)
 - suiteTest: string_not_close.ql expects SYNTAX_ERROR but lexer accepts unterminated strings
+
+## [Wed Feb 26 14:30:00 CST 2026] - US-034
+- Fixed ternary operator and if-statement trace value recording
+- Fixed jump offset calculation for ternary operator (subtract 1 for QLVM for loop increment)
+- Added TracePeekInstruction for IfNode when it produces a value
+- Added TracePeekInstruction for BlockNode when it produces a value
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - jump offsets and trace peek instructions)
+- **Learnings for future iterations:**
+  - Jump offset calculation must account for QLVM for loop increment: the QLVM for loop does `i++` after a JUMP, so jump offsets must be 1 less than the calculated distance
+  - Pattern: `jump.setPosition(targetIndex - jumpIndex - 1)` instead of `jump.setPosition(targetIndex - jumpIndex)`
+  - Expression values must be recorded with TracePeekInstruction for trace to show values
+  - IfNode and BlockNode need TracePeekInstruction when `isExpressionValue` is true
+  - The QLVM for loop increments the instruction index after each iteration, even after `continue` statements
+  - TracePeekInstruction peeks at the stack top and records the value in the ExpressionTrace via `valueEvaluated()`
+---
