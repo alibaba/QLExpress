@@ -124,6 +124,14 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
 
         // If the last statement is an expression, the block produces a value
         boolean isExpressionValue = (lastResult != null && lastResult.isExpressionValue());
+
+        // Add trace peek instruction if the block produces a value
+        // This allows the trace system to record the final value of the block expression
+        if (isExpressionValue) {
+            TracePeekInstruction tracePeek = new TracePeekInstruction(PureErrReporter.INSTANCE, node.getStartPosition());
+            instructions.add(tracePeek);
+        }
+
         int stackDelta = isExpressionValue ? 1 : 0;
 
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
@@ -214,11 +222,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Therefore: jumpOffset = instructions.size() - (thenStart + numThenInstructions + 1)
         // Simplifying: jumpOffset = instructions.size() - thenStart - numThenInstructions - 1
         jump.setPosition(instructions.size() - thenStart - numThenInstructions - 1);
-        
+
         // If the if node produces a value (when used as an expression)
         boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
+
+        // Add trace peek instruction if the if statement produces a value
+        // This allows the trace system to record the final value of the if expression
+        if (isExpressionValue) {
+            TracePeekInstruction tracePeek = new TracePeekInstruction(errorReporter, node.getStartPosition());
+            instructions.add(tracePeek);
+        }
+
         int stackDelta = isExpressionValue ? 1 : 0;
-        
+
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
@@ -1237,28 +1253,35 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, false, -1, node.getStartPosition());
         instructions.add(jumpIf);
 
+        // Record jumpIf position for offset calculation
+        int jumpIfIndex = instructions.size() - 1;
+
         // Generate then expression
         GenerationResult thenResult = ((ASTNode)node.getThenExpr()).accept(this, context);
         instructions.addAll(thenResult.getInstructions());
 
-        // Jump to end after then
+        // Jump to end after then (skip else expression)
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
 
+        // Record jump position for offset calculation
+        int jumpIndex = instructions.size() - 1;
+
         // Set jumpIf target (start of else)
-        jumpIf.setPosition(instructions.size());
+        // Offset = elseIndex - jumpIfIndex - 1 (to account for for loop increment)
+        jumpIf.setPosition(jumpIndex - jumpIfIndex);
 
         // Generate else expression
         GenerationResult elseResult = ((ASTNode)node.getElseExpr()).accept(this, context);
         instructions.addAll(elseResult.getInstructions());
 
-        // Set jump target (end of ternary)
-        jump.setPosition(instructions.size());
-
-        // Add trace peek instruction to capture the ternary result value
-        // This allows the trace system to record the final value of the ternary expression
+        // Add trace peek instruction at the end to capture the ternary result value
         TracePeekInstruction tracePeek = new TracePeekInstruction(errorReporter, node.getStartPosition());
         instructions.add(tracePeek);
+
+        // Set jump target (end of ternary, which is TracePeek)
+        // Offset = tracePeekIndex - jumpIndex - 1 (to account for for loop increment)
+        jump.setPosition(instructions.size() - 2 - jumpIndex);
 
         return new GenerationResult(instructions, true, 1);
     }
