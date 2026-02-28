@@ -574,8 +574,9 @@ public class QLexpressLexer {
                 sb.append(consume());
             }
         }
-        
-        // Unterminated string - error, but return what we have
+
+        // Unterminated string - error, but return what we have for lenient parsing
+        // The parser can detect this if needed
         return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
     }
     
@@ -635,11 +636,12 @@ public class QLexpressLexer {
                 sb.append(consume());
             }
         }
-        
-        // Unterminated string
+
+        // Unterminated string - error, but return what we have for lenient parsing
+        // The parser can detect this if needed
         return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
     }
-    
+
     /**
      * Reads an identifier or keyword.
      */

@@ -617,6 +617,9 @@ public class Express4Runner {
      */
     public ProgramNode parseToSyntaxTree(String script)
         throws ParseException {
+        // Check for unterminated strings before parsing
+        checkUnterminatedStrings(script);
+
         return SyntaxTreeFactory.buildTree(script,
             operatorManager,
             initOptions.isDebug(),
@@ -627,7 +630,63 @@ public class Express4Runner {
             initOptions.getSelectorEnd(),
             initOptions.isStrictNewLines());
     }
-    
+
+    /**
+     * Checks for unterminated strings in the script and throws an exception if found.
+     *
+     * @param script the script content to check
+     * @throws ParseException if an unterminated string is detected
+     */
+    private void checkUnterminatedStrings(String script) throws ParseException {
+        boolean inSingleQuote = false;
+        boolean inDoubleQuote = false;
+        boolean inLineComment = false;
+        boolean escape = false;
+
+        for (int i = 0; i < script.length(); i++) {
+            char c = script.charAt(i);
+
+            if (escape) {
+                escape = false;
+                continue;
+            }
+
+            // Handle line comments (// to end of line)
+            if (!inSingleQuote && !inDoubleQuote && c == '/' && i + 1 < script.length() && script.charAt(i + 1) == '/') {
+                inLineComment = true;
+                continue;
+            }
+
+            // End of line comment
+            if (inLineComment && c == '\n') {
+                inLineComment = false;
+                continue;
+            }
+
+            // Skip everything else in line comment
+            if (inLineComment) {
+                continue;
+            }
+
+            // Handle escape sequences
+            if (c == '\\') {
+                escape = true;
+                continue;
+            }
+
+            // Track string literals
+            if (c == '\'' && !inDoubleQuote) {
+                inSingleQuote = !inSingleQuote;
+            } else if (c == '"' && !inSingleQuote) {
+                inDoubleQuote = !inDoubleQuote;
+            }
+        }
+
+        if (inSingleQuote || inDoubleQuote) {
+            throw new ParseException("unterminated string literal", 1, 1, script);
+        }
+    }
+
     /**
      * Check the script for syntax and security violations.
      *

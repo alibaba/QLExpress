@@ -56,14 +56,23 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     @Override
     public TracePointTree visit(IfNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-        children.add(acceptNode(node.getCondition()));
-        children.add(acceptNode(node.getThenBody()));
-        
+        TracePointTree conditionTrace = acceptNode(node.getCondition());
+        if (conditionTrace != null) {
+            children.add(conditionTrace);
+        }
+        TracePointTree thenTrace = acceptNode(node.getThenBody());
+        if (thenTrace != null) {
+            children.add(thenTrace);
+        }
+
         Node elseBody = node.getElseBody();
         if (elseBody != null) {
-            children.add(acceptNode(elseBody));
+            TracePointTree elseTrace = acceptNode(elseBody);
+            if (elseTrace != null) {
+                children.add(elseTrace);
+            }
         }
-        
+
         tracePoints.add(newPoint(TraceType.IF, children, "if", node));
         return null;
     }
@@ -172,9 +181,16 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     
     @Override
     public TracePointTree visit(AssignmentNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
         TracePointTree targetTrace = acceptNode(node.getTarget());
+        if (targetTrace != null) {
+            children.add(targetTrace);
+        }
         TracePointTree valueTrace = acceptNode(node.getValue());
-        return newPoint(TraceType.OPERATOR, Arrays.asList(targetTrace, valueTrace), node.getOperator(), node);
+        if (valueTrace != null) {
+            children.add(valueTrace);
+        }
+        return newPoint(TraceType.OPERATOR, children, node.getOperator(), node);
     }
     
     @Override
@@ -247,9 +263,16 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     
     @Override
     public TracePointTree visit(BinaryOpNode node, Void context) {
+        List<TracePointTree> children = new ArrayList<>();
         TracePointTree leftTrace = acceptNode(node.getLeft());
+        if (leftTrace != null) {
+            children.add(leftTrace);
+        }
         TracePointTree rightTrace = acceptNode(node.getRight());
-        return newPoint(TraceType.OPERATOR, Arrays.asList(leftTrace, rightTrace), node.getOperator(), node);
+        if (rightTrace != null) {
+            children.add(rightTrace);
+        }
+        return newPoint(TraceType.OPERATOR, children, node.getOperator(), node);
     }
     
     @Override
@@ -261,9 +284,18 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     @Override
     public TracePointTree visit(TernaryNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>(3);
-        children.add(acceptNode(node.getCondition()));
-        children.add(acceptNode(node.getThenExpr()));
-        children.add(acceptNode(node.getElseExpr()));
+        TracePointTree conditionTrace = acceptNode(node.getCondition());
+        if (conditionTrace != null) {
+            children.add(conditionTrace);
+        }
+        TracePointTree thenTrace = acceptNode(node.getThenExpr());
+        if (thenTrace != null) {
+            children.add(thenTrace);
+        }
+        TracePointTree elseTrace = acceptNode(node.getElseExpr());
+        if (elseTrace != null) {
+            children.add(elseTrace);
+        }
         return newPoint(TraceType.OPERATOR, children, "?", node);
     }
     
@@ -288,13 +320,13 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     @Override
     public TracePointTree visit(FieldAccessNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-        
+
         // Add target
         TracePointTree targetTrace = acceptNode(node.getTarget());
         if (targetTrace != null) {
             children.add(targetTrace);
         }
-        
+
         String token = (node.isOptional() ? "?." : ".") + node.getFieldName();
         return newPoint(TraceType.FIELD, children, token, node);
     }
@@ -393,7 +425,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
         }
         return newPoint(TraceType.PRIMARY, children, "new", node);
     }
-    
+
     @Override
     public TracePointTree visit(MapLiteralNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();

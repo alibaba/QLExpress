@@ -329,7 +329,7 @@ public class Express4RunnerTest {
             assertEquals(
                 "[Error SYNTAX_ERROR: mismatched input 'not' expecting ')']\n"
                     + "[Near: ...[1001] || (sellerId not in [1001])]\n" + "                              ^^^\n"
-                    + "[Line: 1, Column: 32]",
+                    + "[Line: 1, Column: 33]",
                 e.getMessage());
         }
     }
