@@ -225,14 +225,20 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
     @Override
     public Void visit(MacroDefinitionNode node, Void context)
         throws Exception {
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(EmptyStatementNode node, Void context)
+        throws Exception {
+        // Empty statements are always valid
+        return null;
+    }
     // Expression visitors
     
     @Override

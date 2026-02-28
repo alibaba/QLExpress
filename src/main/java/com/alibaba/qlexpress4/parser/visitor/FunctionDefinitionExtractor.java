@@ -203,7 +203,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         context.exitFunction();
         return null;
     }
-    
+
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
@@ -213,7 +213,14 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(EmptyStatementNode node, Context context)
+        throws Exception {
+        // Empty statements don't contain any function definitions
+        return null;
+    }
+
     // ==================== Expression Visitors ====================
     
     @Override

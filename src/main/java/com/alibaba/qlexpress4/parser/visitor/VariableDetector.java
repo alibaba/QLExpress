@@ -364,7 +364,14 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(EmptyStatementNode node, Context context)
+        throws Exception {
+        // Empty statements don't read or write any variables
+        return null;
+    }
+
     // ==================== Expression Visitors ====================
     
     @Override

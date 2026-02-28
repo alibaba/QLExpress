@@ -1818,8 +1818,9 @@ public class QLexpressParser {
                 }
                 return braceExpr;
             case SEMI:
-                consume(); // Empty statement
-                return null;
+                Token semiToken = consume(); // Empty statement
+                return new EmptyStatementNode(semiToken.getLine(), semiToken.getColumn(),
+                    semiToken.getStartIndex(), semiToken.getSource());
             default:
                 // Check for variable declaration with type
                 // Variable declarations can start with:
@@ -1888,21 +1889,21 @@ public class QLexpressParser {
         throws ParseException {
         Token ifToken = expect(TokenType.IF);
         skipNewlines();
-        
+
         expect(TokenType.LPAREN);
         skipNewlines();
         ExpressionNode condition = parseExpression();
         skipNewlines();
         expect(TokenType.RPAREN);
         skipNewlines();
-        
+
         // Check for optional 'then' keyword
         if (match(TokenType.THEN)) {
             consume();
             skipNewlines();
         }
-        
-        // Parse then body - can be block or single statement/expression
+
+        // Parse then body - can be block, statement, or expression
         Node thenBody;
         if (match(TokenType.LBRACE)) {
             thenBody = parseBlock();
@@ -1911,19 +1912,43 @@ public class QLexpressParser {
             // Nested if statement without braces
             thenBody = parseIf();
         }
+        else if (match(TokenType.WHILE)) {
+            thenBody = parseWhile();
+        }
+        else if (match(TokenType.FOR)) {
+            thenBody = parseFor();
+        }
+        else if (match(TokenType.SWITCH)) {
+            thenBody = parseSwitch();
+        }
+        else if (match(TokenType.TRY)) {
+            thenBody = parseTryCatch();
+        }
+        else if (match(TokenType.RETURN)) {
+            thenBody = parseReturn();
+        }
+        else if (match(TokenType.BREAK)) {
+            thenBody = parseBreak();
+        }
+        else if (match(TokenType.CONTINUE)) {
+            thenBody = parseContinue();
+        }
+        else if (match(TokenType.THROW)) {
+            thenBody = parseThrow();
+        }
         else {
-            // Single expression or statement
+            // Single expression or variable declaration
             thenBody = parseExpression();
         }
-        
+
         skipNewlines();
-        
+
         // Parse optional else clause
         Node elseBody = null;
         if (match(TokenType.ELSE)) {
             consume();
             skipNewlines();
-            
+
             if (match(TokenType.LBRACE)) {
                 elseBody = parseBlock();
             }
@@ -1931,11 +1956,36 @@ public class QLexpressParser {
                 // "else if" - nested if statement
                 elseBody = parseIf();
             }
+            else if (match(TokenType.WHILE)) {
+                elseBody = parseWhile();
+            }
+            else if (match(TokenType.FOR)) {
+                elseBody = parseFor();
+            }
+            else if (match(TokenType.SWITCH)) {
+                elseBody = parseSwitch();
+            }
+            else if (match(TokenType.TRY)) {
+                elseBody = parseTryCatch();
+            }
+            else if (match(TokenType.RETURN)) {
+                elseBody = parseReturn();
+            }
+            else if (match(TokenType.BREAK)) {
+                elseBody = parseBreak();
+            }
+            else if (match(TokenType.CONTINUE)) {
+                elseBody = parseContinue();
+            }
+            else if (match(TokenType.THROW)) {
+                elseBody = parseThrow();
+            }
             else {
+                // Single expression or variable declaration
                 elseBody = parseExpression();
             }
         }
-        
+
         return new IfNode(ifToken.getLine(), ifToken.getColumn(), ifToken.getStartIndex(), ifToken.getSource(),
             condition, thenBody, elseBody);
     }

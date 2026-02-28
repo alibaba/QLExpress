@@ -920,7 +920,14 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // TODO: Implement macro definition storage in context when needed
         return new GenerationResult(Collections.emptyList(), false, 0);
     }
-    
+
+    @Override
+    public GenerationResult visit(EmptyStatementNode node, GenerationContext context)
+        throws Exception {
+        // Empty statements (just a semicolon) don't generate any runtime instructions
+        return new GenerationResult(Collections.emptyList(), false, 0);
+    }
+
     // ==================== Expression Visitors ====================
     
     @Override

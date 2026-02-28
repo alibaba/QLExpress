@@ -334,7 +334,7 @@ public class OutVariableDetector implements ASTVisitor<Void, OutVariableDetector
             context.popScope();
         }
     }
-    
+
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
@@ -349,7 +349,14 @@ public class OutVariableDetector implements ASTVisitor<Void, OutVariableDetector
             context.popScope();
         }
     }
-    
+
+    @Override
+    public Void visit(EmptyStatementNode node, Context context)
+        throws Exception {
+        // Empty statements don't define or use any out variables
+        return null;
+    }
+
     @Override
     public Void visit(LiteralNode node, Context context)
         throws Exception {

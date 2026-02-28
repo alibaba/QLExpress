@@ -624,12 +624,19 @@ public class ScopeAnalyzer implements ASTVisitor<Void, ScopeAnalyzer.Context> {
         
         return null;
     }
-    
+
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
         // Visit macro body
         visitNode(node.getBody(), context);
+        return null;
+    }
+
+    @Override
+    public Void visit(EmptyStatementNode node, Context context)
+        throws Exception {
+        // Empty statements don't create any new scopes
         return null;
     }
     

@@ -224,7 +224,13 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
         tracePoints.add(tracePoint);
         return null;
     }
-    
+
+    @Override
+    public TracePointTree visit(EmptyStatementNode node, Void context) {
+        // Return the trace point for empty statement (semicolon)
+        return newPoint(TraceType.STATEMENT, Collections.emptyList(), ";", node);
+    }
+
     // ==================== Expression Visitors ====================
     
     @Override
@@ -460,10 +466,21 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     @Override
     public TracePointTree visit(ProgramNode node, Void context) {
         // Visit all top-level statements to collect trace points
+        TracePointTree lastEmptyStatementTrace = null;
         for (StatementNode statement : node.getStatements()) {
             TracePointTree trace = acceptNode(statement);
             if (trace != null) {
-                tracePoints.add(trace);
+                // Filter consecutive empty statements - only add the first one
+                if (statement instanceof EmptyStatementNode) {
+                    if (lastEmptyStatementTrace == null) {
+                        tracePoints.add(trace);
+                        lastEmptyStatementTrace = trace;
+                    }
+                    // Skip consecutive empty statements
+                } else {
+                    tracePoints.add(trace);
+                    lastEmptyStatementTrace = null;
+                }
             }
         }
         return null;

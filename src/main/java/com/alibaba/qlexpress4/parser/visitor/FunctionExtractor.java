@@ -308,14 +308,21 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         context.exitFunction();
         return null;
     }
-    
+
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
         visitNode(node.getBody(), context);
         return null;
     }
-    
+
+    @Override
+    public Void visit(EmptyStatementNode node, Context context)
+        throws Exception {
+        // Empty statements don't contain any function calls
+        return null;
+    }
+
     // ==================== Expression Visitors ====================
     
     @Override

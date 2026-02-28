@@ -114,7 +114,13 @@ public interface ASTVisitor<R, C> {
      */
     R visit(MacroDefinitionNode node, C context)
         throws Exception;
-    
+
+    /**
+     * Visits an empty statement node (just a semicolon).
+     */
+    R visit(EmptyStatementNode node, C context)
+        throws Exception;
+
     // ==================== Expression Visitors ====================
     
     /**
