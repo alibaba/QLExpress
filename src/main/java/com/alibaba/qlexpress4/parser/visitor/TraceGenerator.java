@@ -327,7 +327,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
             children.add(targetTrace);
         }
 
-        String token = (node.isOptional() ? "?." : ".") + node.getFieldName();
+        String token = node.getFieldName();
         return newPoint(TraceType.FIELD, children, token, node);
     }
     
@@ -428,18 +428,8 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
 
     @Override
     public TracePointTree visit(MapLiteralNode node, Void context) {
-        List<TracePointTree> children = new ArrayList<>();
-        for (MapEntryNode entry : node.getEntries()) {
-            TracePointTree keyTrace = acceptNode(entry.getKey());
-            TracePointTree valueTrace = acceptNode(entry.getValue());
-            if (keyTrace != null) {
-                children.add(keyTrace);
-            }
-            if (valueTrace != null) {
-                children.add(valueTrace);
-            }
-        }
-        return newPoint(TraceType.MAP, children, "{:", node);
+        // Map literal traces should not include children - just show the map result value
+        return newPoint(TraceType.MAP, Collections.emptyList(), "{", node);
     }
     
     @Override
