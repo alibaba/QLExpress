@@ -261,6 +261,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
+        // Insert timeout check at the beginning of the loop body
+        bodyInstructions.add(new CheckTimeOutInstruction(createErrorReporter(node)));
         if (node.getBody() != null) {
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, bodyContext);
             bodyInstructions.addAll(bodyResult.getInstructions());
@@ -326,12 +328,15 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
-        
+
+        // Add timeout check at the beginning of the loop body
+        bodyInstructions.add(new CheckTimeOutInstruction(createErrorReporter(node)));
+
         // Add variable declaration at the start of the body
         // The loop variable is passed as a parameter to the lambda
         String varName = varDecl.getVariableName();
         Class<?> varClass = resolveType(varDecl.getTypeName());
-        
+
         // Generate body statements
         if (node.getBody() != null) {
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, bodyContext);
@@ -402,6 +407,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
+        // Add timeout check at the beginning of the loop body
+        bodyInstructions.add(new CheckTimeOutInstruction(createErrorReporter(node)));
         if (node.getBody() != null) {
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, bodyContext);
             bodyInstructions.addAll(bodyResult.getInstructions());

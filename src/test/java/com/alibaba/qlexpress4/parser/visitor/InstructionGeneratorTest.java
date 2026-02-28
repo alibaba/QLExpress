@@ -456,12 +456,13 @@ public class InstructionGeneratorTest {
         throws Exception {
         // { 42 }
         BlockNode node = new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42)));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        // Should have const instruction only (last statement's value is kept on stack)
-        assertEquals(1, result.getInstructions().size());
+
+        // Should have const instruction and trace peek instruction (block produces a value)
+        assertEquals(2, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof TracePeekInstruction);
     }
     
     @Test
