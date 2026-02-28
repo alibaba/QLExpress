@@ -1918,3 +1918,27 @@ REMAINING ISSUES (12 total):
   - The QLVM for loop increments the instruction index after each iteration, even after `continue` statements
   - TracePeekInstruction peeks at the stack top and records the value in the ExpressionTrace via `valueEvaluated()`
 ---
+
+## [Fri Feb 28 08:50:00 PM CST 2026] - US-035
+- Implemented timeout check instructions in loop bodies (while, for-each, traditional for)
+- CheckTimeOutInstruction inserted at the beginning of loop bodies during code generation
+- Express4RunnerTest.scripTimeoutTest passes - infinite while loop throws QLTimeoutException with SCRIPT_TIME_OUT within 10ms
+- Fixed InstructionGeneratorTest.testVisitBlockNode_SingleStatement to expect 2 instructions (ConstInstruction + TracePeekInstruction)
+- Manual testing confirmed timeout works for all loop types
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (modified - added CheckTimeOutInstruction to loop bodies)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (modified - fixed test expectation)
+- Typecheck passes (mvn compile)
+- InstructionGeneratorTest: 50/50 tests pass
+- Full test suite: 639/644 pass (5 pre-existing failures unrelated to this change)
+- **Learnings for future iterations:**
+  - Loop bodies in QLExpress are compiled as lambdas (QLambdaDefinitionInner)
+  - CheckTimeOutInstruction checks if (System.currentTimeMillis() - qContext.scriptStartTimeStamp() > qlOptions.getTimeoutMillis())
+  - The instruction is inserted at the beginning of the loop body lambda, before any user code
+  - This approach provides timeout protection for infinite loops without adding overhead to every iteration
+  - The jacoco agent can cause test timeouts due to performance overhead - use -Djacoco.skip=true for timeout tests
+  - TracePeekInstruction is added to blocks that produce values (from US-034)
+  - Pre-existing test failures include: multilineStrNotCloseTest, checkSyntaxTest, expressionTraceTest, clearDFACacheTest, suiteTest
+  - These are not related to the timeout implementation and should be addressed separately
+
+---
