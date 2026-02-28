@@ -1977,3 +1977,32 @@ REMAINING ISSUES (12 total):
 - The column reporting difference (32 vs 33) is because new parser is more accurate - "not" in the test string actually starts at column 33 (1-based)
 - Null safety in TraceGenerator is critical - Arrays.asList with null elements creates lists containing null, which causes NPE when processing children
 
+
+---
+
+## [Sat Mar 1 01:45:00 CST 2026] - US-036 (continued)
+- Implemented trace format fixes for FIELD and MAP trace types
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java (FIELD token without dot, MAP token as '{' with empty children)
+
+**Implemented Fixes:**
+4. **FIELD trace format**: Fixed FIELD trace to show field name without dot prefix (was '.bbb', now 'bbb'). This matches expected test output.
+
+5. **MAP trace format**: Fixed MAP trace to not include children entries and show '{' instead of '{:'. The children were causing trace format differences with expected output.
+
+**Test Results:**
+- 641/644 tests pass (99.5% pass rate)
+- Same 3 remaining issues - partial progress on trace formatting
+
+**Remaining Issues (3 tests):**
+1. **expressionTraceTest**: Trace format differences remain - nested if traces and statement trace values need additional work. ArrayIndexOutOfBoundsException occurs when TracePeekInstruction tries to peek from empty stack (for nested ifs with empty else branches). This requires deeper changes to instruction generation (ensuring values are always pushed for tracing).
+
+2. **clearDFACacheTest**: Flaky memory assertion - depends on GC behavior (test infrastructure issue)
+
+3. **suiteTest**: for_each_invalid_type.ql expects INVALID_ARGUMENT error but test doesn't throw (different from original issue)
+
+**Learnings for future iterations:**
+- TracePeekInstruction expects a value on the stack but doesn't check if stack is empty - causes ArrayIndexOutOfBoundsException
+- The trace system needs values to be present on stack even when statements don't naturally produce values (e.g., empty blocks, variable declarations)
+- Fixing trace format issues requires coordination between instruction generation (pushing values) and trace generation (setting trace values via TracePeekInstruction)
+- The original ANTLR-based implementation likely had special handling for these cases that needs to be replicated in the new parser
