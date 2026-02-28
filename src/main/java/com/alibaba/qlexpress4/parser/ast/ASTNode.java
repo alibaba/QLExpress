@@ -20,11 +20,11 @@ package com.alibaba.qlexpress4.parser.ast;
  */
 public abstract class ASTNode {
     private final int line;
-
+    
     private final int column;
-
+    
     private final int startPosition;
-
+    
     private final String source;
     
     /**
@@ -41,7 +41,7 @@ public abstract class ASTNode {
         this.startPosition = startPosition;
         this.source = source;
     }
-
+    
     /**
      * Creates a new AST node without source information.
      *
@@ -52,7 +52,7 @@ public abstract class ASTNode {
     protected ASTNode(int line, int column, int startPosition) {
         this(line, column, startPosition, null);
     }
-
+    
     /**
      * Creates a new AST node with source location information (no position).
      *
@@ -63,7 +63,7 @@ public abstract class ASTNode {
     protected ASTNode(int line, int column, String source) {
         this(line, column, -1, source);
     }
-
+    
     /**
      * Creates a new AST node without source information (no position).
      *
@@ -91,7 +91,7 @@ public abstract class ASTNode {
     public int getColumn() {
         return column;
     }
-
+    
     /**
      * Returns the starting character position of this node in the source.
      *
@@ -100,7 +100,7 @@ public abstract class ASTNode {
     public int getStartPosition() {
         return startPosition;
     }
-
+    
     /**
      * Returns the source file or string identifier.
      *

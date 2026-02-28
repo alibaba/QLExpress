@@ -5,7 +5,8 @@ public class InstanceOfNode extends ASTNode implements ExpressionNode {
     
     private final String typeName;
     
-    public InstanceOfNode(int line, int column, int startPosition, String source, ExpressionNode expression, String typeName) {
+    public InstanceOfNode(int line, int column, int startPosition, String source, ExpressionNode expression,
+        String typeName) {
         super(line, column, startPosition, source);
         this.expression = expression;
         this.typeName = typeName;

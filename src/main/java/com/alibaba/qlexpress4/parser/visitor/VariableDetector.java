@@ -333,7 +333,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             // For complex targets (e.g., array[index], obj.field), visit them
             visitNode(node.getTarget(), context);
         }
-
+        
         // Visit the value expression
         visitExpression(node.getValue(), context);
         return null;
@@ -391,19 +391,19 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             operator.equals("=") || operator.equals("+=") || operator.equals("-=") || operator.equals("*=")
                 || operator.equals("/=") || operator.equals("%=") || operator.equals("&=") || operator.equals("|=")
                 || operator.equals("^=") || operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
-
+        
         if (isAssignment && node.getLeft() instanceof IdentifierNode) {
             // Record the variable write
             IdentifierNode target = (IdentifierNode)node.getLeft();
             context.addVariableWrite(
                 new VariableAccess(VariableAccessType.WRITE, target.getName(), node.getLine(), node.getColumn()));
-
+            
             // Treat simple identifier assignments as implicit declarations
             // This matches the old ANTLR-based parser behavior where variables
             // assigned without explicit type declaration are considered "declared"
             context.addVariableDeclaration(
                 new VariableDeclaration(null, target.getName(), node.getLine(), node.getColumn()));
-
+            
             // For compound assignments (+=, -=, etc.), the left operand is also read
             if (!operator.equals("=")) {
                 context.addVariableRead(
@@ -414,7 +414,7 @@ public class VariableDetector implements ASTVisitor<Void, VariableDetector.Conte
             // Visit the left operand normally for non-assignment expressions
             visitExpression(node.getLeft(), context);
         }
-
+        
         // Visit the right operand (the value being assigned)
         visitExpression(node.getRight(), context);
         return null;

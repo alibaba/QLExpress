@@ -238,7 +238,7 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-
+        
         // Use scope-aware out variable detection
         OutVariableDetector detector = new OutVariableDetector();
         try {
@@ -266,7 +266,7 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-
+        
         OutVarAttrDetector detector = new OutVarAttrDetector();
         try {
             return detector.detect(programNode);
@@ -290,16 +290,16 @@ public class Express4Runner {
         catch (ParseException e) {
             throw new RuntimeException("Failed to parse script", e);
         }
-
+        
         FunctionExtractor extractor = new FunctionExtractor();
-
+        
         try {
             // Extract function calls with top-level tracking and function definitions
             FunctionExtractor.Context context = extractor.extractWithContext(programNode);
             Set<String> localDefinitions = context.getTopLevelFunctionDefinitions();
-
+            
             Set<String> outFunctions = new HashSet<>();
-
+            
             // Filter for direct calls that are:
             // 1. At the top level (not inside function definitions)
             // 2. Not user-defined via addFunction()
@@ -308,13 +308,12 @@ public class Express4Runner {
                 if (call.getType() == FunctionExtractor.FunctionCallType.DIRECT_CALL && call.isTopLevel()) {
                     String functionName = call.getName();
                     // Check if it's a built-in or user-defined function
-                    if (!userDefineFunction.containsKey(functionName)
-                            && !localDefinitions.contains(functionName)) {
+                    if (!userDefineFunction.containsKey(functionName) && !localDefinitions.contains(functionName)) {
                         outFunctions.add(functionName);
                     }
                 }
             }
-
+            
             return outFunctions;
         }
         catch (Exception e) {
@@ -373,7 +372,8 @@ public class Express4Runner {
             
             // Compile the AST to instructions
             ImportManager importManager = inheritDefaultImport();
-            QLambdaDefinition lambdaDefinition = ASTCompiler.compile(macroProgram, operatorManager, importManager, null, null);
+            QLambdaDefinition lambdaDefinition =
+                ASTCompiler.compile(macroProgram, operatorManager, importManager, null, null);
             
             // Determine if the last statement is an expression
             List<StatementNode> statements = macroProgram.getStatements();
@@ -647,7 +647,7 @@ public class Express4Runner {
         ScriptChecker scriptChecker = new ScriptChecker(checkOptions, script);
         scriptChecker.check(programNode);
     }
-
+    
     /**
      * Converts ParseException to QLSyntaxException with proper error message formatting.
      * Extracts the lexeme from the error message for accurate caret positioning.
@@ -655,19 +655,14 @@ public class Express4Runner {
     private QLSyntaxException convertParseException(String script, ParseException e) {
         String errorMessage = e.getMessage();
         String lexeme = extractLexemeFromErrorMessage(errorMessage);
-
+        
         // Calculate token position for accurate caret positioning
         int tokenStartPos = calculateTokenStartPos(script, e, lexeme);
-
-        return com.alibaba.qlexpress4.exception.QLException.reportScannerErr(script,
-            tokenStartPos,
-            e.getLine(),
-            e.getColumn(),
-            lexeme,
-            "SYNTAX_ERROR",
-            errorMessage);
+        
+        return com.alibaba.qlexpress4.exception.QLException
+            .reportScannerErr(script, tokenStartPos, e.getLine(), e.getColumn(), lexeme, "SYNTAX_ERROR", errorMessage);
     }
-
+    
     /**
      * Calculates the token start position for error reporting.
      * For EOF errors, uses the end of the script.
@@ -678,22 +673,22 @@ public class Express4Runner {
             // For EOF errors, position is at the end of the script
             return script.length();
         }
-
+        
         // For non-EOF errors, calculate position from line and column
         int line = e.getLine();
         int column = e.getColumn();
-
+        
         if (line <= 0 || column <= 0) {
             return 0;
         }
-
+        
         // Convert to 0-based
         int targetLine = line - 1;
         int targetCol = column - 1;
-
+        
         int currentLine = 0;
         int pos = 0;
-
+        
         while (pos < script.length() && currentLine < targetLine) {
             char ch = script.charAt(pos);
             if (ch == '\n') {
@@ -701,7 +696,7 @@ public class Express4Runner {
             }
             pos++;
         }
-
+        
         // Now we're at the start of the target line
         // Move to the target column
         int columnPos = pos;
@@ -712,10 +707,10 @@ public class Express4Runner {
             }
             columnPos++;
         }
-
+        
         return columnPos;
     }
-
+    
     /**
      * Extracts the lexeme from a parser error message.
      * For EOF errors, returns "<EOF>" (5 characters for proper caret positioning).
@@ -725,12 +720,12 @@ public class Express4Runner {
         if (errorMessage == null) {
             return "";
         }
-
+        
         // Check for EOF error format: "mismatched input '<EOF>' expecting ..."
         if (errorMessage.contains("<EOF>")) {
             return "<EOF>";
         }
-
+        
         // Check for quoted token format: "mismatched input 'TOKEN' expecting ..."
         int startQuote = errorMessage.indexOf("'");
         if (startQuote >= 0) {
@@ -739,7 +734,7 @@ public class Express4Runner {
                 return errorMessage.substring(startQuote + 1, endQuote);
             }
         }
-
+        
         return "";
     }
     
@@ -822,33 +817,35 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         try {
             ProgramNode program = parseToSyntaxTree(script);
-
+            
             // Validate that import statements are at the beginning of the file
             validateImportPositions(program, script);
-
+            
             // Process import statements and build ImportManager with them
             List<ImportManager.QLImport> imports = new ArrayList<>(initOptions.getDefaultImport());
             for (StatementNode stmt : program.getStatements()) {
                 if (stmt instanceof ImportNode) {
-                    ImportNode importNode = (ImportNode) stmt;
+                    ImportNode importNode = (ImportNode)stmt;
                     if (importNode.isWildcard()) {
                         // Wildcard import: import java.util.*
                         imports.add(ImportManager.importPack(importNode.getImportPath()));
-                    } else {
+                    }
+                    else {
                         // Regular class import: import java.util.List
                         imports.add(ImportManager.importCls(importNode.getImportPath()));
                     }
                 }
             }
             ImportManager importManager = new ImportManager(initOptions.getClassSupplier(), imports);
-
+            
             if (initOptions.isTraceExpression()) {
                 ASTCompiler.CompilationResult result =
                     ASTCompiler.compileWithTrace(program, operatorManager, importManager, globalScope, script);
                 return new QCompileCache(result.getLambdaDefinition(), result.getTracePoints());
             }
             else {
-                QLambdaDefinition lambdaDefinition = ASTCompiler.compile(program, operatorManager, importManager, globalScope, script);
+                QLambdaDefinition lambdaDefinition =
+                    ASTCompiler.compile(program, operatorManager, importManager, globalScope, script);
                 return new QCompileCache(lambdaDefinition, Collections.emptyList());
             }
         }
@@ -863,7 +860,7 @@ public class Express4Runner {
             throw new RuntimeException("Failed to parse script", e);
         }
     }
-
+    
     /**
      * Validates that all import statements are at the beginning of the file.
      *
@@ -871,7 +868,8 @@ public class Express4Runner {
      * @param script the script content for error reporting
      * @throws QLSyntaxException if an import statement is found after a non-import statement
      */
-    private void validateImportPositions(ProgramNode program, String script) throws QLSyntaxException {
+    private void validateImportPositions(ProgramNode program, String script)
+        throws QLSyntaxException {
         boolean foundNonImportStatement = false;
         for (StatementNode stmt : program.getStatements()) {
             if (stmt instanceof ImportNode) {
@@ -887,7 +885,8 @@ public class Express4Runner {
                         QLErrorCodes.SYNTAX_ERROR.name(),
                         reason);
                 }
-            } else {
+            }
+            else {
                 foundNonImportStatement = true;
             }
         }

@@ -35,42 +35,44 @@ import java.util.stream.Collectors;
  * @author QLExpress Team
  */
 public class InstructionGenerator implements ASTVisitor<GenerationResult, GenerationContext> {
-
+    
     private final OperatorManager operatorManager;
-
+    
     private final ImportManager importManager;
-
+    
     private final GeneratorScope generatorScope;
-
+    
     private final String script;
-
-    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope, String script) {
+    
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager,
+        GeneratorScope generatorScope, String script) {
         this.operatorManager = operatorManager;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
         this.script = script;
     }
-
-    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager, GeneratorScope generatorScope) {
+    
+    public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager,
+        GeneratorScope generatorScope) {
         this(operatorManager, importManager, generatorScope, null);
     }
-
+    
     public InstructionGenerator(OperatorManager operatorManager, ImportManager importManager) {
         this(operatorManager, importManager, null, null);
     }
-
+    
     public InstructionGenerator(OperatorManager operatorManager) {
         this(operatorManager, null, null, null);
     }
-
+    
     public InstructionGenerator() {
         this(new OperatorManager(), null, null, null);
     }
-
+    
     public InstructionGenerator withScript(String script) {
         return new InstructionGenerator(operatorManager, importManager, generatorScope, script);
     }
-
+    
     // ==================== Statement Visitors ====================
     
     @Override
@@ -78,10 +80,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         GenerationContext blockContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         List<StatementNode> statements = node.getStatements();
         int numStatements = statements.size();
-
+        
         // Hoist function definitions to the beginning of the block
         // This allows functions to be called before they are defined (like JavaScript)
         List<StatementNode> functionDefs = new ArrayList<>();
@@ -89,18 +91,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         for (StatementNode stmt : statements) {
             if (stmt instanceof FunctionDefinitionNode) {
                 functionDefs.add(stmt);
-            } else {
+            }
+            else {
                 otherStatements.add(stmt);
             }
         }
-
+        
         // Process function definitions first (hoisting)
         List<QLInstruction> functionDefInstructions = new ArrayList<>();
         for (StatementNode functionDef : functionDefs) {
             GenerationResult result = ((ASTNode)functionDef).accept(this, blockContext);
             functionDefInstructions.addAll(result.getInstructions());
         }
-
+        
         // Process other statements
         List<QLInstruction> otherStmtInstructions = new ArrayList<>();
         GenerationResult lastResult = null;
@@ -109,31 +112,32 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             StatementNode statement = otherStatements.get(i);
             GenerationResult result = ((ASTNode)statement).accept(this, blockContext);
             otherStmtInstructions.addAll(result.getInstructions());
-
+            
             // If the statement is an expression, pop its result unless it's the last statement
             if (result.isExpressionValue() && i < totalOtherStmts - 1) {
                 otherStmtInstructions.add(new PopInstruction(PureErrReporter.INSTANCE));
             }
-
+            
             lastResult = result;
         }
-
+        
         // Combine hoisted function definitions with other statements
         instructions.addAll(functionDefInstructions);
         instructions.addAll(otherStmtInstructions);
-
+        
         // If the last statement is an expression, the block produces a value
         boolean isExpressionValue = (lastResult != null && lastResult.isExpressionValue());
-
+        
         // Add trace peek instruction if the block produces a value
         // This allows the trace system to record the final value of the block expression
         if (isExpressionValue) {
-            TracePeekInstruction tracePeek = new TracePeekInstruction(PureErrReporter.INSTANCE, node.getStartPosition());
+            TracePeekInstruction tracePeek =
+                new TracePeekInstruction(PureErrReporter.INSTANCE, node.getStartPosition());
             instructions.add(tracePeek);
         }
-
+        
         int stackDelta = isExpressionValue ? 1 : 0;
-
+        
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
@@ -171,14 +175,14 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         else {
             thenResult = new GenerationResult(Collections.emptyList(), false, 0);
         }
-
+        
         // Track the number of then instructions for correct jump position calculation
         int numThenInstructions = instructions.size() - thenStart;
-
+        
         // Jump to end after then
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
-
+        
         // Set jumpIf target (start of else)
         jumpIf.setPosition(instructions.size() - thenStart);
         
@@ -222,19 +226,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Therefore: jumpOffset = instructions.size() - (thenStart + numThenInstructions + 1)
         // Simplifying: jumpOffset = instructions.size() - thenStart - numThenInstructions - 1
         jump.setPosition(instructions.size() - thenStart - numThenInstructions - 1);
-
+        
         // If the if node produces a value (when used as an expression)
         boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
-
+        
         // Add trace peek instruction if the if statement produces a value
         // This allows the trace system to record the final value of the if expression
         if (isExpressionValue) {
             TracePeekInstruction tracePeek = new TracePeekInstruction(errorReporter, node.getStartPosition());
             instructions.add(tracePeek);
         }
-
+        
         int stackDelta = isExpressionValue ? 1 : 0;
-
+        
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
@@ -249,8 +253,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         GenerationResult conditionResult = ((ASTNode)node.getCondition()).accept(this, conditionContext);
         conditionInstructions.addAll(conditionResult.getInstructions());
         // Add return instruction to properly return condition value from lambda
-        conditionInstructions.add(
-            new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()), QResult.ResultType.RETURN, node.getStartPosition()));
+        conditionInstructions.add(new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()),
+            QResult.ResultType.RETURN, node.getStartPosition()));
         QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner("while_condition_" + System.nanoTime(),
             conditionInstructions, Collections.emptyList(), calculateMaxStack(conditionInstructions));
         
@@ -522,7 +526,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             
             for (ExpressionNode condition : group.conditions) {
                 // Load switch value
-                LoadInstruction loadSwitchVar = new LoadInstruction(errorReporter, switchVarName, node.getStartPosition());
+                LoadInstruction loadSwitchVar =
+                    new LoadInstruction(errorReporter, switchVarName, node.getStartPosition());
                 instructions.add(loadSwitchVar);
                 
                 // Load case value
@@ -931,7 +936,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(IdentifierNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Check if this identifier is a macro
         if (generatorScope != null) {
             MacroDefine macroDefine = generatorScope.getMacroInstructions(node.getName());
@@ -944,7 +949,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 return new GenerationResult(macroInstructions, isExpressionValue, stackDelta);
             }
         }
-
+        
         // Not a macro, generate regular load instruction
         LoadInstruction instruction = new LoadInstruction(errorReporter, node.getName(), node.getStartPosition());
         return new GenerationResult(Collections.singletonList(instruction), true, 1);
@@ -954,13 +959,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(BinaryOpNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Special handling for instanceof operator
         if ("instanceof".equals(node.getOperator())) {
             // Generate left operand (the object to check)
             GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
             instructions.addAll(leftResult.getInstructions());
-
+            
             // Generate right operand (the class to check against)
             // For instanceof, the right operand should be a Class<?> object
             if (node.getRight() instanceof IdentifierNode) {
@@ -995,7 +1000,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
                 instructions.addAll(rightResult.getInstructions());
             }
-
+            
             // Generate instanceof operator instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             BinaryOperator operator = operatorManager.getBinaryOperator("instanceof");
@@ -1004,17 +1009,18 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             }
             OperatorInstruction instruction = new OperatorInstruction(errorReporter, operator, node.getStartPosition());
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Special handling for && and || short-circuit operators
         String operator = node.getOperator();
-        if ("&&".equals(operator) || "and".equalsIgnoreCase(operator) || "||".equals(operator) || "or".equalsIgnoreCase(operator)) {
+        if ("&&".equals(operator) || "and".equalsIgnoreCase(operator) || "||".equals(operator)
+            || "or".equalsIgnoreCase(operator)) {
             boolean isAnd = "&&".equals(operator) || "and".equalsIgnoreCase(operator);
             return generateShortCircuitLogic(node, context, isAnd);
         }
-
+        
         // Special handling for .* operator with identifier right operand
         // When the right operand of .* is an identifier, treat it as a string literal
         // (the field name) rather than a variable reference
@@ -1022,57 +1028,59 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             // Generate left operand
             GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
             instructions.addAll(leftResult.getInstructions());
-
+            
             // For .* operator with identifier, use the identifier name as string literal
             IdentifierNode idNode = (IdentifierNode)node.getRight();
             ErrorReporter errorReporter = createErrorReporter(idNode);
             instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
-
+            
             // Generate operator instruction
             errorReporter = createErrorReporter(node);
             BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
             if (binaryOperator == null) {
                 throw new UnsupportedOperationException(".* operator not found");
             }
-            OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+            OperatorInstruction instruction =
+                new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Special handling for .* operator with ArrayAccess right operand
         // When .* is followed by an array access like .*a[1:-1], the array access
         // should apply to the RESULT of the .* operation, not to the identifier
         if (".*".equals(operator) && node.getRight() instanceof ArraySliceNode) {
             ArraySliceNode arraySlice = (ArraySliceNode)node.getRight();
-
+            
             // Check if the array access target is a simple identifier
             if (arraySlice.getArray() instanceof IdentifierNode) {
                 // This is the case: .*a[indices]
                 // We want to: (left .* a)[indices], not left .* (a[indices])
-
+                
                 // Generate left operand
                 GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
                 instructions.addAll(leftResult.getInstructions());
-
+                
                 // Generate the identifier as string literal (field name)
                 IdentifierNode idNode = (IdentifierNode)arraySlice.getArray();
                 ErrorReporter errorReporter = createErrorReporter(idNode);
                 instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
-
+                
                 // Generate .* operator instruction
                 errorReporter = createErrorReporter(node);
                 BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
                 if (binaryOperator == null) {
                     throw new UnsupportedOperationException(".* operator not found");
                 }
-                OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+                OperatorInstruction instruction =
+                    new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
                 instructions.add(instruction);
-
+                
                 // Now generate the array slice instructions (indices only, array is already on stack)
                 ExpressionNode start = arraySlice.getStart();
                 ExpressionNode end = arraySlice.getEnd();
-
+                
                 if (start == null && end == null) {
                     // [:] - COPY mode (no indices needed)
                     instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.COPY));
@@ -1087,7 +1095,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                     // [start:] - RIGHT mode (only start index)
                     GenerationResult startResult = ((ASTNode)start).accept(this, context);
                     instructions.addAll(startResult.getInstructions());
-                    instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.RIGHT));
+                    instructions
+                        .add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.RIGHT));
                 }
                 else {
                     // [start:end] - BOTH mode (both indices)
@@ -1097,68 +1106,70 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                     instructions.addAll(endResult.getInstructions());
                     instructions.add(new SliceInstruction(createErrorReporter(arraySlice), SliceInstruction.Mode.BOTH));
                 }
-
+                
                 return new GenerationResult(instructions, true, 1);
             }
         }
-
+        
         // Special handling for .* operator with ArrayAccess (single index) right operand
         if (".*".equals(operator) && node.getRight() instanceof ArrayAccessNode) {
             ArrayAccessNode arrayAccess = (ArrayAccessNode)node.getRight();
-
+            
             // Check if the array access target is a simple identifier
             if (arrayAccess.getArray() instanceof IdentifierNode) {
                 // This is the case: .*a[index]
                 // We want to: (left .* a)[index], not left .* (a[index])
-
+                
                 // Generate left operand
                 GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
                 instructions.addAll(leftResult.getInstructions());
-
+                
                 // Generate the identifier as string literal (field name)
                 IdentifierNode idNode = (IdentifierNode)arrayAccess.getArray();
                 ErrorReporter errorReporter = createErrorReporter(idNode);
                 instructions.add(new ConstInstruction(errorReporter, idNode.getName(), idNode.getStartPosition()));
-
+                
                 // Generate .* operator instruction
                 errorReporter = createErrorReporter(node);
                 BinaryOperator binaryOperator = operatorManager.getBinaryOperator(".*");
                 if (binaryOperator == null) {
                     throw new UnsupportedOperationException(".* operator not found");
                 }
-                OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+                OperatorInstruction instruction =
+                    new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
                 instructions.add(instruction);
-
+                
                 // Now generate the index expression (array is already on stack)
                 GenerationResult indexResult = ((ASTNode)arrayAccess.getIndex()).accept(this, context);
                 instructions.addAll(indexResult.getInstructions());
                 instructions.add(new IndexInstruction(createErrorReporter(arrayAccess)));
-
+                
                 return new GenerationResult(instructions, true, 1);
             }
         }
-
+        
         // Normal binary operator handling
         // Generate left operand
         GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
         instructions.addAll(leftResult.getInstructions());
-
+        
         // Generate right operand
         GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
         instructions.addAll(rightResult.getInstructions());
-
+        
         // Generate operator instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         BinaryOperator binaryOperator = operatorManager.getBinaryOperator(node.getOperator());
         if (binaryOperator == null) {
             throw new UnsupportedOperationException("Unknown binary operator: " + node.getOperator());
         }
-        OperatorInstruction instruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+        OperatorInstruction instruction =
+            new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
-
+    
     /**
      * Generate short-circuit code for && and || operators.
      * <p>
@@ -1178,11 +1189,11 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Generate left operand
         GenerationResult leftResult = ((ASTNode)node.getLeft()).accept(this, context);
         instructions.addAll(leftResult.getInstructions());
-
+        
         // JumpIf that checks if we should short-circuit
         // For &&: jump if left is false (to skip right)
         // For ||: jump if left is true (to skip right)
@@ -1190,22 +1201,23 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Position will be set to skip the right operand and operator
         JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, !isAnd, -1, node.getStartPosition());
         instructions.add(jumpIf);
-
+        
         // Non-short-circuit path: left value is still on stack
         // Evaluate right operand, apply operator
         GenerationResult rightResult = ((ASTNode)node.getRight()).accept(this, context);
         instructions.addAll(rightResult.getInstructions());
-
+        
         BinaryOperator binaryOperator = operatorManager.getBinaryOperator(node.getOperator());
-        OperatorInstruction operatorInstruction = new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
+        OperatorInstruction operatorInstruction =
+            new OperatorInstruction(errorReporter, binaryOperator, node.getStartPosition());
         instructions.add(operatorInstruction);
-
+        
         // Set jumpIf position to skip the right operand and operator
         // The position is a relative offset from the JumpIf instruction
         // We need to skip: right instructions + 1 operator instruction
         int offset = rightResult.getInstructions().size() + 1;
         jumpIf.setPosition(offset);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -1242,47 +1254,47 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(TernaryNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Generate condition
         GenerationResult conditionResult = ((ASTNode)node.getCondition()).accept(this, context);
         instructions.addAll(conditionResult.getInstructions());
-
+        
         ErrorReporter errorReporter = createErrorReporter(node);
-
+        
         // Jump to else if condition is false
         JumpIfInstruction jumpIf = new JumpIfInstruction(errorReporter, false, -1, node.getStartPosition());
         instructions.add(jumpIf);
-
+        
         // Record jumpIf position for offset calculation
         int jumpIfIndex = instructions.size() - 1;
-
+        
         // Generate then expression
         GenerationResult thenResult = ((ASTNode)node.getThenExpr()).accept(this, context);
         instructions.addAll(thenResult.getInstructions());
-
+        
         // Jump to end after then (skip else expression)
         JumpInstruction jump = new JumpInstruction(errorReporter, -1);
         instructions.add(jump);
-
+        
         // Record jump position for offset calculation
         int jumpIndex = instructions.size() - 1;
-
+        
         // Set jumpIf target (start of else)
         // Offset = elseIndex - jumpIfIndex - 1 (to account for for loop increment)
         jumpIf.setPosition(jumpIndex - jumpIfIndex);
-
+        
         // Generate else expression
         GenerationResult elseResult = ((ASTNode)node.getElseExpr()).accept(this, context);
         instructions.addAll(elseResult.getInstructions());
-
+        
         // Add trace peek instruction at the end to capture the ternary result value
         TracePeekInstruction tracePeek = new TracePeekInstruction(errorReporter, node.getStartPosition());
         instructions.add(tracePeek);
-
+        
         // Set jump target (end of ternary, which is TracePeek)
         // Offset = tracePeekIndex - jumpIndex - 1 (to account for for loop increment)
         jump.setPosition(instructions.size() - 2 - jumpIndex);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -1298,7 +1310,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, lambdaContext);
             bodyInstructions.addAll(bodyResult.getInstructions());
             // Add return for expression body
-            bodyInstructions.add(new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, node.getStartPosition()));
+            bodyInstructions.add(
+                new ReturnInstruction(PureErrReporter.INSTANCE, QResult.ResultType.CONTINUE, node.getStartPosition()));
         }
         else if (node.getBody() instanceof BlockNode) {
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, lambdaContext);
@@ -1314,7 +1327,8 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Create lambda definition
         String lambdaName = "LAMBDA_" + System.nanoTime();
         int maxStackSize = calculateMaxStack(bodyInstructions);
-        QLambdaDefinitionInner lambdaDefinition = new QLambdaDefinitionInner(lambdaName, bodyInstructions, params, maxStackSize);
+        QLambdaDefinitionInner lambdaDefinition =
+            new QLambdaDefinitionInner(lambdaName, bodyInstructions, params, maxStackSize);
         
         // Load the lambda
         ErrorReporter errorReporter = createErrorReporter(node);
@@ -1344,26 +1358,25 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(FieldAccessNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Check if this is a spread field access (e.g., list*.field)
         if (node.isSpread()) {
             // Generate target expression
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
-
+            
             // Generate spread get field instruction
             ErrorReporter errorReporter = createErrorReporter(node);
-            SpreadGetFieldInstruction instruction =
-                new SpreadGetFieldInstruction(errorReporter, node.getFieldName());
+            SpreadGetFieldInstruction instruction = new SpreadGetFieldInstruction(errorReporter, node.getFieldName());
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Check if this is a class literal access (e.g., List.class or java.util.List.class)
         boolean foundClass = false;
         String fieldName = node.getFieldName();
-
+        
         // Special case for .class - this is a class literal access
         if ("class".equals(fieldName)) {
             // Try to resolve the target as a class name
@@ -1378,38 +1391,39 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 }
             }
         }
-
+        
         // Check if this is a static field access on an imported class
         if (!foundClass && node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
-
+            
             // Check if this single identifier can be resolved to a class
             ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
             if (result.getCls() != null && result.getRestIndex() == 1) {
                 // This is a class reference - generate MetaClass const instruction
                 ErrorReporter errorReporter = createErrorReporter(targetId);
-                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
+                instructions
+                    .add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
                 foundClass = true;
             }
         }
-
+        
         if (!foundClass) {
             // Generate target expression (variable load or other expression)
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-
+        
         // Generate get field instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         GetFieldInstruction instruction =
             new GetFieldInstruction(errorReporter, node.getFieldName(), node.isOptional());
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
-
+    
     /**
      * Extracts a class name from an expression node.
      * Handles simple identifiers (List) and qualified names (java.util.List).
@@ -1419,35 +1433,36 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
      */
     private String extractClassName(ExpressionNode node) {
         if (node instanceof IdentifierNode) {
-            return ((IdentifierNode) node).getName();
+            return ((IdentifierNode)node).getName();
         }
         else if (node instanceof FieldAccessNode) {
             // Build qualified name from field access chain (e.g., java.util.List)
             StringBuilder className = new StringBuilder();
             ExpressionNode current = node;
             boolean first = true;
-
+            
             while (current instanceof FieldAccessNode) {
-                FieldAccessNode fieldAccess = (FieldAccessNode) current;
+                FieldAccessNode fieldAccess = (FieldAccessNode)current;
                 if (first) {
                     className.insert(0, fieldAccess.getFieldName());
                     first = false;
-                } else {
+                }
+                else {
                     className.insert(0, ".");
                     className.insert(0, fieldAccess.getFieldName());
                 }
                 current = fieldAccess.getTarget();
             }
-
+            
             if (current instanceof IdentifierNode) {
                 className.insert(0, ".");
-                className.insert(0, ((IdentifierNode) current).getName());
+                className.insert(0, ((IdentifierNode)current).getName());
                 return className.toString();
             }
         }
         return null;
     }
-
+    
     /**
      * Tries to resolve an identifier as a class name.
      * First checks built-in types, then tries to load from common Java packages.
@@ -1461,7 +1476,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         if (cls != null) {
             return cls;
         }
-
+        
         // If importManager is available, try to load the class
         if (importManager != null) {
             // Try loading directly (for fully qualified names like java.util.List)
@@ -1469,26 +1484,26 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             if (cls != null) {
                 return cls;
             }
-
+            
             // Try java.lang package (most common)
             cls = importManager.loadQualified("java.lang." + className);
             if (cls != null) {
                 return cls;
             }
-
+            
             // Try java.util package (common collections)
             cls = importManager.loadQualified("java.util." + className);
             if (cls != null) {
                 return cls;
             }
-
+            
             // Try java.io package
             cls = importManager.loadQualified("java.io." + className);
             if (cls != null) {
                 return cls;
             }
         }
-
+        
         return null;
     }
     
@@ -1496,7 +1511,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MethodCallNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // If target is null, this is a direct function call (e.g., stest(9))
         // Use CallFunctionInstruction which loads the function by name from the context
         if (node.getTarget() == null) {
@@ -1505,50 +1520,51 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 GenerationResult argResult = ((ASTNode)arg).accept(this, context);
                 instructions.addAll(argResult.getInstructions());
             }
-
+            
             // Generate call function instruction with function name as lexeme for error reporting
             ErrorReporter errorReporter = createErrorReporter(node, node.getMethodName());
-            CallFunctionInstruction instruction =
-                new CallFunctionInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), node.getStartPosition());
+            CallFunctionInstruction instruction = new CallFunctionInstruction(errorReporter, node.getMethodName(),
+                node.getArguments().size(), node.getStartPosition());
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Check if this is a spread method call (e.g., list*.method())
         if (node.isSpread()) {
             // Generate target expression
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
-
+            
             // Generate arguments
             for (ExpressionNode arg : node.getArguments()) {
                 GenerationResult argResult = ((ASTNode)arg).accept(this, context);
                 instructions.addAll(argResult.getInstructions());
             }
-
+            
             // Generate spread method invoke instruction
             ErrorReporter errorReporter = createErrorReporter(node);
             SpreadMethodInvokeInstruction instruction =
                 new SpreadMethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size());
             instructions.add(instruction);
-
+            
             return new GenerationResult(instructions, true, 1);
         }
-
+        
         // Check if this is a static method call on a class
         // For example: QLOptions.builder() where QLOptions is a class
         if (node.getTarget() instanceof IdentifierNode && importManager != null) {
             IdentifierNode targetId = (IdentifierNode)node.getTarget();
             List<String> ids = new ArrayList<>();
             ids.add(targetId.getName());
-
+            
             // Check if this single identifier can be resolved to a class
             ImportManager.LoadPartQualifiedResult result = importManager.loadPartQualified(ids);
             if (result.getCls() != null && result.getRestIndex() == 1) {
                 // This is a class reference - generate MetaClass const instruction
                 ErrorReporter errorReporter = createErrorReporter(targetId);
-                instructions.add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
+                instructions
+                    .add(new ConstInstruction(errorReporter, new MetaClass(result.getCls()), node.getStartPosition()));
             }
             else {
                 // Not a class - generate load instruction
@@ -1561,19 +1577,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult targetResult = ((ASTNode)node.getTarget()).accept(this, context);
             instructions.addAll(targetResult.getInstructions());
         }
-
+        
         // Generate arguments
         for (ExpressionNode arg : node.getArguments()) {
             GenerationResult argResult = ((ASTNode)arg).accept(this, context);
             instructions.addAll(argResult.getInstructions());
         }
-
+        
         // Generate method invoke instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         MethodInvokeInstruction instruction =
             new MethodInvokeInstruction(errorReporter, node.getMethodName(), node.getArguments().size(), false); // optional = false for now
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -1695,7 +1711,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(MapLiteralNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         // Generate value expressions (keys must be string literals or constant expressions)
         List<String> keys = new ArrayList<>();
         for (MapEntryNode entry : node.getEntries()) {
@@ -1717,19 +1733,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             else {
                 throw new UnsupportedOperationException("Map keys must be string literals");
             }
-
+            
             keys.add(keyValue);
-
+            
             // Generate value expression
             GenerationResult valueResult = ((ASTNode)entry.getValue()).accept(this, context);
             instructions.addAll(valueResult.getInstructions());
         }
-
+        
         // Generate new map instruction
         ErrorReporter errorReporter = createErrorReporter(node);
         NewMapInstruction instruction = new NewMapInstruction(errorReporter, keys);
         instructions.add(instruction);
-
+        
         return new GenerationResult(instructions, true, 1);
     }
     
@@ -1773,10 +1789,10 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         throws Exception {
         GenerationContext programContext = context.createChildContext();
         List<QLInstruction> instructions = new ArrayList<>();
-
+        
         List<StatementNode> statements = node.getStatements();
         int numStatements = statements.size();
-
+        
         // Hoist function definitions to the beginning of the program
         // This allows functions to be called before they are defined (like JavaScript)
         List<StatementNode> functionDefs = new ArrayList<>();
@@ -1784,18 +1800,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         for (StatementNode stmt : statements) {
             if (stmt instanceof FunctionDefinitionNode) {
                 functionDefs.add(stmt);
-            } else {
+            }
+            else {
                 otherStatements.add(stmt);
             }
         }
-
+        
         // Process function definitions first (hoisting)
         List<QLInstruction> functionDefInstructions = new ArrayList<>();
         for (StatementNode functionDef : functionDefs) {
             GenerationResult result = ((ASTNode)functionDef).accept(this, programContext);
             functionDefInstructions.addAll(result.getInstructions());
         }
-
+        
         // Process other statements
         List<QLInstruction> otherStmtInstructions = new ArrayList<>();
         GenerationResult lastResult = null;
@@ -1804,38 +1821,38 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             StatementNode statement = otherStatements.get(i);
             GenerationResult result = ((ASTNode)statement).accept(this, programContext);
             otherStmtInstructions.addAll(result.getInstructions());
-
+            
             // If the statement is an expression, pop its result unless it's the last statement
             if (result.isExpressionValue() && i < totalOtherStmts - 1) {
                 otherStmtInstructions.add(new PopInstruction(PureErrReporter.INSTANCE));
             }
-
+            
             lastResult = result;
         }
-
+        
         // Combine hoisted function definitions with other statements
         instructions.addAll(functionDefInstructions);
         instructions.addAll(otherStmtInstructions);
-
+        
         return new GenerationResult(instructions, false, 0);
     }
     
     // ==================== Helper Methods ====================
-
+    
     private ErrorReporter createErrorReporter(ASTNode node) {
         if (script != null) {
             return new DefaultErrReporter(script, node.getStartPosition(), node.getLine(), node.getColumn(), "");
         }
         return PureErrReporter.INSTANCE;
     }
-
+    
     private ErrorReporter createErrorReporter(ASTNode node, String lexeme) {
         if (script != null) {
             return new DefaultErrReporter(script, node.getStartPosition(), node.getLine(), node.getColumn(), lexeme);
         }
         return PureErrReporter.INSTANCE;
     }
-
+    
     /**
      * Calculate the maximum stack size needed for a list of instructions.
      * This is a simplified estimation - the original implementation tracks

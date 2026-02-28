@@ -71,7 +71,7 @@ public class ASTCompiler {
         throws Exception {
         return compile(programNode, operatorManager, importManager, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with ImportManager and GeneratorScope support.
      * <p>
@@ -90,7 +90,7 @@ public class ASTCompiler {
         throws Exception {
         return compile(programNode, operatorManager, importManager, generatorScope, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with script source support.
      * <p>
@@ -115,19 +115,20 @@ public class ASTCompiler {
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Create instruction generator
-        InstructionGenerator generator = new InstructionGenerator(operatorManager, importManager, generatorScope, script);
-
+        InstructionGenerator generator =
+            new InstructionGenerator(operatorManager, importManager, generatorScope, script);
+        
         // Generate instructions from AST
         GenerationResult result = ((ASTNode)programNode).accept(generator, new GenerationContext());
-
+        
         // Extract instructions
         List<QLInstruction> instructions = result.getInstructions();
-
+        
         // Calculate max stack size
         int maxStackSize = calculateMaxStackSize(instructions);
-
+        
         // Create main lambda definition
         return new QLambdaDefinitionInner("main", instructions, Collections.emptyList(), maxStackSize);
     }
@@ -165,7 +166,7 @@ public class ASTCompiler {
         throws Exception {
         return compileWithTrace(programNode, operatorManager, importManager, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with trace points, ImportManager, and GeneratorScope support.
      * <p>
@@ -184,7 +185,7 @@ public class ASTCompiler {
         throws Exception {
         return compileWithTrace(programNode, operatorManager, importManager, generatorScope, null);
     }
-
+    
     /**
      * Compiles a ProgramNode to a QLambdaDefinition with trace points and script source support.
      * <p>
@@ -208,13 +209,14 @@ public class ASTCompiler {
         if (operatorManager == null) {
             throw new IllegalArgumentException("operatorManager cannot be null");
         }
-
+        
         // Compile to lambda definition
-        QLambdaDefinition lambdaDefinition = compile(programNode, operatorManager, importManager, generatorScope, script);
-
+        QLambdaDefinition lambdaDefinition =
+            compile(programNode, operatorManager, importManager, generatorScope, script);
+        
         // Generate trace points
         List<TracePointTree> tracePoints = generateTracePoints(programNode);
-
+        
         return new CompilationResult(lambdaDefinition, tracePoints);
     }
     

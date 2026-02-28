@@ -146,16 +146,16 @@ public class InstructionGeneratorTest {
         LiteralNode left = new LiteralNode(1, 1, 0, null, true);
         LiteralNode right = new LiteralNode(1, 1, 0, null, false);
         BinaryOpNode node = new BinaryOpNode(1, 1, 0, null, left, "&&", right);
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Short-circuit AND generates: Const(left), JumpIf, Const(right), Operator
         assertEquals(4, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof JumpIfInstruction);
         assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(3) instanceof OperatorInstruction);
-
+        
         OperatorInstruction opInstr = (OperatorInstruction)result.getInstructions().get(3);
         assertEquals("&&", opInstr.getOperator().getOperator());
     }
@@ -212,15 +212,15 @@ public class InstructionGeneratorTest {
         LiteralNode thenExpr = new LiteralNode(1, 1, 0, null, 1);
         LiteralNode elseExpr = new LiteralNode(1, 1, 0, null, 2);
         TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Should have: const true, jumpIf, const 1, jump, const 2, tracePeek
         // TracePeekInstruction was added for trace position tracking (US-034)
         assertEquals(6, result.getInstructions().size());
         assertEquals(1, result.getStackEffect());
         assertTrue(result.isExpressionValue());
-
+        
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof JumpIfInstruction);
         assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
@@ -237,9 +237,9 @@ public class InstructionGeneratorTest {
         IdentifierNode thenExpr = new IdentifierNode(1, 1, 0, null, "a");
         IdentifierNode elseExpr = new IdentifierNode(1, 1, 0, null, "b");
         TernaryNode node = new TernaryNode(1, 1, 0, null, condition, thenExpr, elseExpr);
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // Should have: load flag, jumpIf, load a, jump, load b, tracePeek
         // TracePeekInstruction was added for trace position tracking (US-034)
         assertEquals(6, result.getInstructions().size());
@@ -272,8 +272,9 @@ public class InstructionGeneratorTest {
     public void testVisitArrayLiteralNode()
         throws Exception {
         // [1, 2, 3]
-        List<ExpressionNode> elements = Arrays
-            .asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2), new LiteralNode(1, 1, 0, null, 3));
+        List<ExpressionNode> elements = Arrays.asList(new LiteralNode(1, 1, 0, null, 1),
+            new LiteralNode(1, 1, 0, null, 2),
+            new LiteralNode(1, 1, 0, null, 3));
         ArrayLiteralNode node = new ArrayLiteralNode(1, 1, 0, null, elements);
         
         GenerationResult result = generator.visit(node, context);
@@ -292,8 +293,9 @@ public class InstructionGeneratorTest {
     public void testVisitListLiteralNode()
         throws Exception {
         // [1, 2, 3]
-        List<ExpressionNode> elements = Arrays
-            .asList(new LiteralNode(1, 1, 0, null, 1), new LiteralNode(1, 1, 0, null, 2), new LiteralNode(1, 1, 0, null, 3));
+        List<ExpressionNode> elements = Arrays.asList(new LiteralNode(1, 1, 0, null, 1),
+            new LiteralNode(1, 1, 0, null, 2),
+            new LiteralNode(1, 1, 0, null, 3));
         ListLiteralNode node = new ListLiteralNode(1, 1, 0, null, elements);
         
         GenerationResult result = generator.visit(node, context);
@@ -390,8 +392,8 @@ public class InstructionGeneratorTest {
         throws Exception {
         // x -> x + 1
         List<ParameterNode> params = Collections.singletonList(new ParameterNode(null, "x"));
-        BinaryOpNode body =
-            new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "+", new LiteralNode(1, 1, 0, null, 1));
+        BinaryOpNode body = new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "+",
+            new LiteralNode(1, 1, 0, null, 1));
         LambdaNode node = new LambdaNode(1, 1, 0, null, params, body);
         
         GenerationResult result = generator.visit(node, context);
@@ -578,8 +580,8 @@ public class InstructionGeneratorTest {
     public void testVisitAssignmentNode_Simple()
         throws Exception {
         // x = 42;
-        AssignmentNode node =
-            new AssignmentNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "=", new LiteralNode(1, 1, 0, null, 42));
+        AssignmentNode node = new AssignmentNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "x"), "=",
+            new LiteralNode(1, 1, 0, null, 42));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -596,9 +598,9 @@ public class InstructionGeneratorTest {
         // if (true) { 42 }
         IfNode node = new IfNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, true),
             new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))), null);
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // In QLExpress, if statements can be used as expressions
         // When the then body produces a value (like a literal), the if node also produces a value
         // When there's no else body, null is pushed as the default else value
@@ -608,7 +610,7 @@ public class InstructionGeneratorTest {
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof JumpIfPopInstruction);
     }
-
+    
     @Test
     public void testVisitIfNode_WithElse()
         throws Exception {
@@ -616,9 +618,9 @@ public class InstructionGeneratorTest {
         IfNode node = new IfNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, false),
             new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 1))),
             new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 2))));
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // In QLExpress, if statements can be used as expressions
         // When both branches produce values, the if node produces a value
         assertTrue(result.isExpressionValue());
@@ -649,7 +651,8 @@ public class InstructionGeneratorTest {
         // for (x : items) { }
         VariableDeclarationNode varDecl =
             new VariableDeclarationNode(1, 1, 0, null, "int", "x", new IdentifierNode(1, 1, 0, null, "items"));
-        ForNode node = new ForNode(1, 1, 0, null, varDecl, null, null, new BlockNode(1, 1, 0, null, Collections.emptyList()));
+        ForNode node =
+            new ForNode(1, 1, 0, null, varDecl, null, null, new BlockNode(1, 1, 0, null, Collections.emptyList()));
         
         GenerationResult result = generator.visit(node, context);
         
@@ -666,8 +669,8 @@ public class InstructionGeneratorTest {
         // for (int i = 0; i < 10; i++) { }
         VariableDeclarationNode init =
             new VariableDeclarationNode(1, 1, 0, null, "int", "i", new LiteralNode(1, 1, 0, null, 0));
-        BinaryOpNode condition =
-            new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "i"), "<", new LiteralNode(1, 1, 0, null, 10));
+        BinaryOpNode condition = new BinaryOpNode(1, 1, 0, null, new IdentifierNode(1, 1, 0, null, "i"), "<",
+            new LiteralNode(1, 1, 0, null, 10));
         UnaryOpNode update = new UnaryOpNode(1, 1, 0, null, "++", new IdentifierNode(1, 1, 0, null, "i"), false);
         ForNode node =
             new ForNode(1, 1, 0, null, init, condition, update, new BlockNode(1, 1, 0, null, Collections.emptyList()));
@@ -717,10 +720,11 @@ public class InstructionGeneratorTest {
             Collections.singletonList(new CatchClauseNode(Collections.singletonList("Exception"), "e",
                 new BlockNode(1, 1, 0, null, Collections.emptyList())));
         TryCatchNode node = new TryCatchNode(1, 1, 0, null,
-            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))), catchClauses, null);
-
+            new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))), catchClauses,
+            null);
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // In QLExpress, try-catch can be used as an expression
         // When the try block produces a value, the try-catch node also produces a value
         assertTrue(result.isExpressionValue());
@@ -728,16 +732,16 @@ public class InstructionGeneratorTest {
         assertEquals(1, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof TryCatchInstruction);
     }
-
+    
     @Test
     public void testVisitTryCatchNode_WithFinally()
         throws Exception {
         // try { } finally { }
         TryCatchNode node = new TryCatchNode(1, 1, 0, null, new BlockNode(1, 1, 0, null, Collections.emptyList()),
             Collections.emptyList(), new BlockNode(1, 1, 0, null, Collections.emptyList()));
-
+        
         GenerationResult result = generator.visit(node, context);
-
+        
         // In QLExpress, try-catch can be used as an expression
         // Even empty blocks produce a value (null in this case)
         assertTrue(result.isExpressionValue());

@@ -7,7 +7,8 @@ public class ConstructorCallNode extends ASTNode implements ExpressionNode {
     
     private final List<ExpressionNode> arguments;
     
-    public ConstructorCallNode(int line, int column, int startPosition, String source, String typeName, List<ExpressionNode> arguments) {
+    public ConstructorCallNode(int line, int column, int startPosition, String source, String typeName,
+        List<ExpressionNode> arguments) {
         super(line, column, startPosition, source);
         this.typeName = typeName;
         this.arguments = arguments;

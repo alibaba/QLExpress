@@ -22,7 +22,7 @@ import java.util.Set;
  * @author QLExpress Team
  */
 public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDefinitionExtractor.Context> {
-
+    
     /**
      * Context for function definition extraction.
      * <p>
@@ -31,29 +31,30 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
      */
     public static class Context {
         private final Set<String> functionDefinitions = new HashSet<>();
+        
         private int functionDepth = 0; // 0 = top-level (not inside any function)
-
+        
         public Set<String> getFunctionDefinitions() {
             return Collections.unmodifiableSet(functionDefinitions);
         }
-
+        
         public void addFunctionDefinition(String functionName) {
             functionDefinitions.add(functionName);
         }
-
+        
         public void enterFunction() {
             functionDepth++;
         }
-
+        
         public void exitFunction() {
             functionDepth--;
         }
-
+        
         public boolean isTopLevel() {
             return functionDepth == 0;
         }
     }
-
+    
     /**
      * Extracts all function definition names from the given AST node.
      *
@@ -65,14 +66,14 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         if (node == null) {
             return Collections.emptySet();
         }
-
+        
         Context context = new Context();
         node.accept(this, context);
         return context.getFunctionDefinitions();
     }
-
+    
     // ==================== Statement Visitors ====================
-
+    
     @Override
     public Void visit(ProgramNode node, Context context)
         throws Exception {
@@ -81,7 +82,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(BlockNode node, Context context)
         throws Exception {
@@ -90,7 +91,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(IfNode node, Context context)
         throws Exception {
@@ -98,14 +99,14 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitNode(node.getElseBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(WhileNode node, Context context)
         throws Exception {
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ForNode node, Context context)
         throws Exception {
@@ -113,7 +114,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(SwitchNode node, Context context)
         throws Exception {
@@ -124,7 +125,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(TryCatchNode node, Context context)
         throws Exception {
@@ -135,40 +136,40 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitNode(node.getFinallyBlock(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ReturnNode node, Context context)
         throws Exception {
         visitNode(node.getValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ThrowNode node, Context context)
         throws Exception {
         visitExpression(node.getException(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(BreakNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(ContinueNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(VariableDeclarationNode node, Context context)
         throws Exception {
         visitNode(node.getInitialValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(AssignmentNode node, Context context)
         throws Exception {
@@ -176,19 +177,19 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitExpression(node.getValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TypeDeclarationNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(ImportNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(FunctionDefinitionNode node, Context context)
         throws Exception {
@@ -202,7 +203,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         context.exitFunction();
         return null;
     }
-
+    
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
@@ -212,15 +213,15 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     // ==================== Expression Visitors ====================
-
+    
     @Override
     public Void visit(LiteralNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(InterpolatedStringNode node, Context context)
         throws Exception {
@@ -231,13 +232,13 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(IdentifierNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(BinaryOpNode node, Context context)
         throws Exception {
@@ -245,14 +246,14 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitExpression(node.getRight(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(UnaryOpNode node, Context context)
         throws Exception {
         visitExpression(node.getOperand(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TernaryNode node, Context context)
         throws Exception {
@@ -261,28 +262,28 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitExpression(node.getElseExpr(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(LambdaNode node, Context context)
         throws Exception {
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(MethodReferenceNode node, Context context)
         throws Exception {
         visitNode(node.getTarget(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(FieldAccessNode node, Context context)
         throws Exception {
         visitNode(node.getTarget(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(MethodCallNode node, Context context)
         throws Exception {
@@ -292,7 +293,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ConstructorCallNode node, Context context)
         throws Exception {
@@ -301,14 +302,14 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(CastNode node, Context context)
         throws Exception {
         visitExpression(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayAccessNode node, Context context)
         throws Exception {
@@ -316,7 +317,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         visitExpression(node.getIndex(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArraySliceNode node, Context context)
         throws Exception {
@@ -329,7 +330,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayLiteralNode node, Context context)
         throws Exception {
@@ -338,7 +339,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(MapLiteralNode node, Context context)
         throws Exception {
@@ -348,7 +349,7 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ListLiteralNode node, Context context)
         throws Exception {
@@ -357,29 +358,29 @@ public class FunctionDefinitionExtractor implements ASTVisitor<Void, FunctionDef
         }
         return null;
     }
-
+    
     @Override
     public Void visit(InstanceOfNode node, Context context)
         throws Exception {
         visitExpression(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TypeNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     // ==================== Helper Methods ====================
-
+    
     private void visitExpression(Node node, Context context)
         throws Exception {
         if (node instanceof ExpressionNode) {
             ((ASTNode)node).accept(this, context);
         }
     }
-
+    
     private void visitNode(Node node, Context context)
         throws Exception {
         if (node instanceof ASTNode) {

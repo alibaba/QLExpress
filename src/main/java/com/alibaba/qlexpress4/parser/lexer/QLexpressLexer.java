@@ -25,17 +25,17 @@ import java.util.List;
  */
 public class QLexpressLexer {
     private final String input;
-
+    
     private final String source;
-
+    
     private final InterpolationMode interpolationMode;
-
+    
     private final boolean strictNewLines;
-
+    
     private final String selectorStart;
-
+    
     private final String selectorEnd;
-
+    
     /**
      * Optional operator manager for resolving keyword and operator aliases.
      * Can be null for simple lexing without alias support.
@@ -95,7 +95,7 @@ public class QLexpressLexer {
         this.modeStack = new java.util.Stack<>();
         this.modeStack.push(LexerMode.DEFAULT);
     }
-
+    
     /**
      * Creates a new lexer for the given input.
      *
@@ -110,7 +110,7 @@ public class QLexpressLexer {
         String selectorStart, String selectorEnd) {
         this(input, source, interpolationMode, strictNewLines, selectorStart, selectorEnd, null);
     }
-
+    
     /**
      * Creates a new lexer with default settings.
      *
@@ -119,7 +119,7 @@ public class QLexpressLexer {
     public QLexpressLexer(String input) {
         this(input, null, InterpolationMode.SCRIPT, true, "${", "}", null);
     }
-
+    
     /**
      * Creates a new lexer with specified interpolation mode and newline handling.
      *
@@ -131,7 +131,7 @@ public class QLexpressLexer {
     public QLexpressLexer(String input, String source, InterpolationMode interpolationMode, boolean strictNewLines) {
         this(input, source, interpolationMode, strictNewLines, "${", "}", null);
     }
-
+    
     /**
      * Creates a new lexer with operator manager support.
      *
@@ -553,10 +553,10 @@ public class QLexpressLexer {
     private Token readSingleQuoteString() {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
-
+        
         while (position < input.length()) {
             char ch = peek();
-
+            
             // Handle escape sequences: \n, \r, \t, \b, \f, \\, \', \"
             // Single-quoted strings support all standard escape sequences
             if (ch == '\\') {
@@ -574,7 +574,7 @@ public class QLexpressLexer {
                 sb.append(consume());
             }
         }
-
+        
         // Unterminated string - error, but return what we have
         return createToken(TokenType.QUOTE_STRING_LITERAL, sb.toString());
     }
@@ -588,18 +588,18 @@ public class QLexpressLexer {
     private Token readDoubleQuoteString() {
         StringBuilder sb = new StringBuilder();
         consume(); // opening quote
-
+        
         int braceDepth = 0; // Track nesting depth of ${...} blocks (only when interpolation enabled)
         boolean interpolationEnabled = interpolationMode != InterpolationMode.DISABLE;
-
+        
         while (position < input.length()) {
             char ch = peek();
-
+            
             if (ch == '"' && braceDepth == 0) {
                 consume(); // closing quote
                 return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
             }
-
+            
             // Track ${...} blocks to handle nested strings correctly (only when interpolation enabled)
             if (interpolationEnabled && ch == '$' && position + 1 < input.length() && peek(1) == '{') {
                 braceDepth++;
@@ -612,7 +612,7 @@ public class QLexpressLexer {
                 sb.append(consume());
                 continue;
             }
-
+            
             // Always handle escape sequences in double-quoted strings
             // The interpolation mode controls ${...} processing
             if (ch == '\\') {
@@ -622,8 +622,7 @@ public class QLexpressLexer {
                     // Special case: \${ should be preserved in the string content
                     // so that the parser can detect it as an escaped interpolation
                     // BUT only when interpolation is enabled
-                    if (escaped == '$' && position < input.length() && peek() == '{'
-                            && interpolationEnabled) {
+                    if (escaped == '$' && position < input.length() && peek() == '{' && interpolationEnabled) {
                         sb.append("\\${");
                         consume(); // consume the '{'
                     }
@@ -636,7 +635,7 @@ public class QLexpressLexer {
                 sb.append(consume());
             }
         }
-
+        
         // Unterminated string
         return createToken(TokenType.DOUBLE_QUOTE, sb.toString());
     }
@@ -714,7 +713,7 @@ public class QLexpressLexer {
                     isMethodCall = true;
                 }
             }
-
+            
             if (!isMethodCall) {
                 isFloat = true;
                 sb.append(consume());
@@ -1040,7 +1039,7 @@ public class QLexpressLexer {
                 return null;
         }
     }
-
+    
     /**
      * Returns the keyword type for a given keyword alias ID.
      * The ID values are defined in OperatorManager.ALIASABLE_KEYWORDS:
@@ -1123,7 +1122,7 @@ public class QLexpressLexer {
         tokenStartColumn = column;
         tokenStartPosition = position;
     }
-
+    
     /**
      * Creates a token with the current token start position information.
      *
@@ -1134,7 +1133,7 @@ public class QLexpressLexer {
     private Token createToken(TokenType type, String value) {
         return new Token(type, value, tokenStartLine, tokenStartColumn, tokenStartPosition, source);
     }
-
+    
     /**
      * Returns the current character without consuming it.
      */

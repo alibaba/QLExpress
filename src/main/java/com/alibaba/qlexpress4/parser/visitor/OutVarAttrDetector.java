@@ -14,22 +14,52 @@ import java.util.*;
  * @author QLExpress Team
  */
 public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.Context> {
-
-    private static final Set<String> COMMON_JAVA_CLASSES = new HashSet<>(Arrays.asList(
-        "Math", "String", "System", "Integer", "Long", "Double", "Float",
-        "Boolean", "Character", "Byte", "Short", "Object", "Class",
-        "List", "Map", "Set", "Collection", "ArrayList", "LinkedList",
-        "HashMap", "LinkedHashMap", "TreeMap", "HashSet", "TreeSet",
-        "Collections", "Arrays", "Objects", "Optional",
-        "Runnable", "Callable", "Thread", "Exception", "RuntimeException",
-        "Date", "Calendar", "SimpleDateFormat", "UUID",
-        "StringBuilder", "StringBuffer", "Pattern", "Matcher"
-    ));
-
-    private static final Set<String> JAVA_PACKAGE_PREFIXES = new HashSet<>(Arrays.asList(
-        "java", "javax", "org", "com"
-    ));
-
+    
+    private static final Set<String> COMMON_JAVA_CLASSES = new HashSet<>(Arrays.asList("Math",
+        "String",
+        "System",
+        "Integer",
+        "Long",
+        "Double",
+        "Float",
+        "Boolean",
+        "Character",
+        "Byte",
+        "Short",
+        "Object",
+        "Class",
+        "List",
+        "Map",
+        "Set",
+        "Collection",
+        "ArrayList",
+        "LinkedList",
+        "HashMap",
+        "LinkedHashMap",
+        "TreeMap",
+        "HashSet",
+        "TreeSet",
+        "Collections",
+        "Arrays",
+        "Objects",
+        "Optional",
+        "Runnable",
+        "Callable",
+        "Thread",
+        "Exception",
+        "RuntimeException",
+        "Date",
+        "Calendar",
+        "SimpleDateFormat",
+        "UUID",
+        "StringBuilder",
+        "StringBuffer",
+        "Pattern",
+        "Matcher"));
+    
+    private static final Set<String> JAVA_PACKAGE_PREFIXES =
+        new HashSet<>(Arrays.asList("java", "javax", "org", "com"));
+    
     /**
      * Context for out variable attribute detection.
      * <p>
@@ -38,15 +68,15 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
     public static class Context {
         // Stack of declared variable sets, one per scope level
         private final Deque<Set<String>> declaredVarsStack = new ArrayDeque<>();
-
+        
         // Set of out variable attribute paths (each path is a List<String> like ["a", "b", "c"])
         private final Set<List<String>> outVarAttrs = new HashSet<>();
-
+        
         public Context() {
             // Push root scope
             declaredVarsStack.push(new HashSet<>());
         }
-
+        
         /**
          * Declare a variable (adds it to the current scope).
          *
@@ -55,7 +85,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         public void declareVariable(String varName) {
             declaredVarsStack.peek().add(varName);
         }
-
+        
         /**
          * Check if a variable has been declared in any accessible scope.
          *
@@ -70,7 +100,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             }
             return false;
         }
-
+        
         /**
          * Record a variable attribute path read. If the root variable hasn't been declared yet,
          * it's added to the out variable attributes set.
@@ -86,21 +116,21 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
                 outVarAttrs.add(path);
             }
         }
-
+        
         /**
          * Push a new scope (for functions, lambdas, etc.).
          */
         public void pushScope() {
             declaredVarsStack.push(new HashSet<>());
         }
-
+        
         /**
          * Pop the current scope.
          */
         public void popScope() {
             declaredVarsStack.pop();
         }
-
+        
         /**
          * Get the set of out variable attribute paths (variables read before being declared).
          *
@@ -109,7 +139,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         public Set<List<String>> getOutVarAttrs() {
             return Collections.unmodifiableSet(outVarAttrs);
         }
-
+        
         // Package-private access for IfNode visitor
         Set<String> getDeclaredVars() {
             Set<String> allDeclared = new HashSet<>();
@@ -118,7 +148,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             }
             return allDeclared;
         }
-
+        
         void setDeclaredVars(Set<String> vars) {
             // Clear all scopes and set the root scope to the given vars
             declaredVarsStack.clear();
@@ -126,7 +156,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             declaredVarsStack.push(rootScope);
         }
     }
-
+    
     @Override
     public Void visit(ProgramNode node, Context context)
         throws Exception {
@@ -135,7 +165,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(BlockNode node, Context context)
         throws Exception {
@@ -145,35 +175,35 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(IfNode node, Context context)
         throws Exception {
         // Visit condition first
         visitExpression(node.getCondition(), context);
-
+        
         // Track declared vars before visiting branches
         Set<String> declaredBeforeIf = context.getDeclaredVars();
-
+        
         // Visit then branch
         visitNode(node.getThenBody(), context);
-
+        
         // Restore declared vars to state before if, then visit else branch
         Set<String> declaredAfterThen = context.getDeclaredVars();
         context.setDeclaredVars(declaredBeforeIf);
-
+        
         visitNode(node.getElseBody(), context);
-
+        
         // Merge: any variable declared in either branch is now declared
         Set<String> declaredAfterElse = context.getDeclaredVars();
         Set<String> merged = new HashSet<>(declaredBeforeIf);
         merged.addAll(declaredAfterThen);
         merged.addAll(declaredAfterElse);
         context.setDeclaredVars(merged);
-
+        
         return null;
     }
-
+    
     @Override
     public Void visit(WhileNode node, Context context)
         throws Exception {
@@ -181,7 +211,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ForNode node, Context context)
         throws Exception {
@@ -191,7 +221,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitNode(node.getBody(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(SwitchNode node, Context context)
         throws Exception {
@@ -204,7 +234,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(TryCatchNode node, Context context)
         throws Exception {
@@ -220,33 +250,33 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitNode(node.getFinallyBlock(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ReturnNode node, Context context)
         throws Exception {
         visitNode(node.getValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ThrowNode node, Context context)
         throws Exception {
         visitExpression(node.getException(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(BreakNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(ContinueNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(VariableDeclarationNode node, Context context)
         throws Exception {
@@ -255,7 +285,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitNode(node.getInitialValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(AssignmentNode node, Context context)
         throws Exception {
@@ -274,26 +304,27 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             List<String> path = extractPath(node.getTarget());
             if (!path.isEmpty()) {
                 context.readVariablePath(path);
-            } else {
+            }
+            else {
                 visitNode(node.getTarget(), context);
             }
         }
         visitExpression(node.getValue(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TypeDeclarationNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(ImportNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(FunctionDefinitionNode node, Context context)
         throws Exception {
@@ -311,7 +342,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             context.popScope();
         }
     }
-
+    
     @Override
     public Void visit(MacroDefinitionNode node, Context context)
         throws Exception {
@@ -326,28 +357,28 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             context.popScope();
         }
     }
-
+    
     @Override
     public Void visit(LiteralNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(IdentifierNode node, Context context)
         throws Exception {
         String varName = node.getName();
-
+        
         // Check if this identifier is a class reference (not a variable)
         // Class references like Math, String, List, etc. should not be considered out variables
         if (isClassReference(varName)) {
             return null;
         }
-
+        
         context.readVariablePath(Collections.singletonList(varName));
         return null;
     }
-
+    
     /**
      * Check if an identifier is a class reference.
      *
@@ -359,17 +390,17 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         if (BuiltInTypesSet.getCls(identifier) != null) {
             return true;
         }
-
+        
         // Check common Java classes that are typically used in QLExpress scripts
         if (COMMON_JAVA_CLASSES.contains(identifier)) {
             return true;
         }
-
+        
         // Check if identifier is a Java package prefix
         // These are used in qualified class names like java.lang.Math
         return JAVA_PACKAGE_PREFIXES.contains(identifier);
     }
-
+    
     @Override
     public Void visit(BinaryOpNode node, Context context)
         throws Exception {
@@ -378,7 +409,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             operator.equals("=") || operator.equals("+=") || operator.equals("-=") || operator.equals("*=")
                 || operator.equals("/=") || operator.equals("%=") || operator.equals("&=") || operator.equals("|=")
                 || operator.equals("^=") || operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
-
+        
         if (isAssignment && node.getLeft() instanceof IdentifierNode) {
             IdentifierNode target = (IdentifierNode)node.getLeft();
             // For compound assignments, read first
@@ -393,21 +424,22 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             List<String> leftPath = extractPath(node.getLeft());
             if (!leftPath.isEmpty()) {
                 context.readVariablePath(leftPath);
-            } else {
+            }
+            else {
                 visitExpression(node.getLeft(), context);
             }
         }
         visitExpression(node.getRight(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(UnaryOpNode node, Context context)
         throws Exception {
         visitExpression(node.getOperand(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TernaryNode node, Context context)
         throws Exception {
@@ -416,7 +448,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitExpression(node.getElseExpr(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(LambdaNode node, Context context)
         throws Exception {
@@ -433,14 +465,14 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             context.popScope();
         }
     }
-
+    
     @Override
     public Void visit(MethodReferenceNode node, Context context)
         throws Exception {
         visitExpression(node.getTarget(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(FieldAccessNode node, Context context)
         throws Exception {
@@ -448,12 +480,13 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         List<String> path = extractPath(node);
         if (!path.isEmpty()) {
             context.readVariablePath(path);
-        } else {
+        }
+        else {
             visitExpression(node.getTarget(), context);
         }
         return null;
     }
-
+    
     @Override
     public Void visit(MethodCallNode node, Context context)
         throws Exception {
@@ -464,7 +497,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ConstructorCallNode node, Context context)
         throws Exception {
@@ -473,14 +506,14 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(CastNode node, Context context)
         throws Exception {
         visitExpression(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayAccessNode node, Context context)
         throws Exception {
@@ -488,7 +521,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         visitExpression(node.getIndex(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(ArraySliceNode node, Context context)
         throws Exception {
@@ -501,7 +534,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ArrayLiteralNode node, Context context)
         throws Exception {
@@ -510,7 +543,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(MapLiteralNode node, Context context)
         throws Exception {
@@ -520,7 +553,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(ListLiteralNode node, Context context)
         throws Exception {
@@ -529,20 +562,20 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     @Override
     public Void visit(InstanceOfNode node, Context context)
         throws Exception {
         visitExpression(node.getExpression(), context);
         return null;
     }
-
+    
     @Override
     public Void visit(TypeNode node, Context context)
         throws Exception {
         return null;
     }
-
+    
     @Override
     public Void visit(InterpolatedStringNode node, Context context)
         throws Exception {
@@ -553,9 +586,9 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         }
         return null;
     }
-
+    
     // ==================== Helper Methods ====================
-
+    
     /**
      * Extract a field access path from an expression node.
      * For example:
@@ -570,9 +603,9 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         if (node == null) {
             return Collections.emptyList();
         }
-
+        
         List<String> path = new ArrayList<>();
-
+        
         // Handle identifier
         if (node instanceof IdentifierNode) {
             String name = ((IdentifierNode)node).getName();
@@ -581,7 +614,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
             }
             return path;
         }
-
+        
         // Handle field access chain
         if (node instanceof FieldAccessNode) {
             FieldAccessNode fieldAccess = (FieldAccessNode)node;
@@ -592,25 +625,25 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
                 return path;
             }
         }
-
+        
         // For other node types, return empty list (not a simple path)
         return Collections.emptyList();
     }
-
+    
     private void visitExpression(Node node, Context context)
         throws Exception {
         if (node instanceof ExpressionNode) {
             ((ASTNode)node).accept(this, context);
         }
     }
-
+    
     private void visitNode(Node node, Context context)
         throws Exception {
         if (node instanceof ASTNode) {
             ((ASTNode)node).accept(this, context);
         }
     }
-
+    
     /**
      * Detects out variable attributes in the given AST node.
      *
@@ -622,7 +655,7 @@ public class OutVarAttrDetector implements ASTVisitor<Void, OutVarAttrDetector.C
         if (node == null) {
             return Collections.emptySet();
         }
-
+        
         Context context = new Context();
         node.accept(this, context);
         return context.getOutVarAttrs();

@@ -9,8 +9,8 @@ public class TryCatchNode extends ASTNode implements ExpressionNode {
     
     private final BlockNode finallyBlock;
     
-    public TryCatchNode(int line, int column, int startPosition, String source, BlockNode tryBlock, List<CatchClauseNode> catchClauses,
-        BlockNode finallyBlock) {
+    public TryCatchNode(int line, int column, int startPosition, String source, BlockNode tryBlock,
+        List<CatchClauseNode> catchClauses, BlockNode finallyBlock) {
         super(line, column, startPosition, source);
         this.tryBlock = tryBlock;
         this.catchClauses = catchClauses;

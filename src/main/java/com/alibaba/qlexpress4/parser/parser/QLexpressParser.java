@@ -101,13 +101,13 @@ public class QLexpressParser {
             startPosition = first.getStartIndex();
             source = first.getSource();
         }
-
+        
         // Parse statements until EOF
         List<StatementNode> statements = new ArrayList<>();
-
+        
         // Skip leading newlines
         skipNewlines();
-
+        
         while (!isEOF()) {
             StatementNode stmt = parseStatement();
             if (stmt != null) {
@@ -116,7 +116,7 @@ public class QLexpressParser {
             // Skip newlines between statements
             skipNewlines();
         }
-
+        
         return new ProgramNode(line, column, startPosition, source, statements);
     }
     
@@ -148,12 +148,12 @@ public class QLexpressParser {
         if (current == null) {
             throw error("Unexpected end of input, expected expression");
         }
-
+        
         // Check for lambda expression first (can start with ID or LPAREN)
         if (shouldParseLambda()) {
             return parseLambda();
         }
-
+        
         switch (current.getType()) {
             case INTEGER_LITERAL:
             case FLOATING_POINT_LITERAL:
@@ -227,7 +227,7 @@ public class QLexpressParser {
         throws ParseException {
         Token token = consume();
         Object value;
-
+        
         switch (token.getType()) {
             case INTEGER_LITERAL:
                 value = parseIntegerLiteral(token.getValue());
@@ -277,7 +277,8 @@ public class QLexpressParser {
     private ExpressionNode parseIdentifier()
         throws ParseException {
         Token token = expect(TokenType.ID);
-        return new IdentifierNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), token.getValue());
+        return new IdentifierNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(),
+            token.getValue());
     }
     
     /**
@@ -293,22 +294,25 @@ public class QLexpressParser {
     private ExpressionNode parseInterpolatedString(Token token)
         throws ParseException {
         String content = token.getValue();
-
+        
         // If interpolation is disabled, return a simple literal
         // Escapes are already processed by the lexer
         if (interpolationMode == InterpolationMode.DISABLE) {
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(),
+                content);
         }
-
+        
         // Check if the string contains any ${...} patterns
         if (!content.contains("${")) {
             // No interpolation, return as literal
             // Escapes are already processed by the lexer
-            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(), content);
+            return new LiteralNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource(),
+                content);
         }
-
+        
         // Parse the interpolated string into segments
-        InterpolatedStringNode node = new InterpolatedStringNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource());
+        InterpolatedStringNode node =
+            new InterpolatedStringNode(token.getLine(), token.getColumn(), token.getStartIndex(), token.getSource());
         parseInterpolatedStringSegments(content, node);
         return node;
     }
@@ -330,11 +334,11 @@ public class QLexpressParser {
         throws ParseException {
         int pos = 0;
         int length = content.length();
-
+        
         while (pos < length) {
             // Find the next ${ or end of string
             int interpolationStart = findUnescapedDollarBrace(content, pos);
-
+            
             if (interpolationStart == -1) {
                 // No more interpolation, add the rest as static text
                 if (pos < length) {
@@ -345,7 +349,7 @@ public class QLexpressParser {
                 }
                 break;
             }
-
+            
             // Add static text before the interpolation
             if (interpolationStart > pos) {
                 String staticText = content.substring(pos, interpolationStart);
@@ -353,16 +357,16 @@ public class QLexpressParser {
                 staticText = processStaticTextEscapes(staticText);
                 node.addSegment(staticText);
             }
-
+            
             // Find the matching }
             int interpolationEnd = findMatchingBrace(content, interpolationStart + 2);
             if (interpolationEnd == -1) {
                 throw error("Unterminated string interpolation, missing closing '}'");
             }
-
+            
             // Parse the expression inside ${...}
             String expressionText = content.substring(interpolationStart + 2, interpolationEnd).trim();
-
+            
             if (interpolationMode == InterpolationMode.SCRIPT) {
                 // Parse as a full expression (including if/switch statements)
                 // Create a temporary lexer to tokenize the expression
@@ -370,7 +374,7 @@ public class QLexpressParser {
                     new com.alibaba.qlexpress4.parser.lexer.QLexpressLexer(expressionText, null, interpolationMode,
                         false, "${", "}");
                 List<Token> exprTokens = tempLexer.tokenize();
-
+                
                 // Create a temporary parser to parse the expression
                 // Note: We use parseExpression() to parse full expressions including if/switch
                 QLexpressParser tempParser = new QLexpressParser(exprTokens, operatorManager, interpolationMode);
@@ -379,9 +383,10 @@ public class QLexpressParser {
             }
             else {
                 // VARIABLE mode - treat as a variable name
-                node.addSegment(new IdentifierNode(node.getLine(), node.getColumn(), node.getStartPosition(), node.getSource(), expressionText));
+                node.addSegment(new IdentifierNode(node.getLine(), node.getColumn(), node.getStartPosition(),
+                    node.getSource(), expressionText));
             }
-
+            
             pos = interpolationEnd + 1;
         }
     }
@@ -400,7 +405,7 @@ public class QLexpressParser {
             if (dollarBracePos == -1) {
                 return -1;
             }
-
+            
             // Check if the $ is escaped (preceded by \)
             if (dollarBracePos > 0 && content.charAt(dollarBracePos - 1) == '\\') {
                 // This is an escaped ${, skip it
@@ -408,12 +413,12 @@ public class QLexpressParser {
                 pos = dollarBracePos + 2;
                 continue;
             }
-
+            
             return dollarBracePos;
         }
         return -1;
     }
-
+    
     /**
      * Processes escaped sequences in static text portions of interpolated strings.
      * Converts \${ to ${ (removes the backslash).
@@ -612,21 +617,21 @@ public class QLexpressParser {
      * @return the parsed number (as Double or Float)
      */
     private static final BigDecimal MAX_DOUBLE = new BigDecimal(String.valueOf(Double.MAX_VALUE));
-
+    
     private Object parseFloatLiteral(String value) {
         if (value == null || value.isEmpty()) {
             return 0.0;
         }
-
+        
         value = value.replace("_", ""); // Remove digit separators
-
+        
         // Check for type suffix
         boolean isFloat = value.endsWith("f") || value.endsWith("F");
         boolean isDouble = value.endsWith("d") || value.endsWith("D");
         if (isFloat || isDouble) {
             value = value.substring(0, value.length() - 1);
         }
-
+        
         if (isFloat) {
             return new BigDecimal(value).floatValue();
         }
@@ -644,7 +649,7 @@ public class QLexpressParser {
             }
         }
     }
-
+    
     /**
      * Returns a Double if the BigDecimal can be exactly represented as a double,
      * otherwise returns the BigDecimal.
@@ -755,10 +760,10 @@ public class QLexpressParser {
         int column = peek().getColumn();
         int startPosition = peek().getStartIndex();
         String source = peek().getSource();
-
+        
         // Parse parameters
         List<ParameterNode> parameters = parseLambdaParameters();
-
+        
         // Expect arrow
         skipNewlines();
         if (!match(TokenType.ARROW)) {
@@ -766,7 +771,7 @@ public class QLexpressParser {
         }
         consume();
         skipNewlines();
-
+        
         // Parse body (expression or block)
         Node body;
         if (match(TokenType.LBRACE)) {
@@ -775,7 +780,7 @@ public class QLexpressParser {
         else {
             body = parseExpression();
         }
-
+        
         return new LambdaNode(line, column, startPosition, source, parameters, body);
     }
     
@@ -883,7 +888,7 @@ public class QLexpressParser {
     private String parseQualifiedTypeName()
         throws ParseException {
         StringBuilder sb = new StringBuilder();
-
+        
         // Check for type keyword first
         Token current = peek();
         if (current != null && isTypeKeywordToken(current.getType())) {
@@ -892,13 +897,13 @@ public class QLexpressParser {
         else {
             sb.append(expect(TokenType.ID).getValue());
         }
-
+        
         while (match(TokenType.DOT)) {
             consume();
             // After dot, we expect an ID
             sb.append(".").append(expect(TokenType.ID).getValue());
         }
-
+        
         // Handle array brackets: String[], String[][], etc.
         while (match(TokenType.LBRACK)) {
             // Check if this is really an array type declaration by looking ahead
@@ -914,7 +919,7 @@ public class QLexpressParser {
                 break;
             }
         }
-
+        
         return sb.toString();
     }
     
@@ -950,12 +955,13 @@ public class QLexpressParser {
         }
         // Common wrapper classes and String
         if (value.equals("String") || value.equals("Object") || value.equals("Integer") || value.equals("Long")
-            || value.equals("Float") || value.equals("Double") || value.equals("Boolean") || value.equals("Character")) {
+            || value.equals("Float") || value.equals("Double") || value.equals("Boolean")
+            || value.equals("Character")) {
             return true;
         }
         // Common numeric and collection types
-        if (value.equals("Number") || value.equals("BigDecimal") || value.equals("BigInteger")
-            || value.equals("List") || value.equals("Map") || value.equals("Set") || value.equals("Collection")) {
+        if (value.equals("Number") || value.equals("BigDecimal") || value.equals("BigInteger") || value.equals("List")
+            || value.equals("Map") || value.equals("Set") || value.equals("Collection")) {
             return true;
         }
         // Common collection implementations
@@ -982,8 +988,8 @@ public class QLexpressParser {
         String name = idToken.getValue();
         consume();
         
-        IdentifierNode identifier =
-            new IdentifierNode(idToken.getLine(), idToken.getColumn(), idToken.getStartIndex(), idToken.getSource(), name);
+        IdentifierNode identifier = new IdentifierNode(idToken.getLine(), idToken.getColumn(), idToken.getStartIndex(),
+            idToken.getSource(), name);
         
         // Check for method call: id(...)
         skipNewlines();
@@ -1024,11 +1030,11 @@ public class QLexpressParser {
         }
         
         expect(TokenType.RPAREN);
-
+        
         // Create the method call node
         // For direct function calls, use identifier position for better error reporting
-        MethodCallNode methodCall = new MethodCallNode(identifier.getLine(), identifier.getColumn(), identifier.getStartPosition(), identifier.getSource(), null,
-            identifier.getName(), arguments);
+        MethodCallNode methodCall = new MethodCallNode(identifier.getLine(), identifier.getColumn(),
+            identifier.getStartPosition(), identifier.getSource(), null, identifier.getName(), arguments);
         
         // Check for method chaining: .method(...)
         return parsePath(methodCall);
@@ -1047,37 +1053,37 @@ public class QLexpressParser {
         while (true) {
             skipNewlines();
             Token current = peek();
-
+            
             if (current == null) {
                 break;
             }
-
+            
             TokenType currentType = current.getType();
-
+            
             // DOTMUL (.* ) is handled as a binary operator by parseBinary
             // Don't consume it here - let parseBinary handle it
             if (currentType == TokenType.DOTMUL) {
                 break;
             }
-
+            
             switch (currentType) {
                 case DOT: {
                     consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-
+                    
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
                         consume(); // Consume LPAREN
                         List<ExpressionNode> arguments = parseArgumentListBody();
-                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), arguments);
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), arguments);
                     }
                     else {
                         // Field access - create FieldAccessNode
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), false);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), false);
                     }
                     break;
                 }
@@ -1095,13 +1101,13 @@ public class QLexpressParser {
                         List<ExpressionNode> arguments = parseArgumentListBody();
                         // TODO: Create OptionalMethodCallNode
                         // For now, use regular MethodCallNode
-                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), arguments);
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), arguments);
                     }
                     else {
                         // Optional field access - create optional FieldAccessNode
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), true);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), true);
                     }
                     break;
                 }
@@ -1111,20 +1117,20 @@ public class QLexpressParser {
                     Token opToken = consume();
                     skipNewlines();
                     Token member = consumeFieldIdentifier();
-
+                    
                     // Check for method call
                     skipNewlines();
                     if (match(TokenType.LPAREN)) {
                         consume(); // Consume LPAREN
                         List<ExpressionNode> arguments = parseArgumentListBody();
                         // Create spread method call with spread=true flag
-                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), arguments, true);
+                        target = new MethodCallNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), arguments, true);
                     }
                     else {
                         // Spread field access - use isSpread=true flag
-                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(), member.getSource(), target,
-                            member.getValue(), true);
+                        target = new FieldAccessNode(member.getLine(), member.getColumn(), member.getStartIndex(),
+                            member.getSource(), target, member.getValue(), true);
                     }
                     break;
                 }
@@ -1136,8 +1142,8 @@ public class QLexpressParser {
                     Token methodName = consumeFieldIdentifier();
                     // Method reference like "obj::method" creates a MethodReferenceNode
                     // This will be handled by GetMethodInstruction at runtime
-                    target = new MethodReferenceNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(), opToken.getSource(),
-                        target, methodName.getValue());
+                    target = new MethodReferenceNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(),
+                        opToken.getSource(), target, methodName.getValue());
                     break;
                 }
                 
@@ -1163,10 +1169,10 @@ public class QLexpressParser {
     private List<ExpressionNode> parseArgumentListBody()
         throws ParseException {
         List<ExpressionNode> arguments = new ArrayList<>();
-
+        
         // LPAREN already consumed
         skipNewlines();
-
+        
         if (!match(TokenType.RPAREN)) {
             arguments.add(parseExpression());
             skipNewlines();
@@ -1177,7 +1183,7 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-
+        
         expect(TokenType.RPAREN);
         return arguments;
     }
@@ -1268,8 +1274,8 @@ public class QLexpressParser {
         // Check for constructor call with arguments
         if (match(TokenType.LPAREN)) {
             List<ExpressionNode> arguments = parseArgumentList();
-            return new ConstructorCallNode(newToken.getLine(), newToken.getColumn(), newToken.getStartIndex(), newToken.getSource(), typeName,
-                arguments);
+            return new ConstructorCallNode(newToken.getLine(), newToken.getColumn(), newToken.getStartIndex(),
+                newToken.getSource(), typeName, arguments);
         }
         
         throw error("Expected '(' after type name in constructor call");
@@ -1305,7 +1311,8 @@ public class QLexpressParser {
         // Check for empty brackets [] or starting colon [:...]
         if (match(TokenType.RBRACK)) {
             // Empty brackets [] - this is a syntax error, need an index expression
-            throw new ParseException("missing index expression", lbracket.getLine(), lbracket.getColumn(), lbracket.getSource());
+            throw new ParseException("missing index expression", lbracket.getLine(), lbracket.getColumn(),
+                lbracket.getSource());
         }
         
         if (match(TokenType.COLON)) {
@@ -1318,7 +1325,8 @@ public class QLexpressParser {
             }
             skipNewlines();
             expect(TokenType.RBRACK);
-            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(), lbracket.getSource(), array, null, end);
+            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(),
+                lbracket.getSource(), array, null, end);
         }
         
         // Parse the first expression (could be start of slice or single index)
@@ -1335,13 +1343,14 @@ public class QLexpressParser {
             }
             skipNewlines();
             expect(TokenType.RBRACK);
-            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(), lbracket.getSource(), array, firstExpr,
-                end);
+            return new ArraySliceNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(),
+                lbracket.getSource(), array, firstExpr, end);
         }
         
         // Single index access: array[index]
         expect(TokenType.RBRACK);
-        return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(), lbracket.getSource(), array, firstExpr);
+        return new ArrayAccessNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(),
+            lbracket.getSource(), array, firstExpr);
     }
     
     // ==================== Type Cast Parsing ====================
@@ -1369,7 +1378,8 @@ public class QLexpressParser {
                 consume();
                 // This is a type cast
                 ExpressionNode expression = parseUnary();
-                return new CastNode(lparen.getLine(), lparen.getColumn(), lparen.getStartIndex(), lparen.getSource(), typeName, expression);
+                return new CastNode(lparen.getLine(), lparen.getColumn(), lparen.getStartIndex(), lparen.getSource(),
+                    typeName, expression);
             }
         }
         
@@ -1413,7 +1423,8 @@ public class QLexpressParser {
         throws ParseException {
         Token typeToken = consume();
         String typeName = typeToken.getValue();
-        return new TypeNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getStartIndex(), typeToken.getSource(), typeName);
+        return new TypeNode(typeToken.getLine(), typeToken.getColumn(), typeToken.getStartIndex(),
+            typeToken.getSource(), typeName);
     }
     
     /**
@@ -1432,16 +1443,16 @@ public class QLexpressParser {
         throws ParseException {
         Token selectorStart = expect(TokenType.SELECTOR_START);
         String selectorValue = selectorStart.getValue();
-
+        
         if (selectorValue == null || selectorValue.isEmpty()) {
             throw error("Expected variable name after selector start");
         }
-
+        
         int line = selectorStart.getLine();
         int column = selectorStart.getColumn();
         int startPosition = selectorStart.getStartIndex();
         String source = selectorStart.getSource();
-
+        
         // Extract the variable name from the selector expression
         // Selector value format: "${content}" or "#{content}" or "$[content]" or "#[content]"
         // We need to extract just the content part
@@ -1449,7 +1460,7 @@ public class QLexpressParser {
         if (variableName == null || variableName.isEmpty()) {
             throw error("Expected variable name after selector start but found: " + selectorValue);
         }
-
+        
         // Create an identifier node for the variable
         return new IdentifierNode(line, column, startPosition, source, variableName);
     }
@@ -1522,7 +1533,7 @@ public class QLexpressParser {
         throws ParseException {
         Token lbracket = expect(TokenType.LBRACK);
         skipNewlines();
-
+        
         List<ExpressionNode> elements = new ArrayList<>();
         if (!match(TokenType.RBRACK)) {
             elements.add(parseExpression());
@@ -1534,11 +1545,12 @@ public class QLexpressParser {
                 skipNewlines();
             }
         }
-
+        
         expect(TokenType.RBRACK);
-
-        ListLiteralNode listLiteral = new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(), lbracket.getStartIndex(), lbracket.getSource(), elements);
-
+        
+        ListLiteralNode listLiteral = new ListLiteralNode(lbracket.getLine(), lbracket.getColumn(),
+            lbracket.getStartIndex(), lbracket.getSource(), elements);
+        
         // Check for path operations (method calls, field access, etc.) on the list literal
         // e.g., [1, 2, 3].stream()
         return parsePath(listLiteral);
@@ -1602,8 +1614,8 @@ public class QLexpressParser {
             consume(); // Consume the COLON token
             skipNewlines();
             expect(TokenType.RBRACE);
-            MapLiteralNode emptyMap = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(), lbrace.getSource(),
-                Collections.emptyList());
+            MapLiteralNode emptyMap = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(),
+                lbrace.getSource(), Collections.emptyList());
             return parsePath(emptyMap);
         }
         
@@ -1639,9 +1651,10 @@ public class QLexpressParser {
         
         // Consume the closing RBRACE
         expect(TokenType.RBRACE);
-
-        MapLiteralNode mapLiteral = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(), lbrace.getSource(), entries);
-
+        
+        MapLiteralNode mapLiteral = new MapLiteralNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(),
+            lbrace.getSource(), entries);
+        
         // Check for path operations (method calls, field access, etc.) on the map literal
         // e.g., {a: 1}.entrySet()
         return parsePath(mapLiteral);
@@ -1663,7 +1676,8 @@ public class QLexpressParser {
         switch (current.getType()) {
             case ID:
                 Token id = consume();
-                return new IdentifierNode(id.getLine(), id.getColumn(), id.getStartIndex(), id.getSource(), id.getValue());
+                return new IdentifierNode(id.getLine(), id.getColumn(), id.getStartIndex(), id.getSource(),
+                    id.getValue());
             case DOUBLE_QUOTE:
             case QUOTE_STRING_LITERAL:
                 return parseLiteral();
@@ -1726,7 +1740,8 @@ public class QLexpressParser {
         
         expect(TokenType.RBRACE);
         
-        return new BlockNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(), lbrace.getSource(), statements);
+        return new BlockNode(lbrace.getLine(), lbrace.getColumn(), lbrace.getStartIndex(), lbrace.getSource(),
+            statements);
     }
     
     /**
@@ -1921,7 +1936,8 @@ public class QLexpressParser {
             }
         }
         
-        return new IfNode(ifToken.getLine(), ifToken.getColumn(), ifToken.getStartIndex(), ifToken.getSource(), condition, thenBody, elseBody);
+        return new IfNode(ifToken.getLine(), ifToken.getColumn(), ifToken.getStartIndex(), ifToken.getSource(),
+            condition, thenBody, elseBody);
     }
     
     /**
@@ -1946,7 +1962,8 @@ public class QLexpressParser {
         
         BlockNode body = parseBlock();
         
-        return new WhileNode(whileToken.getLine(), whileToken.getColumn(), whileToken.getStartIndex(), whileToken.getSource(), condition, body);
+        return new WhileNode(whileToken.getLine(), whileToken.getColumn(), whileToken.getStartIndex(),
+            whileToken.getSource(), condition, body);
     }
     
     /**
@@ -2038,11 +2055,11 @@ public class QLexpressParser {
             
             // For for-each, we store the variable info differently
             // Store as VariableDeclarationNode in init
-            VariableDeclarationNode varDecl = new VariableDeclarationNode(forToken.getLine(), forToken.getColumn(), forToken.getStartIndex(),
-                forToken.getSource(), typeName, varName, iterable);
+            VariableDeclarationNode varDecl = new VariableDeclarationNode(forToken.getLine(), forToken.getColumn(),
+                forToken.getStartIndex(), forToken.getSource(), typeName, varName, iterable);
             
-            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getStartIndex(), forToken.getSource(), varDecl, null, null,
-                body);
+            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getStartIndex(), forToken.getSource(),
+                varDecl, null, null, body);
         }
         else {
             // Traditional for loop: for (init; condition; update)
@@ -2086,8 +2103,8 @@ public class QLexpressParser {
             
             BlockNode body = parseBlock();
             
-            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getStartIndex(), forToken.getSource(), init, condition, update,
-                body);
+            return new ForNode(forToken.getLine(), forToken.getColumn(), forToken.getStartIndex(), forToken.getSource(),
+                init, condition, update, body);
         }
     }
     
@@ -2108,31 +2125,31 @@ public class QLexpressParser {
         throws ParseException {
         Token switchToken = expect(TokenType.SWITCH);
         skipNewlines();
-
+        
         expect(TokenType.LPAREN);
         skipNewlines();
         ExpressionNode value = parseExpression();
         skipNewlines();
         expect(TokenType.RPAREN);
         skipNewlines();
-
+        
         expect(TokenType.LBRACE);
         skipNewlines();
-
+        
         List<SwitchCaseNode> cases = new ArrayList<>();
         Boolean usesArrowSyntax = null; // Track which syntax is used (null = not determined yet)
-
+        
         while (!match(TokenType.RBRACE) && !isEOF()) {
             skipNewlines();
-
+            
             if (match(TokenType.CASE)) {
                 consume();
                 skipNewlines();
-
+                
                 // Parse case condition (can be expression list in new syntax)
                 ExpressionNode caseExpr = parseExpression();
                 skipNewlines();
-
+                
                 // Expect colon or arrow
                 boolean isArrow = false;
                 if (match(TokenType.COLON)) {
@@ -2146,17 +2163,18 @@ public class QLexpressParser {
                 else {
                     throw error("Expected ':' or '->' after case expression");
                 }
-
+                
                 // Check for mixed syntax
                 if (usesArrowSyntax == null) {
                     usesArrowSyntax = isArrow;
                 }
                 else if (usesArrowSyntax != isArrow) {
-                    throw error("Cannot mix traditional switch syntax (case x: ...) with expression syntax (case x -> ...)");
+                    throw error(
+                        "Cannot mix traditional switch syntax (case x: ...) with expression syntax (case x -> ...)");
                 }
-
+                
                 skipNewlines();
-
+                
                 // Parse case statements
                 List<StatementNode> caseStatements = new ArrayList<>();
                 while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
@@ -2166,14 +2184,14 @@ public class QLexpressParser {
                     }
                     skipNewlines();
                 }
-
+                
                 cases.add(new SwitchCaseNode(caseExpr, caseStatements));
-
+                
             }
             else if (match(TokenType.DEFAULT)) {
                 consume();
                 skipNewlines();
-
+                
                 // Expect colon or arrow
                 boolean isArrow = false;
                 if (match(TokenType.COLON)) {
@@ -2187,17 +2205,18 @@ public class QLexpressParser {
                 else {
                     throw error("Expected ':' or '->' after default");
                 }
-
+                
                 // Check for mixed syntax
                 if (usesArrowSyntax == null) {
                     usesArrowSyntax = isArrow;
                 }
                 else if (usesArrowSyntax != isArrow) {
-                    throw error("Cannot mix traditional switch syntax (default: ...) with expression syntax (default -> ...)");
+                    throw error(
+                        "Cannot mix traditional switch syntax (default: ...) with expression syntax (default -> ...)");
                 }
-
+                
                 skipNewlines();
-
+                
                 // Parse default statements
                 List<StatementNode> defaultStatements = new ArrayList<>();
                 while (!match(TokenType.CASE, TokenType.DEFAULT, TokenType.RBRACE) && !isEOF()) {
@@ -2207,20 +2226,21 @@ public class QLexpressParser {
                     }
                     skipNewlines();
                 }
-
+                
                 // Default case has null condition
                 cases.add(new SwitchCaseNode(null, defaultStatements));
-
+                
             }
             else {
                 // Unexpected token, skip
                 consume();
             }
         }
-
+        
         expect(TokenType.RBRACE);
-
-        return new SwitchNode(switchToken.getLine(), switchToken.getColumn(), switchToken.getStartIndex(), switchToken.getSource(), value, cases);
+        
+        return new SwitchNode(switchToken.getLine(), switchToken.getColumn(), switchToken.getStartIndex(),
+            switchToken.getSource(), value, cases);
     }
     
     /**
@@ -2307,8 +2327,8 @@ public class QLexpressParser {
             finallyBlock = parseBlock();
         }
         
-        return new TryCatchNode(tryToken.getLine(), tryToken.getColumn(), tryToken.getStartIndex(), tryToken.getSource(), tryBlock, catchClauses,
-            finallyBlock);
+        return new TryCatchNode(tryToken.getLine(), tryToken.getColumn(), tryToken.getStartIndex(),
+            tryToken.getSource(), tryBlock, catchClauses, finallyBlock);
     }
     
     /**
@@ -2336,7 +2356,8 @@ public class QLexpressParser {
             consume();
         }
         
-        return new ReturnNode(returnToken.getLine(), returnToken.getColumn(), returnToken.getStartIndex(), returnToken.getSource(), value);
+        return new ReturnNode(returnToken.getLine(), returnToken.getColumn(), returnToken.getStartIndex(),
+            returnToken.getSource(), value);
     }
     
     /**
@@ -2356,7 +2377,8 @@ public class QLexpressParser {
             consume();
         }
         
-        return new BreakNode(breakToken.getLine(), breakToken.getColumn(), breakToken.getStartIndex(), breakToken.getSource());
+        return new BreakNode(breakToken.getLine(), breakToken.getColumn(), breakToken.getStartIndex(),
+            breakToken.getSource());
     }
     
     /**
@@ -2376,7 +2398,8 @@ public class QLexpressParser {
             consume();
         }
         
-        return new ContinueNode(continueToken.getLine(), continueToken.getColumn(), continueToken.getStartIndex(), continueToken.getSource());
+        return new ContinueNode(continueToken.getLine(), continueToken.getColumn(), continueToken.getStartIndex(),
+            continueToken.getSource());
     }
     
     /**
@@ -2399,7 +2422,8 @@ public class QLexpressParser {
             consume();
         }
         
-        return new ThrowNode(throwToken.getLine(), throwToken.getColumn(), throwToken.getStartIndex(), throwToken.getSource(), exception);
+        return new ThrowNode(throwToken.getLine(), throwToken.getColumn(), throwToken.getStartIndex(),
+            throwToken.getSource(), exception);
     }
     
     /**
@@ -2442,8 +2466,8 @@ public class QLexpressParser {
         // Parse body
         BlockNode body = parseBlock();
         
-        return new FunctionDefinitionNode(functionToken.getLine(), functionToken.getColumn(), functionToken.getStartIndex(), functionToken.getSource(),
-            functionName, parameters, body);
+        return new FunctionDefinitionNode(functionToken.getLine(), functionToken.getColumn(),
+            functionToken.getStartIndex(), functionToken.getSource(), functionName, parameters, body);
     }
     
     /**
@@ -2467,8 +2491,8 @@ public class QLexpressParser {
         // Parse body
         BlockNode body = parseBlock();
         
-        return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(), macroToken.getStartIndex(), macroToken.getSource(), macroName,
-            body);
+        return new MacroDefinitionNode(macroToken.getLine(), macroToken.getColumn(), macroToken.getStartIndex(),
+            macroToken.getSource(), macroName, body);
     }
     
     /**
@@ -2490,47 +2514,47 @@ public class QLexpressParser {
         throws ParseException {
         Token importToken = expect(TokenType.IMPORT);
         skipNewlines();
-
+        
         // Build the import path
         StringBuilder importPath = new StringBuilder();
-
+        
         // Get first identifier (must be present)
         // Use consumeImportPathIdentifier to accept keywords in import paths
         Token firstId = consumeImportPathIdentifier();
         importPath.append(firstId.getValue());
         skipNewlines();
-
+        
         // Continue with .id or .*
         while (match(TokenType.DOT)) {
             consume(); // Consume DOT
             skipNewlines();
-
+            
             if (match(TokenType.MUL)) {
                 consume(); // Consume MUL (*)
                 // Wildcard import
                 expect(TokenType.SEMI);
-                return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(), importToken.getSource(),
-                    importPath.toString(), true);
+                return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(),
+                    importToken.getSource(), importPath.toString(), true);
             }
-
+            
             // Regular identifier - use consumeImportPathIdentifier to accept keywords
             Token id = consumeImportPathIdentifier();
             importPath.append('.').append(id.getValue());
             skipNewlines();
         }
-
+        
         // Check for .* or .* at end (DOTMUL token handles this)
         if (match(TokenType.DOTMUL)) {
             consume();
             expect(TokenType.SEMI);
-            return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(), importToken.getSource(),
-                importPath.toString(), true);
+            return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(),
+                importToken.getSource(), importPath.toString(), true);
         }
-
+        
         // Regular class import
         expect(TokenType.SEMI);
-        return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(), importToken.getSource(),
-            importPath.toString(), false);
+        return new ImportNode(importToken.getLine(), importToken.getColumn(), importToken.getStartIndex(),
+            importToken.getSource(), importPath.toString(), false);
     }
     
     /**
@@ -2584,7 +2608,8 @@ public class QLexpressParser {
             skipNewlines();
             
             // Create a variable declaration node for this variable
-            declarations.add(new VariableDeclarationNode(line, column, startPosition, source, typeName, varName, initializer));
+            declarations
+                .add(new VariableDeclarationNode(line, column, startPosition, source, typeName, varName, initializer));
             
             // Check for comma (more variables in the same declaration)
             if (match(TokenType.COMMA)) {
@@ -2637,9 +2662,9 @@ public class QLexpressParser {
         // Check with operator manager for custom operators
         // But only if the token type is an operator, not a literal
         TokenType type = current.getType();
-        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL &&
-            type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL &&
-            type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
+        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL
+            && type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL
+            && type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
             String value = current.getValue();
             if (value != null) {
                 return operatorManager.isOpType(value, ParserOperatorManager.OpType.PREFIX);
@@ -2665,9 +2690,9 @@ public class QLexpressParser {
         // Check with operator manager for custom operators
         // But only if the token type is an operator, not a literal
         TokenType type = current.getType();
-        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL &&
-            type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL &&
-            type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
+        if (type != TokenType.DOUBLE_QUOTE && type != TokenType.QUOTE_STRING_LITERAL
+            && type != TokenType.INTEGER_LITERAL && type != TokenType.FLOATING_POINT_LITERAL
+            && type != TokenType.INTEGER_OR_FLOATING_LITERAL) {
             String value = current.getValue();
             if (value != null) {
                 return operatorManager.isOpType(value, ParserOperatorManager.OpType.SUFFIX);
@@ -2689,7 +2714,8 @@ public class QLexpressParser {
         String operator = opToken.getValue();
         ExpressionNode operand = parseUnary();
         
-        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(), opToken.getSource(), operator, operand, true);
+        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(), opToken.getSource(),
+            operator, operand, true);
     }
     
     /**
@@ -2705,7 +2731,8 @@ public class QLexpressParser {
         Token opToken = consume();
         String operator = opToken.getValue();
         
-        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(), opToken.getSource(), operator, operand, false);
+        return new UnaryOpNode(opToken.getLine(), opToken.getColumn(), opToken.getStartIndex(), opToken.getSource(),
+            operator, operand, false);
     }
     
     /**
@@ -2722,18 +2749,18 @@ public class QLexpressParser {
         if (isPrefixUnaryOperator()) {
             return parsePrefixUnary();
         }
-
+        
         // Parse primary expression
         ExpressionNode expr = parsePrimary();
-
+        
         // Check for suffix unary operators
         while (isSuffixUnaryOperator()) {
             expr = parseSuffixUnary(expr);
         }
-
+        
         // Check for path operations (method calls, array access, field access)
         expr = parsePath(expr);
-
+        
         return expr;
     }
     
@@ -2780,7 +2807,7 @@ public class QLexpressParser {
         throws ParseException {
         // Parse left operand (unary expression)
         ExpressionNode left = parseUnary();
-
+        
         // While we have a binary operator with sufficient precedence
         while (true) {
             skipNewlines();
@@ -2788,54 +2815,55 @@ public class QLexpressParser {
             if (current == null) {
                 break;
             }
-
+            
             // Check if current token is a binary operator
             String op = current.getValue();
             if (!isBinaryOperator()) {
                 break;
             }
-
+            
             int precedence = getBinaryPrecedence(op);
             if (precedence < minPrecedence) {
                 break;
             }
-
+            
             // For assignment operators, validate that the left side is assignable
             if (isAssignmentOperator(op)) {
                 validateAssignable(left, "Left side of assignment");
             }
-
+            
             // Consume the operator
             consume();
             skipNewlines();
-
+            
             // Parse right operand with higher precedence
             ExpressionNode right = parseBinary(precedence + 1);
-
+            
             // Create binary operation node
-            left = new BinaryOpNode(current.getLine(), current.getColumn(), current.getStartIndex(), current.getSource(), left, op, right);
+            left = new BinaryOpNode(current.getLine(), current.getColumn(), current.getStartIndex(),
+                current.getSource(), left, op, right);
         }
-
+        
         return left;
     }
-
+    
     /**
      * Checks if the given operator is an assignment operator.
      */
     private boolean isAssignmentOperator(String operator) {
-        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") ||
-               operator.equals("*=") || operator.equals("/=") || operator.equals("%=") ||
-               operator.equals("&=") || operator.equals("|=") || operator.equals("^=") ||
-               operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
+        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") || operator.equals("*=")
+            || operator.equals("/=") || operator.equals("%=") || operator.equals("&=") || operator.equals("|=")
+            || operator.equals("^=") || operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
     }
-
+    
     /**
      * Validates that an expression is assignable (can be used as the left side of an assignment).
      * Only identifiers, field accesses, and array accesses are assignable.
      */
-    private void validateAssignable(ExpressionNode expr, String context) throws ParseException {
-        if (!(expr instanceof IdentifierNode) && !(expr instanceof FieldAccessNode) &&
-            !(expr instanceof ArrayAccessNode)) {
+    private void validateAssignable(ExpressionNode expr, String context)
+        throws ParseException {
+        if (!(expr instanceof IdentifierNode) && !(expr instanceof FieldAccessNode)
+            && !(expr instanceof ArrayAccessNode)) {
             throw error(context + " must be an identifier, field access, or array access");
         }
     }
@@ -2852,20 +2880,20 @@ public class QLexpressParser {
     public ExpressionNode parseTernary()
         throws ParseException {
         ExpressionNode condition = parseBinary(0);
-
+        
         // Check if we have a ternary operator
         skipNewlines();
         if (!match(TokenType.QUESTION)) {
             return condition;
         }
-
+        
         // Consume the question mark
         Token questionToken = consume();
         skipNewlines();
-
+        
         // Parse the then expression (ternaryExpr uses baseExpr[0], which is lowest precedence)
         ExpressionNode thenExpr = parseBinary(0);
-
+        
         // Expect and consume colon
         skipNewlines();
         if (!match(TokenType.COLON)) {
@@ -2873,12 +2901,12 @@ public class QLexpressParser {
         }
         Token colonToken = consume();
         skipNewlines();
-
+        
         // Parse the else expression (full expression to allow nested ternary)
         ExpressionNode elseExpr = parseExpression();
-
-        return new TernaryNode(questionToken.getLine(), questionToken.getColumn(), questionToken.getStartIndex(), questionToken.getSource(), condition,
-            thenExpr, elseExpr);
+        
+        return new TernaryNode(questionToken.getLine(), questionToken.getColumn(), questionToken.getStartIndex(),
+            questionToken.getSource(), condition, thenExpr, elseExpr);
     }
     
     /**
@@ -2995,7 +3023,7 @@ public class QLexpressParser {
         return type == TokenType.ID || type == TokenType.FUNCTION || type == TokenType.CASE || type == TokenType.DEFAULT
             || type == TokenType.SWITCH;
     }
-
+    
     /**
      * Checks if the current token can be used as an import path identifier.
      * In Java import statements, any keyword that looks like a valid Java identifier
@@ -3023,7 +3051,7 @@ public class QLexpressParser {
         }
         return false;
     }
-
+    
     /**
      * Consumes a token that can be used as an import path identifier.
      * Import path identifiers can be regular IDs or any keyword that forms a valid identifier.
@@ -3096,55 +3124,94 @@ public class QLexpressParser {
     private String tokenTypeToLiteral(String tokenType) {
         // Handle common tokens that should be displayed as their literal characters
         switch (tokenType) {
-            case "LPAREN": return "'(";
-            case "RPAREN": return "')'";
-            case "LBRACE": return "'{'";
-            case "RBRACE": return "'}'";
-            case "LBRACK": return "'['";
-            case "RBRACK": return "']'";
-            case "SEMI": return "';'";
-            case "COMMA": return "','";
-            case "DOT": return "'.'";
-            case "COLON": return "':'";
-            case "DCOLON": return "::";
-            case "QUESTION": return "'?'";
-            case "ADD": return "'+'";
-            case "SUB": return "'-'";
-            case "MUL": return "'*'";
-            case "DIV": return "'/'";
-            case "MOD": return "'%'";
-            case "ASSIGN": return "'='";
-            case "EQ": return "'=='";
-            case "LT": return "'<'";
-            case "GT": return "'>'";
-            case "LE": return "<=";
-            case "GE": return ">=";
-            case "NE": return "!=";
-            case "NOEQ": return "<>";
-            case "AND": return "'&&'";
-            case "OR": return "'||'";
-            case "NOT": return "'!'";
-            case "BIT_AND": return "'&'";
-            case "BIT_OR": return "'|'";
-            case "XOR": return "'^'";
-            case "LSHIFT": return "<<";
-            case "RSHIFT": return ">>";
-            case "URSHIFT": return ">>>";
-            case "INC": return "'++'";
-            case "DEC": return "'--'";
-            case "ARROW": return "->";
-            case "ELLIPSIS": return "...";
-            default: return tokenType;
+            case "LPAREN":
+                return "'(";
+            case "RPAREN":
+                return "')'";
+            case "LBRACE":
+                return "'{'";
+            case "RBRACE":
+                return "'}'";
+            case "LBRACK":
+                return "'['";
+            case "RBRACK":
+                return "']'";
+            case "SEMI":
+                return "';'";
+            case "COMMA":
+                return "','";
+            case "DOT":
+                return "'.'";
+            case "COLON":
+                return "':'";
+            case "DCOLON":
+                return "::";
+            case "QUESTION":
+                return "'?'";
+            case "ADD":
+                return "'+'";
+            case "SUB":
+                return "'-'";
+            case "MUL":
+                return "'*'";
+            case "DIV":
+                return "'/'";
+            case "MOD":
+                return "'%'";
+            case "ASSIGN":
+                return "'='";
+            case "EQ":
+                return "'=='";
+            case "LT":
+                return "'<'";
+            case "GT":
+                return "'>'";
+            case "LE":
+                return "<=";
+            case "GE":
+                return ">=";
+            case "NE":
+                return "!=";
+            case "NOEQ":
+                return "<>";
+            case "AND":
+                return "'&&'";
+            case "OR":
+                return "'||'";
+            case "NOT":
+                return "'!'";
+            case "BIT_AND":
+                return "'&'";
+            case "BIT_OR":
+                return "'|'";
+            case "XOR":
+                return "'^'";
+            case "LSHIFT":
+                return "<<";
+            case "RSHIFT":
+                return ">>";
+            case "URSHIFT":
+                return ">>>";
+            case "INC":
+                return "'++'";
+            case "DEC":
+                return "'--'";
+            case "ARROW":
+                return "->";
+            case "ELLIPSIS":
+                return "...";
+            default:
+                return tokenType;
         }
     }
-
+    
     public ParseException error(String message) {
         Token current = peek();
         if (current != null) {
             int line = current.getLine();
             int column = current.getColumn();
             String source = current.getSource();
-
+            
             // If current token is EOF, use the last token's position for better error reporting
             // This matches ANTLR's behavior where errors are reported at the position of the
             // last valid token, not at the EOF position
@@ -3163,7 +3230,8 @@ public class QLexpressParser {
                     expected = tokenTypeToLiteral(expected);
                     message = "mismatched input '<EOF>' expecting " + expected;
                 }
-            } else if (message.startsWith("Expected ")) {
+            }
+            else if (message.startsWith("Expected ")) {
                 // Format "Expected X but found Y" as "mismatched input 'Y' expecting X"
                 // to match ANTLR's error format
                 String expected = message.substring("Expected ".length());
@@ -3176,13 +3244,14 @@ public class QLexpressParser {
                     // For ID tokens, use the actual token value instead of "ID"
                     if ("ID".equals(foundPart) && current.getValue() != null) {
                         foundPart = current.getValue().toString();
-                    } else {
+                    }
+                    else {
                         foundPart = tokenTypeToLiteral(foundPart);
                     }
                     message = "mismatched input '" + foundPart + "' expecting " + expectedPart;
                 }
             }
-
+            
             return new ParseException(message, line, column, source);
         }
         return new ParseException(message, -1, -1, null);

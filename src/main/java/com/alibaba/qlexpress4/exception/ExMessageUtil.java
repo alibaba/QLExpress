@@ -35,16 +35,17 @@ public class ExMessageUtil {
         // Special handling for EOF token
         boolean isEOF = "<EOF>".equals(lexeme);
         int startReportPos, endReportPos;
-
+        
         if (isEOF) {
             // For EOF errors, endReportPos should be at the end of script
             startReportPos = Math.max(tokenStartPos - SNIPPET_EXTENSION_LEN, 0);
             endReportPos = script.length();
-        } else {
+        }
+        else {
             startReportPos = Math.max(tokenStartPos - SNIPPET_EXTENSION_LEN, 0);
             endReportPos = Math.min(tokenStartPos + lexeme.length() + SNIPPET_EXTENSION_LEN, script.length());
         }
-
+        
         StringBuilder snippetBuilder = new StringBuilder();
         if (startReportPos > 0) {
             snippetBuilder.append("...");
@@ -56,12 +57,12 @@ public class ExMessageUtil {
         if (endReportPos < script.length()) {
             snippetBuilder.append("...");
         }
-
+        
         // Append <EOF> for EOF errors
         if (isEOF) {
             snippetBuilder.append("<EOF>");
         }
-
+        
         StringBuilder carteBuilder = new StringBuilder().append("       ");
         if (startReportPos > 0) {
             carteBuilder.append("   ");
@@ -72,7 +73,7 @@ public class ExMessageUtil {
         for (int i = 0; i < lexeme.length(); i++) {
             carteBuilder.append('^');
         }
-
+        
         String snippet = snippetBuilder.toString();
         String message = MessageFormat
             .format(REPORT_TEMPLATE, errorCode, reason, snippet, carteBuilder.toString(), tokenLine, tokenCol);

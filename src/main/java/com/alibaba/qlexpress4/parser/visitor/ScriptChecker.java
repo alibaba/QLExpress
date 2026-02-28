@@ -86,8 +86,13 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         if (disableFunctionCalls) {
             String reason = "Function calls are not allowed in this context";
             // Convert 1-based column from lexer to 0-based for reportScannerErr
-            throw QLException
-                .reportScannerErr(script, position, line, column - 1, "function call", "FUNCTION_CALL_NOT_ALLOWED", reason);
+            throw QLException.reportScannerErr(script,
+                position,
+                line,
+                column - 1,
+                "function call",
+                "FUNCTION_CALL_NOT_ALLOWED",
+                reason);
         }
     }
     
@@ -259,35 +264,35 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws Exception {
         // Check binary operator
         checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
-
+        
         // For assignment operators, validate that the left side is assignable
         if (isAssignmentOperator(node.getOperator())) {
             validateAssignable(node.getLeft(), "Left side of assignment");
         }
-
+        
         // Continue visiting children
         visitNode(node.getLeft(), context);
         visitNode(node.getRight(), context);
         return null;
     }
-
+    
     /**
      * Checks if the given operator is an assignment operator.
      */
     private boolean isAssignmentOperator(String operator) {
-        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") ||
-               operator.equals("*=") || operator.equals("/=") || operator.equals("%=") ||
-               operator.equals("&=") || operator.equals("|=") || operator.equals("^=") ||
-               operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
+        return operator.equals("=") || operator.equals("+=") || operator.equals("-=") || operator.equals("*=")
+            || operator.equals("/=") || operator.equals("%=") || operator.equals("&=") || operator.equals("|=")
+            || operator.equals("^=") || operator.equals("<<=") || operator.equals(">>=") || operator.equals(">>>=");
     }
-
+    
     /**
      * Validates that an expression is assignable (can be used as the left side of an assignment).
      * Only identifiers and field accesses are assignable.
      */
-    private void validateAssignable(Node node, String context) throws QLSyntaxException {
-        if (!(node instanceof IdentifierNode) && !(node instanceof FieldAccessNode) &&
-            !(node instanceof ArrayAccessNode)) {
+    private void validateAssignable(Node node, String context)
+        throws QLSyntaxException {
+        if (!(node instanceof IdentifierNode) && !(node instanceof FieldAccessNode)
+            && !(node instanceof ArrayAccessNode)) {
             String reason = context + " must be an identifier, field access, or array access";
             int line = 1, column = 1;
             if (node instanceof ASTNode) {
@@ -295,8 +300,8 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
                 column = ((ASTNode)node).getColumn();
             }
             // Convert 1-based column from lexer to 0-based for reportScannerErr
-            throw QLException.reportScannerErr(script,
-                0, line, column - 1, "", QLErrorCodes.SYNTAX_ERROR.name(), reason);
+            throw QLException
+                .reportScannerErr(script, 0, line, column - 1, "", QLErrorCodes.SYNTAX_ERROR.name(), reason);
         }
     }
     
@@ -305,7 +310,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws Exception {
         // Check unary operator
         checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
-
+        
         // Continue visiting children
         visitNode(node.getOperand(), context);
         return null;
@@ -369,7 +374,7 @@ public class ScriptChecker implements ASTVisitor<Void, Void> {
         throws Exception {
         // Check assignment operator
         checkOperator(node.getOperator(), node.getLine(), node.getColumn(), node.getStartPosition());
-
+        
         // Continue visiting children
         visitNode(node.getTarget(), context);
         visitNode(node.getValue(), context);

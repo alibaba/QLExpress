@@ -5,7 +5,8 @@ public class MacroDefinitionNode extends ASTNode implements StatementNode {
     
     private final BlockNode body;
     
-    public MacroDefinitionNode(int line, int column, int startPosition, String source, String macroName, BlockNode body) {
+    public MacroDefinitionNode(int line, int column, int startPosition, String source, String macroName,
+        BlockNode body) {
         super(line, column, startPosition, source);
         this.macroName = macroName;
         this.body = body;

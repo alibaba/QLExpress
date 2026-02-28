@@ -18,21 +18,21 @@ import java.util.Objects;
  */
 public class Token {
     private final TokenType type;
-
+    
     private final String value;
-
+    
     private final int line;
-
+    
     private final int column;
-
+    
     private final int startIndex;
-
+    
     private final String source;
-
+    
     private final int endLine;
-
+    
     private final int endColumn;
-
+    
     private final int length;
     
     /**
@@ -47,7 +47,7 @@ public class Token {
     public Token(TokenType type, String value, int line, int column, String source) {
         this(type, value, line, column, -1, source, line, column + (value != null ? value.length() : 0));
     }
-
+    
     /**
      * Creates a new token with full location information including character position.
      *
@@ -74,7 +74,8 @@ public class Token {
      * @param endLine the ending line number (1-based)
      * @param endColumn the ending column number (1-based, exclusive)
      */
-    public Token(TokenType type, String value, int line, int column, int startIndex, String source, int endLine, int endColumn) {
+    public Token(TokenType type, String value, int line, int column, int startIndex, String source, int endLine,
+        int endColumn) {
         this.type = Objects.requireNonNull(type, "Token type cannot be null");
         this.value = value;
         this.line = line;
@@ -97,7 +98,7 @@ public class Token {
     public Token(TokenType type, String value, int line, int column) {
         this(type, value, line, column, -1, null);
     }
-
+    
     /**
      * Creates a new token with position but without source information.
      *
@@ -146,7 +147,7 @@ public class Token {
     public int getColumn() {
         return column;
     }
-
+    
     /**
      * Returns the starting character position of this token in the source.
      *
@@ -155,7 +156,7 @@ public class Token {
     public int getStartIndex() {
         return startIndex;
     }
-
+    
     /**
      * Returns the source file or string identifier.
      *
@@ -266,8 +267,9 @@ public class Token {
         if (o == null || getClass() != o.getClass())
             return false;
         Token token = (Token)o;
-        return line == token.line && column == token.column && startIndex == token.startIndex && endLine == token.endLine && endColumn == token.endColumn
-            && type == token.type && Objects.equals(value, token.value) && Objects.equals(source, token.source);
+        return line == token.line && column == token.column && startIndex == token.startIndex
+            && endLine == token.endLine && endColumn == token.endColumn && type == token.type
+            && Objects.equals(value, token.value) && Objects.equals(source, token.source);
     }
     
     @Override
@@ -298,7 +300,7 @@ public class Token {
     public Token withPosition(int line, int column) {
         return new Token(type, value, line, column, -1, source, endLine + (line - this.line), endColumn);
     }
-
+    
     /**
      * Creates a new Token with the same type and value but different position including character index.
      *
@@ -320,7 +322,7 @@ public class Token {
     public Token withSource(String source) {
         return new Token(type, value, line, column, startIndex, source, endLine, endColumn);
     }
-
+    
     /**
      * Creates a new Token with a different value but same type and position.
      *

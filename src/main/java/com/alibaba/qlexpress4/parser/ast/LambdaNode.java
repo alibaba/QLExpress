@@ -7,7 +7,8 @@ public class LambdaNode extends ASTNode implements ExpressionNode {
     
     private final Node body;
     
-    public LambdaNode(int line, int column, int startPosition, String source, List<ParameterNode> parameters, Node body) {
+    public LambdaNode(int line, int column, int startPosition, String source, List<ParameterNode> parameters,
+        Node body) {
         super(line, column, startPosition, source);
         this.parameters = parameters;
         this.body = body;

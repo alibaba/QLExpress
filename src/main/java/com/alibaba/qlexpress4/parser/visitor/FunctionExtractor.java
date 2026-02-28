@@ -32,33 +32,35 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
      */
     public static class Context {
         private final List<FunctionCall> functionCalls = new ArrayList<>();
+        
         private int functionDepth = 0; // 0 = top-level (not inside any function)
+        
         private final Set<String> topLevelFunctionDefinitions = new HashSet<>();
-
+        
         public List<FunctionCall> getFunctionCalls() {
             return Collections.unmodifiableList(functionCalls);
         }
-
+        
         public void addFunctionCall(FunctionCall functionCall) {
             functionCalls.add(functionCall);
         }
-
+        
         public void enterFunction() {
             functionDepth++;
         }
-
+        
         public void exitFunction() {
             functionDepth--;
         }
-
+        
         public boolean isTopLevel() {
             return functionDepth == 0;
         }
-
+        
         public void addFunctionDefinition(String functionName) {
             topLevelFunctionDefinitions.add(functionName);
         }
-
+        
         public Set<String> getTopLevelFunctionDefinitions() {
             return Collections.unmodifiableSet(topLevelFunctionDefinitions);
         }
@@ -69,17 +71,17 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
      */
     public static class FunctionCall {
         private final FunctionCallType type;
-
+        
         private final String name;
-
+        
         private final int arity;
-
+        
         private final int line;
-
+        
         private final int column;
-
+        
         private final boolean isTopLevel;
-
+        
         public FunctionCall(FunctionCallType type, String name, int arity, int line, int column, boolean isTopLevel) {
             this.type = type;
             this.name = name;
@@ -88,31 +90,31 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
             this.column = column;
             this.isTopLevel = isTopLevel;
         }
-
+        
         public FunctionCallType getType() {
             return type;
         }
-
+        
         public String getName() {
             return name;
         }
-
+        
         public int getArity() {
             return arity;
         }
-
+        
         public int getLine() {
             return line;
         }
-
+        
         public int getColumn() {
             return column;
         }
-
+        
         public boolean isTopLevel() {
             return isTopLevel;
         }
-
+        
         @Override
         public String toString() {
             return String.format("%s '%s' (arity=%d) at %d:%d", type, name, arity, line, column);
@@ -144,12 +146,12 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         if (node == null) {
             return Collections.emptyList();
         }
-
+        
         Context context = new Context();
         node.accept(this, context);
         return context.getFunctionCalls();
     }
-
+    
     /**
      * Extracts the context from the given AST node, including both function calls and definitions.
      *
@@ -161,7 +163,7 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         if (node == null) {
             return new Context();
         }
-
+        
         Context context = new Context();
         node.accept(this, context);
         return context;
@@ -429,8 +431,9 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
         }
         
         int arity = node.getArguments().size();
-
-        FunctionCall functionCall = new FunctionCall(callType, functionName, arity, node.getLine(), node.getColumn(), context.isTopLevel());
+        
+        FunctionCall functionCall =
+            new FunctionCall(callType, functionName, arity, node.getLine(), node.getColumn(), context.isTopLevel());
         context.addFunctionCall(functionCall);
         
         // Recursively visit the target and arguments
@@ -446,7 +449,7 @@ public class FunctionExtractor implements ASTVisitor<Void, FunctionExtractor.Con
     public Void visit(ConstructorCallNode node, Context context)
         throws Exception {
         String typeName = node.getTypeName();
-
+        
         FunctionCall functionCall = new FunctionCall(FunctionCallType.CONSTRUCTOR_CALL, typeName,
             node.getArguments().size(), node.getLine(), node.getColumn(), context.isTopLevel());
         context.addFunctionCall(functionCall);

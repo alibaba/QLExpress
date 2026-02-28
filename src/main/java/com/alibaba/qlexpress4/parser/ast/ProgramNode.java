@@ -10,12 +10,12 @@ import java.util.Collections;
  */
 public class ProgramNode extends ASTNode {
     private final List<StatementNode> statements;
-
+    
     public ProgramNode(int line, int column, int startPosition, String source, List<StatementNode> statements) {
         super(line, column, startPosition, source);
         this.statements = statements != null ? statements : Collections.emptyList();
     }
-
+    
     public ProgramNode(int line, int column, List<StatementNode> statements) {
         this(line, column, -1, null, statements);
     }

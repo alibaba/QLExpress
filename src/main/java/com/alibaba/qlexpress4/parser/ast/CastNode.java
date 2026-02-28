@@ -5,7 +5,8 @@ public class CastNode extends ASTNode implements ExpressionNode {
     
     private final ExpressionNode expression;
     
-    public CastNode(int line, int column, int startPosition, String source, String typeName, ExpressionNode expression) {
+    public CastNode(int line, int column, int startPosition, String source, String typeName,
+        ExpressionNode expression) {
         super(line, column, startPosition, source);
         this.typeName = typeName;
         this.expression = expression;

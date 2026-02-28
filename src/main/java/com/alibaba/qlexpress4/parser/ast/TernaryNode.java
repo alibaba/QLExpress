@@ -7,8 +7,8 @@ public class TernaryNode extends ASTNode implements ExpressionNode {
     
     private final ExpressionNode elseExpr;
     
-    public TernaryNode(int line, int column, int startPosition, String source, ExpressionNode condition, ExpressionNode thenExpr,
-        ExpressionNode elseExpr) {
+    public TernaryNode(int line, int column, int startPosition, String source, ExpressionNode condition,
+        ExpressionNode thenExpr, ExpressionNode elseExpr) {
         super(line, column, startPosition, source);
         this.condition = condition;
         this.thenExpr = thenExpr;

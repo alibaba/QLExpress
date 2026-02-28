@@ -18,8 +18,8 @@ public class ArraySliceNode extends ASTNode implements ExpressionNode {
     
     private final ExpressionNode end;
     
-    public ArraySliceNode(int line, int column, int startPosition, String source, ExpressionNode array, ExpressionNode start,
-        ExpressionNode end) {
+    public ArraySliceNode(int line, int column, int startPosition, String source, ExpressionNode array,
+        ExpressionNode start, ExpressionNode end) {
         super(line, column, startPosition, source);
         this.array = array;
         this.start = start;

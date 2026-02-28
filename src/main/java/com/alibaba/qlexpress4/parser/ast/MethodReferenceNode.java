@@ -11,7 +11,8 @@ public class MethodReferenceNode extends ASTNode implements ExpressionNode {
     
     private final String methodName;
     
-    public MethodReferenceNode(int line, int column, int startPosition, String source, ExpressionNode target, String methodName) {
+    public MethodReferenceNode(int line, int column, int startPosition, String source, ExpressionNode target,
+        String methodName) {
         super(line, column, startPosition, source);
         this.target = target;
         this.methodName = methodName;
