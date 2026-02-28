@@ -73,8 +73,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
             }
         }
 
-        tracePoints.add(newPoint(TraceType.IF, children, "if", node));
-        return null;
+        return newPoint(TraceType.IF, children, "if", node);
     }
     
     @Override

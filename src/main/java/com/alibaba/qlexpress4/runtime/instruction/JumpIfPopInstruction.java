@@ -6,6 +6,7 @@ import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.runtime.QContext;
 import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
+import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.utils.PrintlnUtils;
 
 import java.util.function.Consumer;
@@ -18,29 +19,50 @@ import java.util.function.Consumer;
  * Author: DQinYuan
  */
 public class JumpIfPopInstruction extends QLInstruction {
-    
+
     private final boolean expect;
-    
+
     private int position;
-    
+
+    private final Integer traceKey;
+
     public JumpIfPopInstruction(ErrorReporter errorReporter, boolean expect, int position) {
+        this(errorReporter, expect, position, null);
+    }
+
+    public JumpIfPopInstruction(ErrorReporter errorReporter, boolean expect, int position, Integer traceKey) {
         super(errorReporter);
         this.expect = expect;
         this.position = position;
+        this.traceKey = traceKey;
     }
-    
+
     @Override
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         boolean conditionBool = conditionToBool(qContext.pop().get());
         if (conditionBool == expect && !qlOptions.isShortCircuitDisable()) {
             // short circuit
+            // trace
+            if (traceKey != null) {
+                ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+                if (expressionTrace != null && !expressionTrace.getChildren().isEmpty()) {
+                    expressionTrace.getChildren().get(0).valueEvaluated(conditionBool);
+                }
+            }
             return new QResult(new DataValue(position), QResult.ResultType.JUMP);
         }
         else {
+            // trace - record condition value even when not short-circuiting
+            if (traceKey != null) {
+                ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
+                if (expressionTrace != null && !expressionTrace.getChildren().isEmpty()) {
+                    expressionTrace.getChildren().get(0).valueEvaluated(conditionBool);
+                }
+            }
             return QResult.NEXT_INSTRUCTION;
         }
     }
-    
+
     private boolean conditionToBool(Object condition) {
         if (condition == null) {
             return expect;
@@ -51,21 +73,21 @@ public class JumpIfPopInstruction extends QLInstruction {
         }
         return (boolean)condition;
     }
-    
+
     @Override
     public int stackInput() {
         return 1;
     }
-    
+
     @Override
     public int stackOutput() {
         return 0;
     }
-    
+
     public void setPosition(int position) {
         this.position = position;
     }
-    
+
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIfPop " + expect + " " + position, debug);

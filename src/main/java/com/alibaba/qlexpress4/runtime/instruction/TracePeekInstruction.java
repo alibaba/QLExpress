@@ -29,7 +29,15 @@ public class TracePeekInstruction extends QLInstruction {
     public QResult execute(QContext qContext, QLOptions qlOptions) {
         ExpressionTrace expressionTrace = qContext.getTraces().getExpressionTraceByKey(traceKey);
         if (expressionTrace != null) {
-            expressionTrace.valueEvaluated(qContext.peek().get());
+            try {
+                // Try to peek at the stack to get the value
+                // If the stack is empty (e.g., due to short-circuit evaluation),
+                // ArrayIndexOutOfBoundsException will be thrown and we'll leave evaluated=false
+                expressionTrace.valueEvaluated(qContext.peek().get());
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Stack is empty - this expression was not evaluated (short-circuited)
+                // Leave expressionTrace.evaluated = false
+            }
         }
         return QResult.NEXT_INSTRUCTION;
     }

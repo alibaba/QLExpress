@@ -151,9 +151,9 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         instructions.addAll(conditionResult.getInstructions());
         
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Jump to else if condition is false (pops condition from stack)
-        JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1);
+        JumpIfPopInstruction jumpIf = new JumpIfPopInstruction(errorReporter, false, -1, node.getStartPosition());
         instructions.add(jumpIf);
         
         // Generate then body
@@ -212,12 +212,35 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 elseProducesValue = elseResult.isExpressionValue();
             }
         }
-        else {
-            // No else body - push null as result
+
+        // If the if node produces a value (when used as an expression)
+        boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
+
+        // If there's no else body but the then body produces a value, push null for the else branch
+        // This ensures the stack always has a value when isExpressionValue is true
+        if (elseBody == null && thenResult.isExpressionValue()) {
+            // No else body, but then produces value - push null as else result
             instructions.add(new ConstInstruction(errorReporter, null, node.getStartPosition()));
-            elseProducesValue = true; // ConstInstruction produces a value
+            elseProducesValue = true; // Now else produces value (null)
         }
-        
+
+        // If one branch produces a value but the other doesn't, push null for the non-producing branch
+        // This ensures the stack always has a value when isExpressionValue is true
+        if (isExpressionValue) {
+            if (thenResult.isExpressionValue() && !elseProducesValue) {
+                // Then produces value, else doesn't - push null at end of else
+                // This happens when else body is a statement (e.g., return, break) that doesn't produce a value
+                instructions.add(new ConstInstruction(errorReporter, null, node.getStartPosition()));
+            }
+            else if (!thenResult.isExpressionValue() && elseProducesValue) {
+                // Else produces value, then doesn't - push null at end of then
+                // Add after the then instructions but before the jump instruction
+                instructions.add(thenStart + numThenInstructions, new ConstInstruction(errorReporter, null, node.getStartPosition()));
+                // Update numThenInstructions since we added an instruction before the jump
+                numThenInstructions++;
+            }
+        }
+
         // Set jump target (end of if-else)
         // The jump position is relative to the current instruction, so we need to calculate:
         // jumpOffset = targetPos - jumpPos
@@ -226,10 +249,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Therefore: jumpOffset = instructions.size() - (thenStart + numThenInstructions + 1)
         // Simplifying: jumpOffset = instructions.size() - thenStart - numThenInstructions - 1
         jump.setPosition(instructions.size() - thenStart - numThenInstructions - 1);
-        
-        // If the if node produces a value (when used as an expression)
-        boolean isExpressionValue = thenResult.isExpressionValue() || elseProducesValue;
-        
+
         // Add trace peek instruction if the if statement produces a value
         // This allows the trace system to record the final value of the if expression
         if (isExpressionValue) {
