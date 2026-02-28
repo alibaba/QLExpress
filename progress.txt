@@ -2037,3 +2037,28 @@ REMAINING ISSUES (12 total):
 - TracePointTree needs to be returned (not null) from visit() methods to build proper parent-child relationships
 - Condition values in if statements are recorded via JumpIfPopInstruction using traceKey and first child index
 - Empty blocks as else branches need special handling to show the IF's result value in the trace
+
+## [2026-03-01] - US-036 (Iteration 2)
+- Implemented EmptyStatementNode class and parser support for empty statements
+- Fixed trace generation to filter consecutive empty statements to single trace point
+- Files changed:
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/EmptyStatementNode.java (new)
+  - src/main/java/com/alibaba/qlexpress4/parser/ast/ASTVisitor.java
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/VariableDetector.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionExtractor.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScopeAnalyzer.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/ScriptChecker.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/FunctionDefinitionExtractor.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/OutVariableDetector.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/OutVarAttrDetector.java
+- Test results: 642/644 pass (99.7% pass rate)
+- **Learnings for future iterations:**
+  - Empty statements (semicolon) need their own AST node type to generate trace points
+  - Consecutive empty statements should be filtered to a single trace point for cleaner output
+  - Trace format issues with empty blocks showing [] instead of null require deeper investigation of the trace system
+  - The InstructionGenerator tests are sensitive to instruction count - avoid adding unnecessary instructions
+  - Empty statements should not generate any runtime instructions (no ConstInstruction, TracePeekInstruction, or PopInstruction)
+---
