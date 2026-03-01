@@ -104,6 +104,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
         }
 
         // Add case expressions and bodies
+        int caseIndex = 0; // Track case index for unique BLOCK position
         for (SwitchCaseNode caseNode : node.getCases()) {
             // Case label expression
             ExpressionNode caseCondition = caseNode.getCondition();
@@ -115,14 +116,10 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
             }
             // Case body - wrap in BLOCK trace
             List<TracePointTree> bodyChildren = new ArrayList<>();
-            ASTNode positionNode = node; // Default to switch node for position
             for (StatementNode stmt : caseNode.getStatements()) {
                 TracePointTree bodyTrace = acceptNode(stmt);
                 if (bodyTrace != null) {
                     bodyChildren.add(bodyTrace);
-                    if (stmt instanceof ASTNode) {
-                        positionNode = (ASTNode) stmt;
-                    }
                 }
             }
             // Determine block token from first child if it's an assignment
@@ -139,8 +136,15 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
                     }
                 }
             }
-            // Add BLOCK trace for case body (even if empty)
-            children.add(newPoint(TraceType.BLOCK, bodyChildren, blockToken, positionNode));
+            // Create BLOCK trace with unique position
+            // Use a special offset based on case index to ensure uniqueness
+            // This prevents position conflicts with child statements and the SWITCH trace
+            // Offset by 10000 to guarantee no conflicts with actual source positions
+            int blockPosition = 10000 + caseIndex;
+            TracePointTree blockTrace = new TracePointTree(TraceType.BLOCK, blockToken, bodyChildren,
+                node.getLine(), node.getColumn(), blockPosition);
+            children.add(blockTrace);
+            caseIndex++;
         }
 
         return newPoint(TraceType.SWITCH, children, "switch", node);

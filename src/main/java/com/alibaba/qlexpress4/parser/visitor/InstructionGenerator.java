@@ -641,6 +641,15 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 jumpToDefaultOrEnd.setPosition(caseStartPos - jumpToDefaultPosition - 1);
             }
             
+            // Add TraceEvaluatedInstruction for BLOCK trace BEFORE the case body
+            // This ensures it's executed even when the case body contains a break statement
+            // The BLOCK trace uses a special offset based on case index
+            // Offset by 10000 to guarantee no conflicts with actual source positions
+            if (group.hasBody()) {
+                int blockTracePosition = 10000 + i;
+                instructions.add(new TraceEvaluatedInstruction(errorReporter, blockTracePosition));
+            }
+
             // Generate case body statements
             if (group.body != null) {
                 for (StatementNode stmt : group.body) {
