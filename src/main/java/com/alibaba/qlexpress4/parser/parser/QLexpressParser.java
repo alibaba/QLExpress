@@ -775,7 +775,12 @@ public class QLexpressParser {
         // Parse body (expression or block)
         Node body;
         if (match(TokenType.LBRACE)) {
-            body = parseBlock();
+            // Use parseBraceExpression to handle both map literals and block statements
+            // For lambda bodies, a brace expression could be:
+            // 1. A map literal: {a: 1, b: 2}
+            // 2. A block statement: { statements; }
+            // The parser will disambiguate based on the content
+            body = parseBraceExpression();
         }
         else {
             body = parseExpression();

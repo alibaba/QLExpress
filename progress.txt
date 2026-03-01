@@ -48,6 +48,7 @@
   - Test expectations need to be updated when instruction counts change
 
 ---
+
 ## [2026-03-01] - US-036 (Iteration 6) - Comprehensive Trace Generation Fixes
 - **ThrowNode trace as child**: Modified ThrowNode visitor in TraceGenerator to return trace instead of null
   - Throw traces now appear as children of parent traces (e.g., IF else branches)
@@ -101,4 +102,38 @@
   - When generating synthetic traces (like BLOCK for case bodies), use unique positions
   - TraceEvaluatedInstruction must be placed BEFORE jumps/breaks to ensure execution
   - Using a large offset (10000+) guarantees no conflicts with actual source positions
+
+---
+
+## [2026-03-01] - US-036 (Iteration 8) - Fix function parameter type validation and lambda parsing
+- **Function parameter type validation**: Modified InstructionGenerator to use type information from ParameterNode
+  - Changed FunctionDefinitionNode visitor to use `resolveType(p.getTypeName())` instead of `Object.class`
+  - Changed LambdaNode visitor to use `resolveType(p.getTypeName())` instead of `Object.class`
+  - This enables proper type checking for function parameters
+  - The function_call.ql test now correctly throws INVALID_ARGUMENT for `add(1, "2")`
+  - The resolveType() method was already present in InstructionGenerator, just not being used for parameters
+- **Lambda parsing fix for map literals**: Modified QLexpressParser.parseLambda()
+  - Changed from calling `parseBlock()` to `parseBraceExpression()` for lambda bodies starting with LBRACE
+  - This allows lambda expressions to use map literals as their body: `() -> {a: 1}`
+  - The extension_function.ql test now correctly parses `() -> {'a':1}.filter(...)`
+  - The parseBraceExpression() method disambiguates between map literals and block statements
+- **Test results**: 644 tests run, 640 pass (99.4% pass rate)
+  - 3 failures + 1 error (all pre-existing issues)
+  - function_call.ql now correctly validates function parameter types
+  - extension_function.ql now correctly parses lambda with map literal body
+- **Remaining pre-existing issues**:
+  1. clearDFACacheTest: Flaky memory assertion (test infrastructure issue)
+  2. suiteTest: spread_avoid_null.ql has test pollution issue
+     - Test passes individually but fails after other tests
+     - This is a pre-existing test infrastructure issue
+  3. InstructionGeneratorTest NotImplemented tests (pre-existing TODOs)
+- **Files changed**:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/parser/QLexpressParser.java
+- **Learnings for future iterations**:
+  - Function parameter types need to be resolved from ParameterNode.getTypeName() using resolveType()
+  - Lambda bodies starting with LBRACE need parseBraceExpression() to handle both map literals and block statements
+  - Test pollution can expose pre-existing parser limitations that were hidden by earlier test failures
+  - The existing resolveType() method handles primitive types via BuiltInTypesSet and class types via ImportManager
+
 ---

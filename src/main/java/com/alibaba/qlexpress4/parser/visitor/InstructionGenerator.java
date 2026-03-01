@@ -952,7 +952,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Convert parameters to QLambdaDefinitionInner.Param format
         List<QLambdaDefinitionInner.Param> params = node.getParameters()
             .stream()
-            .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), Object.class))
+            .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), resolveType(p.getTypeName())))
             .collect(Collectors.toList());
 
         // Calculate max stack size
@@ -1421,13 +1421,13 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, lambdaContext);
             bodyInstructions.addAll(bodyResult.getInstructions());
         }
-        
+
         // Convert parameters to QLambdaDefinitionInner.Param format
         List<QLambdaDefinitionInner.Param> params = node.getParameters()
             .stream()
-            .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), Object.class))
+            .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), resolveType(p.getTypeName())))
             .collect(Collectors.toList());
-        
+
         // Create lambda definition
         String lambdaName = "LAMBDA_" + System.nanoTime();
         int maxStackSize = calculateMaxStack(bodyInstructions);
