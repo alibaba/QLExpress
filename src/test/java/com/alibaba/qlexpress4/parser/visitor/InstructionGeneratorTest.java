@@ -550,31 +550,39 @@ public class InstructionGeneratorTest {
         // int x = 42;
         VariableDeclarationNode node =
             new VariableDeclarationNode(1, 1, 0, null, "int", "x", new LiteralNode(1, 1, 0, null, 42));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(2, result.getInstructions().size());
+
+        // Instructions: ConstInstruction(42), DefineLocalInstruction, ConstInstruction(null), TracePeekInstruction, PopInstruction
+        assertEquals(5, result.getInstructions().size());
         assertEquals(0, result.getStackEffect());
         assertFalse(result.isExpressionValue());
-        
+
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof DefineLocalInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof TracePeekInstruction);
+        assertTrue(result.getInstructions().get(4) instanceof PopInstruction);
     }
-    
+
     @Test
     public void testVisitVariableDeclarationNode_NoInitialValue()
         throws Exception {
         // int x;
         VariableDeclarationNode node = new VariableDeclarationNode(1, 1, 0, null, "int", "x", null);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(2, result.getInstructions().size());
+
+        // Instructions: ConstInstruction(null), DefineLocalInstruction, ConstInstruction(null), TracePeekInstruction, PopInstruction
+        assertEquals(5, result.getInstructions().size());
         assertEquals(0, result.getStackEffect());
         assertFalse(result.isExpressionValue());
-        
+
         assertTrue(result.getInstructions().get(0) instanceof ConstInstruction);
         assertTrue(result.getInstructions().get(1) instanceof DefineLocalInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ConstInstruction);
+        assertTrue(result.getInstructions().get(3) instanceof TracePeekInstruction);
+        assertTrue(result.getInstructions().get(4) instanceof PopInstruction);
     }
     
     @Test

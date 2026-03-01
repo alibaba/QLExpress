@@ -124,10 +124,26 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Combine hoisted function definitions with other statements
         instructions.addAll(functionDefInstructions);
         instructions.addAll(otherStmtInstructions);
-        
+
         // If the last statement is an expression, the block produces a value
         boolean isExpressionValue = (lastResult != null && lastResult.isExpressionValue());
-        
+
+        // Special case: Empty blocks (no statements at all) should produce null as their value
+        // This is needed for cases like "if (cond) {} else {}" where both branches should produce a value
+        // Note: Blocks with only function definitions are not considered empty - they don't produce a value
+        boolean isEmptyBlock = (numStatements == 0);
+
+        // For empty blocks, push null and generate trace peek instruction
+        // This ensures empty blocks have a trace value when used in expression contexts
+        if (isEmptyBlock) {
+            instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
+            TracePeekInstruction tracePeek =
+                new TracePeekInstruction(PureErrReporter.INSTANCE, node.getStartPosition());
+            instructions.add(tracePeek);
+            // Empty blocks always produce a value (null)
+            return new GenerationResult(instructions, true, 1);
+        }
+
         // Add trace peek instruction if the block produces a value
         // This allows the trace system to record the final value of the block expression
         if (isExpressionValue) {
@@ -135,9 +151,9 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
                 new TracePeekInstruction(PureErrReporter.INSTANCE, node.getStartPosition());
             instructions.add(tracePeek);
         }
-        
+
         int stackDelta = isExpressionValue ? 1 : 0;
-        
+
         return new GenerationResult(instructions, isExpressionValue, stackDelta);
     }
     
@@ -807,7 +823,7 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(VariableDeclarationNode node, GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Generate initial value expression
         ExpressionNode initialValue = node.getInitialValue();
         if (initialValue != null) {
@@ -818,14 +834,23 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             // No initial value, push null
             instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
         }
-        
-        // Add define local instruction
+
+        // Add define local instruction (pops the value from the stack)
         ErrorReporter errorReporter = createErrorReporter(node);
         Class<?> varClass = resolveType(node.getTypeName());
         DefineLocalInstruction instruction =
             new DefineLocalInstruction(errorReporter, node.getVariableName(), varClass);
         instructions.add(instruction);
-        
+
+        // Add a const null and trace peek instruction after the define local instruction
+        // Variable declarations are statements and don't return a value, so the trace should show null
+        instructions.add(new ConstInstruction(PureErrReporter.INSTANCE, null, node.getStartPosition()));
+        TracePeekInstruction tracePeek =
+            new TracePeekInstruction(errorReporter, node.getStartPosition());
+        instructions.add(tracePeek);
+        // Pop the null value from the stack since the statement doesn't return a value
+        instructions.add(new PopInstruction(PureErrReporter.INSTANCE));
+
         return new GenerationResult(instructions, false, 0);
     }
     
