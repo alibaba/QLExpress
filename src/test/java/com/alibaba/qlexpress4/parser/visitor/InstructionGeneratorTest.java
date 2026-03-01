@@ -499,16 +499,17 @@ public class InstructionGeneratorTest {
         throws Exception {
         // break;
         BreakNode node = new BreakNode(1, 1, 0, null);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(1, result.getInstructions().size());
+
+        assertEquals(2, result.getInstructions().size());
         assertEquals(0, result.getStackEffect());
         assertFalse(result.isExpressionValue());
-        
-        assertTrue(result.getInstructions().get(0) instanceof BreakContinueInstruction);
+
+        assertTrue(result.getInstructions().get(0) instanceof TraceEvaluatedInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof BreakContinueInstruction);
         assertEquals(QResult.LOOP_BREAK_RESULT,
-            ((BreakContinueInstruction)result.getInstructions().get(0)).getResult());
+            ((BreakContinueInstruction)result.getInstructions().get(1)).getResult());
     }
     
     @Test
@@ -516,16 +517,17 @@ public class InstructionGeneratorTest {
         throws Exception {
         // continue;
         ContinueNode node = new ContinueNode(1, 1, 0, null);
-        
+
         GenerationResult result = generator.visit(node, context);
-        
-        assertEquals(1, result.getInstructions().size());
+
+        assertEquals(2, result.getInstructions().size());
         assertEquals(0, result.getStackEffect());
         assertFalse(result.isExpressionValue());
-        
-        assertTrue(result.getInstructions().get(0) instanceof BreakContinueInstruction);
+
+        assertTrue(result.getInstructions().get(0) instanceof TraceEvaluatedInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof BreakContinueInstruction);
         assertEquals(QResult.LOOP_CONTINUE_RESULT,
-            ((BreakContinueInstruction)result.getInstructions().get(0)).getResult());
+            ((BreakContinueInstruction)result.getInstructions().get(1)).getResult());
     }
     
     @Test
@@ -645,13 +647,14 @@ public class InstructionGeneratorTest {
         // while (true) { 42 }
         WhileNode node = new WhileNode(1, 1, 0, null, new LiteralNode(1, 1, 0, null, true),
             new BlockNode(1, 1, 0, null, Collections.singletonList(new LiteralNode(1, 1, 0, null, 42))));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
+
         assertFalse(result.isExpressionValue());
-        // Should have a WhileInstruction
-        assertEquals(1, result.getInstructions().size());
-        assertTrue(result.getInstructions().get(0) instanceof WhileInstruction);
+        // Should have TraceEvaluatedInstruction + WhileInstruction
+        assertEquals(2, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof TraceEvaluatedInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof WhileInstruction);
     }
     
     @Test
@@ -666,10 +669,11 @@ public class InstructionGeneratorTest {
         GenerationResult result = generator.visit(node, context);
         
         assertFalse(result.isExpressionValue());
-        // Should have iterable load + ForEachInstruction
-        assertEquals(2, result.getInstructions().size());
+        // Should have iterable load + TraceEvaluatedInstruction + ForEachInstruction
+        assertEquals(3, result.getInstructions().size());
         assertTrue(result.getInstructions().get(0) instanceof LoadInstruction);
-        assertTrue(result.getInstructions().get(1) instanceof ForEachInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof TraceEvaluatedInstruction);
+        assertTrue(result.getInstructions().get(2) instanceof ForEachInstruction);
     }
     
     @Test
@@ -683,13 +687,14 @@ public class InstructionGeneratorTest {
         UnaryOpNode update = new UnaryOpNode(1, 1, 0, null, "++", new IdentifierNode(1, 1, 0, null, "i"), false);
         ForNode node =
             new ForNode(1, 1, 0, null, init, condition, update, new BlockNode(1, 1, 0, null, Collections.emptyList()));
-        
+
         GenerationResult result = generator.visit(node, context);
-        
+
         assertFalse(result.isExpressionValue());
-        // Should have a ForInstruction
-        assertEquals(1, result.getInstructions().size());
-        assertTrue(result.getInstructions().get(0) instanceof ForInstruction);
+        // Should have TraceEvaluatedInstruction + ForInstruction
+        assertEquals(2, result.getInstructions().size());
+        assertTrue(result.getInstructions().get(0) instanceof TraceEvaluatedInstruction);
+        assertTrue(result.getInstructions().get(1) instanceof ForInstruction);
     }
     
     @Test

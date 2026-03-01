@@ -93,7 +93,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     @Override
     public TracePointTree visit(SwitchNode node, Void context) {
         List<TracePointTree> children = new ArrayList<>();
-        
+
         // Add switch value expression
         ExpressionNode value = node.getValue();
         if (value != null) {
@@ -102,7 +102,7 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
                 children.add(valueTrace);
             }
         }
-        
+
         // Add case expressions and bodies
         for (SwitchCaseNode caseNode : node.getCases()) {
             // Case label expression
@@ -113,15 +113,36 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
                     children.add(caseTrace);
                 }
             }
-            // Case body
+            // Case body - wrap in BLOCK trace
+            List<TracePointTree> bodyChildren = new ArrayList<>();
+            ASTNode positionNode = node; // Default to switch node for position
             for (StatementNode stmt : caseNode.getStatements()) {
                 TracePointTree bodyTrace = acceptNode(stmt);
                 if (bodyTrace != null) {
-                    children.add(bodyTrace);
+                    bodyChildren.add(bodyTrace);
+                    if (stmt instanceof ASTNode) {
+                        positionNode = (ASTNode) stmt;
+                    }
                 }
             }
+            // Determine block token from first child if it's an assignment
+            String blockToken = "{";
+            if (!bodyChildren.isEmpty()) {
+                TracePointTree firstChild = bodyChildren.get(0);
+                if (firstChild != null && "OPERATOR".equals(firstChild.getType().name()) && "=".equals(firstChild.getToken())) {
+                    // First child is an assignment, try to get the variable name
+                    if (!firstChild.getChildren().isEmpty()) {
+                        TracePointTree assignTarget = firstChild.getChildren().get(0);
+                        if (assignTarget != null && "VARIABLE".equals(assignTarget.getType().name())) {
+                            blockToken = assignTarget.getToken();
+                        }
+                    }
+                }
+            }
+            // Add BLOCK trace for case body (even if empty)
+            children.add(newPoint(TraceType.BLOCK, bodyChildren, blockToken, positionNode));
         }
-        
+
         return newPoint(TraceType.SWITCH, children, "switch", node);
     }
     
@@ -149,23 +170,17 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     
     @Override
     public TracePointTree visit(BreakNode node, Void context) {
-        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), "break", node);
-        tracePoints.add(tracePoint);
-        return null;
+        return newPoint(TraceType.STATEMENT, Collections.emptyList(), "break", node);
     }
-    
+
     @Override
     public TracePointTree visit(ContinueNode node, Void context) {
-        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), "continue", node);
-        tracePoints.add(tracePoint);
-        return null;
+        return newPoint(TraceType.STATEMENT, Collections.emptyList(), "continue", node);
     }
-    
+
     @Override
     public TracePointTree visit(ThrowNode node, Void context) {
-        TracePointTree tracePoint = newPoint(TraceType.STATEMENT, Collections.emptyList(), "throw", node);
-        tracePoints.add(tracePoint);
-        return null;
+        return newPoint(TraceType.STATEMENT, Collections.emptyList(), "throw", node);
     }
     
     @Override
@@ -467,21 +482,27 @@ public class TraceGenerator implements ASTVisitor<TracePointTree, Void> {
     public TracePointTree visit(ProgramNode node, Void context) {
         // Visit all top-level statements to collect trace points
         TracePointTree lastEmptyStatementTrace = null;
+        boolean hasNonEmptyStatement = false;
         for (StatementNode statement : node.getStatements()) {
             TracePointTree trace = acceptNode(statement);
             if (trace != null) {
                 // Filter consecutive empty statements - only add the first one
                 if (statement instanceof EmptyStatementNode) {
                     if (lastEmptyStatementTrace == null) {
-                        tracePoints.add(trace);
+                        // Defer adding empty statements until we know if there are non-empty statements
                         lastEmptyStatementTrace = trace;
                     }
                     // Skip consecutive empty statements
                 } else {
                     tracePoints.add(trace);
+                    hasNonEmptyStatement = true;
                     lastEmptyStatementTrace = null;
                 }
             }
+        }
+        // Only add empty statement trace if there are no non-empty statements
+        if (!hasNonEmptyStatement && lastEmptyStatementTrace != null) {
+            tracePoints.add(lastEmptyStatementTrace);
         }
         return null;
     }

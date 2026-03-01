@@ -289,11 +289,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         GenerationResult conditionResult = ((ASTNode)node.getCondition()).accept(this, conditionContext);
         conditionInstructions.addAll(conditionResult.getInstructions());
         // Add return instruction to properly return condition value from lambda
+        // Don't pass traceKey - the while loop itself doesn't produce a value
         conditionInstructions.add(new ReturnInstruction(createErrorReporter((ASTNode)node.getCondition()),
-            QResult.ResultType.RETURN, node.getStartPosition()));
+            QResult.ResultType.RETURN, null));
         QLambdaDefinitionInner conditionLambda = new QLambdaDefinitionInner("while_condition_" + System.nanoTime(),
             conditionInstructions, Collections.emptyList(), calculateMaxStack(conditionInstructions));
-        
+
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
@@ -305,14 +306,21 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         }
         QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner("while_body_" + System.nanoTime(),
             bodyInstructions, Collections.emptyList(), calculateMaxStack(bodyInstructions));
-        
+
         // Calculate max stack size
         int maxStackSize = Math.max(conditionLambda.getMaxStackSize(), bodyLambda.getMaxStackSize());
-        
+
+        // Create instructions list with trace evaluation
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Add trace evaluated instruction to mark while loop as evaluated with null value
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
+
         // Create while instruction
-        WhileInstruction instruction = new WhileInstruction(errorReporter, conditionLambda, bodyLambda, maxStackSize);
-        
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+        WhileInstruction whileInstruction = new WhileInstruction(errorReporter, conditionLambda, bodyLambda, maxStackSize);
+        instructions.add(whileInstruction);
+
+        return new GenerationResult(instructions, false, 0);
     }
     
     @Override
@@ -355,12 +363,12 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         GenerationContext context)
         throws Exception {
         List<QLInstruction> instructions = new ArrayList<>();
-        
+
         // Generate iterable expression (pushes the iterable on the stack)
         ExpressionNode iterableExpr = varDecl.getInitialValue();
         GenerationResult iterableResult = ((ASTNode)iterableExpr).accept(this, context);
         instructions.addAll(iterableResult.getInstructions());
-        
+
         // Generate body lambda
         GenerationContext bodyContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
@@ -378,16 +386,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
             GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, bodyContext);
             bodyInstructions.addAll(bodyResult.getInstructions());
         }
-        
+
         ErrorReporter errorReporter = createErrorReporter(node);
         QLambdaDefinitionInner.Param param = new QLambdaDefinitionInner.Param(varName, varClass);
         QLambdaDefinitionInner bodyLambda = new QLambdaDefinitionInner("foreach_body_" + System.nanoTime(),
             bodyInstructions, Collections.singletonList(param), calculateMaxStack(bodyInstructions));
-        
+
+        // Add trace evaluated instruction to mark for-each loop as evaluated with null value
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
+
         // Create for-each instruction
         ForEachInstruction instruction = new ForEachInstruction(errorReporter, bodyLambda, varClass, errorReporter);
         instructions.add(instruction);
-        
+
         return new GenerationResult(instructions, false, 0);
     }
     
@@ -458,12 +469,19 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         int updateSize = updateLambda == null ? 0 : updateLambda.getMaxStackSize();
         int maxStackSize =
             Math.max(initSize, Math.max(conditionSize, Math.max(updateSize, bodyLambda.getMaxStackSize())));
-        
+
+        // Create instructions list with trace evaluation
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Add trace evaluated instruction to mark for loop as evaluated with null value
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
+
         // Create for instruction
         ForInstruction instruction = new ForInstruction(errorReporter, initLambda, conditionLambda, errorReporter,
             updateLambda, maxStackSize, bodyLambda);
-        
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+        instructions.add(instruction);
+
+        return new GenerationResult(instructions, false, 0);
     }
     
     @Override
@@ -770,37 +788,46 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
     public GenerationResult visit(BreakNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
-        
+
         // Check if we're in a switch statement
         Boolean inSwitch = (Boolean)context.getProperty("inSwitch");
         if (inSwitch != null && inSwitch) {
             // In a switch, break should jump to the end of the switch
             JumpInstruction jumpInstruction = new JumpInstruction(errorReporter, -1);
-            
+
             // Add this jump to the list of break targets
             // The position will be calculated after all instructions are generated
             @SuppressWarnings("unchecked")
             List<JumpInstruction> breakTargets = (List<JumpInstruction>)context.getProperty("switchBreakTargets");
-            
+
             if (breakTargets != null) {
                 breakTargets.add(jumpInstruction);
             }
-            
-            return new GenerationResult(Collections.singletonList(jumpInstruction), false, 0);
+
+            List<QLInstruction> instructions = new ArrayList<>();
+            instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
+            instructions.add(jumpInstruction);
+            return new GenerationResult(instructions, false, 0);
         }
-        
+
         // In a loop, break returns LOOP_BREAK_RESULT
+        List<QLInstruction> instructions = new ArrayList<>();
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
         BreakContinueInstruction instruction = new BreakContinueInstruction(errorReporter, QResult.LOOP_BREAK_RESULT);
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+        instructions.add(instruction);
+        return new GenerationResult(instructions, false, 0);
     }
-    
+
     @Override
     public GenerationResult visit(ContinueNode node, GenerationContext context)
         throws Exception {
         ErrorReporter errorReporter = createErrorReporter(node);
+        List<QLInstruction> instructions = new ArrayList<>();
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
         BreakContinueInstruction instruction =
             new BreakContinueInstruction(errorReporter, QResult.LOOP_CONTINUE_RESULT);
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+        instructions.add(instruction);
+        return new GenerationResult(instructions, false, 0);
     }
     
     @Override
@@ -909,30 +936,37 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // Generate instructions for function body in a child context (new scope)
         GenerationContext functionContext = context.createChildContext();
         List<QLInstruction> bodyInstructions = new ArrayList<>();
-        
+
         GenerationResult bodyResult = ((ASTNode)node.getBody()).accept(this, functionContext);
         bodyInstructions.addAll(bodyResult.getInstructions());
-        
+
         // Convert parameters to QLambdaDefinitionInner.Param format
         List<QLambdaDefinitionInner.Param> params = node.getParameters()
             .stream()
             .map(p -> new QLambdaDefinitionInner.Param(p.getParameterName(), Object.class))
             .collect(Collectors.toList());
-        
+
         // Calculate max stack size
         int maxStackSize = calculateMaxStack(bodyInstructions);
-        
+
         // Create function definition
         String functionName = node.getFunctionName();
         QLambdaDefinitionInner functionDefinition =
             new QLambdaDefinitionInner(functionName, bodyInstructions, params, maxStackSize);
-        
+
         // Define the function in the current context
         ErrorReporter errorReporter = createErrorReporter(node);
+
+        List<QLInstruction> instructions = new ArrayList<>();
+
+        // Add trace evaluated instruction to mark function definition as evaluated with null value
+        instructions.add(new TraceEvaluatedInstruction(errorReporter, node.getStartPosition()));
+
         DefineFunctionInstruction instruction =
             new DefineFunctionInstruction(errorReporter, functionName, functionDefinition);
-        
-        return new GenerationResult(Collections.singletonList(instruction), false, 0);
+        instructions.add(instruction);
+
+        return new GenerationResult(instructions, false, 0);
     }
     
     @Override
@@ -943,7 +977,9 @@ public class InstructionGenerator implements ASTVisitor<GenerationResult, Genera
         // The macro definition is stored in the context/scope for use during compilation
         // For now, we generate no runtime instructions for macro definitions
         // TODO: Implement macro definition storage in context when needed
-        return new GenerationResult(Collections.emptyList(), false, 0);
+        ErrorReporter errorReporter = createErrorReporter(node);
+        TraceEvaluatedInstruction traceInstruction = new TraceEvaluatedInstruction(errorReporter, node.getStartPosition());
+        return new GenerationResult(Collections.singletonList(traceInstruction), false, 0);
     }
 
     @Override
