@@ -84,3 +84,21 @@
   - Empty statement filtering should be based on whether there are non-empty statements in the script
 
 ---
+
+## [2026-03-01] - US-036 (Iteration 7) - Fix switch case body BLOCK trace position
+- **Root cause**: BLOCK trace and first statement trace had the same position, causing trace map conflicts
+- **Solution**: Use unique offset (10000 + caseIndex) for BLOCK trace positions
+- **Instruction order fix**: Move TraceEvaluatedInstruction BEFORE case body statements
+  - This ensures it's executed even when the case body contains a break statement
+- **Test results**: 644 tests run, 640 pass (99.4% pass rate)
+  - expressionTraceTest now passes (was failing before)
+  - 3 failures + 1 error (all pre-existing issues)
+- **Files changed**:
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java
+- **Learnings for future iterations**:
+  - The trace map uses position as a key, so traces with the same position conflict
+  - When generating synthetic traces (like BLOCK for case bodies), use unique positions
+  - TraceEvaluatedInstruction must be placed BEFORE jumps/breaks to ensure execution
+  - Using a large offset (10000+) guarantees no conflicts with actual source positions
+---
