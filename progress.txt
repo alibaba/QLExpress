@@ -48,3 +48,39 @@
   - Test expectations need to be updated when instruction counts change
 
 ---
+## [2026-03-01] - US-036 (Iteration 6) - Comprehensive Trace Generation Fixes
+- **ThrowNode trace as child**: Modified ThrowNode visitor in TraceGenerator to return trace instead of null
+  - Throw traces now appear as children of parent traces (e.g., IF else branches)
+  - Fixed test: `if (true) 10 else throw 1` now shows throw trace as child of IF trace
+- **BreakNode/ContinueNode trace as children**: Modified visitors to return trace instead of null
+  - Break/continue traces now appear as children of parent traces (e.g., switch case bodies)
+- **Statement trace values**: Added TraceEvaluatedInstruction for while, for, function, macro, break, continue
+  - These statements now show "null" as value instead of being unevaluated
+  - Fixed return value trace for while/for loop condition lambdas (don't pass traceKey)
+- **Switch case body trace structure**: Modified SwitchNode visitor to wrap case bodies in BLOCK traces
+  - Case bodies now show variable name as token instead of "{"
+  - Detects assignment in case body and uses variable name as block token
+- **Empty statement filtering**: Modified ProgramNode visitor to filter ALL empty statements when non-empty statements exist
+  - `;;;;` shows 1 empty statement trace (only case when script is all empty)
+  - `a=1;;;;` shows only assignment trace (all empty statements filtered)
+- **Instruction count updates**: Updated InstructionGeneratorTest expectations
+  - while/for/break/continue: 2 instructions (TraceEvaluatedInstruction + loop instruction)
+  - for-each: 3 instructions (LoadInstruction + TraceEvaluatedInstruction + ForEachInstruction)
+- **Test results:** 640/644 tests pass (99.4% pass rate)
+  - 4 failures, 1 error
+- **Known issues:**
+  1. STATEMENT break trace not showing null value in switch statements (TraceEvaluatedInstruction execution issue)
+  2. clearDFACacheTest: Flaky memory assertion (pre-existing)
+  3. suiteTest function_call.ql: Type validation issue (pre-existing)
+  4. InstructionGeneratorTest NotImplemented tests (pre-existing TODOs)
+- **Files changed:**
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/InstructionGenerator.java (added TraceEvaluatedInstruction)
+  - src/main/java/com/alibaba/qlexpress4/parser/visitor/TraceGenerator.java (modified visitor return values)
+  - src/test/java/com/alibaba/qlexpress4/parser/visitor/InstructionGeneratorTest.java (updated expectations)
+- **Learnings for future iterations:**
+  - Statement traces that return null (ThrowNode, BreakNode, ContinueNode) need to return trace to be children
+  - TraceEvaluatedInstruction marks trace as evaluated with null value for statements that don't produce values
+  - Switch case bodies need to be wrapped in BLOCK traces for correct trace structure
+  - Empty statement filtering should be based on whether there are non-empty statements in the script
+
+---
