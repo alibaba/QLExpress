@@ -5,17 +5,20 @@ import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
+import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.inport.MyDesk;
+import com.alibaba.qlexpress4.runtime.QRuntime;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.operator.base.BaseBinaryOperator;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
@@ -1322,6 +1325,21 @@ public class Express4RunnerTest {
             assertEquals("INVALID_ARGUMENT", e.getErrorCode());
             assertEquals("custom e test", e.getReason());
         }
+        express4Runner.addOperator(new NonNullEqual());
+        Object result5 =
+            express4Runner.execute("null === null", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(Boolean.FALSE, result5);
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("x", null);
+        ctx.put("y", 100);
+        ctx.put("z", "a100");
+        Object result6 = express4Runner.execute("x === null", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals(Boolean.FALSE, result6);
+        Object result7 =
+            express4Runner.execute("1+2===3 && 'a' join y===z", ctx, QLOptions.builder().cache(false).build())
+                .getResult();
+        assertEquals(Boolean.TRUE, result7);
+        
     }
     
     @Test
@@ -1838,5 +1856,27 @@ public class Express4RunnerTest {
         QLResult result = express4Runner
             .execute("default = 1\nswitch = 2;\ndefault+switch", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, result.getResult());
+    }
+    
+    static class NonNullEqual extends BaseBinaryOperator {
+        
+        @Override
+        public Object execute(Value left, Value right, QRuntime qRuntime, QLOptions qlOptions,
+            ErrorReporter errorReporter) {
+            if (left.get() == null || right.get() == null) {
+                return false;
+            }
+            return equals(left, right, errorReporter);
+        }
+        
+        @Override
+        public String getOperator() {
+            return "===";
+        }
+        
+        @Override
+        public int getPriority() {
+            return QLPrecedences.COMPARE;
+        }
     }
 }

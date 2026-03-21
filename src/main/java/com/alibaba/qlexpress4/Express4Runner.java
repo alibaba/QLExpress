@@ -34,6 +34,7 @@ import com.alibaba.qlexpress4.runtime.function.CustomFunction;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
+import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.CustomBinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
@@ -715,6 +716,15 @@ public class Express4Runner {
      */
     public boolean addOperator(String operator, CustomBinaryOperator customBinaryOperator, int precedence) {
         return operatorManager.addBinaryOperator(operator, customBinaryOperator, precedence);
+    }
+    
+    /**
+     * add operator
+     * @param operator operator to add
+     * @return true if add operator successfully; false if operator already exist
+     */
+    public boolean addOperator(BinaryOperator operator) {
+        return operatorManager.addBinaryOperator(operator);
     }
     
     /**

@@ -169,11 +169,21 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
      * @return {@code true} if registered successfully; {@code false} if the name is already used
      */
     public boolean addBinaryOperator(String operatorName, CustomBinaryOperator customBinaryOperator, int priority) {
-        if (DEFAULT_BINARY_OPERATOR_MAP.containsKey(operatorName)) {
+        return addBinaryOperator(adapt2BinOp(operatorName, customBinaryOperator, priority));
+    }
+    
+    /**
+     * Register a custom binary operator if it does not clash with a built-in operator.
+     *
+     * @param binaryOperator        operator to add
+     * @return {@code true} if registered successfully; {@code false} if the name is already used
+     */
+    public boolean addBinaryOperator(BinaryOperator binaryOperator) {
+        String operator = binaryOperator.getOperator();
+        if (DEFAULT_BINARY_OPERATOR_MAP.containsKey(operator)) {
             return false;
         }
-        BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operatorName,
-            adapt2BinOp(operatorName, customBinaryOperator, priority));
+        BinaryOperator preBinaryOperator = customBinaryOperatorMap.putIfAbsent(operator, binaryOperator);
         return preBinaryOperator == null;
     }
     
