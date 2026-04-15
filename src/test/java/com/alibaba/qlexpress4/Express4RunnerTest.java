@@ -11,11 +11,15 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.inport.MyDesk;
+import com.alibaba.qlexpress4.runtime.Parameters;
+import com.alibaba.qlexpress4.runtime.QContext;
+import com.alibaba.qlexpress4.runtime.QLambda;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.LazyArgCustomFunction;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
@@ -1851,5 +1855,72 @@ public class Express4RunnerTest {
         QLResult result = express4Runner
             .execute("default = 1\nswitch = 2;\ndefault+switch", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, result.getResult());
+    }
+    
+    @Test
+    public void testLazyArgCustomFunction() {
+        // tag::lazyArgCustomFunction[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("IF", new LazyArgCustomFunction() {
+            private static final int PARAM_LENGTH = 3;
+            
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                if (parameters == null || parameters.size() != PARAM_LENGTH) {
+                    throw new IllegalArgumentException("Invalid number of arguments");
+                }
+                Object v1 = call(parameters.getValue(0));
+                if (!(v1 instanceof Boolean)) {
+                    throw new IllegalArgumentException("Argument 1 must be a boolean");
+                }
+                if ((Boolean)v1) {
+                    return call(parameters.getValue(1));
+                }
+                
+                return call(parameters.getValue(2));
+            }
+            
+            private Object call(Object obj) {
+                if (obj instanceof QLambda) {
+                    return ((QLambda)obj).get();
+                }
+                return obj;
+            }
+        });
+        // end::lazyArgCustomFunction[]
+        
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 10000d);
+        context.put("b", 0);
+        
+        // Should return 0 when b equals 0
+        QLResult result = express4Runner.execute("IF(b == 0, 0, a / b)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(0, result.getResult());
+        
+        // Should return 500 when c equals 20
+        context.put("c", 20);
+        QLResult result2 = express4Runner.execute("IF(c == 0, 0, a / c)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(500d, result2.getResult());
+        
+        // Nested IF
+        QLResult result3 = express4Runner.execute("IF(false, 0, IF(true, 1, 0))", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result3.getResult());
+        
+        // Variable addition and subtraction
+        context.put("base", 100);
+        QLResult result4 = express4Runner.execute("IF(true, base + 1, base - 1)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(101, result4.getResult());
+        
+        // Null
+        context.put("a", null);
+        QLResult result5 = express4Runner.execute("IF(true, null, null)", context, QLOptions.DEFAULT_OPTIONS);
+        assertNull(result5.getResult());
+        
+        // other
+        express4Runner.check("IF(b == 0, 0, a / b)");
+        Set<String> result6 = express4Runner.getOutFunctions("IF(b == 0, 0, a / b)");
+        assertArrayEquals(new String[] {"IF"}, result6.toArray());
+        Set<String> result7 = express4Runner.getOutVarNames("IF(b == 0, 0, a / b)");
+        assertArrayEquals(new String[] {"a", "b"}, result7.toArray());
     }
 }
