@@ -1923,4 +1923,22 @@ public class Express4RunnerTest {
         Set<String> result7 = express4Runner.getOutVarNames("IF(b == 0, 0, a / b)");
         assertArrayEquals(new String[] {"a", "b"}, result7.toArray());
     }
+    
+    @Test
+    public void testLazyArgCustomFunctionNoArgs() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("CURRENT_TIME", new LazyArgCustomFunction() {
+            
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                return System.currentTimeMillis();
+            }
+        });
+        
+        Map<String, Object> context = new HashMap<>();
+        
+        // Should return
+        QLResult result = express4Runner.execute("CURRENT_TIME()", context, QLOptions.DEFAULT_OPTIONS);
+        assertTrue((Long)result.getResult() > 0);
+    }
 }

@@ -1585,25 +1585,24 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             return;
         }
         
-        int argSize = argumentListContext == null ? 0 : argumentListContext.expression().size();
-        CustomFunction customFunction = userDefineFunctions.get(functionName);
         if (argumentListContext != null) {
+            CustomFunction customFunction = userDefineFunctions.get(functionName);
             if (customFunction instanceof LazyArgCustomFunction) {
                 List<ExpressionContext> exprs = argumentListContext.expression();
                 for (int i = 0; i < exprs.size(); i++) {
-                    QvmInstructionVisitor lazyVisitor =
-                        parseExprBodyWithSubVisitor(exprs.get(i), generatorScope, context);
+                    ExpressionContext expr = exprs.get(i);
+                    QvmInstructionVisitor lazyVisitor = parseExprBodyWithSubVisitor(expr, generatorScope, context);
                     String scopeName = functionName + "$lazy" + i;
                     QLambdaDefinitionInner lazyLambda = new QLambdaDefinitionInner(scopeName,
                         lazyVisitor.getInstructions(), Collections.emptyList(), lazyVisitor.getMaxStackSize());
-                    addInstruction(
-                        new LoadLambdaInstruction(newReporterWithToken(exprs.get(i).getStart()), lazyLambda));
+                    addInstruction(new LoadLambdaInstruction(newReporterWithToken(expr.getStart()), lazyLambda));
                 }
             }
             else {
                 argumentListContext.accept(this);
             }
         }
+        int argSize = argumentListContext == null ? 0 : argumentListContext.expression().size();
         addInstruction(new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName,
             argSize, functionNameContext.getStart().getStartIndex()));
     }
