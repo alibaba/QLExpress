@@ -519,7 +519,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
             Context.MACRO);
         
         addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName));
-        blockSubVisitor.getInstructions().forEach(this::addInstruction);
+        blockSubVisitor.getInstructions().forEach(this::pureAddInstruction);
         addInstruction(new CloseScopeInstruction(blockErrReporter, blockScopeName));
         if (initOptions.isTraceExpression()) {
             pureAddInstruction(new TracePeekInstruction(blockErrReporter, ctx.getStart().getStartIndex()));
