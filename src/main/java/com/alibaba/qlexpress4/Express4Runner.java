@@ -15,6 +15,10 @@ import com.alibaba.qlexpress4.aparser.TraceExpressionVisitor;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.cache.CacheConfig;
+import com.alibaba.qlexpress4.cache.DefaultExpressionCache;
+import com.alibaba.qlexpress4.cache.ExpressionCache;
+import com.alibaba.qlexpress4.cache.SimpleExpressionCache;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
@@ -65,22 +69,39 @@ import java.util.stream.Collectors;
  */
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
-    
-    private final Map<String, Future<QCompileCache>> compileCache = new ConcurrentHashMap<>();
-    
+
+    private final ExpressionCache compileCache;
+
     private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
-    
+
     private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
-    
+
     private final GeneratorScope globalScope = new GeneratorScope(null, "global", new ConcurrentHashMap<>());
-    
+
     private final ReflectLoader reflectLoader;
-    
+
     private final InitOptions initOptions;
-    
+
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.isAllowPrivateAccess());
+        this.compileCache = initCache(initOptions);
+    }
+
+    private ExpressionCache initCache(InitOptions options) {
+        // If custom cache is provided, use it
+        if (options.getExpressionCache() != null) {
+            return options.getExpressionCache();
+        }
+
+        // If cache config is provided, use DefaultExpressionCache with config
+        CacheConfig config = options.getCacheConfig();
+        if (config != null) {
+            return new DefaultExpressionCache(config);
+        }
+
+        // Default: use SimpleExpressionCache (unlimited, thread-safe)
+        return new SimpleExpressionCache();
     }
     
     public CustomFunction getFunction(String functionName) {
@@ -648,7 +669,15 @@ public class Express4Runner {
     public void clearCompileCache() {
         compileCache.clear();
     }
-    
+
+    /**
+     * Get the current compile cache size.
+     * @return number of cached entries
+     */
+    public int getCompileCacheSize() {
+        return compileCache.size();
+    }
+
     private Future<QCompileCache> getParseFuture(String script) {
         Future<QCompileCache> parseFuture = compileCache.get(script);
         if (parseFuture != null) {

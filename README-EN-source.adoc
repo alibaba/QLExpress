@@ -364,14 +364,94 @@ Typical application scenarios for custom ClassSupplier:
 
 Through the `cache` option, you can enable expression caching, so the same expressions won't be recompiled, greatly improving performance.
 
-Note that this cache has no size limit and is only suitable for use when expressions are in limited quantities:
+==== Basic Cache Usage
+
+The basic cache has no size limit and is only suitable for use when expressions are in limited quantities:
 
 [source,java,indent=0]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cacheSwitch]
 ----
 
-However, when scripts are executed for the first time, they're still relatively slow because there's no cache.
+==== Advanced Cache Configuration
+
+QLExpress4 provides configurable cache implementations supporting the following features:
+
+* **LRU Eviction**: Automatically evicts least recently used entries when cache reaches maximum capacity
+* **TTL Expiration**: Supports setting expiration time for cache entries
+* **Custom Implementation**: Can provide custom cache implementation through interface
+
+===== LRU Cache (Limit Maximum Entries)
+
+[source,java,indent=0]
+----
+// Create an LRU cache with max capacity of 100
+CacheConfig config = CacheConfig.lruConfig(100);
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+When the cache reaches maximum capacity, the least recently used entries are automatically evicted.
+
+===== TTL Cache (Set Expiration Time)
+
+[source,java,indent=0]
+----
+// Create a cache with 5 minutes TTL
+CacheConfig config = CacheConfig.ttlConfig(TimeUnit.MINUTES.toMillis(5));
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+Expired cache entries are automatically cleaned up on access, with a background thread for periodic cleanup.
+
+===== LRU + TTL Combined Cache
+
+[source,java,indent=0]
+----
+// Create a cache with max capacity of 100 and 5 minutes TTL
+CacheConfig config = CacheConfig.lruAndTtlConfig(100, TimeUnit.MINUTES.toMillis(5));
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+Or use Builder for more fine-grained configuration:
+
+[source,java,indent=0]
+----
+CacheConfig config = CacheConfig.builder()
+    .maxSize(100)
+    .ttl(5, TimeUnit.MINUTES)
+    .lruEnabled(true)
+    .initialCapacity(16)
+    .build();
+----
+
+===== Custom Cache Implementation
+
+If the built-in cache implementations don't meet your needs, you can provide a custom implementation through the `ExpressionCache` interface:
+
+[source,java,indent=0]
+----
+ExpressionCache customCache = new ExpressionCache() {
+    // Implement cache methods
+};
+
+InitOptions initOptions = InitOptions.builder()
+    .expressionCache(customCache)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+==== Pre-caching Scripts
+
+When scripts are executed for the first time, they're relatively slow because there's no cache.
 
 You can cache scripts before first execution using the following method to ensure first execution speed:
 
@@ -380,7 +460,18 @@ You can cache scripts before first execution using the following method to ensur
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
-Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+==== Clearing Cache
+
+You can manage the cache using the following methods:
+
+[source,java,indent=0]
+----
+// Clear all cache
+runner.clearCompileCache();
+
+// Get current cache size
+int size = runner.getCompileCacheSize();
+----
 
 === Clearing DFA Cache
 

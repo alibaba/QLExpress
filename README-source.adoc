@@ -365,14 +365,96 @@ include::./src/test/java/com/alibaba/qlexpress4/pf4j/Pf4jClassSupplierTest.java[
 
 通过 `cache` 选项可以开启表达式缓存，这样相同的表达式就不会重新编译，能够大大提升性能。
 
-注意该缓存没有限制大小，只适合在表达式为有限数量的情况下使用：
+==== 基础缓存使用
+
+基础缓存没有限制大小，只适合在表达式为有限数量的情况下使用：
 
 [source,java,indent=0]
 ----
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cacheSwitch]
 ----
 
-但是当脚本首次执行时，因为没有缓存，依旧会比较慢。
+注意该缓存没有限制大小，只适合在表达式为有限数量的情况下使用。
+
+==== 高级缓存配置
+
+QLExpress4 提供了可配置的缓存实现，支持以下特性：
+
+* **LRU 淘汰**：当缓存达到最大容量时，自动淘汰最近最少使用的条目
+* **TTL 过期**：支持设置缓存条目的过期时间
+* **自定义实现**：可以通过接口提供自定义缓存实现
+
+===== LRU 缓存（限制最大条目数）
+
+[source,java,indent=0]
+----
+// 创建最大容量为 100 的 LRU 缓存
+CacheConfig config = CacheConfig.lruConfig(100);
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+当缓存达到最大容量时，最近最少使用的条目会被自动淘汰。
+
+===== TTL 缓存（设置过期时间）
+
+[source,java,indent=0]
+----
+// 创建 5 分钟 TTL 的缓存
+CacheConfig config = CacheConfig.ttlConfig(TimeUnit.MINUTES.toMillis(5));
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+过期的缓存条目会在访问时自动清理，并有后台线程定期清理。
+
+===== LRU + TTL 组合缓存
+
+[source,java,indent=0]
+----
+// 创建最大容量为 100、TTL 为 5 分钟的缓存
+CacheConfig config = CacheConfig.lruAndTtlConfig(100, TimeUnit.MINUTES.toMillis(5));
+InitOptions initOptions = InitOptions.builder()
+    .cacheConfig(config)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+也可以通过 Builder 进行更精细的配置：
+
+[source,java,indent=0]
+----
+CacheConfig config = CacheConfig.builder()
+    .maxSize(100)
+    .ttl(5, TimeUnit.MINUTES)
+    .lruEnabled(true)
+    .initialCapacity(16)
+    .build();
+----
+
+===== 自定义缓存实现
+
+如果内置缓存实现不满足需求，可以通过 `ExpressionCache` 接口提供自定义实现：
+
+[source,java,indent=0]
+----
+ExpressionCache customCache = new ExpressionCache() {
+    // 实现缓存方法
+};
+
+InitOptions initOptions = InitOptions.builder()
+    .expressionCache(customCache)
+    .build();
+Express4Runner runner = new Express4Runner(initOptions);
+----
+
+==== 预缓存脚本
+
+当脚本首次执行时，因为没有缓存，会比较慢。
 
 可以通过下面的方法在首次执行前就将脚本缓存起来，保证首次执行的速度：
 
@@ -381,7 +463,18 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cach
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
-注意该缓存的大小是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
+==== 清理缓存
+
+可以调用以下方法管理缓存：
+
+[source,java,indent=0]
+----
+// 清空所有缓存
+runner.clearCompileCache();
+
+// 获取当前缓存大小
+int size = runner.getCompileCacheSize();
+----
 
 === 清除 DFA 缓存
 

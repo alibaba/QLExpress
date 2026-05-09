@@ -2,6 +2,8 @@ package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
+import com.alibaba.qlexpress4.cache.CacheConfig;
+import com.alibaba.qlexpress4.cache.ExpressionCache;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
 import java.util.ArrayList;
@@ -83,10 +85,24 @@ public class InitOptions {
      */
     private final boolean strictNewLines;
     
+    /**
+     * Expression cache configuration.
+     * If null, uses default unlimited cache.
+     * default null
+     */
+    private final CacheConfig cacheConfig;
+
+    /**
+     * Custom expression cache implementation.
+     * If null, uses DefaultExpressionCache with cacheConfig.
+     * default null
+     */
+    private final ExpressionCache expressionCache;
+
     private InitOptions(ClassSupplier classSupplier, List<ImportManager.QLImport> defaultImport, boolean debug,
         Consumer<String> debugInfoConsumer, QLSecurityStrategy securityStrategy, boolean allowPrivateAccess,
         InterpolationMode interpolationMode, boolean traceExpression, String selectorStart, String selectorEnd,
-        boolean strictNewLines) {
+        boolean strictNewLines, CacheConfig cacheConfig, ExpressionCache expressionCache) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -98,6 +114,8 @@ public class InitOptions {
         this.selectorStart = selectorStart;
         this.selectorEnd = selectorEnd;
         this.strictNewLines = strictNewLines;
+        this.cacheConfig = cacheConfig;
+        this.expressionCache = expressionCache;
     }
     
     public static InitOptions.Builder builder() {
@@ -147,7 +165,15 @@ public class InitOptions {
     public boolean isStrictNewLines() {
         return strictNewLines;
     }
-    
+
+    public CacheConfig getCacheConfig() {
+        return cacheConfig;
+    }
+
+    public ExpressionCache getExpressionCache() {
+        return expressionCache;
+    }
+
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         
@@ -175,7 +201,11 @@ public class InitOptions {
         private String selectorEnd = "}";
         
         private boolean strictNewLines = true;
-        
+
+        private CacheConfig cacheConfig = null;
+
+        private ExpressionCache expressionCache = null;
+
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
             return this;
@@ -236,10 +266,21 @@ public class InitOptions {
             this.strictNewLines = strictNewLines;
             return this;
         }
-        
+
+        public Builder cacheConfig(CacheConfig cacheConfig) {
+            this.cacheConfig = cacheConfig;
+            return this;
+        }
+
+        public Builder expressionCache(ExpressionCache expressionCache) {
+            this.expressionCache = expressionCache;
+            return this;
+        }
+
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport, debug, debugInfoConsumer, securityStrategy,
-                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd, strictNewLines);
+                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd, strictNewLines,
+                cacheConfig, expressionCache);
         }
     }
 }
