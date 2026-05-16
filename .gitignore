@@ -7,7 +7,6 @@ target/*
 .idea/
 .spec/
 openspec/
-AGENTS.md
 gen/
 
 .vscode/
