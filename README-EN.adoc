@@ -113,9 +113,11 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1-beta</version>
 </dependency>
 ----
+
+> For production applications, we recommend using the latest stable release version `4.1.0`.
 
 Requirements
 
@@ -250,12 +252,12 @@ To validate syntax correctness without executing scripts, including operator res
         }
         catch (QLSyntaxException e) {
             assertEquals(2, e.getLineNo());
-            assertEquals(4, e.getColNo());
+            assertEquals(5, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
             assertEquals(
                 "[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" + "[Near: a+b; (a+b<EOF>]\n"
-                    + "                ^^^^^\n" + "[Line: 2, Column: 4]",
+                    + "                ^^^^^\n" + "[Line: 2, Column: 5]",
                 e.getMessage());
         }
 ----
@@ -635,6 +637,55 @@ You can cache scripts before first execution using the following method to ensur
 ----
 
 Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+
+=== Serializable Precompiled Cache
+
+If scripts need to be precompiled on a producer and then distributed as JSON to other machines for execution, use the serializable precompiled cache. QLExpress only provides JavaBean DTOs and does not add any JSON dependency; applications can serialize `SerializableParseCache` with Jackson, Fastjson2, Gson, or another JSON library.
+
+[source,java,indent=0]
+----
+        Express4Runner producer = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        SerializableParseCache cache = producer.parseToSerializableCache("price * count");
+        
+        String json = JSON.toJSONString(cache);
+        
+        // The JSON has crossed the network, and the consumer receives it.
+        SerializableParseCache parsed = JSON.parseObject(json, SerializableParseCache.class);
+        
+        Express4Runner consumer = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Object> context = new HashMap<>();
+        context.put("price", 5);
+        context.put("count", 3);
+        QLResult result = consumer.execute(parsed, context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(15, result.getResult());
+----
+
+For high-frequency execution, load the DTO once on the consumer side as `LoadedParseCache` so class and operator bindings are not rebuilt for every run:
+
+[source,java,indent=0]
+----
+        Express4Runner producer = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        SerializableParseCache cache = producer.parseToSerializableCache("x * 2 + 1");
+        
+        Express4Runner consumer = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        LoadedParseCache loaded = consumer.loadSerializableCache(cache);
+        
+        assertEquals(7,
+            consumer.execute(loaded, new MapExpressContext(Collections.singletonMap("x", 3)), QLOptions.DEFAULT_OPTIONS)
+                .getResult());
+        assertEquals(11,
+            consumer.execute(loaded, new MapExpressContext(Collections.singletonMap("x", 5)), QLOptions.DEFAULT_OPTIONS)
+                .getResult());
+        assertEquals(cache.getScriptHash(), loaded.getScriptHash());
+----
+
+Notes:
+
+* Producer and consumer `Express4Runner` environments must be equivalent, including default imports, class loading, user functions, custom operators, and security strategy.
+* `LoadedParseCache` is bound to the `Express4Runner` that created it and is not guaranteed to work across Runner instances.
+* Remote DTOs that contain function definitions can also be registered on the consumer Runner with `addFunctionsDefinedInScript(SerializableParseCache, ...)` or `addFunctionsDefinedInScript(LoadedParseCache, ...)`.
+* Serializable models have an independent `modelVersion` and do not automatically change with QLExpress release versions. The same `modelVersion` can be executed across different QLExpress release versions.
+* Remote precompiled scripts do not automatically write to or read from the Runner's internal `compileCache`. Applications must manage the lifecycle of DTOs or `LoadedParseCache` themselves.
 
 === Clearing DFA Cache
 
