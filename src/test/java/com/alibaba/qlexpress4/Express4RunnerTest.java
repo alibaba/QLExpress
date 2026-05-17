@@ -1146,6 +1146,12 @@ public class Express4RunnerTest {
         Set<String> expectSet5 = new HashSet<>();
         expectSet5.add("a");
         Assert.assertEquals(expectSet5, outVarNames5);
+        Assert.assertEquals(Collections.singleton("a"), express4Runner.getOutVarNames("a=a+1"));
+        Assert.assertEquals(Collections.singleton("a"), express4Runner.getOutVarNames("a+=1"));
+        Assert.assertEquals(Collections.emptySet(), express4Runner.getOutVarNames("a=1;a=a+1"));
+        Assert.assertEquals(Collections.emptySet(), express4Runner.getOutVarNames("a=1;a+=1"));
+        Assert.assertEquals(Collections.singleton("a"), express4Runner.getOutVarNames("int a=a+1;"));
+        Assert.assertEquals(Collections.emptySet(), express4Runner.getOutVarNames("int a=1;a=a+1"));
         
         Set<String> outVarNamesWithSelector = express4Runner.getOutVarNames("${0} + ${1}");
         Set<String> expectSetWithSelector = new HashSet<>();
@@ -1226,6 +1232,13 @@ public class Express4RunnerTest {
         Assert.assertEquals(Collections.singletonList("c"),
             flatOutVarAttrs(express4Runner.getOutVarAttrs("java.lang.Math.abs(c)")));
         Assert.assertEquals(Collections.emptyList(), flatOutVarAttrs(express4Runner.getOutVarAttrs("hello()")));
+        Assert.assertEquals(Collections.singletonList("a"), flatOutVarAttrs(express4Runner.getOutVarAttrs("a=a+1")));
+        Assert.assertEquals(Collections.singletonList("a"), flatOutVarAttrs(express4Runner.getOutVarAttrs("a+=1")));
+        Assert.assertEquals(Collections.emptyList(), flatOutVarAttrs(express4Runner.getOutVarAttrs("a=1;a=a+1")));
+        Assert.assertEquals(Collections.emptyList(), flatOutVarAttrs(express4Runner.getOutVarAttrs("a=1;a+=1")));
+        Assert.assertEquals(Collections.singletonList("a"),
+            flatOutVarAttrs(express4Runner.getOutVarAttrs("int a=a+1;")));
+        Assert.assertEquals(Collections.emptyList(), flatOutVarAttrs(express4Runner.getOutVarAttrs("int a=1;a=a+1")));
         
         // Test function parameters should not be included in outVarAttrs
         Assert.assertEquals(Arrays.asList("x.prop", "y.value"),

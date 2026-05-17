@@ -94,6 +94,16 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
         return null;
     }
     
+    @Override
+    public Void visitVariableDeclarator(QLParser.VariableDeclaratorContext ctx) {
+        QLParser.VariableInitializerContext variableInitializerContext = ctx.variableInitializer();
+        if (variableInitializerContext != null) {
+            variableInitializerContext.accept(this);
+        }
+        ctx.variableDeclaratorId().accept(this);
+        return null;
+    }
+    
     /**
      * @param ctx int a = 10;
      * @return a
@@ -103,6 +113,34 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
         QLParser.VarIdContext varIdContext = ctx.varId();
         getStack().add(varIdContext.getText());
         return null;
+    }
+    
+    @Override
+    public Void visitExpression(QLParser.ExpressionContext ctx) {
+        QLParser.TernaryExprContext ternaryExprContext = ctx.ternaryExpr();
+        if (ternaryExprContext != null) {
+            ternaryExprContext.accept(this);
+            return null;
+        }
+        
+        QLParser.LeftHandSideContext leftHandSideContext = ctx.leftHandSide();
+        if (isSimpleVariableLeftHandSide(leftHandSideContext)) {
+            String leftVarName = leftHandSideContext.varId().getText();
+            if (ctx.assignOperator().getStart().getType() != QLParser.EQ && !getStack().exist(leftVarName)) {
+                outVars.add(leftVarName);
+            }
+            ctx.expression().accept(this);
+            getStack().add(leftVarName);
+            return null;
+        }
+        
+        leftHandSideContext.accept(this);
+        ctx.expression().accept(this);
+        return null;
+    }
+    
+    private boolean isSimpleVariableLeftHandSide(QLParser.LeftHandSideContext ctx) {
+        return ctx.LPAREN() == null && ctx.pathPart().isEmpty();
     }
     
     @Override
