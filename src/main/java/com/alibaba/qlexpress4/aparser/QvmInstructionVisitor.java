@@ -1903,7 +1903,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         return QLException.reportScannerErr(script,
             token.getStartIndex(),
             token.getLine(),
-            token.getCharPositionInLine(),
+            token.getCharPositionInLine() + 1,
             token.getText(),
             errCode,
             errReason);
@@ -2043,7 +2043,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     }
     
     private ErrorReporter newReporterWithToken(Token token) {
-        return new DefaultErrReporter(script, token.getStartIndex(), token.getLine(), token.getCharPositionInLine(),
+        return new DefaultErrReporter(script, token.getStartIndex(), token.getLine(), token.getCharPositionInLine() + 1,
             token.getText());
     }
     

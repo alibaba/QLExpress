@@ -79,4 +79,12 @@ public class MethodInvokeInstruction extends QLInstruction {
         return methodName;
     }
     
+    public int getArgNum() {
+        return argNum;
+    }
+    
+    public boolean isOptional() {
+        return optional;
+    }
+    
 }

@@ -28,7 +28,7 @@ public class QLErrorListener extends BaseErrorListener {
         throw QLException.reportScannerErr(preHandledScript,
             currentToken.getStartIndex(),
             currentToken.getLine(),
-            currentToken.getCharPositionInLine(),
+            currentToken.getCharPositionInLine() + 1,
             tokenText,
             QLErrorCodes.SYNTAX_ERROR.name(),
             preHandledMsg);

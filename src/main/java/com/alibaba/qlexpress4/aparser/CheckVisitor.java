@@ -46,7 +46,7 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
             throw QLException.reportScannerErr(script,
                 token.getStartIndex(),
                 token.getLine(),
-                token.getCharPositionInLine(),
+                token.getCharPositionInLine() + 1,
                 operatorString,
                 QLErrorCodes.OPERATOR_NOT_ALLOWED.name(),
                 reason);
@@ -60,7 +60,7 @@ public class CheckVisitor extends QLParserBaseVisitor<Void> {
             throw QLException.reportScannerErr(script,
                 token.getStartIndex(),
                 token.getLine(),
-                token.getCharPositionInLine(),
+                token.getCharPositionInLine() + 1,
                 token.getText(),
                 "FUNCTION_CALL_NOT_ALLOWED",
                 reason);

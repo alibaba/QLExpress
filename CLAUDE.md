@@ -175,9 +175,13 @@ QLInstruction 子类
  - 修改项目代码以通过该测试用例
  - 补充更多边界测试用例，如果发现不通过，则继续修改项目代码
  - 用 `mvn test` 执行完整测试，确保没有影响其他功能
+   - JDK 9 及以上环境运行完整单测时，Java 模块系统会限制对 `java.util.stream`、`java.util` 等 JDK 内部实现类的反射访问；请使用：
+     `mvn test -DargLine="--add-opens java.base/java.util.stream=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"`
+   - 如果未加上述选项，`TestSuiteRunner` 的 stream 脚本或 `Express4RunnerTest.invokeDefaultMethodTest` 可能因 `InaccessibleObjectException` 失败，这属于测试 JVM 参数问题，不应直接判断为业务代码回归。
  - 在合适的地方添加功能文档，请同步修改中文文档和英文文档
    - 中文文档 `README-source.adoc`
    - 英文文档 `README-EN-source.adoc`
+   - `README.adoc` 和 `README-EN.adoc` 由发布流程自动生成，禁止直接修改
 
 关于脚本引擎扩展点相关的测试用例可以放置在 `com.alibaba.qlexpress4.Express4RunnerTest` 中
 

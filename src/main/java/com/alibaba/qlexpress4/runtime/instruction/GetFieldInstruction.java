@@ -69,4 +69,8 @@ public class GetFieldInstruction extends QLInstruction {
         return fieldName;
     }
     
+    public boolean isOptional() {
+        return optional;
+    }
+    
 }

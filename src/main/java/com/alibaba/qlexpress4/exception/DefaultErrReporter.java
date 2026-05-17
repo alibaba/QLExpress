@@ -34,4 +34,24 @@ public class DefaultErrReporter implements ErrorReporter {
             String.format(format, args),
             catchObj);
     }
+    
+    public String getScript() {
+        return script;
+    }
+    
+    public int getTokenStartPos() {
+        return tokenStartPos;
+    }
+    
+    public int getLine() {
+        return line;
+    }
+    
+    public int getCol() {
+        return col;
+    }
+    
+    public String getLexeme() {
+        return lexeme;
+    }
 }

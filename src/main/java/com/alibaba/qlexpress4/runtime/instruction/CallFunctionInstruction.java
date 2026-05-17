@@ -114,6 +114,18 @@ public class CallFunctionInstruction extends QLInstruction {
         return 1;
     }
     
+    public String getFunctionName() {
+        return functionName;
+    }
+    
+    public int getArgNum() {
+        return argNum;
+    }
+    
+    public Integer getTraceKey() {
+        return traceKey;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": CallFunction " + functionName + " " + argNum, debug);

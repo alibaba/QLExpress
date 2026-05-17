@@ -64,6 +64,14 @@ public enum QLErrorCodes {
     
     // operator restriction error
     OPERATOR_NOT_ALLOWED("Script uses disallowed operator: %s"),
+    
+    // serializable parse cache error
+    SERIALIZABLE_PARSE_CACHE_UNSUPPORTED_VERSION("unsupported serializable parse cache model version: %s"),
+    SERIALIZABLE_PARSE_CACHE_INVALID_MODEL("invalid serializable parse cache model: %s"),
+    SERIALIZABLE_PARSE_CACHE_UNSUPPORTED_INSTRUCTION("unsupported serializable parse cache instruction: %s"),
+    SERIALIZABLE_PARSE_CACHE_UNSUPPORTED_CONSTANT("unsupported serializable parse cache constant: %s"),
+    SERIALIZABLE_PARSE_CACHE_CLASS_NOT_FOUND("class not found when loading serializable parse cache: %s"),
+    SERIALIZABLE_PARSE_CACHE_OPERATOR_NOT_FOUND("operator not found when loading serializable parse cache: %s"),
 
     // user defined exception
     INVALID_ARGUMENT(""), 

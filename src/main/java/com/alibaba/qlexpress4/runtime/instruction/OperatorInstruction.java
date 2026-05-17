@@ -84,4 +84,8 @@ public class OperatorInstruction extends QLInstruction {
     public BinaryOperator getOperator() {
         return operator;
     }
+    
+    public Integer getTraceKey() {
+        return traceKey;
+    }
 }

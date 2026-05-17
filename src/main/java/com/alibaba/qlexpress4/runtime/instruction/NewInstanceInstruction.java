@@ -83,6 +83,14 @@ public class NewInstanceInstruction extends QLInstruction {
         return 1;
     }
     
+    public Class<?> getNewClz() {
+        return newClz;
+    }
+    
+    public int getArgNum() {
+        return argNum;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth,

@@ -64,6 +64,14 @@ public class MultiNewArrayInstruction extends QLInstruction {
         return 1;
     }
     
+    public Class<?> getClz() {
+        return clz;
+    }
+    
+    public int getDims() {
+        return dims;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": MultiNewArray with dims " + dims, debug);

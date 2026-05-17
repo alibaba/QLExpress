@@ -61,6 +61,18 @@ public class TryCatchInstruction extends QLInstruction {
         return 1;
     }
     
+    public QLambdaDefinition getBody() {
+        return body;
+    }
+    
+    public List<Map.Entry<Class<?>, QLambdaDefinition>> getExceptionTable() {
+        return exceptionTable;
+    }
+    
+    public QLambdaDefinition getFinalBody() {
+        return finalBody;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": TryCatch", debug);

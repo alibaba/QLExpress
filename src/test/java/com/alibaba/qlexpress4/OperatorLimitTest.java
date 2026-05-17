@@ -48,7 +48,7 @@ public class OperatorLimitTest {
             // Verify position information - should be precise now
             assertEquals(2, e.getPos()); // Position of '=' in "a = b + c"
             assertEquals(1, e.getLineNo()); // First line
-            assertEquals(2, e.getColNo()); // Column of '='
+            assertEquals(3, e.getColNo()); // Column of '='
             
             // Verify error lexeme
             assertEquals("=", e.getErrLexeme());
@@ -60,7 +60,7 @@ public class OperatorLimitTest {
             // Verify complete message format
             assertTrue("Message should contain error code", e.getMessage().contains("OPERATOR_NOT_ALLOWED"));
             assertTrue("Message should contain line info", e.getMessage().contains("Line: 1"));
-            assertTrue("Message should contain column info", e.getMessage().contains("Column: 2"));
+            assertTrue("Message should contain column info", e.getMessage().contains("Column: 3"));
         }
     }
     
@@ -91,7 +91,7 @@ public class OperatorLimitTest {
             // Verify position information - should be precise now
             assertEquals(2, e.getPos()); // Position of '=' in "a = b + c"
             assertEquals(1, e.getLineNo()); // First line
-            assertEquals(2, e.getColNo()); // Column of '='
+            assertEquals(3, e.getColNo()); // Column of '='
             
             // Verify error lexeme
             assertEquals("=", e.getErrLexeme());
@@ -103,7 +103,7 @@ public class OperatorLimitTest {
             // Verify complete message format
             assertTrue("Message should contain error code", e.getMessage().contains("OPERATOR_NOT_ALLOWED"));
             assertTrue("Message should contain line info", e.getMessage().contains("Line: 1"));
-            assertTrue("Message should contain column info", e.getMessage().contains("Column: 2"));
+            assertTrue("Message should contain column info", e.getMessage().contains("Column: 3"));
         }
     }
     
@@ -126,7 +126,7 @@ public class OperatorLimitTest {
             assertEquals("OPERATOR_NOT_ALLOWED", e.getErrorCode());
             assertEquals("--", e.getErrLexeme());
             assertEquals(1, e.getLineNo());
-            assertEquals(0, e.getColNo()); // Position of '--'
+            assertEquals(1, e.getColNo()); // Position of '--'
         }
     }
     
@@ -149,7 +149,7 @@ public class OperatorLimitTest {
             assertEquals("OPERATOR_NOT_ALLOWED", e.getErrorCode());
             assertEquals("--", e.getErrLexeme());
             assertEquals(1, e.getLineNo());
-            assertEquals(1, e.getColNo()); // Position of '--' in "a--"
+            assertEquals(2, e.getColNo()); // Position of '--' in "a--"
         }
     }
     
@@ -201,7 +201,7 @@ public class OperatorLimitTest {
             assertEquals("OPERATOR_NOT_ALLOWED", e.getErrorCode());
             assertEquals("=", e.getErrLexeme());
             assertEquals(2, e.getLineNo()); // Second line where '=' appears
-            assertEquals(2, e.getColNo()); // Column of '=' in second line
+            assertEquals(3, e.getColNo()); // Column of '=' in second line
         }
     }
     

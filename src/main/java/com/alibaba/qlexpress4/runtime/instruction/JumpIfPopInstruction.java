@@ -61,6 +61,14 @@ public class JumpIfPopInstruction extends QLInstruction {
         this.position = position;
     }
     
+    public boolean isExpect() {
+        return expect;
+    }
+    
+    public int getPosition() {
+        return position;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIfPop " + expect + " " + position, debug);

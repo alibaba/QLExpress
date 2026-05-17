@@ -86,6 +86,18 @@ public class ForEachInstruction extends QLInstruction {
         return 0;
     }
     
+    public QLambdaDefinition getBody() {
+        return body;
+    }
+    
+    public ErrorReporter getTargetErrorReporter() {
+        return targetErrorReporter;
+    }
+    
+    public Class<?> getItCls() {
+        return itCls;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": ForEach", debug);

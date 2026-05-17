@@ -50,6 +50,10 @@ public class NewMapInstruction extends QLInstruction {
         return 1;
     }
     
+    public List<String> getKeys() {
+        return keys;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": NewMap by keys " + keys, debug);

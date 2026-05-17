@@ -142,6 +142,30 @@ public class ForInstruction extends QLInstruction {
         return 0;
     }
     
+    public QLambdaDefinition getForInit() {
+        return forInit;
+    }
+    
+    public QLambdaDefinition getCondition() {
+        return condition;
+    }
+    
+    public ErrorReporter getConditionErrorReporter() {
+        return conditionErrorReporter;
+    }
+    
+    public QLambdaDefinition getForUpdate() {
+        return forUpdate;
+    }
+    
+    public int getForScopeMaxStackSize() {
+        return forScopeMaxStackSize;
+    }
+    
+    public QLambdaDefinition getForBody() {
+        return forBody;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": For", debug);

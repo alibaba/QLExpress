@@ -69,6 +69,18 @@ public class WhileInstruction extends QLInstruction {
         return 0;
     }
     
+    public QLambdaDefinition getCondition() {
+        return condition;
+    }
+    
+    public QLambdaDefinition getBody() {
+        return body;
+    }
+    
+    public int getWhileScopeMaxStackSize() {
+        return whileScopeMaxStackSize;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": While", debug);

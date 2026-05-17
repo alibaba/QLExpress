@@ -76,6 +76,18 @@ public class JumpIfInstruction extends QLInstruction {
         this.position = position;
     }
     
+    public boolean isExpect() {
+        return expect;
+    }
+    
+    public int getPosition() {
+        return position;
+    }
+    
+    public Integer getTraceKey() {
+        return traceKey;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": JumpIf " + expect + " " + position, debug);

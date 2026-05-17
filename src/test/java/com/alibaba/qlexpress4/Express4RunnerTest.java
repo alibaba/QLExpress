@@ -311,12 +311,12 @@ public class Express4RunnerTest {
         }
         catch (QLSyntaxException e) {
             assertEquals(2, e.getLineNo());
-            assertEquals(4, e.getColNo());
+            assertEquals(5, e.getColNo());
             assertEquals("SYNTAX_ERROR", e.getErrorCode());
             // <EOF> represents the end of script
             assertEquals(
                 "[Error SYNTAX_ERROR: mismatched input '<EOF>' expecting ')']\n" + "[Near: a+b; (a+b<EOF>]\n"
-                    + "                ^^^^^\n" + "[Line: 2, Column: 4]",
+                    + "                ^^^^^\n" + "[Line: 2, Column: 5]",
                 e.getMessage());
         }
         // end::checkSyntax[]
@@ -329,7 +329,7 @@ public class Express4RunnerTest {
             assertEquals(
                 "[Error SYNTAX_ERROR: mismatched input 'not' expecting ')']\n"
                     + "[Near: ...[1001] || (sellerId not in [1001])]\n" + "                              ^^^\n"
-                    + "[Line: 1, Column: 32]",
+                    + "[Line: 1, Column: 33]",
                 e.getMessage());
         }
     }
@@ -961,7 +961,7 @@ public class Express4RunnerTest {
             express4Runner.execute("1+1;\n2+2;\n1+cc()", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         }
         catch (QLRuntimeException e) {
-            assertEquals(2, e.getColNo());
+            assertEquals(3, e.getColNo());
             assertEquals(3, e.getLineNo());
         }
         
@@ -969,7 +969,7 @@ public class Express4RunnerTest {
             express4Runner.execute("1/0", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         }
         catch (QLRuntimeException e) {
-            assertEquals(1, e.getColNo());
+            assertEquals(2, e.getColNo());
             assertEquals(1, e.getLineNo());
         }
         
@@ -978,7 +978,7 @@ public class Express4RunnerTest {
         }
         catch (QLSyntaxException e) {
             assertEquals(1, e.getLineNo());
-            assertEquals(2, e.getColNo());
+            assertEquals(3, e.getColNo());
         }
     }
     
@@ -1375,7 +1375,7 @@ public class Express4RunnerTest {
             assertEquals("inner test", e.getCause().getMessage());
             assertEquals(
                 "[Error INVOKE_FUNCTION_INNER_ERROR: exception from inner when invoking function 'testExp', error message: inner test]\n"
-                    + "[Near: 1+testExp()+10]\n" + "         ^^^^^^^\n" + "[Line: 1, Column: 2]",
+                    + "[Near: 1+testExp()+10]\n" + "         ^^^^^^^\n" + "[Line: 1, Column: 3]",
                 e.getMessage());
             assertEquals(2, e.getPos());
         }

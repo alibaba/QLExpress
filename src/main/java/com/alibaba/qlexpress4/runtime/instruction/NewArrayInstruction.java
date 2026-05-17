@@ -62,6 +62,10 @@ public class NewArrayInstruction extends QLInstruction {
         return clz;
     }
     
+    public int getLength() {
+        return length;
+    }
+    
     @Override
     public int stackInput() {
         return length;

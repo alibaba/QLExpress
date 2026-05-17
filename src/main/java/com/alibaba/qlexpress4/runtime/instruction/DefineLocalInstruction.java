@@ -53,6 +53,14 @@ public class DefineLocalInstruction extends QLInstruction {
         return 0;
     }
     
+    public String getVariableName() {
+        return variableName;
+    }
+    
+    public Class<?> getDefineClz() {
+        return defineClz;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": DefineLocal " + variableName, debug);

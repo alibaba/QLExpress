@@ -148,6 +148,14 @@ public class SpreadMethodInvokeInstruction extends QLInstruction {
         return 1;
     }
     
+    public String getMethodName() {
+        return methodName;
+    }
+    
+    public int getArgNum() {
+        return argNum;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": SpreadMethodInvoke " + methodName, debug);

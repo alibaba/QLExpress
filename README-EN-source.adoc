@@ -113,6 +113,8 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 </dependency>
 ----
 
+> For production applications, we recommend using the latest stable release version `4.1.0`.
+
 Requirements
 
 * JDK 8 or higher
@@ -381,6 +383,30 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=pars
 ----
 
 Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+
+=== Serializable Precompiled Cache
+
+If scripts need to be precompiled on a producer and then distributed as JSON to other machines for execution, use the serializable precompiled cache. QLExpress only provides JavaBean DTOs and does not add any JSON dependency; applications can serialize `SerializableParseCache` with Jackson, Fastjson2, Gson, or another JSON library.
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/api/parsecache/SerializableParseCacheTest.java[tag=serializableParseCache]
+----
+
+For high-frequency execution, load the DTO once on the consumer side as `LoadedParseCache` so class and operator bindings are not rebuilt for every run:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/api/parsecache/SerializableParseCacheTest.java[tag=loadedSerializableParseCache]
+----
+
+Notes:
+
+* Producer and consumer `Express4Runner` environments must be equivalent, including default imports, class loading, user functions, custom operators, and security strategy.
+* `LoadedParseCache` is bound to the `Express4Runner` that created it and is not guaranteed to work across Runner instances.
+* Remote DTOs that contain function definitions can also be registered on the consumer Runner with `addFunctionsDefinedInScript(SerializableParseCache, ...)` or `addFunctionsDefinedInScript(LoadedParseCache, ...)`.
+* Serializable models have an independent `modelVersion` and do not automatically change with QLExpress release versions. The same `modelVersion` can be executed across different QLExpress release versions.
+* Remote precompiled scripts do not automatically write to or read from the Runner's internal `compileCache`. Applications must manage the lifecycle of DTOs or `LoadedParseCache` themselves.
 
 === Clearing DFA Cache
 

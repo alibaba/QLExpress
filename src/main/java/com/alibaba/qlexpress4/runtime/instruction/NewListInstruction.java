@@ -49,6 +49,10 @@ public class NewListInstruction extends QLInstruction {
         return 1;
     }
     
+    public int getInitLength() {
+        return initLength;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": NewList " + initLength, debug);

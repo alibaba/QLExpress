@@ -169,6 +169,10 @@ public class SliceInstruction extends QLInstruction {
         return 1;
     }
     
+    public Mode getMode() {
+        return mode;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Slice", debug);

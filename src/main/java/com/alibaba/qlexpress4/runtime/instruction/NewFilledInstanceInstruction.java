@@ -84,6 +84,14 @@ public class NewFilledInstanceInstruction extends QLInstruction {
         return 1;
     }
     
+    public Class<?> getNewCls() {
+        return newCls;
+    }
+    
+    public List<String> getKeys() {
+        return keys;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth,

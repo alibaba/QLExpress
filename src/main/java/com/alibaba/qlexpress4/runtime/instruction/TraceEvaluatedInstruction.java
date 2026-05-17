@@ -44,6 +44,10 @@ public class TraceEvaluatedInstruction extends QLInstruction {
         return 0;
     }
     
+    public Integer getTraceKey() {
+        return traceKey;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": TraceEvaludated " + traceKey, debug);

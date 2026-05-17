@@ -15,6 +15,12 @@ import com.alibaba.qlexpress4.aparser.TraceExpressionVisitor;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
+import com.alibaba.qlexpress4.api.parsecache.LoadedParseCache;
+import com.alibaba.qlexpress4.api.parsecache.SerializableParseCache;
+import com.alibaba.qlexpress4.api.parsecache.SerializableParseCacheException;
+import com.alibaba.qlexpress4.api.parsecache.SerializableParseCacheExporter;
+import com.alibaba.qlexpress4.api.parsecache.SerializableParseCacheImporter;
+import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.PureErrReporter;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
@@ -171,6 +177,22 @@ public class Express4Runner {
         else {
             mainLambdaTrace = parseToLambda(script, context, qlOptions);
         }
+        return executeLambdaTrace(mainLambdaTrace);
+    }
+    
+    public QLResult execute(LoadedParseCache cache, ExpressContext context, QLOptions qlOptions) {
+        return executeLambdaTrace(parseToLambda(cache, context, qlOptions));
+    }
+    
+    public QLResult execute(SerializableParseCache cache, ExpressContext context, QLOptions qlOptions) {
+        return execute(loadSerializableCache(cache), context, qlOptions);
+    }
+    
+    public QLResult execute(SerializableParseCache cache, Map<String, Object> context, QLOptions qlOptions) {
+        return execute(cache, new MapExpressContext(context), qlOptions);
+    }
+    
+    private QLResult executeLambdaTrace(QLambdaTrace mainLambdaTrace) {
         QLambda mainLambda = mainLambdaTrace.getqLambda();
         try {
             Object result;
@@ -395,8 +417,35 @@ public class Express4Runner {
      */
     public BatchAddFunctionResult addFunctionsDefinedInScript(String scriptWithFunctionDefine, ExpressContext context,
         QLOptions qlOptions) {
+        return addFunctionsDefinedInLambdaTrace(parseToLambda(scriptWithFunctionDefine, context, qlOptions));
+    }
+    
+    /**
+     * Execute a loaded serializable parse cache and add functions defined inside it.
+     * @param cache loaded serializable parse cache with function definitions
+     * @param context context when execute cache
+     * @param qlOptions qlOptions when execute cache
+     * @return succ and fail functions. fail if function name already exists
+     */
+    public BatchAddFunctionResult addFunctionsDefinedInScript(LoadedParseCache cache, ExpressContext context,
+        QLOptions qlOptions) {
+        return addFunctionsDefinedInLambdaTrace(parseToLambda(cache, context, qlOptions));
+    }
+    
+    /**
+     * Load and execute a serializable parse cache, then add functions defined inside it.
+     * @param cache serializable parse cache with function definitions
+     * @param context context when execute cache
+     * @param qlOptions qlOptions when execute cache
+     * @return succ and fail functions. fail if function name already exists
+     */
+    public BatchAddFunctionResult addFunctionsDefinedInScript(SerializableParseCache cache, ExpressContext context,
+        QLOptions qlOptions) {
+        return addFunctionsDefinedInLambdaTrace(parseToLambda(cache, context, qlOptions));
+    }
+    
+    private BatchAddFunctionResult addFunctionsDefinedInLambdaTrace(QLambdaTrace mainLambdaTrace) {
         BatchAddFunctionResult batchResult = new BatchAddFunctionResult();
-        QLambdaTrace mainLambdaTrace = parseToLambda(scriptWithFunctionDefine, context, qlOptions);
         try {
             Map<String, CustomFunction> functionTableInScript = mainLambdaTrace.getqLambda().getFunctionDefined();
             for (Map.Entry<String, CustomFunction> entry : functionTableInScript.entrySet()) {
@@ -540,12 +589,41 @@ public class Express4Runner {
     public QLambdaTrace parseToLambda(String script, ExpressContext context, QLOptions qlOptions) {
         QCompileCache mainLambdaDefine =
             qlOptions.isCache() ? parseToDefinitionWithCache(script) : parseDefinition(script);
+        return parseToLambda(mainLambdaDefine, context, qlOptions, true);
+    }
+    
+    public SerializableParseCache parseToSerializableCache(String script) {
+        QCompileCache mainLambdaDefine = parseDefinition(script);
+        return new SerializableParseCacheExporter(script, operatorManager, initOptions.isTraceExpression())
+            .export(mainLambdaDefine);
+    }
+    
+    public LoadedParseCache loadSerializableCache(SerializableParseCache cache) {
+        return new SerializableParseCacheImporter(operatorManager, initOptions.getClassSupplier()).load(cache, this);
+    }
+    
+    public QLambdaTrace parseToLambda(LoadedParseCache cache, ExpressContext context, QLOptions qlOptions) {
+        if (!cache.isBoundTo(this)) {
+            throw new SerializableParseCacheException(cache.getScript(), null,
+                QLErrorCodes.SERIALIZABLE_PARSE_CACHE_INVALID_MODEL.name(),
+                String.format(QLErrorCodes.SERIALIZABLE_PARSE_CACHE_INVALID_MODEL.getErrorMsg(),
+                    "LoadedParseCache is bound to another Express4Runner"));
+        }
+        return parseToLambda(cache.getCompileCache(), context, qlOptions, cache.hasTracePoints());
+    }
+    
+    public QLambdaTrace parseToLambda(SerializableParseCache cache, ExpressContext context, QLOptions qlOptions) {
+        return parseToLambda(loadSerializableCache(cache), context, qlOptions);
+    }
+    
+    private QLambdaTrace parseToLambda(QCompileCache mainLambdaDefine, ExpressContext context, QLOptions qlOptions,
+        boolean tracePointsAvailable) {
         if (initOptions.isDebug()) {
             initOptions.getDebugInfoConsumer().accept("\nInstructions:");
             mainLambdaDefine.getQLambdaDefinition().println(0, initOptions.getDebugInfoConsumer());
         }
         
-        QTraces qTraces = initOptions.isTraceExpression() && qlOptions.isTraceExpression()
+        QTraces qTraces = initOptions.isTraceExpression() && qlOptions.isTraceExpression() && tracePointsAvailable
             ? convertPoints2QTraces(mainLambdaDefine.getExpressionTracePoints())
             : new QTraces(null, null);
         

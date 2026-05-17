@@ -46,6 +46,10 @@ public class JumpInstruction extends QLInstruction {
         this.position = position;
     }
     
+    public int getPosition() {
+        return position;
+    }
+    
     @Override
     public void println(int index, int depth, Consumer<String> debug) {
         PrintlnUtils.printlnByCurDepth(depth, index + ": Jump " + position, debug);
