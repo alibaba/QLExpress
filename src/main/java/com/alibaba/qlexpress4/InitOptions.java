@@ -4,6 +4,7 @@ import com.alibaba.qlexpress4.aparser.ImportManager;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,11 +83,23 @@ public class InitOptions {
      * default is true
      */
     private final boolean strictNewLines;
-    
+
+    /**
+     * Maximum number of entries the compile cache can hold before eviction kicks in.
+     * Negative or zero means unbounded (backward compatible default).
+     */
+    private final long compileCacheMaxSize;
+
+    /**
+     * Expire compile cache entries after this duration since the last access.
+     * {@code null} means no expiration (default).
+     */
+    private final Duration compileCacheExpireAfterAccess;
+
     private InitOptions(ClassSupplier classSupplier, List<ImportManager.QLImport> defaultImport, boolean debug,
         Consumer<String> debugInfoConsumer, QLSecurityStrategy securityStrategy, boolean allowPrivateAccess,
         InterpolationMode interpolationMode, boolean traceExpression, String selectorStart, String selectorEnd,
-        boolean strictNewLines) {
+        boolean strictNewLines, long compileCacheMaxSize, Duration compileCacheExpireAfterAccess) {
         this.classSupplier = classSupplier;
         this.defaultImport = defaultImport;
         this.debug = debug;
@@ -98,6 +111,8 @@ public class InitOptions {
         this.selectorStart = selectorStart;
         this.selectorEnd = selectorEnd;
         this.strictNewLines = strictNewLines;
+        this.compileCacheMaxSize = compileCacheMaxSize;
+        this.compileCacheExpireAfterAccess = compileCacheExpireAfterAccess;
     }
     
     public static InitOptions.Builder builder() {
@@ -147,7 +162,15 @@ public class InitOptions {
     public boolean isStrictNewLines() {
         return strictNewLines;
     }
-    
+
+    public long getCompileCacheMaxSize() {
+        return compileCacheMaxSize;
+    }
+
+    public Duration getCompileCacheExpireAfterAccess() {
+        return compileCacheExpireAfterAccess;
+    }
+
     public static class Builder {
         private ClassSupplier classSupplier = DefaultClassSupplier.getInstance();
         
@@ -175,7 +198,11 @@ public class InitOptions {
         private String selectorEnd = "}";
         
         private boolean strictNewLines = true;
-        
+
+        private long compileCacheMaxSize = -1L;
+
+        private Duration compileCacheExpireAfterAccess = null;
+
         public Builder classSupplier(ClassSupplier classSupplier) {
             this.classSupplier = classSupplier;
             return this;
@@ -236,10 +263,29 @@ public class InitOptions {
             this.strictNewLines = strictNewLines;
             return this;
         }
-        
+
+        /**
+         * Limit the compile cache to {@code compileCacheMaxSize} entries; older entries are evicted
+         * by the underlying Caffeine policy. A non-positive value disables the bound (default).
+         */
+        public Builder compileCacheMaxSize(long compileCacheMaxSize) {
+            this.compileCacheMaxSize = compileCacheMaxSize;
+            return this;
+        }
+
+        /**
+         * Drop compile cache entries that have not been accessed for the given duration.
+         * {@code null} or a non-positive duration disables expiration (default).
+         */
+        public Builder compileCacheExpireAfterAccess(Duration compileCacheExpireAfterAccess) {
+            this.compileCacheExpireAfterAccess = compileCacheExpireAfterAccess;
+            return this;
+        }
+
         public InitOptions build() {
             return new InitOptions(classSupplier, defaultImport, debug, debugInfoConsumer, securityStrategy,
-                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd, strictNewLines);
+                allowPrivateAccess, interpolationMode, traceExpression, selectorStart, selectorEnd, strictNewLines,
+                compileCacheMaxSize, compileCacheExpireAfterAccess);
         }
     }
 }

@@ -381,7 +381,25 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=cach
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
-注意该缓存的大小是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
+注意该缓存的大小默认是无限的，业务上注意控制大小，可以调用 `clearCompileCache` 方法定期清空编译缓存。
+
+==== 限制编译缓存大小
+
+如果你担心缓存随着脚本数量增长而无限累积，可以在 `InitOptions` 上配置基于 Caffeine 的有界缓存。设置 `compileCacheMaxSize` 后，缓存条目数量超过该上限时，Caffeine 会按照 Window TinyLFU 策略自动淘汰较少使用的条目：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=compileCacheMaxSize]
+----
+
+也可以通过 `compileCacheExpireAfterAccess` 让长时间未访问的脚本自动从缓存中过期，参数类型为 `java.time.Duration`，方便指定任意时间单位：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=compileCacheExpireAfterAccess]
+----
+
+`compileCacheMaxSize` 默认值为 `-1`，`compileCacheExpireAfterAccess` 默认值为 `null`，均表示不启用对应的限制，行为与之前一致。可以通过 `Express4Runner#compileCacheSize` 查看当前缓存中的条目数量，方便监控。
 
 === 可序列化预编译缓存
 

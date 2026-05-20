@@ -3,6 +3,7 @@ package com.alibaba.qlexpress4;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.qlexpress4.annotation.QLFunction;
 import com.alibaba.qlexpress4.aparser.ImportManager;
+import com.alibaba.qlexpress4.aparser.QCompileCache;
 import com.alibaba.qlexpress4.aparser.InterpolationMode;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,7 +63,125 @@ public class Express4RunnerTest {
         express4Runner.parseToDefinitionWithCache("a+b");
         // end::parseToCache[]
     }
-    
+
+    @Test
+    public void compileCacheHitReturnsSameInstance() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QCompileCache first = runner.parseToDefinitionWithCache("1+1");
+        QCompileCache second = runner.parseToDefinitionWithCache("1+1");
+        assertSame(first, second);
+    }
+
+    @Test
+    public void compileCacheDefaultUnbounded() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        for (int i = 0; i < 50; i++) {
+            runner.parseToDefinitionWithCache("a + " + i);
+        }
+        assertEquals(50L, runner.compileCacheSize());
+    }
+
+    @Test
+    public void compileCacheBoundedBySize() {
+        // tag::compileCacheMaxSize[]
+        Express4Runner runner =
+            new Express4Runner(InitOptions.builder().compileCacheMaxSize(2L).build());
+        for (int i = 0; i < 100; i++) {
+            runner.parseToDefinitionWithCache("a + " + i);
+        }
+        assertTrue("cache size should be bounded around 2, got " + runner.compileCacheSize(),
+            runner.compileCacheSize() <= 2L);
+        // end::compileCacheMaxSize[]
+    }
+
+    @Test
+    public void clearCompileCacheClearsAllEntries() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.parseToDefinitionWithCache("1+1");
+        runner.parseToDefinitionWithCache("2+2");
+        assertEquals(2L, runner.compileCacheSize());
+        runner.clearCompileCache();
+        assertEquals(0L, runner.compileCacheSize());
+    }
+
+    @Test
+    public void compileCacheExpiresAfterAccess()
+        throws InterruptedException {
+        // tag::compileCacheExpireAfterAccess[]
+        Express4Runner runner = new Express4Runner(
+            InitOptions.builder().compileCacheExpireAfterAccess(Duration.ofSeconds(1)).build());
+        runner.parseToDefinitionWithCache("1+1");
+        assertEquals(1L, runner.compileCacheSize());
+        Thread.sleep(1500L);
+        assertEquals(0L, runner.compileCacheSize());
+        // end::compileCacheExpireAfterAccess[]
+    }
+
+    @Test
+    public void compileCacheExpiresAfterAccessSubSecond()
+        throws InterruptedException {
+        Express4Runner runner = new Express4Runner(
+            InitOptions.builder().compileCacheExpireAfterAccess(Duration.ofMillis(200)).build());
+        runner.parseToDefinitionWithCache("1+1");
+        assertEquals(1L, runner.compileCacheSize());
+        Thread.sleep(500L);
+        assertEquals(0L, runner.compileCacheSize());
+    }
+
+    @Test(expected = QLSyntaxException.class)
+    public void compileCacheDoesNotStoreFailures() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            runner.parseToDefinitionWithCache("@@@invalid syntax@@@");
+            fail("expected QLSyntaxException");
+        }
+        catch (QLSyntaxException expected) {
+            assertEquals(0L, runner.compileCacheSize());
+            throw expected;
+        }
+    }
+
+    @Test
+    public void compileCacheUsedByExecuteWithCacheOption() {
+        Express4Runner runner =
+            new Express4Runner(InitOptions.builder().compileCacheMaxSize(10L).build());
+        QLOptions cachedOptions = QLOptions.builder().cache(true).build();
+        runner.execute("1+1", Collections.emptyMap(), cachedOptions);
+        runner.execute("1+1", Collections.emptyMap(), cachedOptions);
+        runner.execute("2+2", Collections.emptyMap(), cachedOptions);
+        assertEquals(2L, runner.compileCacheSize());
+
+        // execute() without cache should not populate the cache
+        runner.execute("3+3", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(2L, runner.compileCacheSize());
+    }
+
+    @Test
+    public void compileCacheConcurrentParsingComputesOnce()
+        throws InterruptedException {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        int threads = 16;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        try {
+            List<java.util.concurrent.Future<QCompileCache>> futures = new ArrayList<>();
+            for (int i = 0; i < threads; i++) {
+                futures.add(executor.submit(() -> runner.parseToDefinitionWithCache("a + b * c")));
+            }
+            QCompileCache first = futures.get(0).get();
+            for (java.util.concurrent.Future<QCompileCache> future : futures) {
+                assertSame(first, future.get());
+            }
+            assertEquals(1L, runner.compileCacheSize());
+        }
+        catch (java.util.concurrent.ExecutionException e) {
+            throw new AssertionError(e);
+        }
+        finally {
+            executor.shutdown();
+            executor.awaitTermination(5L, TimeUnit.SECONDS);
+        }
+    }
+
     @Test
     public void addFunctionsDefinedInScriptTest()
         throws InterruptedException {

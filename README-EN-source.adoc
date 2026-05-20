@@ -380,7 +380,25 @@ You can cache scripts before first execution using the following method to ensur
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=parseToCache]
 ----
 
-Note that this cache has an unlimited size; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+Note that this cache has an unlimited size by default; be sure to control its size in your application. You can periodically clear the compilation cache by calling the `clearCompileCache` method.
+
+==== Bounding the Compile Cache
+
+If you are concerned that the compile cache will grow without bound as new scripts arrive, you can configure a Caffeine-backed bounded cache through `InitOptions`. Setting `compileCacheMaxSize` caps the number of entries; Caffeine evicts less-used entries using its Window TinyLFU policy when the cap is exceeded:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=compileCacheMaxSize]
+----
+
+You can also drop scripts that have not been read for a while by setting `compileCacheExpireAfterAccess`. The parameter is a `java.time.Duration`, so any time unit is allowed:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=compileCacheExpireAfterAccess]
+----
+
+`compileCacheMaxSize` defaults to `-1` and `compileCacheExpireAfterAccess` defaults to `null`; both disable the corresponding limit and preserve the prior unbounded behavior. `Express4Runner#compileCacheSize` reports the current number of entries, which is handy for monitoring.
 
 === Serializable Precompiled Cache
 

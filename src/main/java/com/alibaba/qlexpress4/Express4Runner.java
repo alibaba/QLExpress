@@ -47,19 +47,20 @@ import com.alibaba.qlexpress4.runtime.trace.QTraces;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.utils.BasicUtil;
 import com.alibaba.qlexpress4.utils.QLFunctionUtil;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.antlr.v4.runtime.dfa.DFA;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -71,22 +72,35 @@ import java.util.stream.Collectors;
  */
 public class Express4Runner {
     private final OperatorManager operatorManager = new OperatorManager();
-    
-    private final Map<String, Future<QCompileCache>> compileCache = new ConcurrentHashMap<>();
-    
+
+    private final Cache<String, QCompileCache> compileCache;
+
     private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
-    
+
     private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
-    
+
     private final GeneratorScope globalScope = new GeneratorScope(null, "global", new ConcurrentHashMap<>());
-    
+
     private final ReflectLoader reflectLoader;
-    
+
     private final InitOptions initOptions;
-    
+
     public Express4Runner(InitOptions initOptions) {
         this.initOptions = initOptions;
         this.reflectLoader = new ReflectLoader(initOptions.getSecurityStrategy(), initOptions.isAllowPrivateAccess());
+        this.compileCache = buildCompileCache(initOptions);
+    }
+
+    private static Cache<String, QCompileCache> buildCompileCache(InitOptions initOptions) {
+        Caffeine<Object, Object> builder = Caffeine.newBuilder();
+        if (initOptions.getCompileCacheMaxSize() > 0) {
+            builder.maximumSize(initOptions.getCompileCacheMaxSize());
+        }
+        Duration expireAfterAccess = initOptions.getCompileCacheExpireAfterAccess();
+        if (expireAfterAccess != null && !expireAfterAccess.isZero() && !expireAfterAccess.isNegative()) {
+            builder.expireAfterAccess(expireAfterAccess);
+        }
+        return builder.build();
     }
     
     public CustomFunction getFunction(String functionName) {
@@ -641,14 +655,7 @@ public class Express4Runner {
      * @return QLambdaDefinition and TracePointTrees
      */
     public QCompileCache parseToDefinitionWithCache(String script) {
-        try {
-            return getParseFuture(script).get();
-        }
-        catch (Exception e) {
-            Throwable compileException = e.getCause();
-            throw compileException instanceof QLSyntaxException ? (QLSyntaxException)compileException
-                : new RuntimeException(compileException);
-        }
+        return compileCache.get(script, this::parseDefinition);
     }
     
     public Value loadField(Object object, String fieldName) {
@@ -724,23 +731,20 @@ public class Express4Runner {
      * which may temporarily impact performance until the cache is rebuilt.
      */
     public void clearCompileCache() {
-        compileCache.clear();
+        compileCache.invalidateAll();
+        compileCache.cleanUp();
     }
-    
-    private Future<QCompileCache> getParseFuture(String script) {
-        Future<QCompileCache> parseFuture = compileCache.get(script);
-        if (parseFuture != null) {
-            return parseFuture;
-        }
-        FutureTask<QCompileCache> parseTask = new FutureTask<>(() -> parseDefinition(script));
-        Future<QCompileCache> preTask = compileCache.putIfAbsent(script, parseTask);
-        if (preTask == null) {
-            parseTask.run();
-            return parseTask;
-        }
-        return preTask;
+
+    /**
+     * Estimated number of entries currently held in the compile cache.
+     * Forces a cleanup pass first so size-based and time-based evictions are reflected in the result,
+     * which makes this convenient for monitoring and tests at the cost of some work per call.
+     */
+    public long compileCacheSize() {
+        compileCache.cleanUp();
+        return compileCache.estimatedSize();
     }
-    
+
     private QCompileCache parseDefinition(String script) {
         QLParser.ProgramContext program = parseToSyntaxTree(script);
         QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script, inheritDefaultImport(),
