@@ -3,6 +3,7 @@ lexer grammar QLexer;
 @header {
     package com.alibaba.qlexpress4.aparser;
     import static com.alibaba.qlexpress4.aparser.InterpolationMode.*;
+    import static com.alibaba.qlexpress4.utils.VarIdUtils.parseBackTicVarIdText;
 }
 
 @members {
@@ -1042,6 +1043,10 @@ fragment IdPart
 	| [\uFFF9-\uFFFB]
 	;
 
+fragment BACK_TIK:  '`';
+
+BACK_TICKED_ID: BACK_TIK (BACK_TIK BACK_TIK|~[`])+ BACK_TIK {setText(parseBackTicVarIdText(getText()));};
+
 // string expression
 
 DOUBLE_QUOTE: '"' {
@@ -1199,6 +1204,7 @@ StrExpr_LINE_COMMENT: LINE_COMMENT -> type(LINE_COMMENT);
 StrExpr_OPID: OPID -> type(OPID);
 
 StrExpr_ID: ID -> type(ID);
+StrExpr_BACK_TICKED_ID: BACK_TICKED_ID {setText(parseBackTicVarIdText(getText()));} -> type(BACK_TICKED_ID);
 
 StrExpr_DOUBLE_QUOTE: DOUBLE_QUOTE -> type(DOUBLE_QUOTE), pushMode(DynamicString);
 StrExpr_SELECTOR_START: SELECTOR_START -> type(SELECTOR_START);

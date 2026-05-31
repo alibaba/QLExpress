@@ -452,6 +452,7 @@ opId
 
 varId
     : ID
+    | BACK_TICKED_ID
     | FUNCTION
     | CASE
     | DEFAULT

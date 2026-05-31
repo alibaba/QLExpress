@@ -549,6 +549,28 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void backtickedVarTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result =
+            express4Runner.execute("`ql-express` = 10; `ql-express`", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS)
+                .getResult();
+        Assert.assertEquals(10, result);
+        
+        result = express4Runner
+            .execute("\"hello ${`ql-express`}\"", Collections.singletonMap("ql-express", 1), QLOptions.DEFAULT_OPTIONS)
+            .getResult();
+        Assert.assertEquals("hello 1", result);
+        result =
+            express4Runner.execute("`a=2`", Collections.singletonMap("a=2", 1), QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals(1, result);
+        
+        result = express4Runner.execute("`a``b```", Collections.singletonMap("a`b`", 1), QLOptions.DEFAULT_OPTIONS)
+            .getResult();
+        Assert.assertEquals(1, result);
+        
+    }
+    
+    @Test
     public void docTryCatchTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result = express4Runner
