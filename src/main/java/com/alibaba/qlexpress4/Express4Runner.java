@@ -37,6 +37,7 @@ import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
 import com.alibaba.qlexpress4.runtime.context.QLAliasContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
@@ -516,7 +517,17 @@ public class Express4Runner {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         this.reflectLoader.addExtendFunction(extensionFunction);
     }
-    
+
+    /**
+     * 添加自定义字段取值处理器，用于处理非标准容器对象（如 Flink Row、JDBC ResultSet 等）的字段取值。
+     * 底层对应 {@link ReflectLoader#addExtendFieldHandler}。
+     *
+     * @param fieldHandler 字段取值处理器
+     */
+    public void addExtendFieldHandler(ExtendFieldHandler fieldHandler) {
+        this.reflectLoader.addExtendFieldHandler(fieldHandler);
+    }
+
     /**
      * add an extension function with variable arguments.
      * @param name the name of the extension function

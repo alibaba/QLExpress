@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
@@ -48,7 +49,13 @@ public class ReflectLoader {
      */
     private final List<ExtensionFunction> extensionFunctions =
         new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
-    
+
+    /**
+     * 用户注册的自定义字段取值处理器（如 Flink Row、JDBC ResultSet 等非标准容器的字段访问）。
+     * 按注册顺序依次调用。返回 null 视为不匹配，降级到后续处理器或原有 Java 反射逻辑。
+     */
+    private final List<ExtendFieldHandler> fieldHandlers = new CopyOnWriteArrayList<>();
+
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
@@ -57,7 +64,18 @@ public class ReflectLoader {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         extensionFunctions.add(extensionFunction);
     }
-    
+
+    /**
+     * 注册自定义字段取值处理器，用于在 QL 表达式的 field 取值阶段处理非标准容器对象
+     * （如 Flink Row、JDBC ResultSet、自定义 MapLike/CollectionLike）的属性访问。
+     * 处理器按注册顺序依次匹配，直到某个处理器返回非 null 的 Value。
+     *
+     * @param fieldHandler 字段取值处理器
+     */
+    public void addExtendFieldHandler(ExtendFieldHandler fieldHandler) {
+        fieldHandlers.add(fieldHandler);
+    }
+
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         if (securityStrategy instanceof StrategyIsolation) {
             return null;
@@ -81,6 +99,14 @@ public class ReflectLoader {
     }
     
     public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
+        // 优先走用户注册的自定义字段取值处理器（如 Flink Row、JDBC ResultSet 等非标准容器）
+        for (ExtendFieldHandler handler : fieldHandlers) {
+            Value extended = handler.load(bean, fieldName);
+            if (extended != null) {
+                return extended;
+            }
+        }
+
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(((Object[])bean).length);
         }
