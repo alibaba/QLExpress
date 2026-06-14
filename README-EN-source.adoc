@@ -406,30 +406,6 @@ Notes:
 * Serializable models have an independent `modelVersion` and do not automatically change with QLExpress release versions. The same `modelVersion` can be executed across different QLExpress release versions.
 * Remote precompiled scripts do not automatically write to or read from the Runner's internal `compileCache`. Applications must manage the lifecycle of DTOs or `LoadedParseCache` themselves.
 
-=== Clearing DFA Cache
-
-QLExpress uses ANTLR4 as its parsing engine. ANTLR4 builds a DFA (Deterministic Finite Automaton) cache at runtime to accelerate subsequent syntax parsing. This cache consumes a certain amount of memory.
-
-In some memory-sensitive scenarios, you can call the `clearDFACache` method to clear the DFA cache and release memory.
-
-> **IMPORTANT WARNING**: Clearing the DFA cache will cause a significant compilation performance degradation. It is NOT recommended for normal use cases.
-
-==== Use Cases
-
-* **Memory-sensitive applications**: When memory usage is a critical concern and you can tolerate slower compilation times
-* **Infrequently changing scripts**: When scripts are relatively stable and not frequently recompiled
-
-==== Best Practice
-
-Call this method immediately after parsing and caching your expression, and ensure all subsequent executions use the cached option to avoid recompilation. Example code:
-
-[source,java,indent=0]
-----
-include::./src/test/java/com/alibaba/qlexpress4/ClearDfaCacheTest.java[tag=clearDFACacheBestPractice]
-----
-
-By following this approach, you can minimize memory usage while maintaining performance.
-
 === Setting Timeout
 
 You can set a timeout for scripts to prevent infinite loops or other reasons from causing excessive consumption of application resources.
@@ -1150,10 +1126,7 @@ exit 0
 
 This way, before each git commit, maven's spotless plugin will automatically execute code formatting. For specific code format configuration, see link:spotless_eclipse_formatter.xml[]
 
-3. Run unit tests: After completing code development, run all unit tests locally to ensure code quality
-   - JDK 8 environment: Execute `mvn test`
-   - JDK 9 and above environment: Execute `mvn test -DargLine="--add-opens java.base/java.util.stream=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"`
-
+3. Run unit tests: After completing code development, run all unit tests locally with `mvn test` to ensure code quality.
 == Appendix III QLExpress4 Performance Improvements
 
 link:https://www.yuque.com/xuanheng-ffjti/iunlps/pgfzw46zel2xfnie?singleDoc#%20%E3%80%8AQLExpress3%E4%B8%8E4%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E3%80%8B[QLExpress4 vs 3 Performance Comparison]

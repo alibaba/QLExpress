@@ -59,14 +59,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <argLine></argLine>
+        <qlexpress.surefire.addOpens></qlexpress.surefire.addOpens>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.9.3</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -230,6 +227,14 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <argLine>@{argLine} ${qlexpress.surefire.addOpens}</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.7</version>
@@ -240,45 +245,6 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.9.3</version>
-                <configuration>
-                    <listener>true</listener>
-                    <visitor>true</visitor>
-                    <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/alibaba/qlexpress4/aparser</outputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- antlr4 默认绑定在 generate-sources 阶段 -->
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.antlr.v4.runtime</pattern>
-                                    <shadedPattern>com.alibaba.qlexpress4.a4runtime</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- JaCoCo plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -287,6 +253,15 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>jdk9-plus-test-opens</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <qlexpress.surefire.addOpens>--add-opens java.base/java.util.stream=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</qlexpress.surefire.addOpens>
+            </properties>
+        </profile>
         <profile>
             <id>deploy</id>
             <build>
@@ -308,4 +283,3 @@
         </profile>
     </profiles>
 </project>
-
