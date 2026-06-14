@@ -5,7 +5,6 @@ import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.operator.OperatorCheckStrategy;
-import org.antlr.v4.runtime.Token;
 
 /**
  * @author zhoutao

@@ -7,7 +7,6 @@ import com.alibaba.qlexpress4.aparser.QLParser.PathPartContext;
 import com.alibaba.qlexpress4.aparser.QLParser.VarIdContext;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.runtime.trace.TraceType;
-import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,8 +1,6 @@
 package com.alibaba.qlexpress4.aparser;
 
 import com.alibaba.qlexpress4.utils.QLStringUtils;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -213,12 +211,6 @@ public class OutVarAttrsVisitor extends ScopeStackVisitor {
     private String getFieldId(QLParser.PathPartContext pathPartContext) {
         if (pathPartContext instanceof QLParser.FieldAccessContext) {
             return parseFieldId(((QLParser.FieldAccessContext)pathPartContext).fieldId());
-        }
-        else if (pathPartContext instanceof QLParser.OptionalFieldAccessContext) {
-            return parseFieldId(((QLParser.OptionalFieldAccessContext)pathPartContext).fieldId());
-        }
-        else if (pathPartContext instanceof QLParser.SpreadFieldAccessContext) {
-            return parseFieldId(((QLParser.SpreadFieldAccessContext)pathPartContext).fieldId());
         }
         else {
             return null;

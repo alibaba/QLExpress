@@ -11,10 +11,6 @@ import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
 import com.alibaba.qlexpress4.runtime.operator.unary.UnaryOperator;
 import com.alibaba.qlexpress4.utils.QLStringUtils;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -1400,7 +1396,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     @Override
     public Void visitCustomPath(CustomPathContext ctx) {
         ErrorReporter errorReporter = newReporterWithToken(ctx.getStart());
-        String path = ctx.varId().getText();
+        String path = ctx.pathText();
         addInstruction(new ConstInstruction(errorReporter, path, null));
         
         String operatorId = ctx.opId().getText();
