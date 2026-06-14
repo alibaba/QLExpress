@@ -1,12 +1,15 @@
 package com.alibaba.qlexpress4.runtime;
 
-import com.alibaba.qlexpress4.runtime.data.DataValue;
-
 /**
  * Author: DQinYuan
  */
 public interface Value {
-    Value NULL_VALUE = new DataValue((Object)null);
+    Value NULL_VALUE = new Value() {
+        @Override
+        public Object get() {
+            return null;
+        }
+    };
     
     Object get();
     
