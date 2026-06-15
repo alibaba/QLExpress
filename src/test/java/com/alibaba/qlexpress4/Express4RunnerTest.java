@@ -1863,7 +1863,12 @@ public class Express4RunnerTest {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("IF", new LazyArgCustomFunction() {
             private static final int PARAM_LENGTH = 3;
-            
+
+            @Override
+            public boolean isLazyArg(int argIndex) {
+                return 1 == argIndex || 2 == argIndex;
+            }
+
             @Override
             public Object call(QContext qContext, Parameters parameters) {
                 if (parameters == null || parameters.size() != PARAM_LENGTH) {
@@ -1890,7 +1895,7 @@ public class Express4RunnerTest {
         // end::lazyArgCustomFunction[]
         
         Map<String, Object> context = new HashMap<>();
-        context.put("a", 10000d);
+        context.put("a", 10000);
         context.put("b", 0);
         
         // Should return 0 when b equals 0
@@ -1899,8 +1904,8 @@ public class Express4RunnerTest {
         
         // Should return 500 when c equals 20
         context.put("c", 20);
-        QLResult result2 = express4Runner.execute("IF(c == 0, 0, a / c)", context, QLOptions.DEFAULT_OPTIONS);
-        assertEquals(500d, result2.getResult());
+        QLResult result2 = express4Runner.execute("IF(c != 0, a / c, 0)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(new BigDecimal("500"), result2.getResult());
         
         // Nested IF
         QLResult result3 = express4Runner.execute("IF(false, 0, IF(true, 1, 0))", context, QLOptions.DEFAULT_OPTIONS);

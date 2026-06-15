@@ -1591,6 +1591,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 List<ExpressionContext> exprs = argumentListContext.expression();
                 for (int i = 0; i < exprs.size(); i++) {
                     ExpressionContext expr = exprs.get(i);
+                    if (!((LazyArgCustomFunction) customFunction).isLazyArg(i)) {
+                        expr.accept(this);
+                        continue;
+                    }
                     QvmInstructionVisitor lazyVisitor = parseExprBodyWithSubVisitor(expr, generatorScope, context);
                     String scopeName = functionName + "$lazy" + i;
                     QLambdaDefinitionInner lazyLambda = new QLambdaDefinitionInner(scopeName,

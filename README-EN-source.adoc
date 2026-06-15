@@ -163,7 +163,7 @@ It is recommended to use Java to define custom functions as much as possible, as
 
 By default, QLExpress evaluates all arguments before calling a function. If evaluating an argument causes side effects (such as a division-by-zero error), the error is triggered even if the function logic does not need that argument.
 
-Functions that implement the `LazyArgCustomFunction` interface control when arguments are evaluated. The compiler wraps each argument as a `QLambda`, and the function manually triggers evaluation by calling `QLambda.get()`, enabling short-circuit evaluation semantics.
+Functions that implement the `LazyArgCustomFunction` interface control when arguments are evaluated. By default, the compiler wraps each argument as a `QLambda`, this behavior can be customized by overriding `isLazyArg(int argIndex)`, and the function manually triggers evaluation by calling `QLambda.get()`, enabling short-circuit evaluation semantics.
 
 [source,java,indent=0]
 ----

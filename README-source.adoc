@@ -164,7 +164,7 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=addF
 
 默认情况下，QLExpress 在调用函数前会先对所有参数完成求值。如果某个参数的计算会产生副作用（如除零异常），即使函数逻辑上不需要该参数，也会在调用前触发错误。
 
-实现 `LazyArgCustomFunction` 接口的函数可以控制参数的求值时机。编译器会将每个参数包装为 `QLambda`，函数内部通过调用 `QLambda.get()` 手动触发求值，从而实现短路求值语义。
+实现 `LazyArgCustomFunction` 接口的函数可以控制参数的求值时机。编译器默认会将每个参数包装为 `QLambda`，也可以通过 `isLazyArg(int argIndex)` 指定部分参数，函数内部通过调用 `QLambda.get()` 手动触发求值，从而实现短路求值语义。
 
 [source,java,indent=0]
 ----
