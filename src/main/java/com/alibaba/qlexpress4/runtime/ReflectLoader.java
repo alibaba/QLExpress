@@ -51,10 +51,11 @@ public class ReflectLoader {
         new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
 
     /**
-     * 用户注册的自定义字段取值处理器（如 Flink Row、JDBC ResultSet 等非标准容器的字段访问）。
-     * 按注册顺序依次调用。返回 null 视为不匹配，降级到后续处理器或原有 Java 反射逻辑。
+     * Custom field-access handlers registered by the user, keyed by their binding class
+     * (e.g. Flink Row, JDBC ResultSet or other non-standard containers). A handler is
+     * invoked only when the bean is assignable to its binding class.
      */
-    private final List<ExtendFieldHandler> fieldHandlers = new CopyOnWriteArrayList<>();
+    private final Map<Class<?>, ExtendFieldHandler> fieldHandlers = new ConcurrentHashMap<>();
 
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
@@ -66,14 +67,16 @@ public class ReflectLoader {
     }
 
     /**
-     * 注册自定义字段取值处理器，用于在 QL 表达式的 field 取值阶段处理非标准容器对象
-     * （如 Flink Row、JDBC ResultSet、自定义 MapLike/CollectionLike）的属性访问。
-     * 处理器按注册顺序依次匹配，直到某个处理器返回非 null 的 Value。
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet or user-defined
+     * MapLike/CollectionLike) during the field-access stage of a QL expression.
+     * The handler is invoked only when the bean is assignable to {@code bindingClass}.
      *
-     * @param fieldHandler 字段取值处理器
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
      */
-    public void addExtendFieldHandler(ExtendFieldHandler fieldHandler) {
-        fieldHandlers.add(fieldHandler);
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        fieldHandlers.put(bindingClass, fieldHandler);
     }
 
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
@@ -99,12 +102,10 @@ public class ReflectLoader {
     }
     
     public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
-        // 优先走用户注册的自定义字段取值处理器（如 Flink Row、JDBC ResultSet 等非标准容器）
-        for (ExtendFieldHandler handler : fieldHandlers) {
-            Value extended = handler.load(bean, fieldName);
-            if (extended != null) {
-                return extended;
-            }
+        // first try the user-registered custom field handlers (e.g. Flink Row, JDBC ResultSet)
+        Value extended = loadExtendField(bean, fieldName);
+        if (extended != null) {
+            return extended;
         }
 
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
@@ -130,7 +131,28 @@ public class ReflectLoader {
             return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
     }
-    
+
+    /**
+     * Dispatch the field access to a user-registered handler whose binding class is assignable
+     * from the bean's class. Returns {@code null} when no handler matches or the matched handler
+     * yields {@code null}, so that the caller falls back to the default reflection logic.
+     */
+    private Value loadExtendField(Object bean, String fieldName) {
+        if (fieldHandlers.isEmpty()) {
+            return null;
+        }
+        Class<?> beanClass = bean.getClass();
+        for (Map.Entry<Class<?>, ExtendFieldHandler> entry : fieldHandlers.entrySet()) {
+            if (entry.getKey().isAssignableFrom(beanClass)) {
+                Object value = entry.getValue().getField(bean, fieldName);
+                if (value != null) {
+                    return new DataValue(value);
+                }
+            }
+        }
+        return null;
+    }
+
     public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         boolean isStaticMethod = bean instanceof MetaClass;
         Class<?> clz = isStaticMethod ? ((MetaClass)bean).getClz() : bean.getClass();

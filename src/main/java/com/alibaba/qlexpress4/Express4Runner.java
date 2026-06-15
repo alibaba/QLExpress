@@ -519,13 +519,15 @@ public class Express4Runner {
     }
 
     /**
-     * 添加自定义字段取值处理器，用于处理非标准容器对象（如 Flink Row、JDBC ResultSet 等）的字段取值。
-     * 底层对应 {@link ReflectLoader#addExtendFieldHandler}。
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet) with the regular
+     * {@code obj.fieldName} syntax. Delegates to {@link ReflectLoader#addExtendFieldHandler}.
      *
-     * @param fieldHandler 字段取值处理器
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
      */
-    public void addExtendFieldHandler(ExtendFieldHandler fieldHandler) {
-        this.reflectLoader.addExtendFieldHandler(fieldHandler);
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        this.reflectLoader.addExtendFieldHandler(bindingClass, fieldHandler);
     }
 
     /**

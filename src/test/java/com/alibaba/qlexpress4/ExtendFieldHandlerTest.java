@@ -1,21 +1,23 @@
 package com.alibaba.qlexpress4;
 
 import com.alibaba.qlexpress4.runtime.Value;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * ExtendFieldHandler 单元测试。
- * 验证自定义字段取值处理器链：匹配返回、不匹配穿透到默认逻辑、多处理器链式调用。
+ * Unit tests for {@link com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler}.
+ * They verify class-bound custom field access: a matched handler resolves the value,
+ * a non-matching bean falls through to the default reflection logic, a handler returning
+ * {@code null} falls back to the default logic, and binding to a super type works for subtypes.
  *
  * @author ayasaz
  */
 public class ExtendFieldHandlerTest {
 
     /**
-     * 模拟一个非标准 MapLike 容器（如 Flink Row、Spark Row 的简化模型）。
-     * 字段通过 String[] + Object[] 存储，只能通过 getValue(name) 取值，无法通过 Java 反射 getter 直接访问。
+     * A non-standard MapLike container (a simplified model of Flink Row / Spark Row).
+     * Fields are stored as String[] + Object[] and can only be read through getValue(name);
+     * they are not reachable through ordinary Java reflection getters.
      */
     static class RowLike {
         private final String[] fields;
@@ -40,13 +42,7 @@ public class ExtendFieldHandlerTest {
     public void testCustomFieldHandlerMatches() {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
 
-        runner.addExtendFieldHandler((bean, fieldName) -> {
-            if (bean instanceof RowLike) {
-                Object value = ((RowLike) bean).getValue(fieldName);
-                return value == null ? null : new DataValue(value);
-            }
-            return null;
-        });
+        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike) bean).getValue(fieldName));
 
         RowLike row = new RowLike(new String[] { "name", "age" }, new Object[] { "张三", 30 });
         Value result = runner.loadField(row, "name");
@@ -57,16 +53,10 @@ public class ExtendFieldHandlerTest {
     public void testCustomFieldHandlerNotMatches() {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
 
-        runner.addExtendFieldHandler((bean, fieldName) -> {
-            if (bean instanceof RowLike) {
-                Object value = ((RowLike) bean).getValue(fieldName);
-                return value == null ? null : new DataValue(value);
-            }
-            return null;
-        });
+        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike) bean).getValue(fieldName));
 
-        // 非 RowLike 的普通 Java 对象仍应走默认反射路径拿到属性。
-        // String 有 hashCode() 的 getter，可以作为普通 Java bean 验证。
+        // a plain Java object that is not a RowLike should still go through the default reflection path.
+        // String has a getter for bytes, so it works as an ordinary Java bean here.
         String hello = "hello";
         Value result = runner.loadField(hello, "bytes");
         Assert.assertNotNull(result);
@@ -77,10 +67,10 @@ public class ExtendFieldHandlerTest {
     public void testFieldHandlerReturnsNullFallsThrough() {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
 
-        // 始终返回 null —— 应回退到原有的默认逻辑
-        runner.addExtendFieldHandler((bean, fieldName) -> null);
+        // always returns null -> should fall back to the default logic
+        runner.addExtendFieldHandler(java.util.Map.class, (bean, fieldName) -> null);
 
-        // 默认 loadField 对 Map 有硬编码支持（返回 MapItemValue）
+        // the default loadField has built-in support for Map (returns MapItemValue)
         java.util.Map<String, Object> map = new java.util.HashMap<>();
         map.put("key", "value");
         Value result = runner.loadField(map, "key");
@@ -89,21 +79,14 @@ public class ExtendFieldHandlerTest {
     }
 
     @Test
-    public void testMultipleHandlersChained() {
+    public void testHandlerBoundToSuperTypeMatchesSubType() {
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
 
-        // Handler 1: 不匹配 RowLike（始终返回 null）
-        runner.addExtendFieldHandler((bean, fieldName) -> null);
+        // bind to the super type; a subclass instance should still be dispatched to this handler
+        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike) bean).getValue(fieldName));
 
-        // Handler 2: 匹配 RowLike
-        runner.addExtendFieldHandler((bean, fieldName) -> {
-            if (bean instanceof RowLike) {
-                return new DataValue(((RowLike) bean).getValue(fieldName));
-            }
-            return null;
-        });
-
-        RowLike row = new RowLike(new String[] { "city" }, new Object[] { "杭州" });
+        RowLike row = new RowLike(new String[] { "city" }, new Object[] { "杭州" }) {
+        };
         Assert.assertEquals("杭州", runner.loadField(row, "city").get());
     }
 }

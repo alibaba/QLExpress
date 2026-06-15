@@ -1,27 +1,27 @@
 package com.alibaba.qlexpress4.runtime.function;
 
-import com.alibaba.qlexpress4.runtime.Value;
-
 /**
- * 自定义字段取值处理器。
- * 用于扩展 {@link com.alibaba.qlexpress4.runtime.ReflectLoader#loadField} 的行为，
- * 支持对非标准容器（如 Flink Row、JDBC ResultSet、自定义 MapLike/CollectionLike 等）进行属性取值。
- * 用户通过 {@link com.alibaba.qlexpress4.Express4Runner#addExtendFieldHandler} 注入到运行时。
+ * Custom field-access handler bound to a specific receiver type.
+ * <p>
+ * It extends the behaviour of {@link com.alibaba.qlexpress4.runtime.ReflectLoader#loadField}
+ * so that non-standard containers (such as Flink Row, JDBC ResultSet or user-defined
+ * MapLike/CollectionLike structures) can be accessed with the regular {@code obj.fieldName}
+ * syntax in QL expressions.
+ * <p>
+ * A handler is registered against a binding class via
+ * {@link com.alibaba.qlexpress4.Express4Runner#addExtendFieldHandler(Class, ExtendFieldHandler)}
+ * and is only invoked when the bean is assignable to that binding class. Binding to a class
+ * keeps each registration isolated (handlers cannot conflict with each other) and frees the
+ * caller from dealing with low-level runtime structures: just return the raw field value.
  *
- * <p>使用示例 —— 支持 Flink Row:
+ * <p>Example —— supporting Flink Row:
  * <pre>{@code
- * runner.addExtendFieldHandler((bean, fieldName) -> {
- *     if (bean instanceof org.apache.flink.types.Row) {
- *         Row row = (Row) bean;
- *         return new DataValue(row.getField(fieldName));
- *     }
- *     return null; // 返回 null 表示当前处理器无法处理，继续走下一个
- * });
+ * runner.addExtendFieldHandler(org.apache.flink.types.Row.class,
+ *     (bean, fieldName) -> ((Row) bean).getField(fieldName));
  * }</pre>
  *
- * <p>处理器按注册顺序依次调用：若某个处理器返回 null，日志层面意为"不匹配"，继续尝试下一个。
- * 第一个返回非 null {@code Value} 的处理器将消费本次取值请求，后续处理器不再执行。
- * 如果所有处理器均返回 null，则回退到 {@code ReflectLoader} 原有的 Java 反射取值逻辑。
+ * <p>If the handler returns {@code null}, QLExpress falls back to the default Java reflection
+ * field-access logic of {@code ReflectLoader}.
  *
  * @author ayasaz
  * @since QLExpress4
@@ -30,11 +30,11 @@ import com.alibaba.qlexpress4.runtime.Value;
 public interface ExtendFieldHandler {
 
     /**
-     * 根据字段名从 bean 中取值。
+     * Resolve the value of {@code fieldName} from the given bean.
      *
-     * @param bean      当前对象（可能为任意类型，包括非标准容器）
-     * @param fieldName 字段名
-     * @return 取值结果，或 null 表示当前处理器不匹配该 bean 类型（交由下一个处理器或默认反射路径继续处理）
+     * @param bean      the receiver object, guaranteed to be assignable to the binding class
+     * @param fieldName the field name being accessed
+     * @return the raw field value, or {@code null} to fall back to the default reflection logic
      */
-    Value load(Object bean, String fieldName);
+    Object getField(Object bean, String fieldName);
 }
