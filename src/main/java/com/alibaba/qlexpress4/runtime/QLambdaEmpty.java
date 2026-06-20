@@ -15,7 +15,7 @@ public class QLambdaEmpty implements QLambda {
     @Override
     public QResult call(Object... params)
         throws Throwable {
-        return new QResult(Value.NULL_VALUE, QResult.ResultType.RETURN);
+        return QResult.NEXT_INSTRUCTION;
     }
     
 }
