@@ -45,7 +45,10 @@ public class TryCatchInstruction extends QLInstruction {
         if (finalBody != null) {
             callFinal(qContext, qlOptions);
         }
-        if (tryCatchResult.getResultType() == QResult.ResultType.RETURN) {
+        QResult.ResultType resultType = tryCatchResult.getResultType();
+        if (resultType == QResult.ResultType.RETURN
+            || resultType == QResult.ResultType.BREAK
+            || resultType == QResult.ResultType.CONTINUE) {
             return tryCatchResult;
         }
         return QResult.NEXT_INSTRUCTION;
