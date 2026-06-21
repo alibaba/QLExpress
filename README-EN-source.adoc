@@ -113,6 +113,8 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 </dependency>
 ----
 
+> For `version`, we recommend using the latest stable release, `4.1.2`.
+
 Requirements
 
 * JDK 8 or higher
