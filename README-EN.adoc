@@ -235,6 +235,50 @@ QLExpress4 also supports adding custom functions through QLExpress scripts. Note
 
 It is recommended to use Java to define custom functions as much as possible, as this can provide better performance and stability.
 
+==== Lazy Argument Evaluation (LazyArgCustomFunction)
+
+By default, QLExpress evaluates all arguments before calling a function. If evaluating an argument causes side effects (such as a division-by-zero error), the error is triggered even if the function logic does not need that argument.
+
+Functions that implement the `LazyArgCustomFunction` interface control when arguments are evaluated. By default, the compiler wraps each argument as a `QLambda`, this behavior can be customized by overriding `isLazyArg(int argIndex)`, and the function manually triggers evaluation by calling `QLambda.get()`, enabling short-circuit evaluation semantics.
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("IF", new LazyArgCustomFunction() {
+            private static final int PARAM_LENGTH = 3;
+
+            @Override
+            public boolean isLazyArg(int argIndex) {
+                return 1 == argIndex || 2 == argIndex;
+            }
+
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                if (parameters == null || parameters.size() != PARAM_LENGTH) {
+                    throw new IllegalArgumentException("Invalid number of arguments");
+                }
+                Object v1 = call(parameters.getValue(0));
+                if (!(v1 instanceof Boolean)) {
+                    throw new IllegalArgumentException("Argument 1 must be a boolean");
+                }
+                if ((Boolean)v1) {
+                    return call(parameters.getValue(1));
+                }
+                
+                return call(parameters.getValue(2));
+            }
+            
+            private Object call(Object obj) {
+                if (obj instanceof QLambda) {
+                    return ((QLambda)obj).get();
+                }
+                return obj;
+            }
+        });
+----
+
+In the example above, when `b == 0` is true, the third argument `a / b` is never evaluated, so no division-by-zero exception is thrown.
+
 For more ways to customize syntax elements, see the documentation link:docs/custom-item-en.adoc[Custom Syntax Elements].
 
 === Validating Syntax Correctness
