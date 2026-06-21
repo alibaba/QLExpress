@@ -6,6 +6,8 @@ import com.alibaba.qlexpress4.aparser.compiletimefunction.CodeGenerator;
 import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.*;
 import com.alibaba.qlexpress4.runtime.*;
+import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.function.LazyArgCustomFunction;
 import com.alibaba.qlexpress4.runtime.instruction.*;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
 import com.alibaba.qlexpress4.runtime.operator.OperatorManager;
@@ -37,6 +39,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private static final String MACRO_PREFIX = "MACRO_";
     
     private static final String LAMBDA_PREFIX = "LAMBDA_";
+
+    private static final String LAZY_FUNCTION_PREFIX = "LAZY_FUNCTION_";
     
     private static final String TRY_PREFIX = "TRY_";
     
@@ -82,6 +86,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     private final Map<String, CompileTimeFunction> compileTimeFunctions;
     
+    private final Map<String, CustomFunction> userDefineFunctions;
+    
     private final InitOptions initOptions;
     
     private final Context context;
@@ -101,6 +107,8 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private int macroCounter = 0;
     
     private int lambdaCounter = 0;
+
+    private int lazyFunctionCounter = 0;
     
     private int tryCounter = 0;
     
@@ -115,13 +123,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
      */
     public QvmInstructionVisitor(String script, ImportManager importManager, GeneratorScope globalScope,
         OperatorFactory operatorFactory, Map<String, CompileTimeFunction> compileTimeFunctions,
-        InitOptions initOptions) {
+        Map<String, CustomFunction> userDefineFunctions, InitOptions initOptions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = new GeneratorScope("main", globalScope);
         this.operatorFactory = operatorFactory;
         this.context = Context.BLOCK;
         this.compileTimeFunctions = compileTimeFunctions;
+        this.userDefineFunctions = userDefineFunctions;
         this.initOptions = initOptions;
     }
     
@@ -130,13 +139,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
      */
     public QvmInstructionVisitor(String script, ImportManager importManager, GeneratorScope generatorScope,
         OperatorFactory operatorFactory, Context context, Map<String, CompileTimeFunction> compileTimeFunctions,
-        InitOptions initOptions) {
+        Map<String, CustomFunction> userDefineFunctions, InitOptions initOptions) {
         this.script = script;
         this.importManager = importManager;
         this.generatorScope = generatorScope;
         this.operatorFactory = operatorFactory;
         this.context = context;
         this.compileTimeFunctions = compileTimeFunctions;
+        this.userDefineFunctions = userDefineFunctions;
         this.initOptions = initOptions;
     }
     
@@ -150,6 +160,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         this.operatorFactory = new OperatorManager();
         this.context = Context.BLOCK;
         this.compileTimeFunctions = new HashMap<>();
+        this.userDefineFunctions = new HashMap<>();
         this.initOptions = InitOptions.DEFAULT_OPTIONS;
     }
     
@@ -1579,7 +1590,29 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         }
         
         if (argumentListContext != null) {
-            argumentListContext.accept(this);
+            CustomFunction customFunction = userDefineFunctions.get(functionName);
+            if (customFunction instanceof LazyArgCustomFunction) {
+                List<ExpressionContext> exprs = argumentListContext.expression();
+                int lazyFunctionCount = lazyFunctionCount();
+                for (int i = 0; i < exprs.size(); i++) {
+                    ExpressionContext expr = exprs.get(i);
+                    if (!((LazyArgCustomFunction) customFunction).isLazyArg(i)) {
+                        expr.accept(this);
+                        continue;
+                    }
+                    String scopeName = generatorScope.getName() + SCOPE_SEPARATOR + LAZY_FUNCTION_PREFIX + lazyFunctionCount
+                        + "_" + functionName + i;
+                    QvmInstructionVisitor lazyVisitor = parseExprBodyWithSubVisitor(expr,
+                        new GeneratorScope(scopeName, generatorScope),
+                        Context.BLOCK);
+                    QLambdaDefinitionInner lazyLambda = new QLambdaDefinitionInner(scopeName,
+                        lazyVisitor.getInstructions(), Collections.emptyList(), lazyVisitor.getMaxStackSize());
+                    addInstruction(new LoadLambdaInstruction(newReporterWithToken(expr.getStart()), lazyLambda));
+                }
+            }
+            else {
+                argumentListContext.accept(this);
+            }
         }
         int argSize = argumentListContext == null ? 0 : argumentListContext.expression().size();
         addInstruction(new CallFunctionInstruction(newReporterWithToken(functionNameContext.getStart()), functionName,
@@ -1965,7 +1998,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private QvmInstructionVisitor parseWithSubVisitor(RuleContext ruleContext, GeneratorScope generatorScope,
         Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager, generatorScope,
-            operatorFactory, context, compileTimeFunctions, initOptions);
+            operatorFactory, context, compileTimeFunctions, userDefineFunctions, initOptions);
         ruleContext.accept(subVisitor);
         return subVisitor;
     }
@@ -1973,7 +2006,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private QvmInstructionVisitor parseExprBodyWithSubVisitor(ExpressionContext expressionContext,
         GeneratorScope generatorScope, Context context) {
         QvmInstructionVisitor subVisitor = new QvmInstructionVisitor(script, importManager, generatorScope,
-            operatorFactory, context, compileTimeFunctions, initOptions);
+            operatorFactory, context, compileTimeFunctions, userDefineFunctions, initOptions);
         // reduce the level of syntax tree when expression is a block
         subVisitor.visitBodyExpression(expressionContext);
         return subVisitor;
@@ -2057,6 +2090,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     private int switchCount() {
         return switchCounter++;
+    }
+
+    private int lazyFunctionCount() {
+        return lazyFunctionCounter++;
     }
     
     private int tryCount() {

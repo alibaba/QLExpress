@@ -313,7 +313,7 @@ public class Express4Runner {
         QLParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
         QvmInstructionVisitor macroVisitor = new QvmInstructionVisitor(macroScript, inheritDefaultImport(),
             new GeneratorScope("MACRO_" + name, globalScope), operatorManager, QvmInstructionVisitor.Context.MACRO,
-            compileTimeFunctions, initOptions);
+            compileTimeFunctions, userDefineFunction, initOptions);
         macroProgram.accept(macroVisitor);
         List<QLInstruction> macroInstructions = macroVisitor.getInstructions();
         List<QLParser.BlockStatementContext> blockStatementContexts = macroProgram.blockStatements().blockStatement();
@@ -679,7 +679,7 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         QLParser.ProgramContext program = parseToSyntaxTree(script);
         QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script, inheritDefaultImport(),
-            globalScope, operatorManager, compileTimeFunctions, initOptions);
+            globalScope, operatorManager, compileTimeFunctions, userDefineFunction, initOptions);
         program.accept(qvmInstructionVisitor);
         
         QLambdaDefinitionInner qLambdaDefinition = new QLambdaDefinitionInner("main",
