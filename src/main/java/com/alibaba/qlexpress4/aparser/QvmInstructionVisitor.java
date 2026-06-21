@@ -39,7 +39,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private static final String MACRO_PREFIX = "MACRO_";
     
     private static final String LAMBDA_PREFIX = "LAMBDA_";
-
+    
     private static final String LAZY_FUNCTION_PREFIX = "LAZY_FUNCTION_";
     
     private static final String TRY_PREFIX = "TRY_";
@@ -107,7 +107,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private int macroCounter = 0;
     
     private int lambdaCounter = 0;
-
+    
     private int lazyFunctionCounter = 0;
     
     private int tryCounter = 0;
@@ -1596,15 +1596,14 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 int lazyFunctionCount = lazyFunctionCount();
                 for (int i = 0; i < exprs.size(); i++) {
                     ExpressionContext expr = exprs.get(i);
-                    if (!((LazyArgCustomFunction) customFunction).isLazyArg(i)) {
+                    if (!((LazyArgCustomFunction)customFunction).isLazyArg(i)) {
                         expr.accept(this);
                         continue;
                     }
-                    String scopeName = generatorScope.getName() + SCOPE_SEPARATOR + LAZY_FUNCTION_PREFIX + lazyFunctionCount
-                        + "_" + functionName + i;
-                    QvmInstructionVisitor lazyVisitor = parseExprBodyWithSubVisitor(expr,
-                        new GeneratorScope(scopeName, generatorScope),
-                        Context.BLOCK);
+                    String scopeName = generatorScope.getName() + SCOPE_SEPARATOR + LAZY_FUNCTION_PREFIX
+                        + lazyFunctionCount + "_" + functionName + i;
+                    QvmInstructionVisitor lazyVisitor =
+                        parseExprBodyWithSubVisitor(expr, new GeneratorScope(scopeName, generatorScope), Context.BLOCK);
                     QLambdaDefinitionInner lazyLambda = new QLambdaDefinitionInner(scopeName,
                         lazyVisitor.getInstructions(), Collections.emptyList(), lazyVisitor.getMaxStackSize());
                     addInstruction(new LoadLambdaInstruction(newReporterWithToken(expr.getStart()), lazyLambda));
@@ -2091,7 +2090,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     private int switchCount() {
         return switchCounter++;
     }
-
+    
     private int lazyFunctionCount() {
         return lazyFunctionCounter++;
     }

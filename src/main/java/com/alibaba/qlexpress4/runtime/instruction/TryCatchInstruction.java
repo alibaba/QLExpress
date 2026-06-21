@@ -45,10 +45,7 @@ public class TryCatchInstruction extends QLInstruction {
         if (finalBody != null) {
             callFinal(qContext, qlOptions);
         }
-        QResult.ResultType resultType = tryCatchResult.getResultType();
-        if (resultType == QResult.ResultType.RETURN
-            || resultType == QResult.ResultType.BREAK
-            || resultType == QResult.ResultType.CONTINUE) {
+        if (shouldExitTryCatch(tryCatchResult)) {
             return tryCatchResult;
         }
         return QResult.NEXT_INSTRUCTION;
@@ -131,6 +128,13 @@ public class TryCatchInstruction extends QLInstruction {
             }
             return result;
         }
+    }
+    
+    private boolean shouldExitTryCatch(QResult result) {
+        if (result.getResultType() == QResult.ResultType.RETURN) {
+            return true;
+        }
+        return result == QResult.LOOP_BREAK_RESULT || result == QResult.LOOP_CONTINUE_RESULT;
     }
     
     private QResult callExceptionHandler(Object catchObj, QContext qContext, QLOptions qlOptions) {
