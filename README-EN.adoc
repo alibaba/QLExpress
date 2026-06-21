@@ -113,9 +113,11 @@ QLExpress4 supports omitting semicolons, making expressions more concise. For de
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.1.2</version>
+    <version>4.2.0-beta</version>
 </dependency>
 ----
+
+> For `version`, we recommend using the latest stable release, `4.1.2`.
 
 Requirements
 
@@ -246,12 +248,12 @@ Functions that implement the `LazyArgCustomFunction` interface control when argu
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         express4Runner.addFunction("IF", new LazyArgCustomFunction() {
             private static final int PARAM_LENGTH = 3;
-
+            
             @Override
             public boolean isLazyArg(int argIndex) {
                 return 1 == argIndex || 2 == argIndex;
             }
-
+            
             @Override
             public Object call(QContext qContext, Parameters parameters) {
                 if (parameters == null || parameters.size() != PARAM_LENGTH) {
