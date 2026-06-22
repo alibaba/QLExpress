@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
@@ -48,7 +49,14 @@ public class ReflectLoader {
      */
     private final List<ExtensionFunction> extensionFunctions =
         new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
-    
+
+    /**
+     * Custom field-access handlers registered by the user, keyed by their binding class
+     * (e.g. Flink Row, JDBC ResultSet or other non-standard containers). A handler is
+     * invoked only when the bean is assignable to its binding class.
+     */
+    private final Map<Class<?>, ExtendFieldHandler> fieldHandlers = new ConcurrentHashMap<>();
+
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
@@ -57,7 +65,20 @@ public class ReflectLoader {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         extensionFunctions.add(extensionFunction);
     }
-    
+
+    /**
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet or user-defined
+     * MapLike/CollectionLike) during the field-access stage of a QL expression.
+     * The handler is invoked only when the bean is assignable to {@code bindingClass}.
+     *
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
+     */
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        fieldHandlers.put(bindingClass, fieldHandler);
+    }
+
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         if (securityStrategy instanceof StrategyIsolation) {
             return null;
@@ -81,6 +102,12 @@ public class ReflectLoader {
     }
     
     public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
+        // first try the user-registered custom field handlers (e.g. Flink Row, JDBC ResultSet)
+        Value extended = loadExtendField(bean, fieldName);
+        if (extended != null) {
+            return extended;
+        }
+
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(((Object[])bean).length);
         }
@@ -104,7 +131,28 @@ public class ReflectLoader {
             return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
     }
-    
+
+    /**
+     * Dispatch the field access to a user-registered handler whose binding class is assignable
+     * from the bean's class. Returns {@code null} when no handler matches or the matched handler
+     * yields {@code null}, so that the caller falls back to the default reflection logic.
+     */
+    private Value loadExtendField(Object bean, String fieldName) {
+        if (fieldHandlers.isEmpty()) {
+            return null;
+        }
+        Class<?> beanClass = bean.getClass();
+        for (Map.Entry<Class<?>, ExtendFieldHandler> entry : fieldHandlers.entrySet()) {
+            if (entry.getKey().isAssignableFrom(beanClass)) {
+                Object value = entry.getValue().getField(bean, fieldName);
+                if (value != null) {
+                    return new DataValue(value);
+                }
+            }
+        }
+        return null;
+    }
+
     public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         boolean isStaticMethod = bean instanceof MetaClass;
         Class<?> clz = isStaticMethod ? ((MetaClass)bean).getClz() : bean.getClass();

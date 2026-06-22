@@ -37,6 +37,7 @@ import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
 import com.alibaba.qlexpress4.runtime.context.QLAliasContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
@@ -514,7 +515,19 @@ public class Express4Runner {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         this.reflectLoader.addExtendFunction(extensionFunction);
     }
-    
+
+    /**
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet) with the regular
+     * {@code obj.fieldName} syntax. Delegates to {@link ReflectLoader#addExtendFieldHandler}.
+     *
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
+     */
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        this.reflectLoader.addExtendFieldHandler(bindingClass, fieldHandler);
+    }
+
     /**
      * add an extension function with variable arguments.
      * @param name the name of the extension function
