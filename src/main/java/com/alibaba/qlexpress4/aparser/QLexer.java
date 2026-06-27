@@ -206,7 +206,8 @@ public class QLexer {
     public static final int SelectorVariable_VANME = 96;
     
     public static final int CATCH_ALL = 97;
-    
+    public static final int SELECTOR_END = 98;
+
     private static final Map<String, Integer> KEYWORDS = new HashMap<>();
     
     static {
@@ -406,6 +407,10 @@ public class QLexer {
                 for (int i = 0; i < selectorEnd.length(); i++) {
                     advance();
                 }
+                int endStart = p;
+                int endLine = line;
+                int endCol = col;
+                add(SELECTOR_END, selectorEnd, endStart, endStart + selectorEnd.length() - 1, endLine, endCol);
                 return;
             }
             if (ch() == '\n' || ch() == '\r') {

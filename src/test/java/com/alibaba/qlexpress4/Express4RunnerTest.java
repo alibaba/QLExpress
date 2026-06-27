@@ -281,6 +281,12 @@ public class Express4RunnerTest {
                 + "              | VALUE 2 2\n" + "      | STATEMENT break null\n" + "  | BLOCK result \n"
                 + "      | OPERATOR = \n" + "          | VARIABLE result \n" + "          | VALUE 0 \n",
             resultSwitch.getExpressionTraces().get(0).toPrettyString(0));
+        QLResult resultSelect = express4Runner.execute("${a} + 1 == 2", Collections.singletonMap("a", 1),
+                QLOptions.builder().traceExpression(true).build());
+        Assert.assertEquals(
+                "OPERATOR == true\n" + "  | OPERATOR + 2\n" + "      | PRIMARY ${a} 1\n" + "      | VALUE 1 1\n" + "  | VALUE 2 2\n",
+                resultSelect.getExpressionTraces().get(0).toPrettyString(0)
+        );
     }
     
     @Test
