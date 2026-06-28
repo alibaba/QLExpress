@@ -192,6 +192,8 @@ public class QLParser {
     
     public static final int SELECTOR_START = QLexer.SELECTOR_START;
     
+    public static final int SELECTOR_END = QLexer.SELECTOR_END;
+    
     public static final int ID = QLexer.ID;
     
     public static final int DOUBLE_QUOTE = QLexer.DOUBLE_QUOTE;
@@ -815,6 +817,8 @@ public class QLParser {
             ctx.selectorStart = consumeNode(ctx);
             ctx.selectorVariable = new TerminalNode(expect(SelectorVariable_VANME, "selector variable"));
             ctx.addChild(ctx.selectorVariable);
+            ctx.selectorEnd = new TerminalNode(expect(SELECTOR_END, "selector end"));
+            ctx.addChild(ctx.selectorEnd);
             return ctx;
         }
         if (isVarIdToken(lt().getType())) {
@@ -2966,6 +2970,8 @@ public class QLParser {
         private TerminalNode selectorStart;
         
         private TerminalNode selectorVariable;
+        
+        private TerminalNode selectorEnd;
         
         public TerminalNode SELECTOR_START() {
             return selectorStart;

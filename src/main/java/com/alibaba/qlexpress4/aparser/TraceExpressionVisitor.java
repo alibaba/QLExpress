@@ -451,7 +451,7 @@ public class TraceExpressionVisitor extends QLParserBaseVisitor<TracePointTree> 
     
     @Override
     public TracePointTree visitContextSelectExpr(QLParser.ContextSelectExprContext ctx) {
-        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getStart());
+        return newPoint(TraceType.PRIMARY, Collections.emptyList(), ctx.getText(), ctx.getStart());
     }
     
     // ==================== Private Helper ====================
