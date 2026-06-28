@@ -191,8 +191,9 @@ public class QLParser {
     public static final int OPID = QLexer.OPID;
     
     public static final int SELECTOR_START = QLexer.SELECTOR_START;
+    
     public static final int SELECTOR_END = QLexer.SELECTOR_END;
-
+    
     public static final int ID = QLexer.ID;
     
     public static final int DOUBLE_QUOTE = QLexer.DOUBLE_QUOTE;
@@ -2969,7 +2970,7 @@ public class QLParser {
         private TerminalNode selectorStart;
         
         private TerminalNode selectorVariable;
-
+        
         private TerminalNode selectorEnd;
         
         public TerminalNode SELECTOR_START() {
