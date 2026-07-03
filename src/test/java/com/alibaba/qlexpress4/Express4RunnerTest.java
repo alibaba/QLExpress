@@ -1852,4 +1852,40 @@ public class Express4RunnerTest {
             .execute("default = 1\nswitch = 2;\ndefault+switch", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, result.getResult());
     }
+    
+    @Test
+    public void unicodeComparisonOperatorsTest() {
+        // Issue #414: support Unicode comparison operators ≠ (U+2260), ≥ (U+2265), ≤ (U+2264)
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Test ≠ (not equal)
+        QLResult neqTrue = express4Runner.execute("1 \u2260 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, neqTrue.getResult());
+        QLResult neqFalse = express4Runner.execute("1 \u2260 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, neqFalse.getResult());
+        
+        // Test ≥ (greater than or equal)
+        QLResult geTrue = express4Runner.execute("2 \u2265 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geTrue.getResult());
+        QLResult geEqual = express4Runner.execute("2 \u2265 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geEqual.getResult());
+        QLResult geFalse = express4Runner.execute("1 \u2265 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, geFalse.getResult());
+        
+        // Test ≤ (less than or equal)
+        QLResult leTrue = express4Runner.execute("1 \u2264 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leTrue.getResult());
+        QLResult leEqual = express4Runner.execute("2 \u2264 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leEqual.getResult());
+        QLResult leFalse = express4Runner.execute("2 \u2264 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, leFalse.getResult());
+        
+        // Test mixed with variables
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 5);
+        context.put("b", 10);
+        QLResult mixedResult = express4Runner.execute("a \u2264 b && b \u2265 a && a \u2260 b",
+            context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, mixedResult.getResult());
+    }
 }
