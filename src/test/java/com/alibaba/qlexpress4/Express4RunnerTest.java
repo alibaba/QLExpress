@@ -2026,4 +2026,17 @@ public class Express4RunnerTest {
         assertEquals(true, express4Runner.execute("a != 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
         assertEquals(true, express4Runner.execute("a <> 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
     }
+
+    @Test
+    public void parseToDefinitionWithCacheInvalidScriptTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        try {
+            express4Runner.parseToDefinitionWithCache("invalid syntax @@#$");
+            fail("Expected QLSyntaxException for invalid script");
+        }
+        catch (QLSyntaxException e) {
+            // The exception should have meaningful error information
+            assertNotNull(e.getMessage());
+        }
+    }
 }

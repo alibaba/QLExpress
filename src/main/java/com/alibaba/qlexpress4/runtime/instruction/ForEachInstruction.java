@@ -59,7 +59,8 @@ public class ForEachInstruction extends QLInstruction {
                 }
             }
             catch (UserDefineException e) {
-                throw errorReporter.reportFormat(QLErrorCodes.FOR_EACH_TYPE_MISMATCH.name(),
+                throw errorReporter.reportFormatWithCatch(e,
+                    QLErrorCodes.FOR_EACH_TYPE_MISMATCH.name(),
                     QLErrorCodes.FOR_EACH_TYPE_MISMATCH.getErrorMsg(),
                     itCls.getName(),
                     item == null ? "null" : item.getClass().getName());
@@ -69,7 +70,7 @@ public class ForEachInstruction extends QLInstruction {
                     throw (QLRuntimeException)t;
                 }
                 // should not run there
-                throw errorReporter.report(QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.name(),
+                throw errorReporter.report(t, QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.name(),
                     QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.getErrorMsg());
             }
         }

@@ -352,8 +352,9 @@ public class ReflectLoader {
     public static QLRuntimeException unwrapMethodInvokeEx(ErrorReporter errorReporter, String methodName,
         Exception ex) {
         if (ex instanceof IllegalArgumentException) {
-            return errorReporter.reportFormat(QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.name(),
-                String.format(QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.getErrorMsg(), methodName));
+            return errorReporter.reportFormatWithCatch(ex,
+                QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.name(),
+                QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.getErrorMsg(), methodName);
         }
         else if (ex instanceof InvocationTargetException) {
             return errorReporter.report(((InvocationTargetException)ex).getTargetException(),

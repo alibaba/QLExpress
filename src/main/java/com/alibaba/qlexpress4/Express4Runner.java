@@ -625,7 +625,7 @@ public class Express4Runner {
             return getParseFuture(script).get();
         }
         catch (Exception e) {
-            Throwable compileException = e.getCause();
+            Throwable compileException = e.getCause() != null ? e.getCause() : e;
             throw compileException instanceof QLSyntaxException ? (QLSyntaxException)compileException
                 : new RuntimeException(compileException);
         }

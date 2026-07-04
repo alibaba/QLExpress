@@ -69,7 +69,8 @@ public class NewFilledInstanceInstruction extends QLInstruction {
                 QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
         }
         catch (Exception e) {
-            throw errorReporter.report(QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
+            throw errorReporter.report(e,
+                QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
                 QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
         }
     }
