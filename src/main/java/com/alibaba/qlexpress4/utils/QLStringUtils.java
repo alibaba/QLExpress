@@ -54,6 +54,12 @@ public class QLStringUtils {
                         case '$':
                             result.append('$');
                             break;
+                        default:
+                            // Preserve unrecognized escape sequences as-is (e.g., \d stays as \d).
+                            // This is important for regex patterns embedded in string literals.
+                            result.append('\\');
+                            result.append(cur);
+                            break;
                     }
                     break;
             }

@@ -741,6 +741,27 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_string.ql[]
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
+=== 字符串转义
+
+QLExpress4 支持以下字符串转义序列（单引号和双引号字符串均适用）：
+
+[cols="1,2"]
+|===
+| 转义序列 | 含义
+
+| `\n` | 换行
+| `\t` | 制表符
+| `\r` | 回车
+| `\b` | 退格
+| `\f` | 换页
+| `\\` | 反斜杠
+| `\'` | 单引号
+| `\"` | 双引号
+| `\$` | 美元符号（用于动态字符串中避免插值）
+|===
+
+未识别的转义序列会被原样保留。例如 `'\d'` 的结果是 `\d`，`'(\d*)ch'` 的结果是 `(\d*)ch`。这一特性使得在字符串字面量中直接使用正则表达式模式成为可能，无需对反斜杠进行双重转义。
+
 === 模板语言
 
 利用动态字符串能力，QLExpress4 也可以作为一个轻量级模板引擎使用。

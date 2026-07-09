@@ -740,6 +740,27 @@ If you want QLExpress4 strings to maintain compatibility with version 3 and not 
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=disableInterpolation]
 ----
 
+=== String Escape Sequences
+
+QLExpress4 supports the following string escape sequences (applicable to both single-quoted and double-quoted strings):
+
+[cols="1,2"]
+|===
+| Escape Sequence | Meaning
+
+| `\n` | Newline
+| `\t` | Tab
+| `\r` | Carriage return
+| `\b` | Backspace
+| `\f` | Form feed
+| `\\` | Backslash
+| `\'` | Single quote
+| `\"` | Double quote
+| `\$` | Dollar sign (used in dynamic strings to avoid interpolation)
+|===
+
+Unrecognized escape sequences are preserved as-is. For example, `'\d'` produces `\d`, and `'(\d*)ch'` produces `(\d*)ch`. This makes it possible to use regex patterns directly in string literals without double-escaping backslashes.
+
 === Template Rendering
 
 Leveraging dynamic strings, QLExpress4 can also be used as a lightweight template engine.
