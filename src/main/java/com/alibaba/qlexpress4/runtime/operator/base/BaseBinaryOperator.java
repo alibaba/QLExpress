@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime.operator.base;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -313,9 +314,9 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return false;
         }
         else if (rightOperand.getClass().isArray()) {
-            Object[] rightArray = (Object[])rightOperand;
-            for (Object rightElement : rightArray) {
-                if (equals(left, new DataValue(rightElement), errorReporter)) {
+            int length = Array.getLength(rightOperand);
+            for (int i = 0; i < length; i++) {
+                if (equals(left, new DataValue(Array.get(rightOperand, i)), errorReporter)) {
                     return true;
                 }
             }
