@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4;
 
+import com.alibaba.qlexpress4.aparser.AssignVarNamesVisitor;
 import com.alibaba.qlexpress4.aparser.CheckVisitor;
 import com.alibaba.qlexpress4.aparser.GeneratorScope;
 import com.alibaba.qlexpress4.aparser.ImportManager;
@@ -269,7 +270,24 @@ public class Express4Runner {
         programContext.accept(outFunctionVisitor);
         return outFunctionVisitor.getOutFunctions();
     }
-    
+
+    /**
+     * Get variables that are assigned (created or updated) in the script, excluding locally-scoped
+     * variables such as typed declarations and for-each loop variables.
+     * <p>
+     * This includes variables on the left-hand side of assignment expressions (both plain {@code =}
+     * and compound operators like {@code +=}) and variables modified by increment/decrement operators.
+     *
+     * @param script the script content
+     * @return names of context variables assigned in the script
+     */
+    public Set<String> getAssignVarNames(String script) {
+        QLParser.ProgramContext programContext = parseToSyntaxTree(script);
+        AssignVarNamesVisitor assignVarNamesVisitor = new AssignVarNamesVisitor();
+        programContext.accept(assignVarNamesVisitor);
+        return assignVarNamesVisitor.getAssignVars();
+    }
+
     /**
      * Get the expression trace trees for the script without executing it.
      *

@@ -1247,7 +1247,122 @@ public class Express4RunnerTest {
             express4Runner.getOutVarNames("for(i : i) {\n" + "  if(i > 0) { return i; }\n" + "}\n" + "return 0;");
         Assert.assertEquals(Collections.singleton("i"), actual);
     }
-    
+
+    @Test
+    public void getAssignVarNamesTest() {
+        // tag::getAssignVarNames[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+
+        // Simple assignment: 'a' is assigned
+        Set<String> assignVars1 = express4Runner.getAssignVarNames("a = b");
+        Assert.assertEquals(Collections.singleton("a"), assignVars1);
+
+        // Typed declaration: 'a' is a local variable, not a context assignment
+        Set<String> assignVars2 = express4Runner.getAssignVarNames("object a = b");
+        Assert.assertEquals(Collections.emptySet(), assignVars2);
+
+        // Multiple assignments with compound operator
+        Set<String> assignVars3 = express4Runner.getAssignVarNames("a = 1; b += 1");
+        Set<String> expectedSet3 = new HashSet<>();
+        expectedSet3.add("a");
+        expectedSet3.add("b");
+        Assert.assertEquals(expectedSet3, assignVars3);
+
+        // Both a and b are assigned (a first, then b using a)
+        Set<String> assignVars4 = express4Runner.getAssignVarNames("a = 1; b = a + 1");
+        Set<String> expectedSet4 = new HashSet<>();
+        expectedSet4.add("a");
+        expectedSet4.add("b");
+        Assert.assertEquals(expectedSet4, assignVars4);
+        // end::getAssignVarNames[]
+
+        // Compound assignment only
+        Assert.assertEquals(Collections.singleton("a"), express4Runner.getAssignVarNames("a += 1"));
+
+        // Self-assignment after initial assignment
+        Set<String> assignVarsSelf = express4Runner.getAssignVarNames("a = 1; a = a + 1");
+        Assert.assertEquals(Collections.singleton("a"), assignVarsSelf);
+
+        // Typed declarations are local, plain assignments are context-level
+        Set<String> assignVarsDecl = express4Runner.getAssignVarNames("int a = 1, b = 10;\nc = 11\ne = a + b + c + d");
+        Set<String> expectedSetDecl = new HashSet<>();
+        expectedSetDecl.add("c");
+        expectedSetDecl.add("e");
+        Assert.assertEquals(expectedSetDecl, assignVarsDecl);
+
+        // Verify complementarity: outVars and assignVars for the same script
+        String script = "int a = 1, b = 10;\nc = 11\ne = a + b + c + d\nf + e";
+        Set<String> outVars = express4Runner.getOutVarNames(script);
+        Set<String> assignVars = express4Runner.getAssignVarNames(script);
+        Set<String> expectedOut = new HashSet<>();
+        expectedOut.add("d");
+        expectedOut.add("f");
+        Set<String> expectedAssign = new HashSet<>();
+        expectedAssign.add("c");
+        expectedAssign.add("e");
+        Assert.assertEquals(expectedOut, outVars);
+        Assert.assertEquals(expectedAssign, assignVars);
+
+        // For-each loop variable is local; 'a' and 'sum' are context-level assignments
+        Set<String> assignVarsForEach =
+            express4Runner.getAssignVarNames("a = [1,2,3]\nfor(i : a) {\n  sum += i;\n}");
+        Set<String> expectedForEach = new HashSet<>();
+        expectedForEach.add("a");
+        expectedForEach.add("sum");
+        Assert.assertEquals(expectedForEach, assignVarsForEach);
+
+        // If-else scoping: assignment inside block should still be collected
+        Set<String> assignVarsIf = express4Runner.getAssignVarNames("if (true) {a = 10} else {a = 20}");
+        Assert.assertEquals(Collections.singleton("a"), assignVarsIf);
+
+        // While loop with increment and assignment
+        Set<String> assignVarsWhile = express4Runner.getAssignVarNames("while (a > 2) {a++; b = 100}");
+        Set<String> expectedWhile = new HashSet<>();
+        expectedWhile.add("a");
+        expectedWhile.add("b");
+        Assert.assertEquals(expectedWhile, assignVarsWhile);
+
+        // Field assignment should NOT include the base variable
+        Set<String> assignVarsField = express4Runner.getAssignVarNames("obj.field = 10");
+        Assert.assertEquals(Collections.emptySet(), assignVarsField);
+
+        // Function parameters should not be in assign vars
+        Set<String> assignVarsFunc = express4Runner.getAssignVarNames(
+            "function sub(a, b) {\n    return a - b;\n}\nresult = sub(x, y);");
+        Assert.assertEquals(Collections.singleton("result"), assignVarsFunc);
+
+        // Switch with typed declarations (local) - only untyped assignments collected
+        Set<String> assignVarsSwitch = express4Runner.getAssignVarNames(
+            "int x = 1;\nswitch (x) {\n  case 1:\n    int localVar = 10;\n    break;\n  case 2:\n    int y = 20;\n    break;\n}");
+        Assert.assertEquals(Collections.emptySet(), assignVarsSwitch);
+
+        // Selector variable assignment
+        Set<String> assignVarsSelector = express4Runner.getAssignVarNames("${0} = ${1}");
+        Assert.assertEquals(Collections.singleton("0"), assignVarsSelector);
+
+        // Expression with no assignments
+        Assert.assertEquals(Collections.emptySet(), express4Runner.getAssignVarNames("a + b"));
+        Assert.assertEquals(Collections.emptySet(), express4Runner.getAssignVarNames("hello()"));
+
+        // Dynamic string assignment
+        Set<String> assignVarsDyStr = express4Runner.getAssignVarNames("msg = \"Hello ${name}\"");
+        Assert.assertEquals(Collections.singleton("msg"), assignVarsDyStr);
+
+        // Increment in larger expression: b = a++ + 1 modifies both 'a' and 'b'
+        Set<String> assignVarsIncExpr = express4Runner.getAssignVarNames("b = a++ + 1");
+        Set<String> expectedIncExpr = new HashSet<>();
+        expectedIncExpr.add("a");
+        expectedIncExpr.add("b");
+        Assert.assertEquals(expectedIncExpr, assignVarsIncExpr);
+
+        // Decrement in assignment
+        Set<String> assignVarsDecExpr = express4Runner.getAssignVarNames("b = --a");
+        Set<String> expectedDecExpr = new HashSet<>();
+        expectedDecExpr.add("a");
+        expectedDecExpr.add("b");
+        Assert.assertEquals(expectedDecExpr, assignVarsDecExpr);
+    }
+
     @Test
     public void getOutVarAttrsTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
