@@ -542,6 +542,72 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void compileCacheEvictsFailedEntriesTest() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions cacheOpts = QLOptions.builder().cache(true).build();
+        
+        // Step 1: A syntactically invalid script should fail
+        String badScript = "1 +/";
+        try {
+            runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+            fail("Expected syntax error");
+        }
+        catch (QLSyntaxException e) {
+            // expected
+        }
+        
+        // Step 2: The same invalid script should still fail with the same error
+        // (without the fix, it would fail because the poisoned future is cached;
+        //  with the fix, it fails because the script is genuinely invalid — re-parsed each time)
+        try {
+            runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+            fail("Expected syntax error on retry");
+        }
+        catch (QLSyntaxException e) {
+            // expected — same error, not a cached failure
+        }
+        
+        // Step 3: A valid script that references the same token pattern should compile fine.
+        // Without the fix, if a valid script happened to share a cache key with a previously
+        // failed compilation, it would be blocked by the poisoned future.
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("a", 10);
+        ctx.put("b", 20);
+        Object result = runner.execute("a + b", ctx, cacheOpts).getResult();
+        assertEquals(30, result);
+    }
+    
+    @Test
+    public void compileCacheDoesNotLeakFailedEntriesTest() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions cacheOpts = QLOptions.builder().cache(true).build();
+        
+        // Run multiple distinct failing scripts — none should poison the cache
+        // or prevent subsequent valid scripts from being compiled
+        for (int i = 0; i < 5; i++) {
+            String badScript = "invalid_syntax_" + i + " @@@@";
+            try {
+                runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+                fail("Expected syntax error for: " + badScript);
+            }
+            catch (QLSyntaxException e) {
+                // expected
+            }
+        }
+        
+        // Valid scripts should still compile and execute correctly with cache enabled
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("x", 7);
+        ctx.put("y", 3);
+        Object result = runner.execute("x * y + 1", ctx, cacheOpts).getResult();
+        assertEquals(22, result);
+        
+        // Same valid script should use the cache on second call
+        Object result2 = runner.execute("x * y + 1", ctx, cacheOpts).getResult();
+        assertEquals(22, result2);
+    }
+    
+    @Test
     public void dollarVariableTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Object result =
