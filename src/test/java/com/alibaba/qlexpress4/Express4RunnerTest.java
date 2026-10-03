@@ -1313,6 +1313,79 @@ public class Express4RunnerTest {
             express4Runner.getOutVarNames("for(i : i) {\n" + "  if(i > 0) { return i; }\n" + "}\n" + "return 0;");
         Assert.assertEquals(Collections.singleton("i"), actual);
     }
+
+    @Test
+    public void getOutVarNamesLambdaFormalParamsTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Lambda parameters (a, b) should not leak into outer scope
+        // Only 'x' and 'y' should be reported as external variables
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = (a, b) -> a + b;\n" + "return f(x, y);");
+        Set<String> expected = new HashSet<>();
+        expected.add("x");
+        expected.add("y");
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getOutVarNamesLambdaSingleParamTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Single-parameter lambda: 'x' is a lambda param, not external
+        // Only 'y' should be reported as external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = x -> x + 1;\n" + "return f(y);");
+        Assert.assertEquals(Collections.singleton("y"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesLambdaParamNotLeakTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Lambda param 'a' should not leak: after the lambda,
+        // 'a' used in 'a + 1' should be flagged as external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = (a) -> a + 1;\n" + "return a + 1;");
+        Assert.assertEquals(Collections.singleton("a"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesCatchVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Catch variable 'e' should not be reported as external
+        // Only 'x' (used in try block) should be external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "try {\n" + "  println(x);\n" + "} catch(e) {\n" + "  println(e);\n" + "}");
+        Assert.assertEquals(Collections.singleton("x"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesCatchVariableMultipleCatchesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Multiple catch blocks: each catch variable should be scoped
+        Set<String> actual = express4Runner.getOutVarNames(
+            "try {\n" + "  println(x);\n"
+                + "} catch(RuntimeException e1) {\n" + "  println(e1);\n"
+                + "} catch(Exception e2) {\n" + "  println(e2);\n" + "}");
+        Assert.assertEquals(Collections.singleton("x"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesTraditionalForLoopTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Traditional for-loop variable 'i' should not leak into outer scope
+        // 'n' is external, 'i' is local to the loop
+        Set<String> actual = express4Runner.getOutVarNames(
+            "int sum = 0;\n" + "for(int i = 0; i < n; i++) {\n" + "  sum += i;\n" + "}\n" + "return sum;");
+        Assert.assertEquals(Collections.singleton("n"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesTraditionalForLoopVarNotLeakTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // After the for-loop, 'i' should be flagged as external if used
+        Set<String> actual = express4Runner.getOutVarNames(
+            "for(int i = 0; i < 10; i++) {\n" + "  println(i);\n" + "}\n" + "return i;");
+        Assert.assertEquals(Collections.singleton("i"), actual);
+    }
     
     @Test
     public void getOutVarAttrsTest() {
