@@ -868,7 +868,7 @@ public class QLexer {
     }
     
     private boolean isCustomOperatorStart(char c) {
-        return c == '^' || c == '~' || c == '&' || c == '|' || c == '*' || c == '%' || c == '=' || c == '!' || c == '/'
+        return c == '^' || c == '~' || c == '&' || c == '|' || c == '*' || c == '%' || c == '!' || c == '/'
             || c == '+' || c == '-' || c == '?' || c == '.';
     }
     
