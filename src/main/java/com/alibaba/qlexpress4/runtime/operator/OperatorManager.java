@@ -284,15 +284,15 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     }
     
     public boolean addOperatorAlias(String lexeme, String operator) {
-        BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
-        if (originDefaultOp != null) {
-            BinaryOperator newOperator = adaptOriginOperator(originDefaultOp, lexeme);
-            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
-            return prev == null;
-        }
         BinaryOperator originCusOp = customBinaryOperatorMap.get(operator);
         if (originCusOp != null) {
             BinaryOperator newOperator = adaptOriginOperator(originCusOp, lexeme);
+            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
+            return prev == null;
+        }
+        BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
+        if (originDefaultOp != null) {
+            BinaryOperator newOperator = adaptOriginOperator(originDefaultOp, lexeme);
             BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
             return prev == null;
         }

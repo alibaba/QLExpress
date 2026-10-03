@@ -130,6 +130,9 @@ public class SpreadGetFieldInstruction extends QLInstruction {
                 // Recursively flatten
                 result.addAll(spreadGetFieldRecursive(item, qContext, qlOptions));
             }
+            else if (qlOptions.isAvoidNullPointer()) {
+                result.add(null);
+            }
             else {
                 throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
                     QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(),

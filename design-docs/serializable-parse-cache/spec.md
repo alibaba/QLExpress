@@ -2,7 +2,7 @@
 
 ## 1. 背景
 
-QLExpress 现有预编译入口是 `Express4Runner.parseToLambda(String, ExpressContext, QLOptions)`，内部最终依赖 `QCompileCache`、`QLambdaDefinitionInner`、`QLInstruction`、`TracePointTree` 等运行时对象。这些对象包含 `Class<?>`、`BinaryOperator`、`UnaryOperator`、`QLambdaDefinition`、`ErrorReporter` 以及可能由 `CompileTimeFunction` 注入的自定义指令或 Java 闭包，不适合直接序列化为 JSON，也不适合作为跨机器的稳定数据契约。
+QLExpress 现有预编译入口是 `Express4Runner.parseToLambda(String, ExpressContext, QLOptions)`，内部最终依赖 `QCompileCache`、`QLambdaDefinitionInner`、`QLInstruction`、`TracePointTree` 等运行时对象。这些对象包含 `Class<?>`、`BinaryOperator`、`UnaryOperator`、`QLambdaDefinition`、`ErrorReporter` 等运行时引用，不适合直接序列化为 JSON，也不适合作为跨机器的稳定数据契约。
 
 本设计引入一个公开的、JSON 友好的预编译模型。生产端将脚本编译为 DTO，业务方可以使用任意 JSON 库序列化该 DTO；消费端在另一台机器上将 DTO 反序列化后，通过本机 `Express4Runner` 重新绑定类、运算符等运行环境引用，并直接执行，不再重新解析脚本。
 
@@ -18,7 +18,6 @@ QLExpress 现有预编译入口是 `Express4Runner.parseToLambda(String, Express
 
 ## 3. 非目标
 
-- V1 不支持导出任意 `CompileTimeFunction` 生成的自定义 `QLInstruction`。
 - V1 不支持导出 `CallConstInstruction` 中捕获的 Java lambda、闭包或任意对象。
 - V1 不承诺 `LoadedParseCache` 跨 `Express4Runner` 实例复用。
 - V1 不把导入结果自动写入现有 `compileCache`。
@@ -52,7 +51,6 @@ DTO 是跨机器、跨进程的稳定数据边界；`LoadedParseCache` 是在某
 - `BinaryOperator`、`UnaryOperator`
 - `Class<?>`
 - `CustomFunction`
-- `CompileTimeFunction`
 - `ReflectLoader`
 - `QLSecurityStrategy`
 - `ImportManager`
@@ -106,9 +104,9 @@ public SerializableParseCache parseToSerializableCache(String script);
 
 行为：
 
-- 使用当前 Runner 的 `InitOptions`、默认 import、宏、编译期函数和运算符配置编译脚本。
+- 使用当前 Runner 的 `InitOptions`、默认 import、宏和运算符配置编译脚本。
 - 将内部 `QCompileCache` 转换为 JSON 友好的 `SerializableParseCache`。
-- 如果遇到 V1 不支持的指令、常量或编译期函数产物，抛出 `SerializableParseCacheException`。
+- 如果遇到 V1 不支持的指令或常量，抛出 `SerializableParseCacheException`。
 - 不写入现有 `compileCache`。
 
 ### 5.2 导入
@@ -630,7 +628,7 @@ mvn test
 - DTO 由用户自行选择 JSON 库序列化。
 - 生产端和消费端 Runner 环境必须等价。
 - `LoadedParseCache` 是 Runner 绑定对象。
-- V1 不支持任意编译期函数闭包导出。
+- V1 不支持包含 Java lambda、闭包或任意对象的指令导出。
 
 ## 18. 实施步骤
 
@@ -646,7 +644,6 @@ mvn test
 
 V1 暂不解决以下问题，但保留后续扩展空间：
 
-- 是否为 `CompileTimeFunction` 设计声明式序列化 SPI。
 - 是否提供可选的压缩或二进制格式。
 - 是否提供模型签名或 hash 强校验。
 - 是否把 `scriptHash` 算法固定为 API 契约。

@@ -7,13 +7,9 @@ import com.alibaba.qlexpress4.QLOptions;
 import com.alibaba.qlexpress4.QLPrecedences;
 import com.alibaba.qlexpress4.QLResult;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
-import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLException;
-import com.alibaba.qlexpress4.runtime.QResult;
 import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
-import com.alibaba.qlexpress4.runtime.data.DataValue;
-import com.alibaba.qlexpress4.runtime.instruction.CallConstInstruction;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -214,23 +210,6 @@ public class SerializableParseCacheTest {
         assertParseCacheError(runner,
             operatorNotFound,
             QLErrorCodes.SERIALIZABLE_PARSE_CACHE_OPERATOR_NOT_FOUND.name());
-    }
-    
-    @Test
-    public void callConstInstructionIsRejectedOnExport() {
-        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-        CompileTimeFunction compileTimeFunction = (functionName, arguments, operatorFactory,
-            codeGenerator) -> codeGenerator.addInstruction(new CallConstInstruction(codeGenerator.getErrorReporter(),
-                params -> new QResult(new DataValue(1), QResult.ResultType.RETURN), 0, functionName));
-        runner.addCompileTimeFunction("CONST_CALL", compileTimeFunction);
-        
-        try {
-            runner.parseToSerializableCache("CONST_CALL()");
-            fail("CallConstInstruction export should fail");
-        }
-        catch (SerializableParseCacheException e) {
-            assertEquals(QLErrorCodes.SERIALIZABLE_PARSE_CACHE_UNSUPPORTED_INSTRUCTION.name(), e.getErrorCode());
-        }
     }
     
     private static SerializableInstruction findInstruction(SerializableParseCache cache, String opcode) {

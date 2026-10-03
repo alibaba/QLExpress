@@ -111,13 +111,65 @@ public abstract class ScopeStackVisitor extends QLParserBaseVisitor<Void> {
     }
     
     @Override
-    public Void visitTryCatch(QLParser.TryCatchContext ctx) {
+    public Void visitForEachStatement(QLParser.ForEachStatementContext ctx) {
+        ctx.expression().accept(this);
         push();
-        super.visitTryCatch(ctx);
+        getStack().add(ctx.varId().getText());
+        ctx.blockStatements().accept(this);
         pop();
         return null;
     }
-    
+
+    @Override
+    public Void visitLambdaExpr(QLParser.LambdaExprContext ctx) {
+        push();
+        QLParser.LambdaParametersContext params = ctx.lambdaParameters();
+        if (params.varId() != null) {
+            getStack().add(params.varId().getText());
+        }
+        else if (params.formalOrInferredParameterList() != null) {
+            params.formalOrInferredParameterList().accept(this);
+        }
+        if (ctx.blockStatements() != null) {
+            ctx.blockStatements().accept(this);
+        }
+        else if (ctx.expression() != null) {
+            ctx.expression().accept(this);
+        }
+        pop();
+        return null;
+    }
+
+    @Override
+    public Void visitTryCatch(QLParser.TryCatchContext ctx) {
+        push();
+        if (ctx.catchParams() != null && ctx.catchParams().varId() != null) {
+            getStack().add(ctx.catchParams().varId().getText());
+        }
+        ctx.blockStatements().accept(this);
+        pop();
+        return null;
+    }
+
+    @Override
+    public Void visitTraditionalForStatement(QLParser.TraditionalForStatementContext ctx) {
+        push();
+        if (ctx.forInit() != null) {
+            ctx.forInit().accept(this);
+        }
+        if (ctx.forCondition != null) {
+            ctx.forCondition.accept(this);
+        }
+        if (ctx.forUpdate != null) {
+            ctx.forUpdate.accept(this);
+        }
+        if (ctx.blockStatements() != null) {
+            ctx.blockStatements().accept(this);
+        }
+        pop();
+        return null;
+    }
+
     @Override
     public Void visitFunctionStatement(QLParser.FunctionStatementContext ctx) {
         ctx.varId().accept(this);

@@ -21,6 +21,6 @@ public class QLambdaInvocationHandler implements InvocationHandler {
         throws Throwable {
         return Modifier.isAbstract(method.getModifiers()) ? qLambda.call(args).getResult().get()
             : method.getReturnType() == String.class && "toString".equals(method.getName()) ? "QLambdaProxy"
-                : method.invoke(args);
+                : method.invoke(proxy, args);
     }
 }

@@ -36,6 +36,13 @@ public class LogicOrOperator extends BaseBinaryOperator {
         ErrorReporter errorReporter) {
         Object leftValue = left.get();
         Object rightValue = right.get();
+        if (leftValue == null) {
+            leftValue = false;
+        }
+        if (rightValue == null) {
+            rightValue = false;
+        }
+
         if (!(leftValue instanceof Boolean) || !(rightValue instanceof Boolean)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }

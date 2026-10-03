@@ -12,7 +12,6 @@ import com.alibaba.qlexpress4.aparser.QLParser;
 import com.alibaba.qlexpress4.aparser.QvmInstructionVisitor;
 import com.alibaba.qlexpress4.aparser.SyntaxTreeFactory;
 import com.alibaba.qlexpress4.aparser.TraceExpressionVisitor;
-import com.alibaba.qlexpress4.aparser.compiletimefunction.CompileTimeFunction;
 import com.alibaba.qlexpress4.api.BatchAddFunctionResult;
 import com.alibaba.qlexpress4.api.QLFunctionalVarargs;
 import com.alibaba.qlexpress4.api.parsecache.LoadedParseCache;
@@ -74,8 +73,6 @@ public class Express4Runner {
     
     private final Map<String, CustomFunction> userDefineFunction = new ConcurrentHashMap<>();
     
-    private final Map<String, CompileTimeFunction> compileTimeFunctions = new ConcurrentHashMap<>();
-    
     private final GeneratorScope globalScope = new GeneratorScope(null, "global", new ConcurrentHashMap<>());
     
     private final ReflectLoader reflectLoader;
@@ -89,10 +86,6 @@ public class Express4Runner {
     
     public CustomFunction getFunction(String functionName) {
         return userDefineFunction.get(functionName);
-    }
-    
-    public CompileTimeFunction getCompileTimeFunction(String functionName) {
-        return compileTimeFunctions.get(functionName);
     }
     
     /**
@@ -313,7 +306,7 @@ public class Express4Runner {
         QLParser.ProgramContext macroProgram = parseToSyntaxTree(macroScript);
         QvmInstructionVisitor macroVisitor = new QvmInstructionVisitor(macroScript, inheritDefaultImport(),
             new GeneratorScope("MACRO_" + name, globalScope), operatorManager, QvmInstructionVisitor.Context.MACRO,
-            compileTimeFunctions, userDefineFunction, initOptions);
+            userDefineFunction, initOptions);
         macroProgram.accept(macroVisitor);
         List<QLInstruction> macroInstructions = macroVisitor.getInstructions();
         List<QLParser.BlockStatementContext> blockStatementContexts = macroProgram.blockStatements().blockStatement();
@@ -498,16 +491,6 @@ public class Express4Runner {
     }
     
     /**
-     * add compile time function
-     * @param name function name
-     * @param compileTimeFunction definition
-     * @return true if successful
-     */
-    public boolean addCompileTimeFunction(String name, CompileTimeFunction compileTimeFunction) {
-        return compileTimeFunctions.putIfAbsent(name, compileTimeFunction) == null;
-    }
-    
-    /**
      * add extension function
      * @param extensionFunction definition of extansion function
      */
@@ -638,10 +621,14 @@ public class Express4Runner {
      * @return QLambdaDefinition and TracePointTrees
      */
     public QCompileCache parseToDefinitionWithCache(String script) {
+        Future<QCompileCache> future = getParseFuture(script);
         try {
-            return getParseFuture(script).get();
+            return future.get();
         }
         catch (Exception e) {
+            // Evict the failed future so the next call can retry compilation.
+            // Uses conditional remove to avoid evicting a replacement inserted by another thread.
+            compileCache.remove(script, future);
             Throwable compileException = e.getCause();
             throw compileException instanceof QLSyntaxException ? (QLSyntaxException)compileException
                 : new RuntimeException(compileException);
@@ -679,7 +666,7 @@ public class Express4Runner {
     private QCompileCache parseDefinition(String script) {
         QLParser.ProgramContext program = parseToSyntaxTree(script);
         QvmInstructionVisitor qvmInstructionVisitor = new QvmInstructionVisitor(script, inheritDefaultImport(),
-            globalScope, operatorManager, compileTimeFunctions, userDefineFunction, initOptions);
+            globalScope, operatorManager, userDefineFunction, initOptions);
         program.accept(qvmInstructionVisitor);
         
         QLambdaDefinitionInner qLambdaDefinition = new QLambdaDefinitionInner("main",

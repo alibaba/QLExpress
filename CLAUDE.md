@@ -89,7 +89,6 @@ Express4Runner
 ├─ 依赖: OperatorManager, ReflectLoader, InitOptions
 ├─ 包含: 编译缓存(Map<String, Future<QCompileCache>>)
 ├─ 包含: 用户函数(Map<String, CustomFunction>)
-├─ 包含: 编译时函数(Map<String, CompileTimeFunction>)
 └─ 包含: 全局作用域(GeneratorScope)
 
 ↓ 编译流程

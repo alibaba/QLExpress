@@ -498,7 +498,7 @@ public class QLParser {
     private LocalVariableDeclarationContext tryParseLocalVariableDeclaration() {
         int save = p;
         try {
-            DeclTypeContext declType = parseDeclType();
+            DeclTypeContext declType = parseDeclType(false);
             if (!isVarIdToken(lt().getType())) {
                 p = save;
                 return null;
@@ -1627,13 +1627,17 @@ public class QLParser {
     }
     
     private DeclTypeContext parseDeclType() {
+        return parseDeclType(true);
+    }
+    
+    private DeclTypeContext parseDeclType(boolean allowDiamond) {
         DeclTypeContext ctx = new DeclTypeContext();
         if (isPrimitiveType(lt().getType())) {
             ctx.primitiveType = parsePrimitiveType();
             ctx.addChild(ctx.primitiveType);
         }
         else if (isVarIdToken(lt().getType())) {
-            ctx.clsType = parseClsType();
+            ctx.clsType = parseClsType(allowDiamond);
             ctx.addChild(ctx.clsType);
         }
         else {
@@ -1653,7 +1657,7 @@ public class QLParser {
             ctx.addChild(ctx.primitiveType);
         }
         else if (isVarIdToken(lt().getType())) {
-            ctx.clsType = parseClsType();
+            ctx.clsType = parseClsType(true);
             ctx.addChild(ctx.clsType);
         }
         else {
@@ -1671,7 +1675,7 @@ public class QLParser {
         return ctx;
     }
     
-    private ClsTypeContext parseClsType() {
+    private ClsTypeContext parseClsType(boolean allowDiamond) {
         ClsTypeContext ctx = new ClsTypeContext();
         ctx.varIds.add(parseVarId());
         ctx.addChild(ctx.varIds.get(0));
@@ -1681,8 +1685,15 @@ public class QLParser {
             ctx.varIds.add(id);
             ctx.addChild(id);
         }
-        if (la(LT) || la(NOEQ)) {
-            parseTypeArguments();
+        if (la(LT) || allowDiamond && la(NOEQ)) {
+            int save = p;
+            try {
+                parseTypeArguments();
+            }
+            catch (QLException e) {
+                p = save;
+            }
+            
         }
         return ctx;
     }
@@ -1730,7 +1741,7 @@ public class QLParser {
     
     private void parseReferenceType() {
         if (isVarIdToken(lt().getType())) {
-            parseClsType();
+            parseClsType(true);
             if (la(LBRACK) && la(1, RBRACK)) {
                 parseDims();
             }

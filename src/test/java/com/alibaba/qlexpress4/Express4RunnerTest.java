@@ -11,10 +11,7 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.inport.MyDesk;
-import com.alibaba.qlexpress4.runtime.Parameters;
-import com.alibaba.qlexpress4.runtime.QContext;
-import com.alibaba.qlexpress4.runtime.QLambda;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
@@ -542,6 +539,72 @@ public class Express4RunnerTest {
         
         long cost = System.currentTimeMillis() - start;
         Assert.assertTrue(cost < 5000);
+    }
+    
+    @Test
+    public void compileCacheEvictsFailedEntriesTest() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions cacheOpts = QLOptions.builder().cache(true).build();
+        
+        // Step 1: A syntactically invalid script should fail
+        String badScript = "1 +/";
+        try {
+            runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+            fail("Expected syntax error");
+        }
+        catch (QLSyntaxException e) {
+            // expected
+        }
+        
+        // Step 2: The same invalid script should still fail with the same error
+        // (without the fix, it would fail because the poisoned future is cached;
+        //  with the fix, it fails because the script is genuinely invalid — re-parsed each time)
+        try {
+            runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+            fail("Expected syntax error on retry");
+        }
+        catch (QLSyntaxException e) {
+            // expected — same error, not a cached failure
+        }
+        
+        // Step 3: A valid script that references the same token pattern should compile fine.
+        // Without the fix, if a valid script happened to share a cache key with a previously
+        // failed compilation, it would be blocked by the poisoned future.
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("a", 10);
+        ctx.put("b", 20);
+        Object result = runner.execute("a + b", ctx, cacheOpts).getResult();
+        assertEquals(30, result);
+    }
+    
+    @Test
+    public void compileCacheDoesNotLeakFailedEntriesTest() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        QLOptions cacheOpts = QLOptions.builder().cache(true).build();
+        
+        // Run multiple distinct failing scripts — none should poison the cache
+        // or prevent subsequent valid scripts from being compiled
+        for (int i = 0; i < 5; i++) {
+            String badScript = "invalid_syntax_" + i + " @@@@";
+            try {
+                runner.execute(badScript, Collections.emptyMap(), cacheOpts);
+                fail("Expected syntax error for: " + badScript);
+            }
+            catch (QLSyntaxException e) {
+                // expected
+            }
+        }
+        
+        // Valid scripts should still compile and execute correctly with cache enabled
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("x", 7);
+        ctx.put("y", 3);
+        Object result = runner.execute("x * y + 1", ctx, cacheOpts).getResult();
+        assertEquals(22, result);
+        
+        // Same valid script should use the cache on second call
+        Object result2 = runner.execute("x * y + 1", ctx, cacheOpts).getResult();
+        assertEquals(22, result2);
     }
     
     @Test
@@ -1225,6 +1288,106 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void getOutVarNamesForEachLocalVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("a = [1,2,2]\n" + "for(i : a) {\n" + "  if(i > 2) { return 1; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.emptySet(), actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachExternalVariablesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("for(i : items) {\n" + "  if(i > threshold) { return i; }\n" + "}\n" + "return 0;");
+        Set<String> expected = new HashSet<>();
+        expected.add("items");
+        expected.add("threshold");
+        Assert.assertEquals(expected, actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachTargetUsesOuterScopeTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual =
+            express4Runner.getOutVarNames("for(i : i) {\n" + "  if(i > 0) { return i; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.singleton("i"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesLambdaFormalParamsTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Lambda parameters (a, b) should not leak into outer scope
+        // Only 'x' and 'y' should be reported as external variables
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = (a, b) -> a + b;\n" + "return f(x, y);");
+        Set<String> expected = new HashSet<>();
+        expected.add("x");
+        expected.add("y");
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getOutVarNamesLambdaSingleParamTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Single-parameter lambda: 'x' is a lambda param, not external
+        // Only 'y' should be reported as external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = x -> x + 1;\n" + "return f(y);");
+        Assert.assertEquals(Collections.singleton("y"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesLambdaParamNotLeakTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Lambda param 'a' should not leak: after the lambda,
+        // 'a' used in 'a + 1' should be flagged as external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "f = (a) -> a + 1;\n" + "return a + 1;");
+        Assert.assertEquals(Collections.singleton("a"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesCatchVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Catch variable 'e' should not be reported as external
+        // Only 'x' (used in try block) should be external
+        Set<String> actual = express4Runner.getOutVarNames(
+            "try {\n" + "  println(x);\n" + "} catch(e) {\n" + "  println(e);\n" + "}");
+        Assert.assertEquals(Collections.singleton("x"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesCatchVariableMultipleCatchesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Multiple catch blocks: each catch variable should be scoped
+        Set<String> actual = express4Runner.getOutVarNames(
+            "try {\n" + "  println(x);\n"
+                + "} catch(RuntimeException e1) {\n" + "  println(e1);\n"
+                + "} catch(Exception e2) {\n" + "  println(e2);\n" + "}");
+        Assert.assertEquals(Collections.singleton("x"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesTraditionalForLoopTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Traditional for-loop variable 'i' should not leak into outer scope
+        // 'n' is external, 'i' is local to the loop
+        Set<String> actual = express4Runner.getOutVarNames(
+            "int sum = 0;\n" + "for(int i = 0; i < n; i++) {\n" + "  sum += i;\n" + "}\n" + "return sum;");
+        Assert.assertEquals(Collections.singleton("n"), actual);
+    }
+
+    @Test
+    public void getOutVarNamesTraditionalForLoopVarNotLeakTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // After the for-loop, 'i' should be flagged as external if used
+        Set<String> actual = express4Runner.getOutVarNames(
+            "for(int i = 0; i < 10; i++) {\n" + "  println(i);\n" + "}\n" + "return i;");
+        Assert.assertEquals(Collections.singleton("i"), actual);
+    }
+    
+    @Test
     public void getOutVarAttrsTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(Arrays.asList("a.b.c", "a.b.d", "c.m"),
@@ -1406,7 +1569,35 @@ public class Express4RunnerTest {
             .getResult();
         assertEquals("a nullnull", result);
     }
-    
+
+    @Test
+    public void avoidNullPointerMissingFieldTest() {
+        MyDesk desk = new MyDesk();
+        desk.setBook1("Thinking in Java");
+        Map<String, Object> context = Collections.singletonMap("desk", desk);
+
+        // with avoidNullPointer, accessing a non-existent field on a non-null object should return null
+        Express4Runner runner = new Express4Runner(InitOptions.builder()
+            .securityStrategy(QLSecurityStrategy.open()).build());
+        Object result = runner.execute("desk.nonExistentField", context,
+            QLOptions.builder().avoidNullPointer(true).build()).getResult();
+        assertNull(result);
+
+        // chained access through a non-null object with a missing intermediate field should also return null
+        Object chainedResult = runner.execute("desk.nonExistentField.anything", context,
+            QLOptions.builder().avoidNullPointer(true).build()).getResult();
+        assertNull(chainedResult);
+
+        // without avoidNullPointer, accessing a non-existent field should still throw FIELD_NOT_FOUND
+        try {
+            runner.execute("desk.nonExistentField", context, QLOptions.DEFAULT_OPTIONS);
+            fail("Expected FIELD_NOT_FOUND exception");
+        }
+        catch (QLException e) {
+            assertEquals("FIELD_NOT_FOUND", e.getErrorCode());
+        }
+    }
+
     @Test
     public void atFunctionTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
@@ -2025,5 +2216,58 @@ public class Express4RunnerTest {
             "com.alibaba.qlexpress4.inport.VarArgsHelper.sum(10)",
             new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(10, result4.getResult());
+    }
+    
+    @Test
+    public void testLessOp() {
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "c");
+        context.put("y", new MetaClass(List.class));
+        assertTrue((Boolean)express4Runner.execute("a < 2", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean)express4Runner.execute("c < \"a\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertTrue((Boolean)express4Runner.execute("a <> b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(new ArrayList<>(),
+            express4Runner.execute("List<Integer> x = new ArrayList<>(); x", context, QLOptions.DEFAULT_OPTIONS)
+                .getResult());
+        assertEquals(Boolean.FALSE,
+            express4Runner.execute("List<> y;", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        
+    }
+    
+    @Test
+    public void compareTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Number> context = new HashMap<>();
+        context.put("a", 10);
+        assertEquals(false, express4Runner.execute("a < 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a <= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a > 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a >= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a == 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a != 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a <> 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+    }
+
+    @Test
+    public void aliasShouldUseReplacedOperator() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.replaceDefaultOperator(">",
+            (left, right) -> ((Comparable) left.get()).compareTo(right.get()) >= 0);
+        assertTrue(runner.addAlias("大于", ">"));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 3);
+        context.put("b", 3);
+
+        assertEquals(true, runner.execute("a > b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, runner.execute("a 大于 b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+
+        context.put("a", 2);
+        assertEquals(false, runner.execute("a > b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, runner.execute("a 大于 b", context, QLOptions.DEFAULT_OPTIONS).getResult());
     }
 }

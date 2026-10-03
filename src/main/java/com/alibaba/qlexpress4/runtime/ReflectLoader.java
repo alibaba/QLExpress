@@ -82,7 +82,7 @@ public class ReflectLoader {
     
     public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
-            return new DataValue(((Object[])bean).length);
+            return new DataValue(Array.getLength(bean));
         }
         else if (bean instanceof List && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(((List<?>)bean).size());
