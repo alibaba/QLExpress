@@ -445,6 +445,24 @@ The following example code adds a `hello()` extension function to the String cla
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=extensionFunction]
 ----
 
+=== Extend Field Handler
+
+By default, `obj.field` can only read fields or getters of standard Java Beans. For non-standard containers such as Flink Row, JDBC ResultSet or user-defined MapLike/CollectionLike structures, field access is closed, and users usually have to convert and copy the data before they can access it in scripts.
+
+With `addExtendFieldHandler(Class, ExtendFieldHandler)` you can register a custom field-access handler for a given type, so that these non-standard containers can also be accessed with the regular `obj.field` syntax:
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/ExtendFieldHandlerTest.java[tag=extendFieldHandler]
+----
+
+Once a bean is an instance of the binding class (`bindingClass`), the handler becomes the *authoritative* source for that type's fields: whatever it returns is taken as the field value, and returning `null` means the field value itself is `null` rather than falling back to the default Java reflection logic. The default logic only applies when no handler's binding class matches the current bean. Therefore the two cases of `obj.field` are distinguished as follows:
+
+* the bean type is not bound to any handler → the default reflection logic applies;
+* the bean type is bound but the field value is `null` → `null` is returned.
+
+If a container should signal "field does not exist" rather than return `null`, throw an exception from within the handler.
+
 === Java Class Object, Field, and Method Aliases
 
 QLExpress supports defining one or more aliases for objects, fields, or methods through the `QLAlias` annotation, making it convenient for non-technical personnel to use expressions to define rules.

@@ -8,6 +8,7 @@ import com.alibaba.qlexpress4.member.MethodHandler;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.data.FieldValue;
 import com.alibaba.qlexpress4.runtime.data.MapItemValue;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.FilterExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.MapExtensionFunction;
@@ -48,7 +49,15 @@ public class ReflectLoader {
      */
     private final List<ExtensionFunction> extensionFunctions =
         new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
-    
+
+    /**
+     * Custom field-access handlers registered by the user. Each entry binds a handler to a
+     * receiver type (e.g. Flink Row, JDBC ResultSet or other non-standard containers).
+     * The list is iterated in insertion order; the first handler whose binding class is
+     * assignable from the bean's class is considered authoritative.
+     */
+    private final List<ExtendFieldHandlerHolder> fieldHandlers = new CopyOnWriteArrayList<>();
+
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
@@ -57,7 +66,24 @@ public class ReflectLoader {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         extensionFunctions.add(extensionFunction);
     }
-    
+
+    /**
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet or user-defined
+     * MapLike/CollectionLike) during the field-access stage of a QL expression.
+     * <p>
+     * Once the bean is assignable to {@code bindingClass}, the handler becomes the authoritative
+     * source for that bean's fields: whatever it returns (including {@code null}) is taken as the
+     * field value. Handlers are consulted in registration order, so an earlier registration for an
+     * assignable type wins.
+     *
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
+     */
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        fieldHandlers.add(new ExtendFieldHandlerHolder(bindingClass, fieldHandler));
+    }
+
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         if (securityStrategy instanceof StrategyIsolation) {
             return null;
@@ -81,6 +107,12 @@ public class ReflectLoader {
     }
     
     public Value loadField(Object bean, String fieldName, boolean skipSecurity, ErrorReporter errorReporter) {
+        // first try the user-registered custom field handlers (e.g. Flink Row, JDBC ResultSet)
+        Value extended = loadExtendField(bean, fieldName);
+        if (extended != null) {
+            return extended;
+        }
+
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(Array.getLength(bean));
         }
@@ -104,7 +136,27 @@ public class ReflectLoader {
             return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
     }
-    
+
+    /**
+     * Dispatch the field access to the first user-registered handler whose binding class is
+     * assignable from the bean's class. Such a handler is authoritative for the bean type, so its
+     * result is wrapped and returned even when it is {@code null} (meaning the field value itself
+     * is {@code null}). Returns {@code null} only when no handler's binding class matches, so that
+     * the caller falls back to the default field-access logic.
+     */
+    private Value loadExtendField(Object bean, String fieldName) {
+        if (fieldHandlers.isEmpty()) {
+            return null;
+        }
+        Class<?> beanClass = bean.getClass();
+        for (ExtendFieldHandlerHolder holder : fieldHandlers) {
+            if (holder.getBindingClass().isAssignableFrom(beanClass)) {
+                return new DataValue(holder.getHandler().getField(bean, fieldName));
+            }
+        }
+        return null;
+    }
+
     public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         boolean isStaticMethod = bean instanceof MetaClass;
         Class<?> clz = isStaticMethod ? ((MetaClass)bean).getClz() : bean.getClass();
@@ -367,6 +419,28 @@ public class ReflectLoader {
         }
     }
     
+    /**
+     * Binds an {@link ExtendFieldHandler} to the receiver type it handles.
+     */
+    private static class ExtendFieldHandlerHolder {
+        private final Class<?> bindingClass;
+
+        private final ExtendFieldHandler handler;
+
+        private ExtendFieldHandlerHolder(Class<?> bindingClass, ExtendFieldHandler handler) {
+            this.bindingClass = bindingClass;
+            this.handler = handler;
+        }
+
+        public Class<?> getBindingClass() {
+            return bindingClass;
+        }
+
+        public ExtendFieldHandler getHandler() {
+            return handler;
+        }
+    }
+
     private static class FieldReflectCache {
         private final BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier;
         

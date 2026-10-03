@@ -446,6 +446,24 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=scri
 include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=extensionFunction]
 ----
 
+=== 扩展字段取值
+
+默认情况下，`obj.field` 只能读取标准 Java Bean 的字段或 getter。对于 Flink Row、JDBC ResultSet 或者自定义的 MapLike/CollectionLike 等非标准容器，字段取值逻辑是封闭的，用户往往需要先做一次转换拷贝才能在脚本中访问。
+
+通过 `addExtendFieldHandler(Class, ExtendFieldHandler)` 可以给某个类型注册一个自定义的字段取值处理器，让这些非标准容器也能直接用 `obj.field` 语法访问：
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/ExtendFieldHandlerTest.java[tag=extendFieldHandler]
+----
+
+一旦 bean 是绑定类（`bindingClass`）的实例，该处理器就是这个类型字段取值的**权威**来源：它返回什么就是什么，返回 `null` 表示字段的值就是 `null`，而不会回退到默认的 Java 反射逻辑。只有当没有任何处理器的绑定类匹配当前 bean 时，才走默认取值逻辑。因此 `obj.field` 的两种情况可以这样区分：
+
+* bean 的类型没有绑定任何处理器 → 走默认反射逻辑；
+* bean 的类型绑定了处理器但字段值为 `null` → 返回 `null`。
+
+如果某个容器希望对「字段不存在」报错而不是返回 `null`，可以在处理器内部主动抛出异常。
+
 === Java类的对象,字段和方法别名
 
 QLExpress 支持通过 `QLAlias` 注解给对象，字段或者方法定义一个或多个别名，方便非技术人员使用表达式定义规则。
