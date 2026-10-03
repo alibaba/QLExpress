@@ -61,6 +61,9 @@ public class MemberResolver {
             if (!constructor.isVarArgs()) {
                 continue;
             }
+            if (argTypes.length < constructor.getParameterTypes().length - 1) {
+                continue;
+            }
             varArgsCandidates.add(adapt2VarArgTypes(constructor.getParameterTypes(), argTypes.length));
             varArgsConstructorI.add(i);
         }
@@ -154,6 +157,9 @@ public class MemberResolver {
         for (int i = 0; i < methods.size(); i++) {
             IMethod declaredMethod = methods.get(i);
             if (!declaredMethod.isVarArgs()) {
+                continue;
+            }
+            if (argTypes.length < declaredMethod.getParameterTypes().length - 1) {
                 continue;
             }
             varArgsCandidates.add(adapt2VarArgTypes(declaredMethod.getParameterTypes(), argTypes.length));

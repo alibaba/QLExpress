@@ -2159,6 +2159,64 @@ public class Express4RunnerTest {
         QLResult result = express4Runner.execute("CURRENT_TIME()", context, QLOptions.DEFAULT_OPTIONS);
         assertTrue((Long)result.getResult() > 0);
     }
+
+    @Test
+    public void testNewFilledInstanceWithNoDefaultConstructor() {
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+
+        try {
+            express4Runner.execute(
+                "{'@class': 'com.alibaba.qlexpress4.inport.NoDefaultConstructor', 'name': 'test'}",
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+            fail("Expected QLRuntimeException for class without no-arg constructor");
+        }
+        catch (QLRuntimeException e) {
+            assertTrue("Expected NO_SUITABLE_CONSTRUCTOR error but got: " + e.getMessage(),
+                e.getMessage().contains("no suitable constructor"));
+        }
+    }
+
+    @Test
+    public void testVarArgsMethodWithTooFewArgs() {
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+
+        // Calling a varargs method with fewer arguments than required parameters should
+        // produce a meaningful error instead of ArrayIndexOutOfBoundsException
+        try {
+            express4Runner.execute("com.alibaba.qlexpress4.inport.VarArgsHelper.sum()",
+                new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+            fail("Expected QLRuntimeException for varargs method called with too few args");
+        }
+        catch (QLRuntimeException e) {
+            // Should get a method-not-found or similar error, not ArrayIndexOutOfBoundsException
+            assertFalse("Should not expose ArrayIndexOutOfBoundsException",
+                e.getMessage().contains("ArrayIndexOutOfBounds"));
+        }
+
+        // Verify normal varargs calls still work correctly
+        QLResult result1 = express4Runner.execute(
+            "com.alibaba.qlexpress4.inport.VarArgsHelper.sumAll()",
+            new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(0, result1.getResult());
+
+        QLResult result2 = express4Runner.execute(
+            "com.alibaba.qlexpress4.inport.VarArgsHelper.sumAll(1, 2, 3)",
+            new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(6, result2.getResult());
+
+        QLResult result3 = express4Runner.execute(
+            "com.alibaba.qlexpress4.inport.VarArgsHelper.sum(10, 1, 2, 3)",
+            new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(16, result3.getResult());
+
+        // Calling with exactly the minimum required args (no varargs items) should also work
+        QLResult result4 = express4Runner.execute(
+            "com.alibaba.qlexpress4.inport.VarArgsHelper.sum(10)",
+            new HashMap<>(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(10, result4.getResult());
+    }
     
     @Test
     public void testLessOp() {

@@ -60,6 +60,11 @@ public class NewFilledInstanceInstruction extends QLInstruction {
     
     private Object newInstance(QContext qContext) {
         Constructor<?> constructor = qContext.getReflectLoader().loadConstructor(newCls, new Class[0]);
+        if (constructor == null) {
+            throw errorReporter.reportFormat(QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.name(),
+                QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.getErrorMsg(),
+                "[]");
+        }
         try {
             return constructor.newInstance();
         }
@@ -69,7 +74,7 @@ public class NewFilledInstanceInstruction extends QLInstruction {
                 QLErrorCodes.INVOKE_CONSTRUCTOR_INNER_ERROR.getErrorMsg());
         }
         catch (Exception e) {
-            throw errorReporter.report(QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
+            throw errorReporter.report(e, QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.name(),
                 QLErrorCodes.INVOKE_CONSTRUCTOR_UNKNOWN_ERROR.getErrorMsg());
         }
     }
