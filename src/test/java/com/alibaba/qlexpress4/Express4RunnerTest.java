@@ -1430,7 +1430,35 @@ public class Express4RunnerTest {
             .getResult();
         assertEquals("a nullnull", result);
     }
-    
+
+    @Test
+    public void avoidNullPointerMissingFieldTest() {
+        MyDesk desk = new MyDesk();
+        desk.setBook1("Thinking in Java");
+        Map<String, Object> context = Collections.singletonMap("desk", desk);
+
+        // with avoidNullPointer, accessing a non-existent field on a non-null object should return null
+        Express4Runner runner = new Express4Runner(InitOptions.builder()
+            .securityStrategy(QLSecurityStrategy.open()).build());
+        Object result = runner.execute("desk.nonExistentField", context,
+            QLOptions.builder().avoidNullPointer(true).build()).getResult();
+        assertNull(result);
+
+        // chained access through a non-null object with a missing intermediate field should also return null
+        Object chainedResult = runner.execute("desk.nonExistentField.anything", context,
+            QLOptions.builder().avoidNullPointer(true).build()).getResult();
+        assertNull(chainedResult);
+
+        // without avoidNullPointer, accessing a non-existent field should still throw FIELD_NOT_FOUND
+        try {
+            runner.execute("desk.nonExistentField", context, QLOptions.DEFAULT_OPTIONS);
+            fail("Expected FIELD_NOT_FOUND exception");
+        }
+        catch (QLException e) {
+            assertEquals("FIELD_NOT_FOUND", e.getErrorCode());
+        }
+    }
+
     @Test
     public void atFunctionTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
