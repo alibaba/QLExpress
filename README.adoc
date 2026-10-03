@@ -796,7 +796,7 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
             params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
         QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, resultAdd.getResult());
-
+        
 ----
 
 === 扩展字段取值

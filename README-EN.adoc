@@ -795,7 +795,7 @@ The following example code adds a `hello()` extension function to the String cla
             params -> ((Number)params[0]).intValue() + ((Number)params[1]).intValue());
         QLResult resultAdd = express4Runner.execute("1.add(2)", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(3, resultAdd.getResult());
-
+        
 ----
 
 === Extend Field Handler
