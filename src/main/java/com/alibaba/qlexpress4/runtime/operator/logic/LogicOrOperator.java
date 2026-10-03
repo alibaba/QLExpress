@@ -42,7 +42,7 @@ public class LogicOrOperator extends BaseBinaryOperator {
         if (rightValue == null) {
             rightValue = false;
         }
-
+        
         if (!(leftValue instanceof Boolean) || !(rightValue instanceof Boolean)) {
             throw buildInvalidOperandTypeException(left, right, errorReporter);
         }

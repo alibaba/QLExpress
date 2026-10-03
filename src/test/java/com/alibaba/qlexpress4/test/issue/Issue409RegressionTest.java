@@ -30,22 +30,24 @@ import org.junit.Test;
  * @see <a href="https://github.com/alibaba/QLExpress/issues/409">Issue #409</a>
  */
 public class Issue409RegressionTest {
-
+    
     private Express4Runner runner;
+    
     private Map<String, Object> context;
+    
     private QLOptions options;
-
+    
     @Before
     public void setUp() {
         runner = new Express4Runner(InitOptions.builder().build());
         context = new HashMap<>();
         options = QLOptions.builder().build();
     }
-
+    
     // ---------------------------------------------------------------
     // Core regression: the v3 bug case
     // ---------------------------------------------------------------
-
+    
     /**
      * Core v3 bug case: "abc" like "a%c" must return true.
      * v3 returned false because greedy matching consumed 'b' into '%'
@@ -55,18 +57,18 @@ public class Issue409RegressionTest {
     public void testBacktrackingBasicCase() {
         assertLikeTrue("\"abc\" like \"a%c\"");
     }
-
+    
     @Test
     public void testBacktrackingViaVariable() {
         context.put("s", "abc");
         context.put("p", "a%c");
         assertLikeTrue("s like p");
     }
-
+    
     // ---------------------------------------------------------------
     // Multi-segment backtracking
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testBacktrackingMultipleWildcards() {
         assertLikeTrue("\"aXbYc\" like \"a%b%c\"");
@@ -74,7 +76,7 @@ public class Issue409RegressionTest {
         assertLikeTrue("\"aaab\" like \"a%a%b\"");
         assertLikeTrue("\"hello_world_test\" like \"hello%world%test\"");
     }
-
+    
     @Test
     public void testBacktrackingWithRepeatedPrefix() {
         // Pattern "a%a" on "aa" — '%' matches empty, second 'a' matches second 'a'
@@ -84,11 +86,11 @@ public class Issue409RegressionTest {
         // Pattern "a%a" on "aXXa" — '%' matches "XX"
         assertLikeTrue("\"aXXa\" like \"a%a\"");
     }
-
+    
     // ---------------------------------------------------------------
     // Trailing/leading % edge cases (v3 issue #409 context)
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testTrailingPercent() {
         // From v3 issue report: "1%1" like "1%" should be true
@@ -97,18 +99,18 @@ public class Issue409RegressionTest {
         assertLikeTrue("\"test\" like \"t%\"");
         assertLikeTrue("\"1006\" like \"1%\"");
     }
-
+    
     @Test
     public void testLeadingPercent() {
         assertLikeTrue("\"1006\" like \"%6\"");
         assertLikeTrue("\"test\" like \"%t\"");
         assertLikeTrue("\"hello\" like \"%lo\"");
     }
-
+    
     // ---------------------------------------------------------------
     // Empty string and wildcard-only patterns
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testEmptyStringAndWildcards() {
         assertLikeTrue("\"\" like \"%\"");
@@ -117,11 +119,11 @@ public class Issue409RegressionTest {
         assertLikeFalse("\"a\" like \"\"");
         assertLikeFalse("\"\" like \"a\"");
     }
-
+    
     // ---------------------------------------------------------------
     // Negative cases (should return false)
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testNegativeCases() {
         assertLikeFalse("\"abc\" like \"a%d\"");
@@ -129,11 +131,11 @@ public class Issue409RegressionTest {
         assertLikeFalse("\"abc\" like \"a%b%d\"");
         assertLikeFalse("\"hello\" like \"h%x\"");
     }
-
+    
     // ---------------------------------------------------------------
     // not_like operator (inverse)
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testNotLikeInverse() {
         // not_like should be the exact inverse of like
@@ -141,55 +143,50 @@ public class Issue409RegressionTest {
         assertLikeTrue("\"abc\" not_like \"a%d\"");
         assertLikeFalse("\"abc\" not_like \"a%b%c\"");
     }
-
+    
     // ---------------------------------------------------------------
     // Null handling
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testNullHandling() {
         assertLikeTrue("null like null");
         assertLikeFalse("\"a\" like null");
         assertLikeFalse("null like \"a\"");
     }
-
+    
     // ---------------------------------------------------------------
     // Complex expressions mixing LIKE with other operators
     // ---------------------------------------------------------------
-
+    
     @Test
     public void testLikeInConditionalExpression() {
         context.put("name", "HelloWorld");
-        QLResult result = runner.execute(
-            "if (name like \"Hello%\") { \"match\" } else { \"no_match\" }",
-            context, options);
+        QLResult result =
+            runner.execute("if (name like \"Hello%\") { \"match\" } else { \"no_match\" }", context, options);
         Assert.assertEquals("match", result.getResult());
     }
-
+    
     @Test
     public void testLikeCombinedWithLogicalOperators() {
         context.put("s", "abc123");
-        QLResult result = runner.execute(
-            "s like \"abc%\" && s like \"%123\"",
-            context, options);
+        QLResult result = runner.execute("s like \"abc%\" && s like \"%123\"", context, options);
         Assert.assertEquals(true, result.getResult());
     }
-
+    
     // ---------------------------------------------------------------
     // Helper methods
     // ---------------------------------------------------------------
-
+    
     private void assertLikeTrue(String expression) {
         QLResult result = runner.execute(expression, context, options);
-        Assert.assertTrue(
-            "Expected TRUE for: " + expression + ", but got: " + result.getResult(),
-            (Boolean) result.getResult());
+        Assert.assertTrue("Expected TRUE for: " + expression + ", but got: " + result.getResult(),
+            (Boolean)result.getResult());
     }
-
+    
     private void assertLikeFalse(String expression) {
         QLResult result = runner.execute(expression, context, options);
-        Assert.assertFalse(
-            "Expected FALSE for: " + expression + ", but got: " + result.getResult(),
-            (Boolean) result.getResult());
+        Assert.assertFalse("Expected FALSE for: " + expression + ", but got: " + result.getResult(),
+            (Boolean)result.getResult());
     }
 }

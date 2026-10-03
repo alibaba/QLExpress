@@ -498,7 +498,7 @@ public class Express4Runner {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         this.reflectLoader.addExtendFunction(extensionFunction);
     }
-
+    
     /**
      * Register a custom field-access handler bound to {@code bindingClass}, used to access
      * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet) with the regular
@@ -514,7 +514,7 @@ public class Express4Runner {
     public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
         this.reflectLoader.addExtendFieldHandler(bindingClass, fieldHandler);
     }
-
+    
     /**
      * add an extension function with variable arguments.
      * @param name the name of the extension function

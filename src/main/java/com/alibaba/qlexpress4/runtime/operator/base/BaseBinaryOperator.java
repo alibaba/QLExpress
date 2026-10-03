@@ -351,13 +351,13 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         int sLen = s.length(), pLen = pattern.length();
         int sRecall = -1, pRecall = -1;
         while (sPointer < sLen) {
-            if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
-                sPointer++;
-                pPointer++;
-            }
-            else if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+            if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
                 sRecall = sPointer;
                 pRecall = pPointer;
+                pPointer++;
+            }
+            else if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
+                sPointer++;
                 pPointer++;
             }
             else if (sRecall >= 0) {

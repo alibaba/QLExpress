@@ -36,7 +36,7 @@ package com.alibaba.qlexpress4.runtime.function;
  */
 @FunctionalInterface
 public interface ExtendFieldHandler {
-
+    
     /**
      * Resolve the value of {@code fieldName} from the given bean.
      *

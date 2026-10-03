@@ -96,7 +96,7 @@ public class TestSuiteRunner {
     @Test
     public void featureDebug()
         throws URISyntaxException, IOException {
-        Path filePath = getTestSuiteRoot().resolve("independent/switch/switch_fallthrough.ql");
+        Path filePath = getTestSuiteRoot().resolve("java/lambda/proxy_non_abstract_methods.ql");
         handleFile(filePath, filePath.toString(), true);
     }
     

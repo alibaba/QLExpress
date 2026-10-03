@@ -49,7 +49,7 @@ public class ReflectLoader {
      */
     private final List<ExtensionFunction> extensionFunctions =
         new CopyOnWriteArrayList<>(Arrays.asList(FilterExtensionFunction.INSTANCE, MapExtensionFunction.INSTANCE));
-
+    
     /**
      * Custom field-access handlers registered by the user. Each entry binds a handler to a
      * receiver type (e.g. Flink Row, JDBC ResultSet or other non-standard containers).
@@ -57,7 +57,7 @@ public class ReflectLoader {
      * assignable from the bean's class is considered authoritative.
      */
     private final List<ExtendFieldHandlerHolder> fieldHandlers = new CopyOnWriteArrayList<>();
-
+    
     public ReflectLoader(QLSecurityStrategy securityStrategy, boolean allowPrivateAccess) {
         this.securityStrategy = securityStrategy;
         this.allowPrivateAccess = allowPrivateAccess;
@@ -66,7 +66,7 @@ public class ReflectLoader {
     public void addExtendFunction(ExtensionFunction extensionFunction) {
         extensionFunctions.add(extensionFunction);
     }
-
+    
     /**
      * Register a custom field-access handler bound to {@code bindingClass}, used to access
      * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet or user-defined
@@ -83,7 +83,7 @@ public class ReflectLoader {
     public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
         fieldHandlers.add(new ExtendFieldHandlerHolder(bindingClass, fieldHandler));
     }
-
+    
     public Constructor<?> loadConstructor(Class<?> cls, Class<?>[] paramTypes) {
         if (securityStrategy instanceof StrategyIsolation) {
             return null;
@@ -112,7 +112,7 @@ public class ReflectLoader {
         if (extended != null) {
             return extended;
         }
-
+        
         if (bean.getClass().isArray() && BasicUtil.LENGTH.equals(fieldName)) {
             return new DataValue(Array.getLength(bean));
         }
@@ -136,7 +136,7 @@ public class ReflectLoader {
             return loadJavaField(bean.getClass(), bean, fieldName, skipSecurity, errorReporter);
         }
     }
-
+    
     /**
      * Dispatch the field access to the first user-registered handler whose binding class is
      * assignable from the bean's class. Such a handler is authoritative for the bean type, so its
@@ -156,7 +156,7 @@ public class ReflectLoader {
         }
         return null;
     }
-
+    
     public IMethod loadMethod(Object bean, String methodName, Class<?>[] argTypes) {
         boolean isStaticMethod = bean instanceof MetaClass;
         Class<?> clz = isStaticMethod ? ((MetaClass)bean).getClz() : bean.getClass();
@@ -424,23 +424,23 @@ public class ReflectLoader {
      */
     private static class ExtendFieldHandlerHolder {
         private final Class<?> bindingClass;
-
+        
         private final ExtendFieldHandler handler;
-
+        
         private ExtendFieldHandlerHolder(Class<?> bindingClass, ExtendFieldHandler handler) {
             this.bindingClass = bindingClass;
             this.handler = handler;
         }
-
+        
         public Class<?> getBindingClass() {
             return bindingClass;
         }
-
+        
         public ExtendFieldHandler getHandler() {
             return handler;
         }
     }
-
+    
     private static class FieldReflectCache {
         private final BiFunction<ErrorReporter, Object, Supplier<Object>> getterSupplier;
         

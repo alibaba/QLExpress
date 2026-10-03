@@ -6,13 +6,13 @@ package com.alibaba.qlexpress4.inport;
  * error instead of NullPointerException.
  */
 public class NoDefaultConstructor {
-
+    
     private final String name;
-
+    
     public NoDefaultConstructor(String name) {
         this.name = name;
     }
-
+    
     public String getName() {
         return name;
     }

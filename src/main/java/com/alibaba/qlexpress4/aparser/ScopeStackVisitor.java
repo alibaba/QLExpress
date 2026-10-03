@@ -119,7 +119,7 @@ public abstract class ScopeStackVisitor extends QLParserBaseVisitor<Void> {
         pop();
         return null;
     }
-
+    
     @Override
     public Void visitLambdaExpr(QLParser.LambdaExprContext ctx) {
         push();
@@ -139,7 +139,7 @@ public abstract class ScopeStackVisitor extends QLParserBaseVisitor<Void> {
         pop();
         return null;
     }
-
+    
     @Override
     public Void visitTryCatch(QLParser.TryCatchContext ctx) {
         push();
@@ -150,7 +150,7 @@ public abstract class ScopeStackVisitor extends QLParserBaseVisitor<Void> {
         pop();
         return null;
     }
-
+    
     @Override
     public Void visitTraditionalForStatement(QLParser.TraditionalForStatementContext ctx) {
         push();
@@ -169,7 +169,7 @@ public abstract class ScopeStackVisitor extends QLParserBaseVisitor<Void> {
         pop();
         return null;
     }
-
+    
     @Override
     public Void visitFunctionStatement(QLParser.FunctionStatementContext ctx) {
         ctx.varId().accept(this);

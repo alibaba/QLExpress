@@ -6,11 +6,11 @@ package com.alibaba.qlexpress4.inport;
  * when fewer arguments than required parameters are provided.
  */
 public class VarArgsHelper {
-
+    
     public static String format(String template, Object... args) {
         return String.format(template, args);
     }
-
+    
     public static int sum(int required, int... rest) {
         int total = required;
         for (int r : rest) {
@@ -18,7 +18,7 @@ public class VarArgsHelper {
         }
         return total;
     }
-
+    
     public static int sumAll(int... values) {
         int total = 0;
         for (int v : values) {
