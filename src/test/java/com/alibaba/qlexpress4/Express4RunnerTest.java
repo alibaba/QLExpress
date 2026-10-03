@@ -2054,4 +2054,23 @@ public class Express4RunnerTest {
         assertEquals(true, express4Runner.execute("a != 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
         assertEquals(true, express4Runner.execute("a <> 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
     }
+
+    @Test
+    public void aliasShouldUseReplacedOperator() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        runner.replaceDefaultOperator(">",
+            (left, right) -> ((Comparable) left.get()).compareTo(right.get()) >= 0);
+        assertTrue(runner.addAlias("大于", ">"));
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 3);
+        context.put("b", 3);
+
+        assertEquals(true, runner.execute("a > b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, runner.execute("a 大于 b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+
+        context.put("a", 2);
+        assertEquals(false, runner.execute("a > b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, runner.execute("a 大于 b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+    }
 }
