@@ -11,11 +11,12 @@ import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.exception.QLSyntaxException;
 import com.alibaba.qlexpress4.exception.QLTimeoutException;
 import com.alibaba.qlexpress4.inport.MyDesk;
-import com.alibaba.qlexpress4.runtime.Value;
+import com.alibaba.qlexpress4.runtime.*;
 import com.alibaba.qlexpress4.runtime.context.DynamicVariableContext;
 import com.alibaba.qlexpress4.runtime.context.ExpressContext;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
+import com.alibaba.qlexpress4.runtime.function.LazyArgCustomFunction;
 import com.alibaba.qlexpress4.runtime.trace.ExpressionTrace;
 import com.alibaba.qlexpress4.runtime.trace.TracePointTree;
 import com.alibaba.qlexpress4.security.QLSecurityStrategy;
@@ -1221,6 +1222,33 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void getOutVarNamesForEachLocalVariableTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("a = [1,2,2]\n" + "for(i : a) {\n" + "  if(i > 2) { return 1; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.emptySet(), actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachExternalVariablesTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual = express4Runner
+            .getOutVarNames("for(i : items) {\n" + "  if(i > threshold) { return i; }\n" + "}\n" + "return 0;");
+        Set<String> expected = new HashSet<>();
+        expected.add("items");
+        expected.add("threshold");
+        Assert.assertEquals(expected, actual);
+    }
+    
+    @Test
+    public void getOutVarNamesForEachTargetUsesOuterScopeTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Set<String> actual =
+            express4Runner.getOutVarNames("for(i : i) {\n" + "  if(i > 0) { return i; }\n" + "}\n" + "return 0;");
+        Assert.assertEquals(Collections.singleton("i"), actual);
+    }
+    
+    @Test
     public void getOutVarAttrsTest() {
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         Assert.assertEquals(Arrays.asList("a.b.c", "a.b.d", "c.m"),
@@ -1855,37 +1883,185 @@ public class Express4RunnerTest {
     
     @Test
     public void unicodeComparisonOperatorsTest() {
+        // tag::unicodeComparisonOperators[]
         // Issue #414: support Unicode comparison operators ≠ (U+2260), ≥ (U+2265), ≤ (U+2264)
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
         
         // Test ≠ (not equal)
-        QLResult neqTrue = express4Runner.execute("1 \u2260 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult neqTrue = express4Runner.execute("1 ≠ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, neqTrue.getResult());
-        QLResult neqFalse = express4Runner.execute("1 \u2260 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult neqFalse = express4Runner.execute("1 ≠ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(false, neqFalse.getResult());
         
         // Test ≥ (greater than or equal)
-        QLResult geTrue = express4Runner.execute("2 \u2265 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult geTrue = express4Runner.execute("2 ≥ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, geTrue.getResult());
-        QLResult geEqual = express4Runner.execute("2 \u2265 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult geEqual = express4Runner.execute("2 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, geEqual.getResult());
-        QLResult geFalse = express4Runner.execute("1 \u2265 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult geFalse = express4Runner.execute("1 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(false, geFalse.getResult());
         
         // Test ≤ (less than or equal)
-        QLResult leTrue = express4Runner.execute("1 \u2264 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult leTrue = express4Runner.execute("1 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, leTrue.getResult());
-        QLResult leEqual = express4Runner.execute("2 \u2264 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult leEqual = express4Runner.execute("2 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, leEqual.getResult());
-        QLResult leFalse = express4Runner.execute("2 \u2264 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        QLResult leFalse = express4Runner.execute("2 ≤ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
         assertEquals(false, leFalse.getResult());
         
         // Test mixed with variables
         Map<String, Object> context = new HashMap<>();
         context.put("a", 5);
         context.put("b", 10);
-        QLResult mixedResult = express4Runner.execute("a \u2264 b && b \u2265 a && a \u2260 b",
+        QLResult mixedResult = express4Runner.execute("a ≤ b && b ≥ a && a ≠ b",
             context, QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, mixedResult.getResult());
+        // end::unicodeComparisonOperators[]
+    }
+
+    @Test
+    public void testLazyArgCustomFunction() {
+        // tag::lazyArgCustomFunction[]
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("IF", new LazyArgCustomFunction() {
+            private static final int PARAM_LENGTH = 3;
+            
+            @Override
+            public boolean isLazyArg(int argIndex) {
+                return 1 == argIndex || 2 == argIndex;
+            }
+            
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                if (parameters == null || parameters.size() != PARAM_LENGTH) {
+                    throw new IllegalArgumentException("Invalid number of arguments");
+                }
+                Object v1 = call(parameters.getValue(0));
+                if (!(v1 instanceof Boolean)) {
+                    throw new IllegalArgumentException("Argument 1 must be a boolean");
+                }
+                if ((Boolean)v1) {
+                    return call(parameters.getValue(1));
+                }
+                
+                return call(parameters.getValue(2));
+            }
+            
+            private Object call(Object obj) {
+                if (obj instanceof QLambda) {
+                    return ((QLambda)obj).get();
+                }
+                return obj;
+            }
+        });
+        // end::lazyArgCustomFunction[]
+        
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 10000);
+        context.put("b", 0);
+        
+        // Should return 0 when b equals 0
+        QLResult result = express4Runner.execute("IF(b == 0, 0, a / b)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(0, result.getResult());
+        
+        // Should return 500 when c equals 20
+        context.put("c", 20);
+        QLResult result2 = express4Runner.execute("IF(c != 0, a / c, 0)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(new BigDecimal("500"), result2.getResult());
+        
+        // Nested IF
+        QLResult result3 = express4Runner.execute("IF(false, 0, IF(true, 1, 0))", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result3.getResult());
+        
+        // Variable addition and subtraction
+        context.put("base", 100);
+        QLResult result4 = express4Runner.execute("IF(true, base + 1, base - 1)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(101, result4.getResult());
+        
+        // Null
+        context.put("a", null);
+        QLResult result5 = express4Runner.execute("IF(true, a, b)", context, QLOptions.DEFAULT_OPTIONS);
+        assertNull(result5.getResult());
+        
+        // Other
+        express4Runner.check("IF(b == 0, 0, a / b)");
+        Set<String> result6 = express4Runner.getOutFunctions("IF(b == 0, 0, a / b)");
+        assertArrayEquals(new String[] {"IF"}, result6.toArray());
+        Set<String> result7 = express4Runner.getOutVarNames("IF(b == 0, 0, a / b)");
+        assertArrayEquals(new String[] {"a", "b"}, result7.toArray());
+        QLResult result8 = express4Runner.execute("IF(false, 0, IF(true, IF(true, IF(true, IF(true, 1, 0), 0), 0), 0))",
+            context,
+            QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result8.getResult());
+        QLResult result9 = express4Runner.execute("IF(true, 1, 0) + IF(true, 1, 0) + IF(false, IF(true, 1, 0), 0)",
+            context,
+            QLOptions.DEFAULT_OPTIONS);
+        assertEquals(2, result9.getResult());
+        QLResult result10 = express4Runner
+            .execute("tmp=0; tmp++; if(tmp>0) then IF(true, 1, 0) else 0", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result10.getResult());
+        QLResult result11 = express4Runner
+            .execute("function func(x){ x++; return x+b; } IF(true, func(0), 0)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result11.getResult());
+        QLResult result12 = express4Runner
+            .execute("func = (x) -> { x++; return x; } \nIF(true, func(0), 0)", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result12.getResult());
+        QLResult result13 =
+            express4Runner.execute("true ? IF(false, {a}, {b}) : 0", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(0, result13.getResult());
+        QLResult result14 = express4Runner.execute("true ? IF(true, {1}, {2}) : 0", context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(1, result14.getResult());
+    }
+    
+    @Test
+    public void testLazyArgCustomFunctionNoArgs() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("CURRENT_TIME", new LazyArgCustomFunction() {
+            
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                return System.currentTimeMillis();
+            }
+        });
+        
+        Map<String, Object> context = new HashMap<>();
+        
+        // Should return
+        QLResult result = express4Runner.execute("CURRENT_TIME()", context, QLOptions.DEFAULT_OPTIONS);
+        assertTrue((Long)result.getResult() > 0);
+    }
+    
+    @Test
+    public void testLessOp() {
+        Express4Runner express4Runner =
+            new Express4Runner(InitOptions.builder().securityStrategy(QLSecurityStrategy.open()).build());
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 1);
+        context.put("b", 2);
+        context.put("c", "c");
+        context.put("y", new MetaClass(List.class));
+        assertTrue((Boolean)express4Runner.execute("a < 2", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertFalse((Boolean)express4Runner.execute("c < \"a\"", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertTrue((Boolean)express4Runner.execute("a <> b", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(new ArrayList<>(),
+            express4Runner.execute("List<Integer> x = new ArrayList<>(); x", context, QLOptions.DEFAULT_OPTIONS)
+                .getResult());
+        assertEquals(Boolean.FALSE,
+            express4Runner.execute("List<> y;", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        
+    }
+    
+    @Test
+    public void compareTest() {
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Map<String, Number> context = new HashMap<>();
+        context.put("a", 10);
+        assertEquals(false, express4Runner.execute("a < 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a <= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a > 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a >= 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(false, express4Runner.execute("a == 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a != 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, express4Runner.execute("a <> 3", context, QLOptions.DEFAULT_OPTIONS).getResult());
     }
 }

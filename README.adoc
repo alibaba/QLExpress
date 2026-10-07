@@ -115,7 +115,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.1.2</version>
+    <version>4.1.3</version>
 </dependency>
 ----
 
@@ -235,6 +235,50 @@ QLExpress4还支持通过QLExpress脚本添加自定义函数。需要注意的�
 ----
 
 建议尽可能使用Java方式定义自定义函数，这样可以获得更好的性能和稳定性。
+
+==== 延迟参数求值函数（LazyArgCustomFunction）
+
+默认情况下，QLExpress 在调用函数前会先对所有参数完成求值。如果某个参数的计算会产生副作用（如除零异常），即使函数逻辑上不需要该参数，也会在调用前触发错误。
+
+实现 `LazyArgCustomFunction` 接口的函数可以控制参数的求值时机。编译器默认会将每个参数包装为 `QLambda`，也可以通过 `isLazyArg(int argIndex)` 指定部分参数，函数内部通过调用 `QLambda.get()` 手动触发求值，从而实现短路求值语义。
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        express4Runner.addFunction("IF", new LazyArgCustomFunction() {
+            private static final int PARAM_LENGTH = 3;
+            
+            @Override
+            public boolean isLazyArg(int argIndex) {
+                return 1 == argIndex || 2 == argIndex;
+            }
+            
+            @Override
+            public Object call(QContext qContext, Parameters parameters) {
+                if (parameters == null || parameters.size() != PARAM_LENGTH) {
+                    throw new IllegalArgumentException("Invalid number of arguments");
+                }
+                Object v1 = call(parameters.getValue(0));
+                if (!(v1 instanceof Boolean)) {
+                    throw new IllegalArgumentException("Argument 1 must be a boolean");
+                }
+                if ((Boolean)v1) {
+                    return call(parameters.getValue(1));
+                }
+                
+                return call(parameters.getValue(2));
+            }
+            
+            private Object call(Object obj) {
+                if (obj instanceof QLambda) {
+                    return ((QLambda)obj).get();
+                }
+                return obj;
+            }
+        });
+----
+
+上例中，当 `b == 0` 条件成立时，第三个参数 `a / b` 不会被求值，因此不会触发除零异常。
 
 更多自定义语法元素的方式见文档 link:docs/custom-item.adoc[自定义语法元素]
 

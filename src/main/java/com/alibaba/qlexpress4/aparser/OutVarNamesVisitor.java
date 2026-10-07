@@ -114,6 +114,16 @@ public class OutVarNamesVisitor extends ScopeStackVisitor {
     }
     
     @Override
+    public Void visitForEachStatement(QLParser.ForEachStatementContext ctx) {
+        ctx.expression().accept(this);
+        push();
+        getStack().add(ctx.varId().getText());
+        ctx.blockStatements().accept(this);
+        pop();
+        return null;
+    }
+    
+    @Override
     public Void visitExpression(QLParser.ExpressionContext ctx) {
         QLParser.TernaryExprContext ternaryExprContext = ctx.ternaryExpr();
         if (ternaryExprContext != null) {
