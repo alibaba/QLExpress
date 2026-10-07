@@ -2054,6 +2054,44 @@ public class Express4RunnerTest {
     }
     
     @Test
+    public void unicodeComparisonOperatorsTest() {
+        // tag::unicodeComparisonOperators[]
+        // Issue #414: support Unicode comparison operators ≠ (U+2260), ≥ (U+2265), ≤ (U+2264)
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Test ≠ (not equal)
+        QLResult neqTrue = express4Runner.execute("1 ≠ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, neqTrue.getResult());
+        QLResult neqFalse = express4Runner.execute("1 ≠ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, neqFalse.getResult());
+        
+        // Test ≥ (greater than or equal)
+        QLResult geTrue = express4Runner.execute("2 ≥ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geTrue.getResult());
+        QLResult geEqual = express4Runner.execute("2 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geEqual.getResult());
+        QLResult geFalse = express4Runner.execute("1 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, geFalse.getResult());
+        
+        // Test ≤ (less than or equal)
+        QLResult leTrue = express4Runner.execute("1 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leTrue.getResult());
+        QLResult leEqual = express4Runner.execute("2 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leEqual.getResult());
+        QLResult leFalse = express4Runner.execute("2 ≤ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, leFalse.getResult());
+        
+        // Test mixed with variables
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 5);
+        context.put("b", 10);
+        QLResult mixedResult = express4Runner.execute("a ≤ b && b ≥ a && a ≠ b",
+            context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, mixedResult.getResult());
+        // end::unicodeComparisonOperators[]
+    }
+
+    @Test
     public void testLazyArgCustomFunction() {
         // tag::lazyArgCustomFunction[]
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);

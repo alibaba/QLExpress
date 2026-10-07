@@ -863,6 +863,19 @@ try catch 结构也是一个表达式：
 include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
 ----
 
+=== Unicode 比较运算符
+
+除了标准的 ASCII 比较运算符外，QLExpress 还支持 Unicode 比较运算符，让表达式更加直观：
+
+* `≠` (U+2260) 等价于 `!=`
+* `≥` (U+2265) 等价于 `>=`
+* `≤` (U+2264) 等价于 `<=`
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=unicodeComparisonOperators]
+----
+
 === 短路计算
 
 和 Java 类似，`&&` 和 `||` 逻辑运算都是短路运算的。

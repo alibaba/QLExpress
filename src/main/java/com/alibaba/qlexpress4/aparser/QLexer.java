@@ -868,6 +868,16 @@ public class QLexer {
             case '%':
                 fixed(MOD, 1, start, startLine, startCol);
                 return;
+            // Unicode comparison operators (issue #414)
+            case '\u2260': // ≠ (NOT EQUAL TO)
+                fixed(NOEQ, 1, start, startLine, startCol);
+                return;
+            case '\u2265': // ≥ (GREATER-THAN OR EQUAL TO)
+                fixed(GE, 1, start, startLine, startCol);
+                return;
+            case '\u2264': // ≤ (LESS-THAN OR EQUAL TO)
+                fixed(LE, 1, start, startLine, startCol);
+                return;
             default:
                 fixed(CATCH_ALL, 1, start, startLine, startCol);
         }

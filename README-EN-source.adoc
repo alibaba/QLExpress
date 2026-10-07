@@ -862,6 +862,19 @@ try catch structures are also expressions:
 include::./src/test/resources/testsuite/independent/doc/try_catch_as_expr.ql[]
 ----
 
+=== Unicode Comparison Operators
+
+In addition to standard ASCII comparison operators, QLExpress also supports Unicode comparison operators for more readable expressions:
+
+* `≠` (U+2260) is equivalent to `!=`
+* `≥` (U+2265) is equivalent to `>=`
+* `≤` (U+2264) is equivalent to `<=`
+
+[source,java]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=unicodeComparisonOperators]
+----
+
 === Short-Circuit Evaluation
 
 Similar to Java, `&&` and `||` logical operations are all short-circuit evaluations.
