@@ -152,14 +152,14 @@ public class NewInstanceInstructionTest {
     @Test
     public void exceptionCausePreservedTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
-        NewInstanceInstruction newInstruction = new NewInstanceInstruction(errorReporter, SomeInter.class, 0);
+        NewInstanceInstruction newInstruction = new NewInstanceInstruction(errorReporter, ExceptionConstructor.class, 0);
         MockQContextParent mockQContextParent = new MockQContextParent(false);
         try {
             newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);
             Assert.fail("Expected QLRuntimeException");
         }
         catch (QLRuntimeException e) {
-            Assert.assertEquals("INVOKE_CONSTRUCTOR_UNKNOWN_ERROR", e.getErrorCode());
+            Assert.assertEquals("INVOKE_CONSTRUCTOR_INNER_ERROR", e.getErrorCode());
             Assert.assertNotNull("Original exception should be preserved as cause", e.getCause());
         }
     }
