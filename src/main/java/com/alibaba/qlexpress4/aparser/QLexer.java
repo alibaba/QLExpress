@@ -437,7 +437,7 @@ public class QLexer {
                 continue;
             }
             if (c == '\'') {
-                add(QuoteStringLiteral, script.substring(start, p), start, p - 1, startLine, startCol);
+                add(QuoteStringLiteral, normalizeNewlines(script.substring(start, p)), start, p - 1, startLine, startCol);
                 return;
             }
         }
@@ -460,7 +460,7 @@ public class QLexer {
                 if (c == '"') {
                     if (p > textStart) {
                         add(StaticStringCharacters,
-                            script.substring(textStart, p),
+                            normalizeNewlines(script.substring(textStart, p)),
                             textStart,
                             p - 1,
                             textLine,
@@ -490,7 +490,7 @@ public class QLexer {
                 }
             }
             if (p > textStart) {
-                add(DyStrText, script.substring(textStart, p), textStart, p - 1, textLine, textCol);
+                add(DyStrText, normalizeNewlines(script.substring(textStart, p)), textStart, p - 1, textLine, textCol);
             }
             if (eof()) {
                 scannerError(currentToken(script.substring(quoteStart)), "unterminated string literal");
@@ -953,5 +953,9 @@ public class QLexer {
             token.getText(),
             QLErrorCodes.SYNTAX_ERROR.name(),
             reason);
+    }
+
+    private static String normalizeNewlines(String text) {
+        return text.replace("\r\n", "\n").replace("\r", "\n");
     }
 }
