@@ -808,15 +808,15 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
 [source,java,indent=0]
 ----
         Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-
+        
         // RowLike is a non-standard container whose fields can only be read via getValue(name);
         // register a handler so it can be accessed with the regular obj.field syntax in scripts.
-        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike) bean).getValue(fieldName));
-
-        RowLike row = new RowLike(new String[] { "name", "age" }, new Object[] { "张三", 30 });
+        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike)bean).getValue(fieldName));
+        
+        RowLike row = new RowLike(new String[] {"name", "age"}, new Object[] {"张三", 30});
         Map<String, Object> context = new HashMap<>();
         context.put("row", row);
-
+        
         Object name = runner.execute("row.name", context, QLOptions.DEFAULT_OPTIONS).getResult();
         Assert.assertEquals("张三", name);
 ----

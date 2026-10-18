@@ -213,6 +213,12 @@ public class HelloFunction implements CustomFunction {
         assertEquals("1,2", r);
 ----
 
+=== Lexing rules for multi-character symbolic operators
+
+When a custom operator consists of symbolic characters (e.g. `**`, `?.`, `*-`), the lexer matches by **longest registered prefix** rather than greedily merging every adjacent operator-like character. Only sequences that have been registered via `addOperator`, `addOperatorBiFunction`, etc. are combined into a single OPID token; everything else falls back to single-character tokens.
+
+This ensures expressions such as `10*-1`, `5+-3`, and `a/-b` — a binary operator immediately followed by a unary prefix — are correctly parsed as `10 * (-1)`, `5 + (-3)`, and `a / (-b)` without requiring whitespace in between.
+
 == Extension Functions
 
 === Extend ExtensionFunction
