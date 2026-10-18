@@ -2274,4 +2274,36 @@ public class Express4RunnerTest {
         assertEquals(false, runner.execute("a > b", context, QLOptions.DEFAULT_OPTIONS).getResult());
         assertEquals(false, runner.execute("a 大于 b", context, QLOptions.DEFAULT_OPTIONS).getResult());
     }
+    
+    /**
+     * Regression: lexer must not greedily merge a binary-op char with a trailing
+     * unary-prefix char (e.g. `*-`, `+-`, `/-`, `%-`) when the merged form is not
+     * a registered custom operator. Covers the gap left by PR #475 (issue #473),
+     * which only fixed `=`-prefixed cases such as `a=-1`.
+     */
+    @Test
+    public void binaryOpFollowedByUnaryPrefixShouldNotMerge() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        assertEquals(-10, runner.execute("10*-1", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(-5,
+            ((Number)runner.execute("10/-2", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult()).intValue());
+        assertEquals(1, runner.execute("10%-3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(2, runner.execute("5+-3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(10, runner.execute("10*+1", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(-9, runner.execute("(1+2)*-3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+        assertEquals(true, runner.execute("true && !false", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+    }
+    
+    /**
+     * Regression: a registered multi-char custom operator must still be lexed as
+     * one token even when its characters overlap with the unary-prefix set.
+     */
+    @Test
+    public void registeredCustomOperatorShouldStillLexAsOneToken() {
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        // Register `*-` as a custom binary operator: left minus right.
+        runner.addOperatorBiFunction("*-", (left, right) -> ((Number)left).intValue() - ((Number)right).intValue());
+        // Without spaces: `*-` must be lexed as the registered operator, not split.
+        assertEquals(7, runner.execute("10*-3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
+    }
 }

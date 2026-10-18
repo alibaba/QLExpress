@@ -788,12 +788,29 @@ public class QLexer {
             return;
         }
         if (isCustomOperatorStart(ch()) && p + 1 < script.length() && isCustomOperatorPart(script.charAt(p + 1))) {
-            advance();
-            while (!eof() && isCustomOperatorPart(ch())) {
-                advance();
+            // Scan the maximum run of operator-like chars, then back off to the longest
+            // prefix (length >= 2) that is a registered operator. Prevents greedy merges
+            // such as `*-` in `10*-1` or `+-` in `5+-3`, where the first char is a binary
+            // operator and the second starts a unary prefix.
+            int probe = p + 1;
+            while (probe < script.length() && isCustomOperatorPart(script.charAt(probe))) {
+                probe++;
             }
-            add(OPID, script.substring(start, p), start, p - 1, startLine, startCol);
-            return;
+            int bestEnd = -1;
+            for (int end = probe; end >= p + 2; end--) {
+                if (isRegisteredCustomOperator(script.substring(p, end))) {
+                    bestEnd = end;
+                    break;
+                }
+            }
+            if (bestEnd > 0) {
+                while (p < bestEnd) {
+                    advance();
+                }
+                add(OPID, script.substring(start, p), start, p - 1, startLine, startCol);
+                return;
+            }
+            // Fall through to the single-char switch below.
         }
         switch (ch()) {
             case '(':
@@ -880,6 +897,15 @@ public class QLexer {
     
     private boolean isCustomOperatorPart(char c) {
         return isCustomOperatorStart(c) || c == '<' || c == '>' || c == ':';
+    }
+    
+    private boolean isRegisteredCustomOperator(String lexeme) {
+        if (operatorManager == null) {
+            return false;
+        }
+        return operatorManager.isOpType(lexeme, ParserOperatorManager.OpType.MIDDLE)
+            || operatorManager.isOpType(lexeme, ParserOperatorManager.OpType.PREFIX)
+            || operatorManager.isOpType(lexeme, ParserOperatorManager.OpType.SUFFIX);
     }
     
     private void fixed(int type, int length, int start, int startLine, int startCol) {
