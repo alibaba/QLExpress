@@ -219,6 +219,17 @@ include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getO
 * `getOutFunctions`: 解析所有需要从外部定义的函数
 * `getOutVarAttrs`：解析所有需要从外部传入变量及其涉及的属性，`getOutVarNames` 的增强版本
 
+=== 解析脚本赋值变量
+
+`getAssignVarNames` 可以解析脚本中所有被赋值（创建或更新）的变量名，不包括局部作用域内的变量（如带类型声明的变量和 for-each 循环变量）。
+
+该 API 会收集赋值表达式左侧的变量（包括普通 `=` 和 `+=` 等复合赋值）以及自增/自减运算符修改的变量。
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getAssignVarNames]
+----
+
 === 高精度计算
 
 QLExpress 内部会用 BigDecimal 表示所有无法用 double 精确表示数字，来尽可能地表示计算精度：
