@@ -37,9 +37,10 @@ public class MinusMinusPrefixUnaryOperator extends BaseUnaryOperator {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
         
+        Number result = NumberMath.subtract((Number)operand, 1);
         if (value instanceof LeftValue) {
-            ((LeftValue)value).set(NumberMath.subtract((Number)operand, 1), errorReporter);
+            ((LeftValue)value).set(result, errorReporter);
         }
-        return operand;
+        return result;
     }
 }
