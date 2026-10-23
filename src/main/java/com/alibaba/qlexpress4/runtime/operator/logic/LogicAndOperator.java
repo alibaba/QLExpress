@@ -19,6 +19,7 @@ public class LogicAndOperator extends BaseBinaryOperator {
     static {
         INSTANCE_CACHE.put("&&", new LogicAndOperator("&&"));
         INSTANCE_CACHE.put("and", new LogicAndOperator("and"));
+        INSTANCE_CACHE.put("AND", new LogicAndOperator("AND"));
     }
     
     private final String operator;
