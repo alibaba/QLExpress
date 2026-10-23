@@ -99,8 +99,10 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         binaryOperatorList.add(BitwiseRightShiftUnsignedAssignOperator.getInstance());
         binaryOperatorList.add(LogicAndOperator.getInstance("&&"));
         binaryOperatorList.add(LogicAndOperator.getInstance("and"));
+        binaryOperatorList.add(LogicAndOperator.getInstance("AND"));
         binaryOperatorList.add(LogicOrOperator.getInstance("||"));
         binaryOperatorList.add(LogicOrOperator.getInstance("or"));
+        binaryOperatorList.add(LogicOrOperator.getInstance("OR"));
         binaryOperatorList.add(EqualOperator.getInstance());
         binaryOperatorList.add(UnequalOperator.getInstance("!="));
         binaryOperatorList.add(UnequalOperator.getInstance("<>"));
