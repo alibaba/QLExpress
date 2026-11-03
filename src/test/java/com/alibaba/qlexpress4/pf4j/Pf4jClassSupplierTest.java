@@ -51,6 +51,12 @@ public class Pf4jClassSupplierTest {
         Object result = runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         
         Assert.assertEquals("Hello from PF4J Plugin!", result.toString());
+        
+        script = "import com.alibaba.qlexpress4.pf4j.SameNamedComparable; a = new SameNamedComparable(1); a == b";
+        result =
+            runner.execute(script, Collections.singletonMap("b", new SameNamedComparable(1)), QLOptions.DEFAULT_OPTIONS)
+                .getResult();
+        Assert.assertFalse((Boolean)result);
         // end::pluginClassSupplier[]
     }
 }
