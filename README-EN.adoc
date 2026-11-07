@@ -369,6 +369,39 @@ More script-dependency parsing tools:
 * `getOutFunctions` – parses all functions that must be defined externally
 * `getOutVarAttrs` – parses all variables (and the attributes they reference) that must be supplied from outside; an enhanced version of `getOutVarNames`
 
+=== Parsing Assigned Variables in Scripts
+
+`getAssignVarNames` parses all variable names that are assigned (created or updated) in the script, excluding locally-scoped variables such as typed declarations and for-each loop variables.
+
+This API collects variables on the left-hand side of assignment expressions (both plain `=` and compound operators like `+=`) as well as variables modified by increment/decrement operators.
+
+[source,java,indent=0]
+----
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+
+        // Simple assignment: 'a' is assigned
+        Set<String> assignVars1 = express4Runner.getAssignVarNames("a = b");
+        Assert.assertEquals(Collections.singleton("a"), assignVars1);
+
+        // Typed declaration: 'a' is a local variable, not a context assignment
+        Set<String> assignVars2 = express4Runner.getAssignVarNames("int a = 1;");
+        Assert.assertEquals(Collections.emptySet(), assignVars2);
+
+        // Multiple assignments with compound operator
+        Set<String> assignVars3 = express4Runner.getAssignVarNames("a = 1; b += 1");
+        Set<String> expectedSet3 = new HashSet<>();
+        expectedSet3.add("a");
+        expectedSet3.add("b");
+        Assert.assertEquals(expectedSet3, assignVars3);
+
+        // Both a and b are assigned (a first, then b using a)
+        Set<String> assignVars4 = express4Runner.getAssignVarNames("a = 1; b = a + 1");
+        Set<String> expectedSet4 = new HashSet<>();
+        expectedSet4.add("a");
+        expectedSet4.add("b");
+        Assert.assertEquals(expectedSet4, assignVars4);
+----
+
 === High-Precision Calculation
 
 QLExpress internally uses BigDecimal to represent all numbers that cannot be precisely represented by double, to represent calculation precision as much as possible:
