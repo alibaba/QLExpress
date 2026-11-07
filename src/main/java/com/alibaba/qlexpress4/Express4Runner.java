@@ -646,7 +646,7 @@ public class Express4Runner {
             // Evict the failed future so the next call can retry compilation.
             // Uses conditional remove to avoid evicting a replacement inserted by another thread.
             compileCache.remove(script, future);
-            Throwable compileException = e.getCause();
+            Throwable compileException = e.getCause() != null ? e.getCause() : e;
             throw compileException instanceof QLSyntaxException ? (QLSyntaxException)compileException
                 : new RuntimeException(compileException);
         }

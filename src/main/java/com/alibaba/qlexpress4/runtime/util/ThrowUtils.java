@@ -20,10 +20,10 @@ public class ThrowUtils {
     
     public static QLRuntimeException reportUserDefinedException(ErrorReporter errorReporter, UserDefineException e) {
         if (Objects.equals(e.getType(), UserDefineException.ExceptionType.INVALID_ARGUMENT)) {
-            throw errorReporter.report(QLErrorCodes.INVALID_ARGUMENT.name(), e.getMessage());
+            throw errorReporter.report(e, QLErrorCodes.INVALID_ARGUMENT.name(), e.getMessage());
         }
         else {
-            throw errorReporter.report(QLErrorCodes.BIZ_EXCEPTION.name(), e.getMessage());
+            throw errorReporter.report(e, QLErrorCodes.BIZ_EXCEPTION.name(), e.getMessage());
         }
     }
 }
