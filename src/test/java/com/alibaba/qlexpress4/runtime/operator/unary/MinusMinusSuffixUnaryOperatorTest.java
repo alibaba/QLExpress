@@ -17,11 +17,11 @@ public class MinusMinusSuffixUnaryOperatorTest extends TestCase {
         
         Value value = new MockValue(10L, null);
         Object result = minusMinusSuffixUnaryOperator.execute(value, errorReporter);
-        Assert.assertEquals(9L, result);
+        Assert.assertEquals(10L, result);
         
         BigInteger bigInteger = BigInteger.valueOf(10L);
         value = new MockValue(bigInteger, BigInteger.class);
         BigInteger bigIntegerResult = (BigInteger)minusMinusSuffixUnaryOperator.execute(value, errorReporter);
-        Assert.assertEquals(9L, bigIntegerResult.longValue());
+        Assert.assertEquals(10L, bigIntegerResult.longValue());
     }
 }
