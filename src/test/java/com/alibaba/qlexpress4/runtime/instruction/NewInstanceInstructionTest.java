@@ -152,7 +152,8 @@ public class NewInstanceInstructionTest {
     @Test
     public void exceptionCausePreservedTest() {
         ErrorReporter errorReporter = new MockErrorReporter();
-        NewInstanceInstruction newInstruction = new NewInstanceInstruction(errorReporter, ExceptionConstructor.class, 0);
+        NewInstanceInstruction newInstruction =
+            new NewInstanceInstruction(errorReporter, ExceptionConstructor.class, 0);
         MockQContextParent mockQContextParent = new MockQContextParent(false);
         try {
             newInstruction.execute(mockQContextParent, QLOptions.DEFAULT_OPTIONS);

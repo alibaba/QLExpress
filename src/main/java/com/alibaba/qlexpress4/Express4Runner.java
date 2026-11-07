@@ -271,7 +271,7 @@ public class Express4Runner {
         programContext.accept(outFunctionVisitor);
         return outFunctionVisitor.getOutFunctions();
     }
-
+    
     /**
      * Get variables that are assigned (created or updated) in the script, excluding locally-scoped
      * variables such as typed declarations and for-each loop variables.
@@ -288,7 +288,7 @@ public class Express4Runner {
         programContext.accept(assignVarNamesVisitor);
         return assignVarNamesVisitor.getAssignVars();
     }
-
+    
     /**
      * Get the expression trace trees for the script without executing it.
      *

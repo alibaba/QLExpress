@@ -17,7 +17,7 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 1, 1));
         context.put("date2", LocalDate.of(2024, 12, 31));
         QLResult result = runner.execute("date1 < date2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -27,7 +27,7 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 1, 1));
         context.put("date2", LocalDate.of(2024, 12, 31));
         QLResult result = runner.execute("date2 > date1", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -37,7 +37,7 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 1, 1));
         context.put("date2", LocalDate.of(2024, 1, 1));
         QLResult result = runner.execute("date1 == date2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -47,7 +47,7 @@ public class LocalDateComparisonTest {
         context.put("dt1", LocalDateTime.of(2024, 1, 1, 0, 0));
         context.put("dt2", LocalDateTime.of(2024, 12, 31, 23, 59));
         QLResult result = runner.execute("dt1 < dt2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -57,7 +57,7 @@ public class LocalDateComparisonTest {
         context.put("t1", LocalTime.of(9, 0));
         context.put("t2", LocalTime.of(17, 0));
         QLResult result = runner.execute("t1 < t2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -67,7 +67,7 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 1, 1));
         context.put("date2", LocalDate.of(2024, 1, 1));
         QLResult result = runner.execute("date1 <= date2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -77,7 +77,7 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 12, 31));
         context.put("date2", LocalDate.of(2024, 1, 1));
         QLResult result = runner.execute("date1 >= date2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
     
     @Test
@@ -87,6 +87,6 @@ public class LocalDateComparisonTest {
         context.put("date1", LocalDate.of(2024, 1, 1));
         context.put("date2", LocalDate.of(2024, 12, 31));
         QLResult result = runner.execute("date1 != date2", context, QLOptions.DEFAULT_OPTIONS);
-        assertTrue((Boolean) result.getResult());
+        assertTrue((Boolean)result.getResult());
     }
 }

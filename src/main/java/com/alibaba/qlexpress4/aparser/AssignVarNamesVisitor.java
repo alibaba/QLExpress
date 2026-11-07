@@ -23,44 +23,44 @@ import java.util.Set;
  * @author chenjunwenhao
  */
 public class AssignVarNamesVisitor extends ScopeStackVisitor {
-
+    
     private final Set<String> assignVars = new HashSet<>();
-
+    
     public AssignVarNamesVisitor() {
         super(new ExistVarStack(null));
     }
-
+    
     private static class ExistVarStack implements ExistStack {
         private final ExistVarStack parent;
-
+        
         private final Set<String> existVars = new HashSet<>();
-
+        
         private ExistVarStack(ExistVarStack parent) {
             this.parent = parent;
         }
-
+        
         public void add(String varName) {
             existVars.add(varName);
         }
-
+        
         public boolean exist(String varName) {
             if (existVars.contains(varName)) {
                 return true;
             }
             return parent != null && parent.exist(varName);
         }
-
+        
         public ExistVarStack push() {
             return new ExistVarStack(this);
         }
-
+        
         public ExistVarStack pop() {
             return parent;
         }
     }
-
+    
     // --- typed variable declarations ---
-
+    
     @Override
     public Void visitVariableDeclarator(QLParser.VariableDeclaratorContext ctx) {
         QLParser.VariableInitializerContext variableInitializerContext = ctx.variableInitializer();
@@ -70,7 +70,7 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
         ctx.variableDeclaratorId().accept(this);
         return null;
     }
-
+    
     /**
      * Handle typed variable declarations like {@code int a = 10} or {@code String name = "hello"}.
      * The declared variable is added to the exist stack (for scope tracking) but NOT to assignVars,
@@ -84,9 +84,9 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
         getStack().add(varName);
         return null;
     }
-
+    
     // --- for-each loop variable ---
-
+    
     @Override
     public Void visitForEachStatement(QLParser.ForEachStatementContext ctx) {
         ctx.expression().accept(this);
@@ -96,9 +96,9 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
         pop();
         return null;
     }
-
+    
     // --- assignment expressions ---
-
+    
     @Override
     public Void visitExpression(QLParser.ExpressionContext ctx) {
         QLParser.TernaryExprContext ternaryExprContext = ctx.ternaryExpr();
@@ -106,7 +106,7 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
             ternaryExprContext.accept(this);
             return null;
         }
-
+        
         QLParser.LeftHandSideContext leftHandSideContext = ctx.leftHandSide();
         if (isSimpleVariableLeftHandSide(leftHandSideContext)) {
             String leftVarName = leftHandSideContext.varId().getText();
@@ -116,16 +116,16 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
             getStack().add(leftVarName);
             return null;
         }
-
+        
         leftHandSideContext.accept(this);
         ctx.expression().accept(this);
         return null;
     }
-
+    
     private boolean isSimpleVariableLeftHandSide(QLParser.LeftHandSideContext ctx) {
         return ctx.LPAREN() == null && ctx.pathPart().isEmpty();
     }
-
+    
     /**
      * Handle path-based assignments like {@code x.field = value}.
      * The base variable is added to the exist stack (it must exist to set a field on it),
@@ -140,9 +140,9 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
         }
         return null;
     }
-
+    
     // --- suffix/prefix increment/decrement (e.g. a++, --b) as sub-expressions ---
-
+    
     @Override
     public Void visitPrimary(QLParser.PrimaryContext ctx) {
         QLParser.PrimaryNoFixPathableContext primaryNoFixPathableContext = ctx.primaryNoFixPathable();
@@ -161,11 +161,11 @@ public class AssignVarNamesVisitor extends ScopeStackVisitor {
         }
         return super.visitPrimary(ctx);
     }
-
+    
     private static boolean isModifyOperator(String op) {
         return "++".equals(op) || "--".equals(op);
     }
-
+    
     public Set<String> getAssignVars() {
         return assignVars;
     }

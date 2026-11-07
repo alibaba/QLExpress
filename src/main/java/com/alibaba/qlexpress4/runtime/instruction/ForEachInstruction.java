@@ -70,7 +70,8 @@ public class ForEachInstruction extends QLInstruction {
                     throw (QLRuntimeException)t;
                 }
                 // should not run there
-                throw errorReporter.report(t, QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.name(),
+                throw errorReporter.report(t,
+                    QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.name(),
                     QLErrorCodes.FOR_EACH_UNKNOWN_ERROR.getErrorMsg());
             }
         }

@@ -36,7 +36,7 @@ public class MinusMinusSuffixUnaryOperator extends BaseUnaryOperator {
         if (!(operand instanceof Number)) {
             throw buildInvalidOperandTypeException(value, errorReporter);
         }
-
+        
         if (value instanceof LeftValue) {
             ((LeftValue)value).set(NumberMath.subtract((Number)operand, 1), errorReporter);
         }

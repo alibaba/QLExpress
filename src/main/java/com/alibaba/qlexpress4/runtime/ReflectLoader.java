@@ -406,7 +406,8 @@ public class ReflectLoader {
         if (ex instanceof IllegalArgumentException) {
             return errorReporter.reportFormatWithCatch(ex,
                 QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.name(),
-                QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.getErrorMsg(), methodName);
+                QLErrorCodes.INVOKE_METHOD_WITH_WRONG_ARGUMENTS.getErrorMsg(),
+                methodName);
         }
         else if (ex instanceof InvocationTargetException) {
             return errorReporter.report(((InvocationTargetException)ex).getTargetException(),

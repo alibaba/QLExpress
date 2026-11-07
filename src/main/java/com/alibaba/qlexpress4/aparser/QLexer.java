@@ -437,7 +437,12 @@ public class QLexer {
                 continue;
             }
             if (c == '\'') {
-                add(QuoteStringLiteral, normalizeNewlines(script.substring(start, p)), start, p - 1, startLine, startCol);
+                add(QuoteStringLiteral,
+                    normalizeNewlines(script.substring(start, p)),
+                    start,
+                    p - 1,
+                    startLine,
+                    startCol);
                 return;
             }
         }
@@ -980,7 +985,7 @@ public class QLexer {
     private static String normalizeNewlines(String text) {
         return text.replace("\r\n", "\n").replace("\r", "\n");
     }
-
+    
     private Token currentToken(String text) {
         return new Token(CATCH_ALL, text, p, Math.max(p, p + text.length() - 1), line, col);
     }
