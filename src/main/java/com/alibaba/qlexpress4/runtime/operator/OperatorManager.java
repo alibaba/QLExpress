@@ -117,6 +117,10 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
+        // Unicode comparison operator aliases (issue #414)
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2260", UnequalOperator.getInstance("!=")); // ≠
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2265", GreaterEqualOperator.getInstance()); // ≥
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2264", LessEqualOperator.getInstance()); // ≤
         
         List<UnaryOperator> prefixUnaryOperatorList = new ArrayList<>(8);
         prefixUnaryOperatorList.add(PlusUnaryOperator.getInstance());
@@ -284,15 +288,15 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
     }
     
     public boolean addOperatorAlias(String lexeme, String operator) {
-        BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
-        if (originDefaultOp != null) {
-            BinaryOperator newOperator = adaptOriginOperator(originDefaultOp, lexeme);
-            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
-            return prev == null;
-        }
         BinaryOperator originCusOp = customBinaryOperatorMap.get(operator);
         if (originCusOp != null) {
             BinaryOperator newOperator = adaptOriginOperator(originCusOp, lexeme);
+            BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
+            return prev == null;
+        }
+        BinaryOperator originDefaultOp = DEFAULT_BINARY_OPERATOR_MAP.get(operator);
+        if (originDefaultOp != null) {
+            BinaryOperator newOperator = adaptOriginOperator(originDefaultOp, lexeme);
             BinaryOperator prev = customBinaryOperatorMap.putIfAbsent(lexeme, newOperator);
             return prev == null;
         }

@@ -36,6 +36,7 @@ import com.alibaba.qlexpress4.runtime.context.MapExpressContext;
 import com.alibaba.qlexpress4.runtime.context.ObjectFieldExpressContext;
 import com.alibaba.qlexpress4.runtime.context.QLAliasContext;
 import com.alibaba.qlexpress4.runtime.function.CustomFunction;
+import com.alibaba.qlexpress4.runtime.function.ExtendFieldHandler;
 import com.alibaba.qlexpress4.runtime.function.ExtensionFunction;
 import com.alibaba.qlexpress4.runtime.function.QMethodFunction;
 import com.alibaba.qlexpress4.runtime.instruction.QLInstruction;
@@ -499,6 +500,22 @@ public class Express4Runner {
     }
     
     /**
+     * Register a custom field-access handler bound to {@code bindingClass}, used to access
+     * fields of non-standard containers (e.g. Flink Row, JDBC ResultSet) with the regular
+     * {@code obj.fieldName} syntax. Delegates to {@link ReflectLoader#addExtendFieldHandler}.
+     * <p>
+     * Once a bean is assignable to {@code bindingClass} the handler is authoritative for its
+     * fields: its return value (including {@code null}) is taken as the field value rather than
+     * falling back to Java reflection.
+     *
+     * @param bindingClass the receiver type the handler is bound to
+     * @param fieldHandler the field-access handler
+     */
+    public void addExtendFieldHandler(Class<?> bindingClass, ExtendFieldHandler fieldHandler) {
+        this.reflectLoader.addExtendFieldHandler(bindingClass, fieldHandler);
+    }
+    
+    /**
      * add an extension function with variable arguments.
      * @param name the name of the extension function
      * @param bindingClass the receiver type (class)
@@ -621,10 +638,14 @@ public class Express4Runner {
      * @return QLambdaDefinition and TracePointTrees
      */
     public QCompileCache parseToDefinitionWithCache(String script) {
+        Future<QCompileCache> future = getParseFuture(script);
         try {
-            return getParseFuture(script).get();
+            return future.get();
         }
         catch (Exception e) {
+            // Evict the failed future so the next call can retry compilation.
+            // Uses conditional remove to avoid evicting a replacement inserted by another thread.
+            compileCache.remove(script, future);
             Throwable compileException = e.getCause() != null ? e.getCause() : e;
             throw compileException instanceof QLSyntaxException ? (QLSyntaxException)compileException
                 : new RuntimeException(compileException);

@@ -42,6 +42,10 @@ public class GetFieldInstruction extends QLInstruction {
         }
         Value fieldValue = qContext.getReflectLoader().loadField(bean, fieldName, false, errorReporter);
         if (fieldValue == null) {
+            if (qlOptions.isAvoidNullPointer()) {
+                qContext.push(DataValue.NULL_VALUE);
+                return QResult.NEXT_INSTRUCTION;
+            }
             throw errorReporter.reportFormat(QLErrorCodes.FIELD_NOT_FOUND.name(),
                 QLErrorCodes.FIELD_NOT_FOUND.getErrorMsg(),
                 fieldName);

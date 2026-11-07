@@ -60,6 +60,11 @@ public class NewFilledInstanceInstruction extends QLInstruction {
     
     private Object newInstance(QContext qContext) {
         Constructor<?> constructor = qContext.getReflectLoader().loadConstructor(newCls, new Class[0]);
+        if (constructor == null) {
+            throw errorReporter.reportFormat(QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.name(),
+                QLErrorCodes.NO_SUITABLE_CONSTRUCTOR.getErrorMsg(),
+                "[]");
+        }
         try {
             return constructor.newInstance();
         }

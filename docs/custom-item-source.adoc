@@ -105,6 +105,12 @@ include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[ta
 include::../src/test/java/com/alibaba/qlexpress4/docs/CustomItemsDocTest.java[tag=addOperatorByVarargs]
 ----
 
+=== 多字符符号运算符的词法规则
+
+当自定义运算符由符号字符组成（例如 `**`、`?.`、`*-`）时，词法器会按**最长已注册前缀**规则匹配，而非贪婪合并所有相邻的运算符字符。只有通过 `addOperator`、`addOperatorBiFunction` 等 API 注册过的符号序列才会被合并为一个 OPID token，否则按单个字符拆分。
+
+这保证了诸如 `10*-1`、`5+-3`、`a/-b` 这类"二元运算符后紧跟一元前缀"的表达式能够被正确解析为 `10 * (-1)`、`5 + (-3)`、`a / (-b)`，无需在中间加空格。
+
 == 扩展函数
 
 === 继承ExtensionFunction

@@ -1,5 +1,6 @@
 package com.alibaba.qlexpress4.runtime.operator.base;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.runtime.Nothing;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
@@ -19,8 +21,9 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  */
 public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean isSameType(Value left, Value right) {
-        return left.getTypeName() != null && right.getTypeName() != null
-            && Objects.equals(left.getTypeName(), right.getTypeName());
+        Class<?> leftType = left.getType();
+        Class<?> rightType = right.getType();
+        return rightType != Nothing.class && leftType == rightType;
     }
     
     protected boolean isInstanceofComparable(Value value) {
@@ -313,9 +316,9 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
             return false;
         }
         else if (rightOperand.getClass().isArray()) {
-            Object[] rightArray = (Object[])rightOperand;
-            for (Object rightElement : rightArray) {
-                if (equals(left, new DataValue(rightElement), errorReporter)) {
+            int length = Array.getLength(rightOperand);
+            for (int i = 0; i < length; i++) {
+                if (equals(left, new DataValue(Array.get(rightOperand, i)), errorReporter)) {
                     return true;
                 }
             }
@@ -350,13 +353,13 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
         int sLen = s.length(), pLen = pattern.length();
         int sRecall = -1, pRecall = -1;
         while (sPointer < sLen) {
-            if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
-                sPointer++;
-                pPointer++;
-            }
-            else if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
+            if (pPointer < pLen && pattern.charAt(pPointer) == '%') {
                 sRecall = sPointer;
                 pRecall = pPointer;
+                pPointer++;
+            }
+            else if (pPointer < pLen && (s.charAt(sPointer) == pattern.charAt(pPointer))) {
+                sPointer++;
                 pPointer++;
             }
             else if (sRecall >= 0) {

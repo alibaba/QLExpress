@@ -647,6 +647,12 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         Object result = runner.execute(script, Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS).getResult();
         
         Assert.assertEquals("Hello from PF4J Plugin!", result.toString());
+        
+        script = "import com.alibaba.qlexpress4.pf4j.SameNamedComparable; a = new SameNamedComparable(1); a == b";
+        result =
+            runner.execute(script, Collections.singletonMap("b", new SameNamedComparable(1)), QLOptions.DEFAULT_OPTIONS)
+                .getResult();
+        Assert.assertFalse((Boolean)result);
 ----
 
 自定义 ClassSupplier 的典型应用场景：
@@ -798,6 +804,35 @@ QLExpress4 支持通过自定义 `ClassSupplier` 来指定类加载器，这在�
         assertEquals(3, resultAdd.getResult());
         
 ----
+
+=== 扩展字段取值
+
+默认情况下，`obj.field` 只能读取标准 Java Bean 的字段或 getter。对于 Flink Row、JDBC ResultSet 或者自定义的 MapLike/CollectionLike 等非标准容器，字段取值逻辑是封闭的，用户往往需要先做一次转换拷贝才能在脚本中访问。
+
+通过 `addExtendFieldHandler(Class, ExtendFieldHandler)` 可以给某个类型注册一个自定义的字段取值处理器，让这些非标准容器也能直接用 `obj.field` 语法访问：
+
+[source,java,indent=0]
+----
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // RowLike is a non-standard container whose fields can only be read via getValue(name);
+        // register a handler so it can be accessed with the regular obj.field syntax in scripts.
+        runner.addExtendFieldHandler(RowLike.class, (bean, fieldName) -> ((RowLike)bean).getValue(fieldName));
+        
+        RowLike row = new RowLike(new String[] {"name", "age"}, new Object[] {"张三", 30});
+        Map<String, Object> context = new HashMap<>();
+        context.put("row", row);
+        
+        Object name = runner.execute("row.name", context, QLOptions.DEFAULT_OPTIONS).getResult();
+        Assert.assertEquals("张三", name);
+----
+
+一旦 bean 是绑定类（`bindingClass`）的实例，该处理器就是这个类型字段取值的**权威**来源：它返回什么就是什么，返回 `null` 表示字段的值就是 `null`，而不会回退到默认的 Java 反射逻辑。只有当没有任何处理器的绑定类匹配当前 bean 时，才走默认取值逻辑。因此 `obj.field` 的两种情况可以这样区分：
+
+* bean 的类型没有绑定任何处理器 → 走默认反射逻辑；
+* bean 的类型绑定了处理器但字段值为 `null` → 返回 `null`。
+
+如果某个容器希望对「字段不存在」报错而不是返回 `null`，可以在处理器内部主动抛出异常。
 
 === Java类的对象,字段和方法别名
 
@@ -1587,6 +1622,50 @@ assert(1 + try {
     // Throw a zero-division exception
     11
 } == 12)
+----
+
+=== Unicode 比较运算符
+
+除了标准的 ASCII 比较运算符外，QLExpress 还支持 Unicode 比较运算符，让表达式更加直观：
+
+* `≠` (U+2260) 等价于 `!=`
+* `≥` (U+2265) 等价于 `>=`
+* `≤` (U+2264) 等价于 `<=`
+
+[source,java]
+----
+        // Issue #414: support Unicode comparison operators ≠ (U+2260), ≥ (U+2265), ≤ (U+2264)
+        Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        
+        // Test ≠ (not equal)
+        QLResult neqTrue = express4Runner.execute("1 ≠ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, neqTrue.getResult());
+        QLResult neqFalse = express4Runner.execute("1 ≠ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, neqFalse.getResult());
+        
+        // Test ≥ (greater than or equal)
+        QLResult geTrue = express4Runner.execute("2 ≥ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geTrue.getResult());
+        QLResult geEqual = express4Runner.execute("2 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, geEqual.getResult());
+        QLResult geFalse = express4Runner.execute("1 ≥ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, geFalse.getResult());
+        
+        // Test ≤ (less than or equal)
+        QLResult leTrue = express4Runner.execute("1 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leTrue.getResult());
+        QLResult leEqual = express4Runner.execute("2 ≤ 2", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, leEqual.getResult());
+        QLResult leFalse = express4Runner.execute("2 ≤ 1", Collections.emptyMap(), QLOptions.DEFAULT_OPTIONS);
+        assertEquals(false, leFalse.getResult());
+        
+        // Test mixed with variables
+        Map<String, Object> context = new HashMap<>();
+        context.put("a", 5);
+        context.put("b", 10);
+        QLResult mixedResult = express4Runner.execute("a ≤ b && b ≥ a && a ≠ b",
+            context, QLOptions.DEFAULT_OPTIONS);
+        assertEquals(true, mixedResult.getResult());
 ----
 
 === 短路计算
