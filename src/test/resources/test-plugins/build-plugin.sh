@@ -7,7 +7,8 @@ mkdir -p target/test-plugin-classes
 javac -cp "$(mvn dependency:build-classpath -Dmdep.outputFile=/dev/stdout -q):target/classes" \
       -d target/test-plugin-classes \
       src/test/java/com/alibaba/qlexpress4/pf4j/TestPluginInterface.java \
-      src/test/java/com/alibaba/qlexpress4/pf4j/TestPluginImpl.java
+      src/test/java/com/alibaba/qlexpress4/pf4j/TestPluginImpl.java \
+      src/test/java/com/alibaba/qlexpress4/pf4j/SameNamedComparable.java
 
 # Copy plugin configuration file
 cp src/test/resources/test-plugins/plugin.properties target/test-plugin-classes/

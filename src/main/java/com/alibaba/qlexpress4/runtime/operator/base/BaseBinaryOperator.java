@@ -10,6 +10,7 @@ import com.alibaba.qlexpress4.exception.ErrorReporter;
 import com.alibaba.qlexpress4.exception.QLErrorCodes;
 import com.alibaba.qlexpress4.exception.QLRuntimeException;
 import com.alibaba.qlexpress4.runtime.LeftValue;
+import com.alibaba.qlexpress4.runtime.Nothing;
 import com.alibaba.qlexpress4.runtime.Value;
 import com.alibaba.qlexpress4.runtime.data.DataValue;
 import com.alibaba.qlexpress4.runtime.operator.BinaryOperator;
@@ -20,8 +21,9 @@ import com.alibaba.qlexpress4.runtime.operator.number.NumberMath;
  */
 public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean isSameType(Value left, Value right) {
-        return left.getTypeName() != null && right.getTypeName() != null
-            && Objects.equals(left.getTypeName(), right.getTypeName());
+        Class<?> leftType = left.getType();
+        Class<?> rightType = right.getType();
+        return rightType != Nothing.class && leftType == rightType;
     }
     
     protected boolean isInstanceofComparable(Value value) {
