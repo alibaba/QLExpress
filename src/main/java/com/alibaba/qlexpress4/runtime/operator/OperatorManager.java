@@ -117,6 +117,10 @@ public class OperatorManager implements OperatorFactory, ParserOperatorManager {
         for (BinaryOperator binaryOperator : binaryOperatorList) {
             DEFAULT_BINARY_OPERATOR_MAP.put(binaryOperator.getOperator(), binaryOperator);
         }
+        // Unicode comparison operator aliases (issue #414)
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2260", UnequalOperator.getInstance("!=")); // ≠
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2265", GreaterEqualOperator.getInstance()); // ≥
+        DEFAULT_BINARY_OPERATOR_MAP.put("\u2264", LessEqualOperator.getInstance()); // ≤
         
         List<UnaryOperator> prefixUnaryOperatorList = new ArrayList<>(8);
         prefixUnaryOperatorList.add(PlusUnaryOperator.getInstance());
