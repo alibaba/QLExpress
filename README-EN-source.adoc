@@ -218,6 +218,17 @@ More script-dependency parsing tools:
 * `getOutFunctions` – parses all functions that must be defined externally
 * `getOutVarAttrs` – parses all variables (and the attributes they reference) that must be supplied from outside; an enhanced version of `getOutVarNames`
 
+=== Parsing Assigned Variables in Scripts
+
+`getAssignVarNames` parses all variable names that are assigned (created or updated) in the script, excluding locally-scoped variables such as typed declarations and for-each loop variables.
+
+This API collects variables on the left-hand side of assignment expressions (both plain `=` and compound operators like `+=`) as well as variables modified by increment/decrement operators.
+
+[source,java,indent=0]
+----
+include::./src/test/java/com/alibaba/qlexpress4/Express4RunnerTest.java[tag=getAssignVarNames]
+----
+
 === High-Precision Calculation
 
 QLExpress internally uses BigDecimal to represent all numbers that cannot be precisely represented by double, to represent calculation precision as much as possible:
