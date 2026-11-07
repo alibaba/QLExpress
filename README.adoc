@@ -115,7 +115,7 @@ QLExpress4 支持省略分号，让表达式更加简洁。具体参考 link:#�
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>qlexpress4</artifactId>
-    <version>4.1.3</version>
+    <version>4.1.4</version>
 </dependency>
 ----
 
@@ -379,22 +379,22 @@ QLExpress4 提供了一个方法，可以解析出脚本中所有需要从外部
 [source,java,indent=0]
 ----
         Express4Runner express4Runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
-
+        
         // Simple assignment: 'a' is assigned
         Set<String> assignVars1 = express4Runner.getAssignVarNames("a = b");
         Assert.assertEquals(Collections.singleton("a"), assignVars1);
-
+        
         // Typed declaration: 'a' is a local variable, not a context assignment
         Set<String> assignVars2 = express4Runner.getAssignVarNames("int a = 1;");
         Assert.assertEquals(Collections.emptySet(), assignVars2);
-
+        
         // Multiple assignments with compound operator
         Set<String> assignVars3 = express4Runner.getAssignVarNames("a = 1; b += 1");
         Set<String> expectedSet3 = new HashSet<>();
         expectedSet3.add("a");
         expectedSet3.add("b");
         Assert.assertEquals(expectedSet3, assignVars3);
-
+        
         // Both a and b are assigned (a first, then b using a)
         Set<String> assignVars4 = express4Runner.getAssignVarNames("a = 1; b = a + 1");
         Set<String> expectedSet4 = new HashSet<>();
@@ -1696,8 +1696,7 @@ assert(1 + try {
         Map<String, Object> context = new HashMap<>();
         context.put("a", 5);
         context.put("b", 10);
-        QLResult mixedResult = express4Runner.execute("a ≤ b && b ≥ a && a ≠ b",
-            context, QLOptions.DEFAULT_OPTIONS);
+        QLResult mixedResult = express4Runner.execute("a ≤ b && b ≥ a && a ≠ b", context, QLOptions.DEFAULT_OPTIONS);
         assertEquals(true, mixedResult.getResult());
 ----
 
