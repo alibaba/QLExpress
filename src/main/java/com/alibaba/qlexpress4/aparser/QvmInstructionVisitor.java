@@ -1415,10 +1415,10 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         String operatorId = binaryopContext.getText();
         BaseExprContext rightExpr = ctx.baseExpr();
         // short circuit operator
-        if ("&&".equals(operatorId)) {
+        if ("&&".equals(operatorId) || "and".equals(operatorId)) {
             jumpRightIfExpect(false, opErrReporter, rightExpr, operatorId, binaryopContext.getStart().getStartIndex());
         }
-        else if ("||".equals(operatorId)) {
+        else if ("||".equals(operatorId) || "or".equals(operatorId)) {
             jumpRightIfExpect(true, opErrReporter, rightExpr, operatorId, binaryopContext.getStart().getStartIndex());
         }
         else {
