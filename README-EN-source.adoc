@@ -694,6 +694,9 @@ Common syntax elements like lists (List), mappings (Map), etc. all have very con
 include::./src/test/resources/testsuite/independent/doc/convenient_syntax_elements.ql[]
 ----
 
+Out-of-range list and array indices raise `INDEX_OUT_BOUND`; oversized integers do not wrap around to another element.
+Existing negative-index and fractional-index rules are unchanged. Large integer Map keys are unaffected by this index range check.
+
 Through the `*.` operator, you can quickly process lists and mappings, such as taking properties of list elements, or getting key lists and value lists of mappings:
 
 [source,java]

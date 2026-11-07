@@ -695,6 +695,9 @@ include::./src/test/resources/testsuite/independent/doc/dynamic_typing.ql[]
 include::./src/test/resources/testsuite/independent/doc/convenient_syntax_elements.ql[]
 ----
 
+列表和数组的越界下标会抛出 `INDEX_OUT_BOUND`，超大整数下标不会回绕并访问其他元素。
+负下标和小数下标的既有规则保持不变；Map 的大整数键不受此下标范围校验影响。
+
 通过 `*.` 操作符，可以快捷地对列表和映射进行处理，比如对列表元素进行取属性，或者获得映射的 key 列表和 value 列表：
 
 [source,java]

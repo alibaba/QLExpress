@@ -43,7 +43,8 @@ public class IndexInstruction extends QLInstruction {
                 errorReporter);
             List<? super Object> list = (List<? super Object>)indexAble;
             int intIndex = ValueUtils.javaIndex(list.size(), indexNumber.intValue());
-            if (intIndex < 0 || intIndex >= list.size()) {
+            if (indexNumber.doubleValue() < Integer.MIN_VALUE || indexNumber.doubleValue() > Integer.MAX_VALUE
+                || intIndex < 0 || intIndex >= list.size()) {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(),
                     QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
@@ -60,7 +61,8 @@ public class IndexInstruction extends QLInstruction {
                 errorReporter);
             int arrLen = Array.getLength(indexAble);
             int intIndex = ValueUtils.javaIndex(arrLen, indexNumber.intValue());
-            if (intIndex < 0 || intIndex >= arrLen) {
+            if (indexNumber.doubleValue() < Integer.MIN_VALUE || indexNumber.doubleValue() > Integer.MAX_VALUE
+                || intIndex < 0 || intIndex >= arrLen) {
                 throw errorReporter.report(QLErrorCodes.INDEX_OUT_BOUND.name(),
                     QLErrorCodes.INDEX_OUT_BOUND.getErrorMsg());
             }
