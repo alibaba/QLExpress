@@ -19,6 +19,7 @@ public class LogicOrOperator extends BaseBinaryOperator {
     static {
         INSTANCE_CACHE.put("||", new LogicOrOperator("||"));
         INSTANCE_CACHE.put("or", new LogicOrOperator("or"));
+        INSTANCE_CACHE.put("OR", new LogicOrOperator("OR"));
     }
     
     private final String operator;
