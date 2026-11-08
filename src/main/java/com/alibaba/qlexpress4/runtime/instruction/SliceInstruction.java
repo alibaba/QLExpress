@@ -76,6 +76,10 @@ public class SliceInstruction extends QLInstruction {
         else if (mode == Mode.RIGHT) {
             Object start = qContext.pop().get();
             indexAble = qContext.pop().get();
+            if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+                qContext.push(Value.NULL_VALUE);
+                return QResult.NEXT_INSTRUCTION;
+            }
             startInt =
                 ValueUtils
                     .assertType(start,
@@ -88,6 +92,10 @@ public class SliceInstruction extends QLInstruction {
         }
         else if (mode == Mode.COPY) {
             indexAble = qContext.pop().get();
+            if (indexAble == null && qlOptions.isAvoidNullPointer()) {
+                qContext.push(Value.NULL_VALUE);
+                return QResult.NEXT_INSTRUCTION;
+            }
             endInt = indexAbleLen(indexAble);
         }
         
