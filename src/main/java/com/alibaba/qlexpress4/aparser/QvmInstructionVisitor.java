@@ -114,6 +114,16 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
     
     private int timeoutCheckPoint = -1;
     
+    /**
+     * whether the last processed statement of the most recent {@link #visitBlockStatements}
+     * left a value on the operand stack
+     */
+    private boolean lastStmtLeaveValue = false;
+    
+    public boolean isLastStmtLeaveValue() {
+        return lastStmtLeaveValue;
+    }
+    
     /*
      * main constructor
      */
@@ -209,6 +219,7 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
                 isPreExpress = handleStmt(child);
             }
         }
+        this.lastStmtLeaveValue = isPreExpress;
         
         if (context == Context.BLOCK) {
             if (isPreExpress) {
@@ -519,6 +530,12 @@ public class QvmInstructionVisitor extends QLParserBaseVisitor<Void> {
         
         addInstruction(new NewScopeInstruction(blockErrReporter, blockScopeName));
         blockSubVisitor.getInstructions().forEach(this::pureAddInstruction);
+        if (!blockSubVisitor.isLastStmtLeaveValue()) {
+            // the block body leaves no value on the stack (e.g. its last statement is a
+            // declaration); fill null so that the block expression always evaluates to
+            // exactly one value, same as an empty block and if/else branch bodies
+            pureAddInstruction(new ConstInstruction(blockErrReporter, null, null));
+        }
         addInstruction(new CloseScopeInstruction(blockErrReporter, blockScopeName));
         if (initOptions.isTraceExpression()) {
             pureAddInstruction(new TracePeekInstruction(blockErrReporter, ctx.getStart().getStartIndex()));
