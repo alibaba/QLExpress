@@ -182,7 +182,7 @@ public class TestSuiteRunner {
         Map<String, Object> attachments = new HashMap<>();
         attachments.put(TEST_PATH_ATT, path);
         
-        String qlScript = new String(Files.readAllBytes(qlFile));
+        String qlScript = new String(Files.readAllBytes(qlFile), StandardCharsets.UTF_8);
         // parse testsuite option first
         Optional<Map<String, Object>> scriptOptionOp = parseOption(qlScript);
         Optional<String> errCodeOp = scriptOptionOp.map(scriptOption -> (String)scriptOption.get("errCode"));
