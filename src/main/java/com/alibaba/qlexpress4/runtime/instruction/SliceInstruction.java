@@ -132,8 +132,7 @@ public class SliceInstruction extends QLInstruction {
         if (start >= end) {
             return new ArrayList<>(0);
         }
-        
-        return listObj.subList(start, end);
+        return new ArrayList<>(listObj.subList(start, end));
     }
     
     private Object arraySlice(Object arrObj, int originStart, int originEnd) {
