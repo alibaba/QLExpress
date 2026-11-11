@@ -2470,4 +2470,17 @@ public class Express4RunnerTest {
         // Without spaces: `*-` must be lexed as the registered operator, not split.
         assertEquals(7, runner.execute("10*-3", new HashMap<>(), QLOptions.DEFAULT_OPTIONS).getResult());
     }
+    
+    @Test
+    public void sliceTest() {
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("a", new String[] {"hello", "world", "test"});
+        ctx.put("b", Arrays.asList("hello", "world", "test"));
+        Express4Runner runner = new Express4Runner(InitOptions.DEFAULT_OPTIONS);
+        Object result = runner.execute("x = a[:2]; x[0]= \"HELLO\"; a[0]", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("hello", result);
+        
+        result = runner.execute("x = b[:2]; x[0]= \"HELLO\"; b[0]", ctx, QLOptions.DEFAULT_OPTIONS).getResult();
+        assertEquals("hello", result);
+    }
 }
