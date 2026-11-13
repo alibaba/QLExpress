@@ -299,10 +299,14 @@ public abstract class BaseBinaryOperator implements BinaryOperator {
     protected boolean in(Value left, Value right, ErrorReporter errorReporter) {
         Object rightOperand = right.get();
         Object leftOperand = left.get();
-        if (leftOperand == null && rightOperand == null) {
-            return true;
+        if (rightOperand == null) {
+            return leftOperand == null;
         }
-        else if (leftOperand == null || rightOperand == null) {
+        
+        // A null left operand only matches a null element of a container. It must not reach the
+        // substring branch, where String.valueOf(null) would match the literal text "null".
+        boolean container = rightOperand instanceof Collection || rightOperand.getClass().isArray();
+        if (leftOperand == null && !container) {
             return false;
         }
         

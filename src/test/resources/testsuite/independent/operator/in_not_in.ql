@@ -18,6 +18,26 @@ assertFalse(null in new String[]{"abc", "def", "ghi"});
 assert(null not_in ["abc", "def", "ghi"]);
 assert(null not_in new String[]{"abc", "def", "ghi"});
 
+// A container holding a null element must match a null left operand,
+// consistent with Collection.contains(null) and with `null == null`.
+assert(null in [null]);
+assert(null in [null, 1]);
+assert(null in [1, null]);
+assert(null in new String[]{null});
+assert(null in new String[]{"abc", null});
+assertFalse(null not_in [null]);
+assertFalse(null not_in new String[]{null});
+
+// A null element must not stop the scan for a non-null left operand.
+assert(1 in [null, 1]);
+assertFalse(1 in [null, 2]);
+assert(1 not_in [null, 2]);
+
+// A null left operand must not be stringified into the substring branch,
+// where it would match the literal text "null".
+assertFalse(null in "a null here");
+assert(null not_in "a null here");
+
 assert(1 in [1, 2, 3]);
 assert(1 in new int[]{1, 2, 3});
 
