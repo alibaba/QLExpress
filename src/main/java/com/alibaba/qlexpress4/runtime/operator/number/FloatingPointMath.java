@@ -56,7 +56,13 @@ public final class FloatingPointMath extends NumberMath {
     
     @Override
     public int compareToImpl(Number left, Number right) {
-        return Double.compare(left.doubleValue(), right.doubleValue());
+        double leftVal = left.doubleValue();
+        double rightVal = right.doubleValue();
+        // 0.0 and -0.0 are equal under ==, but not under Double.compare
+        if (leftVal == rightVal) {
+            return 0;
+        }
+        return Double.compare(leftVal, rightVal);
     }
     
     @Override
